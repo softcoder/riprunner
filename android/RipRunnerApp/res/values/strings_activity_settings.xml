@@ -1,0 +1,15 @@
+<resources>
+
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+    <string name="pref_title_host_url">Host URL</string>
+    <string name="pref_default_host_url">http://myhost.com/riprunner/</string>
+
+    <string name="pref_title_sender_id">GCM Sender Id</string>
+    <string name="pref_default_sender_id"></string>
+
+</resources>

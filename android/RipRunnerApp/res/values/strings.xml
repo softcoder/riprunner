@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  - Copyright 2013 Google Inc.
+  -
+  - Licensed under the Apache License, Version 2.0 (the "License"); you may not
+  - use this file except in compliance with the License. You may obtain a copy
+  - of the License at
+  -
+  - http://www.apache.org/licenses/LICENSE-2.0
+  -
+  - Unless required by applicable law or agreed to in writing, software
+  - distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  - WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  - License for the specific language governing permissions and limitations
+  - under the License.
+-->
+<resources>
+
+    <string name="settings">Settings</string>
+    <string name="app_name">Rip Runner</string>
+    <string name="hosturl">Host URL</string>
+    <string name="firehallid">FireHall Id</string>
+    <string name="userid">User</string>
+    <string name="password">Password</string>
+    <string name="login_credentials">Enter login credentials...</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    
+    <string name="clear">Clear</string>
+    <string name="map">Map</string>
+    <string name="respond">Respond</string>
+
+    
+    <string name="login_success">Logged in successfully.</string>
+    <string name="waiting_for_callout">Waiting for callout...</string>
+    <string name="callout_respond_success">You are responding!</string>
+    
+</resources>
