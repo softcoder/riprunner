@@ -18,7 +18,7 @@ Key Features:
   - TextBelt
 - Self Installation
 - User Account management
-- Callout history with responding memebers
+- Callout history with responding members
 - Google Maps showing Distance from Firehall to Incident
 - Ability for members to respond to callout, thus letting other members know who is responding
 - Experimental Native Android App which interfaces to the web application (does not require SMS Gateway)
