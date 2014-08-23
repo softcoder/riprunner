@@ -9,7 +9,31 @@ function addformhiddenfield(form, name, value) {
     p.value = value;
 }
 
+function checkRequiredField(field,fieldDisplayName) {
+	var x=field.value;  
+	if (x==null || x=="") {
+		alert("Please fill out the " + fieldDisplayName);
+		field.focus();
+		return false;
+	}
+	return true;
+}
+
 function formhash(form, password) {
+	
+	if(checkRequiredField(document.forms["login_form"]["firehall_id"],
+			document.forms["login_form"]["firehall_id"].placeholder) == false) {
+		return false;
+	}
+	if(checkRequiredField(document.forms["login_form"]["user_id"],
+			document.forms["login_form"]["user_id"].placeholder) == false) {
+		return false;
+	}
+	if(checkRequiredField(document.forms["login_form"]["password"],
+			document.forms["login_form"]["password"].placeholder) == false) {
+		return false;
+	}
+	
     // Create a new element input, this will be our hashed password field. 
     var p = document.createElement("input");
  
@@ -25,6 +49,7 @@ function formhash(form, password) {
  
     // Finally submit the form. 
     form.submit();
+    return true;
 }
  
 function regformhash(form, uid, email, password, conf) {

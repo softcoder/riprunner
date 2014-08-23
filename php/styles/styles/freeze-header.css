@@ -1,0 +1,40 @@
+.wrap {
+    #width: 100%;
+}
+
+.wrap table {
+    #width: 100%;
+    table-layout: fixed;
+    margin: 0 auto;
+}
+
+table tr td {
+    padding: 5px;
+    border: 1px solid #eee;
+    #width: 100%;
+    word-wrap: break-word;
+}
+
+# table.head tr td {
+#     background: #eee;
+# }
+
+table.head {
+    padding-right: 15px;
+    margin: 0 auto;
+}
+
+table.head-no-pad {
+}
+
+.column_nowrap {
+	white-space: nowrap;
+	#width: 100%;
+}
+
+.inner_table {
+	#width: 100%;
+    height: 600px;
+    overflow-y: auto;
+    margin: 0 auto;
+}       

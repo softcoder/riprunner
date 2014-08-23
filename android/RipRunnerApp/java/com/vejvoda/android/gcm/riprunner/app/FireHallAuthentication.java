@@ -47,5 +47,8 @@ public class FireHallAuthentication {
 	public boolean getRegisteredBackend() {
 		return registered_backend;
 	}
+	public void setRegisteredBackend(boolean value) {
+		registered_backend = value;
+	}
 		
 }

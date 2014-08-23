@@ -8,6 +8,8 @@ error_reporting(E_ALL);
 define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
+require_once( 'firehall_parsing.php' );
+require_once( 'firehall_signal_callout.php' );
 
 $registration_id = get_query_param('rid');
 $firehall_id = get_query_param('fhid');
@@ -102,6 +104,37 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 			else {
 				echo "OK=?";
 			}
+			
+			// Check if there is an active callout (within last 48 hours) and if so send the details
+			$sql = 'SELECT * FROM callouts' .  
+					' WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= 48' .
+					' ORDER BY id DESC LIMIT 1;';
+			$sql_result = $db_connection->query( $sql );
+			if($sql_result == false) {
+				printf("Error: %s\n", mysqli_error($db_connection));
+				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+			}
+			
+			if($row = $sql_result->fetch_object()) {
+				
+				$callDateTimeNative = $row->calltime;
+				$callCode = $row->calltype;
+				$callAddress = $row->address;
+				$callGPSLat = $row->latitude; 
+				$callGPSLong = $row->longitude;
+				$callUnitsResponding = $row->units;
+				$callType = convertCallOutTypeToText($callCode);
+				$callout_id = $row->id; 
+				$callKey = $row->call_key;
+				$callStatus = $row->status;
+								
+				signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
+					$callCode, $callAddress, $callGPSLat, $callGPSLong,
+					$callUnitsResponding, $callType, $callout_id, $callKey,
+					$callStatus,$registration_id,$db_connection);
+				
+			}
+			$sql_result->close();
 		}
 		
 		if($db_connection != null) {

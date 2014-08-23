@@ -6,8 +6,12 @@ package com.vejvoda.android.gcm.riprunner.app;
 
 import com.vejvoda.android.gcm.riprunner.app.R;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -61,15 +65,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.SoundPool;
 
 /**
  * Main UI for the demo app.
  */
-public class AppMainActivity extends ActionBarActivity implements LocationListener {
+public class AppMainActivity extends ActionBarActivity implements
+		GooglePlayServicesClient.ConnectionCallbacks,
+		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
     public static final String PROPERTY_REG_ID = "registration_id";
         
@@ -82,6 +86,35 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
+    public enum CalloutStatusType {
+		Paged(0),
+		Notified(1),
+		Responding(2),
+		Cancelled(3),
+		Complete(10);
+		
+		private int value;
+
+        private CalloutStatusType(int value) {
+                this.value = value;
+        }
+        public int valueOf() {
+            return this.value;
+        }
+        public boolean isComplete() {
+    		return (this.value == CalloutStatusType.Cancelled.valueOf() ||
+    				this.value == CalloutStatusType.Complete.valueOf());
+        	
+        }
+        static public boolean isComplete(String status) {
+    		return (status != null &&
+    				(status.equals(CalloutStatusType.Cancelled.valueOf()) ||
+    				(status.equals(CalloutStatusType.Complete.valueOf()))));
+        	
+        }
+        
+    };
+    
     /**
      * Substitute you own sender ID here. This is the project number you got
      * from the API Console of Google GCM, as described in "Getting Started."
@@ -99,6 +132,7 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
     GoogleCloudMessaging gcm;
     AtomicInteger msgId = new AtomicInteger();
     Context context;
+    MenuItem logout_menu = null;
 
     static final int SETTINGS_RESULT = 1;
     ProgressDialog loadingDlg = null;
@@ -121,25 +155,24 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
 
     private BroadcastReceiver bReceiver = null;
     
-    // flag for GPS status
-    boolean isGPSEnabled = false;
- 
-    // flag for network status
-    boolean isNetworkEnabled = false;
- 
-    boolean canGetLocation = false;    
-    Location location; // location
-    double latitude; // latitude
-    double longitude; // longitude
- 
-    // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
- 
-    // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
- 
-    // Declaring a Location Manager
-    protected LocationManager locationManager;
+    // The location client that receives GPS location updates
+    LocationClient mLocationClient = null;
+    // Milliseconds per second
+    private static final int MILLISECONDS_PER_SECOND = 1000;
+    // Update frequency in seconds
+    public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
+    // Update frequency in milliseconds
+    private static final long UPDATE_INTERVAL =
+            MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
+    // The fastest update frequency, in seconds
+    private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
+    // A fast frequency ceiling in milliseconds
+    private static final long FASTEST_INTERVAL =
+            MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
+    
+    // Define an object that holds accuracy and frequency parameters
+    LocationRequest mLocationRequest;    
+    boolean mUpdatesRequested = true;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -169,10 +202,11 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
         
         // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
         if (checkPlayServices()) {
-            
+        	
+        	setupGPSTracking();
+        	
         	if(hasConfigItem(context,PROPERTY_WEBSITE_URL) && hasConfigItem(context,PROPERTY_SENDER_ID)) {
         		
-        		//etHostUrl.setText(getConfigItem(context,PROPERTY_WEBSITE_URL));
 	            etFhid.setText(getConfigItem(context,PROPERTY_FIREHALL_ID));
 	            etUid.setText(getConfigItem(context,PROPERTY_USER_ID));
         	}
@@ -189,6 +223,27 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
         etUid.requestFocus();
         etFhid.requestFocus();
     }
+
+	void setupGPSTracking() {
+		if(mLocationRequest == null) {
+			// Create the LocationRequest object
+			mLocationRequest = LocationRequest.create();
+			// Use high accuracy
+			mLocationRequest.setPriority(
+			        LocationRequest.PRIORITY_HIGH_ACCURACY);
+			// Set the update interval to 5 seconds
+			mLocationRequest.setInterval(UPDATE_INTERVAL);
+			// Set the fastest update interval to 1 second
+			mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+		}		
+		if(mLocationClient == null) {
+			/*
+			 * Create a new location client, using the enclosing class to
+			 * handle callbacks.
+			 */
+			mLocationClient = new LocationClient(this, this, this);
+		}
+	}
 
 	void setupOnFocusListeners() {
 		
@@ -239,11 +294,19 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
         txtMsg.setText(getResources().getString(R.string.login_credentials));
     	
         Button btnLogin = (Button)findViewById(R.id.btnLogin);
-        btnLogin.setText(getResources().getString(R.string.login));
+        //btnLogin.setText(getResources().getString(R.string.login));
+        btnLogin.setEnabled(true);
+        btnLogin.setVisibility(View.VISIBLE);
+        
         Button btnMap = (Button)findViewById(R.id.btnMap);
         btnMap.setEnabled(false);
+        btnMap.setVisibility(View.INVISIBLE);
         Button btnRespond = (Button)findViewById(R.id.btnRespond);
         btnRespond.setEnabled(false);
+        btnRespond.setVisibility(View.INVISIBLE);
+        Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+        btnCompleteCall.setEnabled(false);
+        btnCompleteCall.setVisibility(View.INVISIBLE);
         
         EditText etFhid = (EditText)findViewById(R.id.etFhid);
         etFhid.setText(getResources().getString(R.string.firehallid));
@@ -255,7 +318,44 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
         etUpw.setText("");
         etUpw.setVisibility(View.VISIBLE);
     }
+
+    @Override
+    protected void onStart() {
+    	super.onStart();
+        // Connect the client.
+        mLocationClient.connect();
+    }
+
+    /*
+     * Called when the Activity is no longer visible at all.
+     * Stop updates and disconnect.
+     */
+    @Override
+    protected void onStop() {
+        // If the client is connected
+        if (mLocationClient.isConnected()) {
+            /*
+             * Remove location updates for a listener.
+             * The current Activity is the listener, so
+             * the argument is "this".
+             */
+            //removeLocationUpdates(this);
+        }
+        /*
+         * After disconnect() is called, the client is
+         * considered "dead".
+         */
+        mLocationClient.disconnect();
+        super.onStop();
+    }
     
+    @Override
+    protected void onPause() {
+        // Save the current setting for updates
+        //mEditor.putBoolean("KEY_UPDATES_ON", mUpdatesRequested);
+        //mEditor.commit();
+        super.onPause();
+    }    
     @Override
     protected void onResume() {
         super.onResume();
@@ -402,6 +502,7 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
                     // If there is an error, don't just keep trying to register.
                     // Require the user to click a button again, or perform
                     // exponential back-off.
+                    Log.e("registerInBackground()::doInBackground()", "Error", ex);
                 }
                 return msg;
             }
@@ -419,7 +520,7 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
      * Stores the registration ID and the app versionCode in the application's
      * shared preferences.
      */
-    private void respondInBackground() {
+    private void respondInBackground(final CalloutStatusType statusType) {
         new AsyncTask<Void, Void, String>() {
         	
         	@Override
@@ -438,13 +539,14 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
                 try {
                     // You should send the registration ID to your server over HTTP, so it
                     // can use GCM/HTTP or CCS to send messages to your app.
-                    sendResponseToBackend(auth);
+                    sendResponseToBackend(auth,statusType);
                 } 
                 catch (IOException ex) {
                     msg = "Error :" + ex.getMessage();
                     // If there is an error, don't just keep trying to register.
                     // Require the user to click a button again, or perform
                     // exponential back-off.
+                    Log.e("respondInBackground()::doInBackground()", "Error statusType" + statusType, ex);
                 }
                 return msg;
             }
@@ -466,18 +568,8 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
                 	
                     // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
                     if (checkPlayServices()) {
-                    	if(auth == null) {
+                    	if(isLoggedIn() == false) {
                     		registerInBackground();
-                    	}
-                    	else {
-                    		stopGPSTracking();
-                    		
-        		            runOnUiThread(new Runnable() {
-        		                public void run() {
-        		                	setupLoginUI();
-        		                	playSound(context,FireHallSoundPlayer.SOUND_DINGLING);
-        		               }
-        		            });       
                     	}
                     } 
                     else {
@@ -493,38 +585,7 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
             }.execute(null, null, null);
         }
         else if (view == findViewById(R.id.btnMap)) {
-			try {
-				String uri = String.format(Locale.ENGLISH, "geo:%s,%s?q=%s", 
-						URLEncoder.encode(lastCallout.getGPSLat(), "utf-8"), 
-						URLEncoder.encode(lastCallout.getGPSLong(), "utf-8"),
-						URLEncoder.encode(lastCallout.getMapAddress(), "utf-8"));
-				
-	        	Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-	        	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	        	if (intent.resolveActivity(getPackageManager()) != null) {
-	        		context.startActivity(intent);
-	        	}
-	        	else {
-	        		uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?&daddr=%s,%s (%s)", 
-	        				URLEncoder.encode(lastCallout.getGPSLat(), "utf-8"), 
-	        				URLEncoder.encode(lastCallout.getGPSLong(), "utf-8"), 
-	        				URLEncoder.encode(lastCallout.getMapAddress(), "utf-8"));
-	                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-	                intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
-	                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	                try {
-	                	context.startActivity(intent);
-	                }
-	                catch(ActivityNotFoundException innerEx) {
-	                    Toast.makeText(this, "Please install a maps application", Toast.LENGTH_LONG).show();
-	                }
-	        	}
-			} 
-			catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				//e.printStackTrace();
-				Toast.makeText(this, "UnsupportedEncodingException: " + e.getMessage(), Toast.LENGTH_LONG).show();
-			}
+			handleCalloutMapView();
         }
         else if (view == findViewById(R.id.btnRespond)) {
             new AsyncTask<Void, Void, String>() {
@@ -533,8 +594,8 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
 
                     // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
                     if (checkPlayServices()) {
-                    	if(auth != null) {
-                    		respondInBackground();
+                    	if(isLoggedIn()) {
+                    		respondInBackground(CalloutStatusType.Responding);
                     	}
                     } 
                     else {
@@ -549,12 +610,76 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
                 }
             }.execute(null, null, null);
         }
-        else if (view == findViewById(R.id.btnClear)) {
-            mDisplay.setText("");
-            stopGPSTracking();
+        else if (view == findViewById(R.id.btnCompleteCall)) {
+            new AsyncTask<Void, Void, String>() {
+                @Override
+                protected String doInBackground(Void... params) {
+
+                    // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
+                    if (checkPlayServices()) {
+                    	if(isLoggedIn()) {
+                    		respondInBackground(CalloutStatusType.Complete);
+                    	}
+                    } 
+                    else {
+                        Log.i(TAG, "No valid Google Play Services APK found.");
+                    }
+                	return "";
+                }
+
+                @Override
+                protected void onPostExecute(String msg) {
+                    mDisplay.append(msg + "\n");
+                }
+            }.execute(null, null, null);
         }
     }
 
+    private void handleCalloutMapView() {
+    	try {
+//			String uri = String.format(Locale.ENGLISH, "geo:%s,%s?q=%s", 
+//					URLEncoder.encode(lastCallout.getGPSLat(), "utf-8"), 
+//					URLEncoder.encode(lastCallout.getGPSLong(), "utf-8"),
+//					URLEncoder.encode(lastCallout.getMapAddress(), "utf-8"));
+//			
+//        	Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+//        	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    		
+    		String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s,%s (%s)", 
+					URLEncoder.encode(lastCallout.getGPSLat(), "utf-8"), 
+					URLEncoder.encode(lastCallout.getGPSLong(), "utf-8"),
+					URLEncoder.encode(lastCallout.getMapAddress(), "utf-8"));
+    		Intent intent = new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uri));
+    		intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+    		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            
+        	if (intent.resolveActivity(getPackageManager()) != null) {
+        		context.startActivity(intent);
+        	}
+        	else {
+        		uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?&daddr=%s,%s (%s)", 
+        				URLEncoder.encode(lastCallout.getGPSLat(), "utf-8"), 
+        				URLEncoder.encode(lastCallout.getGPSLong(), "utf-8"), 
+        				URLEncoder.encode(lastCallout.getMapAddress(), "utf-8"));
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                try {
+                	context.startActivity(intent);
+                }
+                catch(ActivityNotFoundException innerEx) {
+                	Log.e("main::onClick map", "Error", innerEx);
+                    Toast.makeText(this, "Please install a maps application", Toast.LENGTH_LONG).show();
+                }
+        	}
+		} 
+		catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			Log.e("main::onClick map2", "Error", e);
+			Toast.makeText(this, "UnsupportedEncodingException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+		}    	
+    }
+    
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -573,6 +698,7 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
         } 
         catch (NameNotFoundException e) {
             // should never happen
+        	Log.e("getAppVersion()", "Error", e);
             throw new RuntimeException("Could not get package name: " + e);
         }
     }
@@ -615,15 +741,21 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
             final String responseString = out.toString();
             if(responseString != null && responseString.startsWith("OK=")) {
 	            storeConfigItem(context, PROPERTY_USER_ID, auth.getUserId());
+	            auth.setRegisteredBackend(true);
 	            
 	            runOnUiThread(new Runnable() {
 	                public void run() {
 	                	
 	                    Button btnLogin = (Button)findViewById(R.id.btnLogin);
-	                    btnLogin.setText(getResources().getString(R.string.logout));
+	                    //btnLogin.setText(getResources().getString(R.string.logout));
+	                    btnLogin.setEnabled(false);
+	                    btnLogin.setVisibility(View.INVISIBLE);
 	                	
 	                    TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
 	                    txtMsg.setText(getResources().getString(R.string.login_success));
+
+	                    // Enable when debugging
+	                    //mDisplay.setText(responseString);
 	                    
 	                    EditText etFhid = (EditText)findViewById(R.id.etFhid);
 	                    etFhid.setText("");
@@ -685,16 +817,17 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
      * @throws IOException 
      * @throws ClientProtocolException 
      */
-    private void sendResponseToBackend(FireHallAuthentication auth) throws ClientProtocolException, IOException {
+    private void sendResponseToBackend(FireHallAuthentication auth,
+    		final CalloutStatusType statusType) throws ClientProtocolException, IOException {
     	
     	List<NameValuePair> params = new LinkedList<NameValuePair>();
     	params.add(new BasicNameValuePair("cid", lastCallout.getCalloutId()));
     	params.add(new BasicNameValuePair("fhid", auth.getFirehallId()));
     	params.add(new BasicNameValuePair("uid", auth.getUserId()));
     	params.add(new BasicNameValuePair("upwd", auth.getUserPassword()));
-    	params.add(new BasicNameValuePair("lat", String.valueOf(getLatitude())));
-    	params.add(new BasicNameValuePair("long", String.valueOf(getLongitude())));
-    	params.add(new BasicNameValuePair("status", "1"));
+   		params.add(new BasicNameValuePair("lat", String.valueOf(getLastGPSLatitude())));
+   		params.add(new BasicNameValuePair("long", String.valueOf(getLastGPSLongitude())));
+    	params.add(new BasicNameValuePair("status", String.valueOf(statusType.valueOf())));
     	
     	String paramString = URLEncodedUtils.format(params, "utf-8");
     	String URL = auth.getHostURL() + "cr.php?" + paramString;
@@ -714,6 +847,7 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
 	                public void run() {
 	                	
 	                    Button btnRespond = (Button)findViewById(R.id.btnRespond);
+	                    btnRespond.setVisibility(View.VISIBLE);
 	                    btnRespond.setEnabled(false);
 	                	
 	                    TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
@@ -730,7 +864,7 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
                     public void run() {
                         
                         TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-                        txtMsg.setText("Invalid server response: " + responseString);
+                        txtMsg.setText("Invalid server response: " + (responseString != null ? responseString : "null"));
                         
                         showProgressDialog(false, null);
                    }
@@ -748,7 +882,7 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
                 public void run() {
                     
                     TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-                    txtMsg.setText("Error during server response: " + errorText);
+                    txtMsg.setText("Error during server response: " + (errorText != null ? errorText : "null"));
                     
                     showProgressDialog(false, null);
                }
@@ -778,148 +912,117 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
     }
 
     public void stopGPSTracking() {
-    	if(locationManager != null) {
-    		locationManager.removeUpdates(AppMainActivity.this); 
-    		locationManager = null;
-    	}
     }
-    
-    public Location getLocation() {
-        try {
-        	if(locationManager == null) {
-	            locationManager = (LocationManager) context
-	                    .getSystemService(LOCATION_SERVICE);
-        	}
- 
-            // getting GPS status
-            isGPSEnabled = locationManager
-                    .isProviderEnabled(LocationManager.GPS_PROVIDER);
- 
-            // getting network status
-            isNetworkEnabled = locationManager
-                    .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
- 
-            if (!isGPSEnabled && !isNetworkEnabled) {
-                // no network provider is enabled
-            } 
-            else {
-            	
-                this.canGetLocation = true;
-                
-                // First get location from Network Provider
-                if (isNetworkEnabled) {
-                    locationManager.requestLocationUpdates(
-                            LocationManager.NETWORK_PROVIDER,
-                            MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                    
-                    Log.d("Network", "Network");
-                    
-                    if (locationManager != null) {
-                        location = locationManager
-                                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                        if (location != null) {
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-                        }
-                    }
-                }
-                
-                // if GPS Enabled get lat/long using GPS Services
-                if (isGPSEnabled) {
-                    if (location == null) {
-                        locationManager.requestLocationUpdates(
-                                LocationManager.GPS_PROVIDER,
-                                MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                        
-                        Log.d("GPS Enabled", "GPS Enabled");
-                        
-                        if (locationManager != null) {
-                            location = locationManager
-                                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                            if (location != null) {
-                                latitude = location.getLatitude();
-                                longitude = location.getLongitude();
-                            }
-                        }
-                    }
-                }
-            }
-        } 
-        catch (Exception e) {
-            e.printStackTrace();
-        }
- 
-        return location;
-    }
-    
-    /**
-     * Function to get latitude
-     * */
-    public double getLatitude() {
-        if(location != null){
-            latitude = location.getLatitude();
-        }
-         
-        // return latitude
-        return latitude;
-    }
-     
-    /**
-     * Function to get longitude
-     * */
-    public double getLongitude() {
-        if(location != null){
-            longitude = location.getLongitude();
-        }
-         
-        // return longitude
-        return longitude;
-    }
-    
-    /**
-     * Function to check if best network provider
-     * @return boolean
-     * */
-    public boolean canGetLocation() {
-        return this.canGetLocation;
-    }
-    
-	@Override
-	public void onLocationChanged(Location location) {
-	}
-
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-	}
-
-	@Override
-	public void onProviderEnabled(String provider) {
-	}
-
-	@Override
-	public void onProviderDisabled(String provider) {
-	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    // Inflate the menu items for use in the action bar
 	    MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.main_activity_actions, menu);
+	    logout_menu = (MenuItem) menu.findItem(R.id.action_logout);
 	    return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu (Menu menu) {
+	
+		logout_menu.setEnabled(isLoggedIn()); // here pass the index of save menu item
+		return super.onPrepareOptionsMenu(menu);
 	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle presses on the action bar items
 	    switch (item.getItemId()) {
+	        case R.id.action_logout:
+	            logout();
+	            return true;
+	        case R.id.action_clear:
+	            clearUI();
+	            return true;
+	        case R.id.action_mapmygps:
+	            mapCurrentLocation();
+	            return true;
+	    
 	        case R.id.action_settings:
 	            openSettings();
 	            return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
+	}
+
+	private void mapCurrentLocation() {
+    	try {
+    		
+//			String uri = String.format(Locale.ENGLISH, "geo:%s,%s?q=%s", 
+//					URLEncoder.encode(lastCallout.getGPSLat(), "utf-8"), 
+//					URLEncoder.encode(lastCallout.getGPSLong(), "utf-8"),
+//					URLEncoder.encode(lastCallout.getMapAddress(), "utf-8"));
+//			
+//        	Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+//        	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            
+    		String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?q=%s,%s", 
+					URLEncoder.encode(String.valueOf(getLastGPSLatitude()), "utf-8"), 
+					URLEncoder.encode(String.valueOf(getLastGPSLongitude()), "utf-8"));
+    		Intent intent = new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uri));
+    		intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+    		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            
+        	if (intent.resolveActivity(getPackageManager()) != null) {
+        		context.startActivity(intent);
+        	}
+        	else {
+        		uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?q=%s,%s", 
+    					URLEncoder.encode(String.valueOf(getLastGPSLatitude()), "utf-8"), 
+    					URLEncoder.encode(String.valueOf(getLastGPSLongitude()), "utf-8"));
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                try {
+                	context.startActivity(intent);
+                }
+                catch(ActivityNotFoundException innerEx) {
+                	Log.e("main::onClick map", "Error", innerEx);
+                    Toast.makeText(this, "Please install a maps application", Toast.LENGTH_LONG).show();
+                }
+        	}
+		} 
+		catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			Log.e("main::onClick map2", "Error", e);
+			Toast.makeText(this, "UnsupportedEncodingException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+		}
+	}
+	
+	private boolean isLoggedIn() {
+		return(auth != null && auth.getRegisteredBackend());
+	}
+	
+	private void logout() {
+        // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
+        if (checkPlayServices()) {
+        	if(auth != null) {
+        		//stopGPSTracking();
+        		
+	            runOnUiThread(new Runnable() {
+	                public void run() {
+	                	setupLoginUI();
+	                	
+	                	playSound(context,FireHallSoundPlayer.SOUND_DINGLING);
+	               }
+	            });       
+        	}
+        } 
+        else {
+            Log.i(TAG, "No valid Google Play Services APK found.");
+        }
+	}
+	
+	private void clearUI() {
+        mDisplay.setText("");
+        //stopGPSTracking();
 	}
 	
 	private void openSettings() {
@@ -959,50 +1062,99 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
 							JSONObject json = new JSONObject( serviceJsonString );
 							
 							if(json.has("CALLOUT_MSG")) {
-								String calloutMsg = URLDecoder.decode(json.getString("CALLOUT_MSG"), "utf-8");
-								
-				            	mDisplay = (TextView) findViewById(R.id.display);
-				            	mDisplay.setText(calloutMsg);
-			
-				            	String gpsLatStr = URLDecoder.decode(json.getString("call-gps-lat"), "utf-8");
-				            	String gpsLongStr = URLDecoder.decode(json.getString("call-gps-long"), "utf-8");
+								final String calloutMsg = URLDecoder.decode(json.getString("CALLOUT_MSG"), "utf-8");
+
+			            		String gpsLatStr = "";
+			            		String gpsLongStr = "";
 				            	
+				            	try {
+				            		gpsLatStr = URLDecoder.decode(json.getString("call-gps-lat"), "utf-8");
+				            		gpsLongStr = URLDecoder.decode(json.getString("call-gps-long"), "utf-8");
+				            	}
+				            	catch(Exception e) {
+				            		Log.e("getBroadCastReceiver()", calloutMsg, e);
+				            		
+									throw new RuntimeException("Could not parse JSON data: " + e);
+				            	}
 								lastCallout = new FireHallCallout(
 										URLDecoder.decode(json.getString("call-id"), "utf-8"),
 										gpsLatStr,gpsLongStr,
 										URLDecoder.decode(json.getString("call-address"), "utf-8"),
 										URLDecoder.decode(json.getString("call-map-address"), "utf-8"),
-										URLDecoder.decode(json.getString("call-units"), "utf-8"));
-			
-				            	playSound(context,FireHallSoundPlayer.SOUND_PAGER_TONE_PG);
-				            	
-				            	getLocation();
+										URLDecoder.decode(json.getString("call-units"), "utf-8"),
+										URLDecoder.decode(json.getString("call-status"), "utf-8"));
 				            	
 				                runOnUiThread(new Runnable() {
 				                    public void run() {
+
+						            	mDisplay = (TextView) findViewById(R.id.display);
+						            	mDisplay.setText(calloutMsg);
+				                    	
+						            	playSound(AppMainActivity.this.context,FireHallSoundPlayer.SOUND_PAGER_TONE_PG);
+				                    	
 				                        Button btnMap = (Button)findViewById(R.id.btnMap);
+				                        btnMap.setVisibility(View.VISIBLE);
 				                        btnMap.setEnabled(true);
 				                        
 				                        Button btnRespond = (Button)findViewById(R.id.btnRespond);
+				                        btnRespond.setVisibility(View.VISIBLE);
 				                        btnRespond.setEnabled(true);
+				                        
+	    				            	if(CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
+			    			                    Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+			    			                    btnCompleteCall.setVisibility(View.VISIBLE);
+			    			                    btnCompleteCall.setEnabled(true);
+	    				            	}
+	    				            	else {
+		    			                    Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+		    			                    btnCompleteCall.setVisibility(View.VISIBLE);
+		    			                    btnCompleteCall.setEnabled(false);
+	    				            	}
 				                   }
 				                });
 							}
 							else if(json.has("CALLOUT_RESPONSE_MSG")) {
-								String calloutMsg = URLDecoder.decode(json.getString("CALLOUT_RESPONSE_MSG"), "utf-8");
-		
-				            	mDisplay = (TextView) findViewById(R.id.display);
-				            	mDisplay.append(calloutMsg);
-			
-				            	playSound(context,FireHallSoundPlayer.SOUND_DINGLING);
+								final String calloutMsg = URLDecoder.decode(json.getString("CALLOUT_RESPONSE_MSG"), "utf-8");
+					
+								String callout_id = URLDecoder.decode(json.getString("call-id"), "utf-8");
+								String callout_status = URLDecoder.decode(json.getString("user-status"), "utf-8");
+								if(lastCallout != null) {
+									if(lastCallout.getCalloutId() == callout_id) {
+										if(lastCallout.getStatus() != callout_status) {
+											lastCallout.setStatus(callout_status);
+										}
+									}
+								}
+	        		            runOnUiThread(new Runnable() {
+	        		                public void run() {
+	    				            	mDisplay = (TextView) findViewById(R.id.display);
+	    				            	mDisplay.append(calloutMsg);
+
+	    				            	if(CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
+		    			                    Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+		    			                    btnCompleteCall.setVisibility(View.VISIBLE);
+		    			                    btnCompleteCall.setEnabled(true);
+	    				            	}
+	    				            	else {
+		    			                    Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+		    			                    btnCompleteCall.setVisibility(View.VISIBLE);
+		    			                    btnCompleteCall.setEnabled(false);
+	    				            	}
+	    				            	
+	        		                	playSound(AppMainActivity.this.context,FireHallSoundPlayer.SOUND_DINGLING);
+	        		               }
+	        		            });       
 							}
 						}
 		            	catch (JSONException e) {
 							//e.printStackTrace();
+		            		Log.e("getBroadCastReceiver()", serviceJsonString, e);
+		            		
 							throw new RuntimeException("Could not parse JSON data: " + e);
 						}
 		            	catch (UnsupportedEncodingException e) {
 							//e.printStackTrace();
+		            		Log.e("getBroadCastReceiver()", serviceJsonString, e);
 							throw new RuntimeException("Could not decode JSON data: " + e);
 		            	}
 		            }
@@ -1033,6 +1185,57 @@ public class AppMainActivity extends ActionBarActivity implements LocationListen
        // play sound with same right and left volume, with a priority of 1, 
        // zero repeats (i.e play once), and a playback rate of 1f
        soundPool.play(soundPoolMap.get(soundID), volume, volume, 1, 0, 1f);
-    }   
-    
+    }
+
+	@Override
+	public void onConnectionFailed(ConnectionResult arg0) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onConnected(Bundle arg0) {
+		// Display the connection status
+        Toast.makeText(this, "GPS Connected", Toast.LENGTH_SHORT).show();
+
+        // If already requested, start periodic updates
+        if (mUpdatesRequested) {
+            mLocationClient.requestLocationUpdates(mLocationRequest, this);
+        }		
+	}
+
+	@Override
+	public void onDisconnected() {
+		// Display the connection status
+        Toast.makeText(this, "GPS Disconnected.",Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+    public void onLocationChanged(Location location) {
+		//this.location = location;
+		// Report to the UI that the location was updated
+		
+		// Debug GPS values
+//        String msg = "Updated GPS Location: " +
+//                Double.toString(location.getLatitude()) + "," +
+//                Double.toString(location.getLongitude());
+//        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+	}
+
+	double getLastGPSLatitude() {
+		if(mLocationClient == null) {
+			return 0;
+		}
+        Location location = mLocationClient.getLastLocation();
+        double lat = (location != null ? location.getLatitude() : 0);
+        return lat;
+	}
+	double getLastGPSLongitude() {
+		if(mLocationClient == null) {
+			return 0;
+		}
+
+		Location location = mLocationClient.getLastLocation();
+        double lng = (location != null ? location.getLongitude() : 0);
+        return lng;
+	}
 }

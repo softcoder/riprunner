@@ -29,7 +29,6 @@
         android:targetSdkVersion="19" />
 
     <!-- GPS location aware -->
- -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <!-- GCM connects to Google Services. -->

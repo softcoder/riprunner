@@ -28,7 +28,7 @@ $debug_registration = false;
 // $user_pwd = 'X';
 // $user_lat = '54.0882631';
 // $user_long = '-122.5894245';
-// $user_status = '1';
+// $user_status = CalloutStatusType::Notified;
 
 if($debug_registration) echo "fhid = $firehall_id cid = $callout_id uid = $user_id ckid = $callkey_id" . PHP_EOL;
 
@@ -67,9 +67,8 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 		$useracctid = null;
 		$user_authenticated = false;
 		if($row = $sql_result->fetch_object()) {
-			if(isset($callkey_id)) {
+			if(isset($callkey_id) && $callkey_id != null) {
 				// Validate the the callkey is legit
-				// !!! TODO
 				$sql_callkey = 'SELECT * FROM callouts WHERE id = ' .
 						$db_connection->real_escape_string( $callout_id ) . 
 						' AND call_key = \'' . $db_connection->real_escape_string( $callkey_id ) . '\';';
@@ -84,7 +83,9 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				if( $sql_callkey_result->num_rows > 0) {
 					$user_authenticated = true;
 					$useracctid = $row->id;
-					$user_status = '1';
+					if(isset($user_status) == false || $user_status == null) {
+						$user_status = CalloutStatusType::Responding;
+					}
 				}
 				else {
 					if($debug_registration) echo "E3b";
@@ -94,6 +95,9 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				if (crypt($db_connection->real_escape_string( $user_pwd ), $row->user_pwd) === $row->user_pwd ) {
 					$user_authenticated = true;
 					$useracctid = $row->id;
+					if(isset($user_status) == false || $user_status == null) {
+						$user_status = CalloutStatusType::Responding;
+					}
 				}
 				else {
 					if($debug_registration) echo "E4";
@@ -107,7 +111,8 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 
 		if( $user_authenticated == true) {
 
-			if(isset($callkey_id)) {
+			// Update the response table
+			if(isset($callkey_id) && $callkey_id != null) {
 				$sql = 'UPDATE callouts_response SET status = ' . $db_connection->real_escape_string( $user_status ) . ',' .
 						'        updatetime = CURRENT_TIMESTAMP() ' .
 						' WHERE calloutid = ' .	$db_connection->real_escape_string( $callout_id ) .
@@ -130,9 +135,13 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				printf("Error: %s\n", mysqli_error($db_connection));
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
-			if($db_connection->affected_rows <= 0) {
-				
-				if(isset($callkey_id)) {
+			
+			$affected_response_rows = $db_connection->affected_rows;
+			
+			// If update failed, no-one responded yet so INSERT
+			if($affected_response_rows <= 0) {
+			
+				if(isset($callkey_id) && $callkey_id != null) {
 					$sql = 'INSERT INTO callouts_response (calloutid,useracctid,responsetime,status) ' .
 							' values(' .
 							'' . $db_connection->real_escape_string( $callout_id )  . ', ' .
@@ -150,19 +159,37 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 							'' . $db_connection->real_escape_string( $user_long )   . ', ' .
 							'' . $db_connection->real_escape_string( $user_status ) . ');';
 				}
-
+			
 				$sql_result = $db_connection->query( $sql );
-
+			
 				if($sql_result == false) {
 					if($debug_registration) echo "E6";
-						
+			
 					printf("Error: %s\n", mysqli_error($db_connection));
 					throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 				}
-
-				$device_reg_id = $db_connection->insert_id;
+			
+				$callout_respond_id = $db_connection->insert_id;
+			}
+			
+			// Update the main callout status
+			$sql = 'UPDATE callouts SET status = ' . $db_connection->real_escape_string( $user_status ) . ',' .
+					'        updatetime = CURRENT_TIMESTAMP() ' .
+					' WHERE id = ' .	$db_connection->real_escape_string( $callout_id ) . ';';
 				
-				if(isset($callkey_id)) {
+			$sql_result = $db_connection->query( $sql );
+			
+			if($sql_result == false) {
+				if($debug_registration) echo "E6a";
+					
+				printf("Error: %s\n", mysqli_error($db_connection));
+				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+			}
+				
+			// Signal everyone with status update	
+			if($affected_response_rows <= 0) {
+				
+				if(isset($callkey_id) && $callkey_id != null) {
 					// Redirect to call info page
 					$redirect_host  = $_SERVER['HTTP_HOST'];
 					$redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
@@ -172,11 +199,12 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 					header("Location: http://$redirect_host$redirect_uri/$redirect_extra");
 				}
 				
-				echo "OK=" . $device_reg_id;
-				signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat, $user_long,$user_status);
+				echo "OK=" . $callout_respond_id;
+				signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat, 
+					$user_long,$user_status, $callkey_id);
 			}
 			else {
-				if(isset($callkey_id)) {
+				if(isset($callkey_id) && $callkey_id != null) {
 					// Redirect to call info page
 					$redirect_host  = $_SERVER['HTTP_HOST'];
 					$redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
@@ -187,13 +215,14 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				}
 				
 				echo "OK=?";
-				signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat, $user_long,$user_status);
+				signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat, 
+					$user_long,$user_status, $callkey_id);
 			}
 		}
 
 		if($db_connection != null) {
 			db_disconnect( $db_connection );
-		}
+		} 
 	}
 	else {
 		if($debug_registration) echo "E2";

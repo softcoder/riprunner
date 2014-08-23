@@ -1,9 +1,14 @@
 <?php
+//	Copyright (C) 2014 Mark Vejvoda
+//	Under GNU GPL v3.0
 define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
-//	Copyright (C) 2014 Mark Vejvoda
-//	Under GNU GPL v3.0
+
+// These lines are mandatory.
+require_once 'Mobile_Detect.php';
+$detect = new Mobile_Detect;
+
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
  
@@ -14,7 +19,11 @@ sec_session_start();
     <head>
         <meta charset="UTF-8">
         <title>Secure Login: Protected Page</title>
+        <?php if ($detect->isMobile()) : ?>
+        <link rel="stylesheet" href="styles/mobile.css" />
+        <?php else : ?>
         <link rel="stylesheet" href="styles/main.css" />
+        <?php endif; ?>
         <script type="text/JavaScript" src="js/forms.js"></script>
     </head>
     <body>
@@ -22,7 +31,7 @@ sec_session_start();
 <?php
 
 	function getHeaderRow($edit_mode) {
-		$html_row = '<table border="1">' . PHP_EOL;
+		$html_row = '<table class="center" border="1">' . PHP_EOL;
 		$html_row .= "<tr>";
 		$html_row .= "<td>Record Id</td>" . PHP_EOL;
 		$html_row .= "<td>Firehall Id</td>" . PHP_EOL;
@@ -291,6 +300,7 @@ sec_session_start();
 	}	
 ?>
 
+		<div class="container_center">
 <?php
         $db_connection = null;
         if (isset($_SESSION['firehall_id'])) {
@@ -307,6 +317,31 @@ sec_session_start();
         if (login_check($db_connection) && userHasAcess(USER_ACCESS_ADMIN)) : ?>
             <p>Welcome <?php echo htmlentities($_SESSION['user_id']); ?>!</p>
 
+			<div class="menudiv_wrapper">
+			  <nav class="vertical">
+			    <ul>
+			      <li>
+			        <label for="main_page">Return to ..</label>
+			        <input type="radio" name="verticalMenu" id="main_page" />
+			        <div>
+			          <ul>
+			            <li><a href="admin_index.php">Main Menu</a></li>
+			          </ul>
+			        </div>
+			      </li>
+			      <li>
+			        <label for="logout">Exit</label>
+			        <input type="radio" name="verticalMenu" id="logout" />
+			        <div>
+			          <ul>
+			            <li><a href="logout.php">Logout</a></li>
+			          </ul>
+			        </div>
+			      </li>
+			    </ul>
+			  </nav>
+			</div>
+            
             <form action="admin_users.php" method="post" name="user_edit_form">
             <?php
 
@@ -385,13 +420,12 @@ sec_session_start();
 		item.focus();
 	}
 </script>
-
-            <p>Return to <a href="admin_index.php">main page</a><br />
-            Return to <a href="logout.php">login page</a></p>
+            
         <?php else : ?>
             <p>
                 <span class="error">You are not authorized to access this page.</span> Please <a href="login.php">login</a>.
             </p>
         <?php endif; ?>
+        </div>
     </body>
 </html>

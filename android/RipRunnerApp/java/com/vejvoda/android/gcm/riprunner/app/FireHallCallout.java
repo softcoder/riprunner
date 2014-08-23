@@ -12,14 +12,17 @@ public class FireHallCallout {
 	 String address;
 	 String mapAddress;
 	 String units;
+	 String status;
 	
-	 public FireHallCallout(String calloutId, String gpsLat, String gpsLong, String address, String mapAddress, String units) {
+	 public FireHallCallout(String calloutId, String gpsLat, String gpsLong, 
+			 String address, String mapAddress, String units, String status) {
 		 this.calloutId = calloutId;
 		 this.gpsLat = gpsLat;
 		 this.gpsLong = gpsLong;
 		 this.address = address;
 		 this.mapAddress = mapAddress;
 		 this.units = units;
+		 this.status = status;
 	 }
 	 
 	 public String getCalloutId() {
@@ -40,4 +43,11 @@ public class FireHallCallout {
 	 public String getUnits() {
 		 return units;
 	 }
+	 public String getStatus() {
+		 return status;
+	 }
+	 public void setStatus(String value) {
+		 this.status = value;
+	 }
+	 
 }

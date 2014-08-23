@@ -6,6 +6,16 @@
 	( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) { 
 		die( 'This file must not be invoked directly.' ); 
 	}
+
+	// Types of recipient lists
+	abstract class CalloutStatusType {
+		const Paged = 0; 
+		const Notified = 1;
+		const Responding = 2;
+		const Cancelled = 3;
+		const Complete = 10;
+	}
+	
 	
 	# This function cleans out special characters
 	function clean_str( $text )	{  
@@ -323,5 +333,26 @@
 		$new_pwd = crypt($password, $salt);
 		
 		return $new_pwd;
+	}
+	function getCallStatusDisplayText($dbStatus) {
+		$result = 'unknown [' . (isset($dbStatus) ? $dbStatus : 'null') . ']';
+		switch($dbStatus) {
+			case CalloutStatusType::Paged:
+				$result = 'paged';
+				break;
+			case CalloutStatusType::Notified:
+				$result = 'notified';
+				break;
+			case CalloutStatusType::Responding:
+				$result = 'responding';
+				break;
+			case CalloutStatusType::Cancelled:
+				$result = 'cancelled';
+				break;
+			case CalloutStatusType::Complete:
+				$result = 'completed';
+				break;
+		}
+		return $result;
 	}	
 ?>

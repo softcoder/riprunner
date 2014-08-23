@@ -55,11 +55,11 @@ if(isset($firehall_id)) {
 		$sql_where_clause = '';
 		
 		$callout_id = get_query_param('cid');
-		if ( $callout_id != null ) {
+		if ( isset($callout_id) && $callout_id != null ) {
 			$callout_id = (int) $callout_id;
 			$sql_where_clause = ' WHERE id = ' . $db_connection->real_escape_string($callout_id);
 			
-			if ( $callkey_id != null ) {
+			if ( isset($callkey_id) && $callkey_id != null ) {
 				$sql_where_clause .= ' AND call_key = \'' . $db_connection->real_escape_string($callkey_id) . '\'';
 			}
 		}
@@ -78,6 +78,7 @@ if(isset($firehall_id)) {
 			throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 		}
 		
+		$callout_status_complete = false;
 		$row_number = 1;
 		while($row = $sql_result->fetch_object()) {
 			
@@ -86,7 +87,10 @@ if(isset($firehall_id)) {
 			$html .='<h2><b><font color="yellow">Call Type: ' . $row->calltype . ' - ' . convertCallOutTypeToText($row->calltype) . '</font></b></h2>' . PHP_EOL;
 			$html .='<h2><b><font color="cyan">Call Address: ' . $row->address .'</font></b></h2>' . PHP_EOL;
 			$html .='<h2><b><font color="lime">Responding Units: ' . $row->units .'</font></b></h2>' . PHP_EOL;
+			$html .='<h2><b><font color="yellow">Call Status: ' . getCallStatusDisplayText($row->status) .'</font></b></h2>' . PHP_EOL;
 			$html .='</div>' . PHP_EOL;
+
+			$callout_status_complete = ($row->status == CalloutStatusType::Complete);
 			
 			// START: responders
 			$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a LEFT JOIN user_accounts b ON a.useracctid = b.id WHERE calloutid = ' . $row->id . ';';
@@ -115,7 +119,7 @@ if(isset($firehall_id)) {
 			
 			$html .=$url;
 			
-			if ( $callkey_id != null && $callkey_id == $row->call_key) {
+			if ( isset($callkey_id) && $callkey_id != null && $callkey_id == $row->call_key) {
 				$callkey_validated = true;
 			}
 		}
@@ -124,7 +128,7 @@ if(isset($firehall_id)) {
 		}
 		else {
 			// Now show respond UI if applicable
-			if ( $callkey_id != null && $callkey_validated == true) {
+			if ( isset($callkey_id) && $callkey_id != null && $callkey_validated == true) {
 
 				// Select all user accounts for the firehall that did not yet respond
 				// START: responders
@@ -146,9 +150,34 @@ if(isset($firehall_id)) {
 								$row_no_response->user_id . '" style="font-size: 25px; background-color:yellow" />'. PHP_EOL;
 					$html .='</form>'. PHP_EOL;
 				}
+				$sql_no_response_result->close();
+				
+				if($callout_status_complete == false) {
+					// Select all user accounts for the firehall that did respond to the call
+					// START: responders
+					$sql_yes_response = 'SELECT * FROM user_accounts WHERE id IN (SELECT useracctid FROM callouts_response WHERE calloutid = ' .  $callout_id . ');';
+					$sql_yes_response_result = $db_connection->query( $sql_yes_response );
+					if($sql_yes_response_result == false) {
+						printf("Error: %s\n", mysqli_error($db_connection));
+						throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql_yes_response . "]");
+					}
+						
+					$html .='<div id="callYesResponseContent' . $row_number . '">' . PHP_EOL;
+					while($row_yes_response = $sql_yes_response_result->fetch_object()) {
+						$html .='<form action="cr.php?fhid=' . urlencode($firehall_id)
+						. '&cid=' . urlencode($callout_id)
+						. '&uid=' . urlencode($row_yes_response->user_id)
+						. '&ckid=' . urlencode($callkey_id)
+						. '&status=' . urlencode(CalloutStatusType::Complete)
+						. '" method="POST" onsubmit="return confirm(\'Confirm that the call should be set to COMPLETE?\');">'. PHP_EOL;
+						$html .='<INPUT TYPE="submit" VALUE="End the Callout - '. $row_yes_response->user_id .'" style="font-size: 25px; background-color:lime" />'. PHP_EOL;
+						$html .='</form>'. PHP_EOL;
+					}
+					$sql_yes_response_result->close();
+				}
+				
 				$html .='</div>' . PHP_EOL;
 				// END: responders
-				
 			}
 		}
 		 

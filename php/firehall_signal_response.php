@@ -13,11 +13,11 @@ require_once( 'plugins_loader.php' );
 
 function signalFireHallResponse($FIREHALL, $callId, $userId, 
 	                		$callGPSLat, $callGPSLong, 
-	                		$userStatus) {
+	                		$userStatus, $callkey_id) {
 	
 	if($FIREHALL->SMS->SMS_SIGNAL_ENABLED) {
 		signalResponseToSMSPlugin($FIREHALL, $callId, $userId,
-				$callGPSLat, $callGPSLong, $userStatus);
+				$callGPSLat, $callGPSLong, $userStatus, $callkey_id);
 	}
 
 	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED && 
@@ -25,13 +25,13 @@ function signalFireHallResponse($FIREHALL, $callId, $userId,
 	
 		signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId, 
 	                		$callGPSLat, $callGPSLong, 
-	                		$userStatus);
+	                		$userStatus, $callkey_id);
 	}
 }
 
 function signalResponseToSMSPlugin($FIREHALL, $callId, $userId, 
 	                		$callGPSLat, $callGPSLong, 
-	                		$userStatus) {
+	                		$userStatus, $callkey_id) {
 
 	$smsPlugin = findPlugin('ISMSPlugin', $FIREHALL->SMS->SMS_GATEWAY_TYPE);
 	if($smsPlugin == null) {
@@ -53,7 +53,7 @@ function signalResponseToSMSPlugin($FIREHALL, $callId, $userId,
 		$recipient_list_array = $recipient_list;
 	}
 	$smsText = getSMSCalloutResponseMessage($FIREHALL, $callId, $userId,
-			$callGPSLat, $callGPSLong, $userStatus,
+			$callGPSLat, $callGPSLong, $userStatus, $callkey_id,
 			$smsPlugin->getMaxSMSTextLength());
 	$smsPlugin->signalRecipients($FIREHALL->SMS, $recipient_list_array,
 			$recipient_list_type, $smsText);
@@ -61,7 +61,7 @@ function signalResponseToSMSPlugin($FIREHALL, $callId, $userId,
 
 function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId, 
 	                		$callGPSLat, $callGPSLong, 
-	                		$userStatus) {
+	                		$userStatus, $callkey_id) {
 
 
 	echo 'START Send Notifications using GCM.' . PHP_EOL;
@@ -102,12 +102,13 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 		//$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL 
 		//						. 'ci.php?cid=' . $callId . '&fhid=' . $FIREHALL->FIREHALL_ID;
 		$smsMsg = getSMSCalloutResponseMessage($FIREHALL, $callId, $userId,
-				$callGPSLat, $callGPSLong, $userStatus, 0);
+				$callGPSLat, $callGPSLong, $userStatus, $callkey_id, 0);
 		
 		//$callMapAddress = getAddressForMapping($FIREHALL,$callAddress);
 		
 		$message = array("CALLOUT_RESPONSE_MSG" => urlencode($smsMsg),
 						 "call-id"  => urlencode($callId),
+						 "call-key-id" => urlencode($callkey_id),
 						 "user-id"  => urlencode($userId),
 						 "user-gps-lat"  => urlencode($callGPSLat),
 						 "user-gps-long"  => urlencode($callGPSLong),
@@ -155,10 +156,17 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 }
 
 function getSMSCalloutResponseMessage($FIREHALL, $callId, $userId,
-		$callGPSLat, $callGPSLong, $userStatus, $maxLength) {
+		$callGPSLat, $callGPSLong, $userStatus, $callkey_id, $maxLength) {
 
-	//$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . ', ' . $callAddress;
-	$msgSummary = 'Responder attending: ' . $userId;
+	if($userStatus == CalloutStatusType::Complete ||
+		$userStatus == CalloutStatusType::Cancelled) {
+		$msgSummary = 'Responder: ' . $userId . 
+		' has marked the callout as: ' . getCallStatusDisplayText($userStatus);
+	}
+	else {
+		//$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . ', ' . $callAddress;
+		$msgSummary = 'Responder attending: ' . $userId;
+	}
 
 	// 	$details_link = "http://url2txt.com/1vK34CN?cid=" . $callout_id
 	// 	. '&fhid=' . $FIREHALL->FIREHALL_ID
@@ -166,15 +174,15 @@ function getSMSCalloutResponseMessage($FIREHALL, $callId, $userId,
 
 	$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL
 	. 'ci.php?cid=' . $callId
-	. '&fhid=' . $FIREHALL->FIREHALL_ID;
+	. '&fhid=' . $FIREHALL->FIREHALL_ID
+	. '&ckid=' . $callkey_id;
 
 	// 	return 'Callout: ' . $callCode . ' - ' . $callType . ' : ' . $callAddress .
 	// 		   ' details: ' . $details_link;
 	//$smsMsg = $msgSummary .', ' . $details_link;
 	$smsMsg = $msgSummary;
 	if(isset($maxLength) && $maxLength > 0) {
-		$smsMsg = array($msgSummary,
-				$details_link);
+		$smsMsg = array($msgSummary,$details_link);
 	}
 	return $smsMsg;
 }

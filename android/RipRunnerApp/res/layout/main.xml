@@ -66,8 +66,7 @@
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
+                android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btnLogin"
@@ -76,13 +75,6 @@
                 android:onClick="onClick"
                 android:text="@string/login" />
             
-            <Button
-                android:id="@+id/btnClear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onClick"
-                android:text="@string/clear" />
-
             <Button
                 android:id="@+id/btnMap"
                 android:layout_width="wrap_content"
@@ -96,6 +88,13 @@
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
                 android:text="@string/respond" />
+
+            <Button
+                android:id="@+id/btnCompleteCall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClick"
+                android:text="@string/complete_call" />
             
         </LinearLayout>
 
