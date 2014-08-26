@@ -67,7 +67,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 		$useracctid = null;
 		$user_authenticated = false;
 		if($row = $sql_result->fetch_object()) {
-			if(isset($callkey_id) && $callkey_id != null) {
+			if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
 				// Validate the the callkey is legit
 				$sql_callkey = 'SELECT * FROM callouts WHERE id = ' .
 						$db_connection->real_escape_string( $callout_id ) . 
@@ -112,7 +112,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 		if( $user_authenticated == true) {
 
 			// Update the response table
-			if(isset($callkey_id) && $callkey_id != null) {
+			if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
 				$sql = 'UPDATE callouts_response SET status = ' . $db_connection->real_escape_string( $user_status ) . ',' .
 						'        updatetime = CURRENT_TIMESTAMP() ' .
 						' WHERE calloutid = ' .	$db_connection->real_escape_string( $callout_id ) .
@@ -141,7 +141,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 			// If update failed, no-one responded yet so INSERT
 			if($affected_response_rows <= 0) {
 			
-				if(isset($callkey_id) && $callkey_id != null) {
+				if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
 					$sql = 'INSERT INTO callouts_response (calloutid,useracctid,responsetime,status) ' .
 							' values(' .
 							'' . $db_connection->real_escape_string( $callout_id )  . ', ' .
@@ -175,7 +175,8 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 			// Update the main callout status
 			$sql = 'UPDATE callouts SET status = ' . $db_connection->real_escape_string( $user_status ) . ',' .
 					'        updatetime = CURRENT_TIMESTAMP() ' .
-					' WHERE id = ' .	$db_connection->real_escape_string( $callout_id ) . ';';
+					' WHERE id = ' .	$db_connection->real_escape_string( $callout_id ) . 
+					' AND status NOT IN (3,10);';
 				
 			$sql_result = $db_connection->query( $sql );
 			
@@ -185,11 +186,13 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				printf("Error: %s\n", mysqli_error($db_connection));
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
-				
+
+			$affected_update_rows = $db_connection->affected_rows;
+			
 			// Signal everyone with status update	
 			if($affected_response_rows <= 0) {
 				
-				if(isset($callkey_id) && $callkey_id != null) {
+				if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
 					// Redirect to call info page
 					$redirect_host  = $_SERVER['HTTP_HOST'];
 					$redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
@@ -199,12 +202,15 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 					header("Location: http://$redirect_host$redirect_uri/$redirect_extra");
 				}
 				
-				echo "OK=" . $callout_respond_id;
-				signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat, 
-					$user_long,$user_status, $callkey_id);
+				echo "OK=" . $callout_respond_id . '|' . $affected_update_rows;
+				
+				if($affected_update_rows > 0) {
+					signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat, 
+						$user_long,$user_status, $callkey_id);
+				}
 			}
 			else {
-				if(isset($callkey_id) && $callkey_id != null) {
+				if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
 					// Redirect to call info page
 					$redirect_host  = $_SERVER['HTTP_HOST'];
 					$redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
@@ -214,9 +220,12 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 					header("Location: http://$redirect_host$redirect_uri/$redirect_extra");
 				}
 				
-				echo "OK=?";
-				signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat, 
-					$user_long,$user_status, $callkey_id);
+				echo "OK=?" . '|' . $affected_update_rows;
+				
+				if($affected_update_rows > 0) {
+					signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat, 
+						$user_long,$user_status, $callkey_id);
+				}
 			}
 		}
 

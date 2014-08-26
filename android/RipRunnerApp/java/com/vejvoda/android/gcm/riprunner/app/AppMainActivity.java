@@ -108,8 +108,8 @@ public class AppMainActivity extends ActionBarActivity implements
         }
         static public boolean isComplete(String status) {
     		return (status != null &&
-    				(status.equals(CalloutStatusType.Cancelled.valueOf()) ||
-    				(status.equals(CalloutStatusType.Complete.valueOf()))));
+    				(status.equals(String.valueOf(CalloutStatusType.Cancelled.valueOf())) ||
+    				(status.equals(String.valueOf(CalloutStatusType.Complete.valueOf())))));
         	
         }
         
@@ -822,6 +822,7 @@ public class AppMainActivity extends ActionBarActivity implements
     	
     	List<NameValuePair> params = new LinkedList<NameValuePair>();
     	params.add(new BasicNameValuePair("cid", lastCallout.getCalloutId()));
+    	params.add(new BasicNameValuePair("ckid", lastCallout.getCalloutKeyId()));
     	params.add(new BasicNameValuePair("fhid", auth.getFirehallId()));
     	params.add(new BasicNameValuePair("uid", auth.getUserId()));
     	params.add(new BasicNameValuePair("upwd", auth.getUserPassword()));
@@ -1078,6 +1079,7 @@ public class AppMainActivity extends ActionBarActivity implements
 				            	}
 								lastCallout = new FireHallCallout(
 										URLDecoder.decode(json.getString("call-id"), "utf-8"),
+										URLDecoder.decode(json.getString("call-key-id"), "utf-8"),
 										gpsLatStr,gpsLongStr,
 										URLDecoder.decode(json.getString("call-address"), "utf-8"),
 										URLDecoder.decode(json.getString("call-map-address"), "utf-8"),
@@ -1128,9 +1130,11 @@ public class AppMainActivity extends ActionBarActivity implements
 	        		            runOnUiThread(new Runnable() {
 	        		                public void run() {
 	    				            	mDisplay = (TextView) findViewById(R.id.display);
-	    				            	mDisplay.append(calloutMsg);
+	    				            	mDisplay.append("\n" + calloutMsg);
 
-	    				            	if(CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
+	    				            	if(lastCallout != null &&
+	    				            		CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
+	    				            		
 		    			                    Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
 		    			                    btnCompleteCall.setVisibility(View.VISIBLE);
 		    			                    btnCompleteCall.setEnabled(true);

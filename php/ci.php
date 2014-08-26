@@ -101,9 +101,16 @@ if(isset($firehall_id)) {
 			}
 			
 			$html .='<div id="callResponseContent' . $row_number . '">' . PHP_EOL;
+			$html .='<h3><b><font color="white">Responders:' . PHP_EOL;
+			
+			$html_responders = '';
 			while($row_response = $sql_response_result->fetch_object()) {
-				$html .='<h3><b><font color="white">Responder: ' . $row_response->user_id . ' - ' . $row_response->responsetime . '</font></b></h2>' . PHP_EOL;
+				if($html_responders != '') {
+					$html_responders .= ', &nbsp;';
+				}
+				$html_responders .= $row_response->user_id;
 			}
+			$html .= $html_responders . '</font></b></h2>' . PHP_EOL;
 			$html .='</div>' . PHP_EOL;
 			// END: responders
 			
@@ -139,8 +146,10 @@ if(isset($firehall_id)) {
 					throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql_no_response . "]");
 				}
 					
+				$html .='<br /><br />' . PHP_EOL;
 				$html .='<div id="callNoResponseContent' . $row_number . '">' . PHP_EOL;
 				while($row_no_response = $sql_no_response_result->fetch_object()) {
+					
 					$html .='<form action="cr.php?fhid=' . urlencode($firehall_id) 
 							. '&cid=' . urlencode($callout_id) 
 							. '&uid=' . urlencode($row_no_response->user_id)
@@ -174,6 +183,7 @@ if(isset($firehall_id)) {
 						$html .='</form>'. PHP_EOL;
 					}
 					$sql_yes_response_result->close();
+					$html .='</div>' . PHP_EOL;
 				}
 				
 				$html .='</div>' . PHP_EOL;

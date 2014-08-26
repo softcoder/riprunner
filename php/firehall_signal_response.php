@@ -106,6 +106,13 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 		
 		//$callMapAddress = getAddressForMapping($FIREHALL,$callAddress);
 		
+		if(isset($callGPSLat) == false || $callGPSLat == "") {
+			$callGPSLat = 0;
+		}
+		if(isset($callGPSLong) == false || $callGPSLong == "") {
+			$callGPSLong = 0;
+		}
+		
 		$message = array("CALLOUT_RESPONSE_MSG" => urlencode($smsMsg),
 						 "call-id"  => urlencode($callId),
 						 "call-key-id" => urlencode($callkey_id),
