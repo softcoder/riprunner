@@ -503,6 +503,7 @@ int string mapmygps 0x7f0c002d
 int string password 0x7f0c0033
 int string pref_default_host_url 0x7f0c0041
 int string pref_default_sender_id 0x7f0c0043
+int string pref_defaults_get 0x7f0c0044
 int string pref_header_general 0x7f0c003f
 int string pref_title_host_url 0x7f0c0040
 int string pref_title_sender_id 0x7f0c0042

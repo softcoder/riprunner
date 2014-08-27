@@ -179,7 +179,8 @@ function poll_email_callouts($FIREHALLS_LIST) {
 	
 	# Loop through all Firehall email triggers
 	foreach ($FIREHALLS_LIST as &$FIREHALL) {
-		if($FIREHALL->EMAIL->EMAIL_HOST_ENABLED == false) {
+		if($FIREHALL->ENABLED == false || 
+			$FIREHALL->EMAIL->EMAIL_HOST_ENABLED == false) {
 			continue;
 		}
 		$pictures = 0;

@@ -67,6 +67,15 @@ sec_session_start();
 			        </div>
 			      </li>
 			      <li>
+			        <label for="mobile_app">Mobile</label>
+			        <input type="radio" name="verticalMenu" id="mobile_app" />
+			        <div>
+			          <ul>
+			            <li><a href="apk/RipRunnerApp.apk">Install Android App</a></li>
+			          </ul>
+			        </div>
+			      </li>
+			      <li>
 			        <label for="logout">Exit</label>
 			        <input type="radio" name="verticalMenu" id="logout" />
 			        <div>

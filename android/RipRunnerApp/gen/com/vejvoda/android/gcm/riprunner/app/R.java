@@ -1664,6 +1664,7 @@ containing a value of this type.
         public static final int password=0x7f0c0033;
         public static final int pref_default_host_url=0x7f0c0041;
         public static final int pref_default_sender_id=0x7f0c0043;
+        public static final int pref_defaults_get=0x7f0c0044;
         /**  Strings related to Settings 
  Example General settings 
          */

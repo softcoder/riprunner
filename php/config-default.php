@@ -68,9 +68,10 @@ require_once( 'config_interfaces.php' );
 	// Mobile App Settings
 	define( 'DEFAULT_GCM_SEND_URL',	'https://android.googleapis.com/gcm/send');
 	define( 'DEFAULT_GCM_API_KEY', 	'X');
+	define( 'DEFAULT_GCM_PROJECTID','X');
 	
 	$LOCAL_DEBUG_MOBILE = new FireHallMobile(true, true,
-			DEFAULT_GCM_SEND_URL,DEFAULT_GCM_API_KEY);
+			DEFAULT_GCM_SEND_URL,DEFAULT_GCM_API_KEY,DEFAULT_GCM_PROJECTID);
 	
 	// ----------------------------------------------------------------------
 	// Website and Location Settings
@@ -87,7 +88,8 @@ require_once( 'config_interfaces.php' );
 	
 	// ----------------------------------------------------------------------
 	// Main Firehall Configuration Container Settings
-	$LOCAL_DEBUG_FIREHALL = new FireHallConfig(	0,
+	$LOCAL_DEBUG_FIREHALL = new FireHallConfig(	true, 
+												0,
 												$LOCAL_DEBUG_MYSQL,
 												$LOCAL_DEBUG_EMAIL,
 												$LOCAL_DEBUG_SMS,

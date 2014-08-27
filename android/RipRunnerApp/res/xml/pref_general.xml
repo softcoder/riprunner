@@ -18,4 +18,7 @@
         android:singleLine="true"
         android:title="@string/pref_title_sender_id" />
     
+    <Preference android:title="@string/pref_defaults_get"
+                android:key="button_get_defaults"
+                android:summary="@string/pref_defaults_get"/>    
 </PreferenceScreen>

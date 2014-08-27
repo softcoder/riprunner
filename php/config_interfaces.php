@@ -85,12 +85,14 @@
 		public $GCM_SIGNAL_ENABLED;
 		public $GCM_SEND_URL;
 		public $GCM_API_KEY;
+		public $GCM_PROJECTID;
 	
-		public function __construct($mobile_enabled, $gcm_enabled, $gcm_send_url, $gcm_api_key) {
+		public function __construct($mobile_enabled, $gcm_enabled, $gcm_send_url, $gcm_api_key, $gcm_projectid) {
 			$this->MOBILE_SIGNAL_ENABLED = $mobile_enabled;
 			$this->GCM_SIGNAL_ENABLED = $gcm_enabled;
 			$this->GCM_SEND_URL = $gcm_send_url;
 			$this->GCM_API_KEY = $gcm_api_key;
+			$this->GCM_PROJECTID = $gcm_projectid;
 		}
 	}
 	
@@ -115,6 +117,7 @@
 	// ----------------------------------------------------------------------
 	class FireHallConfig
 	{
+		public $ENABLED;
 		public $FIREHALL_ID;
 		public $MYSQL;
 		public $EMAIL;
@@ -122,7 +125,8 @@
 		public $WEBSITE;
 		public $MOBILE;
 			
-		public function __construct($id,$mysql, $email, $sms, $website, $mobile) {
+		public function __construct($enabled, $id,$mysql, $email, $sms, $website, $mobile) {
+			$this->ENABLED = $enabled;
 			$this->FIREHALL_ID = $id;
 			$this->MYSQL = $mysql;
 			$this->EMAIL = $email;

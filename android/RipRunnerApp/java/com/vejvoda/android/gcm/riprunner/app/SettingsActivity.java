@@ -2,22 +2,37 @@ package com.vejvoda.android.gcm.riprunner.app;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -30,7 +45,8 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity implements 
+		OnSharedPreferenceChangeListener {
 	/**
 	 * Determines whether to always show the simplified settings UI, where
 	 * settings are presented in a single list. When false, settings are shown
@@ -58,7 +74,12 @@ public class SettingsActivity extends PreferenceActivity {
 
 		// In the simplified UI, fragments are not used at all and we instead
 		// use the older PreferenceActivity APIs.
+		setupGeneralPrefsUI();
+		
+		getGeneralSettingsDefaults();
+	}
 
+	void setupGeneralPrefsUI() {
 		// Add 'general' preferences.
 		addPreferencesFromResource(R.xml.pref_general);
 
@@ -69,6 +90,101 @@ public class SettingsActivity extends PreferenceActivity {
 		bindPreferenceSummaryToValue(findPreference("sender_id"));
 	}
 
+	@Override
+	protected void onResume() {
+        super.onResume();
+        getPreferenceScreen().getSharedPreferences()
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+	@Override
+    protected void onPause() {
+        super.onPause();
+        getPreferenceScreen().getSharedPreferences()
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
+    
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+			String key) {
+        Preference pref = findPreference(key);
+        if (pref instanceof EditTextPreference) {
+            EditTextPreference etp = (EditTextPreference) pref;
+            //pref.setSummary(etp.getText());
+            pref.setTitle(etp.getTitle());
+            pref.setSummary(etp.getText());
+        }
+	}
+	
+	void getGeneralSettingsDefaults() {
+		Preference button = (Preference)findPreference("button_get_defaults");
+		button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference arg0) { 
+
+            	// Get Default settings from the host
+            	EditTextPreference host_url = (EditTextPreference)findPreference("host_url");
+            	if(host_url != null && host_url.getText() != "") {
+	            	final String URL = host_url.getText() + "mobile_app_info.php";
+	            	
+	            	new Thread(new Runnable() {
+	            	    public void run() {            	
+			            	HttpClient httpclient = new DefaultHttpClient();
+			                HttpResponse response;
+							try {
+								response = httpclient.execute(new HttpGet(URL));
+								
+			                    StatusLine statusLine = response.getStatusLine();
+			                    if(statusLine.getStatusCode() == HttpStatus.SC_OK){
+			                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+			                        response.getEntity().writeTo(out);
+			                        out.close();
+			                        
+			                        final String responseString = out.toString();
+			                        if(responseString != null && responseString.startsWith("{")) {
+			                        	final JSONObject json = new JSONObject( responseString );
+			                        	
+			                        	runOnUiThread(new Runnable() {
+			                                public void run() {
+					                        	EditTextPreference sender_id = (EditTextPreference)findPreference("sender_id");
+					                        	try {
+													sender_id.setText(json.getString("gcm-projectid"));
+													
+													//setPreferenceScreen(null);
+													//setupGeneralPrefsUI();
+													//addPreferencesFromResource(R.xml.pref_general);
+												} 
+					                        	catch (JSONException e) {
+								                	Log.e("Getting defaults", "Error", e);
+								                    //Toast.makeText(this, "Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+												}
+			                                }
+			                            });
+			                        }
+			                    }
+								
+							} 
+							catch (ClientProtocolException e) {
+			                	Log.e("Getting defaults", "Error", e);
+			                    //Toast.makeText(this, "Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+							} 
+							catch (IOException e) {
+								Log.e("Getting defaults", "Error", e);
+			                	//Toast.makeText(this, "Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+							} 
+							catch (JSONException e) {
+								Log.e("Getting defaults", "Error", e);
+			                	//Toast.makeText(this, "Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+							}
+	            	    }
+	            	  }).start();						
+            	}
+            	
+                return true;
+            }
+        });
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public boolean onIsMultiPane() {
@@ -199,6 +315,8 @@ public class SettingsActivity extends PreferenceActivity {
 			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("host_url"));
 			bindPreferenceSummaryToValue(findPreference("sender_id"));
+			
+			//getGeneralSettingsDefaults();			
 		}
 	}
 

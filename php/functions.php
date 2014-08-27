@@ -82,6 +82,15 @@
 		}
 		return null;
 	}
+
+	function getFirstActiveFireHallConfig($list) {
+		foreach ($list as &$firehall) {
+			if($firehall->ENABLED) {
+				return $firehall;
+			}
+		}
+		return null;
+	}
 	
 	function sec_session_start() {
 		$session_name = 'sec_session_id';   // Set a custom session name
