@@ -37,9 +37,13 @@
 	// ----------------------------------------------------------------------
 	class FireHallMySQL
 	{
+		// The name of the MySQL database Host
 		public $MYSQL_HOST;
+		// The name of the MySQL database
 		public $MYSQL_DATABASE;
+		// The username to authenticate to the MySQL database
 		public $MYSQL_USER;
+		// The user password to authenticate to the MySQL database
 		public $MYSQL_PASSWORD;
 	
 		public function __construct($host, $database, $username, $password) {
@@ -53,18 +57,37 @@
 	// ----------------------------------------------------------------------
 	class FireHallSMS
 	{
+		// Indicates whether we should signal responders using SMS during a callout
 		public $SMS_SIGNAL_ENABLED;
+		// The type of SMS Gateway. Current supported types:
+		// TEXTBELT, SENDHUB, EZTEXTING, TWILIO
+		// To Support additional SMS Providers contact the author or implement
+		// an SMS plugin class in the plugins/sms folder.
 		public $SMS_GATEWAY_TYPE;
+		// The recipients to send an SMS during communications such as a callout
+		// This can be a ; delimited list of mobile phone #'s (set are_group and from_db to false)
+		// or it can by a specific Group Name defined by the particular SMS provider (set are_group to true)
+		// or you can tell the software to read the mobile phone #'s from the database (set from_db to true)
 		public $SMS_RECIPIENTS;
+		// If the recipient list is an SMS group name set this value to true
 		public $SMS_RECIPIENTS_ARE_GROUP;
+		// If the recipient list should be dynamically built from the database set this value to true
 		public $SMS_RECIPIENTS_FROM_DB;
+		// The Base API URL for sending SMS messages using sendhub.com
 		public $SMS_PROVIDER_SENDHUB_BASE_URL;
+		// The Base API URL for sending SMS messages using textbelt.com
 		public $SMS_PROVIDER_TEXTBELT_BASE_URL;
+		// The Base API URL for sending SMS messages using eztexting.com
 		public $SMS_PROVIDER_EZTEXTING_BASE_URL;
+		// The API username to use for eztexting
 		public $SMS_PROVIDER_EZTEXTING_USERNAME;
+		// The API user password to use for eztexting
 		public $SMS_PROVIDER_EZTEXTING_PASSWORD;
+		// The Base API URL for sending SMS messages using twilio.com
 		public $SMS_PROVIDER_TWILIO_BASE_URL;
+		// The API authentication token to use for twilio
 		public $SMS_PROVIDER_TWILIO_AUTH_TOKEN;
+		// The API FROM mobile phone # to use for twilio
 		public $SMS_PROVIDER_TWILIO_FROM;
 		
 		public function __construct($sms_enabled, $gateway_type, $recipients,
@@ -92,10 +115,15 @@
 	// ----------------------------------------------------------------------
 	class FireHallMobile
 	{
+		// Indicates whether we should allow use of the Native Mobile Android App
 		public $MOBILE_SIGNAL_ENABLED;
+		// Indicates whether we should signal Native Mobile Android App responders during a callout
 		public $GCM_SIGNAL_ENABLED;
+		// The base URL to call the Google Cloud Messaging Service
 		public $GCM_SEND_URL;
+		// The API Key for the Google Cloud Messaging Service
 		public $GCM_API_KEY;
+		// The Project Id (aka sender id) for the Google Cloud Messaging Service
 		public $GCM_PROJECTID;
 	
 		public function __construct($mobile_enabled, $gcm_enabled, $gcm_send_url, $gcm_api_key, $gcm_projectid) {
@@ -110,10 +138,16 @@
 	// ----------------------------------------------------------------------
 	class FireHallWebsite
 	{
+		// The display name for the Firehall
 		public $FIREHALL_NAME;
+		// The address of the Firehall
 		public $FIREHALL_HOME_ADDRESS;
+		// The Base URL where you installed rip runner example: http://mywebsite.com/riprunner/
 		public $WEBSITE_CALLOUT_DETAIL_URL;
+		// The Google Map API Key
 		public $WEBSITE_GOOGLE_MAP_API_KEY;
+		// A ; delimited list of original_city_name|new_city_name city names to swap for google maps
+		// example: SALMON VALLEY,|PRINCE GEORGE,;PILOT MOUNTAIN,|PRINCE GEORGE,;
 		public $WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION;
 			
 		public function __construct($name,$home_address, $callout_detail_url, $google_map_api_key, $city_name_substition) {
@@ -128,12 +162,19 @@
 	// ----------------------------------------------------------------------
 	class FireHallConfig
 	{
+		// Indicates whether the firehall is enabled or not
 		public $ENABLED;
+		// A unique ID to differentiate multipel firehalls
 		public $FIREHALL_ID;
+		// The Mysql configuration for the Firehall
 		public $MYSQL;
+		// The Email configuration for the Firehall
 		public $EMAIL;
+		// The SMS configuration for the Firehall
 		public $SMS;
+		// The Website configuration for the Firehall
 		public $WEBSITE;
+		// The Mobile configuration for the Firehall
 		public $MOBILE;
 			
 		public function __construct($enabled, $id,$mysql, $email, $sms, $website, $mobile) {
