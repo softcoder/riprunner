@@ -6,11 +6,22 @@
 	// ----------------------------------------------------------------------
 	class FireHallEmailAccount
 	{
+		// Indicates whether the email host should be checked for email triggers
 		public $EMAIL_HOST_ENABLED;
+		// The From email address that is allowed to trigger a callout.
+		// Two formats are allowed:
+		// 1. Full email address
+		//    donotreply@focc.mycity.ca
+		// 2. Domain name (all emails from domain)
+		//    focc.mycity.ca
 		public $EMAIL_FROM_TRIGGER;
+		// Email provider connection string to check for email triggers
 		public $EMAIL_HOST_CONNECTION_STRING;
+		// Email address that will receive callout information
 		public $EMAIL_HOST_USERNAME;
+		// Email address password that will receive callout information
 		public $EMAIL_HOST_PASSWORD;
+		// Email should be deleted after it is received and processed.
 		public $EMAIL_DELETE_PROCESSED;
 	
 		public function __construct($host_enabled, $from_trigger, $host_conn_str, $host_username, $host_password, $host_delete_processed) {

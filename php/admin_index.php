@@ -76,6 +76,15 @@ sec_session_start();
 			        </div>
 			      </li>
 			      <li>
+			        <label for="my_account">My Profile</label>
+			        <input type="radio" name="verticalMenu" id="my_account" />
+			        <div>
+			          <ul>
+			            <li><a href="admin_users.php?se=true">My Account</a></li>
+			          </ul>
+			        </div>
+			      </li>
+			      <li>
 			        <label for="logout">Exit</label>
 			        <input type="radio" name="verticalMenu" id="logout" />
 			        <div>

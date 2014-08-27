@@ -169,7 +169,7 @@
 	        			// We record this attempt in the database
 	        			$now = time();
 	        			$db_connection->query("INSERT INTO login_attempts(useracctid, time)
-	        					VALUES ('$user_id', '$now')");
+	        					VALUES ($dbId, CURRENT_TIMESTAMP())");
 	        			
 	        			if($debug_functions) echo "LOGIN-F2" . PHP_EOL;
 	        			return false;

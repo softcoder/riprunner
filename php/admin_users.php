@@ -31,8 +31,7 @@ sec_session_start();
 <?php
 
 	function getHeaderRow($edit_mode) {
-		$html_row = '<table class="center" border="1">' . PHP_EOL;
-		$html_row .= "<tr>";
+		$html_row = "<tr>";
 		$html_row .= "<td>Record Id</td>" . PHP_EOL;
 		$html_row .= "<td>Firehall Id</td>" . PHP_EOL;
 		$html_row .= "<td>User Id</td>" . PHP_EOL;
@@ -49,23 +48,25 @@ sec_session_start();
 		return $html_row;
 	}
 
-	function getFooterRow($edit_mode) {
-		$html_row = "<tr>" . PHP_EOL;
-		if($edit_mode == true) {
-			$html_row .= '<td colspan="10">' . PHP_EOL;
+	function getFooterRow($edit_mode, $self_edit) {
+		$html_row = '';
+		if($self_edit == false) {
+			$html_row = '<tr>' . PHP_EOL;
+			if($edit_mode == true) {
+				$html_row .= '<td colspan="10">' . PHP_EOL;
+			}
+			else {
+				$html_row .= '<td colspan="8">' . PHP_EOL;
+			}
+			$html_row .= '<input type="button" value="Add New" onclick="edit_user(this.form, -1);" />';
+			$html_row .= '</td>' . PHP_EOL;
+			$html_row .= '</tr>' . PHP_EOL;
 		}
-		else {
-			$html_row .= '<td colspan="8">' . PHP_EOL;
-		}
-		$html_row .= '<input type="button" value="Add New" onclick="edit_user(this.form, -1);" />';
-		$html_row .= '</td>' . PHP_EOL;
-		$html_row .= "</tr>" . PHP_EOL;
-		$html_row .= "</table>" . PHP_EOL;
 		
 		return $html_row;
 	}
 	
-	function addRow($row, $edit_row, $edit_mode) {
+	function addRow($row, $edit_row, $edit_mode, $self_edit) {
         	$html_row = "<tr>" . PHP_EOL;
         
         	$html_row .= "<td>" . PHP_EOL;
@@ -73,7 +74,7 @@ sec_session_start();
         	$html_row .= "</td>" . PHP_EOL;
         
         	$html_row .= "<td>" . PHP_EOL;
-        	if($edit_row == true) {
+        	if($edit_row == true && $self_edit == false) {
         		$html_row .= '<input id="edit_firehall_id" name="edit_firehall_id" type="input" value="' . (isset($row) ? $row->firehall_id : '') . '"/>' . PHP_EOL;
         	}
         	else {
@@ -114,7 +115,7 @@ sec_session_start();
         	$html_row .= "</td>" . PHP_EOL;
 
         	$html_row .= "<td>" . PHP_EOL;
-        	if($edit_row == true) {
+        	if($edit_row == true && $self_edit == false) {
         		$html_row .= '<input id="edit_admin_access" name="edit_admin_access" type="checkbox" '.(isset($row) && userHasAcess($row->access,USER_ACCESS_ADMIN) ? 'checked="checked"' : '').' />' . PHP_EOL;
         	}
         	else {
@@ -128,12 +129,25 @@ sec_session_start();
         
         	if($edit_row == true) {
         		$html_row .= '<td colspan="2"><input type="button" value="Save" onclick="save_user(this.form, ' . (isset($row) ? $row->id : '-1') . ');" />' . PHP_EOL;
-        		$html_row .= '<input type="button" value="Cancel" onclick="window.location.href = \'admin_users.php\'; return false;" />' . PHP_EOL;
+        		
+        		$self_edit_query_param = '';
+        		if($self_edit) {
+        			$self_edit_query_param = '?se=true';
+        		}
+        		$html_row .= '<input type="button" value="Cancel" onclick="window.location.href = \'admin_users.php' . $self_edit_query_param . '\'; return false;" />' . PHP_EOL;
         		$html_row .= '</td>' . PHP_EOL;
         	}
         	else {
-        		$html_row .= '<td><input type="button" value="Edit" onclick="edit_user(this.form, ' . (isset($row) ? $row->id : '-1') . ');" /></td>' . PHP_EOL;
-        		$html_row .= '<td><input type="button" value="Delete" onclick="return delete_user(this.form, ' . (isset($row) ? $row->id : '-1') . ',\'' . (isset($row) ? $row->user_id : '') . '\');" /></td>' . PHP_EOL;
+        		
+        		$edit_colspan = '';
+        		if($self_edit) {
+        			$edit_colspan = ' colspan="2" ';
+        		}
+        		$html_row .= '<td' . $edit_colspan . '><input type="button" value="Edit" onclick="edit_user(this.form, ' . (isset($row) ? $row->id : '-1') . ');" /></td>' . PHP_EOL;
+        		
+        		if($self_edit == false) {
+        			$html_row .= '<td><input type="button" value="Delete" onclick="return delete_user(this.form, ' . (isset($row) ? $row->id : '-1') . ',\'' . (isset($row) ? $row->user_id : '') . '\');" /></td>' . PHP_EOL;
+        		}
         	}
         
         	$html_row .= "</tr>" . PHP_EOL;
@@ -161,17 +175,24 @@ sec_session_start();
 		}
 		return $insert_new_account;
 	}
-	function handleSaveAccount($db_connection) {
+	function handleSaveAccount($db_connection, $self_edit) {
 		$result = true;
 		
 		$form_action = get_query_param('form_action');
 		if(isset($form_action) && $form_action == 'save' ) {
-			$edit_user_id = get_query_param('edit_user_id');
-			 
-			$edit_firehall_id = get_query_param('edit_firehall_id');
+
+			if($self_edit) {
+				$edit_user_id = $_SESSION['user_db_id'];
+				$edit_firehall_id = $_SESSION['firehall_id'];
+				$edit_admin_access = userHasAcess(USER_ACCESS_ADMIN);
+			}
+			else {
+				$edit_user_id = get_query_param('edit_user_id');
+				$edit_firehall_id = get_query_param('edit_firehall_id');
+				$edit_admin_access = get_query_param('edit_admin_access');
+			}
 			$edit_user_id_name = get_query_param('edit_user_id_name');
 			$edit_mobile_phone = get_query_param('edit_mobile_phone');
-			$edit_admin_access = get_query_param('edit_admin_access');
 			 
 			if(isset($edit_user_id)) {
 				// PASSWORD
@@ -205,15 +226,18 @@ sec_session_start();
 						if(isset($new_pwd)) {
 							$sql_pwd = ', user_pwd = \'' . $db_connection->real_escape_string($new_pwd) . '\'';
 						}
+						
 						$sql_user_access = '';
-						if(isset($edit_admin_access) && $edit_admin_access == 'on') {
-							//. ', access = access | ' . USER_ACCESS_ADMIN
-							//echo "ENABLED edit_admin_access = [$edit_admin_access]" . PHP_EOL;
-							$sql_user_access = ', access = access | ' . USER_ACCESS_ADMIN;
-						}
-						else {
-							//echo "DISABLED edit_admin_access = [$edit_admin_access]" . PHP_EOL;
-							$sql_user_access = ', access = access & ~' . USER_ACCESS_ADMIN;
+						if($self_edit == false) {
+							if(isset($edit_admin_access) && $edit_admin_access == 'on') {
+								//. ', access = access | ' . USER_ACCESS_ADMIN
+								//echo "ENABLED edit_admin_access = [$edit_admin_access]" . PHP_EOL;
+								$sql_user_access = ', access = access | ' . USER_ACCESS_ADMIN;
+							}
+							else {
+								//echo "DISABLED edit_admin_access = [$edit_admin_access]" . PHP_EOL;
+								$sql_user_access = ', access = access & ~' . USER_ACCESS_ADMIN;
+							}
 						}
 						
 						$sql = 'UPDATE user_accounts'
@@ -222,6 +246,7 @@ sec_session_start();
 								. $sql_pwd
 								. ', mobile_phone = \'' . $db_connection->real_escape_string( $edit_mobile_phone ) . '\''
 								. $sql_user_access
+								. ', updatetime = CURRENT_TIMESTAMP()'
 								. ' WHERE id = ' . $db_connection->real_escape_string($edit_user_id) . ';';
 						 
 						$sql_update_result = $db_connection->query( $sql );
@@ -233,7 +258,7 @@ sec_session_start();
 						$edit_user_id = null;
 					}
 					// INSERT
-					else {
+					else if($self_edit == false) {
 						$sql_pwd_fieldvalue = '';
 						if(isset($new_pwd)) {
 							$new_pwd_value = $db_connection->real_escape_string($new_pwd);
@@ -276,9 +301,9 @@ sec_session_start();
 		}
 		return $result;
 	}
-	function handleDeleteAccount($db_connection) {
+	function handleDeleteAccount($db_connection, $self_edit) {
 		$form_action = get_query_param('form_action');
-		if(isset($form_action) && $form_action == 'delete' ) {
+		if(isset($form_action) && $form_action == 'delete' && $self_edit == false) {
 			$edit_user_id = get_query_param('edit_user_id');
 		
 			if(isset($edit_user_id)) {
@@ -314,9 +339,15 @@ sec_session_start();
         	}
         }
         
-        if (login_check($db_connection) && userHasAcess(USER_ACCESS_ADMIN)) : ?>
+        $self_edit = get_query_param('se');
+        $self_edit = (isset($self_edit) && $self_edit);
+                
+        if (login_check($db_connection) && 
+				(userHasAcess(USER_ACCESS_ADMIN) || $self_edit)) : ?>
             <p>Welcome <?php echo htmlentities($_SESSION['user_id']); ?>!</p>
 
+            <?php echo '<input type="hidden" id="se" name="se" value="true"/>' . PHP_EOL; ?>
+            
 			<div class="menudiv_wrapper">
 			  <nav class="vertical">
 			    <ul>
@@ -349,19 +380,25 @@ sec_session_start();
             $edit_user_id = null;
             $form_action = get_query_param('form_action');
             
+            // Handle CRUD operations
             $edit_user_id = handleEditAccount(false);
             $insert_new_account = isInsertAccount(false,$edit_user_id);
-            $save_ok = handleSaveAccount($db_connection);
+            $save_ok = handleSaveAccount($db_connection, $self_edit);
             if($save_ok == false) {
 				$edit_user_id = handleEditAccount(true);
 				$insert_new_account = isInsertAccount(true,$edit_user_id);
 			}
 			else {
-            	handleDeleteAccount($db_connection);
+            	handleDeleteAccount($db_connection, $self_edit);
             }
+            //
             
             // Read from the database info about this callout
-            $sql = 'SELECT * FROM user_accounts;';
+            $sql_where_clause = '';
+            if($self_edit) {
+            	$sql_where_clause = 'WHERE id=' . $_SESSION['user_db_id'];	
+            }
+            $sql = 'SELECT * FROM user_accounts ' . $sql_where_clause . ';';
             $sql_result = $db_connection->query( $sql );
             if($sql_result == false) {
             	printf("Error: %s\n", mysqli_error($db_connection));
@@ -369,24 +406,25 @@ sec_session_start();
             }
             
             $edit_mode = isset($edit_user_id);
-            $html_row = "";
+            $html_row = '<table class="center" border="1">' . PHP_EOL;
             $row_number = 1;
             while($row = $sql_result->fetch_object()) {
 				if($row_number == 1) {
-					$html_row = getHeaderRow($edit_mode);
+					$html_row .= getHeaderRow($edit_mode);
 				}
 				$edit_row = (isset($edit_user_id) && $edit_user_id == $row->id);
-				$html_row .= addRow($row,$edit_row, $edit_mode);
+				$html_row .= addRow($row,$edit_row, $edit_mode, $self_edit);
 				$row_number++;
             }
             $sql_result->close();
             
-            if($insert_new_account == true) {
+            if($insert_new_account == true && $self_edit == false) {
 				$html_row .= addRow(null,true,true);
 			}
 			
-            $html_row .= getFooterRow($edit_mode);
-			
+            $html_row .= getFooterRow($edit_mode, $self_edit);
+            $html_row .= "</table>" . PHP_EOL;
+            
             echo $html_row;
         	?>
         	
@@ -396,12 +434,14 @@ sec_session_start();
    	function edit_user(form, user_id) {
 	   addformhiddenfield(form, 'form_action', 'edit');
 	   addformhiddenfield(form, 'edit_user_id', user_id);
+	   <?php if($self_edit) echo "addformhiddenfield(form, 'se', 'true');" . PHP_EOL; ?>
 	   form.submit();
    	}
 
    	function save_user(form, user_id) {
  	   addformhiddenfield(form, 'form_action', 'save');
  	   addformhiddenfield(form, 'edit_user_id', user_id);
+ 	   <?php if($self_edit) echo "addformhiddenfield(form, 'se', 'true');" . PHP_EOL; ?>
  	   form.submit();
     }
 
@@ -409,6 +449,7 @@ sec_session_start();
    		if(confirm('Confirm DELETE for user: ' + user_id_name + '?')) {
   	   		addformhiddenfield(form, 'form_action', 'delete');
   	   		addformhiddenfield(form, 'edit_user_id', user_id);
+  	   		<?php if($self_edit) echo "addformhiddenfield(form, 'se', 'true');" . PHP_EOL; ?>
   	   		form.submit();
   	   		return true;
    		}
