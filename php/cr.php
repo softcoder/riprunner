@@ -112,7 +112,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 		if( $user_authenticated == true) {
 
 			// Update the response table
-			if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
+			if(isset($user_pwd) == false && isset($user_lat) == false && isset($callkey_id) && $callkey_id != null) {
 				$sql = 'UPDATE callouts_response SET status = ' . $db_connection->real_escape_string( $user_status ) . ',' .
 						'        updatetime = CURRENT_TIMESTAMP() ' .
 						' WHERE calloutid = ' .	$db_connection->real_escape_string( $callout_id ) .
@@ -141,7 +141,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 			// If update failed, no-one responded yet so INSERT
 			if($affected_response_rows <= 0) {
 			
-				if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
+				if(isset($user_pwd) == false && isset($user_lat) == false && isset($callkey_id) && $callkey_id != null) {
 					$sql = 'INSERT INTO callouts_response (calloutid,useracctid,responsetime,status) ' .
 							' values(' .
 							'' . $db_connection->real_escape_string( $callout_id )  . ', ' .

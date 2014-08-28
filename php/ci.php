@@ -24,6 +24,7 @@ if(isset($firehall_id)) {
 	}
 }
 ?>
+<script type="text/JavaScript" src="js/common-utils.js"></script>
 </head>
 <body bgcolor="#000000">
 <h1><font color="white">Call Information:</font></h1>
@@ -108,7 +109,20 @@ if(isset($firehall_id)) {
 				if($html_responders != '') {
 					$html_responders .= ', &nbsp;';
 				}
-				$html_responders .= $row_response->user_id;
+				if(isset($row_response->latitude) && $row_response->latitude != 0.0 &&
+					isset($row_response->longitude) && $row_response->longitude != 0.0) {
+					//$html_responders .= '<a href="">' . $row_response->user_id . '</a>';
+					$responderOrigin = urlencode($row_response->latitude) . ',' . urlencode($row_response->longitude);
+					//$callDest = getAddressForMapping($FIREHALL,$row["address"]);
+					$fireHallDest = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
+					//$callDest = getAddressForMapping($FIREHALL,$row->address);
+					//$fireHallDest = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
+					
+					$html_responders .= '<a target="_blank" href="http://maps.google.com/maps?saddr='.$responderOrigin.'&daddr=' . $fireHallDest.' ('.$fireHallDest.')">'.$row_response->user_id.'</a>';
+				}
+				else {
+					$html_responders .= $row_response->user_id;
+				}
 			}
 			$html .= $html_responders . '</font></b></h2>' . PHP_EOL;
 			$html .='</div>' . PHP_EOL;
@@ -150,11 +164,11 @@ if(isset($firehall_id)) {
 				$html .='<div id="callNoResponseContent' . $row_number . '">' . PHP_EOL;
 				while($row_no_response = $sql_no_response_result->fetch_object()) {
 					
-					$html .='<form action="cr.php?fhid=' . urlencode($firehall_id) 
+					$html .='<form id="call_no_response_' . $row_no_response->id . '" action="cr.php?fhid=' . urlencode($firehall_id) 
 							. '&cid=' . urlencode($callout_id) 
 							. '&uid=' . urlencode($row_no_response->user_id)
 							. '&ckid=' . urlencode($callkey_id)
-							. '" method="POST" onsubmit="return confirm(\'Confirm ' . $row_no_response->user_id . ' is responding?\');">'. PHP_EOL;
+							. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm ' . $row_no_response->user_id . ' is responding?\',this);">'. PHP_EOL;
 					$html .='<INPUT TYPE="submit" VALUE="Repond Now - ' . 
 								$row_no_response->user_id . '" style="font-size: 25px; background-color:yellow" />'. PHP_EOL;
 					$html .='</form>'. PHP_EOL;
@@ -173,12 +187,12 @@ if(isset($firehall_id)) {
 						
 					$html .='<div id="callYesResponseContent' . $row_number . '">' . PHP_EOL;
 					while($row_yes_response = $sql_yes_response_result->fetch_object()) {
-						$html .='<form action="cr.php?fhid=' . urlencode($firehall_id)
+						$html .='<form id="call_yes_response_' . $row_yes_response->id . '" action="cr.php?fhid=' . urlencode($firehall_id)
 						. '&cid=' . urlencode($callout_id)
 						. '&uid=' . urlencode($row_yes_response->user_id)
 						. '&ckid=' . urlencode($callkey_id)
 						. '&status=' . urlencode(CalloutStatusType::Complete)
-						. '" method="POST" onsubmit="return confirm(\'Confirm that the call should be set to COMPLETE?\');">'. PHP_EOL;
+						. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm that the call should be set to COMPLETE?\',this);">'. PHP_EOL;
 						$html .='<INPUT TYPE="submit" VALUE="End the Callout - '. $row_yes_response->user_id .'" style="font-size: 25px; background-color:lime" />'. PHP_EOL;
 						$html .='</form>'. PHP_EOL;
 					}
