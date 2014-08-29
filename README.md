@@ -210,3 +210,9 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	// This array is used through Rip Runner and lookups are done using the firehall id
 	// to find the firehall configuration to use for a given request
 	$FIREHALLS = array($LOCAL_DEBUG_FIREHALL);
+
+
+Special Notes:
+--------------
+
+Compiling the Android application in the Eclipse IDE requires you to install the ADT plugin (http://developer.android.com/tools/sdk/eclipse-adt.html) as well as setup the Google Play Services SDK (https://developer.android.com/google/play-services/setup.html#Setup) as this is a dependency in the riprunner android app.
