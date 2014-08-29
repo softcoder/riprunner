@@ -34,7 +34,8 @@ System Requirements:
 
 Screenshots:
 ------------
-Coming Soon
+Callout example:
+![Callout Example](/screenshots/riprunner-callou1.png?raw=true "Callout Example")
 
 
 Installation:
