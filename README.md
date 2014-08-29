@@ -35,6 +35,8 @@ System Requirements:
 Screenshots:
 ------------
 
+Call out example (SMS sent to responders with a link to this page):
+
 ![Callout Example](/screenshots/riprunner-callou1.png?raw=true "Callout Example")
 
 System administration:
