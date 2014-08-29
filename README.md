@@ -34,38 +34,7 @@ System Requirements:
 
 Screenshots:
 ------------
-
-<div style="background: #000000">
-<h1><font color="white">Call Information:</font></h1>
-<div id="callContent1">
-<h2><b><font color="white">Page Time: 2014-08-26 12:00:30</font></b></h2>
-<h2><b><font color="yellow">Call Type: RMED - Routine Medical Aid</font></b></h2>
-<h2><b><font color="cyan">Call Address: 9115 SALMON VALLEY RD, SALMON VALLEY, BC</font></b></h2>
-<h2><b><font color="lime">Responding Units: SALGRP</font></b></h2>
-<h2><b><font color="yellow">Call Status: responding</font></b></h2>
-</div>
-<div id="callResponseContent1">
-<h3><b><font color="white">Responders:
-<a target="_blank" href="http://maps.google.com/maps?saddr=53.917064,-122.749669&daddr=5155+Salmon+Valley+Road%2C+Prince+George%2C+BC (5155+Salmon+Valley+Road%2C+Prince+George%2C+BC)">mark.vejvoda</a>, &nbsp;noah.vejvoda</font></b></h2>
-</div>
-
-<iframe width="900" height="700" frameborder="1" style="border:1" src="https://www.google.com/maps/embed/v1/directions?key=AIzaSyBlv8q_KcaOIiaf3x2ZadpkR8Iu3uMdOY0&mode=driving&zoom=13&origin=5155+Salmon+Valley+Road%2C+Prince+George%2C+BC&destination=9115 SALMON VALLEY RD, PRINCE GEORGE, BC"></iframe>
-
-<br /><br />
-<div id="callNoResponseContent2">
-<form id="call_no_response_3" action="cr.php?fhid=0&cid=81&uid=vickie.vejvoda&ckid=53f2982c6fbfc3.01897061" method="POST" onsubmit="return confirmAppendGeoCoordinates('Confirm vickie.vejvoda is responding?',this);">
-<INPUT TYPE="submit" VALUE="Repond Now - vickie.vejvoda" style="font-size: 25px; background-color:yellow" />
-</form>
-<div id="callYesResponseContent2">
-<form id="call_yes_response_1" action="cr.php?fhid=0&cid=81&uid=mark.vejvoda&ckid=53f2982c6fbfc3.01897061&status=10" method="POST" onsubmit="return confirmAppendGeoCoordinates('Confirm that the call should be set to COMPLETE?',this);">
-<INPUT TYPE="submit" VALUE="End the Callout - mark.vejvoda" style="font-size: 25px; background-color:lime" />
-</form>
-<form id="call_yes_response_2" action="cr.php?fhid=0&cid=81&uid=noah.vejvoda&ckid=53f2982c6fbfc3.01897061&status=10" method="POST" onsubmit="return confirmAppendGeoCoordinates('Confirm that the call should be set to COMPLETE?',this);">
-<INPUT TYPE="submit" VALUE="End the Callout - noah.vejvoda" style="font-size: 25px; background-color:lime" />
-</form>
-</div>
-</div>
-</div>
+Coming Soon
 
 
 Installation:
