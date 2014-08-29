@@ -12,10 +12,10 @@ Key Features:
 - Email polling to check for an emergency 911 callout (or page) received from your FOCC (Fire Operations Command Center)
 - Pluggable support for SMS gateway providers to send SMS information to fire fighters. 
   Currently providers implemented include (all offer free acounts with limited SMS / month):
-  - Twilio
-  - Sendhub
-  - EzTexting
-  - TextBelt
+  - Twilio (twilio.com)
+  - Sendhub (sendhub.com)
+  - EzTexting (eztexting.com)
+  - TextBelt (textbelt.com)
 - Self Installation
 - User Account management
 - Callout history with responding members
@@ -31,6 +31,11 @@ System Requirements:
 - A Registered Account on an SMS Gateway Provider (Twilio,Sendhub,EzTexting,TextBelt)
 - A Google Maps API key
 - Optional: If using the experimental Android app, you need a Google Apps Engine (GAE) Project # (see http://developer.android.com/google/gcm/gs.html)
+
+Screenshots:
+------------
+Coming Soon
+
 
 Installation:
 -------------
