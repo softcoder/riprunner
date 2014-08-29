@@ -23,6 +23,17 @@ Key Features:
 - Ability for members to respond to callout, thus letting other members know who is responding
 - Experimental Native Android App which interfaces to the web application (does not require SMS Gateway)
 
+Key Android App Features:
+-------------------------
+- Integrates with the website user accounts for authentication.
+- Uses the free GCM API (Google Cloud Messaging) for notifications saving you SMS charges.
+- Plays a pager tone during a callout
+- Acquires your GPS co-ordinates to display a map from your location to the firehall which other members can view during a callout.
+- Displays a map from the Firehall to the Incident scene
+- Allows responders to indicate that they are responding to the call with the click of 1 button. (other responders are notified)
+- Allows responders to indicate that the call is completed with the click of 1 button. (other responders are notified)
+- If you login during a live callout, you will receive the pager tones and live call information.
+
 System Requirements:
 --------------------
 - An email account that recieves Callout information during a 911 page
