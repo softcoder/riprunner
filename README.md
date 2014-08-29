@@ -48,7 +48,7 @@ System administration:
 
 Installation:
 -------------
-- Edit values in config-default.php to suit your environment. (see Configuration section below)
+- Edit values in [config-default.php](php/config-default.php) to suit your environment. (see Configuration section below)
 - Rename the file config-default.php to config.php
 - Upload the files in the php folder to a location on your webserver.
 - Open the url: http://www.yourwebserver.com/uploadlocation/install.php
@@ -59,15 +59,15 @@ Installation:
 - You will need something that will trigger the email trigger checker. If your server offers a 'cron' or 
   scheduler process, configure it to visit http://www.yourwebserver.com/uploadlocation/email_trigger_check.php
   every minute. If your server does not have cron or limits the frequency, you can use Google App Engine's 
-  cron service to call your email trigger every minute. (see files in php/googleae folder as a reference)
+  cron service to call your email trigger every minute. (see files in [php/googleae](php/googleae) folder as a reference)
 - Send a test email to the trigger email address in order to see if you get notified of a callout.
 
 Configuration:
 --------------
 The most important information that you require to configure is located in config.php. 
-You must create this file (or rename config-default.php to config.php) and supply configuration values.
+You must create this file (or rename [config-default.php](php/config-default.php) to config.php) and supply configuration values.
 The following explains the main sections in config.php. The structures used in coinfig.php are
-defined in config_interfaces.php if you are interested to see their definitions.
+defined in [config_interfaces.php](php/config_interfaces.php) if you are interested to see their definitions.
 
  Config.php:
  -----------
