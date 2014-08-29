@@ -34,13 +34,14 @@ System Requirements:
 
 Screenshots:
 ------------
-Call out example (SMS sent to responders with a link to this page):
-![Callout Example](/screenshots/riprunner-callou1.png?raw=true "Callout Example")
+
+->![Callout Example](/screenshots/riprunner-callou1.png?raw=true "Callout Example")<-
 
 System administration:
-![Login](/screenshots/riprunner-admin1.png?raw=true "Login")
 
-![Main Menu](/screenshots/riprunner-admin2.png?raw=true "Main Menu")
+->![Login](/screenshots/riprunner-admin1.png?raw=true "Login")<-
+
+->![Main Menu](/screenshots/riprunner-admin2.png?raw=true "Main Menu")<-
 
 
 Installation:
