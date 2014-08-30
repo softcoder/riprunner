@@ -86,6 +86,10 @@ Installation:
   every minute. If your server does not have cron or limits the frequency, you can use Google App Engine's 
   cron service to call your email trigger every minute. (see files in [php/googleae](php/googleae) folder as a reference)
 - Send a test email to the trigger email address in order to see if you get notified of a callout.
+- To allow use of the Android app, either copy the prebuilt apk located in 
+  android/RipRunnerApp/bin/RipRunnerApp.apk to apk/ or compile the Android app in Eclipse and copy to apk/
+  This will allow users to select the Android app from the Mobile menu item for download and installation 
+  on their mobile device.
 
 Configuration:
 --------------
