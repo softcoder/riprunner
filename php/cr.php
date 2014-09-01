@@ -1,7 +1,8 @@
 <?php
+// ==============================================================
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
-
+// ==============================================================
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
@@ -51,8 +52,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 					$FIREHALL->MYSQL->MYSQL_DATABASE);
 		}
 
-
-		// Read from the database info about this callout
+		// Authenticate the user
 		$sql = 'SELECT id,user_pwd FROM user_accounts WHERE firehall_id = \'' .
 				$db_connection->real_escape_string( $firehall_id ) . '\'' .
 				' AND user_id = \'' . $db_connection->real_escape_string( $user_id ) . '\';';
@@ -81,8 +81,10 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				}
 				
 				if( $sql_callkey_result->num_rows > 0) {
+					
 					$user_authenticated = true;
 					$useracctid = $row->id;
+					
 					if(isset($user_status) == false || $user_status == null) {
 						$user_status = CalloutStatusType::Responding;
 					}
@@ -92,9 +94,12 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				}
 			}
 			else {
+				// Validate the users password
 				if (crypt($db_connection->real_escape_string( $user_pwd ), $row->user_pwd) === $row->user_pwd ) {
+					
 					$user_authenticated = true;
 					$useracctid = $row->id;
+					
 					if(isset($user_status) == false || $user_status == null) {
 						$user_status = CalloutStatusType::Responding;
 					}
@@ -109,6 +114,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 		}
 		$sql_result->close();
 
+		// User authentication was successful so update tables with response info
 		if( $user_authenticated == true) {
 
 			// Update the response table
@@ -138,7 +144,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 			
 			$affected_response_rows = $db_connection->affected_rows;
 			
-			// If update failed, no-one responded yet so INSERT
+			// If update failed, the responder did not responded yet so INSERT
 			if($affected_response_rows <= 0) {
 			
 				if(isset($user_pwd) == false && isset($user_lat) == false && isset($callkey_id) && $callkey_id != null) {
@@ -172,7 +178,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				$callout_respond_id = $db_connection->insert_id;
 			}
 			
-			// Update the main callout status
+			// Update the main callout status Unless its already set to cancelled or completed
 			$sql = 'UPDATE callouts SET status = ' . $db_connection->real_escape_string( $user_status ) . ',' .
 					'        updatetime = CURRENT_TIMESTAMP() ' .
 					' WHERE id = ' .	$db_connection->real_escape_string( $callout_id ) . 
@@ -188,44 +194,31 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 			}
 
 			$affected_update_rows = $db_connection->affected_rows;
-			
-			// Signal everyone with status update	
+			//echo "Affected rows: " . $affected_update_rows . " for SQL: " . $sql . PHP_EOL;
+
+			// Redirect to call info page
+			if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
+				// Redirect to call info page
+				$redirect_host  = $_SERVER['HTTP_HOST'];
+				$redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+				$redirect_extra = 'ci.php?fhid=' . urlencode($firehall_id) .
+				'&cid=' . urlencode($callout_id) .
+				'&ckid=' . urlencode($callkey_id);
+				header("Location: http://$redirect_host$redirect_uri/$redirect_extra");
+			}
+				
+			// Output the response update result	
 			if($affected_response_rows <= 0) {
-				
-				if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
-					// Redirect to call info page
-					$redirect_host  = $_SERVER['HTTP_HOST'];
-					$redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-					$redirect_extra = 'ci.php?fhid=' . urlencode($firehall_id) .
-					           		  '&cid=' . urlencode($callout_id) .
-									  '&ckid=' . urlencode($callkey_id);
-					header("Location: http://$redirect_host$redirect_uri/$redirect_extra");
-				}
-				
-				echo "OK=" . $callout_respond_id . '|' . $affected_update_rows;
-				
-				if($affected_update_rows > 0) {
-					signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat, 
-						$user_long,$user_status, $callkey_id);
-				}
+				echo "OK=" . $callout_respond_id . '|' . $affected_update_rows . '|';
 			}
 			else {
-				if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
-					// Redirect to call info page
-					$redirect_host  = $_SERVER['HTTP_HOST'];
-					$redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-					$redirect_extra = 'ci.php?fhid=' . urlencode($firehall_id) .
-					'&cid=' . urlencode($callout_id) .
-					'&ckid=' . urlencode($callkey_id);
-					header("Location: http://$redirect_host$redirect_uri/$redirect_extra");
-				}
-				
-				echo "OK=?" . '|' . $affected_update_rows;
-				
-				if($affected_update_rows > 0) {
-					signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat, 
-						$user_long,$user_status, $callkey_id);
-				}
+				echo "OK=?" . '|' . $affected_update_rows . '|';
+			}
+			
+			// Signal everyone with the status update if required
+			if($affected_update_rows > 0) {
+				signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat,
+				$user_long,$user_status, $callkey_id);
 			}
 		}
 

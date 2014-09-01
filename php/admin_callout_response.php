@@ -1,6 +1,8 @@
 <?php
+// ==============================================================
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
+// ==============================================================
 define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
@@ -21,11 +23,14 @@ sec_session_start();
         <title>Secure Login: Protected Page</title>
         <?php if ($detect->isMobile()) : ?>
         <link rel="stylesheet" href="styles/mobile.css" />
+        <link rel="stylesheet" href="styles/table-styles-mobile.css" />
         <?php else : ?>
         <link rel="stylesheet" href="styles/main.css" />
+        <link rel="stylesheet" href="styles/table-styles.css" />
         <?php endif; ?>
         
         <link rel="stylesheet" href="styles/freeze-header.css" />
+        
         <script type="text/JavaScript" src="js/forms.js"></script>
         <script type="text/JavaScript" src="js/freeze-header.js"></script>
     </head>
@@ -102,19 +107,22 @@ sec_session_start();
 		}
 		?>
 		
-        	<table class="center" id="freeze_pane_detail">			
+        	<center>
+        	<table id="box-table-a">			
 		    <?php
 		    if(isset($colNames)) {
-				echo "<tr>";
+				echo '<thead>';
+				echo '<tr>';
 				foreach($colNames as $colName) {
 					// skip address field
 					if($colName == "address") {
 					}
 					else {
-						echo "<td>$colName</td>";
+						echo '<th scope="col">'.$colName.'</th>';
 					}
 				}
-				echo "</tr>";
+				echo '</tr>';
+				echo '</thead>';
 
 				//print the rows
 				foreach($data as $row) {
@@ -122,6 +130,9 @@ sec_session_start();
 				    foreach($colNames as $colName) {
 						// skip address field
 						if($colName == "address") {
+						}
+						else if($colName == "responsetime") {
+							echo '<td class="column_nowrap">'.$row[$colName].'</td>';
 						}
 						else if($colName == "latitude" || $colName == "longitude") {
 							if($row["latitude"] != 0.0 && $row["longitude"] != 0.0) {
@@ -138,6 +149,9 @@ sec_session_start();
 						else if($colName == "status") {
 							echo "<td>". getCallStatusDisplayText($row[$colName])."</td>";
 						}
+						else if($colName == "updatetime") {
+							echo '<td class="column_nowrap">'.$row[$colName].'</td>';
+						}
 						else {
 			    			echo "<td>".$row[$colName]."</td>";
 			    		}
@@ -147,10 +161,7 @@ sec_session_start();
 			}
 			?>
 			</table>
-		</div>
-		<script type="text/JavaScript">
-		//synchTables(document.getElementById('freeze_header_div').getElementsByTagName('table'));
-		</script>
+			</center>
 		
         <?php else : ?>
             <p>

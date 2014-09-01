@@ -1,9 +1,11 @@
 <?php
+// ==============================================================
+//	Copyright (C) 2014 Mark Vejvoda
+//	Under GNU GPL v3.0
+// ==============================================================
 define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
-//	Copyright (C) 2014 Mark Vejvoda
-//	Under GNU GPL v3.0
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 

@@ -1,6 +1,8 @@
 <?php
+// ==============================================================
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
+// ==============================================================
 define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
@@ -21,9 +23,14 @@ sec_session_start();
         <title>Secure Login: Protected Page</title>
         <?php if ($detect->isMobile()) : ?>
         <link rel="stylesheet" href="styles/mobile.css" />
+        <link rel="stylesheet" href="styles/table-styles-mobile.css" />
         <?php else : ?>
         <link rel="stylesheet" href="styles/main.css" />
+        <link rel="stylesheet" href="styles/table-styles.css" />
         <?php endif; ?>
+        
+        <link rel="stylesheet" href="styles/freeze-header.css" />
+        
         <script type="text/JavaScript" src="js/forms.js"></script>
     </head>
     <body>
@@ -31,19 +38,21 @@ sec_session_start();
 <?php
 
 	function getHeaderRow($edit_mode) {
-		$html_row = "<tr>";
-		$html_row .= "<td>Record Id</td>" . PHP_EOL;
-		$html_row .= "<td>Firehall Id</td>" . PHP_EOL;
-		$html_row .= "<td>User Id</td>" . PHP_EOL;
+		$html_row = '<thead>';
+		$html_row .= '<tr>';
+		$html_row .= '<th scope="col">Record Id</th>' . PHP_EOL;
+		$html_row .= '<th scope="col">Firehall Id</th>' . PHP_EOL;
+		$html_row .= '<th scope="col">User Id</th>' . PHP_EOL;
 		if($edit_mode == true) {
-			$html_row .= "<td>Password</td>" . PHP_EOL;
-			$html_row .= "<td>Re-type Password</td>" . PHP_EOL;
+			$html_row .= '<th scope="col">Password</th>' . PHP_EOL;
+			$html_row .= '<th scope="col">Re-type Password</th>' . PHP_EOL;
 		}
-		$html_row .= "<td>Mobile Phone</td>" . PHP_EOL;
-		$html_row .= "<td>Admin Access</td>" . PHP_EOL;
-		$html_row .= "<td>Update Date/Time</td>" . PHP_EOL;
-		$html_row .= '<td colspan="2" align="Center">Modify Data</td>' . PHP_EOL;
-		$html_row .= "<tr>" . PHP_EOL;
+		$html_row .= '<th scope="col">Mobile Phone</th>' . PHP_EOL;
+		$html_row .= '<th scope="col">Admin Access</th>' . PHP_EOL;
+		$html_row .= '<th scope="col" class="column_nowrap">Update Date/Time</th>' . PHP_EOL;
+		$html_row .= '<th scope="col" colspan="2" align="Center">Modify Data</th>' . PHP_EOL;
+		$html_row .= '<tr>' . PHP_EOL;
+		$html_row .= '</thead>';
 		
 		return $html_row;
 	}
@@ -123,7 +132,7 @@ sec_session_start();
         	}
         	$html_row .= "</td>" . PHP_EOL;
         	 
-        	$html_row .= "<td>" . PHP_EOL;
+        	$html_row .= '<td class="column_nowrap">' . PHP_EOL;
         	$html_row .= (isset($row) ? $row->updatetime : '') . PHP_EOL;
         	$html_row .= "</td>" . PHP_EOL;
         
@@ -406,7 +415,9 @@ sec_session_start();
             }
             
             $edit_mode = isset($edit_user_id);
-            $html_row = '<table class="center" border="1">' . PHP_EOL;
+            
+            echo '<center>'. PHP_EOL;
+            $html_row = '<table id="box-table-a">' . PHP_EOL;
             $row_number = 1;
             while($row = $sql_result->fetch_object()) {
 				if($row_number == 1) {
@@ -426,6 +437,7 @@ sec_session_start();
             $html_row .= "</table>" . PHP_EOL;
             
             echo $html_row;
+            echo '</center>'. PHP_EOL;
         	?>
         	
             </form>

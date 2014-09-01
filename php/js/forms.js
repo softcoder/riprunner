@@ -1,3 +1,8 @@
+// ==============================================================
+//	Copyright (C) 2014 Mark Vejvoda
+//	Under GNU GPL v3.0
+// ==============================================================
+
 function addformhiddenfield(form, name, value) {
     // Create a new element input, this will be our hashed password field. 
     var p = document.createElement("input");

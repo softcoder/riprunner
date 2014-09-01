@@ -1,3 +1,8 @@
+// ==============================================================
+//	Copyright (C) 2014 Mark Vejvoda
+//	Under GNU GPL v3.0
+// ==============================================================
+
 function synchTables(tableArray) {
     var cellWidths = new Array();
 

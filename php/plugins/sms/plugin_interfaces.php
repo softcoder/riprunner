@@ -1,4 +1,8 @@
 <?php
+// ==============================================================
+//	Copyright (C) 2014 Mark Vejvoda
+//	Under GNU GPL v3.0
+// ==============================================================
 
 // Types of recipient lists
 abstract class RecipientListType {

@@ -1,6 +1,8 @@
 <?php
+// ==============================================================
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
+// ==============================================================
 define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
@@ -21,12 +23,16 @@ sec_session_start();
         <title>Secure Login: Protected Page</title>
         <?php if ($detect->isMobile()) : ?>
         <link rel="stylesheet" href="styles/mobile.css" />
+        <link rel="stylesheet" href="styles/table-styles-mobile.css" />
         <!--   <link rel="stylesheet" href="styles/main.css" /> -->
         <?php else : ?>
         <link rel="stylesheet" href="styles/main.css" />
+        <link rel="stylesheet" href="styles/table-styles.css" />
         <?php endif; ?>
         
         <link rel="stylesheet" href="styles/freeze-header.css" />
+        
+        
         <script type="text/JavaScript" src="js/forms.js"></script>
         <script type="text/JavaScript" src="js/freeze-header.js"></script>
         <script type="text/JavaScript" src="js/jquery-2.1.1.min.js"></script>
@@ -100,130 +106,62 @@ sec_session_start();
 		}
 		?>
 		
-		<!--  <div class="wrap" id="freeze_header_div"> 
-			<table border="1" class="head" id="freeze_pane_header">
-				<tr>
-				<?php
-				/*
-				if(isset($colNames)) {
-					//print the header
-					foreach($colNames as $colName) {
-						if($colName == "address") {
-							echo '<td class="column_nowrap">'.$colName.'</td>';
-						}
-						else {
-							echo "<td>$colName</td>";
-						}
-					}
-				}
-				*/
-				?>
-			 	</tr>
-			</table>
-			
-			<div id="inner_table_div" class="inner_table">
-			
-			-->
-			
-	        	<table class="center" id="freeze_pane_detail">
-			    <?php
-			    if(isset($colNames)) {
+		<center>		
+        <table id="box-table-a">
+		<?php
+	    if(isset($colNames)) {
 
-					echo "<tr>";
-					//print the header
-					foreach($colNames as $colName) {
-						if($colName == "address") {
-							echo '<td class="column_nowrap">'.$colName.'</td>';
-						}
-						else {
-							echo "<td>$colName</td>";
-						}
-					}
-					echo "</tr>";
-					
-					//print the rows
-					foreach($data as $row) {
-						echo "<tr>";
-						$col_num = 0;
-					    foreach($colNames as $colName) {
-							//if($col_num == 0) {
-							if($colName == "id") {
-								echo '<td><a href="admin_callout_response.php?cid=' . $row[$colName] . '">'.$row[$colName].'</a></td>';
-							}
-							else if($colName == "address") {
-								
-								$callOrigin = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
-								$callDest = getAddressForMapping($FIREHALL,$row[$colName]);
-									
-								$mapUrl = '<a target="_blank" href="http://maps.google.com/maps?saddr='.$callOrigin.'&daddr=' . $callDest.' ('.$row[$colName].')">'.$row[$colName].'</a>' . PHP_EOL;
-								echo '<td class="column_nowrap">'. $mapUrl .'</td>';
-							}
-							else if($colName == "status") {
-								echo "<td>". getCallStatusDisplayText($row[$colName])."</td>";
-							}
-							else {
-					    		echo "<td>".$row[$colName]."</td>";
-					    	}
-					    	$col_num++;
-					    }
-					    echo "</tr>";
-					}
+			echo "<thead>";
+			echo "<tr>";
+			//print the header
+			foreach($colNames as $colName) {
+				if($colName == "address") {
+					echo '<th scope="col" class="column_nowrap">'.$colName.'</th>';
 				}
-				?>
-				</table>
-			<!-- </div> -->
-		</div>
-		<script type="text/JavaScript">
-		function SetSize() {
-		    var i = 0;
-		    $("#freeze_pane_detail tr").first().find("td").each(function() {
-		        $($("#freeze_pane_header tr").first().find("td")[i]).width(
-		            $(this).width()
-		        );
-		        i++;
-		    });
-// 		    $("#freeze_pane_header tr").first().find("td").each(function() {
-// 		        $($("#freeze_pane_detail tr").first().find("td")[i]).width(
-// 		            $(this).width()
-// 		        );
-// 		        i++;
-// 		    });
-		    
-		}
-
-		function synchTableSizes() {
-			//synchTables(document.getElementById('freeze_header_div').getElementsByTagName('table'));
-			//synchTable(document.getElementById('freeze_pane_header'),document.getElementById('freeze_pane_detail'));
+				else {
+					echo '<th scope="col">'.$colName.'</th>';
+				}
+			}
+			echo "</tr>";
+			echo "</thead>";
 			
-		}
+			//print the rows
+			foreach($data as $row) {
+				echo "<tr>";
+				$col_num = 0;
+			    foreach($colNames as $colName) {
+					//if($col_num == 0) {
+					if($colName == "id") {
+						echo '<td><a href="admin_callout_response.php?cid=' . $row[$colName] . '">'.$row[$colName].'</a></td>';
+					}
+					else if($colName == "calltime") {
+						echo '<td class="column_nowrap">'. $row[$colName] .'</td>';
+					}
+					else if($colName == "address") {
 						
-		$( document ).ready(function() {
-		  	// 	Handler for .ready() called.
-		  	//alert('hello synch1');
-			//synchTables(document.getElementById('freeze_header_div').getElementsByTagName('table'));
-			
-			//$(window).resize(SetSize);
-			//SetSize();
-			//$(window).resize(synchTableSizes);
-			//synchTableSizes();
-						
-			//alert('hello synch2');
-			//$("#freeze_pane_header").width($("#freeze_pane_detail").width());
-			//$("#freeze_pane_header tr td").each(function (i){
-			//	var colMax = Math.max($(this).width(),$($("#freeze_pane_detail tr:first td")[i]).width());
-			//	$(this).width(colMax);
-			//})
-			//$("#freeze_pane_detail tr td").each(function (i){
-			//	var colMax = Math.max($(this).width(),$($("#freeze_pane_header tr:first td")[i]).width());
-			//	$(this).width(colMax);
-			//})
-			
-			//$("#freeze_pane_header").refresh();
-			//alert($("#freeze_pane_header").attr('id'));
-			//$("#freeze_header_div").find("div[id=inner_table_div]").find("table[id=freeze_pane_detail]").refresh();
-        	//document.getElementById('freeze_pane_detail').refresh();
-		});
-		</script>
+						$callOrigin = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
+						$callDest = getAddressForMapping($FIREHALL,$row[$colName]);
+							
+						$mapUrl = '<a target="_blank" href="http://maps.google.com/maps?saddr='.$callOrigin.'&daddr=' . $callDest.' ('.$row[$colName].')">'.$row[$colName].'</a>' . PHP_EOL;
+						echo '<td class="column_nowrap">'. $mapUrl .'</td>';
+					}
+					else if($colName == "updatetime") {
+						echo '<td class="column_nowrap">'. $row[$colName] .'</td>';
+					}
+					else if($colName == "status") {
+						echo "<td>". getCallStatusDisplayText($row[$colName])."</td>";
+					}
+					else {
+			    		echo "<td>".$row[$colName]."</td>";
+			    	}
+			    	$col_num++;
+			    }
+			    echo "</tr>";
+			}
+		}
+		?>
+		</table>
+		</center>
 		
         <?php else : ?>
             <p>

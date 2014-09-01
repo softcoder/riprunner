@@ -1,9 +1,11 @@
 <?php
-ini_set('display_errors', 'On');
-error_reporting(E_ALL);
-
+// ==============================================================
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
+// ==============================================================
+
+ini_set('display_errors', 'On');
+error_reporting(E_ALL);
 /* This program reads emails from a POP3 mailbox and parses messages that
  * match the expected format. Each callout message is persisted to a database
  * table. 
