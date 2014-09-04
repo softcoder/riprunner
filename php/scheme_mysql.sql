@@ -29,9 +29,11 @@ CREATE TABLE  `user_accounts` (
 -- ALTER TABLE user_accounts ADD COLUMN `access` INT( 11 ) NOT NULL DEFAULT 0 AFTER mobile_phone;
 
 CREATE TABLE `login_attempts` (
+    `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `useracctid` INT(11) NOT NULL,
     `time` VARCHAR(30) NOT NULL
 ) ENGINE = INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- ALTER TABLE login_attempts ADD COLUMN `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
 
 CREATE TABLE `callouts_response` (
   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,

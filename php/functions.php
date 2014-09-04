@@ -186,24 +186,19 @@
 	}
 	
 	function checkbrute($user_id, $db_connection) {
-		// Get timestamp of current time
-		$now = time();
-	
 		// All login attempts are counted from the past 2 hours.
-		$valid_attempts = $now - (2 * 60 * 60);
-	
 		if ($stmt = $db_connection->prepare("SELECT time
 				FROM login_attempts
-				WHERE useracctid = ?
-				AND time > '$valid_attempts'")) {
+				WHERE useracctid = ? " .
+				" AND time > NOW() - INTERVAL 2 HOUR")) {
 			$stmt->bind_param('i', $user_id);
 	
 			// Execute the prepared query.
 			$stmt->execute();
 			$stmt->store_result();
 	
-			// If there have been more than 5 failed logins
-			if ($stmt->num_rows > 5) {
+			// If there have been more than 3 failed logins
+			if ($stmt->num_rows > 3) {
 				return true;
 			} 
 			else {

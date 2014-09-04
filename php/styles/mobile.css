@@ -1,7 +1,7 @@
 * {
-    margin:0;
-    padding:0;
-    outline:0;
+	margin:0;
+	padding:0;
+	outline:0;
 }
 body {
     font-size:48px;
@@ -12,7 +12,7 @@ body {
 }
 a {
 	font-size:48px;
-    color:#e7b038;
+    color:0033CC;
     text-decoration:underline;
     cursor:pointer;
 }
@@ -384,22 +384,12 @@ h1#logo a {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
 form:after {
     content: ".";
     display: block;
@@ -541,13 +531,13 @@ form:after {
 
 #content form input[type="button"],
 #content form input[type="submit"] {
-    background: rgb(254,231,154);
-    background: -moz-linear-gradient(top,  rgba(254,231,154,1) 0%, rgba(254,193,81,1) 100%);
-    background: -webkit-linear-gradient(top,  rgba(254,231,154,1) 0%,rgba(254,193,81,1) 100%);
-    background: -o-linear-gradient(top,  rgba(254,231,154,1) 0%,rgba(254,193,81,1) 100%);
-    background: -ms-linear-gradient(top,  rgba(254,231,154,1) 0%,rgba(254,193,81,1) 100%);
-    background: linear-gradient(top,  rgba(254,231,154,1) 0%,rgba(254,193,81,1) 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fee79a', endColorstr='#fec151',GradientType=0 );
+    background: #aabcfe;
+    background: -moz-linear-gradient(top,  #aabcfe 0%, #e8edff 100%);
+    background: -webkit-linear-gradient(top,  #aabcfe 0%,#e8edff 100%);
+    background: -o-linear-gradient(top,  #aabcfe 0%,#e8edff 100%);
+    background: -ms-linear-gradient(top,  #aabcfe 0%,#e8edff 100%);
+    background: linear-gradient(top,  #aabcfe 0%,#e8edff 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#aabcfe', endColorstr='#e8edff',GradientType=0 );
     -webkit-border-radius: 30px;
     -moz-border-radius: 30px;
     -ms-border-radius: 30px;
@@ -558,8 +548,8 @@ form:after {
     -ms-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
     -o-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
     box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
-    border: 1px solid #D69E31;
-    color: #85592e;
+    border: 1px solid #aabcfe;
+    color: #00246B;
     cursor: pointer;
     float: left;
     font: bold 40px Helvetica, Arial, sans-serif;
@@ -572,13 +562,13 @@ form:after {
 
 #content form input[type="button"]:hover,
 #content form input[type="submit"]:hover {
-    background: rgb(254,193,81);
-    background: -moz-linear-gradient(top,  rgba(254,193,81,1) 0%, rgba(254,231,154,1) 100%);
-    background: -webkit-linear-gradient(top,  rgba(254,193,81,1) 0%,rgba(254,231,154,1) 100%);
-    background: -o-linear-gradient(top,  rgba(254,193,81,1) 0%,rgba(254,231,154,1) 100%);
-    background: -ms-linear-gradient(top,  rgba(254,193,81,1) 0%,rgba(254,231,154,1) 100%);
-    background: linear-gradient(top,  rgba(254,193,81,1) 0%,rgba(254,231,154,1) 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fec151', endColorstr='#fee79a',GradientType=0 );
+    background: #e8edff;
+    background: -moz-linear-gradient(top,  #e8edff 0%, #aabcfe 100%);
+    background: -webkit-linear-gradient(top,  #e8edff 0%,#aabcfe 100%);
+    background: -o-linear-gradient(top,  #e8edff 0%,#aabcfe 100%);
+    background: -ms-linear-gradient(top,  #e8edff 0%,#aabcfe 100%);
+    background: linear-gradient(top,  #e8edff 0%,#aabcfe 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fec151', endColorstr='#aabcfe',GradientType=0 );
 }
 #content form div a {
     color: #004a80;
@@ -638,11 +628,6 @@ table.center {
 
 
 
-
-
-
-
-
 .menudiv_wrapper {
   margin: 20px auto;
   width: 550px;
@@ -686,7 +671,7 @@ nav.vertical {
 
         nav.vertical > ul > li > label:hover,
         nav.vertical > ul > li > a:hover {
-         background-color: rgb(114, 51, 98);
+         background-color: #003399;
          background-image: -webkit-linear-gradient(150deg, #003399, #003399);
          background-image: -moz-linear-gradient(150deg, #003399, #003399);
          background-image: -o-linear-gradient(150deg, #003399, #003399);
@@ -730,4 +715,5 @@ nav.vertical {
                 color: rgb(255,255,255);
                 padding: 10px 0 10px 50px;
               }            
+              
               
