@@ -445,6 +445,21 @@ public class AppMainActivity extends ActionBarActivity implements
         return value;
     }
 
+    private String getGcmDeviceRegistrationId(boolean forceNewId) throws IOException {
+        if (gcm == null) {
+            gcm = GoogleCloudMessaging.getInstance(context);
+        }
+        
+        String regid = getConfigItem(context,PROPERTY_REG_ID);
+        if (forceNewId == true || regid.isEmpty()) {
+        	regid = gcm.register(getConfigItem(context,PROPERTY_SENDER_ID));
+
+        	// Persist the regID - no need to register again.
+        	storeConfigItem(context, PROPERTY_REG_ID, regid);
+        }
+    	return regid;
+    }
+    
     /**
      * Registers the application with GCM servers asynchronously.
      * <p>
@@ -469,18 +484,19 @@ public class AppMainActivity extends ActionBarActivity implements
             protected String doInBackground(Void... params) {
                 String msg = "";
                 try {
-                    if (gcm == null) {
-                        gcm = GoogleCloudMessaging.getInstance(context);
-                    }
-                    
-                    String regid = getConfigItem(context,PROPERTY_REG_ID);
-                    if (regid.isEmpty()) {
-                    	regid = gcm.register(getConfigItem(context,PROPERTY_SENDER_ID));
-
-                    	// Persist the regID - no need to register again.
-                    	storeConfigItem(context, PROPERTY_REG_ID, regid);
-                    }
-                    
+//                    if (gcm == null) {
+//                        gcm = GoogleCloudMessaging.getInstance(context);
+//                    }
+//                    
+//                    String regid = getConfigItem(context,PROPERTY_REG_ID);
+//                    if (regid.isEmpty()) {
+//                    	regid = gcm.register(getConfigItem(context,PROPERTY_SENDER_ID));
+//
+//                    	// Persist the regID - no need to register again.
+//                    	storeConfigItem(context, PROPERTY_REG_ID, regid);
+//                    }
+                	String regid = getGcmDeviceRegistrationId(false);
+                	
                     EditText etFhid = (EditText)findViewById(R.id.etFhid);
                     EditText etUid = (EditText)findViewById(R.id.etUid);
                     EditText etUpw = (EditText)findViewById(R.id.etUpw);
@@ -713,6 +729,14 @@ public class AppMainActivity extends ActionBarActivity implements
                 Context.MODE_PRIVATE);
     }
     
+    private boolean isGcmErrorNotRegistered(String responseString) {
+    	//|GCM_ERROR:
+    	if(responseString != null && responseString.contains("|GCM_ERROR:")) {
+    		return true;
+    	}
+    	return false;
+    }
+    
     /**
      * Sends the registration ID to your server over HTTP, so it can use GCM/HTTP or CCS to send
      * messages to your app. Not needed for this demo since the device sends upstream messages
@@ -739,6 +763,13 @@ public class AppMainActivity extends ActionBarActivity implements
             out.close();
             
             final String responseString = out.toString();
+            if(isGcmErrorNotRegistered(responseString)) {
+            	String regid = getGcmDeviceRegistrationId(true);
+            	auth.setGCMRegistrationId(regid);
+            	sendRegistrationIdToBackend(auth);
+            	return;
+            }
+            		
             if(responseString != null && responseString.startsWith("OK=")) {
 	            storeConfigItem(context, PROPERTY_USER_ID, auth.getUserId());
 	            auth.setRegisteredBackend(true);
@@ -1061,93 +1092,24 @@ public class AppMainActivity extends ActionBarActivity implements
 		            			serviceJsonString, "Bundle\\[(.*?)\\]", 1, true);
 		            	try {
 							JSONObject json = new JSONObject( serviceJsonString );
-							
-							if(json.has("CALLOUT_MSG")) {
-								final String calloutMsg = URLDecoder.decode(json.getString("CALLOUT_MSG"), "utf-8");
 
-			            		String gpsLatStr = "";
-			            		String gpsLongStr = "";
-				            	
-				            	try {
-				            		gpsLatStr = URLDecoder.decode(json.getString("call-gps-lat"), "utf-8");
-				            		gpsLongStr = URLDecoder.decode(json.getString("call-gps-long"), "utf-8");
-				            	}
-				            	catch(Exception e) {
-				            		Log.e("getBroadCastReceiver()", calloutMsg, e);
-				            		
-									throw new RuntimeException("Could not parse JSON data: " + e);
-				            	}
-								lastCallout = new FireHallCallout(
-										URLDecoder.decode(json.getString("call-id"), "utf-8"),
-										URLDecoder.decode(json.getString("call-key-id"), "utf-8"),
-										gpsLatStr,gpsLongStr,
-										URLDecoder.decode(json.getString("call-address"), "utf-8"),
-										URLDecoder.decode(json.getString("call-map-address"), "utf-8"),
-										URLDecoder.decode(json.getString("call-units"), "utf-8"),
-										URLDecoder.decode(json.getString("call-status"), "utf-8"));
-				            	
-				                runOnUiThread(new Runnable() {
-				                    public void run() {
-
-						            	mDisplay = (TextView) findViewById(R.id.display);
-						            	mDisplay.setText(calloutMsg);
-				                    	
-						            	playSound(AppMainActivity.this.context,FireHallSoundPlayer.SOUND_PAGER_TONE_PG);
-				                    	
-				                        Button btnMap = (Button)findViewById(R.id.btnMap);
-				                        btnMap.setVisibility(View.VISIBLE);
-				                        btnMap.setEnabled(true);
-				                        
-				                        Button btnRespond = (Button)findViewById(R.id.btnRespond);
-				                        btnRespond.setVisibility(View.VISIBLE);
-				                        btnRespond.setEnabled(true);
-				                        
-	    				            	if(CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
-			    			                    Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-			    			                    btnCompleteCall.setVisibility(View.VISIBLE);
-			    			                    btnCompleteCall.setEnabled(true);
-	    				            	}
-	    				            	else {
-		    			                    Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-		    			                    btnCompleteCall.setVisibility(View.VISIBLE);
-		    			                    btnCompleteCall.setEnabled(false);
-	    				            	}
-				                   }
-				                });
+							if(json.has("DEVICE_MSG")) {
+								// Do Nothing.
+								final String deviceMsg = URLDecoder.decode(json.getString("DEVICE_MSG"), "utf-8");
+								if(deviceMsg != null && deviceMsg.equals("GCM_LOGINOK") == false) {
+									runOnUiThread(new Runnable() {
+									    public void run() {
+									    	mDisplay = (TextView) findViewById(R.id.display);
+									    	mDisplay.append("\n" + deviceMsg);
+									   }
+									});
+								}
+							}
+							else if(json.has("CALLOUT_MSG")) {
+								processCalloutTrigger(json);
 							}
 							else if(json.has("CALLOUT_RESPONSE_MSG")) {
-								final String calloutMsg = URLDecoder.decode(json.getString("CALLOUT_RESPONSE_MSG"), "utf-8");
-					
-								String callout_id = URLDecoder.decode(json.getString("call-id"), "utf-8");
-								String callout_status = URLDecoder.decode(json.getString("user-status"), "utf-8");
-								if(lastCallout != null) {
-									if(lastCallout.getCalloutId() == callout_id) {
-										if(lastCallout.getStatus() != callout_status) {
-											lastCallout.setStatus(callout_status);
-										}
-									}
-								}
-	        		            runOnUiThread(new Runnable() {
-	        		                public void run() {
-	    				            	mDisplay = (TextView) findViewById(R.id.display);
-	    				            	mDisplay.append("\n" + calloutMsg);
-
-	    				            	if(lastCallout != null &&
-	    				            		CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
-	    				            		
-		    			                    Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-		    			                    btnCompleteCall.setVisibility(View.VISIBLE);
-		    			                    btnCompleteCall.setEnabled(true);
-	    				            	}
-	    				            	else {
-		    			                    Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-		    			                    btnCompleteCall.setVisibility(View.VISIBLE);
-		    			                    btnCompleteCall.setEnabled(false);
-	    				            	}
-	    				            	
-	        		                	playSound(AppMainActivity.this.context,FireHallSoundPlayer.SOUND_DINGLING);
-	        		               }
-	        		            });       
+								processCalloutResponseTrigger(json);       
 							}
 						}
 		            	catch (JSONException e) {
@@ -1163,6 +1125,97 @@ public class AppMainActivity extends ActionBarActivity implements
 		            	}
 		            }
 		        }
+
+				void processCalloutResponseTrigger(JSONObject json)
+						throws UnsupportedEncodingException, JSONException {
+					final String calloutMsg = URLDecoder.decode(json.getString("CALLOUT_RESPONSE_MSG"), "utf-8");
+
+					String callout_id = URLDecoder.decode(json.getString("call-id"), "utf-8");
+					String callout_status = URLDecoder.decode(json.getString("user-status"), "utf-8");
+					if(lastCallout != null) {
+						if(lastCallout.getCalloutId() == callout_id) {
+							if(lastCallout.getStatus() != callout_status) {
+								lastCallout.setStatus(callout_status);
+							}
+						}
+					}
+					runOnUiThread(new Runnable() {
+					    public void run() {
+					    	mDisplay = (TextView) findViewById(R.id.display);
+					    	mDisplay.append("\n" + calloutMsg);
+
+					    	if(lastCallout != null &&
+					    		CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
+					    		
+					            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+					            btnCompleteCall.setVisibility(View.VISIBLE);
+					            btnCompleteCall.setEnabled(true);
+					    	}
+					    	else {
+					            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+					            btnCompleteCall.setVisibility(View.VISIBLE);
+					            btnCompleteCall.setEnabled(false);
+					    	}
+					    	
+					    	playSound(AppMainActivity.this.context,FireHallSoundPlayer.SOUND_DINGLING);
+					   }
+					});
+				}
+
+				void processCalloutTrigger(JSONObject json)
+						throws UnsupportedEncodingException, JSONException {
+					final String calloutMsg = URLDecoder.decode(json.getString("CALLOUT_MSG"), "utf-8");
+
+					String gpsLatStr = "";
+					String gpsLongStr = "";
+					
+					try {
+						gpsLatStr = URLDecoder.decode(json.getString("call-gps-lat"), "utf-8");
+						gpsLongStr = URLDecoder.decode(json.getString("call-gps-long"), "utf-8");
+					}
+					catch(Exception e) {
+						Log.e("getBroadCastReceiver()", calloutMsg, e);
+						
+						throw new RuntimeException("Could not parse JSON data: " + e);
+					}
+					lastCallout = new FireHallCallout(
+							URLDecoder.decode(json.getString("call-id"), "utf-8"),
+							URLDecoder.decode(json.getString("call-key-id"), "utf-8"),
+							gpsLatStr,gpsLongStr,
+							URLDecoder.decode(json.getString("call-address"), "utf-8"),
+							URLDecoder.decode(json.getString("call-map-address"), "utf-8"),
+							URLDecoder.decode(json.getString("call-units"), "utf-8"),
+							URLDecoder.decode(json.getString("call-status"), "utf-8"));
+					
+					runOnUiThread(new Runnable() {
+					    public void run() {
+
+					    	mDisplay = (TextView) findViewById(R.id.display);
+					    	mDisplay.setText(calloutMsg);
+					    	
+					    	playSound(AppMainActivity.this.context,FireHallSoundPlayer.SOUND_PAGER_TONE_PG);
+					    	
+					        Button btnMap = (Button)findViewById(R.id.btnMap);
+					        btnMap.setVisibility(View.VISIBLE);
+					        btnMap.setEnabled(true);
+					        
+					        Button btnRespond = (Button)findViewById(R.id.btnRespond);
+					        btnRespond.setVisibility(View.VISIBLE);
+					        btnRespond.setEnabled(true);
+					        
+					    	if(CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
+					                Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+					                btnCompleteCall.setVisibility(View.VISIBLE);
+					                btnCompleteCall.setEnabled(true);
+					    	}
+					    	else {
+					            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+					            btnCompleteCall.setVisibility(View.VISIBLE);
+					            btnCompleteCall.setEnabled(false);
+					    	}
+					   }
+					});
+				}
 		    };
     	}
     	return bReceiver;

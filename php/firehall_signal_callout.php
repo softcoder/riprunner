@@ -11,6 +11,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 require_once( 'config.php' );
 require_once( 'functions.php' );
 require_once( 'plugins_loader.php' );
+require_once( 'firehall_signal_gcm.php' );
 
 function signalFireHallCallout($FIREHALL, $callDateTimeNative, $callCode, 
 	                		$callAddress, $callGPSLat, $callGPSLong, 
@@ -51,10 +52,14 @@ function signalFireHallCallout($FIREHALL, $callDateTimeNative, $callCode,
 			$callAddress, $callGPSLat, $callGPSLong,
 			$callUnitsResponding, $callType, $callout_id, $callKey);
 
+	$gcmMsg = getSMSCalloutMessage($FIREHALL,$callDateTimeNative,
+			$callCode, $callAddress, $callGPSLat, $callGPSLong,
+			$callUnitsResponding, $callType, $callout_id, $callKey,0);
+	
 	signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 		$callCode, $callAddress, $callGPSLat, $callGPSLong,
 			$callUnitsResponding, $callType, $callout_id, $callKey,
-			CalloutStatusType::Paged,null,$db_connection);
+			CalloutStatusType::Paged,null,$gcmMsg,$db_connection);
 
 	// Only update status if not cancelled or completed already
 	$sql_update = 'UPDATE callouts SET status=' . CalloutStatusType::Notified .' WHERE id = ' .
@@ -104,112 +109,6 @@ function signalCalloutToSMSPlugin($FIREHALL, $callDateTimeNative, $callCode,
 		
 		$smsPlugin->signalRecipients($FIREHALL->SMS, $recipient_list_array,
 				$recipient_list_type, $smsText);
-	}
-}
-
-function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
-		$callCode, $callAddress, $callGPSLat, $callGPSLong,
-		$callUnitsResponding, $callType, $callout_id, $callKey, $callStatus,
-		$device_id,$db_connection) {
-
-	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
-		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
-	
-		echo 'START Send Notifications using GCM.' . PHP_EOL;
-		
-		$adhoc_db_connection = false;
-		if($db_connection == null) {
-			$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-					$FIREHALL->MYSQL->MYSQL_USER,$FIREHALL->MYSQL->MYSQL_PASSWORD, 
-					$FIREHALL->MYSQL->MYSQL_DATABASE);
-			$adhoc_db_connection = true;
-		}
-		
-		$registration_ids = array();
-		
-		if(isset($device_id) == false) {
-			// Read from the database connected devices to GCM
-			$sql = 'SELECT * FROM devicereg WHERE firehall_id = \'' . $db_connection->real_escape_string($FIREHALL->FIREHALL_ID) . '\';';
-			$sql_result = $db_connection->query( $sql );
-			if($sql_result == false) {
-				printf("Error: %s\n", mysqli_error($db_connection));
-				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-			}
-			
-			$row_number = 1;
-			while($row = $sql_result->fetch_object()) {
-					
-				array_push($registration_ids, $row->registration_id);
-				$row_number++;
-			}
-			$sql_result->close();
-			echo 'Found devices: ' . $row_number . PHP_EOL;
-		}
-		else {
-			array_push($registration_ids, $device_id);
-		}
-			
-		if(sizeof($registration_ids) > 0) {
-			// Set POST variables
-			$url = $FIREHALL->MOBILE->GCM_SEND_URL;
-		
-	// 		$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL . 
-	// 								$callout_id . '&fhid=' . $FIREHALL->FIREHALL_ID;
-			$smsMsg = getSMSCalloutMessage($FIREHALL,$callDateTimeNative,
-				$callCode, $callAddress, $callGPSLat, $callGPSLong,
-				$callUnitsResponding, $callType, $callout_id, $callKey,0);
-			
-			$callMapAddress = getAddressForMapping($FIREHALL,$callAddress);
-			
-			$message = array("CALLOUT_MSG" => urlencode($smsMsg),
-							 "call-id"  => urlencode($callout_id),
-							 "call-key-id"  => urlencode($callKey),
-							 "call-gps-lat"  => urlencode($callGPSLat),
-							 "call-gps-long"  => urlencode($callGPSLong),
-							 "call-address"  => urlencode($callAddress),
-							 "call-map-address"  => urlencode($callMapAddress),
-							 "call-units"  => urlencode($callUnitsResponding),
-							 "call-status"  => urlencode($callStatus)
-			);
-			
-			$fields = array(
-					'registration_ids' => $registration_ids,
-					'data' => $message,
-			);
-			 
-			$headers = array(
-					'Authorization: key=' . $FIREHALL->MOBILE->GCM_API_KEY,
-					'Content-Type: application/json'
-			);
-			// Open connection
-			$ch = curl_init();
-			 
-			// Set the url, number of POST vars, POST data
-			curl_setopt($ch, CURLOPT_URL, $url);
-			 
-			curl_setopt($ch, CURLOPT_POST, true);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			 
-			// Disabling SSL Certificate support temporarly
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-			 
-			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
-			 
-			// Execute post
-			$result = curl_exec($ch);
-			if ($result === FALSE) {
-				die('Curl failed: ' . curl_error($ch));
-			}
-			 
-			// Close connection
-			curl_close($ch);
-			echo $result;
-		}
-		
-		if($adhoc_db_connection == true && $db_connection != null) {
-			db_disconnect( $db_connection );
-		}
 	}
 }
 

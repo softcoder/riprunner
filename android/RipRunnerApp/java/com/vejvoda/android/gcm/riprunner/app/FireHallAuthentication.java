@@ -50,5 +50,7 @@ public class FireHallAuthentication {
 	public void setRegisteredBackend(boolean value) {
 		registered_backend = value;
 	}
-		
+	public void setGCMRegistrationId(String id) {
+		gcm_registration_id = id;
+	}
 }

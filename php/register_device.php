@@ -18,7 +18,7 @@ $user_id = get_query_param('uid');
 $user_pwd = get_query_param('upwd');
 
 $debug_registration = false;
-//$registration_id = 'jkd23h2krhk2jk23jhk';
+
 //$firehall_id = '0';
 //$user_id = 'X';
 //$user_pwd = 'X';
@@ -83,6 +83,8 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 				printf("Error: %s\n", mysqli_error($db_connection));
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
+			
+			$register_result = '';
 			if($db_connection->affected_rows <= 0) {
 				$sql = 'INSERT INTO devicereg (registration_id,firehall_id,user_id) ' .
 						' values(' .
@@ -100,10 +102,10 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 				}
 				
 				$device_reg_id = $db_connection->insert_id;
-				echo "OK=" . $device_reg_id;
+				$register_result .= "OK=" . $device_reg_id;
 			}
 			else {
-				echo "OK=?";
+				$register_result .= "OK=?";
 			}
 			
 			// Check if there is an active callout (within last 48 hours) and if so send the details
@@ -117,6 +119,8 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 			}
 			
 			if($row = $sql_result->fetch_object()) {
+				$register_result .= '|' . $row->id . '|';
+				echo $register_result;
 				
 				$callDateTimeNative = $row->calltime;
 				$callCode = $row->calltype;
@@ -129,11 +133,23 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 				$callKey = $row->call_key;
 				$callStatus = $row->status;
 								
+				$gcmMsg = getSMSCalloutMessage($FIREHALL,$callDateTimeNative,
+						$callCode, $callAddress, $callGPSLat, $callGPSLong,
+						$callUnitsResponding, $callType, $callout_id, $callKey,0);
+				
 				signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 					$callCode, $callAddress, $callGPSLat, $callGPSLong,
 					$callUnitsResponding, $callType, $callout_id, $callKey,
-					$callStatus,$registration_id,$db_connection);
+					$callStatus,$registration_id,$gcmMsg,$db_connection);
 				
+			}
+			else {
+				$register_result .= '|?|';
+				echo $register_result;
+
+				$loginMsg = 'GCM_LOGINOK';
+				signalLoginStatusUsingGCM($FIREHALL, $registration_id, 
+											$loginMsg,$db_connection);
 			}
 			$sql_result->close();
 		}

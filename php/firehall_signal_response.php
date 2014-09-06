@@ -11,6 +11,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 require_once( 'config.php' );
 require_once( 'functions.php' );
 require_once( 'plugins_loader.php' );
+require_once( 'firehall_signal_gcm.php' );
 
 function signalFireHallResponse($FIREHALL, $callId, $userId, 
 	                		$callGPSLat, $callGPSLong, 
@@ -24,9 +25,12 @@ function signalFireHallResponse($FIREHALL, $callId, $userId,
 	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED && 
 		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
 	
+		$smsMsg = getSMSCalloutResponseMessage($FIREHALL, $callId, $userId,
+				$callGPSLat, $callGPSLong, $userStatus, $callkey_id, 0);
+		
 		signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId, 
 	                		$callGPSLat, $callGPSLong, 
-	                		$userStatus, $callkey_id);
+	                		$userStatus, $callkey_id, $smsMsg);
 	}
 }
 
@@ -58,109 +62,6 @@ function signalResponseToSMSPlugin($FIREHALL, $callId, $userId,
 			$smsPlugin->getMaxSMSTextLength());
 	$smsPlugin->signalRecipients($FIREHALL->SMS, $recipient_list_array,
 			$recipient_list_type, $smsText);
-}
-
-function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId, 
-	                		$callGPSLat, $callGPSLong, 
-	                		$userStatus, $callkey_id) {
-
-
-	echo 'START Send Notifications using GCM.' . PHP_EOL;
-	
-	$db_connection = null;
-	$adhoc_db_connection = false;
-	if($db_connection == null) {
-		$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-				$FIREHALL->MYSQL->MYSQL_USER,$FIREHALL->MYSQL->MYSQL_PASSWORD, 
-				$FIREHALL->MYSQL->MYSQL_DATABASE);
-		$adhoc_db_connection = true;
-	}
-	
-	$registration_ids = array();
-	
-	// Read from the database connected devices to GCM
-	$sql = 'SELECT * FROM devicereg WHERE firehall_id = \'' . $db_connection->real_escape_string($FIREHALL->FIREHALL_ID) . '\';';
-	$sql_result = $db_connection->query( $sql );
-	if($sql_result == false) {
-		printf("Error: %s\n", mysqli_error($db_connection));
-		throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-	}
-	
-	$row_number = 1;
-	while($row = $sql_result->fetch_object()) {
-			
-		array_push($registration_ids, $row->registration_id);
-		$row_number++;
-	}
-	$sql_result->close();
-
-	echo 'Found devices: ' . $row_number . PHP_EOL;
-		
-	if(sizeof($registration_ids) > 0) {
-		// Set POST variables
-		$url = $FIREHALL->MOBILE->GCM_SEND_URL;
-	
-		//$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL 
-		//						. 'ci.php?cid=' . $callId . '&fhid=' . $FIREHALL->FIREHALL_ID;
-		$smsMsg = getSMSCalloutResponseMessage($FIREHALL, $callId, $userId,
-				$callGPSLat, $callGPSLong, $userStatus, $callkey_id, 0);
-		
-		//$callMapAddress = getAddressForMapping($FIREHALL,$callAddress);
-		
-		if(isset($callGPSLat) == false || $callGPSLat == "") {
-			$callGPSLat = 0;
-		}
-		if(isset($callGPSLong) == false || $callGPSLong == "") {
-			$callGPSLong = 0;
-		}
-		
-		$message = array("CALLOUT_RESPONSE_MSG" => urlencode($smsMsg),
-						 "call-id"  => urlencode($callId),
-						 "call-key-id" => urlencode($callkey_id),
-						 "user-id"  => urlencode($userId),
-						 "user-gps-lat"  => urlencode($callGPSLat),
-						 "user-gps-long"  => urlencode($callGPSLong),
-						 "user-status"  => urlencode($userStatus)
-		);
-		
-		$fields = array(
-				'registration_ids' => $registration_ids,
-				'data' => $message,
-		);
-		 
-		$headers = array(
-				'Authorization: key=' . $FIREHALL->MOBILE->GCM_API_KEY,
-				'Content-Type: application/json'
-		);
-		// Open connection
-		$ch = curl_init();
-		 
-		// Set the url, number of POST vars, POST data
-		curl_setopt($ch, CURLOPT_URL, $url);
-		 
-		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		 
-		// Disabling SSL Certificate support temporarly
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		 
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
-		 
-		// Execute post
-		$result = curl_exec($ch);
-		if ($result === FALSE) {
-			die('Curl failed: ' . curl_error($ch));
-		}
-		 
-		// Close connection
-		curl_close($ch);
-		echo $result;
-	}
-	
-	if($adhoc_db_connection == true && $db_connection != null) {
-		db_disconnect( $db_connection );
-	}
 }
 
 function getSMSCalloutResponseMessage($FIREHALL, $callId, $userId,
