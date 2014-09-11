@@ -95,7 +95,7 @@ if(isset($firehall_id)) {
 			$html .='<h2><b><font color="yellow">Call Status: ' . getCallStatusDisplayText($row->status) .'</font></b></h2>' . PHP_EOL;
 			$html .='</div>' . PHP_EOL;
 
-			$callout_status_complete = ($row->status == CalloutStatusType::Complete);
+			$callout_status_complete = ($row->status == CalloutStatusType::Cancelled || $row->status == CalloutStatusType::Complete);
 			
 			// START: responders
 			$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a LEFT JOIN user_accounts b ON a.useracctid = b.id WHERE calloutid = ' . $row->id . ';';

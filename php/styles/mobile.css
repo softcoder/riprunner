@@ -716,4 +716,134 @@ nav.vertical {
                 padding: 10px 0 10px 50px;
               }            
               
+
+a.alert {
+  color:yellow;
+  font-size:42px; 
+  
+  -moz-animation-duration: 3600ms;
+  -moz-animation-name: blink_multi;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-direction: alternate;
+  
+  -webkit-animation-duration: 3600ms;
+  -webkit-animation-name: blink_multi;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-direction: alternate;  
+  
+  animation-duration: 3600ms;
+  animation-name: blink_multi;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@-moz-keyframes blink {
+  from {
+    opacity: 1;
+  }
+  
+  to {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes blink {
+  from {
+    opacity: 1;
+  }
+  
+  to {
+    opacity: 0;
+  }
+}
+@keyframes blink {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@-moz-keyframes blink_multi {
+  0% {
+    opacity: 1;
+    color: yellow;
+  }
+
+  25% {
+    color: red;
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+    color: white;
+  }
+
+  75% {
+   opacity: 0;
+   color: blue;
+ }
+
+ 100% {
+   opacity: 1;
+   color: yellow;
+ }
+}
+
+@-webkit-keyframes blink_multi {
+  0% {
+    opacity: 1;
+    color: yellow;
+  }
+
+  25% {
+    color: red;
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+    color: white;
+  }
+
+  75% {
+   opacity: 0;
+   color: blue;
+ }
+
+ 100% {
+   opacity: 1;
+   color: yellow;
+ }
+}
+
+@keyframes blink_multi {
+  0% {
+    opacity: 1;
+    color: yellow;
+  }
+
+  25% {
+    color: red;
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+    color: white;
+  }
+
+  75% {
+   opacity: 0;
+   color: blue;
+ }
+
+ 100% {
+   opacity: 1;
+   color: yellow;
+ }
+}
               

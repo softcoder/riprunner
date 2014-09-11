@@ -32,7 +32,6 @@ sec_session_start();
         
         <link rel="stylesheet" href="styles/freeze-header.css" />
         
-        
         <script type="text/JavaScript" src="js/forms.js"></script>
         <script type="text/JavaScript" src="js/freeze-header.js"></script>
         <script type="text/JavaScript" src="js/jquery-2.1.1.min.js"></script>
@@ -105,9 +104,11 @@ sec_session_start();
 			$colNames = array_keys(reset($data));
 		}
 		?>
-		
-		<center>		
-        <table id="box-table-a">
+
+		<?php checkForLiveCallout($FIREHALL,$db_connection); ?>
+		<div class="inner_table">
+        <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
+        
 		<?php
 	    if(isset($colNames)) {
 
@@ -122,6 +123,7 @@ sec_session_start();
 					echo '<th scope="col">'.$colName.'</th>';
 				}
 			}
+			echo '<th scope="col">details</th>';
 			echo "</tr>";
 			echo "</thead>";
 			
@@ -156,12 +158,21 @@ sec_session_start();
 			    	}
 			    	$col_num++;
 			    }
+			    
+			    $details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL
+			    . 'ci.php?cid=' . $row['id']
+			    . '&fhid=' . $FIREHALL->FIREHALL_ID
+			    . '&ckid=' . $row['call_key'];
+			     
+			    $detailsUrl = '<a target="_blank" href="'. $details_link .'">details</a>' . PHP_EOL;
+			    echo '<td class="column_nowrap">'. $detailsUrl .'</td>';
+			     
 			    echo "</tr>";
 			}
 		}
 		?>
 		</table>
-		</center>
+		</div>
 		
         <?php else : ?>
             <p>

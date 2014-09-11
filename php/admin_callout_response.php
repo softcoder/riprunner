@@ -107,8 +107,9 @@ sec_session_start();
 		}
 		?>
 		
-        	<center>
-        	<table id="box-table-a">			
+			<?php checkForLiveCallout($FIREHALL,$db_connection); ?>
+        	<div class="inner_table">
+        	<table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">			
 		    <?php
 		    if(isset($colNames)) {
 				echo '<thead>';
@@ -161,8 +162,8 @@ sec_session_start();
 			}
 			?>
 			</table>
-			</center>
-		
+			</div>
+					
         <?php else : ?>
             <p>
                 <span class="error">You are not authorized to access this page.</span> Please <a href="login.php">login</a>.

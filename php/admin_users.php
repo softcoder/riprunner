@@ -355,6 +355,7 @@ sec_session_start();
 				(userHasAcess(USER_ACCESS_ADMIN) || $self_edit)) : ?>
             <p>Welcome <?php echo htmlentities($_SESSION['user_id']); ?>!</p>
 
+            <?php checkForLiveCallout($FIREHALL,$db_connection); ?>
             <?php echo '<input type="hidden" id="se" name="se" value="true"/>' . PHP_EOL; ?>
             
 			<div class="menudiv_wrapper">

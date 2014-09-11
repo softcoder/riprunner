@@ -359,5 +359,36 @@
 				break;
 		}
 		return $result;
-	}	
+	}
+
+	function checkForLiveCallout($FIREHALL,$db_connection) {
+		// Check if there is an active callout (within last 48 hours) and if so send the details
+		$sql = 'SELECT * FROM callouts' .
+				' WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= 48' .
+				' ORDER BY id DESC LIMIT 1;';
+		$sql_result = $db_connection->query( $sql );
+		if($sql_result == false) {
+			printf("Error: %s\n", mysqli_error($db_connection));
+			throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+		}
+	
+		if($row = $sql_result->fetch_object()) {
+			$callout_id = $row->id;
+			$callkey_id = $row->call_key;
+	
+			$redirect_host  = $_SERVER['HTTP_HOST'];
+			$redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+			$redirect_extra = 'ci.php?fhid=' . urlencode($FIREHALL->FIREHALL_ID) .
+			'&cid=' . urlencode($callout_id) .
+			'&ckid=' . urlencode($callkey_id);
+	
+			//$current_callout = '<h1>A callout is currently in progress!</h1>';
+			//$current_callout .= '<div id="callout_loader"></div>';
+			//$current_callout .= '<script>$("#callout_loader").load("http://' . $redirect_host . $redirect_uri.'/'.$redirect_extra.'");</script>';
+			$current_callout = '<a target="_blank" href="http://' . $redirect_host . $redirect_uri.'/'.$redirect_extra.'" class="alert">A Callout is in progress, CLICK HERE for details</a>';
+			echo $current_callout;
+		}
+		$sql_result->close();
+	}
+	
 ?>

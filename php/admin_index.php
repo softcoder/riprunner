@@ -26,10 +26,13 @@ sec_session_start();
         <?php else : ?>
         <link rel="stylesheet" href="styles/main.css" />
         <?php endif; ?>
+        
+        <script type="text/JavaScript" src="js/jquery-2.1.1.min.js"></script>
     </head>
     <body>
     	<div class="container_center">
         <?php 
+		
         $db_connection = null;
         if (isset($_SESSION['firehall_id'])) {
         	$firehall_id = $_SESSION['firehall_id'];
@@ -45,6 +48,7 @@ sec_session_start();
         if (login_check($db_connection) == true) : ?>
             <p>Welcome <?php echo htmlentities($_SESSION['user_id']); ?>!</p>
             
+            <?php checkForLiveCallout($FIREHALL,$db_connection); ?>
 			<div class="menudiv_wrapper">
 			  <nav class="vertical">
 			    <ul>
@@ -98,6 +102,7 @@ sec_session_start();
 			    </ul>
 			  </nav>
 			</div>
+			
         <?php else : ?>
             <p>
                 <span class="error">You are not authorized to access this page.</span> Please <a href="login.php">login</a>.
