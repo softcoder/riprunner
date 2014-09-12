@@ -31,6 +31,31 @@ sec_session_start();
         <script type="text/JavaScript" src="js/jquery-2.1.1.min.js"></script>
         <!--Load the AJAX API-->
     	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    	
+    	<script type="text/javascript">
+		function addJSONDataToChartData(json_data, chart_data) {
+			var table_data = new Array();
+	        for (var data_item in json_data) {
+	        	var row_data = json_data[data_item];
+
+	        	var row_item = new Array();
+	        	if( Object.prototype.toString.call( row_data ) === '[object Array]' ) {
+	        		row_item = row_data;
+	        	}
+	        	else {
+		        	for(var propertyName in row_data) {
+		        		name = propertyName;
+			        	val = row_data[propertyName];
+			        	row_item.push(name);
+			        	row_item.push(val);
+		        	}
+	        	}
+	        		        	
+	        	table_data.push(row_item);
+	        }
+	        chart_data.addRows(table_data);
+		}
+    	</script>
     </head>
     <body>
     	<div class="container_center">
@@ -48,47 +73,11 @@ sec_session_start();
         				$FIREHALL->MYSQL->MYSQL_DATABASE);
         	}
         }
-        
-		function array2str($array, $pre = '', $pad = '', $sep = ', ') {
-			$str = '';
-			if(is_array($array)) {
-				if(count($array)) {
-					foreach ($array as $item_name => $item_value) {
-						if(is_array($item_value)) {
-							$str_val = array2str($item_value, $pre, $pad, $sep);
-						}
-						else {
-							$str_val = $pre . '\'' . $item_name . '\'' . $sep . $item_value . $pad;
-						}
-						
-						if(is_array($item_value)) {
-							if(empty($str) == false) {
-								$str .= $sep;
-							}
-						}
-						$str .= $str_val;
-					}
-				}
-			}
-			else {
-				$str .= $pre.$array.$pad;
-			}
-		
-			return $str;
-		}
                 
         function getCallTypeStatsForDateRange($db_connection,$startDate,$endDate) {
-			/*[
-				['Mushrooms', 3],
-				['Onions', 1],
-				['Olives', 1],
-				['Zucchini', 1],
-				['Pepperoni', 2]
-			]*/
-				
 			$jsOutput = '';
 			
-			// Read from the database info about this callout
+			// Read from the database
 			$sql = 'SELECT calltype, count(*) count FROM callouts WHERE calltime BETWEEN \'' . 
 					$startDate .'\' AND \'' . $endDate . '\' GROUP BY calltype ORDER BY calltype;';
 			$sql_result = $db_connection->query( $sql );
@@ -97,84 +86,149 @@ sec_session_start();
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
 			
+			// Build the data array
 			$data_results = array();
 			while($row = $sql_result->fetch_object()) {
-				//$data[] = $row;
 				$row_result = array();
 				
 				$callTypeDesc = convertCallOutTypeToText($row->calltype);
-				$row_result[$row->calltype . ' - ' . $callTypeDesc] = $row->count;
+				$row_result[$row->calltype . ' - ' . $callTypeDesc] = $row->count + 0;
 				array_push($data_results,$row_result);
 			}
 			$sql_result->close();
 			
-			//$jsOutput = json_encode($data_results);
-			$jsOutput = '[' . array2str($data_results,'[',']',',') . ']';
+			// Convert the data array to JSON
+			$jsOutput = json_encode($data_results);
 			return $jsOutput;
 		}
         
-		function getCallVolumeStatsForDateRange($db_connection,$startDate,$endDate) {
-			/*[
-			 ['Mushrooms', 3],
-			['Onions', 1],
-			['Olives', 1],
-			['Zucchini', 1],
-			['Pepperoni', 2]
-			]*/
-		
+		function getCallVolumeStatsForDateRange($db_connection,$startDate,$endDate, 
+				&$dynamicColumnTitles) {
 			$jsOutput = '';
 				
-			// Read from the database info about this callout
-			$sql = 'SELECT MONTH(calltime) month, count(*) count FROM callouts WHERE calltime BETWEEN \'' .
-					$startDate .'\' AND \'' . $endDate . '\' GROUP BY MONTH(calltime) ORDER BY MONTH(calltime);';
+			/*
+			(SELECT "ALL" as datalabel)
+			UNION
+			(SELECT calltype as datalabel
+					FROM callouts WHERE calltime BETWEEN '2014-01-01' AND '2014-12-31'
+					GROUP BY datalabel) ORDER BY datalabel;
+			*/
+			$sql_titles = '(SELECT "ALL" as datalabel)' .
+			        ' UNION (SELECT calltype as datalabel ' .
+					'        FROM callouts WHERE calltime BETWEEN \'' . 
+							 $startDate .'\' AND \'' . $endDate . '\'' .
+					'        GROUP BY datalabel) ORDER BY datalabel;';
+			$sql_titles_result = $db_connection->query( $sql_titles );
+			if($sql_titles_result == false) {
+				printf("Error: %s\n", mysqli_error($db_connection));
+				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql_titles . "]");
+			}
+			
+			// Build the data array
+			$titles_results = array();
+			while($row_titles = $sql_titles_result->fetch_object()) {
+				$callTypeDesc = $row_titles->datalabel;
+				if($callTypeDesc != 'ALL') {
+					$callTypeDesc = $callTypeDesc . ' - ' . convertCallOutTypeToText($row_titles->datalabel);
+				}
+				array_push($titles_results,$callTypeDesc);
+				array_push($dynamicColumnTitles,$callTypeDesc);
+			}
+			$sql_titles_result->close();
+
+			// Read from the database
+			/*
+			(SELECT MONTH(calltime) as month, "ALL" as datalabel, count(*) as count
+			FROM callouts WHERE calltime BETWEEN '2014-01-01' AND '2014-12-31'
+			GROUP BY month, datalabel ORDER BY month)
+			UNION
+			(SELECT MONTH(calltime) as month, calltype as datalabel, count(*) as count
+					FROM callouts WHERE calltime BETWEEN '2014-01-01' AND '2014-12-31'
+					GROUP BY datalabel, month ORDER BY month) ORDER BY month, datalabel;			
+			*/
+			$sql = '(SELECT MONTH(calltime) AS month, "ALL" AS datalabel, count(*) AS count ' .
+					' FROM callouts WHERE calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+					' GROUP BY month ORDER BY month)' .
+					'UNION (SELECT MONTH(calltime) AS month, calltype AS datalabel, count(*) AS count ' .
+					' FROM callouts WHERE calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+					' GROUP BY datalabel, month ORDER BY month) ORDER BY month, datalabel;';
 			$sql_result = $db_connection->query( $sql );
 			if($sql_result == false) {
 				printf("Error: %s\n", mysqli_error($db_connection));
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
 				
+			// Build the data array
 			$data_results = array();			
 			while($row = $sql_result->fetch_object()) {
-				$row_result = array();
-				$row_result[$row->month] = $row->count;
+				$callTypeDesc = $row->datalabel;
+				if($callTypeDesc != 'ALL') {
+					$callTypeDesc = $callTypeDesc . ' - ' . convertCallOutTypeToText($row->datalabel);
+				}
+				
+				$row_result = array($row->month,$callTypeDesc,$row->count + 0);
 				array_push($data_results,$row_result);
 			}
 			$sql_result->close();
 
+			// Ensure every month of the year exists in the results for each calltype
 			for($index=1;$index <= 12; $index++) {
-				$found_index = false;
-				foreach($data_results as $data) {
-					if(array_key_exists($index,$data)) {
-						$found_index = true;
-						break;
+				
+				foreach($titles_results as $title) {
+					$found_index = false;
+					foreach($data_results as $data) {
+						$monthNumber = $data[0];
+						$labelName = $data[1];
+						if($index == $monthNumber && $title == $labelName) {
+							$found_index = true;
+							break;
+						}
+					}
+					if($found_index == false) {
+						$row_result = array($index,$title,0);
+						array_push($data_results,$row_result);
 					}
 				}
-				if($found_index == false) {
-					$row_result = array();
-					$row_result[$index] = 0;
-					array_push($data_results,$row_result);
-				}
 			}
 			
-			// Sort by month #
-			$sorted_data = array();
-			foreach ($data_results as $key => $row) {
-				$sorted_data[$key] = key($row);
-			}
-			array_multisort($sorted_data, SORT_ASC, $data_results);
+			// Sort by month # then by calltype
+			usort($data_results, make_comparer(0,1));
 			
+			// Replace month # with month name and build array for each unique calltype
 			$formatted_data = array();
+
+			$current_month_number = -1;
+			$current_month_array = null;
+			
 			foreach ($data_results as $key => $row) {
-				foreach ($row as $monthNumber => $monthCount) {
-					$monthName = date("F", mktime(0, 0, 0, $monthNumber, 10));
-					$row_result = array();
-					$row_result[$monthName] = $monthCount;
-					array_push($formatted_data,$row_result);
+				$monthNumber = $row[0];
+				$monthName = date("F", mktime(0, 0, 0, $monthNumber, 10));
+				
+				$datalabel = $row[1];
+				$monthCount = $row[2];
+				
+				if($current_month_number != $monthNumber) {
+					if(isset($current_month_array)) {
+						array_push($formatted_data,$current_month_array);
+					}
+					
+					$current_month_array = array();
+					array_push($current_month_array,$monthName);
+					array_push($current_month_array,$monthCount);
+					
+					$current_month_number = $monthNumber;
 				}
+				else {
+					array_push($current_month_array,$monthCount);
+				}
+			}
+			if(isset($current_month_array)) {
+				array_push($formatted_data,$current_month_array);
 			}
 				
-			//$jsOutput = json_encode($data_results);
-			$jsOutput = '[' . array2str($formatted_data,'[',']',',') . ']';
+			// Convert the data array to JSON
+			$jsOutput = json_encode($formatted_data);
+			
 			return $jsOutput;
 		}
 		
@@ -220,6 +274,7 @@ sec_session_start();
 		      // draws it.
 		      function drawChart() {
 
+		    	// ------------------------------------------
 		    	// Pie chart of call types for current month
 		        // Set chart options
 		        var options = {'title':'Call Types - Current Month',
@@ -231,16 +286,19 @@ sec_session_start();
 		        data.addColumn('string', 'Call Type');
 		        data.addColumn('number', 'Call Count');
 
-		        data.addRows(<?php 
+		        var json_data_month = jQuery.parseJSON('<?php 
 		        $current_month_start = date('Y-m-01');
 		        $current_month_end = date('Y-m-t');
 		        echo getCallTypeStatsForDateRange($db_connection,$current_month_start,$current_month_end); 
-		        ?>);
-		
+		        ?>');
+
+		        addJSONDataToChartData(json_data_month, data);
+		        
 		        // Instantiate and draw our chart, passing in some options.
 		        var chart = new google.visualization.PieChart(document.getElementById('chart_month_div'));
 		        chart.draw(data, options);
 
+		     	// ------------------------------------------
 		     	// Pie chart of call types for current year
 		        var options_year = {'title':'Call Types - Current Year',
 	                       'width':400,
@@ -250,7 +308,7 @@ sec_session_start();
 		        var data_year = new google.visualization.DataTable();
 		        data_year.addColumn('string', 'Call Type');
 		        data_year.addColumn('number', 'Call Count');
-		        data_year.addRows(<?php 
+		        var json_data_year = jQuery.parseJSON('<?php 
 		        
 		        $year_start = strtotime('first day of January', time());
 		        $year_end = strtotime('last day of December', time());
@@ -258,31 +316,48 @@ sec_session_start();
 		        $current_year_start = date('Y-m-d',$year_start);
 		        $current_year_end = date('Y-m-d',$year_end);
 		        echo getCallTypeStatsForDateRange($db_connection,$current_year_start,$current_year_end);
-		        ?>);
+		        ?>');
 
+		        addJSONDataToChartData(json_data_year, data_year);
+		        
 		        // Instantiate and draw our chart, passing in some options.
 		        var chart_year = new google.visualization.PieChart(document.getElementById('chart_year_div'));
 		        chart_year.draw(data_year, options_year);
-		        
+
+		        // ------------------------------------------
 		        // Line chart of call volume for current year
 		        var options_year_volume = {'title':'Total Call Volume - Current Year by Month',
-									        'width':400,
+									        'width':802,
 									        'height':300};
 		        
 		        // Create the data table.
 		        var data_year_volume = new google.visualization.DataTable();
 		        data_year_volume.addColumn('string', 'Month');
-		        data_year_volume.addColumn('number', 'Call Count');
-		        data_year_volume.addRows(<?php
+		        //data_year_volume.addColumn('string', 'Call Type');
+		        //data_year_volume.addColumn('number', 'Call Count');
+
+		        var json_data_year_volume = jQuery.parseJSON('<?php
 		        
 		        $year_start = strtotime('first day of January', time());
 		        $year_end = strtotime('last day of December', time());
 		        
 		        $current_year_start = date('Y-m-d',$year_start);
 		        $current_year_end = date('Y-m-d',$year_end);
-		        echo getCallVolumeStatsForDateRange($db_connection,$current_year_start,$current_year_end);
-		        ?>);
-		
+		        $dynamicColumnTitles = array();
+		        echo getCallVolumeStatsForDateRange($db_connection,
+												$current_year_start,
+												$current_year_end,
+												$dynamicColumnTitles);
+		        ?>');
+		        <?php 
+		        foreach($dynamicColumnTitles as $title) {
+		        	echo "data_year_volume.addColumn('number', '" . $title ."');" . PHP_EOL;
+		        } 
+		        ?>
+		        
+		        //debugger;
+		        addJSONDataToChartData(json_data_year_volume, data_year_volume);
+		        
 		        // Instantiate and draw our chart, passing in some options.
 		        var chart_year_volume = new google.visualization.LineChart(document.getElementById('chart_year_volume_div'));
 		        chart_year_volume.draw(data_year_volume, options_year_volume);
