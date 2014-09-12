@@ -73,6 +73,15 @@ sec_session_start();
 			        </div>
 			      </li>
 			      <li>
+			        <label for="reports">Reports</label>
+			        <input type="radio" name="verticalMenu" id="reports" />
+			        <div>
+			          <ul>
+			            <li><a href="admin_charts.php">Charts</a></li>
+			          </ul>
+			        </div>
+			      </li>
+			      <li>
 			        <label for="mobile_app">Mobile</label>
 			        <input type="radio" name="verticalMenu" id="mobile_app" />
 			        <div>

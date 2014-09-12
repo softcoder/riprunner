@@ -626,6 +626,10 @@ table.center {
 
 
 
+.center_div_wrapper {
+  margin: auto;
+  width: 400px;
+}
 
 .menudiv_wrapper {
   margin: 20px auto;
