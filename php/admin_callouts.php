@@ -56,6 +56,8 @@ sec_session_start();
     if (login_check($db_connection) == true) : ?>
     	<p>Welcome <?php echo htmlentities($_SESSION['user_id']); ?>!</p>
 
+    	<?php checkForLiveCallout($FIREHALL,$db_connection); ?>
+    	
 		<div class="menudiv_wrapper">
 		  <nav class="vertical">
 		    <ul>
@@ -104,8 +106,7 @@ sec_session_start();
 			$colNames = array_keys(reset($data));
 		}
 		?>
-
-		<?php checkForLiveCallout($FIREHALL,$db_connection); ?>
+		
 		<div class="inner_table">
         <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
         

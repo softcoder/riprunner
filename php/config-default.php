@@ -12,16 +12,9 @@ if ( !defined('INCLUSION_PERMITTED') ||
 }
 
 require_once( 'config_interfaces.php' );
+require_once( 'config_constants.php' );
 
 // ==============================================================
-
-	define( 'PRODUCT_NAME', 'RipRunner' );
-	define( 'PRODUCT_URL',  'http://soft-haus.com' );
-	define( 'DEBUG_MODE', 	false);
-	define( "SECURE", 		FALSE);
-
-	define('USER_ACCESS_ADMIN', 	 0x1);
-	define('USER_ACCESS_SIGNAL_SMS', 0x2);
 		
 	// ----------------------------------------------------------------------
 	// Email Settings
@@ -39,10 +32,6 @@ require_once( 'config_interfaces.php' );
 	
 	// ----------------------------------------------------------------------
 	// SMS Provider Settings
-	define( 'SMS_GATEWAY_TEXTBELT', 			'TEXTBELT');
-	define( 'SMS_GATEWAY_SENDHUB', 				'SENDHUB');
-	define( 'SMS_GATEWAY_EZTEXTING', 			'EZTEXTING');
-	define( 'SMS_GATEWAY_TWILIO', 				'TWILIO');
 	define( 'DEFAULT_SMS_PROVIDER_SENDHUB_BASE_URL', 	'https://api.sendhub.com/v1/messages/?username=X&api_key=X');
 	define( 'DEFAULT_SMS_PROVIDER_TEXTBELT_BASE_URL', 	'http://textbelt.com/canada');
 	define( 'DEFAULT_SMS_PROVIDER_EZTEXTING_BASE_URL', 	'https://app.eztexting.com/sending/messages?format=xml');
@@ -55,12 +44,12 @@ require_once( 'config_interfaces.php' );
 	$LOCAL_DEBUG_SMS = new FireHallSMS(true,
 		//SMS_GATEWAY_TEXTBELT,
 		//SMS_GATEWAY_EZTEXTING,
-		SMS_GATEWAY_SENDHUB,
-		//SMS_GATEWAY_TWILIO, 
+		//SMS_GATEWAY_SENDHUB,
+		SMS_GATEWAY_TWILIO, 
 		//'2505551212', false, true,			// TEXTBELT
 		//'svvfd', true, false, 				// EZTEXTING
-		'103740731333333333', true, false, 	// SENDHUB (The sendhub group id)
-		//'2505551212', false, true, 			// TWILIO
+		//'103740731333333333', true, false, 	// SENDHUB (The sendhub group id)
+		'', false, true, 						// TWILIO (read sms mobile #'s from database)
 		DEFAULT_SMS_PROVIDER_SENDHUB_BASE_URL, DEFAULT_SMS_PROVIDER_TEXTBELT_BASE_URL,
 		DEFAULT_SMS_PROVIDER_EZTEXTING_BASE_URL,DEFAULT_SMS_PROVIDER_EZTEXTING_USERNAME,
 		DEFAULT_SMS_PROVIDER_EZTEXTING_PASSWORD, DEFAULT_SMS_PROVIDER_TWILIO_BASE_URL,
@@ -68,7 +57,6 @@ require_once( 'config_interfaces.php' );
 
 	// ----------------------------------------------------------------------
 	// Mobile App Settings
-	define( 'DEFAULT_GCM_SEND_URL',	'https://android.googleapis.com/gcm/send');
 	define( 'DEFAULT_GCM_API_KEY', 	'X');
 	define( 'DEFAULT_GCM_PROJECTID','X');
 	
