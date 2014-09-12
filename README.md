@@ -12,7 +12,7 @@ Key Features:
 - Email polling to check for an emergency 911 callout (or page) received from your FOCC (Fire Operations Command Center)
 - Pluggable support for SMS gateway providers to send SMS information to fire fighters. 
   Currently providers implemented include (all offer free acounts with limited SMS / month):
-  - Twilio (twilio.com)
+  - Twilio (twilio.com) <-- recommended (paid account charges approx $0.0075 per SMS)
   - Sendhub (sendhub.com)
   - EzTexting (eztexting.com)
   - TextBelt (textbelt.com)
