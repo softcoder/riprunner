@@ -306,7 +306,8 @@
 				$FIREHALL->MYSQL->MYSQL_DATABASE);
 			$must_close_db = true;
 		}
-		$sql = "SELECT distinct(mobile_phone) FROM user_accounts WHERE mobile_phone <> '';";
+		$sql = "SELECT distinct(mobile_phone) FROM user_accounts WHERE mobile_phone <> '' " .
+		       " AND access & ". USER_ACCESS_SIGNAL_SMS . " = ". USER_ACCESS_SIGNAL_SMS . ";";
 		$sql_result = $db_connection->query( $sql );
 		if($sql_result == false) {
 			printf("Error: %s\n", mysqli_error($db_connection));

@@ -20,7 +20,8 @@ require_once( 'config_interfaces.php' );
 	define( 'DEBUG_MODE', 	false);
 	define( "SECURE", 		FALSE);
 
-	define('USER_ACCESS_ADMIN', 0x1);
+	define('USER_ACCESS_ADMIN', 	 0x1);
+	define('USER_ACCESS_SIGNAL_SMS', 0x2);
 		
 	// ----------------------------------------------------------------------
 	// Email Settings

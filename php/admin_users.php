@@ -6,6 +6,7 @@
 define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
+//require_once( 'firehall_signal_callout.php' );
 
 // These lines are mandatory.
 require_once 'Mobile_Detect.php';
@@ -49,6 +50,7 @@ sec_session_start();
 		}
 		$html_row .= '<th scope="col">Mobile Phone</th>' . PHP_EOL;
 		$html_row .= '<th scope="col">Admin Access</th>' . PHP_EOL;
+		$html_row .= '<th scope="col">Enable SMS</th>' . PHP_EOL;
 		$html_row .= '<th scope="col" class="column_nowrap">Update Date/Time</th>' . PHP_EOL;
 		$html_row .= '<th scope="col" colspan="2" align="Center">Modify Data</th>' . PHP_EOL;
 		$html_row .= '<tr>' . PHP_EOL;
@@ -62,10 +64,10 @@ sec_session_start();
 		if($self_edit == false) {
 			$html_row = '<tr>' . PHP_EOL;
 			if($edit_mode == true) {
-				$html_row .= '<td colspan="10">' . PHP_EOL;
+				$html_row .= '<td colspan="11">' . PHP_EOL;
 			}
 			else {
-				$html_row .= '<td colspan="8">' . PHP_EOL;
+				$html_row .= '<td colspan="9">' . PHP_EOL;
 			}
 			$html_row .= '<input type="button" value="Add New" onclick="edit_user(this.form, -1);" />';
 			$html_row .= '</td>' . PHP_EOL;
@@ -125,10 +127,19 @@ sec_session_start();
 
         	$html_row .= "<td>" . PHP_EOL;
         	if($edit_row == true && $self_edit == false) {
-        		$html_row .= '<input id="edit_admin_access" name="edit_admin_access" type="checkbox" '.(isset($row) && userHasAcess($row->access,USER_ACCESS_ADMIN) ? 'checked="checked"' : '').' />' . PHP_EOL;
+        		$html_row .= '<input id="edit_admin_access" name="edit_admin_access" type="checkbox" '.(isset($row) && userHasAcessValueDB($row->access,USER_ACCESS_ADMIN) ? 'checked="checked"' : '').' />' . PHP_EOL;
         	}
         	else {
         		$html_row .= (isset($row) && userHasAcessValueDB($row->access,USER_ACCESS_ADMIN) ? 'yes' : 'no') . PHP_EOL;
+        	}
+        	$html_row .= "</td>" . PHP_EOL;
+
+        	$html_row .= "<td>" . PHP_EOL;
+        	if($edit_row == true && $self_edit == false) {
+        		$html_row .= '<input id="edit_sms_access" name="edit_sms_access" type="checkbox" '.(isset($row) && userHasAcessValueDB($row->access,USER_ACCESS_SIGNAL_SMS) ? 'checked="checked"' : '').' />' . PHP_EOL;
+        	}
+        	else {
+        		$html_row .= (isset($row) && userHasAcessValueDB($row->access,USER_ACCESS_SIGNAL_SMS) ? 'yes' : 'no') . PHP_EOL;
         	}
         	$html_row .= "</td>" . PHP_EOL;
         	 
@@ -194,11 +205,13 @@ sec_session_start();
 				$edit_user_id = $_SESSION['user_db_id'];
 				$edit_firehall_id = $_SESSION['firehall_id'];
 				$edit_admin_access = userHasAcess(USER_ACCESS_ADMIN);
+				$edit_sms_access = userHasAcess(USER_ACCESS_SIGNAL_SMS);
 			}
 			else {
 				$edit_user_id = get_query_param('edit_user_id');
 				$edit_firehall_id = get_query_param('edit_firehall_id');
 				$edit_admin_access = get_query_param('edit_admin_access');
+				$edit_sms_access = get_query_param('edit_sms_access');
 			}
 			$edit_user_id_name = get_query_param('edit_user_id_name');
 			$edit_mobile_phone = get_query_param('edit_mobile_phone');
@@ -239,14 +252,21 @@ sec_session_start();
 						$sql_user_access = '';
 						if($self_edit == false) {
 							if(isset($edit_admin_access) && $edit_admin_access == 'on') {
-								//. ', access = access | ' . USER_ACCESS_ADMIN
 								//echo "ENABLED edit_admin_access = [$edit_admin_access]" . PHP_EOL;
-								$sql_user_access = ', access = access | ' . USER_ACCESS_ADMIN;
+								$sql_user_access .= ', access = access | ' . USER_ACCESS_ADMIN;
 							}
 							else {
 								//echo "DISABLED edit_admin_access = [$edit_admin_access]" . PHP_EOL;
-								$sql_user_access = ', access = access & ~' . USER_ACCESS_ADMIN;
+								$sql_user_access .= ', access = access & ~' . USER_ACCESS_ADMIN;
 							}
+							
+							if(isset($edit_sms_access) && $edit_sms_access == 'on') {
+								$sql_user_access .= ', access = access | ' . USER_ACCESS_SIGNAL_SMS;
+							}
+							else {
+								$sql_user_access .= ', access = access & ~' . USER_ACCESS_SIGNAL_SMS;
+							}
+								
 						}
 						
 						$sql = 'UPDATE user_accounts'
@@ -257,7 +277,9 @@ sec_session_start();
 								. $sql_user_access
 								. ', updatetime = CURRENT_TIMESTAMP()'
 								. ' WHERE id = ' . $db_connection->real_escape_string($edit_user_id) . ';';
-						 
+						
+						//echo "SQL = [" .$sql . "]" .PHP_EOL;
+						
 						$sql_update_result = $db_connection->query( $sql );
 						 
 						if($sql_update_result == false) {
@@ -276,14 +298,15 @@ sec_session_start();
 							$new_pwd_value = '';
 						}
 						
+						$new_user_access = 0;
 						$sql_user_access = '';
 						if(isset($edit_admin_access) && $edit_admin_access == 'on') {
 							//echo "ENABLED edit_admin_access = [$edit_admin_access]" . PHP_EOL;
-							$new_user_access = USER_ACCESS_ADMIN;
+							$new_user_access |= USER_ACCESS_ADMIN;
 						}
-						else {
-							//echo "DISABLED edit_admin_access = [$edit_admin_access]" . PHP_EOL;
-							$new_user_access = 0;
+						if(isset($edit_sms_access) && $edit_sms_access == 'on') {
+							//echo "ENABLED edit_admin_access = [$edit_admin_access]" . PHP_EOL;
+							$new_user_access |= USER_ACCESS_SIGNAL_SMS;
 						}
 						
 						$sql = 'INSERT INTO user_accounts'
@@ -439,6 +462,15 @@ sec_session_start();
             
             echo $html_row;
             echo '</center>'. PHP_EOL;
+            
+            //print_r (getMobilePhoneListFromDB($FIREHALL,$db_connection));
+            //signalCalloutToSMSPlugin($FIREHALL, 
+            //		date_create_from_format('Y-m-d H:i:s', '2014-09-11 16:36:30'), 
+            //		'TEST CODE',
+            //		'9115 SALMON VALLEY RD, SALMON VALLEY, BC', 
+            //		'50.92440', '‐120.77206',
+            //		'SALGRP1', 'Burning Complaint', 1, 'test');
+            
         	?>
         	
             </form>
