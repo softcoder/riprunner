@@ -376,6 +376,15 @@ sec_session_start();
 			        </div>
 			      </li>
 			      <li>
+			        <label for="call_history">Calls</label>
+			        <input type="radio" name="verticalMenu" id="call_history" />
+			        <div>
+			          <ul>
+			            <li><a href="admin_callouts.php">Callouts and Responders</a></li>
+			          </ul>
+			        </div>
+			      </li>
+			      <li>
 			        <label for="logout">Exit</label>
 			        <input type="radio" name="verticalMenu" id="logout" />
 			        <div>

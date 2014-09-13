@@ -86,7 +86,7 @@ sec_session_start();
 		<?php
 	
 		// Read from the database info about this callout
-		$sql = 'SELECT * FROM callouts ORDER BY calltime DESC;';
+		$sql = 'SELECT a.*, (select count(*) AS responders FROM callouts_response b WHERE a.id = b.calloutid) AS responders FROM callouts a ORDER BY calltime DESC;';
 		$sql_result = $db_connection->query( $sql );
 		if($sql_result == false) {
 			printf("Error: %s\n", mysqli_error($db_connection));
@@ -94,8 +94,7 @@ sec_session_start();
 		}
 		
 		$data = array();
-		while($row = $sql_result->fetch_assoc())
-		{
+		while($row = $sql_result->fetch_assoc()) {
 			$data[] = $row;
 		}
 		
@@ -124,7 +123,9 @@ sec_session_start();
 					echo '<th scope="col">'.$colName.'</th>';
 				}
 			}
-			echo '<th scope="col">details</th>';
+			
+			echo '<th scope="col">call details</th>';
+			
 			echo "</tr>";
 			echo "</thead>";
 			
@@ -134,10 +135,7 @@ sec_session_start();
 				$col_num = 0;
 			    foreach($colNames as $colName) {
 					//if($col_num == 0) {
-					if($colName == "id") {
-						echo '<td><a href="admin_callout_response.php?cid=' . $row[$colName] . '">'.$row[$colName].'</a></td>';
-					}
-					else if($colName == "calltime") {
+					if($colName == "calltime") {
 						echo '<td class="column_nowrap">'. $row[$colName] .'</td>';
 					}
 					else if($colName == "address") {
@@ -154,6 +152,9 @@ sec_session_start();
 					else if($colName == "status") {
 						echo "<td>". getCallStatusDisplayText($row[$colName])."</td>";
 					}
+					else if($colName == "responders") {
+						echo '<td><a href="admin_callout_response.php?cid=' . $row['id'] . '">'.$row[$colName].'</a></td>';
+						}
 					else {
 			    		echo "<td>".$row[$colName]."</td>";
 			    	}
@@ -167,7 +168,7 @@ sec_session_start();
 			     
 			    $detailsUrl = '<a target="_blank" href="'. $details_link .'">details</a>' . PHP_EOL;
 			    echo '<td class="column_nowrap">'. $detailsUrl .'</td>';
-			     
+			    
 			    echo "</tr>";
 			}
 		}
