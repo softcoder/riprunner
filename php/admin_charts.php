@@ -301,8 +301,8 @@ sec_session_start();
 		     	// ------------------------------------------
 		     	// Pie chart of call types for current year
 		        var options_year = {'title':'Call Types - Current Year',
-	                       'width':400,
-	                       'height':300};
+				                       'width':400,
+				                       'height':300};
 		        
 		        // Create the data table.
 		        var data_year = new google.visualization.DataTable();
@@ -327,6 +327,8 @@ sec_session_start();
 		        // ------------------------------------------
 		        // Line chart of call volume for current year
 		        var options_year_volume = {'title':'Total Call Volume - Current Year by Month',
+		        		                    'curveType': 'function',
+		        		                    'explorer' : {},
 									        'width':802,
 									        'height':300};
 		        
