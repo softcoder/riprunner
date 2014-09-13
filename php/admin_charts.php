@@ -231,6 +231,132 @@ sec_session_start();
 			
 			return $jsOutput;
 		}
+
+		function getCallResponseVolumeStatsForDateRange($db_connection,$startDate,$endDate,
+				&$dynamicColumnTitles) {
+			$jsOutput = '';
+		
+			/*
+			(SELECT "ALL" as user_id)
+			 UNION (SELECT b.user_id 
+			        FROM callouts_response a
+			        LEFT JOIN user_accounts b ON a.useracctid = b.id 
+			        WHERE responsetime BETWEEN '2014-01-01' AND '2014-12-31'
+			        GROUP BY user_id) ORDER BY user_id;			*/
+			$sql_titles = '(SELECT "ALL" as datalabel)' .
+					' UNION (SELECT b.user_id AS datalabel ' .
+					'        FROM callouts_response a' .
+					'        LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
+					'        WHERE responsetime BETWEEN \'' .
+					         $startDate .'\' AND \'' . $endDate . '\'' .
+					'        GROUP BY datalabel) ORDER BY datalabel;';
+			$sql_titles_result = $db_connection->query( $sql_titles );
+			if($sql_titles_result == false) {
+				printf("Error: %s\n", mysqli_error($db_connection));
+				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql_titles . "]");
+			}
+				
+			// Build the data array
+			$titles_results = array();
+			while($row_titles = $sql_titles_result->fetch_object()) {
+				array_push($titles_results,$row_titles->datalabel);
+				array_push($dynamicColumnTitles,$row_titles->datalabel);
+			}
+			$sql_titles_result->close();
+		
+			// Read from the database
+			/*
+			(SELECT MONTH(calltime) AS month, 'ALL' AS datalabel, count(*) AS count
+			FROM callouts 
+			WHERE calltime BETWEEN '2014-01-01' AND '2014-12-31'
+			GROUP BY month)
+			UNION
+			(SELECT MONTH(a.responsetime) AS month, b.user_id AS datalabel, count(*) AS count
+			FROM callouts_response a LEFT JOIN user_accounts b ON a.useracctid = b.id
+			WHERE responsetime BETWEEN '2014-01-01' AND '2014-12-31'
+			GROUP BY month,datalabel); 
+			*/
+			$sql = '(SELECT MONTH(calltime) AS month, "ALL" AS datalabel, count(*) AS count ' .
+					' FROM callouts WHERE calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+					' GROUP BY month ORDER BY month)' .
+					'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
+					' FROM callouts_response a LEFT JOIN user_accounts b ON a.useracctid = b.id' .
+					' WHERE responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+					' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
+			$sql_result = $db_connection->query( $sql );
+					if($sql_result == false) {
+					printf("Error: %s\n", mysqli_error($db_connection));
+					throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+			}
+		
+			// Build the data array
+			$data_results = array();
+			while($row = $sql_result->fetch_object()) {
+				$row_result = array($row->month,$row->datalabel,$row->count + 0);
+				array_push($data_results,$row_result);
+			}
+			$sql_result->close();
+			
+			// Ensure every month of the year exists in the results for each calltype
+			for($index=1;$index <= 12; $index++) {
+			
+			foreach($titles_results as $title) {
+				$found_index = false;
+				foreach($data_results as $data) {
+					$monthNumber = $data[0];
+					$labelName = $data[1];
+					if($index == $monthNumber && $title == $labelName) {
+						$found_index = true;
+						break;
+						}
+					}
+					if($found_index == false) {
+						$row_result = array($index,$title,0);
+						array_push($data_results,$row_result);
+					}
+				}
+			}
+				
+			// Sort by month # then by calltype
+			usort($data_results, make_comparer(0,1));
+				
+			// Replace month # with month name and build array for each unique calltype
+			$formatted_data = array();
+			
+			$current_month_number = -1;
+			$current_month_array = null;
+				
+			foreach ($data_results as $key => $row) {
+				$monthNumber = $row[0];
+				$monthName = date("F", mktime(0, 0, 0, $monthNumber, 10));
+				
+				$datalabel = $row[1];
+				$monthCount = $row[2];
+				
+				if($current_month_number != $monthNumber) {
+					if(isset($current_month_array)) {
+						array_push($formatted_data,$current_month_array);
+					}
+					
+					$current_month_array = array();
+					array_push($current_month_array,$monthName);
+					array_push($current_month_array,$monthCount);
+						
+					$current_month_number = $monthNumber;
+				}
+				else {
+					array_push($current_month_array,$monthCount);
+				}
+			}
+			if(isset($current_month_array)) {
+				array_push($formatted_data,$current_month_array);
+			}
+			
+			// Convert the data array to JSON
+			$jsOutput = json_encode($formatted_data);
+				
+			return $jsOutput;
+		}
 		
         if (login_check($db_connection) == true) : ?>
             <p>Welcome <?php echo htmlentities($_SESSION['user_id']); ?>!</p>
@@ -363,6 +489,44 @@ sec_session_start();
 		        // Instantiate and draw our chart, passing in some options.
 		        var chart_year_volume = new google.visualization.LineChart(document.getElementById('chart_year_volume_div'));
 		        chart_year_volume.draw(data_year_volume, options_year_volume);
+
+		        // ------------------------------------------
+		        // Line chart of call response volume for current year
+		        var options_year_response_volume = {'title':'Total Call Response Volume - Current Year by Month',
+		        		                    'curveType': 'function',
+		        		                    'explorer' : {},
+									        'width':802,
+									        'height':300};
+		        
+		        // Create the data table.
+		        var data_year_response_volume = new google.visualization.DataTable();
+		        data_year_response_volume.addColumn('string', 'Month');
+
+		        var json_data_year_response_volume = jQuery.parseJSON('<?php
+		        
+		        $year_start = strtotime('first day of January', time());
+		        $year_end = strtotime('last day of December', time());
+		        
+		        $current_year_start = date('Y-m-d',$year_start);
+		        $current_year_end = date('Y-m-d',$year_end);
+		        $dynamicColumnTitles_response = array();
+		        echo getCallResponseVolumeStatsForDateRange($db_connection,
+												$current_year_start,
+												$current_year_end,
+												$dynamicColumnTitles_response);
+		        ?>');
+		        <?php 
+		        foreach($dynamicColumnTitles_response as $title) {
+		        	echo "data_year_response_volume.addColumn('number', '" . $title ."');" . PHP_EOL;
+		        } 
+		        ?>
+		        
+		        //debugger;
+		        addJSONDataToChartData(json_data_year_response_volume, data_year_response_volume);
+		        
+		        // Instantiate and draw our chart, passing in some options.
+		        var chart_year_response_volume = new google.visualization.LineChart(document.getElementById('chart_year_response_volume_div'));
+		        chart_year_response_volume.draw(data_year_response_volume, options_year_response_volume);
 		      }
 		    </script>
 			
@@ -379,6 +543,11 @@ sec_session_start();
 		    	<tr>
 		    	<td colspan="2">
 		    	<div id="chart_year_volume_div"></div>
+		    	</td>
+		    	</tr>
+		    	<tr>
+		    	<td colspan="2">
+		    	<div id="chart_year_response_volume_div"></div>
 		    	</td>
 		    	</tr>
 		    </table>
