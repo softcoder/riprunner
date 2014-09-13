@@ -88,4 +88,85 @@ require_once( 'config_constants.php' );
 	
 	// Add as many firehalls to the array as you desire to support
 	$FIREHALLS = array(	$LOCAL_DEBUG_FIREHALL);
+	
+	// ----------------------------------------------------------------------
+	// Callout Codes and descriptions
+	$CALLOUT_CODES_LOOKUP = array(
+				
+			"ACEL" => "Aircraft Emergency Landing",
+			"ACF" => "Aircraft Fire",
+			"ACRA" => "Aircraft Crash",
+			"ACSB" => "Aircraft Standby",
+			"AMBUL" => "Ambulance - Notification",
+			"ASSIST" => "Assist",
+			"BBQF" => "Barbeque Fire",
+			"BOMB" => "Bomb Threat",
+			"BURN" => "Burning Complaint",
+			"CARBM" => "Carbon Monoixide Alarm",
+			"CHIM" => "Chimney Fire",
+			"COMP" => "Complaints",
+			"DSPTEST" => "Dispatcher Test",
+			"DUMP" => "Dumpster",
+			"DUTY" => "Duty Officer Notification",
+			"ELCFS" => "Electrical Fire - Substation",
+			"EXP" => "Explosion",
+			"FALRMC" => "Fire Alarms - Commercial",
+			"FALRMF" => "Fire Alarms - False",
+			"FALRMR" => "Fire Alarms - Residential",
+			"FLOOD" => "Flooding",
+			"FOCC" => "Admin Call Records",
+			"FOREST" => "Forestry - Notification",
+			"GAS" => "Natural Gas Leak",
+			"HANG" => "911 Hang Up",
+			"HAZM1" => "HazMat1 - Low Risk",
+			"HAZM2" => "HazMat2 - Mod Risk",
+			"HAZM3" => "HazMat3 - High Risk",
+			"HYDRO" => "Hydro - Notification",
+			"ISOF" => "Isolated Fire",
+			"KITAMB" => "Kitimat Ambulance",
+			"KITF" => "Kitchen Fire",
+			"LIFT" => "Lift Assist",
+			"MED" => "Medical Aid",
+			"MFIRE" => "Medical Fire",
+			"MVI1" => "MVI1- Motor Vehicle Incident",
+			"MVI2" => "MVI2 - Multiple Vehicles/Patients",
+			"MVI3" => "MVI3 - Entrapment; Motor Vehicle Incident",
+			"MVI4" => "MVI4 - Entrapment; Multiple Vehicles/Patients",
+			"ODOUU" => "Odour Unknown",
+			"OPEN" => "Open Air Fire",
+			"PEDSTK" => "Pedestrian Struck",
+			"POLICE" => "Police - Notification",
+			"RESC" => "Rescue - Low Risk",
+			"RMED" => "Routine Medical Aid",
+			"RSCON" => "Rescue - Confined Space",
+			"RSHIG" => "Rescue - High Angle",
+			"RSICE" => "Rescue - Ice",
+			"RSIND" => "Rescue - Industrial",
+			"RSWTR" => "Rescue - Water",
+			"SHIPD" => "Ship/Boat Fire - At Dock",
+			"SHIPU" => "Ship/Boat Fire - Underway",
+			"SMKIN" => "Smoke Report - Inside",
+			"SMKOT" => "Smoke Report - Outside",
+			"STC" => "Structure Collapse",
+			"STF1" => "Structure Fire - Small",
+			"STF2" => "Structure Fire - Large",
+			"TERASEN" => "Terasen Gas - Notification",
+			"TRNSF" => "Transformer/Pole Fire",
+			"VEHF" => "Vehicle Fire",
+			"WILD1" => "Wildland - Small",
+			"WILD2" => "Wildland - Large",
+			"WILD3" => "Wildland - Interface",
+			"WIRES" => "Hydro Lines Down"
+		
+			);
+
+	// ----------------------------------------------------------------------
+	// Email parser lookup patterns for email triggers
+	define( 'EMAIL_PARSING_DATETIME_PATTERN', 	'/Date: (.*?)$/m' );
+	define( 'EMAIL_PARSING_CALLCODE_PATTERN', 	'/Type: (.*?)$/m' );
+	define( 'EMAIL_PARSING_ADDRESS_PATTERN', 	'/Address: (.*?)$/m' );
+	define( 'EMAIL_PARSING_LATITUDE_PATTERN', 	'/Latitude: (.*?)$/m' );
+	define( 'EMAIL_PARSING_LONGITUDE_PATTERN', 	'/Longitude: (.*?)$/m' );
+	define( 'EMAIL_PARSING_UNITS_PATTERN', 		'/Units Responding: (.*?)$/m' );
+	
 ?>

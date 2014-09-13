@@ -20,7 +20,7 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 		$device_id,$smsMsg,$db_connection) {
 
 	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
-	$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
+		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
 
 		echo 'START Send Notifications using GCM.' . PHP_EOL;
 
