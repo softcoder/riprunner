@@ -79,6 +79,10 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 			if(isset($callUnitsResponding) == false || $callUnitsResponding == '') {
 				$callUnitsResponding = '?';
 			}
+			
+			if(isset($callKey) == false || $callKey == '') {
+				$callKey = '?';
+			}
 				
 			$message = array("CALLOUT_MSG" => urlencode($smsMsg),
 					"call-id"  => urlencode($callout_id),
@@ -192,7 +196,11 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 		if(isset($callGPSLong) == false || $callGPSLong == "") {
 			$callGPSLong = 0;
 		}
-
+			
+		if(isset($callkey_id) == false || $callkey_id == '') {
+			$callkey_id = '?';
+		}
+		
 		$message = array("CALLOUT_RESPONSE_MSG" => urlencode($smsMsg),
 				"call-id"  => urlencode($callId),
 				"call-key-id" => urlencode($callkey_id),

@@ -304,9 +304,14 @@ public class AppMainActivity extends ActionBarActivity implements
         Button btnRespond = (Button)findViewById(R.id.btnRespond);
         btnRespond.setEnabled(false);
         btnRespond.setVisibility(View.INVISIBLE);
+        
         Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
         btnCompleteCall.setEnabled(false);
         btnCompleteCall.setVisibility(View.INVISIBLE);
+        
+        Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+        btnCancelCall.setEnabled(false);
+        btnCancelCall.setVisibility(View.INVISIBLE);
         
         EditText etFhid = (EditText)findViewById(R.id.etFhid);
         etFhid.setText(getResources().getString(R.string.firehallid));
@@ -635,6 +640,29 @@ public class AppMainActivity extends ActionBarActivity implements
                     if (checkPlayServices()) {
                     	if(isLoggedIn()) {
                     		respondInBackground(CalloutStatusType.Complete);
+                    	}
+                    } 
+                    else {
+                        Log.i(TAG, "No valid Google Play Services APK found.");
+                    }
+                	return "";
+                }
+
+                @Override
+                protected void onPostExecute(String msg) {
+                    mDisplay.append(msg + "\n");
+                }
+            }.execute(null, null, null);
+        }
+        else if (view == findViewById(R.id.btnCancelCall)) {
+            new AsyncTask<Void, Void, String>() {
+                @Override
+                protected String doInBackground(Void... params) {
+
+                    // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
+                    if (checkPlayServices()) {
+                    	if(isLoggedIn()) {
+                    		respondInBackground(CalloutStatusType.Cancelled);
                     	}
                     } 
                     else {
@@ -1150,11 +1178,19 @@ public class AppMainActivity extends ActionBarActivity implements
 					            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
 					            btnCompleteCall.setVisibility(View.VISIBLE);
 					            btnCompleteCall.setEnabled(true);
+
+					            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+					            btnCancelCall.setVisibility(View.VISIBLE);
+					            btnCancelCall.setEnabled(true);
 					    	}
 					    	else {
 					            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
 					            btnCompleteCall.setVisibility(View.VISIBLE);
 					            btnCompleteCall.setEnabled(false);
+					            
+					            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+					            btnCancelCall.setVisibility(View.VISIBLE);
+					            btnCancelCall.setEnabled(false);
 					    	}
 					    	
 					    	playSound(AppMainActivity.this.context,FireHallSoundPlayer.SOUND_DINGLING);
@@ -1178,12 +1214,26 @@ public class AppMainActivity extends ActionBarActivity implements
 						
 						throw new RuntimeException("Could not parse JSON data: " + e);
 					}
+					
+					String callKeyId = URLDecoder.decode(json.getString("call-key-id"), "utf-8");
+					if(callKeyId == null || callKeyId.equals("?")) {
+						callKeyId = "";
+					}
+					String callAddress = URLDecoder.decode(json.getString("call-address"), "utf-8");
+					if(callAddress == null || callAddress.equals("?")) {
+						callAddress = "";
+					}
+					String callMapAddress = URLDecoder.decode(json.getString("call-map-address"), "utf-8");
+					if(callMapAddress == null || callMapAddress.equals("?")) {
+						callMapAddress = "";
+					}
+					
 					lastCallout = new FireHallCallout(
 							URLDecoder.decode(json.getString("call-id"), "utf-8"),
-							URLDecoder.decode(json.getString("call-key-id"), "utf-8"),
+							callKeyId,
 							gpsLatStr,gpsLongStr,
-							URLDecoder.decode(json.getString("call-address"), "utf-8"),
-							URLDecoder.decode(json.getString("call-map-address"), "utf-8"),
+							callAddress,
+							callMapAddress,
 							URLDecoder.decode(json.getString("call-units"), "utf-8"),
 							URLDecoder.decode(json.getString("call-status"), "utf-8"));
 					
@@ -1204,14 +1254,22 @@ public class AppMainActivity extends ActionBarActivity implements
 					        btnRespond.setEnabled(true);
 					        
 					    	if(CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
-					                Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-					                btnCompleteCall.setVisibility(View.VISIBLE);
-					                btnCompleteCall.setEnabled(true);
+				                Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+				                btnCompleteCall.setVisibility(View.VISIBLE);
+				                btnCompleteCall.setEnabled(true);
+				                
+					            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+					            btnCancelCall.setVisibility(View.VISIBLE);
+					            btnCancelCall.setEnabled(true);
 					    	}
 					    	else {
 					            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
 					            btnCompleteCall.setVisibility(View.VISIBLE);
 					            btnCompleteCall.setEnabled(false);
+					            
+					            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+					            btnCancelCall.setVisibility(View.VISIBLE);
+					            btnCancelCall.setEnabled(false);
 					    	}
 					   }
 					});

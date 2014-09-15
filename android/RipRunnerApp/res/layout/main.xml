@@ -88,6 +88,12 @@
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
                 android:text="@string/respond" />
+            
+        </LinearLayout>
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btnCompleteCall"
@@ -95,9 +101,15 @@
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
                 android:text="@string/complete_call" />
+
+            <Button
+                android:id="@+id/btnCancelCall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClick"
+                android:text="@string/cancel_call" />
             
         </LinearLayout>
-
         <TextView
                 android:id="@+id/display"
                 android:layout_width="fill_parent"

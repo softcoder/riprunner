@@ -205,6 +205,16 @@ if(isset($firehall_id)) {
 							. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm that the call should be set to COMPLETE?\',this);">'. PHP_EOL;
 							$html .='<INPUT TYPE="submit" VALUE="End the Callout - '. $row_yes_response->user_id .'" style="font-size: 25px; background-color:lime" />'. PHP_EOL;
 							$html .='</form>'. PHP_EOL;
+							
+							$html .='<form id="call_cancel_response_' . $row_yes_response->id . '" action="cr.php?fhid=' . urlencode($firehall_id)
+							. '&cid=' . urlencode($callout_id)
+							. '&uid=' . urlencode($row_yes_response->user_id)
+							. '&ckid=' . urlencode($callkey_id)
+							. '&status=' . urlencode(CalloutStatusType::Cancelled)
+							. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'CANCEL this call?\nConfirm that the call should be CANCELLED?\',this);">'. PHP_EOL;
+							$html .='<INPUT TYPE="submit" VALUE="CANCEL the Callout - '. $row_yes_response->user_id .'" style="font-size: 25px; background-color:red" />'. PHP_EOL;
+							$html .='</form>'. PHP_EOL;
+								
 						}
 						$sql_yes_response_result->close();
 						$html .='</div>' . PHP_EOL;
