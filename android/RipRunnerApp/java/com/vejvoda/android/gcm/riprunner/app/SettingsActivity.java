@@ -1,3 +1,8 @@
+/*
+ * Copyright 2014 Mark Vejvoda
+ * Under GNU GPL v3.0
+ */
+
 package com.vejvoda.android.gcm.riprunner.app;
 
 import android.annotation.TargetApi;
@@ -149,10 +154,6 @@ public class SettingsActivity extends PreferenceActivity implements
 					                        	EditTextPreference sender_id = (EditTextPreference)findPreference("sender_id");
 					                        	try {
 													sender_id.setText(json.getString("gcm-projectid"));
-													
-													//setPreferenceScreen(null);
-													//setupGeneralPrefsUI();
-													//addPreferencesFromResource(R.xml.pref_general);
 												} 
 					                        	catch (JSONException e) {
 								                	Log.e("Getting defaults", "Error", e);
@@ -196,7 +197,9 @@ public class SettingsActivity extends PreferenceActivity implements
 	 * example, 10" tablets are extra-large.
 	 */
 	private static boolean isXLargeTablet(Context context) {
-		return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+		return (context.getResources().getConfiguration().
+				screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= 
+								Configuration.SCREENLAYOUT_SIZE_XLARGE;
 	}
 
 	/**
@@ -225,7 +228,8 @@ public class SettingsActivity extends PreferenceActivity implements
 	 * A preference value change listener that updates the preference's summary
 	 * to reflect its new value.
 	 */
-	private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+	private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = 
+			new Preference.OnPreferenceChangeListener() {
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object value) {
 			String stringValue = value.toString();
@@ -249,7 +253,8 @@ public class SettingsActivity extends PreferenceActivity implements
 					// Empty values correspond to 'silent' (no ringtone).
 					//preference.setSummary(R.string.pref_ringtone_silent);
 
-				} else {
+				} 
+				else {
 					Ringtone ringtone = RingtoneManager.getRingtone(
 							preference.getContext(), Uri.parse(stringValue));
 
@@ -266,7 +271,8 @@ public class SettingsActivity extends PreferenceActivity implements
 					}
 				}
 
-			} else {
+			} 
+			else {
 				// For all other preferences, set the summary to the value's
 				// simple string representation.
 				preference.setSummary(stringValue);
@@ -286,8 +292,8 @@ public class SettingsActivity extends PreferenceActivity implements
 	 */
 	private static void bindPreferenceSummaryToValue(Preference preference) {
 		// Set the listener to watch for value changes.
-		preference
-				.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+		preference.setOnPreferenceChangeListener(
+				sBindPreferenceSummaryToValueListener);
 
 		// Trigger the listener immediately with the preference's
 		// current value.
@@ -315,8 +321,6 @@ public class SettingsActivity extends PreferenceActivity implements
 			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("host_url"));
 			bindPreferenceSummaryToValue(findPreference("sender_id"));
-			
-			//getGeneralSettingsDefaults();			
 		}
 	}
 

@@ -13,10 +13,12 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -33,7 +35,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnFocusChangeListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -49,7 +50,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -69,12 +69,13 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 
 /**
- * Main UI for the demo app.
+ * Main UI for the Rip Runner Android app.
  */
 public class AppMainActivity extends ActionBarActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
+	// Property names to store app settings
     public static final String PROPERTY_REG_ID = "registration_id";
         
     public static final String PROPERTY_WEBSITE_URL = "host_url";
@@ -86,6 +87,11 @@ public class AppMainActivity extends ActionBarActivity implements
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
+    /**
+     * This enum describes possible callout statuses
+     * @author softcoder
+     *
+     */
     public enum CalloutStatusType {
 		Paged(0),
 		Notified(1),
@@ -112,16 +118,7 @@ public class AppMainActivity extends ActionBarActivity implements
     				(status.equals(String.valueOf(CalloutStatusType.Complete.valueOf())))));
         	
         }
-        
     };
-    
-    /**
-     * Substitute you own sender ID here. This is the project number you got
-     * from the API Console of Google GCM, as described in "Getting Started."
-     */
-    // This values enter and read from Settings (preferences screen)
-    //String SENDER_ID = "77585175019";
-    //String SERVER_BASE_URL = "http://www.soft-haus.com/svvfd/riprunner/";
 
     /**
      * Tag used on log messages.
@@ -130,13 +127,14 @@ public class AppMainActivity extends ActionBarActivity implements
 
     TextView mDisplay;
     GoogleCloudMessaging gcm;
-    AtomicInteger msgId = new AtomicInteger();
     Context context;
     MenuItem logout_menu = null;
-
-    static final int SETTINGS_RESULT = 1;
     ProgressDialog loadingDlg = null;
     		
+    /**
+     * This class contains a wrapper for accessing predefined sounds
+     * @author softcoder
+     */
 	public class FireHallSoundPlayer {
 	     public static final int SOUND_DINGLING = R.raw.dingling;
 	     public static final int SOUND_LOGIN = R.raw.login;
@@ -147,12 +145,14 @@ public class AppMainActivity extends ActionBarActivity implements
     private static SoundPool soundPool;
     private static Map<Integer,Integer> soundPoolMap;
 
+    /** The authentication object */
     FireHallAuthentication auth;
+    /** The last callout information */
     FireHallCallout lastCallout;
     
     //Your activity will respond to this action String
     public static final String RECEIVE_CALLOUT = "callout_data";
-
+    /** The broascast receiver class for getting broasdcast messages */
     private BroadcastReceiver bReceiver = null;
     
     // The location client that receives GPS location updates
@@ -180,9 +180,7 @@ public class AppMainActivity extends ActionBarActivity implements
         
         setContentView(R.layout.main);
         mDisplay = (TextView) findViewById(R.id.display);
-
         context = getApplicationContext();
-
         initSounds(context);
 
         LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
@@ -200,13 +198,10 @@ public class AppMainActivity extends ActionBarActivity implements
     	etUid.setSelectAllOnFocus(true);
         setupLoginUI();
         
-        // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
         if (checkPlayServices()) {
-        	
         	setupGPSTracking();
         	
         	if(hasConfigItem(context,PROPERTY_WEBSITE_URL) && hasConfigItem(context,PROPERTY_SENDER_ID)) {
-        		
 	            etFhid.setText(getConfigItem(context,PROPERTY_FIREHALL_ID));
 	            etUid.setText(getConfigItem(context,PROPERTY_USER_ID));
         	}
@@ -245,32 +240,6 @@ public class AppMainActivity extends ActionBarActivity implements
 		}
 	}
 
-	void setupOnFocusListeners() {
-		
-    	final EditText etFhid = (EditText)findViewById(R.id.etFhid);
-    	final EditText etUid = (EditText)findViewById(R.id.etUid);
-		    	
-		etFhid.setOnFocusChangeListener(new OnFocusChangeListener() {
-            public void onFocusChange(View arg0, boolean arg1) {
-            	final EditText etFhid = (EditText)findViewById(R.id.etFhid);
-            	setEditSelectTextIfRequired(etFhid,getResources().getString(R.string.firehallid));
-            }
-        });
-        
-        etUid.setOnFocusChangeListener(new OnFocusChangeListener() {
-            public void onFocusChange(View arg0, boolean arg1) {
-            	final EditText etUid = (EditText)findViewById(R.id.etUid);
-            	setEditSelectTextIfRequired(etUid,getResources().getString(R.string.userid));
-            }
-        });
-	}
-
-    private void setEditSelectTextIfRequired(final EditText etCtl, String defaultStr) {
-    	if(etCtl.getText().toString().equals(defaultStr)) {
-    		etCtl.selectAll();
-    	}    	
-    }
-    
     private void setupLoginUI() {
         auth = null;
         lastCallout = null;
@@ -294,13 +263,13 @@ public class AppMainActivity extends ActionBarActivity implements
         txtMsg.setText(getResources().getString(R.string.login_credentials));
     	
         Button btnLogin = (Button)findViewById(R.id.btnLogin);
-        //btnLogin.setText(getResources().getString(R.string.login));
         btnLogin.setEnabled(true);
         btnLogin.setVisibility(View.VISIBLE);
         
         Button btnMap = (Button)findViewById(R.id.btnMap);
         btnMap.setEnabled(false);
         btnMap.setVisibility(View.INVISIBLE);
+        
         Button btnRespond = (Button)findViewById(R.id.btnRespond);
         btnRespond.setEnabled(false);
         btnRespond.setVisibility(View.INVISIBLE);
@@ -316,9 +285,11 @@ public class AppMainActivity extends ActionBarActivity implements
         EditText etFhid = (EditText)findViewById(R.id.etFhid);
         etFhid.setText(getResources().getString(R.string.firehallid));
         etFhid.setVisibility(View.VISIBLE);
+        
         EditText etUid = (EditText)findViewById(R.id.etUid);
         etUid.setText(getResources().getString(R.string.userid));
         etUid.setVisibility(View.VISIBLE);
+        
         EditText etUpw = (EditText)findViewById(R.id.etUpw);
         etUpw.setText("");
         etUpw.setVisibility(View.VISIBLE);
@@ -327,7 +298,7 @@ public class AppMainActivity extends ActionBarActivity implements
     @Override
     protected void onStart() {
     	super.onStart();
-        // Connect the client.
+        // Connect the GPS client.
         mLocationClient.connect();
     }
 
@@ -356,9 +327,6 @@ public class AppMainActivity extends ActionBarActivity implements
     
     @Override
     protected void onPause() {
-        // Save the current setting for updates
-        //mEditor.putBoolean("KEY_UPDATES_ON", mUpdatesRequested);
-        //mEditor.commit();
         super.onPause();
     }    
     @Override
@@ -399,7 +367,9 @@ public class AppMainActivity extends ActionBarActivity implements
     private void storeConfigItem(Context context, String keyName, String value) {
         final SharedPreferences prefs = getGcmPreferences(context);
         int appVersion = getAppVersion(context);
+        
         Log.i(TAG, "Saving " + keyName + " on app version " + appVersion);
+        
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(keyName, value);
         editor.putInt(PROPERTY_APP_VERSION, appVersion);
@@ -485,21 +455,11 @@ public class AppMainActivity extends ActionBarActivity implements
                     }
                 });
         	}
+        	
             @Override
             protected String doInBackground(Void... params) {
                 String msg = "";
                 try {
-//                    if (gcm == null) {
-//                        gcm = GoogleCloudMessaging.getInstance(context);
-//                    }
-//                    
-//                    String regid = getConfigItem(context,PROPERTY_REG_ID);
-//                    if (regid.isEmpty()) {
-//                    	regid = gcm.register(getConfigItem(context,PROPERTY_SENDER_ID));
-//
-//                    	// Persist the regID - no need to register again.
-//                    	storeConfigItem(context, PROPERTY_REG_ID, regid);
-//                    }
                 	String regid = getGcmDeviceRegistrationId(false);
                 	
                     EditText etFhid = (EditText)findViewById(R.id.etFhid);
@@ -579,105 +539,133 @@ public class AppMainActivity extends ActionBarActivity implements
         }.execute(null, null, null);
     }
     
-    // Send an upstream message.
+    // Handle onclick events
     public void onClick(final View view) {
 
         if (view == findViewById(R.id.btnLogin)) {
-            new AsyncTask<Void, Void, String>() {
-                @Override
-                protected String doInBackground(Void... params) {
-                	
-                    // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
-                    if (checkPlayServices()) {
-                    	if(isLoggedIn() == false) {
-                    		registerInBackground();
-                    	}
-                    } 
-                    else {
-                        Log.i(TAG, "No valid Google Play Services APK found.");
-                    }
-                	return "";
-                }
-
-                @Override
-                protected void onPostExecute(String msg) {
-                    mDisplay.append(msg + "\n");
-                }
-            }.execute(null, null, null);
+            handleLoginClick();
         }
         else if (view == findViewById(R.id.btnMap)) {
 			handleCalloutMapView();
         }
         else if (view == findViewById(R.id.btnRespond)) {
-            new AsyncTask<Void, Void, String>() {
-                @Override
-                protected String doInBackground(Void... params) {
-
-                    // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
-                    if (checkPlayServices()) {
-                    	if(isLoggedIn()) {
-                    		respondInBackground(CalloutStatusType.Responding);
-                    	}
-                    } 
-                    else {
-                        Log.i(TAG, "No valid Google Play Services APK found.");
-                    }
-                	return "";
-                }
-
-                @Override
-                protected void onPostExecute(String msg) {
-                    mDisplay.append(msg + "\n");
-                }
-            }.execute(null, null, null);
+            handleRespondClick();
         }
         else if (view == findViewById(R.id.btnCompleteCall)) {
-            new AsyncTask<Void, Void, String>() {
-                @Override
-                protected String doInBackground(Void... params) {
-
-                    // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
-                    if (checkPlayServices()) {
-                    	if(isLoggedIn()) {
-                    		respondInBackground(CalloutStatusType.Complete);
-                    	}
-                    } 
-                    else {
-                        Log.i(TAG, "No valid Google Play Services APK found.");
-                    }
-                	return "";
-                }
-
-                @Override
-                protected void onPostExecute(String msg) {
-                    mDisplay.append(msg + "\n");
-                }
-            }.execute(null, null, null);
+        	handleCompleteCallClick();
         }
         else if (view == findViewById(R.id.btnCancelCall)) {
-            new AsyncTask<Void, Void, String>() {
-                @Override
-                protected String doInBackground(Void... params) {
-
-                    // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
-                    if (checkPlayServices()) {
-                    	if(isLoggedIn()) {
-                    		respondInBackground(CalloutStatusType.Cancelled);
-                    	}
-                    } 
-                    else {
-                        Log.i(TAG, "No valid Google Play Services APK found.");
-                    }
-                	return "";
-                }
-
-                @Override
-                protected void onPostExecute(String msg) {
-                    mDisplay.append(msg + "\n");
-                }
-            }.execute(null, null, null);
+        	handleCancelCallClick();
         }
     }
+
+	void handleCancelCallClick() {
+		new AlertDialog.Builder(this)
+		.setTitle(R.string.dialog_title_question)
+		.setMessage(R.string.dialog_text_cancel_call)
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setPositiveButton(android.R.string.yes, 
+				new DialogInterface.OnClickListener() {
+
+		    public void onClick(DialogInterface dialog, int whichButton) {
+		        new AsyncTask<Void, Void, String>() {
+		            @Override
+		            protected String doInBackground(Void... params) {
+		                if (checkPlayServices()) {
+		                	if(isLoggedIn()) {
+		                		respondInBackground(CalloutStatusType.Cancelled);
+		                	}
+		                } 
+		                else {
+		                    Log.i(TAG, "No valid Google Play Services APK found.");
+		                }
+		            	return "";
+		            }
+
+		            @Override
+		            protected void onPostExecute(String msg) {
+		                mDisplay.append(msg + "\n");
+		            }
+		        }.execute(null, null, null);
+		    }})
+		 .setNegativeButton(android.R.string.no, null).show();
+	}
+
+	void handleCompleteCallClick() {
+		new AlertDialog.Builder(this)
+		.setTitle(R.string.dialog_title_question)
+		.setMessage(R.string.dialog_text_complete_call)
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setPositiveButton(android.R.string.yes, 
+				new DialogInterface.OnClickListener() {
+
+		    public void onClick(DialogInterface dialog, int whichButton) {
+		        new AsyncTask<Void, Void, String>() {
+		            @Override
+		            protected String doInBackground(Void... params) {
+		                if (checkPlayServices()) {
+		                	if(isLoggedIn()) {
+		                		respondInBackground(CalloutStatusType.Complete);
+		                	}
+		                } 
+		                else {
+		                    Log.i(TAG, "No valid Google Play Services APK found.");
+		                }
+		            	return "";
+		            }
+
+		            @Override
+		            protected void onPostExecute(String msg) {
+		                mDisplay.append(msg + "\n");
+		            }
+		        }.execute(null, null, null);
+		    }})
+		 .setNegativeButton(android.R.string.no, null).show();
+	}
+
+	void handleRespondClick() {
+		new AsyncTask<Void, Void, String>() {
+		    @Override
+		    protected String doInBackground(Void... params) {
+		        if (checkPlayServices()) {
+		        	if(isLoggedIn()) {
+		        		respondInBackground(CalloutStatusType.Responding);
+		        	}
+		        } 
+		        else {
+		            Log.i(TAG, "No valid Google Play Services APK found.");
+		        }
+		    	return "";
+		    }
+
+		    @Override
+		    protected void onPostExecute(String msg) {
+		        mDisplay.append(msg + "\n");
+		    }
+		}.execute(null, null, null);
+	}
+
+	void handleLoginClick() {
+		new AsyncTask<Void, Void, String>() {
+		    @Override
+		    protected String doInBackground(Void... params) {
+		        if (checkPlayServices()) {
+		        	if(isLoggedIn() == false) {
+		        		registerInBackground();
+		        	}
+		        } 
+		        else {
+		            Log.i(TAG, "No valid Google Play Services APK found.");
+		        }
+		    	return "";
+		    }
+
+		    @Override
+		    protected void onPostExecute(String msg) {
+		        mDisplay.append(msg + "\n");
+		    }
+		}.execute(null, null, null);
+	}
 
     private void handleCalloutMapView() {
     	try {
@@ -717,8 +705,6 @@ public class AppMainActivity extends ActionBarActivity implements
         	}
 		} 
 		catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
 			Log.e("main::onClick map2", "Error", e);
 			Toast.makeText(this, "UnsupportedEncodingException: " + e.getMessage(), Toast.LENGTH_LONG).show();
 		}    	
@@ -751,8 +737,6 @@ public class AppMainActivity extends ActionBarActivity implements
      * @return Application's {@code SharedPreferences}.
      */
     private SharedPreferences getGcmPreferences(Context context) {
-        // This sample app persists the registration ID in shared preferences, but
-        // how you store the regID in your app is up to you.
         return getSharedPreferences(AppMainActivity.class.getSimpleName(),
                 Context.MODE_PRIVATE);
     }
@@ -799,38 +783,7 @@ public class AppMainActivity extends ActionBarActivity implements
             }
             		
             if(responseString != null && responseString.startsWith("OK=")) {
-	            storeConfigItem(context, PROPERTY_USER_ID, auth.getUserId());
-	            auth.setRegisteredBackend(true);
-	            
-	            runOnUiThread(new Runnable() {
-	                public void run() {
-	                	
-	                    Button btnLogin = (Button)findViewById(R.id.btnLogin);
-	                    //btnLogin.setText(getResources().getString(R.string.logout));
-	                    btnLogin.setEnabled(false);
-	                    btnLogin.setVisibility(View.INVISIBLE);
-	                	
-	                    TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-	                    txtMsg.setText(getResources().getString(R.string.login_success));
-
-	                    // Enable when debugging
-	                    //mDisplay.setText(responseString);
-	                    
-	                    EditText etFhid = (EditText)findViewById(R.id.etFhid);
-	                    etFhid.setText("");
-	                    etFhid.setVisibility(View.GONE);
-	                    EditText etUid = (EditText)findViewById(R.id.etUid);
-	                    etUid.setText("");
-	                    etUid.setVisibility(View.GONE);
-	                    EditText etUpw = (EditText)findViewById(R.id.etUpw);
-	                    etUpw.setText("");
-	                    etUpw.setVisibility(View.GONE);
-	                    
-	                    playSound(context,FireHallSoundPlayer.SOUND_LOGIN);
-	                    
-	                    showProgressDialog(false, null);
-	               }
-	            });
+	            handleRegistrationSuccess(auth);
             }
             else {
                 runOnUiThread(new Runnable() {
@@ -844,8 +797,6 @@ public class AppMainActivity extends ActionBarActivity implements
                         showProgressDialog(false, null);
                    }
                 });            
-                
-                //throw new IOException("Error during registration: " + statusLine.getReasonPhrase());
             }
         } 
         else {
@@ -864,10 +815,43 @@ public class AppMainActivity extends ActionBarActivity implements
                     showProgressDialog(false, null);
                }
             });            
-            
-            //throw new IOException("Error during registration: " + statusLine.getReasonPhrase());
         }    	
     }
+
+	void handleRegistrationSuccess(FireHallAuthentication auth) {
+		storeConfigItem(context, PROPERTY_USER_ID, auth.getUserId());
+		auth.setRegisteredBackend(true);
+		
+		runOnUiThread(new Runnable() {
+		    public void run() {
+		    	
+		        Button btnLogin = (Button)findViewById(R.id.btnLogin);
+		        //btnLogin.setText(getResources().getString(R.string.logout));
+		        btnLogin.setEnabled(false);
+		        btnLogin.setVisibility(View.INVISIBLE);
+		    	
+		        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
+		        txtMsg.setText(getResources().getString(R.string.login_success));
+
+		        // Enable when debugging
+		        //mDisplay.setText(responseString);
+		        
+		        EditText etFhid = (EditText)findViewById(R.id.etFhid);
+		        etFhid.setText("");
+		        etFhid.setVisibility(View.GONE);
+		        EditText etUid = (EditText)findViewById(R.id.etUid);
+		        etUid.setText("");
+		        etUid.setVisibility(View.GONE);
+		        EditText etUpw = (EditText)findViewById(R.id.etUpw);
+		        etUpw.setText("");
+		        etUpw.setVisibility(View.GONE);
+		        
+		        playSound(context,FireHallSoundPlayer.SOUND_LOGIN);
+		        
+		        showProgressDialog(false, null);
+		   }
+		});
+	}
 
     /**
      * Sends the registration ID to your server over HTTP, so it can use GCM/HTTP or CCS to send
@@ -902,35 +886,19 @@ public class AppMainActivity extends ActionBarActivity implements
             
             final String responseString = out.toString();
             if(responseString != null && responseString.startsWith("OK=")) {
-	            
-	            runOnUiThread(new Runnable() {
-	                public void run() {
-	                	
-	                    Button btnRespond = (Button)findViewById(R.id.btnRespond);
-	                    btnRespond.setVisibility(View.VISIBLE);
-	                    btnRespond.setEnabled(false);
-	                	
-	                    TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-	                    txtMsg.setText(getResources().getString(R.string.callout_respond_success));
-	                    
-	                    playSound(context,FireHallSoundPlayer.SOUND_DINGLING);
-	                    
-	                    showProgressDialog(false, null);
-	               }
-	            });
+	            handleResponseSuccess();
             }
             else {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         
                         TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-                        txtMsg.setText("Invalid server response: " + (responseString != null ? responseString : "null"));
+                        txtMsg.setText("Invalid server response: " + 
+                        		(responseString != null ? responseString : "null"));
                         
                         showProgressDialog(false, null);
                    }
                 });            
-                
-                //throw new IOException("Error during registration: " + statusLine.getReasonPhrase());
             }
         } 
         else {
@@ -940,17 +908,33 @@ public class AppMainActivity extends ActionBarActivity implements
             final String errorText = statusLine.getReasonPhrase();
             runOnUiThread(new Runnable() {
                 public void run() {
-                    
                     TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-                    txtMsg.setText("Error during server response: " + (errorText != null ? errorText : "null"));
+                    txtMsg.setText("Error during server response: " + 
+                    			(errorText != null ? errorText : "null"));
                     
                     showProgressDialog(false, null);
                }
             });            
-            
-            //throw new IOException("Error during registration: " + statusLine.getReasonPhrase());
         }    	
     }
+
+	void handleResponseSuccess() {
+		runOnUiThread(new Runnable() {
+		    public void run() {
+		    	
+		        Button btnRespond = (Button)findViewById(R.id.btnRespond);
+		        btnRespond.setVisibility(View.VISIBLE);
+		        btnRespond.setEnabled(false);
+		    	
+		        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
+		        txtMsg.setText(getResources().getString(R.string.callout_respond_success));
+		        
+		        playSound(context,FireHallSoundPlayer.SOUND_DINGLING);
+		        
+		        showProgressDialog(false, null);
+		   }
+		});
+	}
     
     ProgressDialog getProgressDialog() {
     	if(loadingDlg == null) {
@@ -958,6 +942,7 @@ public class AppMainActivity extends ActionBarActivity implements
     	}
     	return loadingDlg;
     }
+    
     void showProgressDialog(boolean show, String msg) {
     	if(show) {
     		getProgressDialog().setMessage(msg);
@@ -1049,10 +1034,9 @@ public class AppMainActivity extends ActionBarActivity implements
         	}
 		} 
 		catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
 			Log.e("main::onClick map2", "Error", e);
-			Toast.makeText(this, "UnsupportedEncodingException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, "UnsupportedEncodingException: " + 
+								e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 	}
 	
@@ -1061,15 +1045,12 @@ public class AppMainActivity extends ActionBarActivity implements
 	}
 	
 	private void logout() {
-        // Check device for Play Services APK. If check succeeds, proceed with GCM registration.
         if (checkPlayServices()) {
         	if(auth != null) {
-        		//stopGPSTracking();
         		
 	            runOnUiThread(new Runnable() {
 	                public void run() {
 	                	setupLoginUI();
-	                	
 	                	playSound(context,FireHallSoundPlayer.SOUND_DINGLING);
 	               }
 	            });       
@@ -1082,7 +1063,6 @@ public class AppMainActivity extends ActionBarActivity implements
 	
 	private void clearUI() {
         mDisplay.setText("");
-        //stopGPSTracking();
 	}
 	
 	private void openSettings() {
@@ -1094,15 +1074,14 @@ public class AppMainActivity extends ActionBarActivity implements
 	@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 	    super.onActivityResult(requestCode, resultCode, data);
-	
         displayUserSettings();
     }
     
     private void displayUserSettings() {
 	    SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 	
-	    String host_url = sharedPrefs.getString("host_url", "http://www.soft-haus.com/svvfd/riprunner/");
-	    String sender_id = sharedPrefs.getString("sender_id", "77585175019");
+	    String host_url = sharedPrefs.getString("host_url", "");
+	    String sender_id = sharedPrefs.getString("sender_id", "");
 	
 	    storeConfigItem(context, PROPERTY_WEBSITE_URL, host_url);
 	    storeConfigItem(context, PROPERTY_SENDER_ID, sender_id);
@@ -1122,16 +1101,7 @@ public class AppMainActivity extends ActionBarActivity implements
 							JSONObject json = new JSONObject( serviceJsonString );
 
 							if(json.has("DEVICE_MSG")) {
-								// Do Nothing.
-								final String deviceMsg = URLDecoder.decode(json.getString("DEVICE_MSG"), "utf-8");
-								if(deviceMsg != null && deviceMsg.equals("GCM_LOGINOK") == false) {
-									runOnUiThread(new Runnable() {
-									    public void run() {
-									    	mDisplay = (TextView) findViewById(R.id.display);
-									    	mDisplay.append("\n" + deviceMsg);
-									   }
-									});
-								}
+								processDeviceMsgTrigger(json);
 							}
 							else if(json.has("CALLOUT_MSG")) {
 								processCalloutTrigger(json);
@@ -1141,18 +1111,28 @@ public class AppMainActivity extends ActionBarActivity implements
 							}
 						}
 		            	catch (JSONException e) {
-							//e.printStackTrace();
 		            		Log.e("getBroadCastReceiver()", serviceJsonString, e);
-		            		
 							throw new RuntimeException("Could not parse JSON data: " + e);
 						}
 		            	catch (UnsupportedEncodingException e) {
-							//e.printStackTrace();
 		            		Log.e("getBroadCastReceiver()", serviceJsonString, e);
 							throw new RuntimeException("Could not decode JSON data: " + e);
 		            	}
 		            }
 		        }
+
+				void processDeviceMsgTrigger(JSONObject json)
+						throws UnsupportedEncodingException, JSONException {
+					final String deviceMsg = URLDecoder.decode(json.getString("DEVICE_MSG"), "utf-8");
+					if(deviceMsg != null && deviceMsg.equals("GCM_LOGINOK") == false) {
+						runOnUiThread(new Runnable() {
+						    public void run() {
+						    	mDisplay = (TextView) findViewById(R.id.display);
+						    	mDisplay.append("\n" + deviceMsg);
+						   }
+						});
+					}
+				}
 
 				void processCalloutResponseTrigger(JSONObject json)
 						throws UnsupportedEncodingException, JSONException {
@@ -1304,7 +1284,7 @@ public class AppMainActivity extends ActionBarActivity implements
 
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
-		// TODO Auto-generated method stub
+		Toast.makeText(this, "GPS Connection FAILED!", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override

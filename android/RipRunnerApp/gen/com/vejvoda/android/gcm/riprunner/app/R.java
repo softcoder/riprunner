@@ -1655,6 +1655,9 @@ containing a value of this type.
          */
         public static final int common_signin_button_text_long=0x7f0c002b;
         public static final int complete_call=0x7f0c003d;
+        public static final int dialog_text_cancel_call=0x7f0c0041;
+        public static final int dialog_text_complete_call=0x7f0c0040;
+        public static final int dialog_title_question=0x7f0c003f;
         public static final int firehallid=0x7f0c0031;
         public static final int hosturl=0x7f0c0030;
         public static final int login=0x7f0c0035;
@@ -1664,18 +1667,18 @@ containing a value of this type.
         public static final int map=0x7f0c0038;
         public static final int mapmygps=0x7f0c002d;
         public static final int password=0x7f0c0033;
-        public static final int pref_default_host_url=0x7f0c0042;
-        public static final int pref_default_sender_id=0x7f0c0044;
-        public static final int pref_defaults_get=0x7f0c0045;
+        public static final int pref_default_host_url=0x7f0c0045;
+        public static final int pref_default_sender_id=0x7f0c0047;
+        public static final int pref_defaults_get=0x7f0c0048;
         /**  Strings related to Settings 
  Example General settings 
          */
-        public static final int pref_header_general=0x7f0c0040;
-        public static final int pref_title_host_url=0x7f0c0041;
-        public static final int pref_title_sender_id=0x7f0c0043;
+        public static final int pref_header_general=0x7f0c0043;
+        public static final int pref_title_host_url=0x7f0c0044;
+        public static final int pref_title_sender_id=0x7f0c0046;
         public static final int respond=0x7f0c0039;
         public static final int settings=0x7f0c002e;
-        public static final int title_activity_settings=0x7f0c003f;
+        public static final int title_activity_settings=0x7f0c0042;
         public static final int userid=0x7f0c0032;
         public static final int waiting_for_callout=0x7f0c003b;
         /**  Text on a placeholder buy button when Google Play services is not
