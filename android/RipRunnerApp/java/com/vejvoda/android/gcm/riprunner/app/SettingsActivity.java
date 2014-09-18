@@ -24,6 +24,7 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -115,13 +116,13 @@ public class SettingsActivity extends PreferenceActivity implements
         Preference pref = findPreference(key);
         if (pref instanceof EditTextPreference) {
             EditTextPreference etp = (EditTextPreference) pref;
-            //pref.setSummary(etp.getText());
             pref.setTitle(etp.getTitle());
             pref.setSummary(etp.getText());
         }
 	}
 	
 	void getGeneralSettingsDefaults() {
+		
 		Preference button = (Preference)findPreference("button_get_defaults");
 		button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -130,59 +131,73 @@ public class SettingsActivity extends PreferenceActivity implements
             	// Get Default settings from the host
             	EditTextPreference host_url = (EditTextPreference)findPreference("host_url");
             	if(host_url != null && host_url.getText() != "") {
-	            	final String URL = host_url.getText() + "mobile_app_info.php";
-	            	
-	            	new Thread(new Runnable() {
-	            	    public void run() {            	
-			            	HttpClient httpclient = new DefaultHttpClient();
-			                HttpResponse response;
-							try {
-								response = httpclient.execute(new HttpGet(URL));
-								
-			                    StatusLine statusLine = response.getStatusLine();
-			                    if(statusLine.getStatusCode() == HttpStatus.SC_OK){
-			                        ByteArrayOutputStream out = new ByteArrayOutputStream();
-			                        response.getEntity().writeTo(out);
-			                        out.close();
-			                        
-			                        final String responseString = out.toString();
-			                        if(responseString != null && responseString.startsWith("{")) {
-			                        	final JSONObject json = new JSONObject( responseString );
-			                        	
-			                        	runOnUiThread(new Runnable() {
-			                                public void run() {
-					                        	EditTextPreference sender_id = (EditTextPreference)findPreference("sender_id");
-					                        	try {
-													sender_id.setText(json.getString("gcm-projectid"));
-												} 
-					                        	catch (JSONException e) {
-								                	Log.e("Getting defaults", "Error", e);
-								                    //Toast.makeText(this, "Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
-												}
-			                                }
-			                            });
-			                        }
-			                    }
-								
-							} 
-							catch (ClientProtocolException e) {
-			                	Log.e("Getting defaults", "Error", e);
-			                    //Toast.makeText(this, "Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
-							} 
-							catch (IOException e) {
-								Log.e("Getting defaults", "Error", e);
-			                	//Toast.makeText(this, "Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
-							} 
-							catch (JSONException e) {
-								Log.e("Getting defaults", "Error", e);
-			                	//Toast.makeText(this, "Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
-							}
-	            	    }
-	            	  }).start();						
+	            	getMobileAppSettingsFromWebsite(host_url);						
             	}
             	
                 return true;
             }
+
+			void getMobileAppSettingsFromWebsite(EditTextPreference host_url) {
+				
+				final String URL = host_url.getText() + "mobile_app_info.php";
+				final Context context = getBaseContext();
+				
+				new Thread(new Runnable() {
+				    public void run() {            	
+				    	HttpClient httpclient = new DefaultHttpClient();
+						try {
+							// Ask the website for the mobile app settings
+							HttpResponse response = httpclient.execute(new HttpGet(URL));
+							
+				            StatusLine statusLine = response.getStatusLine();
+				            if(statusLine.getStatusCode() == HttpStatus.SC_OK) {
+				                processMobileSettingsResponse(context, response);
+				            }
+						} 
+						catch (ClientProtocolException e) {
+				        	Log.e("Getting defaults", "Error", e);
+				        	Toast.makeText(context, "#2 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+						} 
+						catch (IOException e) {
+							Log.e("Getting defaults", "Error", e);
+							Toast.makeText(context, "#3 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+						} 
+						catch (JSONException e) {
+							Log.e("Getting defaults", "Error", e);
+							Toast.makeText(context, "#4 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+						}
+				    }
+
+					void processMobileSettingsResponse(final Context context,
+							HttpResponse response) throws IOException,
+							JSONException {
+						ByteArrayOutputStream out = new ByteArrayOutputStream();
+						response.getEntity().writeTo(out);
+						out.close();
+						
+						// Parse the JSON results
+						final String responseString = out.toString();
+						if(responseString != null && responseString.startsWith("{")) {
+							final JSONObject json = new JSONObject( responseString );
+							
+							runOnUiThread(new Runnable() {
+						        public void run() {
+						        	EditTextPreference sender_id = (EditTextPreference)findPreference("sender_id");
+						        	try {
+										sender_id.setText(json.getString("gcm-projectid"));
+																						
+										Toast.makeText(context, "Successfully received app settings.", Toast.LENGTH_LONG).show();
+									} 
+						        	catch (JSONException e) {
+						            	Log.e("Getting defaults", "Error", e);
+						            	Toast.makeText(context, "#1 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+									}
+						        }
+						    });
+						}
+					}
+				  }).start();
+			}
         });
 	}
 	

@@ -12,7 +12,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
-
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -39,7 +39,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -50,7 +49,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -63,7 +61,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import android.location.Location;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -82,7 +79,7 @@ public class AppMainActivity extends ActionBarActivity implements
     public static final String PROPERTY_SENDER_ID 	= "sender_id";
     
     public static final String PROPERTY_FIREHALL_ID = "firehall_id";
-    public static final String PROPERTY_USER_ID = "user_id";
+    public static final String PROPERTY_USER_ID 	= "user_id";
     
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -450,7 +447,6 @@ public class AppMainActivity extends ActionBarActivity implements
                 
                 runOnUiThread(new Runnable() {
                     public void run() {
-                
                     	showProgressDialog(true, "Loading...");
                     }
                 });
@@ -469,7 +465,8 @@ public class AppMainActivity extends ActionBarActivity implements
                     auth = new FireHallAuthentication(
                     		getConfigItem(context,PROPERTY_WEBSITE_URL).toString(), 
                     		etFhid.getText().toString(),
-                    		etUid.getText().toString(), etUpw.getText().toString(),
+                    		etUid.getText().toString(), 
+                    		etUpw.getText().toString(),
                     		regid, false);
                     //msg = "Device registered, ID:\n[" + regid + "]";
                     msg = getResources().getString(R.string.waiting_for_callout);
@@ -561,11 +558,11 @@ public class AppMainActivity extends ActionBarActivity implements
 
 	void handleCancelCallClick() {
 		new AlertDialog.Builder(this)
-		.setTitle(R.string.dialog_title_question)
-		.setMessage(R.string.dialog_text_cancel_call)
-		.setIcon(android.R.drawable.ic_dialog_alert)
-		.setPositiveButton(android.R.string.yes, 
-				new DialogInterface.OnClickListener() {
+				.setTitle(R.string.dialog_title_question)
+				.setMessage(R.string.dialog_text_cancel_call)
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setPositiveButton(android.R.string.yes, 
+			new DialogInterface.OnClickListener() {
 
 		    public void onClick(DialogInterface dialog, int whichButton) {
 		        new AsyncTask<Void, Void, String>() {
@@ -593,11 +590,11 @@ public class AppMainActivity extends ActionBarActivity implements
 
 	void handleCompleteCallClick() {
 		new AlertDialog.Builder(this)
-		.setTitle(R.string.dialog_title_question)
-		.setMessage(R.string.dialog_text_complete_call)
-		.setIcon(android.R.drawable.ic_dialog_alert)
-		.setPositiveButton(android.R.string.yes, 
-				new DialogInterface.OnClickListener() {
+				.setTitle(R.string.dialog_title_question)
+				.setMessage(R.string.dialog_text_complete_call)
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setPositiveButton(android.R.string.yes, 
+			new DialogInterface.OnClickListener() {
 
 		    public void onClick(DialogInterface dialog, int whichButton) {
 		        new AsyncTask<Void, Void, String>() {
@@ -669,14 +666,6 @@ public class AppMainActivity extends ActionBarActivity implements
 
     private void handleCalloutMapView() {
     	try {
-//			String uri = String.format(Locale.ENGLISH, "geo:%s,%s?q=%s", 
-//					URLEncoder.encode(lastCallout.getGPSLat(), "utf-8"), 
-//					URLEncoder.encode(lastCallout.getGPSLong(), "utf-8"),
-//					URLEncoder.encode(lastCallout.getMapAddress(), "utf-8"));
-//			
-//        	Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-//        	intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    		
     		String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%s,%s (%s)", 
 					URLEncoder.encode(lastCallout.getGPSLat(), "utf-8"), 
 					URLEncoder.encode(lastCallout.getGPSLong(), "utf-8"),
@@ -819,14 +808,15 @@ public class AppMainActivity extends ActionBarActivity implements
     }
 
 	void handleRegistrationSuccess(FireHallAuthentication auth) {
+		storeConfigItem(context, PROPERTY_FIREHALL_ID, auth.getFirehallId());
 		storeConfigItem(context, PROPERTY_USER_ID, auth.getUserId());
+		
 		auth.setRegisteredBackend(true);
 		
 		runOnUiThread(new Runnable() {
 		    public void run() {
 		    	
 		        Button btnLogin = (Button)findViewById(R.id.btnLogin);
-		        //btnLogin.setText(getResources().getString(R.string.logout));
 		        btnLogin.setEnabled(false);
 		        btnLogin.setVisibility(View.INVISIBLE);
 		    	
@@ -1260,7 +1250,8 @@ public class AppMainActivity extends ActionBarActivity implements
     }
 
     /** Populate the SoundPool*/
-    public static void initSounds(Context context) {
+    @SuppressLint("UseSparseArrays")
+	public static void initSounds(Context context) {
         soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 100);
 	    soundPoolMap = new HashMap<Integer,Integer>();
 	

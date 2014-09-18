@@ -11,19 +11,17 @@ public class FireHallAuthentication {
 	String firehall_id;
 	String user_id;
 	String user_password;
-	
 	String gcm_registration_id;
 	boolean registered_backend;
 	
-	public FireHallAuthentication(String hostURL, String firehall_id, String user_id,
-		String user_password, String gcm_registration_id,
-		boolean registered_backend) {
+	public FireHallAuthentication(String hostURL, String firehall_id, 
+			String user_id, String user_password, String gcm_registration_id,
+				boolean registered_backend) {
 		
 		this.hostURL = hostURL;
 		this.firehall_id = firehall_id;
 		this.user_id = user_id;
 		this.user_password = user_password;
-		
 		this.gcm_registration_id = gcm_registration_id;
 		this.registered_backend = registered_backend;
 	}
@@ -40,7 +38,6 @@ public class FireHallAuthentication {
 	public String getUserPassword() {
 		return user_password;
 	}
-	
 	public String getGCMRegistrationId() {
 		return gcm_registration_id;
 	}
