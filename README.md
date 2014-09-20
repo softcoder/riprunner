@@ -9,7 +9,7 @@ This application suite was designed by a volunteer fire fighter (whose full time
 
 Key Features:
 -------------
-- Email polling to check for an emergency 911 callout (or page) received from your FOCC (Fire Operations Command Center)
+- Email polling to check for an emergency 911 callout (or page) received from your FOCC (Fire Operations Command Center). Easily adaptable to other callout trigger mechanisms.
 - Pluggable support for SMS gateway providers to send SMS information to fire fighters. 
   Currently providers implemented include (all offer free acounts with limited SMS / month):
   - Twilio (twilio.com) <-- recommended (paid account charges approx $0.0075 per SMS)
@@ -20,8 +20,9 @@ Key Features:
 - User Account management
 - Callout history with responding members
 - Google Maps showing Distance from Firehall to Incident
-- Ability for members to respond to callout, thus letting other members know who is responding
-- Experimental Native Android App which interfaces to the web application (does not require SMS Gateway)
+- Google charts shows statistical view of data.
+- Ability for members to indicate a response to callouts allowing other members to know who is responding
+- Experimental Android App which interfaces to the web application (does not require SMS Gateway, uses free GCM)
 
 Key Android App Features:
 -------------------------
@@ -30,8 +31,8 @@ Key Android App Features:
 - Plays a pager tone during a callout
 - Acquires your GPS co-ordinates to display a map from your location to the firehall which other members can view during a callout.
 - Displays a map from the Firehall to the Incident scene
-- Allows responders to indicate that they are responding to the call with the click of 1 button. (other responders are notified)
-- Allows responders to indicate that the call is completed with the click of 1 button. (other responders are notified)
+- Allows responders to indicate that they are responding to the call with the click of 1 button. (other responders are notified of each responder)
+- Allows responders to indicate that the call is completed or cancelled with the click of 1 button. (other responders are notified)
 - If you login during a live callout, you will receive the pager tones and live call information.
 
 System Requirements:
