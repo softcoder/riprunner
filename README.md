@@ -57,6 +57,8 @@ System administration:
 
 ![Main Menu](/screenshots/riprunner-admin2.png?raw=true "Main Menu")
 
+![Charts Menu](/screenshots/riprunner-charts1.png?raw=true "Charts Menu")
+
 Android App:
 
 Login Screen:
