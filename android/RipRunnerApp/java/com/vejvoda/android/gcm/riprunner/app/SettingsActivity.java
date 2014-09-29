@@ -15,6 +15,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -94,6 +95,7 @@ public class SettingsActivity extends PreferenceActivity implements
 		// to reflect the new value, per the Android Design guidelines.
 		bindPreferenceSummaryToValue(findPreference("host_url"));
 		bindPreferenceSummaryToValue(findPreference("sender_id"));
+		bindPreferenceSummaryToValue(findPreference("tracking_enabled"));
 	}
 
 	@Override
@@ -183,8 +185,16 @@ public class SettingsActivity extends PreferenceActivity implements
 							runOnUiThread(new Runnable() {
 						        public void run() {
 						        	EditTextPreference sender_id = (EditTextPreference)findPreference("sender_id");
+						        	CheckBoxPreference tracking_enabled = (CheckBoxPreference)findPreference("tracking_enabled");
 						        	try {
 										sender_id.setText(json.getString("gcm-projectid"));
+										
+										if(json.getBoolean("tracking-enabled")) {
+											tracking_enabled.setChecked(true);
+										}
+										else {
+											tracking_enabled.setChecked(false);
+										}
 																						
 										Toast.makeText(context, "Successfully received app settings.", Toast.LENGTH_LONG).show();
 									} 
@@ -312,11 +322,20 @@ public class SettingsActivity extends PreferenceActivity implements
 
 		// Trigger the listener immediately with the preference's
 		// current value.
-		sBindPreferenceSummaryToValueListener.onPreferenceChange(
+		if (preference instanceof CheckBoxPreference) {
+			sBindPreferenceSummaryToValueListener.onPreferenceChange(
+					preference,
+					PreferenceManager.getDefaultSharedPreferences(
+							preference.getContext()).getBoolean(preference.getKey(),
+							true));
+		}
+		else {
+			sBindPreferenceSummaryToValueListener.onPreferenceChange(
 				preference,
 				PreferenceManager.getDefaultSharedPreferences(
 						preference.getContext()).getString(preference.getKey(),
 						""));
+		}
 	}
 
 	/**
@@ -336,6 +355,7 @@ public class SettingsActivity extends PreferenceActivity implements
 			// guidelines.
 			bindPreferenceSummaryToValue(findPreference("host_url"));
 			bindPreferenceSummaryToValue(findPreference("sender_id"));
+			bindPreferenceSummaryToValue(findPreference("tracking_enabled"));
 		}
 	}
 

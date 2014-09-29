@@ -118,6 +118,8 @@
 	{
 		// Indicates whether we should allow use of the Native Mobile Android App
 		public $MOBILE_SIGNAL_ENABLED;
+		// Indicates whether we should allow use of mobile tracking
+		public $MOBILE_TRACKING_ENABLED;
 		// Indicates whether we should signal Native Mobile Android App responders during a callout
 		public $GCM_SIGNAL_ENABLED;
 		// The base URL to call the Google Cloud Messaging Service
@@ -127,8 +129,9 @@
 		// The Project Id (aka sender id) for the Google Cloud Messaging Service
 		public $GCM_PROJECTID;
 	
-		public function __construct($mobile_enabled, $gcm_enabled, $gcm_send_url, $gcm_api_key, $gcm_projectid) {
+		public function __construct($mobile_enabled, $mobile_tracking_enabled, $gcm_enabled, $gcm_send_url, $gcm_api_key, $gcm_projectid) {
 			$this->MOBILE_SIGNAL_ENABLED = $mobile_enabled;
+			$this->MOBILE_TRACKING_ENABLED = $mobile_tracking_enabled;
 			$this->GCM_SIGNAL_ENABLED = $gcm_enabled;
 			$this->GCM_SEND_URL = $gcm_send_url;
 			$this->GCM_API_KEY = $gcm_api_key;
@@ -143,6 +146,9 @@
 		public $FIREHALL_NAME;
 		// The address of the Firehall
 		public $FIREHALL_HOME_ADDRESS;
+		// The GEO coordinates of the Firehall
+		public $FIREHALL_GEO_COORD_LATITUDE;
+		public $FIREHALL_GEO_COORD_LONGITUDE;
 		// The Base URL where you installed rip runner example: http://mywebsite.com/riprunner/
 		public $WEBSITE_CALLOUT_DETAIL_URL;
 		// The Google Map API Key
@@ -151,9 +157,11 @@
 		// example: SALMON VALLEY,|PRINCE GEORGE,;PILOT MOUNTAIN,|PRINCE GEORGE,;
 		public $WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION;
 			
-		public function __construct($name,$home_address, $callout_detail_url, $google_map_api_key, $city_name_substition) {
+		public function __construct($name,$home_address,$home_geo_coord_lat,$home_geo_coord_long,$callout_detail_url, $google_map_api_key, $city_name_substition) {
 			$this->FIREHALL_NAME = $name;
 			$this->FIREHALL_HOME_ADDRESS = $home_address;
+			$this->FIREHALL_GEO_COORD_LATITUDE = $home_geo_coord_lat;
+			$this->FIREHALL_GEO_COORD_LONGITUDE = $home_geo_coord_long;
 			$this->WEBSITE_CALLOUT_DETAIL_URL = $callout_detail_url;
 			$this->WEBSITE_GOOGLE_MAP_API_KEY = $google_map_api_key;
 			$this->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION = $city_name_substition;

@@ -361,6 +361,15 @@
 		}
 		return $result;
 	}
+	
+	function isCalloutInProgress($callout_status) {
+		if(isset($callout_status) && 
+			($callout_status == CalloutStatusType::Cancelled || 
+			 $callout_status == CalloutStatusType::Complete)) {
+			return false;
+		}
+		return true;
+	}
 
 	function checkForLiveCallout($FIREHALL,$db_connection) {
 		// Check if there is an active callout (within last 48 hours) and if so send the details

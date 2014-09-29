@@ -19,7 +19,8 @@ if(isset($FIREHALLS) && sizeof($FIREHALLS) > 0) {
 		
 		$result = array(
 			"fhid"  => urlencode($FIREHALL->FIREHALL_ID),
-			"gcm-projectid"  => urlencode($FIREHALL->MOBILE->GCM_PROJECTID)
+			"gcm-projectid"  => urlencode($FIREHALL->MOBILE->GCM_PROJECTID),
+			"tracking-enabled"  => urlencode($FIREHALL->MOBILE->MOBILE_TRACKING_ENABLED)
 		);
 		$result = json_encode($result);
 	}

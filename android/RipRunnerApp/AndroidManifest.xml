@@ -103,6 +103,10 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>
+        
+		<receiver android:name=".AppMainBroadcastReceiver">
+		</receiver>
+        
     </application>
 
 </manifest>

@@ -18,6 +18,11 @@
         android:singleLine="true"
         android:title="@string/pref_title_sender_id" />
     
+    <CheckBoxPreference
+          android:title="@string/pref_title_tracking_enabled"
+          android:defaultValue="true"
+          android:key="tracking_enabled" />
+    
     <Preference android:title="@string/pref_defaults_get"
                 android:key="button_get_defaults"
                 android:summary="@string/pref_defaults_get"/>    

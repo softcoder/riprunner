@@ -6,6 +6,9 @@
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
+//
+// This file manages callout responsers information during a callout
+//
 define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
@@ -92,6 +95,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				else {
 					if($debug_registration) echo "E3b";
 				}
+				$sql_callkey_result->close();
 			}
 			else {
 				// Validate the users password
@@ -142,6 +146,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
 			
+			$startTrackingResponder = false;
 			$affected_response_rows = $db_connection->affected_rows;
 			
 			// If update failed, the responder did not responded yet so INSERT
@@ -176,11 +181,12 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				}
 			
 				$callout_respond_id = $db_connection->insert_id;
+				$startTrackingResponder = true;
 			}
 			
 			// Update the main callout status Unless its already set to cancelled or completed
 			$sql = 'UPDATE callouts SET status = ' . $db_connection->real_escape_string( $user_status ) . ',' .
-					'        updatetime = CURRENT_TIMESTAMP() ' .
+					'                   updatetime = CURRENT_TIMESTAMP() ' .
 					' WHERE id = ' .	$db_connection->real_escape_string( $callout_id ) . 
 					' AND status NOT IN (3,10);';
 				
@@ -201,9 +207,14 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				// Redirect to call info page
 				$redirect_host  = $_SERVER['HTTP_HOST'];
 				$redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-				$redirect_extra = 'ci.php?fhid=' . urlencode($firehall_id) .
-				'&cid=' . urlencode($callout_id) .
-				'&ckid=' . urlencode($callkey_id);
+				
+				$redirect_extra = 'ci.php?fhid='  . urlencode($firehall_id) .
+										 '&cid='  . urlencode($callout_id)  .
+										 '&ckid=' . urlencode($callkey_id);
+				if($startTrackingResponder) {
+					$redirect_extra .= '&cruid=' . urlencode($user_id);
+				}
+				
 				header("Location: http://$redirect_host$redirect_uri/$redirect_extra");
 			}
 				
@@ -218,7 +229,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 			// Signal everyone with the status update if required
 			if($affected_update_rows > 0) {
 				signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat,
-				$user_long,$user_status, $callkey_id);
+								$user_long,$user_status, $callkey_id);
 			}
 		}
 

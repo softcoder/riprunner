@@ -60,7 +60,7 @@ require_once( 'config_constants.php' );
 	define( 'DEFAULT_GCM_API_KEY', 	'X');
 	define( 'DEFAULT_GCM_PROJECTID','X');
 	
-	$LOCAL_DEBUG_MOBILE = new FireHallMobile(true, true,
+	$LOCAL_DEBUG_MOBILE = new FireHallMobile(true, true, true,
 			DEFAULT_GCM_SEND_URL,DEFAULT_GCM_API_KEY,DEFAULT_GCM_PROJECTID);
 	
 	// ----------------------------------------------------------------------
@@ -71,6 +71,8 @@ require_once( 'config_constants.php' );
 
 	$LOCAL_DEBUG_WEBSITE = new FireHallWebsite('Local Test Fire Department',
 			'5155 Salmon Valley Road, Prince George, BC',
+			54.0916667,
+			-122.6537361,
 			'http://svvfd-1.local/php/',
 			//'http://bit.ly/1nR3D3N/',
 			DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY, 

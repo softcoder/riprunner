@@ -16,6 +16,27 @@ CREATE TABLE `callouts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 -- ALTER TABLE callouts ADD COLUMN `call_key` varchar(64) COLLATE utf8_unicode_ci NOT NULL;
 
+CREATE TABLE `callouts_response` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `calloutid` int(11) NOT NULL,
+  `useracctid` int(11) NOT NULL,
+  `responsetime` datetime NOT NULL,
+  `latitude` DECIMAL(10,6) NOT NULL,  
+  `longitude` DECIMAL(10,6) NOT NULL,  
+  `status` int(11) NOT NULL DEFAULT 0,
+  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `callouts_geo_tracking` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `calloutid` int(11) NOT NULL,
+  `useracctid` int(11) NOT NULL,
+  `trackingtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `latitude` DECIMAL(10,6) NOT NULL,  
+  `longitude` DECIMAL(10,6) NOT NULL,  
+  `trackingstatus` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE  `user_accounts` (
 `id` INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 `firehall_id` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
@@ -34,17 +55,6 @@ CREATE TABLE `login_attempts` (
     `time` VARCHAR(30) NOT NULL
 ) ENGINE = INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 -- ALTER TABLE login_attempts ADD COLUMN `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST;
-
-CREATE TABLE `callouts_response` (
-  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `calloutid` int(11) NOT NULL,
-  `useracctid` int(11) NOT NULL,
-  `responsetime` datetime NOT NULL,
-  `latitude` DECIMAL(10,6) NOT NULL,  
-  `longitude` DECIMAL(10,6) NOT NULL,  
-  `status` int(11) NOT NULL DEFAULT 0,
-  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE  `devicereg` (
 `id` INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY ,

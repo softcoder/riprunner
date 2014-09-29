@@ -9,6 +9,9 @@
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
+//
+// This file manages callout information during a callout
+//
 define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
@@ -23,7 +26,7 @@ $callkey_validated = false;
 
 if(isset($firehall_id)) {
 	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
-	if($FIREHALL != null) {
+	if(isset($FIREHALL) && $FIREHALL != null) {
 		echo '<title>' . $FIREHALL->WEBSITE->FIREHALL_NAME . ' - Callout Detail</title>';
 	}
 }
@@ -122,13 +125,22 @@ if(isset($firehall_id)) {
 						//$callDest = getAddressForMapping($FIREHALL,$row->address);
 						//$fireHallDest = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
 						
-						$html_responders .= '<a target="_blank" href="http://maps.google.com/maps?saddr='.$responderOrigin.'&daddr=' . $fireHallDest.' ('.$fireHallDest.')">'.$row_response->user_id.'</a>';
+						$html_responders .= '<a target="_blank" href="http://maps.google.com/maps?saddr='.$responderOrigin.'&daddr=' . $fireHallDest.' ('.$fireHallDest.')"><font color="Lime">'.$row_response->user_id.'</font></a>';
 					}
 					else {
 						$html_responders .= $row_response->user_id;
 					}
 				}
+				$sql_response_result->close();
+				
 				$html .= $html_responders . '</font></b></h2>' . PHP_EOL;
+				
+				
+				$html .= '<a target="_blank" href="ct.php?fhid=' . urlencode($firehall_id) 
+										. '&cid=' . urlencode($callout_id) 
+										. '&ta=mr'
+										. '&ckid=' . urlencode($callkey_id) . 
+						 '"><h2><font color="Yellow">Show Responders Map</font></h2></a>'  . PHP_EOL;				
 				$html .='</div>' . PHP_EOL;
 				// END: responders
 				
@@ -174,13 +186,15 @@ if(isset($firehall_id)) {
 					$html .='<div id="callNoResponseContent' . $row_number . '">' . PHP_EOL;
 					while($row_no_response = $sql_no_response_result->fetch_object()) {
 						
-						$html .='<form id="call_no_response_' . $row_no_response->id . '" action="cr.php?fhid=' . urlencode($firehall_id) 
-								. '&cid=' . urlencode($callout_id) 
-								. '&uid=' . urlencode($row_no_response->user_id)
-								. '&ckid=' . urlencode($callkey_id)
+						$html .='<form id="call_no_response_' . $row_no_response->id . 
+								'" action="cr.php?fhid=' . urlencode($firehall_id) 
+										. '&cid=' . urlencode($callout_id) 
+										. '&uid=' . urlencode($row_no_response->user_id)
+										. '&ckid=' . urlencode($callkey_id)
 								. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm ' . $row_no_response->user_id . ' is responding?\',this);">'. PHP_EOL;
 						$html .='<INPUT TYPE="submit" VALUE="Repond Now - ' . 
-									$row_no_response->user_id . '" style="font-size: 25px; background-color:yellow" />'. PHP_EOL;
+									$row_no_response->user_id . 
+						        '" style="font-size: 25px; background-color:yellow" />'. PHP_EOL;
 						$html .='</form>'. PHP_EOL;
 					}
 					$sql_no_response_result->close();
@@ -256,6 +270,24 @@ else {
 <h2><b>Invalid Request</b></h2>
 <?php endif; ?>
 
+<?php  
+if(isset($FIREHALL) && $FIREHALL != null && $FIREHALL->MOBILE->MOBILE_TRACKING_ENABLED) {
+	$cruid = get_query_param('cruid');
+	if ( isset($cruid) && $cruid != null ) {
+		$html .= '<script type="text/javascript">'. PHP_EOL;
+		//$html .= 'debugger;'. PHP_EOL;
+		$html .= 'openURLHidden("ct.php?fhid='  . urlencode($firehall_id) 
+									 . '&cid='  . urlencode($callout_id) 
+									 . '&delay=60'
+									 . '&uid='  . urlencode($cruid)
+									 . '&ckid=' . urlencode($callkey_id)
+									 . '");';
+		$html .= '</script>'. PHP_EOL;
+	}
+}								
+?>
+
 <?= $html ?>
+
 </body>
 </html>

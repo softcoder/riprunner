@@ -12,8 +12,11 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -27,6 +30,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
@@ -39,16 +43,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -59,8 +64,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONException;
-import org.json.JSONObject;
+
 import android.location.Location;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -73,15 +77,16 @@ public class AppMainActivity extends ActionBarActivity implements
 		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
 	// Property names to store app settings
-    public static final String PROPERTY_REG_ID = "registration_id";
+    public static final String PROPERTY_REG_ID 				= "registration_id";
         
-    public static final String PROPERTY_WEBSITE_URL = "host_url";
-    public static final String PROPERTY_SENDER_ID 	= "sender_id";
+    public static final String PROPERTY_WEBSITE_URL 		= "host_url";
+    public static final String PROPERTY_SENDER_ID 			= "sender_id";
+    public static final String PROPERTY_TRACKING_ENABLED 	= "tracking_enabled";
     
-    public static final String PROPERTY_FIREHALL_ID = "firehall_id";
-    public static final String PROPERTY_USER_ID 	= "user_id";
+    public static final String PROPERTY_FIREHALL_ID 		= "firehall_id";
+    public static final String PROPERTY_USER_ID 			= "user_id";
     
-    private static final String PROPERTY_APP_VERSION = "appVersion";
+    private static final String PROPERTY_APP_VERSION 		= "appVersion";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     /**
@@ -122,9 +127,9 @@ public class AppMainActivity extends ActionBarActivity implements
      */
     static final String TAG = "Rip Runner";
 
-    TextView mDisplay;
-    GoogleCloudMessaging gcm;
-    Context context;
+    TextView mDisplay = null;
+    GoogleCloudMessaging gcm = null;
+    Context context = null;
     MenuItem logout_menu = null;
     ProgressDialog loadingDlg = null;
     		
@@ -147,9 +152,12 @@ public class AppMainActivity extends ActionBarActivity implements
     /** The last callout information */
     FireHallCallout lastCallout;
     
-    //Your activity will respond to this action String
+    // Your activity will respond to this action String
     public static final String RECEIVE_CALLOUT = "callout_data";
-    /** The broascast receiver class for getting broasdcast messages */
+    
+    public static final String TRACKING_GEO = "tracking_data";
+    
+    /** The broadcast receiver class for getting broadcast messages */
     private BroadcastReceiver bReceiver = null;
     
     // The location client that receives GPS location updates
@@ -168,7 +176,7 @@ public class AppMainActivity extends ActionBarActivity implements
             MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
     
     // Define an object that holds accuracy and frequency parameters
-    LocationRequest mLocationRequest;    
+    LocationRequest mLocationRequest;
     boolean mUpdatesRequested = true;
     
     @Override
@@ -183,8 +191,9 @@ public class AppMainActivity extends ActionBarActivity implements
         LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(RECEIVE_CALLOUT);
-        bManager.registerReceiver(getBroadCastReceiver(), intentFilter);        
-            
+        intentFilter.addAction(TRACKING_GEO);
+        bManager.registerReceiver(getBroadCastReceiver(), intentFilter);
+        
         getProgressDialog();
         
     	final EditText etFhid = (EditText)findViewById(R.id.etFhid);
@@ -198,9 +207,14 @@ public class AppMainActivity extends ActionBarActivity implements
         if (checkPlayServices()) {
         	setupGPSTracking();
         	
-        	if(hasConfigItem(context,PROPERTY_WEBSITE_URL) && hasConfigItem(context,PROPERTY_SENDER_ID)) {
-	            etFhid.setText(getConfigItem(context,PROPERTY_FIREHALL_ID));
-	            etUid.setText(getConfigItem(context,PROPERTY_USER_ID));
+        	if(hasConfigItem(context,PROPERTY_WEBSITE_URL,String.class) && 
+        			hasConfigItem(context,PROPERTY_SENDER_ID,String.class) &&
+        			hasConfigItem(context,PROPERTY_TRACKING_ENABLED,Boolean.class)) {
+        		
+	            etFhid.setText(getConfigItem(context,PROPERTY_FIREHALL_ID,String.class));
+	            etUid.setText(getConfigItem(context,PROPERTY_USER_ID,String.class));
+	            
+	            startGEOAlarm();
         	}
         	else {
         		openSettings();
@@ -216,6 +230,47 @@ public class AppMainActivity extends ActionBarActivity implements
         etFhid.requestFocus();
     }
 
+    PendingIntent geoTrackingIntent = null;
+    
+    PendingIntent getGeoTrackingIntent() {
+    	if(geoTrackingIntent == null) {
+	    	//Intent intent = new Intent( TRACKING_GEO );
+	    	Intent intent = new Intent(this, AppMainBroadcastReceiver.class);
+	    	intent.setAction(TRACKING_GEO);
+	    	geoTrackingIntent = PendingIntent.getBroadcast( this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT );
+	    	//geoTrackingIntent = PendingIntent.getActivity(this, 0,
+	        //        new Intent(this, AppMainActivity.class), 0);
+    	}
+    	return geoTrackingIntent;
+    }
+    void startGEOAlarm() {
+    	if(geoTrackingIntent == null) {
+	    	String alarm = Context.ALARM_SERVICE;
+	    	AlarmManager am = ( AlarmManager ) getSystemService( alarm );
+	    	 
+	    	int type = AlarmManager.ELAPSED_REALTIME_WAKEUP;
+	    	//long interval = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+	    	long interval = 60000;
+	    	//long interval = 5000;
+	    	long triggerTime = SystemClock.elapsedRealtime() + interval;
+	    	 
+	    	am.setInexactRepeating( type, triggerTime, interval, getGeoTrackingIntent() );
+    	}
+    }
+    
+    void cancelGEOAlarm() {
+    	//if(geoTrackingIntent != null) {
+	    	String alarm = Context.ALARM_SERVICE;
+	    	AlarmManager am = ( AlarmManager ) getSystemService( alarm );
+	    	 
+	    	//Intent intent = new Intent( TRACKING_GEO );
+	    	//PendingIntent pi = PendingIntent.getBroadcast( this, 0, intent, 0 );
+	    	 
+	    	am.cancel(getGeoTrackingIntent());
+	    	geoTrackingIntent = null;
+    	//}
+    }
+    
 	void setupGPSTracking() {
 		if(mLocationRequest == null) {
 			// Create the LocationRequest object
@@ -361,22 +416,35 @@ public class AppMainActivity extends ActionBarActivity implements
      * @param context application's context.
      * @param regId registration ID
      */
-    private void storeConfigItem(Context context, String keyName, String value) {
+    private void storeConfigItem(Context context, String keyName, Object value) {
         final SharedPreferences prefs = getGcmPreferences(context);
         int appVersion = getAppVersion(context);
         
         Log.i(TAG, "Saving " + keyName + " on app version " + appVersion);
         
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(keyName, value);
+        if(value instanceof String) {
+        	editor.putString(keyName, (String)value);
+        }
+        else if(value instanceof Boolean) {
+        	editor.putBoolean(keyName, (Boolean)value);
+        }
         editor.putInt(PROPERTY_APP_VERSION, appVersion);
         editor.commit();
     }
 
-    private boolean hasConfigItem(Context context, String keyName) {
+    private <T> boolean hasConfigItem(Context context, String keyName, Class<T> type) {
         final SharedPreferences prefs = getGcmPreferences(context);
-        String value = prefs.getString(keyName, "");
-        if (value == null || value.isEmpty()) {
+        //String value = prefs.getString(keyName, "");
+        T value = null;
+        if(type.equals(String.class)) {
+        	value = type.cast(prefs.getString(keyName, ""));
+        }
+        else if(type.equals(Boolean.class)) {
+        	value = type.cast(prefs.getBoolean(keyName, true));
+        }
+        
+        if (value == null) {
             return false;
         }
         // Check if app was updated; if so, it must clear the registration ID
@@ -397,13 +465,32 @@ public class AppMainActivity extends ActionBarActivity implements
      *
      * @return registration ID, or empty string if there is no existing
      *         registration ID.
+     * @throws IllegalAccessException 
+     * @throws InstantiationException 
      */
-    private String getConfigItem(Context context, String keyName) {
+    <T> T getConfigItem(Context context, String keyName, Class<T> type) {
         final SharedPreferences prefs = getGcmPreferences(context);
-        String value = prefs.getString(keyName, "");
-        if (value == null || value.isEmpty()) {
+        
+        //String value = prefs.getString(keyName, "");
+        T value = null;
+        if(type.equals(String.class)) {
+        	value = type.cast(prefs.getString(keyName, ""));
+        }
+        else if(type.equals(Boolean.class)) {
+        	value = type.cast(prefs.getBoolean(keyName, true));
+        }
+        
+        if (value == null) {
             Log.i(TAG, "Config Item not found: " + keyName);
-            return "";
+            try {
+				return type.newInstance();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
         // Check if app was updated; if so, it must clear the registration ID
         // since the existing regID is not guaranteed to work with the new
@@ -412,7 +499,15 @@ public class AppMainActivity extends ActionBarActivity implements
         int currentVersion = getAppVersion(context);
         if (registeredVersion != currentVersion) {
             Log.i(TAG, "App version changed.");
-            return "";
+            try {
+				return type.newInstance();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
         return value;
     }
@@ -422,9 +517,9 @@ public class AppMainActivity extends ActionBarActivity implements
             gcm = GoogleCloudMessaging.getInstance(context);
         }
         
-        String regid = getConfigItem(context,PROPERTY_REG_ID);
+        String regid = getConfigItem(context,PROPERTY_REG_ID,String.class);
         if (forceNewId == true || regid.isEmpty()) {
-        	regid = gcm.register(getConfigItem(context,PROPERTY_SENDER_ID));
+        	regid = gcm.register(getConfigItem(context,PROPERTY_SENDER_ID,String.class));
 
         	// Persist the regID - no need to register again.
         	storeConfigItem(context, PROPERTY_REG_ID, regid);
@@ -463,7 +558,7 @@ public class AppMainActivity extends ActionBarActivity implements
                     EditText etUpw = (EditText)findViewById(R.id.etUpw);
                     
                     auth = new FireHallAuthentication(
-                    		getConfigItem(context,PROPERTY_WEBSITE_URL).toString(), 
+                    		getConfigItem(context,PROPERTY_WEBSITE_URL,String.class).toString(), 
                     		etFhid.getText().toString(),
                     		etUid.getText().toString(), 
                     		etUpw.getText().toString(),
@@ -925,7 +1020,138 @@ public class AppMainActivity extends ActionBarActivity implements
 		   }
 		});
 	}
-    
+
+    /**
+     * Sends the registration ID to your server over HTTP, so it can use GCM/HTTP or CCS to send
+     * messages to your app. Not needed for this demo since the device sends upstream messages
+     * to a server that echoes back the message using the 'from' address in the message.
+     * @throws IOException 
+     * @throws ClientProtocolException 
+     */
+    public String sendGeoTrackingToBackend() {
+    	
+    	if(isLoggedIn() && lastCallout != null &&
+	    	CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
+
+    		runOnUiThread(new Runnable() {
+     		   public void run() {
+    		
+	    		Toast.makeText(context, "Tracking GEO Coordinates: " + 
+	    					String.valueOf(getLastGPSLatitude()) + "," + 
+	    					String.valueOf(getLastGPSLongitude()), Toast.LENGTH_LONG).show();
+    		   }
+    		});
+    		
+    		boolean track_geo_coords = (getLastGPSLatitude() > 0 && getLastGPSLongitude() > 0);
+    		//boolean track_geo_coords = true;
+    		if(track_geo_coords) {
+    			
+		    	List<NameValuePair> params = new LinkedList<NameValuePair>();
+		    	params.add(new BasicNameValuePair("fhid", auth.getFirehallId()));
+		    	params.add(new BasicNameValuePair("cid", lastCallout.getCalloutId()));
+		    	params.add(new BasicNameValuePair("uid", auth.getUserId()));
+		    	params.add(new BasicNameValuePair("ckid", lastCallout.getCalloutKeyId()));
+	
+		    	params.add(new BasicNameValuePair("upwd", auth.getUserPassword()));
+		   		params.add(new BasicNameValuePair("lat", String.valueOf(getLastGPSLatitude())));
+		   		params.add(new BasicNameValuePair("long", String.valueOf(getLastGPSLongitude())));
+		    	
+		    	String paramString = URLEncodedUtils.format(params, "utf-8");
+		    	String URL = auth.getHostURL() + "ct.php?" + paramString;
+		    	
+		    	HttpClient httpclient = new DefaultHttpClient();
+		        
+				try {
+					HttpResponse response = httpclient.execute(new HttpGet(URL));
+			        StatusLine statusLine = response.getStatusLine();
+			        if(statusLine.getStatusCode() == HttpStatus.SC_OK){
+			            ByteArrayOutputStream out = new ByteArrayOutputStream();
+			            response.getEntity().writeTo(out);
+			            out.close();
+			            
+			            final String responseString = out.toString();
+			            if(responseString != null && responseString.startsWith("OK=")) {
+			        		runOnUiThread(new Runnable() {
+			        		   public void run() {
+			
+			        			   Toast.makeText(context, "Success tracking GEO Coordinates now.", Toast.LENGTH_LONG).show();
+			        		   }
+			        		});
+			        		
+			        		return responseString;
+			            }
+			            else if(responseString != null && responseString.startsWith("CALLOUT_ENDED=")) {
+			            	
+			        		runOnUiThread(new Runnable() {
+				        		   public void run() {
+			            	
+				        			   Toast.makeText(context, "CALLOUT ENDED - GEO Coordinates check.", Toast.LENGTH_LONG).show();
+				        		   }
+				        	});
+			        		
+			        		return responseString;
+			            }
+			            else {
+			                runOnUiThread(new Runnable() {
+			                    public void run() {
+			                        
+			                        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
+			                        txtMsg.setText("Invalid server response: " + 
+			                        		(responseString != null ? responseString : "null"));
+			                        
+			                        //showProgressDialog(false, null);
+			                   }
+			                });
+			                
+			                return responseString;
+			            }
+			        } 
+			        else {
+			            //Closes the connection.
+			            response.getEntity().getContent().close();
+			
+			            final String errorText = statusLine.getReasonPhrase();
+			            
+			            runOnUiThread(new Runnable() {
+			                public void run() {
+			                    TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
+			                    txtMsg.setText("Error during server response: " + 
+			                    			(errorText != null ? errorText : "null"));
+			                    
+			                    //showProgressDialog(false, null);
+			               }
+			            });
+			            
+			            return errorText;
+			        }
+				} 
+				catch (ClientProtocolException e) {
+	            	Log.e("sendGeoTrackingToBackend", "Error", e);
+	            	
+	            	final IOException ex = e;
+	        		runOnUiThread(new Runnable() {
+		        		   public void run() {
+	            	
+		        			   Toast.makeText(context, "Error detected: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+		                   }
+	                });            
+				} 
+				catch (IOException e) {
+	            	Log.e("sendGeoTrackingToBackend", "Error", e);
+
+	            	final IOException ex = e;
+	        		runOnUiThread(new Runnable() {
+		        		   public void run() {
+	            	
+		        			   Toast.makeText(context, "Error detected: " + ex.getMessage(), Toast.LENGTH_LONG).show();
+		                   }
+	                });            
+				}
+    		}
+    	}
+    	return "";
+    }
+	
     ProgressDialog getProgressDialog() {
     	if(loadingDlg == null) {
     		loadingDlg = new ProgressDialog(AppMainActivity.this);	
@@ -1056,9 +1282,11 @@ public class AppMainActivity extends ActionBarActivity implements
 	}
 	
 	private void openSettings() {
-    	  Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-    	  intent.setClass(AppMainActivity.this, SettingsActivity.class);
-    	  startActivityForResult(intent, 0); 
+		cancelGEOAlarm();
+    	
+		Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+    	intent.setClass(AppMainActivity.this, SettingsActivity.class);
+    	startActivityForResult(intent, 0); 
 	}
 	
 	@Override
@@ -1072,179 +1300,19 @@ public class AppMainActivity extends ActionBarActivity implements
 	
 	    String host_url = sharedPrefs.getString("host_url", "");
 	    String sender_id = sharedPrefs.getString("sender_id", "");
+	    Boolean tracking_enabled = sharedPrefs.getBoolean("tracking_enabled", true);
 	
 	    storeConfigItem(context, PROPERTY_WEBSITE_URL, host_url);
 	    storeConfigItem(context, PROPERTY_SENDER_ID, sender_id);
+	    storeConfigItem(context, PROPERTY_TRACKING_ENABLED, tracking_enabled);
+	    
+	    startGEOAlarm();
     }
 
     private BroadcastReceiver getBroadCastReceiver() {
     	if(bReceiver == null) {
-	    	bReceiver = new BroadcastReceiver() {
-		        @Override
-		        public void onReceive(Context context, Intent intent) {
-		            if(intent.getAction().equals(RECEIVE_CALLOUT)) {
-		                
-		            	String serviceJsonString = intent.getStringExtra("callout");
-		            	serviceJsonString = FireHallUtil.extractDelimitedValueFromString(
-		            			serviceJsonString, "Bundle\\[(.*?)\\]", 1, true);
-		            	try {
-							JSONObject json = new JSONObject( serviceJsonString );
-
-							if(json.has("DEVICE_MSG")) {
-								processDeviceMsgTrigger(json);
-							}
-							else if(json.has("CALLOUT_MSG")) {
-								processCalloutTrigger(json);
-							}
-							else if(json.has("CALLOUT_RESPONSE_MSG")) {
-								processCalloutResponseTrigger(json);       
-							}
-						}
-		            	catch (JSONException e) {
-		            		Log.e("getBroadCastReceiver()", serviceJsonString, e);
-							throw new RuntimeException("Could not parse JSON data: " + e);
-						}
-		            	catch (UnsupportedEncodingException e) {
-		            		Log.e("getBroadCastReceiver()", serviceJsonString, e);
-							throw new RuntimeException("Could not decode JSON data: " + e);
-		            	}
-		            }
-		        }
-
-				void processDeviceMsgTrigger(JSONObject json)
-						throws UnsupportedEncodingException, JSONException {
-					final String deviceMsg = URLDecoder.decode(json.getString("DEVICE_MSG"), "utf-8");
-					if(deviceMsg != null && deviceMsg.equals("GCM_LOGINOK") == false) {
-						runOnUiThread(new Runnable() {
-						    public void run() {
-						    	mDisplay = (TextView) findViewById(R.id.display);
-						    	mDisplay.append("\n" + deviceMsg);
-						   }
-						});
-					}
-				}
-
-				void processCalloutResponseTrigger(JSONObject json)
-						throws UnsupportedEncodingException, JSONException {
-					final String calloutMsg = URLDecoder.decode(json.getString("CALLOUT_RESPONSE_MSG"), "utf-8");
-
-					String callout_id = URLDecoder.decode(json.getString("call-id"), "utf-8");
-					String callout_status = URLDecoder.decode(json.getString("user-status"), "utf-8");
-					if(lastCallout != null) {
-						if(lastCallout.getCalloutId() == callout_id) {
-							if(lastCallout.getStatus() != callout_status) {
-								lastCallout.setStatus(callout_status);
-							}
-						}
-					}
-					runOnUiThread(new Runnable() {
-					    public void run() {
-					    	mDisplay = (TextView) findViewById(R.id.display);
-					    	mDisplay.append("\n" + calloutMsg);
-
-					    	if(lastCallout != null &&
-					    		CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
-					    		
-					            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-					            btnCompleteCall.setVisibility(View.VISIBLE);
-					            btnCompleteCall.setEnabled(true);
-
-					            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
-					            btnCancelCall.setVisibility(View.VISIBLE);
-					            btnCancelCall.setEnabled(true);
-					    	}
-					    	else {
-					            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-					            btnCompleteCall.setVisibility(View.VISIBLE);
-					            btnCompleteCall.setEnabled(false);
-					            
-					            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
-					            btnCancelCall.setVisibility(View.VISIBLE);
-					            btnCancelCall.setEnabled(false);
-					    	}
-					    	
-					    	playSound(AppMainActivity.this.context,FireHallSoundPlayer.SOUND_DINGLING);
-					   }
-					});
-				}
-
-				void processCalloutTrigger(JSONObject json)
-						throws UnsupportedEncodingException, JSONException {
-					final String calloutMsg = URLDecoder.decode(json.getString("CALLOUT_MSG"), "utf-8");
-
-					String gpsLatStr = "";
-					String gpsLongStr = "";
-					
-					try {
-						gpsLatStr = URLDecoder.decode(json.getString("call-gps-lat"), "utf-8");
-						gpsLongStr = URLDecoder.decode(json.getString("call-gps-long"), "utf-8");
-					}
-					catch(Exception e) {
-						Log.e("getBroadCastReceiver()", calloutMsg, e);
-						
-						throw new RuntimeException("Could not parse JSON data: " + e);
-					}
-					
-					String callKeyId = URLDecoder.decode(json.getString("call-key-id"), "utf-8");
-					if(callKeyId == null || callKeyId.equals("?")) {
-						callKeyId = "";
-					}
-					String callAddress = URLDecoder.decode(json.getString("call-address"), "utf-8");
-					if(callAddress == null || callAddress.equals("?")) {
-						callAddress = "";
-					}
-					String callMapAddress = URLDecoder.decode(json.getString("call-map-address"), "utf-8");
-					if(callMapAddress == null || callMapAddress.equals("?")) {
-						callMapAddress = "";
-					}
-					
-					lastCallout = new FireHallCallout(
-							URLDecoder.decode(json.getString("call-id"), "utf-8"),
-							callKeyId,
-							gpsLatStr,gpsLongStr,
-							callAddress,
-							callMapAddress,
-							URLDecoder.decode(json.getString("call-units"), "utf-8"),
-							URLDecoder.decode(json.getString("call-status"), "utf-8"));
-					
-					runOnUiThread(new Runnable() {
-					    public void run() {
-
-					    	mDisplay = (TextView) findViewById(R.id.display);
-					    	mDisplay.setText(calloutMsg);
-					    	
-					    	playSound(AppMainActivity.this.context,FireHallSoundPlayer.SOUND_PAGER_TONE_PG);
-					    	
-					        Button btnMap = (Button)findViewById(R.id.btnMap);
-					        btnMap.setVisibility(View.VISIBLE);
-					        btnMap.setEnabled(true);
-					        
-					        Button btnRespond = (Button)findViewById(R.id.btnRespond);
-					        btnRespond.setVisibility(View.VISIBLE);
-					        btnRespond.setEnabled(true);
-					        
-					    	if(CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
-				                Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-				                btnCompleteCall.setVisibility(View.VISIBLE);
-				                btnCompleteCall.setEnabled(true);
-				                
-					            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
-					            btnCancelCall.setVisibility(View.VISIBLE);
-					            btnCancelCall.setEnabled(true);
-					    	}
-					    	else {
-					            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-					            btnCompleteCall.setVisibility(View.VISIBLE);
-					            btnCompleteCall.setEnabled(false);
-					            
-					            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
-					            btnCancelCall.setVisibility(View.VISIBLE);
-					            btnCancelCall.setEnabled(false);
-					    	}
-					   }
-					});
-				}
-		    };
+    		bReceiver = new AppMainBroadcastReceiver();
+    		((AppMainBroadcastReceiver)bReceiver).setMainApp(this);
     	}
     	return bReceiver;
     }
@@ -1324,4 +1392,5 @@ public class AppMainActivity extends ActionBarActivity implements
         double lng = (location != null ? location.getLongitude() : 0);
         return lng;
 	}
+	
 }

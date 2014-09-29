@@ -53,8 +53,12 @@ var getGeoCoordinatesTimeoutId = null;
 
 function handleGeoCoords(coords, form) {
 	//debugger;
+	
+	// Check for valid coordinates and html form
 	if(coords != null && form != null) {
+		// Check for valid coordinates values
 		if(coords[0] != null && coords[0] != 0 && coords[1] != 0) {
+			// Append geo coords to html form action params
 			form.action = form.action + '&lat=' + coords[0] + '&long=' + coords[1];
 			return true;
 		}
@@ -138,18 +142,31 @@ function handleNoGeolocation(errorFlag) {
 
 //google.maps.event.addDomListener(window, 'load', initialize);
 
+function appendGeoCoordinates(form) {
+	//debugger;
+	var coords = getGeoCoordinates(form);
+	if(coords != null) {
+		if(coords[0] == null) {
+			return false;
+		}
+		handleGeoCoords(coords,form);
+		return true;
+	}
+	return true;
+}
+
 function confirmAppendGeoCoordinates(confirm_msg,form) {
 	//debugger;
 	if(confirm(confirm_msg)) {
-		var coords = getGeoCoordinates(form);
-		if(coords != null) {
-			if(coords[0] == null) {
-				return false;
-			}
-			handleGeoCoords(coords,form);
-			return true;
-		}
-		return true;
+		return appendGeoCoordinates(form);
 	}
 	return false;
+}
+
+function openURLHidden(url) {
+	//
+	//window.open(url,'_blank', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=10000, top=10000, width=10, height=10, visible=none', '');
+	//window.open(url,'_blank', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no, visible=none', '');
+	//window.open(url,'_blank', '', '');
+	window.open(url,'_blank', 'width=400, height=100, visible=none', '');
 }
