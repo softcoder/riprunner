@@ -86,6 +86,15 @@ if(isset($firehall_id) && isset($callout_id) &&
 					$callout_lat = $row->latitude;
 					$callout_long = $row->longitude;
 					
+					if(isset($callout_lat) == false || $callout_lat == '' || $callout_lat == 0 ||
+					   isset($callout_long) == false || $callout_long == '' || $callout_long == 0) {
+						$geo_lookup = getGEOCoordinatesFromAddress($FIREHALL,$callout_address);
+						if(isset($geo_lookup)) {
+							$callout_lat = $geo_lookup[0];
+							$callout_long = $geo_lookup[1];
+						}
+					}
+					
 					$responding_people .= "['Destination: ". $callout_address ."', ". $callout_lat .", ". $callout_long ."]";
 					$responding_people_icons .= "iconURLPrefix + 'red-dot.png'";
 				}

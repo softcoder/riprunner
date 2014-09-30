@@ -33,5 +33,9 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	// ----------------------------------------------------------------------
 	// Mobile App Settings
 	define( 'DEFAULT_GCM_SEND_URL',	'https://android.googleapis.com/gcm/send');
+
+	// ----------------------------------------------------------------------
+	// Website Settings
+	define( 'DEFAULT_GOOGLE_MAPS_API_URL',	'http://maps.googleapis.com/maps/api/geocode/');
 	
 ?>

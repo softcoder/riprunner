@@ -151,7 +151,14 @@ if(isset($firehall_id)) {
 					$callDest = $row->latitude . ',' . $row->longitude;
 				}
 				else {
+					
+					//$geo_lookup = getGEOCoordinatesFromAddress($FIREHALL,$row->address);
+					//if(isset($geo_lookup)) {
+					//	$callDest = $geo_lookup[0] . ',' . $geo_lookup[1];
+					//}
+					//else {
 					$callDest = getAddressForMapping($FIREHALL,$row->address);
+					//}
 				}
 				
 				$url = '<iframe width="900" height="700" frameborder="1" style="border:1" ' .

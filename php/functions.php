@@ -8,6 +8,9 @@
 		die( 'This file must not be invoked directly.' ); 
 	}
 
+	//define( 'INCLUSION_PERMITTED', true );
+	//require_once( 'config.php' );
+		
 	// Types of recipient lists
 	abstract class CalloutStatusType {
 		const Paged = 0; 
@@ -16,8 +19,7 @@
 		const Cancelled = 3;
 		const Complete = 10;
 	}
-	
-	
+
 	# This function cleans out special characters
 	function clean_str( $text )	{  
 		$code_entities_match   = array('$','%','^','&','_','+','{','}','|','"','<','>','?','[',']','\\',';',"'",'/','+','~','`','=');
@@ -61,7 +63,8 @@
 	function getAddressForMapping($FIREHALL,$address) {
 		$result_address = $address;
 		if($FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION != null && 
-		  $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION != '') {
+		   $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION != '') {
+			
 			$cityNameSubstituionList = explode(';',$FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION);
 			if($cityNameSubstituionList != null && $cityNameSubstituionList != '' && sizeof($cityNameSubstituionList) > 0) {
 				foreach($cityNameSubstituionList as $cityNamePair) {
@@ -75,6 +78,70 @@
 		return $result_address;
 	}
 
+	//$FIREHALL = findFireHallConfigById(0, $FIREHALLS);
+	//getGEOCoordinatesFromAddress($FIREHALL,'17760 lacasse road prince george BC');
+	
+	function getGEOCoordinatesFromAddress($FIREHALL,$address) {
+		//http://maps.googleapis.com/maps/api/geocode/xml?address=17760 lacasse road prince george BC canada&sensor=false
+		
+		$result_geo_coords = null;
+		$result_address = $address;
+		if($FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION != null &&
+			$FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION != '') {
+			
+			$cityNameSubstituionList = explode(';',$FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION);
+			if($cityNameSubstituionList != null && $cityNameSubstituionList != '' && sizeof($cityNameSubstituionList) > 0) {
+				foreach($cityNameSubstituionList as $cityNamePair) {
+					$cityNameSwap = explode('|',$cityNamePair);
+					if($cityNameSwap != null && $cityNameSwap != '' && sizeof($cityNameSwap) > 1) {
+						$result_address = str_replace($cityNameSwap[0], $cityNameSwap[1], $result_address);
+					}
+				}
+			}
+		}
+		
+		$url = DEFAULT_GOOGLE_MAPS_API_URL . 'json?address=' . urlencode($result_address) . '&sensor=false';
+		
+		$curl_handle = curl_init();
+		curl_setopt($curl_handle,CURLOPT_URL,$url);
+		//curl_setopt($curl_handle, CURLOPT_CUSTOMREQUEST, "POST");
+		//curl_setopt($s, CURLOPT_POSTFIELDS, http_build_query($data));
+		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, true);
+		//curl_setopt($s, CURLOPT_USERPWD, $SMSConfig->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
+	
+		$result = curl_exec($curl_handle);
+	
+		//echo 'RESPONSE: ' . $result .PHP_EOL;
+	
+		if(!curl_errno($curl_handle)) {
+			$info = curl_getinfo($curl_handle);
+			curl_close($curl_handle);
+			
+			//echo 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
+			
+			$geoloc = json_decode($result, true);
+			
+			if ( isset($geoloc['results']) &&
+ 				 isset($geoloc['results'][0]['geometry']) && 
+ 				 isset($geoloc['results'][0]['geometry']['location']) &&
+ 				 isset($geoloc['results'][0]['geometry']['location']['lat']) && 
+ 				 isset($geoloc['results'][0]['geometry']['location']['lng'])) {
+				
+ 				$result_geo_coords = array( $geoloc['results'][0]['geometry']['location']['lat'],
+ 											$geoloc['results'][0]['geometry']['location']['lng']);
+ 			}
+ 			else {
+ 				//echo 'JSON response error google geo api: ' . $result . PHP_EOL;
+ 			}
+		}
+		else {
+			//echo 'Curl error: ' . curl_error($curl_handle) . PHP_EOL;
+			curl_close($curl_handle);
+		}
+		
+		return $result_geo_coords;
+	}
+	
 	function findFireHallConfigById($id, $list) {
 		foreach ($list as &$firehall) {
 			if($firehall->FIREHALL_ID == $id) {
