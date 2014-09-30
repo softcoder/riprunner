@@ -78,8 +78,10 @@ sec_session_start();
 			$jsOutput = '';
 			
 			// Read from the database
-			$sql = 'SELECT calltype, count(*) count FROM callouts WHERE calltime BETWEEN \'' . 
-					$startDate .'\' AND \'' . $endDate . '\' GROUP BY calltype ORDER BY calltype;';
+			$sql = 'SELECT calltype, count(*) count FROM callouts ' .
+					' WHERE calltime BETWEEN \'' . 
+					$startDate .'\' AND \'' . $endDate . '\'' .
+					' GROUP BY calltype ORDER BY calltype;';
 			$sql_result = $db_connection->query( $sql );
 			if($sql_result == false) {
 				printf("Error: %s\n", mysqli_error($db_connection));
@@ -247,7 +249,8 @@ sec_session_start();
 					' UNION (SELECT b.user_id AS datalabel ' .
 					'        FROM callouts_response a' .
 					'        LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-					'        WHERE responsetime BETWEEN \'' .
+					'        LEFT JOIN callouts c ON a.calloutid = c.id ' .
+					'        WHERE c.status NOT IN (3) AND a.responsetime BETWEEN \'' .
 					         $startDate .'\' AND \'' . $endDate . '\'' .
 					'        GROUP BY datalabel) ORDER BY datalabel;';
 			$sql_titles_result = $db_connection->query( $sql_titles );
@@ -277,11 +280,13 @@ sec_session_start();
 			GROUP BY month,datalabel); 
 			*/
 			$sql = '(SELECT MONTH(calltime) AS month, "ALL" AS datalabel, count(*) AS count ' .
-					' FROM callouts WHERE calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+					' FROM callouts WHERE status NOT IN (3) AND calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
 					' GROUP BY month ORDER BY month)' .
 					'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
-					' FROM callouts_response a LEFT JOIN user_accounts b ON a.useracctid = b.id' .
-					' WHERE responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+					' FROM callouts_response a ' .
+					' LEFT JOIN user_accounts b ON a.useracctid = b.id' .
+					' LEFT JOIN callouts c ON a.calloutid = c.id ' .
+					' WHERE c.status NOT IN (3) AND a.responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
 					' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
 			$sql_result = $db_connection->query( $sql );
 					if($sql_result == false) {
@@ -461,7 +466,7 @@ sec_session_start();
 
 		        // ------------------------------------------
 		        // Line chart of call volume for current year
-		        var options_year_volume = {'title':'Total Call Volume - Current Year by Month',
+		        var options_year_volume = {'title':'Total Call Volume by Type (All Calls) - Current Year by Month',
 		        		                    'curveType': 'function',
 		        		                    'explorer' : {},
 									        'width':802,
@@ -501,7 +506,7 @@ sec_session_start();
 
 		        // ------------------------------------------
 		        // Line chart of call response volume for current year
-		        var options_year_response_volume = {'title':'Total Call Response Volume - Current Year by Month',
+		        var options_year_response_volume = {'title':'Total Call Response Volume by Person (Completed Calls) - Current Year by Month',
 		        		                    'curveType': 'function',
 		        		                    'explorer' : {},
 									        'width':802,
