@@ -17,7 +17,7 @@ Key Features:
   - EzTexting (eztexting.com)
   - TextBelt (textbelt.com)
 - Self Installation
-- User Account management
+- User Account management (LDAP support optional)
 - Callout history with responding members
 - Google Maps showing Distance from Firehall to Incident
 - Google charts shows statistical view of data.
