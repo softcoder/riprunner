@@ -56,9 +56,17 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 		}
 
 		// Authenticate the user
-		$sql = 'SELECT id,user_pwd FROM user_accounts WHERE firehall_id = \'' .
-				$db_connection->real_escape_string( $firehall_id ) . '\'' .
-				' AND user_id = \'' . $db_connection->real_escape_string( $user_id ) . '\';';
+		if($FIREHALL->LDAP->ENABLED) {
+			create_temp_users_table_for_ldap($FIREHALL, $db_connection);
+			$sql = 'SELECT id,user_pwd FROM ldap_user_accounts WHERE firehall_id = \'' .
+					$db_connection->real_escape_string( $firehall_id ) . '\'' .
+					' AND user_id = \'' . $db_connection->real_escape_string( $user_id ) . '\';';
+		}
+		else {
+			$sql = 'SELECT id,user_pwd FROM user_accounts WHERE firehall_id = \'' .
+					$db_connection->real_escape_string( $firehall_id ) . '\'' .
+					' AND user_id = \'' . $db_connection->real_escape_string( $user_id ) . '\';';
+		}		
 		$sql_result = $db_connection->query( $sql );
 		if($sql_result == false) {
 			if($debug_registration) echo "E3";
@@ -99,17 +107,29 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 			}
 			else {
 				// Validate the users password
-				if (crypt($db_connection->real_escape_string( $user_pwd ), $row->user_pwd) === $row->user_pwd ) {
-					
-					$user_authenticated = true;
-					$useracctid = $row->id;
-					
-					if(isset($user_status) == false || $user_status == null) {
-						$user_status = CalloutStatusType::Responding;
+				if($FIREHALL->LDAP->ENABLED) {
+					if(login_ldap($FIREHALL, $user_id, $user_pwd, $db_connection)) {
+						$user_authenticated = true;
+						$useracctid = $row->id;
+						
+						if(isset($user_status) == false || $user_status == null) {
+							$user_status = CalloutStatusType::Responding;
+						}
 					}
 				}
-				else {
-					if($debug_registration) echo "E4";
+				else {				
+					if (crypt($db_connection->real_escape_string( $user_pwd ), $row->user_pwd) === $row->user_pwd ) {
+						
+						$user_authenticated = true;
+						$useracctid = $row->id;
+						
+						if(isset($user_status) == false || $user_status == null) {
+							$user_status = CalloutStatusType::Responding;
+						}
+					}
+					else {
+						if($debug_registration) echo "E4";
+					}
 				}
 			}
 		}

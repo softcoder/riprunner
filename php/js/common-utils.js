@@ -67,9 +67,11 @@ function handleGeoCoords(coords, form) {
 }
 
 function getGeoCoordinates_success(position) {
+	//alert('GEO Found 1:' + position);
 	//debugger;
 	clearTimeout(getGeoCoordinatesTimeoutId);
 	
+	//alert('GEO Found:' + position);
 	if(isGeoCoordsFound == false) {
 		isGeoCoordsFound = true;
 		var lat_lng = [ position.coords.latitude,position.coords.longitude ];
@@ -84,7 +86,11 @@ function getGeoCoordinates_success(position) {
 function getGeoCoordinates_error(err) {
 	//debugger;
 	clearTimeout(getGeoCoordinatesTimeoutId);
-	alert(err);
+	alert('GEO error: ' + err);
+	
+	if(getGeoCoordinatesForm != null) {
+		getGeoCoordinatesForm.submit();
+	}
 };
 
 function getGeoCoordinates_timeout() {
@@ -109,8 +115,8 @@ function getGeoCoordinates(form) {
 	
 	var options = {
 			enableHighAccuracy: true,
-			timeout: 5000,
-			maximumAge: 3600000
+			timeout: 10000,
+			maximumAge: 0
 	};
 	
 	// Try HTML5 geolocation

@@ -26,7 +26,7 @@ if (isset($_POST['firehall_id'], $_POST['user_id'], $_POST['p'])) {
 	    		$FIREHALL->MYSQL->MYSQL_DATABASE);
     }
     
-    if (login($user_id, $password, $db_connection) == true) {
+    if (login($FIREHALL,$user_id, $password, $db_connection) == true) {
         // Login success 
         header('Location: admin_index.php');
         //echo 'Login Success!' . PHP_EOL;

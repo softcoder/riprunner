@@ -77,7 +77,7 @@ sec_session_start();
 		return $html_row;
 	}
 	
-	function addRow($row, $edit_row, $edit_mode, $self_edit) {
+	function addRow($row, $edit_row, $edit_mode, $self_edit, $ldap_mode) {
         	$html_row = "<tr>" . PHP_EOL;
         
         	$html_row .= "<td>" . PHP_EOL;
@@ -147,7 +147,7 @@ sec_session_start();
         	$html_row .= (isset($row) ? $row->updatetime : '') . PHP_EOL;
         	$html_row .= "</td>" . PHP_EOL;
         
-        	if($edit_row == true) {
+        	if($edit_row == true && $ldap_mode == false) {
         		$html_row .= '<td colspan="2"><input type="button" value="Save" onclick="save_user(this.form, ' . (isset($row) ? $row->id : '-1') . ');" />' . PHP_EOL;
         		
         		$self_edit_query_param = '';
@@ -160,13 +160,18 @@ sec_session_start();
         	else {
         		
         		$edit_colspan = '';
-        		if($self_edit) {
-        			$edit_colspan = ' colspan="2" ';
+        		if($ldap_mode) {
+        			$html_row .= '<td colspan="2"></td>' . PHP_EOL;
         		}
-        		$html_row .= '<td' . $edit_colspan . '><input type="button" value="Edit" onclick="edit_user(this.form, ' . (isset($row) ? $row->id : '-1') . ');" /></td>' . PHP_EOL;
-        		
-        		if($self_edit == false) {
-        			$html_row .= '<td><input type="button" value="Delete" onclick="return delete_user(this.form, ' . (isset($row) ? $row->id : '-1') . ',\'' . (isset($row) ? $row->user_id : '') . '\');" /></td>' . PHP_EOL;
+        		else {
+	        		if($self_edit) {
+	        			$edit_colspan = ' colspan="2" ';
+	        		}
+	        		$html_row .= '<td' . $edit_colspan . '><input type="button" value="Edit" onclick="edit_user(this.form, ' . (isset($row) ? $row->id : '-1') . ');" /></td>' . PHP_EOL;
+	        		
+	        		if($self_edit == false) {
+	        			$html_row .= '<td><input type="button" value="Delete" onclick="return delete_user(this.form, ' . (isset($row) ? $row->id : '-1') . ',\'' . (isset($row) ? $row->user_id : '') . '\');" /></td>' . PHP_EOL;
+	        		}
         		}
         	}
         
@@ -431,7 +436,14 @@ sec_session_start();
             if($self_edit) {
             	$sql_where_clause = 'WHERE id=' . $_SESSION['user_db_id'];	
             }
-            $sql = 'SELECT * FROM user_accounts ' . $sql_where_clause . ';';
+            
+            if($FIREHALL->LDAP->ENABLED) {
+            	create_temp_users_table_for_ldap($FIREHALL, $db_connection);
+            	$sql = 'SELECT * FROM ldap_user_accounts ' . $sql_where_clause . ';';
+            }
+            else {
+            	$sql = 'SELECT * FROM user_accounts ' . $sql_where_clause . ';';
+            }
             $sql_result = $db_connection->query( $sql );
             if($sql_result == false) {
             	printf("Error: %s\n", mysqli_error($db_connection));
@@ -447,17 +459,19 @@ sec_session_start();
 				if($row_number == 1) {
 					$html_row .= getHeaderRow($edit_mode);
 				}
-				$edit_row = (isset($edit_user_id) && $edit_user_id == $row->id);
-				$html_row .= addRow($row,$edit_row, $edit_mode, $self_edit);
+				$edit_row = (isset($edit_user_id) && $edit_user_id == $row->id && $FIREHALL->LDAP->ENABLED == false);
+				$html_row .= addRow($row,$edit_row, $edit_mode, $self_edit,$FIREHALL->LDAP->ENABLED);
 				$row_number++;
             }
             $sql_result->close();
             
             if($insert_new_account == true && $self_edit == false) {
-				$html_row .= addRow(null,true,true);
+				$html_row .= addRow(null,true,true,$FIREHALL->LDAP->ENABLED);
 			}
 			
-            $html_row .= getFooterRow($edit_mode, $self_edit);
+			if($FIREHALL->LDAP->ENABLED == false) {
+            	$html_row .= getFooterRow($edit_mode, $self_edit);
+            }
             $html_row .= "</table>" . PHP_EOL;
             
             echo $html_row;

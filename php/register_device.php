@@ -39,32 +39,36 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 								$FIREHALL->MYSQL->MYSQL_DATABASE);
 		}
 		
-		
-		// Read from the database info about this callout
-		$sql = 'SELECT user_pwd FROM user_accounts WHERE  firehall_id = \'' . 
-			$db_connection->real_escape_string( $firehall_id ) . '\'' .
-			' AND user_id = \'' . $db_connection->real_escape_string( $user_id ) . '\';';
-		$sql_result = $db_connection->query( $sql );
-		if($sql_result == false) {
-			if($debug_registration) echo "E3";
-			
-			printf("Error: %s\n", mysqli_error($db_connection));
-			throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-		}
-
-		$user_authenticated = false;
-		if($row = $sql_result->fetch_object()) {
-			if (crypt($db_connection->real_escape_string( $user_pwd ), $row->user_pwd) === $row->user_pwd ) {
-				$user_authenticated = true;
-			}
-			else {
-				if($debug_registration) echo "E4";
-			}
+		if($FIREHALL->LDAP->ENABLED) {
+			$user_authenticated = login_ldap($FIREHALL, $user_id, $user_pwd, $db_connection);
 		}
 		else {
-			if($debug_registration) echo "E5 [" . $sql . "]";
+			// Read from the database info about this callout
+			$sql = 'SELECT user_pwd FROM user_accounts WHERE  firehall_id = \'' . 
+				$db_connection->real_escape_string( $firehall_id ) . '\'' .
+				' AND user_id = \'' . $db_connection->real_escape_string( $user_id ) . '\';';
+			$sql_result = $db_connection->query( $sql );
+			if($sql_result == false) {
+				if($debug_registration) echo "E3";
+				
+				printf("Error: %s\n", mysqli_error($db_connection));
+				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+			}
+	
+			$user_authenticated = false;
+			if($row = $sql_result->fetch_object()) {
+				if (crypt($db_connection->real_escape_string( $user_pwd ), $row->user_pwd) === $row->user_pwd ) {
+					$user_authenticated = true;
+				}
+				else {
+					if($debug_registration) echo "E4";
+				}
+			}
+			else {
+				if($debug_registration) echo "E5 [" . $sql . "]";
+			}
+			$sql_result->close();
 		}
-		$sql_result->close();
 		
 		if( $user_authenticated == true) {
 

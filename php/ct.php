@@ -140,6 +140,7 @@ if(isset($firehall_id) && isset($callout_id) &&
   <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
   <script type="text/javascript" src="js/markerwithlabel_packed.js"></script>
   <script type="text/JavaScript" src="js/jquery-2.1.1.min.js"></script>
+  <script type="text/JavaScript" src="js/common-utils.js"></script>
 </head> 
 <body>
 

@@ -167,6 +167,57 @@
 			$this->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION = $city_name_substition;
 		}
 	}
+
+	// ----------------------------------------------------------------------
+	class FireHall_LDAP
+	{
+		// Indicates whether LDAP should be used for the firehall
+		public $ENABLED;
+		// The ldap connect url
+		public $LDAP_SERVERNAME;
+		// The ldap base bind dn
+		public $LDAP_BASEDN;
+		// The ldap bind user accounts dn
+		public $LDAP_BASE_USERDN;
+		// The ldap login filter expression
+		public $LDAP_LOGIN_FILTER;
+		// The ldap login filter expression
+		public $LDAP_USER_DN_ATTR_NAME;
+		// The ldap sortby filter expression
+		public $LDAP_USER_SORT_ATTR_NAME;
+		// The ldap administrator group filter expression
+		public $LDAP_LOGIN_ADMIN_GROUP_FILTER;
+		// The ldap sms group filter expression
+		public $LDAP_LOGIN_SMS_GROUP_FILTER;
+		// The ldap group memberof attribute name
+		public $LDAP_GROUP_MEMBER_OF_ATTR_NAME;
+		// The ldap sms mobile attribute name
+		public $LDAP_USER_SMS_ATTR_NAME;
+		// The ldap user id attribute name
+		public $LDAP_USER_ID_ATTR_NAME;
+		// The ldap user name attribute name
+		public $LDAP_USER_NAME_ATTR_NAME;
+				
+		public function __construct($enabled,$name,$dn,$user_dn,$login_filter, 
+									$user_dn_attr, 
+				                    $user_sort_attr, $user_admin_group_filter_attr,
+									$user_sms_group_filter_attr, $group_member_of_attr,
+									$user_sms_attr, $user_id_attr, $user_name_attr) {
+			$this->ENABLED = $enabled;
+			$this->LDAP_SERVERNAME = $name;
+			$this->LDAP_BASEDN = $dn;
+			$this->LDAP_BASE_USERDN = $user_dn;
+			$this->LDAP_LOGIN_FILTER = $login_filter;
+			$this->LDAP_USER_DN_ATTR_NAME = $user_dn_attr;
+			$this->LDAP_USER_SORT_ATTR_NAME = $user_sort_attr;
+			$this->LDAP_LOGIN_ADMIN_GROUP_FILTER = $user_admin_group_filter_attr;
+			$this->LDAP_LOGIN_SMS_GROUP_FILTER = $user_sms_group_filter_attr;
+			$this->LDAP_GROUP_MEMBER_OF_ATTR_NAME = $group_member_of_attr;
+			$this->LDAP_USER_SMS_ATTR_NAME = $user_sms_attr;
+			$this->LDAP_USER_ID_ATTR_NAME = $user_id_attr;
+			$this->LDAP_USER_NAME_ATTR_NAME = $user_name_attr;
+		}
+	}
 	
 	// ----------------------------------------------------------------------
 	class FireHallConfig
@@ -185,8 +236,10 @@
 		public $WEBSITE;
 		// The Mobile configuration for the Firehall
 		public $MOBILE;
+		// The LDAP configuration for the firehall
+		public $LDAP;
 			
-		public function __construct($enabled, $id,$mysql, $email, $sms, $website, $mobile) {
+		public function __construct($enabled, $id,$mysql, $email, $sms, $website, $mobile, $ldapcfg) {
 			$this->ENABLED = $enabled;
 			$this->FIREHALL_ID = $id;
 			$this->MYSQL = $mysql;
@@ -194,6 +247,7 @@
 			$this->SMS = $sms;
 			$this->WEBSITE = $website;
 			$this->MOBILE = $mobile;
+			$this->LDAP = $ldapcfg;
 		}
 	}
 	

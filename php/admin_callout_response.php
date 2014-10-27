@@ -88,7 +88,14 @@ sec_session_start();
 	
 		// Read from the database info about this callout
 		$callout_id = get_query_param('cid');
-		$sql = 'SELECT b.user_id,a.responsetime,a.latitude,a.longitude,a.status,a.updatetime,c.address FROM callouts_response a LEFT JOIN user_accounts b on a.useracctid = b.id LEFT JOIN callouts c on a.calloutid = c.id WHERE calloutid = ' . $callout_id . ';';
+		
+		if($FIREHALL->LDAP->ENABLED) {
+			create_temp_users_table_for_ldap($FIREHALL, $db_connection);
+			$sql = 'SELECT b.user_id,a.responsetime,a.latitude,a.longitude,a.status,a.updatetime,c.address FROM callouts_response a LEFT JOIN ldap_user_accounts b on a.useracctid = b.id LEFT JOIN callouts c on a.calloutid = c.id WHERE calloutid = ' . $callout_id . ';';
+		}
+		else {
+			$sql = 'SELECT b.user_id,a.responsetime,a.latitude,a.longitude,a.status,a.updatetime,c.address FROM callouts_response a LEFT JOIN user_accounts b on a.useracctid = b.id LEFT JOIN callouts c on a.calloutid = c.id WHERE calloutid = ' . $callout_id . ';';
+		}
 		$sql_result = $db_connection->query( $sql );
 		if($sql_result == false) {
 			printf("Error: %s\n", mysqli_error($db_connection));

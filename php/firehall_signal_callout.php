@@ -87,21 +87,30 @@ function signalCalloutToSMSPlugin($FIREHALL, $callDateTimeNative, $callCode,
 		if($smsPlugin == null) {
 			throw new Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
 		}
-		$recipient_list_type = ($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP ?
-				RecipientListType::GroupList : RecipientListType::MobileList);
-		if($recipient_list_type == RecipientListType::GroupList) {
-			$recipients_group = $FIREHALL->SMS->SMS_RECIPIENTS;
-			$recipient_list_array = explode(';',$recipients_group);
-		}
-		else if($FIREHALL->SMS->SMS_RECIPIENTS_FROM_DB) {
-			$recipient_list = getMobilePhoneListFromDB($FIREHALL,null);
-			$recipient_list_array = $recipient_list;
-		}
-		else {
-			$recipients = $FIREHALL->SMS->SMS_RECIPIENTS;
+		
+		if($FIREHALL->LDAP->ENABLED) {
+			$recipients = get_sms_recipients_ldap($FIREHALL);
 			$recipient_list = explode(';',$recipients);
 			$recipient_list_array = $recipient_list;
 		}
+		else {
+			$recipient_list_type = ($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP ?
+					RecipientListType::GroupList : RecipientListType::MobileList);
+			if($recipient_list_type == RecipientListType::GroupList) {
+				$recipients_group = $FIREHALL->SMS->SMS_RECIPIENTS;
+				$recipient_list_array = explode(';',$recipients_group);
+			}
+			else if($FIREHALL->SMS->SMS_RECIPIENTS_FROM_DB) {
+				$recipient_list = getMobilePhoneListFromDB($FIREHALL,null);
+				$recipient_list_array = $recipient_list;
+			}
+			else {
+				$recipients = $FIREHALL->SMS->SMS_RECIPIENTS;
+				$recipient_list = explode(';',$recipients);
+				$recipient_list_array = $recipient_list;
+			}
+		}
+		
 		$smsText = getSMSCalloutMessage($FIREHALL,$callDateTimeNative,
 				$callCode, $callAddress, $callGPSLat, $callGPSLong,
 				$callUnitsResponding, $callType, $callout_id, $callKey,

@@ -79,6 +79,23 @@ require_once( 'config_constants.php' );
 			DEFAULT_WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION);
 	
 	// ----------------------------------------------------------------------
+	// LDAP Settings
+	$LOCAL_DEBUG_LDAP = new FireHall_LDAP(
+			false,
+			'ldap://myhost.example.com',
+			'dc=example,dc=com',
+			'ou=users,dc=example,dc=com',
+			'(|(uid=${login})(cn=${login})(mail=${login}@\*))',
+			'dn',
+			'sn',
+			'(&(objectClass=posixGroup)(cn=admin))',
+			'(&(objectClass=posixGroup)(cn=sms))',
+			'memberuid',
+			'mobile',
+			'uidnumber',
+			'uid');
+	
+	// ----------------------------------------------------------------------
 	// Main Firehall Configuration Container Settings
 	$LOCAL_DEBUG_FIREHALL = new FireHallConfig(	true, 
 												0,
@@ -86,10 +103,20 @@ require_once( 'config_constants.php' );
 												$LOCAL_DEBUG_EMAIL,
 												$LOCAL_DEBUG_SMS,
 												$LOCAL_DEBUG_WEBSITE,
-												$LOCAL_DEBUG_MOBILE);
+												$LOCAL_DEBUG_MOBILE,
+												$LOCAL_DEBUG_LDAP);
 	
 	// Add as many firehalls to the array as you desire to support
 	$FIREHALLS = array(	$LOCAL_DEBUG_FIREHALL);
+
+	// ----------------------------------------------------------------------
+	// Email parser lookup patterns for email triggers
+	define( 'EMAIL_PARSING_DATETIME_PATTERN', 	'/Date: (.*?)$/m' );
+	define( 'EMAIL_PARSING_CALLCODE_PATTERN', 	'/Type: (.*?)$/m' );
+	define( 'EMAIL_PARSING_ADDRESS_PATTERN', 	'/Address: (.*?)$/m' );
+	define( 'EMAIL_PARSING_LATITUDE_PATTERN', 	'/Latitude: (.*?)$/m' );
+	define( 'EMAIL_PARSING_LONGITUDE_PATTERN', 	'/Longitude: (.*?)$/m' );
+	define( 'EMAIL_PARSING_UNITS_PATTERN', 		'/Units Responding: (.*?)$/m' );
 	
 	// ----------------------------------------------------------------------
 	// Callout Codes and descriptions
@@ -161,14 +188,5 @@ require_once( 'config_constants.php' );
 			"WIRES" => "Hydro Lines Down"
 		
 			);
-
-	// ----------------------------------------------------------------------
-	// Email parser lookup patterns for email triggers
-	define( 'EMAIL_PARSING_DATETIME_PATTERN', 	'/Date: (.*?)$/m' );
-	define( 'EMAIL_PARSING_CALLCODE_PATTERN', 	'/Type: (.*?)$/m' );
-	define( 'EMAIL_PARSING_ADDRESS_PATTERN', 	'/Address: (.*?)$/m' );
-	define( 'EMAIL_PARSING_LATITUDE_PATTERN', 	'/Latitude: (.*?)$/m' );
-	define( 'EMAIL_PARSING_LONGITUDE_PATTERN', 	'/Longitude: (.*?)$/m' );
-	define( 'EMAIL_PARSING_UNITS_PATTERN', 		'/Units Responding: (.*?)$/m' );
 	
 ?>

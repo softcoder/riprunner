@@ -235,7 +235,7 @@ sec_session_start();
 		}
 
 		function getCallResponseVolumeStatsForDateRange($db_connection,$startDate,$endDate,
-				&$dynamicColumnTitles) {
+				&$dynamicColumnTitles, $use_ldap) {
 			$jsOutput = '';
 		
 			/*
@@ -245,14 +245,29 @@ sec_session_start();
 			        LEFT JOIN user_accounts b ON a.useracctid = b.id 
 			        WHERE responsetime BETWEEN '2014-01-01' AND '2014-12-31'
 			        GROUP BY user_id) ORDER BY user_id;			*/
-			$sql_titles = '(SELECT "ALL" as datalabel)' .
-					' UNION (SELECT b.user_id AS datalabel ' .
-					'        FROM callouts_response a' .
-					'        LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-					'        LEFT JOIN callouts c ON a.calloutid = c.id ' .
-					'        WHERE c.status NOT IN (3) AND a.responsetime BETWEEN \'' .
-					         $startDate .'\' AND \'' . $endDate . '\'' .
-					'        GROUP BY datalabel) ORDER BY datalabel;';
+			
+			if($use_ldap) {
+				create_temp_users_table_for_ldap($FIREHALL, $db_connection);
+				
+				$sql_titles = '(SELECT "ALL" as datalabel)' .
+						' UNION (SELECT b.user_id AS datalabel ' .
+						'        FROM callouts_response a' .
+						'        LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
+						'        LEFT JOIN callouts c ON a.calloutid = c.id ' .
+						'        WHERE c.status NOT IN (3) AND a.responsetime BETWEEN \'' .
+						$startDate .'\' AND \'' . $endDate . '\'' .
+						'        GROUP BY datalabel) ORDER BY datalabel;';
+			}
+			else {
+				$sql_titles = '(SELECT "ALL" as datalabel)' .
+						' UNION (SELECT b.user_id AS datalabel ' .
+						'        FROM callouts_response a' .
+						'        LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
+						'        LEFT JOIN callouts c ON a.calloutid = c.id ' .
+						'        WHERE c.status NOT IN (3) AND a.responsetime BETWEEN \'' .
+						         $startDate .'\' AND \'' . $endDate . '\'' .
+						'        GROUP BY datalabel) ORDER BY datalabel;';
+			}
 			$sql_titles_result = $db_connection->query( $sql_titles );
 			if($sql_titles_result == false) {
 				printf("Error: %s\n", mysqli_error($db_connection));
@@ -279,15 +294,31 @@ sec_session_start();
 			WHERE responsetime BETWEEN '2014-01-01' AND '2014-12-31'
 			GROUP BY month,datalabel); 
 			*/
-			$sql = '(SELECT MONTH(calltime) AS month, "ALL" AS datalabel, count(*) AS count ' .
-					' FROM callouts WHERE status NOT IN (3) AND calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
-					' GROUP BY month ORDER BY month)' .
-					'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
-					' FROM callouts_response a ' .
-					' LEFT JOIN user_accounts b ON a.useracctid = b.id' .
-					' LEFT JOIN callouts c ON a.calloutid = c.id ' .
-					' WHERE c.status NOT IN (3) AND a.responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
-					' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
+			
+			if($use_ldap) {
+				create_temp_users_table_for_ldap($FIREHALL, $db_connection);
+				
+				$sql = '(SELECT MONTH(calltime) AS month, "ALL" AS datalabel, count(*) AS count ' .
+						' FROM callouts WHERE status NOT IN (3) AND calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+						' GROUP BY month ORDER BY month)' .
+						'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
+						' FROM callouts_response a ' .
+						' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id' .
+						' LEFT JOIN callouts c ON a.calloutid = c.id ' .
+						' WHERE c.status NOT IN (3) AND a.responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+						' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
+			}
+			else {
+				$sql = '(SELECT MONTH(calltime) AS month, "ALL" AS datalabel, count(*) AS count ' .
+						' FROM callouts WHERE status NOT IN (3) AND calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+						' GROUP BY month ORDER BY month)' .
+						'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
+						' FROM callouts_response a ' .
+						' LEFT JOIN user_accounts b ON a.useracctid = b.id' .
+						' LEFT JOIN callouts c ON a.calloutid = c.id ' .
+						' WHERE c.status NOT IN (3) AND a.responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+						' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
+			}
 			$sql_result = $db_connection->query( $sql );
 					if($sql_result == false) {
 					printf("Error: %s\n", mysqli_error($db_connection));
@@ -527,7 +558,8 @@ sec_session_start();
 		        echo getCallResponseVolumeStatsForDateRange($db_connection,
 												$current_year_start,
 												$current_year_end,
-												$dynamicColumnTitles_response);
+												$dynamicColumnTitles_response,
+		        								$FIREHALL->LDAP->ENABLED);
 		        ?>');
 		        <?php 
 		        foreach($dynamicColumnTitles_response as $title) {

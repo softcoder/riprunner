@@ -10,7 +10,11 @@
 
 	//define( 'INCLUSION_PERMITTED', true );
 	//require_once( 'config.php' );
-		
+	require_once( 'ldap_functions.php' );
+
+	
+	//define( 'USE_LDAP', true );
+	
 	// Types of recipient lists
 	abstract class CalloutStatusType {
 		const Paged = 0; 
@@ -122,6 +126,7 @@
 			$geoloc = json_decode($result, true);
 			
 			if ( isset($geoloc['results']) &&
+				 isset($geoloc['results'][0]) &&
  				 isset($geoloc['results'][0]['geometry']) && 
  				 isset($geoloc['results'][0]['geometry']['location']) &&
  				 isset($geoloc['results'][0]['geometry']['location']['lat']) && 
@@ -183,8 +188,12 @@
 		session_regenerate_id();    // regenerated the session, delete the old one.
 	}
 	
-	function login($user_id, $password, $db_connection) {
+	function login($FIREHALL,$user_id, $password, $db_connection) {
 		$debug_functions = false;
+		
+		if($FIREHALL->LDAP->ENABLED) {
+			return login_ldap($FIREHALL, $user_id, $password, $db_connection);
+		}
 		
 		// Using prepared statements means that SQL injection is not possible.
 		if ($stmt = $db_connection->prepare("SELECT id, firehall_id, user_id, user_pwd, access
@@ -228,6 +237,7 @@
 	        			$_SESSION['user_id'] = $userId;
 	        			$_SESSION['login_string'] = hash('sha512', $userPwd . $user_browser);
 	        			$_SESSION['firehall_id'] = $FirehallId;
+	        			$_SESSION['ldap_enabled'] = false;
 	        			$_SESSION['user_access'] = $userAccess;
 	        			// Login successful.
 	        			return true;
@@ -286,10 +296,17 @@
 			$user_id = $_SESSION['user_db_id'];
 			$login_string = $_SESSION['login_string'];
 			$username = $_SESSION['user_id'];
+			
+			$ldap_enabled = $_SESSION['ldap_enabled'];
 	
 			// Get the user-agent string of the user.
 			$user_browser = $_SERVER['HTTP_USER_AGENT'];
-	
+
+			if(isset($ldap_enabled) && $ldap_enabled) {
+				if($debug_functions) echo "LOGINCHECK using LDAP..." . PHP_EOL;
+				return login_check_ldap($db_connection);
+			}
+				
 			if ($stmt = $db_connection->prepare("SELECT user_pwd
                                       FROM user_accounts
                                       WHERE id = ? LIMIT 1")) {

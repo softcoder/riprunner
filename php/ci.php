@@ -100,8 +100,16 @@ if(isset($firehall_id)) {
 	
 				$callout_status_complete = ($row->status == CalloutStatusType::Cancelled || $row->status == CalloutStatusType::Complete);
 				
-				// START: responders
-				$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a LEFT JOIN user_accounts b ON a.useracctid = b.id WHERE calloutid = ' . $row->id . ';';
+				if($FIREHALL->LDAP->ENABLED) {
+					create_temp_users_table_for_ldap($FIREHALL, $db_connection);
+					// START: responders
+					$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id WHERE calloutid = ' . $row->id . ';';
+				}
+				else {								
+					// START: responders
+					$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a LEFT JOIN user_accounts b ON a.useracctid = b.id WHERE calloutid = ' . $row->id . ';';
+				}
+
 				$sql_response_result = $db_connection->query( $sql_response );
 				if($sql_response_result == false) {
 					printf("Error: %s\n", mysqli_error($db_connection));
@@ -181,8 +189,17 @@ if(isset($firehall_id)) {
 				if ( isset($callkey_id) && $callkey_id != null && $callkey_validated == true) {
 	
 					// Select all user accounts for the firehall that did not yet respond
-					// START: responders
-					$sql_no_response = 'SELECT * FROM user_accounts WHERE id NOT IN (SELECT useracctid FROM callouts_response WHERE calloutid = ' .  $callout_id . ');';
+					
+					if($FIREHALL->LDAP->ENABLED) {
+						create_temp_users_table_for_ldap($FIREHALL, $db_connection);						
+						// START: responders
+						$sql_no_response = 'SELECT id, user_id FROM ldap_user_accounts WHERE id NOT IN (SELECT useracctid FROM callouts_response WHERE calloutid = ' .  $callout_id . ');';
+					}
+					else {						
+						// START: responders
+						$sql_no_response = 'SELECT id, user_id FROM user_accounts WHERE id NOT IN (SELECT useracctid FROM callouts_response WHERE calloutid = ' .  $callout_id . ');';
+					}
+
 					$sql_no_response_result = $db_connection->query( $sql_no_response );
 					if($sql_no_response_result == false) {
 						printf("Error: %s\n", mysqli_error($db_connection));
@@ -192,24 +209,32 @@ if(isset($firehall_id)) {
 					$html .='<br /><br />' . PHP_EOL;
 					$html .='<div id="callNoResponseContent' . $row_number . '">' . PHP_EOL;
 					while($row_no_response = $sql_no_response_result->fetch_object()) {
-						
-						$html .='<form id="call_no_response_' . $row_no_response->id . 
-								'" action="cr.php?fhid=' . urlencode($firehall_id) 
-										. '&cid=' . urlencode($callout_id) 
-										. '&uid=' . urlencode($row_no_response->user_id)
-										. '&ckid=' . urlencode($callkey_id)
-								. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm ' . $row_no_response->user_id . ' is responding?\',this);">'. PHP_EOL;
-						$html .='<INPUT TYPE="submit" VALUE="Repond Now - ' . 
-									$row_no_response->user_id . 
-						        '" style="font-size: 25px; background-color:yellow" />'. PHP_EOL;
+							
+						$html .='<form id="call_no_response_' . $row_no_response->id .
+						'" action="cr.php?fhid=' . urlencode($firehall_id)
+						. '&cid=' . urlencode($callout_id)
+						. '&uid=' . urlencode($row_no_response->user_id)
+						. '&ckid=' . urlencode($callkey_id)
+						. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm ' . $row_no_response->user_id . ' is responding?\',this);">'. PHP_EOL;
+						$html .='<INPUT TYPE="submit" VALUE="Repond Now - ' .
+								$row_no_response->user_id .
+								'" style="font-size: 25px; background-color:yellow" />'. PHP_EOL;
 						$html .='</form>'. PHP_EOL;
 					}
 					$sql_no_response_result->close();
-					
+						
 					if($callout_status_complete == false) {
 						// Select all user accounts for the firehall that did respond to the call
 						// START: responders
-						$sql_yes_response = 'SELECT * FROM user_accounts WHERE id IN (SELECT useracctid FROM callouts_response WHERE calloutid = ' .  $callout_id . ');';
+						
+						if($FIREHALL->LDAP->ENABLED) {
+							create_temp_users_table_for_ldap($FIREHALL, $db_connection);
+							$sql_yes_response = 'SELECT id,user_id FROM ldap_user_accounts WHERE id IN (SELECT useracctid FROM callouts_response WHERE calloutid = ' .  $callout_id . ');';
+						}
+						else {
+							$sql_yes_response = 'SELECT id,user_id FROM user_accounts WHERE id IN (SELECT useracctid FROM callouts_response WHERE calloutid = ' .  $callout_id . ');';
+						}
+						
 						$sql_yes_response_result = $db_connection->query( $sql_yes_response );
 						if($sql_yes_response_result == false) {
 							printf("Error: %s\n", mysqli_error($db_connection));
