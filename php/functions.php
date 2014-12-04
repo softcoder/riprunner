@@ -65,6 +65,8 @@
 	}
 
 	function getAddressForMapping($FIREHALL,$address) {
+		
+/*		
 		$result_address = $address;
 		if($FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION != null && 
 		   $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION != '') {
@@ -80,6 +82,16 @@
 			}
 		}
 		return $result_address;
+*/
+
+		$result_address = $address;
+		$citySubstList = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION;
+		if($citySubstList != null) {
+			foreach($citySubstList as $sourceCityName => $destCityName) {
+				$result_address = str_replace($sourceCityName, $destCityName, $result_address);
+			}
+		}
+		return $result_address;
 	}
 
 	//$FIREHALL = findFireHallConfigById(0, $FIREHALLS);
@@ -90,6 +102,8 @@
 		
 		$result_geo_coords = null;
 		$result_address = $address;
+
+/*		
 		if($FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION != null &&
 			$FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION != '') {
 			
@@ -103,6 +117,8 @@
 				}
 			}
 		}
+*/		
+		$result_address = getAddressForMapping($FIREHALL,$address);
 		
 		$url = DEFAULT_GOOGLE_MAPS_API_URL . 'json?address=' . urlencode($result_address) . '&sensor=false';
 		

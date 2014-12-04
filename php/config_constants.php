@@ -13,10 +13,11 @@ if ( !defined('INCLUSION_PERMITTED') ||
 
 // ==============================================================
 
-	define( 'PRODUCT_NAME', 'RipRunner' );
-	define( 'PRODUCT_URL',  'http://soft-haus.com' );
-	define( 'DEBUG_MODE', 	true);
-	define( "SECURE", 		FALSE);    // FOR DEVELOPMENT ONLY!!!!
+	define( 'PRODUCT_NAME', 		'RipRunner' );
+	define( 'PRODUCT_URL',  		'http://soft-haus.com' );
+	define( 'DEBUG_MODE', 			false);
+	define( "SECURE", 				FALSE);    // FOR DEVELOPMENT ONLY!!!!
+	define( "ENABLE_ASYNCH_MODE", 	true);
 
 	define('USER_ACCESS_ADMIN', 	 0x1);
 	define('USER_ACCESS_SIGNAL_SMS', 0x2);

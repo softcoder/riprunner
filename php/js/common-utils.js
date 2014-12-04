@@ -176,3 +176,95 @@ function openURLHidden(url) {
 	//window.open(url,'_blank', '', '');
 	window.open(url,'_blank', 'width=400, height=100, visible=none', '');
 }
+
+function openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt) {
+	//debugger;
+
+	if(typeof current_attempt === 'undefined') {
+		current_attempt = 1;
+	}
+	else {
+		current_attempt++;
+	}
+	
+	if(typeof max_retries != 'undefined' && 
+			typeof current_attempt != 'undefined' &&
+		current_attempt > max_retries) {
+		return false;
+	}
+
+	//alert('current_attempt = ' + current_attempt);
+	
+	$.ajax({
+      url: url_path,
+      data: $(this).serialize(),
+      success: function(result) {
+    	  //debugger;
+    	  var w = null;
+    	  if(typeof hidden === 'undefined' || hidden == false) {
+    		  w = window.open();
+    	  }
+    	  else {
+    		  w = window.open('','_blank', 'width=400, height=100, visible=none', '');
+    	  }
+    	  
+    	  $(w.document.body).html(result);
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+    	  //debugger;
+    	  
+    	  if(typeof retry_freq === 'undefined') {
+    		  retry_freq = 30000;
+    	  }
+    	  setTimeout(function() {
+    		  openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt);
+    		}, retry_freq);	        		
+      }
+    })
+    return false;	
+}
+
+function submitAjaxForm(formName,max_retries,retry_freq,current_attempt) {
+	$(document).ready(function() {
+	    $('#' + formName).submit(function() {
+	    	//debugger;
+	    	if(typeof current_attempt === 'undefined') {
+	    		current_attempt = 1;
+	    	}
+	    	else {
+	    		current_attempt++;
+	    	}
+	    	
+	    	if(typeof max_retries != 'undefined' && 
+	    			typeof current_attempt != 'undefined' &&
+	    		current_attempt >= max_retries) {
+	    		return false;
+	    	}
+
+	    	//alert('current_attempt = ' + current_attempt);
+	    	
+	        $.ajax({
+	            type: 'POST',
+	            url: $(this).attr('action'),
+	            data: $(this).serialize(),
+	            cache: false,
+	            success: function(result) {
+	                //debugger;
+	                $('body').html(result);
+	            },
+	        	error: function(XMLHttpRequest, textStatus, errorThrown) {
+	        		//debugger;
+	        		
+	          	  if(typeof retry_freq === 'undefined') {
+	        		  retry_freq = 30000;
+	        	  }
+	        		
+	        		setTimeout(function() {
+	        				$('#' + formName).submit();
+	        			}, retry_freq);	        		
+	        	}
+	        })
+	        return false;
+	    });
+	});
+}

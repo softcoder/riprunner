@@ -122,11 +122,6 @@ public class AppMainActivity extends ActionBarActivity implements
         }
     };
 
-    /**
-     * Tag used on log messages.
-     */
-    static final String TAG = "Rip Runner";
-
     TextView mDisplay = null;
     GoogleCloudMessaging gcm = null;
     Context context = null;
@@ -179,9 +174,13 @@ public class AppMainActivity extends ActionBarActivity implements
     LocationRequest mLocationRequest;
     boolean mUpdatesRequested = true;
     
+    PendingIntent geoTrackingIntent = null;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        Log.i(Utils.TAG, Utils.getLineNumber() + ": Starting up Rip Runner.");
         
         setContentView(R.layout.main);
         mDisplay = (TextView) findViewById(R.id.display);
@@ -223,14 +222,24 @@ public class AppMainActivity extends ActionBarActivity implements
 	        etUpw.setText("");
         } 
         else {
-            Log.i(TAG, "No valid Google Play Services APK found.");
+            Log.i(Utils.TAG, Utils.getLineNumber() + ": No valid Google Play Services APK found.");
         }
         
         etUid.requestFocus();
         etFhid.requestFocus();
     }
 
-    PendingIntent geoTrackingIntent = null;
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Saving instance state for Rip Runner.");
+    	
+        // Save the user's current game state
+        //savedInstanceState.putInt(STATE_SCORE, mCurrentScore);
+        //savedInstanceState.putInt(STATE_LEVEL, mCurrentLevel);
+        
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
     
     PendingIntent getGeoTrackingIntent() {
     	if(geoTrackingIntent == null) {
@@ -243,6 +252,7 @@ public class AppMainActivity extends ActionBarActivity implements
     	}
     	return geoTrackingIntent;
     }
+    
     void startGEOAlarm() {
     	if(geoTrackingIntent == null) {
 	    	String alarm = Context.ALARM_SERVICE;
@@ -293,6 +303,8 @@ public class AppMainActivity extends ActionBarActivity implements
 	}
 
     private void setupLoginUI() {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": setup login auth = " + (auth == null ? "null" : auth.getUserId()));
+    	
         auth = null;
         lastCallout = null;
         
@@ -304,7 +316,7 @@ public class AppMainActivity extends ActionBarActivity implements
 //        	catch (IOException e) {
 //				// TODO Auto-generated catch block
 //				//e.printStackTrace();
-//				Log.i(TAG, "GCM could not unregister: " + e.getMessage());
+//				Log.i(Utils.TAG, "GCM could not unregister: " + e.getMessage());
 //			}
 //        }
 //        gcm = null;
@@ -351,7 +363,8 @@ public class AppMainActivity extends ActionBarActivity implements
     protected void onStart() {
     	super.onStart();
         // Connect the GPS client.
-        mLocationClient.connect();
+    	setupGPSTracking();
+    	mLocationClient.connect();
     }
 
     /*
@@ -361,28 +374,35 @@ public class AppMainActivity extends ActionBarActivity implements
     @Override
     protected void onStop() {
         // If the client is connected
-        if (mLocationClient.isConnected()) {
-            /*
-             * Remove location updates for a listener.
-             * The current Activity is the listener, so
-             * the argument is "this".
-             */
-            //removeLocationUpdates(this);
-        }
-        /*
-         * After disconnect() is called, the client is
-         * considered "dead".
-         */
-        mLocationClient.disconnect();
+    	if(mLocationClient != null) {
+	        if (mLocationClient.isConnected()) {
+	            /*
+	             * Remove location updates for a listener.
+	             * The current Activity is the listener, so
+	             * the argument is "this".
+	             */
+	            //removeLocationUpdates(this);
+	        }
+	        /*
+	         * After disconnect() is called, the client is
+	         * considered "dead".
+	         */
+	        mLocationClient.disconnect();
+    	}
         super.onStop();
     }
     
     @Override
     protected void onPause() {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": pausing Rip Runner.");
+    	
         super.onPause();
-    }    
+    }
+    
     @Override
     protected void onResume() {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": resuming Rip Runner.");
+    	
         super.onResume();
         // Check device for Play Services APK.
         checkPlayServices();
@@ -401,7 +421,7 @@ public class AppMainActivity extends ActionBarActivity implements
                         PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } 
             else {
-                Log.i(TAG, "This device is not supported.");
+                Log.i(Utils.TAG, Utils.getLineNumber() + ": This device is not supported.");
                 finish();
             }
             return false;
@@ -420,7 +440,7 @@ public class AppMainActivity extends ActionBarActivity implements
         final SharedPreferences prefs = getGcmPreferences(context);
         int appVersion = getAppVersion(context);
         
-        Log.i(TAG, "Saving " + keyName + " on app version " + appVersion);
+        Log.i(Utils.TAG, Utils.getLineNumber() + ": Saving " + keyName + " on app version " + appVersion);
         
         SharedPreferences.Editor editor = prefs.edit();
         if(value instanceof String) {
@@ -481,15 +501,19 @@ public class AppMainActivity extends ActionBarActivity implements
         }
         
         if (value == null) {
-            Log.i(TAG, "Config Item not found: " + keyName);
+            Log.i(Utils.TAG, Utils.getLineNumber() + ": Config Item not found: " + keyName);
             try {
 				return type.newInstance();
-			} catch (InstantiationException e) {
+			} 
+            catch (InstantiationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (IllegalAccessException e) {
+				Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+			} 
+            catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
 			}
         }
         // Check if app was updated; if so, it must clear the registration ID
@@ -498,15 +522,19 @@ public class AppMainActivity extends ActionBarActivity implements
         int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
         int currentVersion = getAppVersion(context);
         if (registeredVersion != currentVersion) {
-            Log.i(TAG, "App version changed.");
+            Log.i(Utils.TAG, Utils.getLineNumber() + ": App version changed.");
             try {
 				return type.newInstance();
-			} catch (InstantiationException e) {
+			} 
+            catch (InstantiationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (IllegalAccessException e) {
+				Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+			} 
+            catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
 			}
         }
         return value;
@@ -575,7 +603,7 @@ public class AppMainActivity extends ActionBarActivity implements
                     // If there is an error, don't just keep trying to register.
                     // Require the user to click a button again, or perform
                     // exponential back-off.
-                    Log.e("registerInBackground()::doInBackground()", "Error", ex);
+                    Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", ex);
                 }
                 return msg;
             }
@@ -619,7 +647,7 @@ public class AppMainActivity extends ActionBarActivity implements
                     // If there is an error, don't just keep trying to register.
                     // Require the user to click a button again, or perform
                     // exponential back-off.
-                    Log.e("respondInBackground()::doInBackground()", "Error statusType" + statusType, ex);
+                    Log.e(Utils.TAG, Utils.getLineNumber() + ": Error statusType" + statusType, ex);
                 }
                 return msg;
             }
@@ -669,7 +697,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		                	}
 		                } 
 		                else {
-		                    Log.i(TAG, "No valid Google Play Services APK found.");
+		                    Log.i(Utils.TAG, Utils.getLineNumber() + ": No valid Google Play Services APK found.");
 		                }
 		            	return "";
 		            }
@@ -701,7 +729,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		                	}
 		                } 
 		                else {
-		                    Log.i(TAG, "No valid Google Play Services APK found.");
+		                    Log.i(Utils.TAG, Utils.getLineNumber() + ": No valid Google Play Services APK found.");
 		                }
 		            	return "";
 		            }
@@ -725,7 +753,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		        	}
 		        } 
 		        else {
-		            Log.i(TAG, "No valid Google Play Services APK found.");
+		            Log.i(Utils.TAG, Utils.getLineNumber() + ": No valid Google Play Services APK found.");
 		        }
 		    	return "";
 		    }
@@ -747,7 +775,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		        	}
 		        } 
 		        else {
-		            Log.i(TAG, "No valid Google Play Services APK found.");
+		            Log.i(Utils.TAG, Utils.getLineNumber() + ": No valid Google Play Services APK found.");
 		        }
 		    	return "";
 		    }
@@ -783,19 +811,21 @@ public class AppMainActivity extends ActionBarActivity implements
                 	context.startActivity(intent);
                 }
                 catch(ActivityNotFoundException innerEx) {
-                	Log.e("main::onClick map", "Error", innerEx);
+                	Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", innerEx);
                     Toast.makeText(this, "Please install a maps application", Toast.LENGTH_LONG).show();
                 }
         	}
 		} 
 		catch (UnsupportedEncodingException e) {
-			Log.e("main::onClick map2", "Error", e);
+			Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
 			Toast.makeText(this, "UnsupportedEncodingException: " + e.getMessage(), Toast.LENGTH_LONG).show();
 		}    	
     }
     
     @Override
     protected void onDestroy() {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": destroying Rip Runner.");
+    	
         super.onDestroy();
         
         stopGPSTracking();
@@ -812,7 +842,7 @@ public class AppMainActivity extends ActionBarActivity implements
         } 
         catch (NameNotFoundException e) {
             // should never happen
-        	Log.e("getAppVersion()", "Error", e);
+        	Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
             throw new RuntimeException("Could not get package name: " + e);
         }
     }
@@ -1126,7 +1156,7 @@ public class AppMainActivity extends ActionBarActivity implements
 			        }
 				} 
 				catch (ClientProtocolException e) {
-	            	Log.e("sendGeoTrackingToBackend", "Error", e);
+	            	Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
 	            	
 	            	final IOException ex = e;
 	        		runOnUiThread(new Runnable() {
@@ -1137,7 +1167,7 @@ public class AppMainActivity extends ActionBarActivity implements
 	                });            
 				} 
 				catch (IOException e) {
-	            	Log.e("sendGeoTrackingToBackend", "Error", e);
+	            	Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
 
 	            	final IOException ex = e;
 	        		runOnUiThread(new Runnable() {
@@ -1194,6 +1224,8 @@ public class AppMainActivity extends ActionBarActivity implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle presses on the action bar items
+		Log.i(Utils.TAG, Utils.getLineNumber() + ": handling selected option in Rip Runner.");
+		
 	    switch (item.getItemId()) {
 	        case R.id.action_logout:
 	            logout();
@@ -1244,13 +1276,13 @@ public class AppMainActivity extends ActionBarActivity implements
                 	context.startActivity(intent);
                 }
                 catch(ActivityNotFoundException innerEx) {
-                	Log.e("main::onClick map", "Error", innerEx);
+                	Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", innerEx);
                     Toast.makeText(this, "Please install a maps application", Toast.LENGTH_LONG).show();
                 }
         	}
 		} 
 		catch (UnsupportedEncodingException e) {
-			Log.e("main::onClick map2", "Error", e);
+			Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
 			Toast.makeText(this, "UnsupportedEncodingException: " + 
 								e.getMessage(), Toast.LENGTH_LONG).show();
 		}
@@ -1263,6 +1295,7 @@ public class AppMainActivity extends ActionBarActivity implements
 	private void logout() {
         if (checkPlayServices()) {
         	if(auth != null) {
+        		Log.i(Utils.TAG, Utils.getLineNumber() + ": Logging out of Rip Runner.");
         		
 	            runOnUiThread(new Runnable() {
 	                public void run() {
@@ -1273,7 +1306,7 @@ public class AppMainActivity extends ActionBarActivity implements
         	}
         } 
         else {
-            Log.i(TAG, "No valid Google Play Services APK found.");
+            Log.i(Utils.TAG, Utils.getLineNumber() + ": No valid Google Play Services APK found.");
         }
 	}
 	
@@ -1352,7 +1385,7 @@ public class AppMainActivity extends ActionBarActivity implements
         Toast.makeText(this, "GPS Connected", Toast.LENGTH_SHORT).show();
 
         // If already requested, start periodic updates
-        if (mUpdatesRequested) {
+        if (mUpdatesRequested && mLocationClient != null) {
             mLocationClient.requestLocationUpdates(mLocationRequest, this);
         }		
 	}

@@ -215,7 +215,10 @@ if(isset($firehall_id)) {
 						. '&cid=' . urlencode($callout_id)
 						. '&uid=' . urlencode($row_no_response->user_id)
 						. '&ckid=' . urlencode($callkey_id)
-						. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm ' . $row_no_response->user_id . ' is responding?\',this);">'. PHP_EOL;
+						. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm ' . 
+																$row_no_response->user_id . 
+																' is responding?\',this);">'. PHP_EOL;
+						
 						$html .='<INPUT TYPE="submit" VALUE="Repond Now - ' .
 								$row_no_response->user_id .
 								'" style="font-size: 25px; background-color:yellow" />'. PHP_EOL;
@@ -307,13 +310,24 @@ if(isset($FIREHALL) && $FIREHALL != null && $FIREHALL->MOBILE->MOBILE_TRACKING_E
 	$cruid = get_query_param('cruid');
 	if ( isset($cruid) && $cruid != null ) {
 		$html .= '<script type="text/javascript">'. PHP_EOL;
+		
 		//$html .= 'debugger;'. PHP_EOL;
-		$html .= 'openURLHidden("ct.php?fhid='  . urlencode($firehall_id) 
+		if(ENABLE_ASYNCH_MODE) {
+			$html .= 'openAjaxUrl("ct.php?fhid='  . urlencode($firehall_id)
+								. '&cid='  . urlencode($callout_id)
+								. '&delay=60'
+								. '&uid='  . urlencode($cruid)
+								. '&ckid=' . urlencode($callkey_id)
+								. '",true,10,30000);';
+		}
+		else {
+			$html .= 'openURLHidden("ct.php?fhid='  . urlencode($firehall_id) 
 									 . '&cid='  . urlencode($callout_id) 
 									 . '&delay=60'
 									 . '&uid='  . urlencode($cruid)
 									 . '&ckid=' . urlencode($callkey_id)
 									 . '");';
+		}
 		$html .= '</script>'. PHP_EOL;
 	}
 }								

@@ -15,17 +15,19 @@ public class FireHallUtil {
     		String regularExpression, int groupResultIndex, boolean isMultiLine) {
     	
     	String result = "";
-        Pattern p = null;
-        if(isMultiLine) {
-        	p = Pattern.compile(regularExpression,Pattern.MULTILINE);
-        }
-        else {
-        	p = Pattern.compile(regularExpression);
-        }
-        Matcher m = p.matcher(rawValue);
-        if(m.find()) {
-        	result = m.group(groupResultIndex);
-        }
+    	if(rawValue != null && rawValue.isEmpty() == false) {
+	        Pattern p = null;
+	        if(isMultiLine) {
+	        	p = Pattern.compile(regularExpression,Pattern.MULTILINE);
+	        }
+	        else {
+	        	p = Pattern.compile(regularExpression);
+	        }
+	        Matcher m = p.matcher(rawValue);
+	        if(m.find()) {
+	        	result = m.group(groupResultIndex);
+	        }
+    	}
     	
     	return result;
     }

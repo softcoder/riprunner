@@ -31,64 +31,82 @@ public class AppMainBroadcastReceiver extends BroadcastReceiver {
 	
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(intent.getAction().equals(AppMainActivity.RECEIVE_CALLOUT)) {
-            
-        	String serviceJsonString = intent.getStringExtra("callout");
-        	serviceJsonString = FireHallUtil.extractDelimitedValueFromString(
-        			serviceJsonString, "Bundle\\[(.*?)\\]", 1, true);
-        	try {
-				JSONObject json = new JSONObject( serviceJsonString );
-
-				if(json.has("DEVICE_MSG")) {
-					processDeviceMsgTrigger(json);
+        if(intent != null && intent.getAction() != null) {
+	    	if(intent.getAction().equals(AppMainActivity.RECEIVE_CALLOUT)) {
+	            
+	    		String serviceJsonString = "";
+	        	try {
+		    		serviceJsonString = intent.getStringExtra("callout");
+		        	serviceJsonString = FireHallUtil.extractDelimitedValueFromString(
+		        			serviceJsonString, "Bundle\\[(.*?)\\]", 1, true);
+	        		
+					JSONObject json = new JSONObject( serviceJsonString );
+	
+					if(json.has("DEVICE_MSG")) {
+						processDeviceMsgTrigger(json);
+					}
+					else if(json.has("CALLOUT_MSG")) {
+						processCalloutTrigger(json);
+					}
+					else if(json.has("CALLOUT_RESPONSE_MSG")) {
+						processCalloutResponseTrigger(json);       
+					}
 				}
-				else if(json.has("CALLOUT_MSG")) {
-					processCalloutTrigger(json);
+	        	catch (JSONException e) {
+	        		Log.e(Utils.TAG, Utils.getLineNumber() + ": " + serviceJsonString, e);
+					throw new RuntimeException("Could not parse JSON data: " + e);
 				}
-				else if(json.has("CALLOUT_RESPONSE_MSG")) {
-					processCalloutResponseTrigger(json);       
-				}
-			}
-        	catch (JSONException e) {
-        		Log.e("getBroadCastReceiver()", serviceJsonString, e);
-				throw new RuntimeException("Could not parse JSON data: " + e);
-			}
-        	catch (UnsupportedEncodingException e) {
-        		Log.e("getBroadCastReceiver()", serviceJsonString, e);
-				throw new RuntimeException("Could not decode JSON data: " + e);
-        	}
+	        	catch (UnsupportedEncodingException e) {
+	        		Log.e(Utils.TAG, Utils.getLineNumber() + ": " + serviceJsonString, e);
+					throw new RuntimeException("Could not decode JSON data: " + e);
+	        	}
+	        	catch (Exception e) {
+	        		Log.e(Utils.TAG, Utils.getLineNumber() + ": " + serviceJsonString, e);
+					throw new RuntimeException("Error with JSON data: " + e);
+	        	}
+	        }
+	        else if(intent.getAction().equals(AppMainActivity.TRACKING_GEO)) {
+	        	
+	        	Boolean tracking_enabled = getMainApp().getConfigItem(context,AppMainActivity.PROPERTY_TRACKING_ENABLED,Boolean.class);
+	        	if(tracking_enabled != null && tracking_enabled.booleanValue()) {
+	        		
+	                new AsyncTask<Void, Void, String>() {
+	                	
+	                	@Override
+	                    protected void onPreExecute() {
+	                        super.onPreExecute();
+	                	}
+	                	
+	                    @Override
+	                    protected String doInBackground(Void... params) {
+	                    	try {
+		                       	String result = getMainApp().sendGeoTrackingToBackend();
+		                       	
+		                       	if(result != null && result.startsWith("CALLOUT_ENDED=")) {
+			                    	processCalloutResponseTrigger("Callout has ended!",
+			                    			getMainApp().lastCallout.getCalloutId(), 
+			                    			String.valueOf(CalloutStatusType.Complete.valueOf()) );
+		                       	}
+	                    	}
+	        	        	catch (Exception e) {
+	        	        		Log.e(Utils.TAG, Utils.getLineNumber() + ": GEO Tracking", e);
+	        					throw new RuntimeException("Error with GEO Tracking: " + e);
+	        	        	}
+	                    	
+	                       	return "";
+	                    }
+	
+	                    @Override
+	                    protected void onPostExecute(String msg) {
+	                    	super.onPostExecute(msg);
+	                    }
+	                }.execute(null, null, null);
+	        		
+	        	}
+	        }
         }
-        else if(intent.getAction().equals(AppMainActivity.TRACKING_GEO)) {
-        	
-        	Boolean tracking_enabled = getMainApp().getConfigItem(context,AppMainActivity.PROPERTY_TRACKING_ENABLED,Boolean.class);
-        	if(tracking_enabled != null && tracking_enabled.booleanValue()) {
-        		
-                new AsyncTask<Void, Void, String>() {
-                	
-                	@Override
-                    protected void onPreExecute() {
-                        super.onPreExecute();
-                	}
-                	
-                    @Override
-                    protected String doInBackground(Void... params) {
-                       	String result = getMainApp().sendGeoTrackingToBackend();
-                       	
-                       	if(result != null && result.startsWith("CALLOUT_ENDED=")) {
-	                    	processCalloutResponseTrigger("Callout has ended!",
-	                    			getMainApp().lastCallout.getCalloutId(), 
-	                    			String.valueOf(CalloutStatusType.Complete.valueOf()) );
-                       	}
-                       	return "";
-                    }
-
-                    @Override
-                    protected void onPostExecute(String msg) {
-                    	super.onPostExecute(msg);
-                    }
-                }.execute(null, null, null);
-        		
-        	}
+        else {
+        	Log.e(Utils.TAG, Utils.getLineNumber() + ": Error null intent or action.");
         }
     }
 
@@ -167,7 +185,7 @@ public class AppMainBroadcastReceiver extends BroadcastReceiver {
 			gpsLongStr = URLDecoder.decode(json.getString("call-gps-long"), "utf-8");
 		}
 		catch(Exception e) {
-			Log.e("getBroadCastReceiver()", calloutMsg, e);
+			Log.e(Utils.TAG, Utils.getLineNumber() + ": " + calloutMsg, e);
 			
 			throw new RuntimeException("Could not parse JSON data: " + e);
 		}

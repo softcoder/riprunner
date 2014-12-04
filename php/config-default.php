@@ -15,7 +15,136 @@ require_once( 'config_interfaces.php' );
 require_once( 'config_constants.php' );
 
 // ==============================================================
-		
+
+// ----------------------------------------------------------------------
+// Callout Codes and descriptions
+$CALLOUT_CODES_LOOKUP = array(
+
+		"ACEL" => "Aircraft Emergency Landing",
+		"ACF" => "Aircraft Fire",
+		"ACRA" => "Aircraft Crash",
+		"ACSB" => "Aircraft Standby",
+		"AMBUL" => "Ambulance - Notification",
+		"ASSIST" => "Assist",
+		"BBQF" => "Barbeque Fire",
+		"BOMB" => "Bomb Threat",
+		"BURN" => "Burning Complaint",
+		"CARBM" => "Carbon Monoixide Alarm",
+		"CHIM" => "Chimney Fire",
+		"COMP" => "Complaints",
+		"DSPTEST" => "Dispatcher Test",
+		"DUMP" => "Dumpster",
+		"DUTY" => "Duty Officer Notification",
+		"ELCFS" => "Electrical Fire - Substation",
+		"EXP" => "Explosion",
+		"FALRMC" => "Fire Alarms - Commercial",
+		"FALRMF" => "Fire Alarms - False",
+		"FALRMR" => "Fire Alarms - Residential",
+		"FLOOD" => "Flooding",
+		"FOCC" => "Admin Call Records",
+		"FOREST" => "Forestry - Notification",
+		"GAS" => "Natural Gas Leak",
+		"HANG" => "911 Hang Up",
+		"HAZM1" => "HazMat1 - Low Risk",
+		"HAZM2" => "HazMat2 - Mod Risk",
+		"HAZM3" => "HazMat3 - High Risk",
+		"HYDRO" => "Hydro - Notification",
+		"ISOF" => "Isolated Fire",
+		"KITAMB" => "Kitimat Ambulance",
+		"KITF" => "Kitchen Fire",
+		"LIFT" => "Lift Assist",
+		"MED" => "Medical Aid",
+		"MFIRE" => "Medical Fire",
+		"MVI1" => "MVI1- Motor Vehicle Incident",
+		"MVI2" => "MVI2 - Multiple Vehicles/Patients",
+		"MVI3" => "MVI3 - Entrapment; Motor Vehicle Incident",
+		"MVI4" => "MVI4 - Entrapment; Multiple Vehicles/Patients",
+		"ODOUU" => "Odour Unknown",
+		"OPEN" => "Open Air Fire",
+		"PEDSTK" => "Pedestrian Struck",
+		"POLICE" => "Police - Notification",
+		"RESC" => "Rescue - Low Risk",
+		"RMED" => "Routine Medical Aid",
+		"RSCON" => "Rescue - Confined Space",
+		"RSHIG" => "Rescue - High Angle",
+		"RSICE" => "Rescue - Ice",
+		"RSIND" => "Rescue - Industrial",
+		"RSWTR" => "Rescue - Water",
+		"SHIPD" => "Ship/Boat Fire - At Dock",
+		"SHIPU" => "Ship/Boat Fire - Underway",
+		"SMKIN" => "Smoke Report - Inside",
+		"SMKOT" => "Smoke Report - Outside",
+		"STC" => "Structure Collapse",
+		"STF1" => "Structure Fire - Small",
+		"STF2" => "Structure Fire - Large",
+		"TERASEN" => "Terasen Gas - Notification",
+		"TRNSF" => "Transformer/Pole Fire",
+		"VEHF" => "Vehicle Fire",
+		"WILD1" => "Wildland - Small",
+		"WILD2" => "Wildland - Large",
+		"WILD3" => "Wildland - Interface",
+		"WIRES" => "Hydro Lines Down"
+
+				);
+
+// ----------------------------------------------------------------------
+define( 'GOOGLE_MAP_CITY_DEFAULT', 'PRINCE GEORGE,' );
+
+// Google maps city name substitution list
+$GOOGLE_MAP_CITY_LOOKUP = array(
+
+		//"ALBREDA," => "ALBREDA,",
+		//"BEAR LAKE," => "BEAR LAKE,",
+		"BEAVERLEY," => GOOGLE_MAP_CITY_DEFAULT,
+		"BEDNESTI NORMAN," => GOOGLE_MAP_CITY_DEFAULT,
+		"BLACKWATER NORTH," => GOOGLE_MAP_CITY_DEFAULT,
+		"BUCKHORN," => GOOGLE_MAP_CITY_DEFAULT,
+		//"CARP LAKE," => "CARP LAKE,",
+		"CHIEF LAKE," => GOOGLE_MAP_CITY_DEFAULT,
+		//"CRESCENT SPUR," => "CRESCENT SPUR,",
+		//"DOME CREEK," => "DOME CREEK,",
+		//"DUNSTER," => "DUNSTER,",
+		"FERNDALE-TABOR," => GOOGLE_MAP_CITY_DEFAULT,
+		"FOREMAN FLATS," => GOOGLE_MAP_CITY_DEFAULT,
+		"FORT GEORGE NO 2," => GOOGLE_MAP_CITY_DEFAULT,
+		"GISCOME," => GOOGLE_MAP_CITY_DEFAULT,
+		//"HIXON," => "HIXON,",
+		"ISLE PIERRE," => GOOGLE_MAP_CITY_DEFAULT,
+		//"MACKENZIE," => "MACKENZIE,",
+		"MACKENZIE RURAL," => "MACKENZIE RURAL,",
+		//"MCBRIDE," => "MCBRIDE,",
+		"MCBRIDE RURAL," => "MCBRIDE,",
+		//"MCGREGOR," => GOOGLE_MAP_CITY_DEFAULT,
+		//"MCLEOD LAKE," => "MCLEOD LAKE,"
+		"MCLEOD LAKE RESERVE," => "MCLEOD LAKE,",
+		"MIWORTH," => GOOGLE_MAP_CITY_DEFAULT,
+		//"MOSSVALE," => "MOSSVALE,",
+		//"MOUNT ROBSON," => "MOUNT ROBSON,",
+		"MUD RIVER," => GOOGLE_MAP_CITY_DEFAULT,
+		"NESS LAKE," => GOOGLE_MAP_CITY_DEFAULT,
+		"NORTH KELLY," => GOOGLE_MAP_CITY_DEFAULT,
+		//"PARSNIP," => "PARSNIP,",
+		"PINE PASS," => GOOGLE_MAP_CITY_DEFAULT,
+		"PINEVIEW FFG," => GOOGLE_MAP_CITY_DEFAULT,
+		//"PRINCE GEORGE," => "PRINCE GEORGE,",
+		"PURDEN," => GOOGLE_MAP_CITY_DEFAULT,
+		"RED ROCK," => GOOGLE_MAP_CITY_DEFAULT,
+		"SALMON VALLEY," => GOOGLE_MAP_CITY_DEFAULT,
+		"SHELL-GLEN," => GOOGLE_MAP_CITY_DEFAULT,
+		"STONER," => GOOGLE_MAP_CITY_DEFAULT,
+		//"SUMMIT LAKE," => "SUMMIT LAKE,",
+		//"TETE JAUNE," => "TETE JAUNE,",
+		//"UPPER FRASER," => "UPPER FRASER,",
+		//"VALEMOUNT," => "VALEMOUNT,",
+		"VALEMOUNT RURAL," => "VALEMOUNT,",
+		"WEST LAKE," => GOOGLE_MAP_CITY_DEFAULT,
+		//"WILLISTON LAKE," => "WILLISTON LAKE,",
+		"WILLOW RIVER," => GOOGLE_MAP_CITY_DEFAULT,
+		"WILLOW RIVER VALLEY," => "WILLOW RIVER,",
+		"WOODPECKER," => GOOGLE_MAP_CITY_DEFAULT
+
+);
+
 	// ----------------------------------------------------------------------
 	// Email Settings
 	define( 'DEFAULT_EMAIL_FROM_TRIGGER', 'donotreply@focc.mycity.ca');
@@ -67,7 +196,7 @@ require_once( 'config_constants.php' );
 	// Website and Location Settings
 	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY', 						'X' );
 	// A ; delimited list of original_city_name|new_city_name city names to swap for google maps 
-	define( 'DEFAULT_WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION', 	'SALMON VALLEY,|PRINCE GEORGE,;' );
+	//define( 'DEFAULT_WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION', 	'SALMON VALLEY,|PRINCE GEORGE,;NORTH KELLY,|PRINCE GEORGE,;' );
 
 	$LOCAL_DEBUG_WEBSITE = new FireHallWebsite('Local Test Fire Department',
 			'5155 Salmon Valley Road, Prince George, BC',
@@ -76,7 +205,7 @@ require_once( 'config_constants.php' );
 			'http://svvfd-1.local/php/',
 			//'http://bit.ly/1nR3D3N/',
 			DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY, 
-			DEFAULT_WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION);
+			$GOOGLE_MAP_CITY_LOOKUP);
 	
 	// ----------------------------------------------------------------------
 	// LDAP Settings
@@ -117,76 +246,5 @@ require_once( 'config_constants.php' );
 	define( 'EMAIL_PARSING_LATITUDE_PATTERN', 	'/Latitude: (.*?)$/m' );
 	define( 'EMAIL_PARSING_LONGITUDE_PATTERN', 	'/Longitude: (.*?)$/m' );
 	define( 'EMAIL_PARSING_UNITS_PATTERN', 		'/Units Responding: (.*?)$/m' );
-	
-	// ----------------------------------------------------------------------
-	// Callout Codes and descriptions
-	$CALLOUT_CODES_LOOKUP = array(
-				
-			"ACEL" => "Aircraft Emergency Landing",
-			"ACF" => "Aircraft Fire",
-			"ACRA" => "Aircraft Crash",
-			"ACSB" => "Aircraft Standby",
-			"AMBUL" => "Ambulance - Notification",
-			"ASSIST" => "Assist",
-			"BBQF" => "Barbeque Fire",
-			"BOMB" => "Bomb Threat",
-			"BURN" => "Burning Complaint",
-			"CARBM" => "Carbon Monoixide Alarm",
-			"CHIM" => "Chimney Fire",
-			"COMP" => "Complaints",
-			"DSPTEST" => "Dispatcher Test",
-			"DUMP" => "Dumpster",
-			"DUTY" => "Duty Officer Notification",
-			"ELCFS" => "Electrical Fire - Substation",
-			"EXP" => "Explosion",
-			"FALRMC" => "Fire Alarms - Commercial",
-			"FALRMF" => "Fire Alarms - False",
-			"FALRMR" => "Fire Alarms - Residential",
-			"FLOOD" => "Flooding",
-			"FOCC" => "Admin Call Records",
-			"FOREST" => "Forestry - Notification",
-			"GAS" => "Natural Gas Leak",
-			"HANG" => "911 Hang Up",
-			"HAZM1" => "HazMat1 - Low Risk",
-			"HAZM2" => "HazMat2 - Mod Risk",
-			"HAZM3" => "HazMat3 - High Risk",
-			"HYDRO" => "Hydro - Notification",
-			"ISOF" => "Isolated Fire",
-			"KITAMB" => "Kitimat Ambulance",
-			"KITF" => "Kitchen Fire",
-			"LIFT" => "Lift Assist",
-			"MED" => "Medical Aid",
-			"MFIRE" => "Medical Fire",
-			"MVI1" => "MVI1- Motor Vehicle Incident",
-			"MVI2" => "MVI2 - Multiple Vehicles/Patients",
-			"MVI3" => "MVI3 - Entrapment; Motor Vehicle Incident",
-			"MVI4" => "MVI4 - Entrapment; Multiple Vehicles/Patients",
-			"ODOUU" => "Odour Unknown",
-			"OPEN" => "Open Air Fire",
-			"PEDSTK" => "Pedestrian Struck",
-			"POLICE" => "Police - Notification",
-			"RESC" => "Rescue - Low Risk",
-			"RMED" => "Routine Medical Aid",
-			"RSCON" => "Rescue - Confined Space",
-			"RSHIG" => "Rescue - High Angle",
-			"RSICE" => "Rescue - Ice",
-			"RSIND" => "Rescue - Industrial",
-			"RSWTR" => "Rescue - Water",
-			"SHIPD" => "Ship/Boat Fire - At Dock",
-			"SHIPU" => "Ship/Boat Fire - Underway",
-			"SMKIN" => "Smoke Report - Inside",
-			"SMKOT" => "Smoke Report - Outside",
-			"STC" => "Structure Collapse",
-			"STF1" => "Structure Fire - Small",
-			"STF2" => "Structure Fire - Large",
-			"TERASEN" => "Terasen Gas - Notification",
-			"TRNSF" => "Transformer/Pole Fire",
-			"VEHF" => "Vehicle Fire",
-			"WILD1" => "Wildland - Small",
-			"WILD2" => "Wildland - Large",
-			"WILD3" => "Wildland - Interface",
-			"WIRES" => "Hydro Lines Down"
-		
-			);
 	
 ?>

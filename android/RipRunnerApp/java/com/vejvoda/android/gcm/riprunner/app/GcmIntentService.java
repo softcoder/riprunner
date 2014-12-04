@@ -38,7 +38,6 @@ public class GcmIntentService extends IntentService {
 	public static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
-    public static final String TAG = "Rip Runner";
     
     public GcmIntentService() {
         super("GcmIntentService");
@@ -52,7 +51,8 @@ public class GcmIntentService extends IntentService {
         // in your BroadcastReceiver.
         String messageType = gcm.getMessageType(intent);
 
-        if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
+        if (extras != null && extras.isEmpty() == false && 
+        		messageType != null && messageType.isEmpty() == false) {  // has effect of unparcelling Bundle
             /*
              * Filter messages based on message type. Since it is likely that GCM will be
              * extended in the future with new message types, just ignore any message types you're
@@ -66,12 +66,12 @@ public class GcmIntentService extends IntentService {
                 // If it's a regular GCM message, do some work.
             } 
             else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
+                Log.i(Utils.TAG, Utils.getLineNumber() + ": Completed work @ " + SystemClock.elapsedRealtime());
                 // Post notification of received message.
                 //sendNotification("Received: " + extras.toString());
                 sendNotification(getCalloutText(extras));
                 updateUI(extras);
-                Log.i(TAG, "Received: " + extras.toString());
+                Log.i(Utils.TAG, Utils.getLineNumber() + ": Received: " + extras.toString());
             }
         }
         // Release the wake lock provided by the WakefulBroadcastReceiver.
@@ -82,10 +82,11 @@ public class GcmIntentService extends IntentService {
     	
     	String calloutMsg = "";
     	
-    	String serviceJsonString = extras.toString();
-    	serviceJsonString = FireHallUtil.extractDelimitedValueFromString(
-    			serviceJsonString, "Bundle\\[(.*?)\\]", 1, true);
     	try {
+        	String serviceJsonString = extras.toString();
+        	serviceJsonString = FireHallUtil.extractDelimitedValueFromString(
+        			serviceJsonString, "Bundle\\[(.*?)\\]", 1, true);
+    		
 			JSONObject json = new JSONObject( serviceJsonString );
 
 			if(json.has("CALLOUT_MSG")) {
@@ -97,10 +98,17 @@ public class GcmIntentService extends IntentService {
 		} 
     	catch (JSONException e) {
 			//e.printStackTrace();
+    		Log.e(Utils.TAG, Utils.getLineNumber() + ": Error ", e);
 			throw new RuntimeException("Could not parse JSON data: " + e);
 		}
     	catch (UnsupportedEncodingException e) {
 			//e.printStackTrace();
+    		Log.e(Utils.TAG, Utils.getLineNumber() + ": Error ", e);
+			throw new RuntimeException("Could not decode JSON data: " + e);
+    	}
+    	catch (Exception e) {
+			//e.printStackTrace();
+    		Log.e(Utils.TAG, Utils.getLineNumber() + ": Error ", e);
 			throw new RuntimeException("Could not decode JSON data: " + e);
     	}
 	
@@ -113,7 +121,6 @@ public class GcmIntentService extends IntentService {
         	Intent intent = new Intent(AppMainActivity.RECEIVE_CALLOUT);
         	intent.putExtra("callout", callout);
         	LocalBroadcastManager.getInstance(this).sendBroadcast(intent);    	
-    		
         }    	
     }
     

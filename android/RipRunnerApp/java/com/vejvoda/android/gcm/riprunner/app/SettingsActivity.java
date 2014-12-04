@@ -157,15 +157,15 @@ public class SettingsActivity extends PreferenceActivity implements
 				            }
 						} 
 						catch (ClientProtocolException e) {
-				        	Log.e("Getting defaults", "Error", e);
+							Log.e(Utils.TAG, Utils.getLineNumber() + ": Error ", e);
 				        	Toast.makeText(context, "#2 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
 						} 
 						catch (IOException e) {
-							Log.e("Getting defaults", "Error", e);
+							Log.e(Utils.TAG, Utils.getLineNumber() + ": Error ", e);
 							Toast.makeText(context, "#3 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
 						} 
 						catch (JSONException e) {
-							Log.e("Getting defaults", "Error", e);
+							Log.e(Utils.TAG, Utils.getLineNumber() + ": Error ", e);
 							Toast.makeText(context, "#4 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
 						}
 				    }
@@ -199,7 +199,7 @@ public class SettingsActivity extends PreferenceActivity implements
 										Toast.makeText(context, "Successfully received app settings.", Toast.LENGTH_LONG).show();
 									} 
 						        	catch (JSONException e) {
-						            	Log.e("Getting defaults", "Error", e);
+						        		Log.e(Utils.TAG, Utils.getLineNumber() + ": Error ", e);
 						            	Toast.makeText(context, "#1 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
 									}
 						        }

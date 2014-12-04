@@ -153,8 +153,8 @@
 		public $WEBSITE_CALLOUT_DETAIL_URL;
 		// The Google Map API Key
 		public $WEBSITE_GOOGLE_MAP_API_KEY;
-		// A ; delimited list of original_city_name|new_city_name city names to swap for google maps
-		// example: SALMON VALLEY,|PRINCE GEORGE,;PILOT MOUNTAIN,|PRINCE GEORGE,;
+		// An array of source = destination city names of original_city_name = new_city_name city names to swap for google maps
+		// example: "SALMON VALLEY," => "PRINCE GEORGE,",
 		public $WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION;
 			
 		public function __construct($name,$home_address,$home_geo_coord_lat,$home_geo_coord_long,$callout_detail_url, $google_map_api_key, $city_name_substition) {
