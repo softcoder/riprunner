@@ -75,6 +75,11 @@ if(isset($firehall_id) && isset($callout_id) &&
 				$responding_people = '';
 				$responding_people_icons = '';
 				
+				
+				//$callOrigin = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
+				$responding_people .= "['FireHall: ". $FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS ."', ". $FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LATITUDE .", ". $FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LONGITUDE ."]";
+				$responding_people_icons .= "iconURLPrefix + 'blue-dot.png'";
+				
 				$callout_status = null;
 				$callout_address = null;
 				$callout_lat = null;
@@ -94,8 +99,17 @@ if(isset($firehall_id) && isset($callout_id) &&
 							$callout_long = $geo_lookup[1];
 						}
 					}
-					
+
+					if($responding_people != '') {
+						$responding_people .= ',' . PHP_EOL;
+					}
+						
 					$responding_people .= "['Destination: ". $callout_address ."', ". $callout_lat .", ". $callout_long ."]";
+					
+					if($responding_people_icons != '') {
+						$responding_people_icons .= ',' . PHP_EOL;
+					}
+						
 					$responding_people_icons .= "iconURLPrefix + 'red-dot.png'";
 				}
 				$sql_result->close();

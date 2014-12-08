@@ -32,6 +32,26 @@ if(isset($firehall_id)) {
 }
 ?>
 <script type="text/JavaScript" src="js/common-utils.js"></script>
+
+<style>
+    .google-maps {
+        position: relative;
+        #padding-bottom: 75%; // This is the aspect ratio
+        #height: 0;
+        #overflow: hidden;
+        width: 900 !important;
+        height: 600 !important;
+        
+    }
+    .google-maps iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+   }
+</style>
+
 </head>
 
 <?php
@@ -168,11 +188,14 @@ if(isset($firehall_id)) {
 					$callDest = getAddressForMapping($FIREHALL,$row->address);
 					//}
 				}
-				
-				$url = '<iframe width="900" height="700" frameborder="1" style="border:1" ' .
+
+				$url = '<div class="google-maps">' . PHP_EOL;
+				$url .= '<iframe frameborder="1" style="border:1" ' .
 				       'src="https://www.google.com/maps/embed/v1/directions?key=' . 
-				       $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY . '&mode=driving&zoom=13&origin=' . 
+				       $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY . '&mode=driving&zoom=11&origin=' . 
 				       $callOrigin . '&destination=' . $callDest . '"></iframe>' . PHP_EOL;
+				$url .= '</div>' . PHP_EOL;
+				
 				$row_number++;
 				
 				$html .=$url;
@@ -210,7 +233,7 @@ if(isset($firehall_id)) {
 					$html .='<div id="callNoResponseContent' . $row_number . '">' . PHP_EOL;
 					while($row_no_response = $sql_no_response_result->fetch_object()) {
 							
-						$html .='<form id="call_no_response_' . $row_no_response->id .
+						$html .='<br /><form id="call_no_response_' . $row_no_response->id .
 						'" action="cr.php?fhid=' . urlencode($firehall_id)
 						. '&cid=' . urlencode($callout_id)
 						. '&uid=' . urlencode($row_no_response->user_id)
@@ -246,7 +269,7 @@ if(isset($firehall_id)) {
 							
 						$html .='<div id="callYesResponseContent' . $row_number . '">' . PHP_EOL;
 						while($row_yes_response = $sql_yes_response_result->fetch_object()) {
-							$html .='<form id="call_yes_response_' . $row_yes_response->id . '" action="cr.php?fhid=' . urlencode($firehall_id)
+							$html .='<br /><form id="call_yes_response_' . $row_yes_response->id . '" action="cr.php?fhid=' . urlencode($firehall_id)
 							. '&cid=' . urlencode($callout_id)
 							. '&uid=' . urlencode($row_yes_response->user_id)
 							. '&ckid=' . urlencode($callkey_id)

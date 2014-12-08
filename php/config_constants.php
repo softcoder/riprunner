@@ -15,7 +15,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 
 	define( 'PRODUCT_NAME', 		'RipRunner' );
 	define( 'PRODUCT_URL',  		'http://soft-haus.com' );
-	define( 'DEBUG_MODE', 			false);
+	define( 'DEBUG_MODE', 			true);
 	define( "SECURE", 				FALSE);    // FOR DEVELOPMENT ONLY!!!!
 	define( "ENABLE_ASYNCH_MODE", 	true);
 

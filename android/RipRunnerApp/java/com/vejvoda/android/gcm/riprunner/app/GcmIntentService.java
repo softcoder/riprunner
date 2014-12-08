@@ -89,7 +89,10 @@ public class GcmIntentService extends IntentService {
     		
 			JSONObject json = new JSONObject( serviceJsonString );
 
-			if(json.has("CALLOUT_MSG")) {
+			if(json.has("DEVICE_MSG")) {
+				calloutMsg = URLDecoder.decode(json.getString("device-status"), "utf-8");
+			}
+			else if(json.has("CALLOUT_MSG")) {
 				calloutMsg = URLDecoder.decode(json.getString("CALLOUT_MSG"), "utf-8");
 			}
 			else if(json.has("CALLOUT_RESPONSE_MSG")) {

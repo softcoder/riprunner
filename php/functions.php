@@ -3,13 +3,15 @@
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
 // ==============================================================
+
+//define( 'INCLUSION_PERMITTED', true );
+//require_once( 'config.php' );
+
 	if ( !defined('INCLUSION_PERMITTED') || 
 	( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) { 
 		die( 'This file must not be invoked directly.' ); 
 	}
 
-	//define( 'INCLUSION_PERMITTED', true );
-	//require_once( 'config.php' );
 	require_once( 'ldap_functions.php' );
 
 	
@@ -96,6 +98,7 @@
 
 	//$FIREHALL = findFireHallConfigById(0, $FIREHALLS);
 	//getGEOCoordinatesFromAddress($FIREHALL,'17760 lacasse road prince george BC');
+	//getGEOCoordinatesFromAddress($FIREHALL,'2595 1ST AVE, PRINCE GEORGE, BC');
 	
 	function getGEOCoordinatesFromAddress($FIREHALL,$address) {
 		//http://maps.googleapis.com/maps/api/geocode/xml?address=17760 lacasse road prince george BC canada&sensor=false

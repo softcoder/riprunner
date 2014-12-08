@@ -280,7 +280,7 @@ function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connectio
 			$callMapAddress = getAddressForMapping($FIREHALL,$callAddress);
 
 			$message = array("DEVICE_MSG" => urlencode($loginMsg),
-					"device-status"  => urlencode($loginMsg)
+					"device-status"  => urlencode("Login OK")
 			);
 
 			$fields = array(

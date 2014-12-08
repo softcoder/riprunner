@@ -20,9 +20,17 @@ import android.widget.TextView;
 
 public class AppMainBroadcastReceiver extends BroadcastReceiver {
 	
-	private static AppMainActivity appMain = null;
-	
+	//private static AppMainActivity appMain = null;
+	private AppMainActivity appMain = null;
+
+	public AppMainBroadcastReceiver() {
+		super();
+		
+		appMain = null;
+		Log.i(Utils.TAG, Utils.getLineNumber() + ": RipRunner -> Starting up AppMainBroadcastReceiver.");
+	}
 	public void setMainApp(AppMainActivity app) {
+		Log.i(Utils.TAG, Utils.getLineNumber() + ": RipRunner -> setMainApp: " + app.toString());
 		appMain = app;
 	}
 	private AppMainActivity getMainApp() {
@@ -32,6 +40,9 @@ public class AppMainBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if(intent != null && intent.getAction() != null) {
+        	Log.i(Utils.TAG, Utils.getLineNumber() + ": Broadcaster got intent action: " + intent.getAction() +
+        			" appmain = " + (getMainApp() == null ? "null" : getMainApp().toString()));
+        	
 	    	if(intent.getAction().equals(AppMainActivity.RECEIVE_CALLOUT)) {
 	            
 	    		String serviceJsonString = "";
@@ -103,6 +114,9 @@ public class AppMainBroadcastReceiver extends BroadcastReceiver {
 	                }.execute(null, null, null);
 	        		
 	        	}
+	        }
+	        else {
+	        	Log.e(Utils.TAG, Utils.getLineNumber() + ": Broadcaster got intent action: " + intent.getAction());
 	        }
         }
         else {
