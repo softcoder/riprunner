@@ -48,11 +48,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 
 		$db_connection = null;
 		if($db_connection == null) {
-			// Connect to the database
-			$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-					$FIREHALL->MYSQL->MYSQL_USER,
-					$FIREHALL->MYSQL->MYSQL_PASSWORD,
-					$FIREHALL->MYSQL->MYSQL_DATABASE);
+			$db_connection = db_connect_firehall($FIREHALL);
 		}
 
 		// Authenticate the user

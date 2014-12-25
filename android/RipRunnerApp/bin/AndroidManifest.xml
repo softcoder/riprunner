@@ -104,10 +104,12 @@
             android:label="@string/title_activity_settings" >
         </activity>
         
-        <!--
 		<receiver android:name=".AppMainBroadcastReceiver">
+            <intent-filter>
+                    <action android:name="callout_data"/>
+                    <action android:name="tracking_data"/>
+            </intent-filter>		    
 		</receiver>
-		-->
         
     </application>
 

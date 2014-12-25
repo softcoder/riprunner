@@ -187,6 +187,7 @@ public class AppMainActivity extends ActionBarActivity implements
         context = getApplicationContext();
         initSounds(context);
 
+        AppMainBroadcastReceiver.setMainApp(this);
         LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(RECEIVE_CALLOUT);
@@ -202,7 +203,8 @@ public class AppMainActivity extends ActionBarActivity implements
     	etFhid.setSelectAllOnFocus(true);
     	etUid.setSelectAllOnFocus(true);
         setupLoginUI();
-        
+
+        boolean focusPWd = false;
         if (checkPlayServices()) {
         	setupGPSTracking();
         	
@@ -214,6 +216,8 @@ public class AppMainActivity extends ActionBarActivity implements
 	            etUid.setText(getConfigItem(context,PROPERTY_USER_ID,String.class));
 	            
 	            startGEOAlarm();
+	            
+	            focusPWd = true;
         	}
         	else {
         		openSettings();
@@ -227,6 +231,9 @@ public class AppMainActivity extends ActionBarActivity implements
         
         etUid.requestFocus();
         etFhid.requestFocus();
+        if(focusPWd) {
+        	etUpw.requestFocus();
+        }
     }
 
     @Override
@@ -244,7 +251,9 @@ public class AppMainActivity extends ActionBarActivity implements
     PendingIntent getGeoTrackingIntent() {
     	if(geoTrackingIntent == null) {
 	    	//Intent intent = new Intent( TRACKING_GEO );
-	    	Intent intent = new Intent(this, AppMainBroadcastReceiver.class);
+	    	//Intent intent = new Intent(this, AppMainBroadcastReceiver.class);
+    		
+    		Intent intent = new Intent(this, AppMainActivity.class);
 	    	intent.setAction(TRACKING_GEO);
 	    	geoTrackingIntent = PendingIntent.getBroadcast( this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT );
 	    	//geoTrackingIntent = PendingIntent.getActivity(this, 0,
@@ -1331,9 +1340,9 @@ public class AppMainActivity extends ActionBarActivity implements
     private void displayUserSettings() {
 	    SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 	
-	    String host_url = sharedPrefs.getString("host_url", "");
-	    String sender_id = sharedPrefs.getString("sender_id", "");
-	    Boolean tracking_enabled = sharedPrefs.getBoolean("tracking_enabled", true);
+	    String host_url = sharedPrefs.getString(PROPERTY_WEBSITE_URL, "");
+	    String sender_id = sharedPrefs.getString(PROPERTY_SENDER_ID, "");
+	    Boolean tracking_enabled = sharedPrefs.getBoolean(PROPERTY_TRACKING_ENABLED, true);
 	
 	    storeConfigItem(context, PROPERTY_WEBSITE_URL, host_url);
 	    storeConfigItem(context, PROPERTY_SENDER_ID, sender_id);

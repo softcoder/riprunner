@@ -37,12 +37,7 @@ sec_session_start();
         if (isset($_SESSION['firehall_id'])) {
         	$firehall_id = $_SESSION['firehall_id'];
         	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
-        	if($FIREHALL != null) {
-        		$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-        				$FIREHALL->MYSQL->MYSQL_USER,
-        				$FIREHALL->MYSQL->MYSQL_PASSWORD,
-        				$FIREHALL->MYSQL->MYSQL_DATABASE);
-        	}
+        	$db_connection = db_connect_firehall($FIREHALL);
         }
         
         if (login_check($db_connection) == true) : ?>

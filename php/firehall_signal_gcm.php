@@ -26,9 +26,7 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 
 		$adhoc_db_connection = false;
 		if($db_connection == null) {
-			$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-					$FIREHALL->MYSQL->MYSQL_USER,$FIREHALL->MYSQL->MYSQL_PASSWORD,
-					$FIREHALL->MYSQL->MYSQL_DATABASE);
+			$db_connection = db_connect_firehall($FIREHALL);
 			$adhoc_db_connection = true;
 		}
 
@@ -158,9 +156,7 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 	$db_connection = null;
 	$adhoc_db_connection = false;
 	if($db_connection == null) {
-		$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-				$FIREHALL->MYSQL->MYSQL_USER,$FIREHALL->MYSQL->MYSQL_PASSWORD,
-				$FIREHALL->MYSQL->MYSQL_DATABASE);
+		$db_connection = db_connect_firehall($FIREHALL);
 		$adhoc_db_connection = true;
 	}
 
@@ -336,9 +332,7 @@ function removeDeviceIfNotRegistered($device_id, $gcm_err, $db_connection) {
 		// Delete from the database connected devices to GCM
 		$adhoc_db_connection = false;
 		if(isset($db_connection) == false) {
-			$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-					$FIREHALL->MYSQL->MYSQL_USER,$FIREHALL->MYSQL->MYSQL_PASSWORD,
-					$FIREHALL->MYSQL->MYSQL_DATABASE);
+			$db_connection = db_connect_firehall($FIREHALL);
 			$adhoc_db_connection = true;
 		}
 		

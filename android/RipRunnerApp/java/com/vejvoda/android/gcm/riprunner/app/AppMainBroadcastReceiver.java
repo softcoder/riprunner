@@ -20,16 +20,16 @@ import android.widget.TextView;
 
 public class AppMainBroadcastReceiver extends BroadcastReceiver {
 	
-	//private static AppMainActivity appMain = null;
-	private AppMainActivity appMain = null;
+	private static AppMainActivity appMain = null;
+	//private AppMainActivity appMain = null;
 
 	public AppMainBroadcastReceiver() {
 		super();
 		
-		appMain = null;
+		//appMain = null;
 		Log.i(Utils.TAG, Utils.getLineNumber() + ": RipRunner -> Starting up AppMainBroadcastReceiver.");
 	}
-	public void setMainApp(AppMainActivity app) {
+	static public void setMainApp(AppMainActivity app) {
 		Log.i(Utils.TAG, Utils.getLineNumber() + ": RipRunner -> setMainApp: " + app.toString());
 		appMain = app;
 	}
@@ -180,6 +180,9 @@ public class AppMainBroadcastReceiver extends BroadcastReceiver {
 		            Button btnCancelCall = (Button)getMainApp().findViewById(R.id.btnCancelCall);
 		            btnCancelCall.setVisibility(View.VISIBLE);
 		            btnCancelCall.setEnabled(false);
+		            
+			        TextView txtMsg = (TextView)getMainApp().findViewById(R.id.txtMsg);
+			        txtMsg.setText(getMainApp().getResources().getString(R.string.waiting_for_callout));
 		    	}
 		    	
 		    	AppMainActivity.playSound(getMainApp().context,FireHallSoundPlayer.SOUND_DINGLING);

@@ -73,9 +73,7 @@ function install($FIREHALL, &$db_connection) {
 	$db_connection = null;
 	
 	// Connect to the database
-	$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-			$FIREHALL->MYSQL->MYSQL_USER,$FIREHALL->MYSQL->MYSQL_PASSWORD,
-			$FIREHALL->MYSQL->MYSQL_DATABASE);
+	$db_connection = db_connect_firehall($FIREHALL);
 	
 	if($db_table_exist == false) {
 		$schema_results = import_sql_file(__DIR__ . '/scheme_mysql.sql', $db_connection);
@@ -144,15 +142,10 @@ function db_exists($db_connection,$dbname, $dbtable) {
         	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
         	if($FIREHALL != null) {
 				if($form_action == "install") {
-					$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-							$FIREHALL->MYSQL->MYSQL_USER,
-							$FIREHALL->MYSQL->MYSQL_PASSWORD,"");
+					$db_connection = db_connect_firehall_master($FIREHALL);
 				}
 				else {
-	        		$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-	        				$FIREHALL->MYSQL->MYSQL_USER,
-	        				$FIREHALL->MYSQL->MYSQL_PASSWORD,
-	        				$FIREHALL->MYSQL->MYSQL_DATABASE);
+	        		$db_connection = db_connect_firehall($FIREHALL);
 				}
         	}
         }

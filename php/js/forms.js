@@ -51,7 +51,8 @@ function formhash(form, password) {
  
     // Make sure the plaintext password doesn't get sent. 
     password.value = "";
- 
+
+    loadingSpinner(form,'#000');
     // Finally submit the form. 
     form.submit();
     return true;

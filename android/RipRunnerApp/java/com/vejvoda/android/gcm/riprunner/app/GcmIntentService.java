@@ -133,7 +133,14 @@ public class GcmIntentService extends IntentService {
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, AppMainActivity.class), 0);
+    	
+        //Intent intent = new Intent(this, AppMainBroadcastReceiver.class);
+    	//intent.setAction(TRACKING_GEO);
 
+//        Intent intent = new Intent(this, AppMainBroadcastReceiver.class);
+//        intent.setAction(AppMainActivity.RECEIVE_CALLOUT);
+//        PendingIntent contentIntent = PendingIntent.getActivity(this,0,intent,0);
+                
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
         	.setSmallIcon(R.drawable.ic_stat_gcm)

@@ -189,7 +189,7 @@ public class SettingsActivity extends PreferenceActivity implements
 						        	try {
 										sender_id.setText(json.getString("gcm-projectid"));
 										
-										if(json.getBoolean("tracking-enabled")) {
+										if(Integer.valueOf(json.getString("tracking-enabled")) != 0) {
 											tracking_enabled.setChecked(true);
 										}
 										else {

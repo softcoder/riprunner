@@ -19,12 +19,7 @@ if (isset($_POST['firehall_id'], $_POST['user_id'], $_POST['p'])) {
 
     $db_connection = null;
     $FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
-    if($FIREHALL != null) {
-	    $db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-	    		$FIREHALL->MYSQL->MYSQL_USER,
-	    		$FIREHALL->MYSQL->MYSQL_PASSWORD,
-	    		$FIREHALL->MYSQL->MYSQL_DATABASE);
-    }
+    $db_connection = db_connect_firehall($FIREHALL);
     
     if (login($FIREHALL,$user_id, $password, $db_connection) == true) {
         // Login success 

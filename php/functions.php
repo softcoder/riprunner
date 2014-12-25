@@ -45,6 +45,31 @@
 		}
 		return $result;
 	}	
+
+	function db_connect_firehall_master($FIREHALL) {
+		$db_connection = null;
+		if($FIREHALL != null) {
+				
+			$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
+					$FIREHALL->MYSQL->MYSQL_USER,
+					$FIREHALL->MYSQL->MYSQL_PASSWORD,
+					"");
+		}
+	
+		return $db_connection;
+	}
+	
+	function db_connect_firehall($FIREHALL) {
+		$db_connection = null;
+		if($FIREHALL != null) {
+			$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
+					$FIREHALL->MYSQL->MYSQL_USER,
+					$FIREHALL->MYSQL->MYSQL_PASSWORD,
+					$FIREHALL->MYSQL->MYSQL_DATABASE);
+		}
+		
+		return $db_connection;
+	}
 	
 	function db_connect($host, $user, $password, $database) {
 		$linkid = mysqli_connect( $host, $user, $password, $database );
@@ -404,9 +429,7 @@
 	function getMobilePhoneListFromDB($FIREHALL,$db_connection) {
 		$must_close_db = false;
 		if(isset($db_connection) == false) {
-			$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-				$FIREHALL->MYSQL->MYSQL_USER,$FIREHALL->MYSQL->MYSQL_PASSWORD,
-				$FIREHALL->MYSQL->MYSQL_DATABASE);
+			$db_connection = db_connect_firehall($FIREHALL);
 			$must_close_db = true;
 		}
 		$sql = "SELECT distinct(mobile_phone) FROM user_accounts WHERE mobile_phone <> '' " .

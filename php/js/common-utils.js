@@ -50,6 +50,7 @@ var isGeoCoordsFound = false;
 var getGeoCoordinatesForm = null;
 var getGeoCoordinatesWatchId = null;
 var getGeoCoordinatesTimeoutId = null;
+var appendGeoCoordinatesSpinner = null;
 
 function handleGeoCoords(coords, form) {
 	//debugger;
@@ -60,6 +61,11 @@ function handleGeoCoords(coords, form) {
 		if(coords[0] != null && coords[0] != 0 && coords[1] != 0) {
 			// Append geo coords to html form action params
 			form.action = form.action + '&lat=' + coords[0] + '&long=' + coords[1];
+			
+			if(appendGeoCoordinatesSpinner != null) {
+				appendGeoCoordinatesSpinner.stop();
+			}
+			
 			return true;
 		}
 	}
@@ -89,6 +95,10 @@ function getGeoCoordinates_error(err) {
 	alert('GEO error: ' + err);
 	
 	if(getGeoCoordinatesForm != null) {
+		if(appendGeoCoordinatesSpinner != null) {
+			appendGeoCoordinatesSpinner.stop();
+		}
+		
 		getGeoCoordinatesForm.submit();
 	}
 };
@@ -98,6 +108,11 @@ function getGeoCoordinates_timeout() {
 	clearTimeout(getGeoCoordinatesTimeoutId);
 	//alert('Generic timeout.');
 	if(getGeoCoordinatesForm != null) {
+		
+		if(appendGeoCoordinatesSpinner != null) {
+			appendGeoCoordinatesSpinner.stop();
+		}
+		
 		getGeoCoordinatesForm.submit();
 	}
 };
@@ -150,9 +165,13 @@ function handleNoGeolocation(errorFlag) {
 
 function appendGeoCoordinates(form) {
 	//debugger;
+	appendGeoCoordinatesSpinner = loadingSpinner();
 	var coords = getGeoCoordinates(form);
 	if(coords != null) {
 		if(coords[0] == null) {
+			if(appendGeoCoordinatesSpinner != null) {
+				appendGeoCoordinatesSpinner.stop();
+			}
 			return false;
 		}
 		handleGeoCoords(coords,form);
@@ -177,10 +196,12 @@ function openURLHidden(url) {
 	window.open(url,'_blank', 'width=400, height=100, visible=none', '');
 }
 
+var openAjaxUrlSpinner = null;
 function openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt) {
 	//debugger;
 
 	if(typeof current_attempt === 'undefined') {
+		openAjaxUrlSpinner = loadingSpinner();
 		current_attempt = 1;
 	}
 	else {
@@ -190,6 +211,9 @@ function openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt) {
 	if(typeof max_retries != 'undefined' && 
 			typeof current_attempt != 'undefined' &&
 		current_attempt > max_retries) {
+		if(openAjaxUrlSpinner != null) {
+			openAjaxUrlSpinner.stop();
+		}
 		return false;
 	}
 
@@ -200,6 +224,11 @@ function openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt) {
       data: $(this).serialize(),
       success: function(result) {
     	  //debugger;
+    	  
+  		  if(openAjaxUrlSpinner != null) {
+			  openAjaxUrlSpinner.stop();
+		  }
+    	  
     	  var w = null;
     	  if(typeof hidden === 'undefined' || hidden == false) {
     		  w = window.open();
@@ -224,11 +253,13 @@ function openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt) {
     return false;	
 }
 
+var submitAjaxFormSpinner = null;
 function submitAjaxForm(formName,max_retries,retry_freq,current_attempt) {
 	$(document).ready(function() {
 	    $('#' + formName).submit(function() {
 	    	//debugger;
 	    	if(typeof current_attempt === 'undefined') {
+	    		submitAjaxFormSpinner = loadingSpinner();
 	    		current_attempt = 1;
 	    	}
 	    	else {
@@ -238,6 +269,11 @@ function submitAjaxForm(formName,max_retries,retry_freq,current_attempt) {
 	    	if(typeof max_retries != 'undefined' && 
 	    			typeof current_attempt != 'undefined' &&
 	    		current_attempt >= max_retries) {
+	    		
+    		    if(submitAjaxFormSpinner != null) {
+    		    	submitAjaxFormSpinner.stop();
+	    		}
+	    		
 	    		return false;
 	    	}
 
@@ -250,6 +286,11 @@ function submitAjaxForm(formName,max_retries,retry_freq,current_attempt) {
 	            cache: false,
 	            success: function(result) {
 	                //debugger;
+	            	
+	    		    if(submitAjaxFormSpinner != null) {
+	    		    	submitAjaxFormSpinner.stop();
+		    		}
+	            	
 	                $('body').html(result);
 	            },
 	        	error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -259,7 +300,7 @@ function submitAjaxForm(formName,max_retries,retry_freq,current_attempt) {
 	        		  retry_freq = 30000;
 	        	  }
 	        		
-	        		setTimeout(function() {
+        		  setTimeout(function() {
 	        				$('#' + formName).submit();
 	        			}, retry_freq);	        		
 	        	}
@@ -267,4 +308,40 @@ function submitAjaxForm(formName,max_retries,retry_freq,current_attempt) {
 	        return false;
 	    });
 	});
+}
+
+function loadingSpinner(parent,spinnerColorValue) {
+    // Turn on spinner
+    var spinnerColor = spinnerColorValue;
+    if(typeof spinnerColor == 'undefined') {
+    	spinnerColor = '#FFFF00';
+    }
+	
+    var opts = {
+	  lines: 13, // The number of lines to draw
+	  length: 20, // The length of each line
+	  width: 10, // The line thickness
+	  radius: 30, // The radius of the inner circle
+	  corners: 1, // Corner roundness (0..1)
+	  rotate: 0, // The rotation offset
+	  direction: 1, // 1: clockwise, -1: counterclockwise
+	  color: spinnerColor, // #rgb or #rrggbb or array of colors
+	  speed: 1, // Rounds per second
+	  trail: 60, // Afterglow percentage
+	  shadow: false, // Whether to render a shadow
+	  hwaccel: false, // Whether to use hardware acceleration
+	  className: 'spinner', // The CSS class to assign to the spinner
+	  zIndex: 2e9, // The z-index (defaults to 2000000000)
+	  top: '50%', // Top position relative to parent
+	  left: '50%' // Left position relative to parent
+	};
+    //var target = document.getElementById('foo');
+    //var spinner = new Spinner(opts).spin(target);
+    
+    var target = parent;
+    if(typeof target == 'undefined') {
+    	target = document.body;
+    }
+    
+    return new Spinner(opts).spin(target);
 }

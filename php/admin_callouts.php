@@ -6,6 +6,7 @@
 define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
+require_once( 'firehall_parsing.php' );
 
 // These lines are mandatory.
 require_once 'Mobile_Detect.php';
@@ -45,12 +46,7 @@ sec_session_start();
 	if (isset($_SESSION['firehall_id'])) {
 		$firehall_id = $_SESSION['firehall_id'];
 		$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
-		if($FIREHALL != null) {
-			$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-					$FIREHALL->MYSQL->MYSQL_USER,
-					$FIREHALL->MYSQL->MYSQL_PASSWORD,
-					$FIREHALL->MYSQL->MYSQL_DATABASE);
-		}
+		$db_connection = db_connect_firehall($FIREHALL);
 	}
 	
     if (login_check($db_connection) == true) : ?>
@@ -86,7 +82,10 @@ sec_session_start();
 		<?php
 	
 		// Read from the database info about this callout
-		$sql = 'SELECT a.*, (select count(*) AS responders FROM callouts_response b WHERE a.id = b.calloutid) AS responders FROM callouts a ORDER BY calltime DESC;';
+		$sql = 'SELECT a.*, (select count(*) AS responders ' .
+							' FROM callouts_response b ' .
+							' WHERE a.id = b.calloutid) AS responders ' .
+				' FROM callouts a ORDER BY calltime DESC;';
 		$sql_result = $db_connection->query( $sql );
 		if($sql_result == false) {
 			printf("Error: %s\n", mysqli_error($db_connection));
@@ -134,8 +133,13 @@ sec_session_start();
 				echo "<tr>";
 				$col_num = 0;
 			    foreach($colNames as $colName) {
-					//if($col_num == 0) {
-					if($colName == "calltime") {
+					
+					if($colName == "calltype") {
+
+						$callout_type_desc = convertCallOutTypeToText($row[$colName]);
+						echo "<td title='" . $callout_type_desc . "'>".$row[$colName]."</td>";
+					}
+					else if($colName == "calltime") {
 						echo '<td class="column_nowrap">'. $row[$colName] .'</td>';
 					}
 					else if($colName == "address") {
@@ -143,7 +147,7 @@ sec_session_start();
 						$callOrigin = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
 						$callDest = getAddressForMapping($FIREHALL,$row[$colName]);
 							
-						$mapUrl = '<a target="_blank" href="http://maps.google.com/maps?saddr='.$callOrigin.'&daddr=' . $callDest.' ('.$row[$colName].')">'.$row[$colName].'</a>' . PHP_EOL;
+						$mapUrl = '<a target="_blank" href="http://maps.google.com/maps?saddr='.$callOrigin.'&daddr=' . $callDest.' ('.$row[$colName].')&dirflg=d">'.$row[$colName].'</a>' . PHP_EOL;
 						echo '<td class="column_nowrap">'. $mapUrl .'</td>';
 					}
 					else if($colName == "updatetime") {

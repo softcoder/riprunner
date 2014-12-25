@@ -29,6 +29,8 @@ sec_session_start();
         <?php endif; ?>
         
         <script type="text/JavaScript" src="js/jquery-2.1.1.min.js"></script>
+        <script type="text/JavaScript" src="js/spin.js"></script>
+        <script type="text/JavaScript" src="js/common-utils.js"></script>
         <!--Load the AJAX API-->
     	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
     	
@@ -55,10 +57,20 @@ sec_session_start();
 	        }
 	        chart_data.addRows(table_data);
 		}
+
     	</script>
     </head>
     <body>
-    	<div class="container_center">
+
+    	<script type="text/javascript">
+    	var spinner = loadingSpinner();
+
+    	$( document ).ready(function() {
+    		spinner.stop();
+    	});    	
+		</script>    		
+    	
+    	<div id="mainParent" class="container_center">
     			
         <?php 
         //$_SESSION['firehall_id'] = 0;
@@ -66,12 +78,7 @@ sec_session_start();
         if (isset($_SESSION['firehall_id'])) {
         	$firehall_id = $_SESSION['firehall_id'];
         	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
-        	if($FIREHALL != null) {
-        		$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-        				$FIREHALL->MYSQL->MYSQL_USER,
-        				$FIREHALL->MYSQL->MYSQL_PASSWORD,
-        				$FIREHALL->MYSQL->MYSQL_DATABASE);
-        	}
+        	$db_connection = db_connect_firehall($FIREHALL);
         }
                 
         function getCallTypeStatsForDateRange($db_connection,$startDate,$endDate) {
@@ -108,6 +115,8 @@ sec_session_start();
 				&$dynamicColumnTitles) {
 			$jsOutput = '';
 				
+			$MAX_MONTHLY_LABEL = "*MONTH - MAX";
+			
 			/*
 			(SELECT "ALL" as datalabel)
 			UNION
@@ -115,7 +124,7 @@ sec_session_start();
 					FROM callouts WHERE calltime BETWEEN '2014-01-01' AND '2014-12-31'
 					GROUP BY datalabel) ORDER BY datalabel;
 			*/
-			$sql_titles = '(SELECT "ALL" as datalabel)' .
+			$sql_titles = '(SELECT "' .$MAX_MONTHLY_LABEL . '" as datalabel)' .
 			        ' UNION (SELECT calltype as datalabel ' .
 					'        FROM callouts WHERE calltime BETWEEN \'' . 
 							 $startDate .'\' AND \'' . $endDate . '\'' .
@@ -130,7 +139,7 @@ sec_session_start();
 			$titles_results = array();
 			while($row_titles = $sql_titles_result->fetch_object()) {
 				$callTypeDesc = $row_titles->datalabel;
-				if($callTypeDesc != 'ALL') {
+				if($callTypeDesc != $MAX_MONTHLY_LABEL) {
 					$callTypeDesc = $callTypeDesc . ' - ' . convertCallOutTypeToText($row_titles->datalabel);
 				}
 				array_push($titles_results,$callTypeDesc);
@@ -148,7 +157,7 @@ sec_session_start();
 					FROM callouts WHERE calltime BETWEEN '2014-01-01' AND '2014-12-31'
 					GROUP BY datalabel, month ORDER BY month) ORDER BY month, datalabel;			
 			*/
-			$sql = '(SELECT MONTH(calltime) AS month, "ALL" AS datalabel, count(*) AS count ' .
+			$sql = '(SELECT MONTH(calltime) AS month, "' . $MAX_MONTHLY_LABEL . '" AS datalabel, count(*) AS count ' .
 					' FROM callouts WHERE calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
 					' GROUP BY month ORDER BY month)' .
 					'UNION (SELECT MONTH(calltime) AS month, calltype AS datalabel, count(*) AS count ' .
@@ -164,7 +173,7 @@ sec_session_start();
 			$data_results = array();			
 			while($row = $sql_result->fetch_object()) {
 				$callTypeDesc = $row->datalabel;
-				if($callTypeDesc != 'ALL') {
+				if($callTypeDesc != $MAX_MONTHLY_LABEL) {
 					$callTypeDesc = $callTypeDesc . ' - ' . convertCallOutTypeToText($row->datalabel);
 				}
 				
@@ -238,6 +247,7 @@ sec_session_start();
 				&$dynamicColumnTitles, $use_ldap) {
 			$jsOutput = '';
 		
+			$MAX_MONTHLY_LABEL = "*MONTH - MAX";
 			/*
 			(SELECT "ALL" as user_id)
 			 UNION (SELECT b.user_id 
@@ -249,7 +259,7 @@ sec_session_start();
 			if($use_ldap) {
 				create_temp_users_table_for_ldap($FIREHALL, $db_connection);
 				
-				$sql_titles = '(SELECT "ALL" as datalabel)' .
+				$sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
 						' UNION (SELECT b.user_id AS datalabel ' .
 						'        FROM callouts_response a' .
 						'        LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
@@ -259,7 +269,7 @@ sec_session_start();
 						'        GROUP BY datalabel) ORDER BY datalabel;';
 			}
 			else {
-				$sql_titles = '(SELECT "ALL" as datalabel)' .
+				$sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
 						' UNION (SELECT b.user_id AS datalabel ' .
 						'        FROM callouts_response a' .
 						'        LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
@@ -298,7 +308,7 @@ sec_session_start();
 			if($use_ldap) {
 				create_temp_users_table_for_ldap($FIREHALL, $db_connection);
 				
-				$sql = '(SELECT MONTH(calltime) AS month, "ALL" AS datalabel, count(*) AS count ' .
+				$sql = '(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, count(*) AS count ' .
 						' FROM callouts WHERE status NOT IN (3) AND calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
 						' GROUP BY month ORDER BY month)' .
 						'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
@@ -309,7 +319,7 @@ sec_session_start();
 						' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
 			}
 			else {
-				$sql = '(SELECT MONTH(calltime) AS month, "ALL" AS datalabel, count(*) AS count ' .
+				$sql = '(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, count(*) AS count ' .
 						' FROM callouts WHERE status NOT IN (3) AND calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
 						' GROUP BY month ORDER BY month)' .
 						'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
@@ -434,7 +444,7 @@ sec_session_start();
 			</div>
             
 			<script type="text/javascript">
-		
+			  	  
 		      // Load the Visualization API and the piechart package.
 		      google.load('visualization', '1.0', {'packages':['corechart']});
 		      // Set a callback to run when the Google Visualization API is loaded.
@@ -573,6 +583,8 @@ sec_session_start();
 		        // Instantiate and draw our chart, passing in some options.
 		        var chart_year_response_volume = new google.visualization.LineChart(document.getElementById('chart_year_response_volume_div'));
 		        chart_year_response_volume.draw(data_year_response_volume, options_year_response_volume);
+
+		        //spinner.stop();
 		      }
 		    </script>
 			
