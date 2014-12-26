@@ -39,6 +39,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -973,6 +974,10 @@ public class AppMainActivity extends ActionBarActivity implements
 		        playSound(context,FireHallSoundPlayer.SOUND_LOGIN);
 		        
 		        showProgressDialog(false, null);
+		        
+		        InputMethodManager imm = (InputMethodManager)getSystemService(
+		        	      Context.INPUT_METHOD_SERVICE);
+		        imm.hideSoftInputFromWindow(etUpw.getWindowToken(), 0);		        
 		   }
 		});
 	}
@@ -1081,7 +1086,7 @@ public class AppMainActivity extends ActionBarActivity implements
     		   }
     		});
     		
-    		boolean track_geo_coords = (getLastGPSLatitude() > 0 && getLastGPSLongitude() > 0);
+    		boolean track_geo_coords = (getLastGPSLatitude() != 0 && getLastGPSLongitude() != 0);
     		//boolean track_geo_coords = true;
     		if(track_geo_coords) {
     			
