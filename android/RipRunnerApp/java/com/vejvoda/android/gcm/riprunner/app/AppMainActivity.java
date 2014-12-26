@@ -367,6 +367,10 @@ public class AppMainActivity extends ActionBarActivity implements
         EditText etUpw = (EditText)findViewById(R.id.etUpw);
         etUpw.setText("");
         etUpw.setVisibility(View.VISIBLE);
+        
+        Button btnCallDetails = (Button)findViewById(R.id.btnCallDetails);
+        btnCallDetails.setEnabled(false);
+        btnCallDetails.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -687,6 +691,9 @@ public class AppMainActivity extends ActionBarActivity implements
         else if (view == findViewById(R.id.btnCancelCall)) {
         	handleCancelCallClick();
         }
+        else if (view == findViewById(R.id.btnCallDetails)) {
+			handleCalloutDetailsView();
+        }
     }
 
 	void handleCancelCallClick() {
@@ -825,6 +832,22 @@ public class AppMainActivity extends ActionBarActivity implements
                     Toast.makeText(this, "Please install a maps application", Toast.LENGTH_LONG).show();
                 }
         	}
+		} 
+		catch (UnsupportedEncodingException e) {
+			Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+			Toast.makeText(this, "UnsupportedEncodingException: " + e.getMessage(), Toast.LENGTH_LONG).show();
+		}    	
+    }
+        
+    private void handleCalloutDetailsView() {
+    	try {
+    		String uri = auth.getHostURL() + 
+    					"ci.php?cid=" + URLEncoder.encode(lastCallout.getCalloutId(), "utf-8")  + 
+    					"&fhid=" + URLEncoder.encode(auth.getFirehallId(), "utf-8") + 
+    					"&ckid=" + URLEncoder.encode(lastCallout.getCalloutKeyId(), "utf-8");
+    		Intent intent = new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uri));
+    		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+           	context.startActivity(intent);
 		} 
 		catch (UnsupportedEncodingException e) {
 			Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
@@ -1426,6 +1449,10 @@ public class AppMainActivity extends ActionBarActivity implements
 		if(mLocationClient == null) {
 			return 0;
 		}
+		if (mLocationClient.isConnected() == false) {
+			mLocationClient.connect();
+			return 0;
+		}
         Location location = mLocationClient.getLastLocation();
         double lat = (location != null ? location.getLatitude() : 0);
         return lat;
@@ -1435,6 +1462,11 @@ public class AppMainActivity extends ActionBarActivity implements
 			return 0;
 		}
 
+		if (mLocationClient.isConnected() == false) {
+			mLocationClient.connect();
+			return 0;
+		}
+		
 		Location location = mLocationClient.getLastLocation();
         double lng = (location != null ? location.getLongitude() : 0);
         return lng;

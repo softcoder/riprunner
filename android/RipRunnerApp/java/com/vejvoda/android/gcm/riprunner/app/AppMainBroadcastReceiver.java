@@ -245,6 +245,10 @@ public class AppMainBroadcastReceiver extends BroadcastReceiver {
 		        btnRespond.setVisibility(View.VISIBLE);
 		        btnRespond.setEnabled(true);
 		        
+		        Button btnCallDetails = (Button)getMainApp().findViewById(R.id.btnCallDetails);
+		        btnCallDetails.setEnabled(true);
+		        btnCallDetails.setVisibility(View.VISIBLE);
+		        
 		    	if(CalloutStatusType.isComplete(getMainApp().lastCallout.getStatus()) == false) {
 	                Button btnCompleteCall = (Button)getMainApp().findViewById(R.id.btnCompleteCall);
 	                btnCompleteCall.setVisibility(View.VISIBLE);

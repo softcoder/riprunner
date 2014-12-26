@@ -88,6 +88,13 @@
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
                 android:text="@string/respond" />
+        
+            <Button
+                android:id="@+id/btnCallDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClick"
+                android:text="@string/call_details" />
             
         </LinearLayout>
         <LinearLayout
@@ -108,6 +115,7 @@
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
                 android:text="@string/cancel_call" />
+
             
         </LinearLayout>
         <TextView

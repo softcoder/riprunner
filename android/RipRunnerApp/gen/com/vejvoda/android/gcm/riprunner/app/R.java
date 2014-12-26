@@ -1359,22 +1359,23 @@ containing a value of this type.
         public static final int action_bar_root=0x7f07002a;
         public static final int action_bar_subtitle=0x7f070033;
         public static final int action_bar_title=0x7f070032;
-        public static final int action_clear=0x7f07005f;
+        public static final int action_clear=0x7f070060;
         public static final int action_context_bar=0x7f07002d;
-        public static final int action_logout=0x7f07005e;
-        public static final int action_mapmygps=0x7f070060;
+        public static final int action_logout=0x7f07005f;
+        public static final int action_mapmygps=0x7f070061;
         public static final int action_menu_divider=0x7f070016;
         public static final int action_menu_presenter=0x7f070017;
         public static final int action_mode_bar=0x7f070041;
         public static final int action_mode_bar_stub=0x7f070040;
         public static final int action_mode_close_button=0x7f070034;
-        public static final int action_settings=0x7f070061;
+        public static final int action_settings=0x7f070062;
         public static final int activity_chooser_view_content=0x7f070035;
         public static final int always=0x7f07000b;
         public static final int beginning=0x7f070011;
         public static final int book_now=0x7f070026;
-        public static final int btnCancelCall=0x7f07005c;
-        public static final int btnCompleteCall=0x7f07005b;
+        public static final int btnCallDetails=0x7f07005b;
+        public static final int btnCancelCall=0x7f07005d;
+        public static final int btnCompleteCall=0x7f07005c;
         public static final int btnLogin=0x7f070058;
         public static final int btnMap=0x7f070059;
         public static final int btnRespond=0x7f07005a;
@@ -1387,7 +1388,7 @@ containing a value of this type.
         public static final int default_activity_button=0x7f070038;
         public static final int dialog=0x7f07000e;
         public static final int disableHome=0x7f070008;
-        public static final int display=0x7f07005d;
+        public static final int display=0x7f07005e;
         public static final int dropdown=0x7f07000f;
         public static final int edit_query=0x7f070048;
         public static final int end=0x7f070013;
@@ -1562,6 +1563,7 @@ containing a value of this type.
         public static final int auth_client_play_services_err_notification_msg=0x7f0c0011;
         public static final int auth_client_requested_by_msg=0x7f0c0012;
         public static final int auth_client_using_bad_version_title=0x7f0c000d;
+        public static final int call_details=0x7f0c003f;
         public static final int callout_respond_success=0x7f0c003c;
         public static final int cancel_call=0x7f0c003e;
         public static final int clear=0x7f0c0037;
@@ -1655,9 +1657,9 @@ containing a value of this type.
          */
         public static final int common_signin_button_text_long=0x7f0c002b;
         public static final int complete_call=0x7f0c003d;
-        public static final int dialog_text_cancel_call=0x7f0c0041;
-        public static final int dialog_text_complete_call=0x7f0c0040;
-        public static final int dialog_title_question=0x7f0c003f;
+        public static final int dialog_text_cancel_call=0x7f0c0042;
+        public static final int dialog_text_complete_call=0x7f0c0041;
+        public static final int dialog_title_question=0x7f0c0040;
         public static final int firehallid=0x7f0c0031;
         public static final int hosturl=0x7f0c0030;
         public static final int login=0x7f0c0035;
@@ -1667,19 +1669,19 @@ containing a value of this type.
         public static final int map=0x7f0c0038;
         public static final int mapmygps=0x7f0c002d;
         public static final int password=0x7f0c0033;
-        public static final int pref_default_host_url=0x7f0c0045;
-        public static final int pref_default_sender_id=0x7f0c0047;
-        public static final int pref_defaults_get=0x7f0c0049;
+        public static final int pref_default_host_url=0x7f0c0046;
+        public static final int pref_default_sender_id=0x7f0c0048;
+        public static final int pref_defaults_get=0x7f0c004a;
         /**  Strings related to Settings 
  Example General settings 
          */
-        public static final int pref_header_general=0x7f0c0043;
-        public static final int pref_title_host_url=0x7f0c0044;
-        public static final int pref_title_sender_id=0x7f0c0046;
-        public static final int pref_title_tracking_enabled=0x7f0c0048;
+        public static final int pref_header_general=0x7f0c0044;
+        public static final int pref_title_host_url=0x7f0c0045;
+        public static final int pref_title_sender_id=0x7f0c0047;
+        public static final int pref_title_tracking_enabled=0x7f0c0049;
         public static final int respond=0x7f0c0039;
         public static final int settings=0x7f0c002e;
-        public static final int title_activity_settings=0x7f0c0042;
+        public static final int title_activity_settings=0x7f0c0043;
         public static final int userid=0x7f0c0032;
         public static final int waiting_for_callout=0x7f0c003b;
         /**  Text on a placeholder buy button when Google Play services is not
