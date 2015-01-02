@@ -254,9 +254,15 @@ public class AppMainActivity extends ActionBarActivity implements
 	    	//Intent intent = new Intent( TRACKING_GEO );
 	    	//Intent intent = new Intent(this, AppMainBroadcastReceiver.class);
     		
-    		Intent intent = new Intent(this, AppMainActivity.class);
+    		//Intent intent = new Intent(this, AppMainActivity.class);
+    		Intent intent = new Intent(this, AppMainBroadcastReceiver.class);
 	    	intent.setAction(TRACKING_GEO);
-	    	geoTrackingIntent = PendingIntent.getBroadcast( this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT );
+	    	geoTrackingIntent = PendingIntent.getBroadcast( this, 0, intent, 
+	    			PendingIntent.FLAG_CANCEL_CURRENT );
+	    	
+	    	//geoTrackingIntent = PendingIntent.getActivity(this, 0, intent, 
+	    	//		PendingIntent.FLAG_CANCEL_CURRENT);
+	    	
 	    	//geoTrackingIntent = PendingIntent.getActivity(this, 0,
 	        //        new Intent(this, AppMainActivity.class), 0);
     	}
@@ -264,6 +270,8 @@ public class AppMainActivity extends ActionBarActivity implements
     }
     
     void startGEOAlarm() {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in startGEOAlarm: " + (geoTrackingIntent == null ? "null" : geoTrackingIntent));
+    	
     	if(geoTrackingIntent == null) {
 	    	String alarm = Context.ALARM_SERVICE;
 	    	AlarmManager am = ( AlarmManager ) getSystemService( alarm );
@@ -273,12 +281,15 @@ public class AppMainActivity extends ActionBarActivity implements
 	    	long interval = 60000;
 	    	//long interval = 5000;
 	    	long triggerTime = SystemClock.elapsedRealtime() + interval;
-	    	 
+	    	
+	    	AppMainBroadcastReceiver.setMainApp(this);
 	    	am.setInexactRepeating( type, triggerTime, interval, getGeoTrackingIntent() );
     	}
     }
     
     void cancelGEOAlarm() {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in cancelGEOAlarm: " + (geoTrackingIntent == null ? "null" : geoTrackingIntent));
+    	
     	//if(geoTrackingIntent != null) {
 	    	String alarm = Context.ALARM_SERVICE;
 	    	AlarmManager am = ( AlarmManager ) getSystemService( alarm );
@@ -292,6 +303,8 @@ public class AppMainActivity extends ActionBarActivity implements
     }
     
 	void setupGPSTracking() {
+		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in setupGPSTracking mLocationRequest: " + (mLocationRequest == null ? "null" : mLocationRequest));
+		
 		if(mLocationRequest == null) {
 			// Create the LocationRequest object
 			mLocationRequest = LocationRequest.create();
@@ -302,7 +315,10 @@ public class AppMainActivity extends ActionBarActivity implements
 			mLocationRequest.setInterval(UPDATE_INTERVAL);
 			// Set the fastest update interval to 1 second
 			mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-		}		
+		}
+		
+		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in setupGPSTracking mLocationClient: " + (mLocationClient == null ? "null" : mLocationClient));
+		
 		if(mLocationClient == null) {
 			/*
 			 * Create a new location client, using the enclosing class to
@@ -375,10 +391,19 @@ public class AppMainActivity extends ActionBarActivity implements
 
     @Override
     protected void onStart() {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in onStart mLocationClient: " + (mLocationClient == null ? "null" : mLocationClient));
+    	
     	super.onStart();
+    	
         // Connect the GPS client.
     	setupGPSTracking();
-    	mLocationClient.connect();
+    	if(mLocationClient != null) {
+    		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in onStart mLocationClient.isConnected() = " + mLocationClient.isConnected());
+    		
+	        if (mLocationClient.isConnected() == false) {
+	        	mLocationClient.connect();
+	        }
+    	}
     }
 
     /*
@@ -387,6 +412,8 @@ public class AppMainActivity extends ActionBarActivity implements
      */
     @Override
     protected void onStop() {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in onStop: " + (mLocationClient == null ? "null" : mLocationClient));
+    	
         // If the client is connected
     	if(mLocationClient != null) {
 	        if (mLocationClient.isConnected()) {
@@ -1413,12 +1440,14 @@ public class AppMainActivity extends ActionBarActivity implements
 
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
+		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner GPS Connection FAILED!");
 		Toast.makeText(this, "GPS Connection FAILED!", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
 	public void onConnected(Bundle arg0) {
 		// Display the connection status
+		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner GPS Connected: " + (arg0 == null ? "null" : arg0));
         Toast.makeText(this, "GPS Connected", Toast.LENGTH_SHORT).show();
 
         // If already requested, start periodic updates
@@ -1430,6 +1459,7 @@ public class AppMainActivity extends ActionBarActivity implements
 	@Override
 	public void onDisconnected() {
 		// Display the connection status
+		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner GPS Disconnected.");
         Toast.makeText(this, "GPS Disconnected.",Toast.LENGTH_SHORT).show();
 	}
 
@@ -1437,6 +1467,7 @@ public class AppMainActivity extends ActionBarActivity implements
     public void onLocationChanged(Location location) {
 		//this.location = location;
 		// Report to the UI that the location was updated
+		//Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner onLocationChanged.");
 		
 		// Debug GPS values
 //        String msg = "Updated GPS Location: " +

@@ -123,7 +123,12 @@ public class GcmIntentService extends IntentService {
         	String callout = extras.toString();
         	Intent intent = new Intent(AppMainActivity.RECEIVE_CALLOUT);
         	intent.putExtra("callout", callout);
-        	LocalBroadcastManager.getInstance(this).sendBroadcast(intent);    	
+        	
+        	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner sending broadcast intent for callout: " + callout);
+        	
+        	boolean result = LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        	
+        	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner sent broadcast intent got result: " + result);
         }    	
     }
     

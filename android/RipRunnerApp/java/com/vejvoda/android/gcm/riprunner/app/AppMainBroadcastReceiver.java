@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 public class AppMainBroadcastReceiver extends BroadcastReceiver {
 	
+	private static Object appMainLock = new Object();
 	private static AppMainActivity appMain = null;
 	//private AppMainActivity appMain = null;
 
@@ -31,14 +32,23 @@ public class AppMainBroadcastReceiver extends BroadcastReceiver {
 	}
 	static public void setMainApp(AppMainActivity app) {
 		Log.i(Utils.TAG, Utils.getLineNumber() + ": RipRunner -> setMainApp: " + app.toString());
-		appMain = app;
+		synchronized(appMainLock) {
+			appMain = app;
+		}
 	}
 	private AppMainActivity getMainApp() {
-		return appMain;
+		AppMainActivity result = null;
+		synchronized(appMainLock) {
+			result = appMain;
+		}
+		return result;
 	}
 	
     @Override
     public void onReceive(Context context, Intent intent) {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Broadcaster got intent action: " + (intent == null ? "null" : intent) +
+    			" appmain = " + (getMainApp() == null ? "null" : getMainApp().toString()));
+    	
         if(intent != null && intent.getAction() != null) {
         	Log.i(Utils.TAG, Utils.getLineNumber() + ": Broadcaster got intent action: " + intent.getAction() +
         			" appmain = " + (getMainApp() == null ? "null" : getMainApp().toString()));
