@@ -8,10 +8,12 @@ import com.vejvoda.android.gcm.riprunner.app.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
@@ -75,7 +77,10 @@ import android.media.SoundPool;
  */
 public class AppMainActivity extends ActionBarActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
-		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
+		GooglePlayServicesClient.OnConnectionFailedListener, 
+		GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,		
+		LocationListener {
 
 	// Property names to store app settings
     public static final String PROPERTY_REG_ID 				= "registration_id";
@@ -157,7 +162,9 @@ public class AppMainActivity extends ActionBarActivity implements
     private BroadcastReceiver bReceiver = null;
     
     // The location client that receives GPS location updates
-    LocationClient mLocationClient = null;
+    //LocationClient mLocationClient = null;
+    private GoogleApiClient mGoogleApiClient = null;
+    
     // Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
     // Update frequency in seconds
@@ -173,6 +180,7 @@ public class AppMainActivity extends ActionBarActivity implements
     
     // Define an object that holds accuracy and frequency parameters
     LocationRequest mLocationRequest;
+    Location lastTrackedGEOLocation = null;
     boolean mUpdatesRequested = true;
     
     PendingIntent geoTrackingIntent = null;
@@ -187,7 +195,7 @@ public class AppMainActivity extends ActionBarActivity implements
         mDisplay = (TextView) findViewById(R.id.display);
         context = getApplicationContext();
         initSounds(context);
-
+        
         AppMainBroadcastReceiver.setMainApp(this);
         LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
@@ -317,15 +325,15 @@ public class AppMainActivity extends ActionBarActivity implements
 			mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
 		}
 		
-		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in setupGPSTracking mLocationClient: " + (mLocationClient == null ? "null" : mLocationClient));
+		//Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in setupGPSTracking mLocationClient: " + (mLocationClient == null ? "null" : mLocationClient));
 		
-		if(mLocationClient == null) {
-			/*
-			 * Create a new location client, using the enclosing class to
-			 * handle callbacks.
-			 */
-			mLocationClient = new LocationClient(this, this, this);
-		}
+//		if(mLocationClient == null) {
+//			/*
+//			 * Create a new location client, using the enclosing class to
+//			 * handle callbacks.
+//			 */
+//			mLocationClient = new LocationClient(this, this, this);
+//		}
 	}
 
     private void setupLoginUI() {
@@ -391,19 +399,22 @@ public class AppMainActivity extends ActionBarActivity implements
 
     @Override
     protected void onStart() {
-    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in onStart mLocationClient: " + (mLocationClient == null ? "null" : mLocationClient));
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in onStart mLocationClient: " + (mGoogleApiClient == null ? "null" : mGoogleApiClient));
     	
     	super.onStart();
     	
         // Connect the GPS client.
     	setupGPSTracking();
-    	if(mLocationClient != null) {
-    		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in onStart mLocationClient.isConnected() = " + mLocationClient.isConnected());
-    		
-	        if (mLocationClient.isConnected() == false) {
-	        	mLocationClient.connect();
-	        }
-    	}
+//    	if(mLocationClient != null) {
+//    		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in onStart mLocationClient.isConnected() = " + mLocationClient.isConnected());
+//    		
+//	        if (mLocationClient.isConnected() == false) {
+//	        	mLocationClient.connect();
+//	        }
+//    	}
+    	// Connect the client.
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in onStart calling mGoogleApiClient.connect()");
+        mGoogleApiClient.connect();
     }
 
     /*
@@ -412,24 +423,27 @@ public class AppMainActivity extends ActionBarActivity implements
      */
     @Override
     protected void onStop() {
-    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in onStop: " + (mLocationClient == null ? "null" : mLocationClient));
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in onStop: " + (mGoogleApiClient == null ? "null" : mGoogleApiClient));
     	
         // If the client is connected
-    	if(mLocationClient != null) {
-	        if (mLocationClient.isConnected()) {
-	            /*
-	             * Remove location updates for a listener.
-	             * The current Activity is the listener, so
-	             * the argument is "this".
-	             */
-	            //removeLocationUpdates(this);
-	        }
-	        /*
-	         * After disconnect() is called, the client is
-	         * considered "dead".
-	         */
-	        mLocationClient.disconnect();
-    	}
+//    	if(mLocationClient != null) {
+//	        if (mLocationClient.isConnected()) {
+//	            /*
+//	             * Remove location updates for a listener.
+//	             * The current Activity is the listener, so
+//	             * the argument is "this".
+//	             */
+//	            //removeLocationUpdates(this);
+//	        }
+//	        /*
+//	         * After disconnect() is called, the client is
+//	         * considered "dead".
+//	         */
+//	        mLocationClient.disconnect();
+//    	}
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in onStop calling mGoogleApiClient.disconnect()");
+        mGoogleApiClient.disconnect();
+    	
         super.onStop();
     }
     
@@ -466,6 +480,15 @@ public class AppMainActivity extends ActionBarActivity implements
                 finish();
             }
             return false;
+        }
+        else {
+        	if(mGoogleApiClient == null) {
+	            mGoogleApiClient = new GoogleApiClient.Builder(this)
+		        .addApi(LocationServices.API)
+		        .addConnectionCallbacks(this)
+		        .addOnConnectionFailedListener(this)
+		        .build();
+        	}
         }
         return true;
     }
@@ -1445,15 +1468,30 @@ public class AppMainActivity extends ActionBarActivity implements
 	}
 
 	@Override
+	public void onConnectionSuspended(int arg0) {
+		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner GPS Connection SUSPENDED!");
+		Toast.makeText(this, "GPS Connection SUSPENDED!", Toast.LENGTH_SHORT).show();
+	}
+	
+	@Override
 	public void onConnected(Bundle arg0) {
 		// Display the connection status
 		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner GPS Connected: " + (arg0 == null ? "null" : arg0));
         Toast.makeText(this, "GPS Connected", Toast.LENGTH_SHORT).show();
 
         // If already requested, start periodic updates
-        if (mUpdatesRequested && mLocationClient != null) {
-            mLocationClient.requestLocationUpdates(mLocationRequest, this);
-        }		
+//        if (mUpdatesRequested && mLocationClient != null) {
+//            mLocationClient.requestLocationUpdates(mLocationRequest, this);
+//        }
+        
+        if (mUpdatesRequested) {
+	        mLocationRequest = LocationRequest.create();
+	        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+	        mLocationRequest.setInterval(20000); // Update location every 20 seconds
+	
+	        LocationServices.FusedLocationApi.requestLocationUpdates(
+	                mGoogleApiClient, mLocationRequest, this);
+        }
 	}
 
 	@Override
@@ -1474,32 +1512,23 @@ public class AppMainActivity extends ActionBarActivity implements
 //                Double.toString(location.getLatitude()) + "," +
 //                Double.toString(location.getLongitude());
 //        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+		
+		lastTrackedGEOLocation = location;
 	}
 
 	double getLastGPSLatitude() {
-		if(mLocationClient == null) {
+		if(lastTrackedGEOLocation == null) {
 			return 0;
 		}
-		if (mLocationClient.isConnected() == false) {
-			mLocationClient.connect();
-			return 0;
-		}
-        Location location = mLocationClient.getLastLocation();
-        double lat = (location != null ? location.getLatitude() : 0);
+        double lat = lastTrackedGEOLocation.getLatitude();
         return lat;
 	}
 	double getLastGPSLongitude() {
-		if(mLocationClient == null) {
+		if(lastTrackedGEOLocation == null) {
 			return 0;
 		}
 
-		if (mLocationClient.isConnected() == false) {
-			mLocationClient.connect();
-			return 0;
-		}
-		
-		Location location = mLocationClient.getLastLocation();
-        double lng = (location != null ? location.getLongitude() : 0);
+        double lng = lastTrackedGEOLocation.getLongitude();
         return lng;
 	}
 	
