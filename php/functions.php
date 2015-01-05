@@ -500,7 +500,7 @@
 	function checkForLiveCallout($FIREHALL,$db_connection) {
 		// Check if there is an active callout (within last 48 hours) and if so send the details
 		$sql = 'SELECT * FROM callouts' .
-				' WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= 48' .
+				' WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
 				' ORDER BY id DESC LIMIT 1;';
 		$sql_result = $db_connection->query( $sql );
 		if($sql_result == false) {

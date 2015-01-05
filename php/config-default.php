@@ -17,6 +17,10 @@ require_once( 'config_constants.php' );
 // ==============================================================
 
 // ----------------------------------------------------------------------
+// Max hours old to trigger a live callout page
+define( 'DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD',	48);
+
+// ----------------------------------------------------------------------
 // Callout Codes and descriptions
 $CALLOUT_CODES_LOOKUP = array(
 

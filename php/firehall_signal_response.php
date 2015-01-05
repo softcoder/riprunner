@@ -30,7 +30,7 @@ function signalFireHallResponse($FIREHALL, $callId, $userId,
 		
 		signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId, 
 	                		$callGPSLat, $callGPSLong, 
-	                		$userStatus, $callkey_id, $smsMsg);
+	                		$userStatus, $callkey_id, $smsMsg, null, null, null);
 	}
 }
 

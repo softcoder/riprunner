@@ -10,7 +10,6 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -133,20 +132,6 @@ public class AppMainActivity extends ActionBarActivity implements
     Context context = null;
     MenuItem logout_menu = null;
     ProgressDialog loadingDlg = null;
-    		
-    /**
-     * This class contains a wrapper for accessing predefined sounds
-     * @author softcoder
-     */
-	public class FireHallSoundPlayer {
-	     public static final int SOUND_DINGLING = R.raw.dingling;
-	     public static final int SOUND_LOGIN = R.raw.login;
-	     public static final int SOUND_PAGE1 = R.raw.page1;
-	     public static final int SOUND_PAGER_TONE_PG = R.raw.pager_tone_pg;
-    }
-	
-    private static SoundPool soundPool;
-    private static Map<Integer,Integer> soundPoolMap;
 
     /** The authentication object */
     FireHallAuthentication auth;
@@ -184,6 +169,22 @@ public class AppMainActivity extends ActionBarActivity implements
     boolean mUpdatesRequested = true;
     
     PendingIntent geoTrackingIntent = null;
+    
+    /**
+     * This class contains a wrapper for accessing predefined sounds
+     * @author softcoder
+     */
+	public class FireHallSoundPlayer {
+	     public static final int SOUND_DINGLING = R.raw.dingling;
+	     public static final int SOUND_LOGIN = R.raw.login;
+	     public static final int SOUND_PAGE1 = R.raw.page1;
+	     public static final int SOUND_PAGER_TONE_PG = R.raw.pager_tone_pg;
+    }
+	
+    private static SoundPool soundPool;
+    private static Map<Integer,Integer> soundPoolMap;
+
+    
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -245,6 +246,18 @@ public class AppMainActivity extends ActionBarActivity implements
         }
     }
 
+    public Boolean isTrackingEnabled() {
+    	return getConfigItem(context,AppMainActivity.PROPERTY_TRACKING_ENABLED,Boolean.class);
+    }
+    public boolean isUserLoggedOn(String userId) {
+    	boolean result = false;
+    	if(auth != null && userId != null &&
+    			auth.getUserId().equals(userId)) {
+    		result = true;
+    	}
+    	return result;
+    }
+    
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
     	Log.i(Utils.TAG, Utils.getLineNumber() + ": Saving instance state for Rip Runner.");
@@ -972,6 +985,8 @@ public class AppMainActivity extends ActionBarActivity implements
             out.close();
             
             final String responseString = out.toString();
+            Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner response for register_device: " + responseString);
+            
             if(isGcmErrorNotRegistered(responseString)) {
             	String regid = getGcmDeviceRegistrationId(true);
             	auth.setGCMRegistrationId(regid);
@@ -1001,6 +1016,8 @@ public class AppMainActivity extends ActionBarActivity implements
             response.getEntity().getContent().close();
 
             final String errorText = statusLine.getReasonPhrase();
+            Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner ERROR response for register_device: " + errorText);
+            
             runOnUiThread(new Runnable() {
                 public void run() {
                     EditText etUpw = (EditText)findViewById(R.id.etUpw);
@@ -1087,6 +1104,8 @@ public class AppMainActivity extends ActionBarActivity implements
             out.close();
             
             final String responseString = out.toString();
+            Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner response for cr: " + responseString);
+            
             if(responseString != null && responseString.startsWith("OK=")) {
 	            handleResponseSuccess();
             }
@@ -1108,6 +1127,8 @@ public class AppMainActivity extends ActionBarActivity implements
             response.getEntity().getContent().close();
 
             final String errorText = statusLine.getReasonPhrase();
+            Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner ERROR response for cr: " + errorText);
+            
             runOnUiThread(new Runnable() {
                 public void run() {
                     TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
@@ -1145,7 +1166,8 @@ public class AppMainActivity extends ActionBarActivity implements
      * @throws IOException 
      * @throws ClientProtocolException 
      */
-    public String sendGeoTrackingToBackend() {
+    public void sendGeoTrackingToBackend() {
+    	String result = "";
     	
     	if(isLoggedIn() && lastCallout != null &&
 	    	CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
@@ -1187,6 +1209,8 @@ public class AppMainActivity extends ActionBarActivity implements
 			            out.close();
 			            
 			            final String responseString = out.toString();
+			            Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner response for ct: " + responseString);
+			            
 			            if(responseString != null && responseString.startsWith("OK=")) {
 			        		runOnUiThread(new Runnable() {
 			        		   public void run() {
@@ -1195,7 +1219,7 @@ public class AppMainActivity extends ActionBarActivity implements
 			        		   }
 			        		});
 			        		
-			        		return responseString;
+			        		result = responseString;
 			            }
 			            else if(responseString != null && responseString.startsWith("CALLOUT_ENDED=")) {
 			            	
@@ -1206,7 +1230,7 @@ public class AppMainActivity extends ActionBarActivity implements
 				        		   }
 				        	});
 			        		
-			        		return responseString;
+			        		result = responseString;
 			            }
 			            else {
 			                runOnUiThread(new Runnable() {
@@ -1220,7 +1244,7 @@ public class AppMainActivity extends ActionBarActivity implements
 			                   }
 			                });
 			                
-			                return responseString;
+			                result = responseString;
 			            }
 			        } 
 			        else {
@@ -1228,6 +1252,7 @@ public class AppMainActivity extends ActionBarActivity implements
 			            response.getEntity().getContent().close();
 			
 			            final String errorText = statusLine.getReasonPhrase();
+			            Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner ERROR response for ct: " + errorText);
 			            
 			            runOnUiThread(new Runnable() {
 			                public void run() {
@@ -1239,7 +1264,7 @@ public class AppMainActivity extends ActionBarActivity implements
 			               }
 			            });
 			            
-			            return errorText;
+			            result = errorText;
 			        }
 				} 
 				catch (ClientProtocolException e) {
@@ -1266,8 +1291,129 @@ public class AppMainActivity extends ActionBarActivity implements
 				}
     		}
     	}
-    	return "";
+    	
+       	if(result != "" && result.startsWith("CALLOUT_ENDED=") && 
+       			lastCallout != null) {
+       		
+        	processCalloutResponseTrigger("Callout has ended!",
+        			lastCallout.getCalloutId(), 
+        			String.valueOf(CalloutStatusType.Complete.valueOf()),
+        			null);
+       	}
     }
+	
+	public void processCalloutResponseTrigger(final String calloutMsg,
+			String callout_id, String callout_status, final String response_userId) {
+		
+		Log.i(Utils.TAG, Utils.getLineNumber() + 
+				": RipRunner -> process response, lastcallout = " + 
+				(lastCallout == null ? "null" : lastCallout.toString()));
+		
+		if(lastCallout != null) {
+			if(lastCallout.getCalloutId().equals(callout_id)) {
+				if(lastCallout.getStatus().equals(callout_status) == false) {
+					lastCallout.setStatus(callout_status);
+				}
+			}
+		}
+		runOnUiThread(new Runnable() {
+		    public void run() {
+		    	mDisplay = (TextView) findViewById(R.id.display);
+		    	mDisplay.append("\n" + calloutMsg);
+
+		    	if(lastCallout != null &&
+		    		CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
+		    		
+		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+		            btnCompleteCall.setVisibility(View.VISIBLE);
+		            btnCompleteCall.setEnabled(true);
+
+		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+		            btnCancelCall.setVisibility(View.VISIBLE);
+		            btnCancelCall.setEnabled(true);
+
+		            if(isUserLoggedOn(response_userId)) {
+				        Button btnRespond = (Button)findViewById(R.id.btnRespond);
+				        btnRespond.setVisibility(View.VISIBLE);
+				        btnRespond.setEnabled(false);
+		            }
+		    	}
+		    	else {
+		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+		            btnCompleteCall.setVisibility(View.VISIBLE);
+		            btnCompleteCall.setEnabled(false);
+		            
+		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+		            btnCancelCall.setVisibility(View.VISIBLE);
+		            btnCancelCall.setEnabled(false);
+		            
+			        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
+			        txtMsg.setText(getResources().getString(R.string.waiting_for_callout));
+		    	}
+		    	
+		    	playSound(context,FireHallSoundPlayer.SOUND_DINGLING);
+		   }
+		});
+	}
+    
+	public void processDeviceMsgTrigger(final String deviceMsg) {
+		runOnUiThread(new Runnable() {
+		    public void run() {
+		    	mDisplay = (TextView) findViewById(R.id.display);
+		    	mDisplay.append("\n" + deviceMsg);
+		   }
+		});
+	}
+	
+	public void processCalloutTrigger(String callOutId, String callKeyId, 
+			String gpsLatStr, String gpsLongStr, String callAddress,
+			String callMapAddress, String callOutUnits, String callOutStatus,
+			final String calloutMsg) {
+		lastCallout = new FireHallCallout(
+				callOutId, callKeyId, gpsLatStr,gpsLongStr, callAddress,
+				callMapAddress, callOutUnits, callOutStatus);
+		
+		runOnUiThread(new Runnable() {
+		    public void run() {
+
+		    	mDisplay = (TextView) findViewById(R.id.display);
+		    	mDisplay.setText(calloutMsg);
+		    	
+		    	playSound(context,FireHallSoundPlayer.SOUND_PAGER_TONE_PG);
+		    	
+		        Button btnMap = (Button)findViewById(R.id.btnMap);
+		        btnMap.setVisibility(View.VISIBLE);
+		        btnMap.setEnabled(true);
+		        
+		        Button btnRespond = (Button)findViewById(R.id.btnRespond);
+		        btnRespond.setVisibility(View.VISIBLE);
+		        btnRespond.setEnabled(true);
+		        
+		        Button btnCallDetails = (Button)findViewById(R.id.btnCallDetails);
+		        btnCallDetails.setEnabled(true);
+		        btnCallDetails.setVisibility(View.VISIBLE);
+		        
+		    	if(CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
+	                Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+	                btnCompleteCall.setVisibility(View.VISIBLE);
+	                btnCompleteCall.setEnabled(true);
+	                
+		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+		            btnCancelCall.setVisibility(View.VISIBLE);
+		            btnCancelCall.setEnabled(true);
+		    	}
+		    	else {
+		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+		            btnCompleteCall.setVisibility(View.VISIBLE);
+		            btnCompleteCall.setEnabled(false);
+		            
+		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+		            btnCancelCall.setVisibility(View.VISIBLE);
+		            btnCancelCall.setEnabled(false);
+		    	}
+		   }
+		});
+	}
 	
     ProgressDialog getProgressDialog() {
     	if(loadingDlg == null) {
@@ -1432,7 +1578,7 @@ public class AppMainActivity extends ActionBarActivity implements
     private BroadcastReceiver getBroadCastReceiver() {
     	if(bReceiver == null) {
     		bReceiver = new AppMainBroadcastReceiver();
-    		((AppMainBroadcastReceiver)bReceiver).setMainApp(this);
+    		AppMainBroadcastReceiver.setMainApp(this);
     	}
     	return bReceiver;
     }
