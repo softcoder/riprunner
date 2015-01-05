@@ -13,6 +13,15 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
@@ -33,8 +42,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -50,6 +61,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -147,9 +159,11 @@ public class AppMainActivity extends ActionBarActivity implements
     private BroadcastReceiver bReceiver = null;
     
     // The location client that receives GPS location updates
-    //LocationClient mLocationClient = null;
     private GoogleApiClient mGoogleApiClient = null;
     
+    private SupportMapFragment mapFragment;
+	private GoogleMap map;
+	
     // Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
     // Update frequency in seconds
@@ -217,6 +231,7 @@ public class AppMainActivity extends ActionBarActivity implements
         boolean focusPWd = false;
         if (checkPlayServices()) {
         	setupGPSTracking();
+        	setupMapFragment();
         	
         	if(hasConfigItem(context,PROPERTY_WEBSITE_URL,String.class) && 
         			hasConfigItem(context,PROPERTY_SENDER_ID,String.class) &&
@@ -245,6 +260,28 @@ public class AppMainActivity extends ActionBarActivity implements
         	etUpw.requestFocus();
         }
     }
+
+	private void setupMapFragment() {
+		mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
+		if (mapFragment != null) {
+			map = mapFragment.getMap();
+			if (map != null) {
+				//Toast.makeText(this, "Map Fragment was loaded properly!", Toast.LENGTH_SHORT).show();
+				Log.i(Utils.TAG, Utils.getLineNumber() + ": Map Fragment was loaded properly.");
+				
+				map.setMyLocationEnabled(true);
+				map.setTrafficEnabled(true);
+			} 
+			else {
+				Log.i(Utils.TAG, Utils.getLineNumber() + ": *****Error***** - Map was null!!");
+				Toast.makeText(this, "Error - Map was null!!", Toast.LENGTH_SHORT).show();
+			}
+		} 
+		else {
+			Log.i(Utils.TAG, Utils.getLineNumber() + ": *****Error***** - Map Fragment was null!!");
+			Toast.makeText(this, "Error - Map Fragment was null!!", Toast.LENGTH_SHORT).show();
+		}
+	}
 
     public Boolean isTrackingEnabled() {
     	return getConfigItem(context,AppMainActivity.PROPERTY_TRACKING_ENABLED,Boolean.class);
@@ -408,6 +445,8 @@ public class AppMainActivity extends ActionBarActivity implements
         Button btnCallDetails = (Button)findViewById(R.id.btnCallDetails);
         btnCallDetails.setEnabled(false);
         btnCallDetails.setVisibility(View.INVISIBLE);
+        
+        hideFragment(R.id.map);
     }
 
     @Override
@@ -585,12 +624,12 @@ public class AppMainActivity extends ActionBarActivity implements
             catch (InstantiationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+				Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", e);
 			} 
             catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+				Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", e);
 			}
         }
         // Check if app was updated; if so, it must clear the registration ID
@@ -606,12 +645,12 @@ public class AppMainActivity extends ActionBarActivity implements
             catch (InstantiationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+				Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", e);
 			} 
             catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+				Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", e);
 			}
         }
         return value;
@@ -680,7 +719,7 @@ public class AppMainActivity extends ActionBarActivity implements
                     // If there is an error, don't just keep trying to register.
                     // Require the user to click a button again, or perform
                     // exponential back-off.
-                    Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", ex);
+                    Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", ex);
                 }
                 return msg;
             }
@@ -724,7 +763,7 @@ public class AppMainActivity extends ActionBarActivity implements
                     // If there is an error, don't just keep trying to register.
                     // Require the user to click a button again, or perform
                     // exponential back-off.
-                    Log.e(Utils.TAG, Utils.getLineNumber() + ": Error statusType" + statusType, ex);
+                    Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error statusType" + statusType, ex);
                 }
                 return msg;
             }
@@ -891,13 +930,13 @@ public class AppMainActivity extends ActionBarActivity implements
                 	context.startActivity(intent);
                 }
                 catch(ActivityNotFoundException innerEx) {
-                	Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", innerEx);
+                	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", innerEx);
                     Toast.makeText(this, "Please install a maps application", Toast.LENGTH_LONG).show();
                 }
         	}
 		} 
 		catch (UnsupportedEncodingException e) {
-			Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+			Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", e);
 			Toast.makeText(this, "UnsupportedEncodingException: " + e.getMessage(), Toast.LENGTH_LONG).show();
 		}    	
     }
@@ -913,7 +952,7 @@ public class AppMainActivity extends ActionBarActivity implements
            	context.startActivity(intent);
 		} 
 		catch (UnsupportedEncodingException e) {
-			Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+			Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", e);
 			Toast.makeText(this, "UnsupportedEncodingException: " + e.getMessage(), Toast.LENGTH_LONG).show();
 		}    	
     }
@@ -938,7 +977,7 @@ public class AppMainActivity extends ActionBarActivity implements
         } 
         catch (NameNotFoundException e) {
             // should never happen
-        	Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+        	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", e);
             throw new RuntimeException("Could not get package name: " + e);
         }
     }
@@ -995,6 +1034,16 @@ public class AppMainActivity extends ActionBarActivity implements
             }
             		
             if(responseString != null && responseString.startsWith("OK=")) {
+            	String [] responseParts = responseString.split("\\|");
+            	if(responseParts != null && responseParts.length > 2) {
+            		String firehallCoords = responseParts[2];
+            		String [] firehallCoordsParts = firehallCoords.split("\\,");
+            		if(firehallCoordsParts != null && firehallCoordsParts.length == 2) {
+            			auth.setFireHallGeoLatitude(firehallCoordsParts[0]);
+            			auth.setFireHallGeoLongitude(firehallCoordsParts[1]);
+            		}
+            	}
+            	
 	            handleRegistrationSuccess(auth);
             }
             else {
@@ -1037,6 +1086,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		storeConfigItem(context, PROPERTY_USER_ID, auth.getUserId());
 		
 		auth.setRegisteredBackend(true);
+		final String loggedOnUser = auth.getUserId();
 		
 		runOnUiThread(new Runnable() {
 		    public void run() {
@@ -1046,7 +1096,8 @@ public class AppMainActivity extends ActionBarActivity implements
 		        btnLogin.setVisibility(View.INVISIBLE);
 		    	
 		        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-		        txtMsg.setText(getResources().getString(R.string.login_success));
+		        txtMsg.setText(getResources().getString(R.string.login_success) + 
+		        		" " + loggedOnUser);
 
 		        // Enable when debugging
 		        //mDisplay.setText(responseString);
@@ -1268,7 +1319,7 @@ public class AppMainActivity extends ActionBarActivity implements
 			        }
 				} 
 				catch (ClientProtocolException e) {
-	            	Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+	            	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", e);
 	            	
 	            	final IOException ex = e;
 	        		runOnUiThread(new Runnable() {
@@ -1279,7 +1330,7 @@ public class AppMainActivity extends ActionBarActivity implements
 	                });            
 				} 
 				catch (IOException e) {
-	            	Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+	            	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", e);
 
 	            	final IOException ex = e;
 	        		runOnUiThread(new Runnable() {
@@ -1366,11 +1417,11 @@ public class AppMainActivity extends ActionBarActivity implements
 	}
 	
 	public void processCalloutTrigger(String callOutId, String callKeyId, 
-			String gpsLatStr, String gpsLongStr, String callAddress,
+			String callType, String gpsLatStr, String gpsLongStr, String callAddress,
 			String callMapAddress, String callOutUnits, String callOutStatus,
 			final String calloutMsg) {
 		lastCallout = new FireHallCallout(
-				callOutId, callKeyId, gpsLatStr,gpsLongStr, callAddress,
+				callOutId, callKeyId, callType, gpsLatStr,gpsLongStr, callAddress,
 				callMapAddress, callOutUnits, callOutStatus);
 		
 		runOnUiThread(new Runnable() {
@@ -1378,6 +1429,7 @@ public class AppMainActivity extends ActionBarActivity implements
 
 		    	mDisplay = (TextView) findViewById(R.id.display);
 		    	mDisplay.setText(calloutMsg);
+		    	mDisplay.setMovementMethod(new ScrollingMovementMethod());
 		    	
 		    	playSound(context,FireHallSoundPlayer.SOUND_PAGER_TONE_PG);
 		    	
@@ -1401,6 +1453,8 @@ public class AppMainActivity extends ActionBarActivity implements
 		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
 		            btnCancelCall.setVisibility(View.VISIBLE);
 		            btnCancelCall.setEnabled(true);
+		            
+		            showFragment(R.id.map);
 		    	}
 		    	else {
 		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
@@ -1410,6 +1464,8 @@ public class AppMainActivity extends ActionBarActivity implements
 		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
 		            btnCancelCall.setVisibility(View.VISIBLE);
 		            btnCancelCall.setEnabled(false);
+		            
+		            hideFragment(R.id.map);
 		    	}
 		   }
 		});
@@ -1509,13 +1565,13 @@ public class AppMainActivity extends ActionBarActivity implements
                 	context.startActivity(intent);
                 }
                 catch(ActivityNotFoundException innerEx) {
-                	Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", innerEx);
+                	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", innerEx);
                     Toast.makeText(this, "Please install a maps application", Toast.LENGTH_LONG).show();
                 }
         	}
 		} 
 		catch (UnsupportedEncodingException e) {
-			Log.e(Utils.TAG, Utils.getLineNumber() + ": Error", e);
+			Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", e);
 			Toast.makeText(this, "UnsupportedEncodingException: " + 
 								e.getMessage(), Toast.LENGTH_LONG).show();
 		}
@@ -1649,17 +1705,105 @@ public class AppMainActivity extends ActionBarActivity implements
 
 	@Override
     public void onLocationChanged(Location location) {
-		//this.location = location;
-		// Report to the UI that the location was updated
-		//Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner onLocationChanged.");
-		
-		// Debug GPS values
-//        String msg = "Updated GPS Location: " +
-//                Double.toString(location.getLatitude()) + "," +
-//                Double.toString(location.getLongitude());
-//        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-		
-		lastTrackedGEOLocation = location;
+		try {
+			//this.location = location;
+			// Report to the UI that the location was updated
+			//Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner onLocationChanged.");
+			
+			lastTrackedGEOLocation = location;
+			if(lastTrackedGEOLocation != null && map != null) {
+				//Toast.makeText(this, "GPS location was found!", Toast.LENGTH_SHORT).show();
+				
+				//LatLng latLng = new LatLng(lastTrackedGEOLocation.getLatitude(), 
+				//							lastTrackedGEOLocation.getLongitude());
+				//CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
+				
+				if(auth != null) {
+					//if(isFragmentVisible(R.id.map) == false) {
+					//	showFragment(R.id.map);
+					//}
+					if(isFragmentVisible(R.id.map)) {
+						map.clear();
+						List<Marker> markers = new ArrayList<Marker>();
+						
+						// Add current user location
+						MarkerOptions currentUserMarkerOptions = new MarkerOptions();
+						currentUserMarkerOptions.position(
+								new LatLng(lastTrackedGEOLocation.getLatitude(), 
+											lastTrackedGEOLocation.getLongitude()));
+						currentUserMarkerOptions.draggable(false);
+						currentUserMarkerOptions.title(auth.getUserId());
+						currentUserMarkerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+						Marker currentUserMarker = map.addMarker(currentUserMarkerOptions);
+						//currentUserMarker.showInfoWindow();
+						markers.add(currentUserMarker);
+	
+						// Add Callout Info to map
+						if(lastCallout != null) {
+							mapFragment.setMenuVisibility(true);
+						}
+						// Add callout location
+						if(lastCallout != null && lastCallout.getGPSLat() != null &&
+								lastCallout.getGPSLat().isEmpty() == false &&
+								lastCallout.getGPSLong() != null &&
+								lastCallout.getGPSLong().isEmpty() == false) {
+							MarkerOptions currentCalloutMarkerOptions = new MarkerOptions();
+							currentCalloutMarkerOptions.position(
+									new LatLng(Double.valueOf(lastCallout.getGPSLat()), 
+											Double.valueOf(lastCallout.getGPSLong())));
+							currentCalloutMarkerOptions.draggable(false);
+							if(lastCallout.getAddress() != null) {
+								currentCalloutMarkerOptions.title(lastCallout.getAddress());
+							}
+							else {
+								currentCalloutMarkerOptions.title("Destination");
+							}
+							if(lastCallout.getCalloutType() != null) {
+								currentCalloutMarkerOptions.snippet(lastCallout.getCalloutType());
+							}
+							currentCalloutMarkerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+							Marker currentCalloutMarker = map.addMarker(currentCalloutMarkerOptions);
+							currentCalloutMarker.showInfoWindow();
+							markers.add(currentCalloutMarker);
+						}
+						
+						// Add Firehall location
+						if(auth.getFireHallGeoLatitude() != null &&
+							auth.getFireHallGeoLatitude().isEmpty() == false &&
+							auth.getFireHallGeoLongitude() != null &&
+							auth.getFireHallGeoLongitude().isEmpty() == false) {
+							
+							MarkerOptions firehallMarkerOptions = new MarkerOptions();
+							firehallMarkerOptions.position(
+									new LatLng(Double.valueOf(auth.getFireHallGeoLatitude()), 
+												Double.valueOf(auth.getFireHallGeoLongitude())));
+							firehallMarkerOptions.draggable(false);
+							firehallMarkerOptions.title("Firehall");
+							firehallMarkerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+							Marker firehallMarker = map.addMarker(firehallMarkerOptions);
+							//firehallMarker.showInfoWindow();
+							markers.add(firehallMarker);
+						}
+						
+						LatLngBounds.Builder builder = new LatLngBounds.Builder();
+						for (Marker marker : markers) {
+						    builder.include(marker.getPosition());
+						}
+						LatLngBounds bounds = builder.build();
+						
+						int padding = 150; // offset from edges of the map in pixels
+						CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+						map.moveCamera(cameraUpdate);
+						map.animateCamera(cameraUpdate);
+					}
+				}
+			}
+		}
+        catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			Log.e(Utils.TAG, Utils.getLineNumber() + ": ****** Rip Runner Error ******", e);
+		} 
 	}
 
 	double getLastGPSLatitude() {
@@ -1676,6 +1820,32 @@ public class AppMainActivity extends ActionBarActivity implements
 
         double lng = lastTrackedGEOLocation.getLongitude();
         return lng;
+	}
+
+	private void showFragment(int id) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(id);
+        if(fragment != null) {
+        	fragment.getFragmentManager().beginTransaction()
+		        //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+		        .show(fragment)
+		        .commit();
+        }
+	}
+	private void hideFragment(int id) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(id);
+        if(fragment != null) {
+        	fragment.getFragmentManager().beginTransaction()
+		        //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+		        .hide(fragment)
+		        .commit();
+        }
+	}
+	private boolean isFragmentVisible(int id) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(id);
+        if(fragment != null) {
+        	return fragment.isVisible();
+        }
+        return false;
 	}
 	
 }

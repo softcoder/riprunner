@@ -29,14 +29,14 @@
     
     <string name="clear">Clear</string>
     <string name="map">Map</string>
-    <string name="respond">Respond</string>
+    <string name="respond">Responding</string>
     
-    <string name="login_success">Logged in successfully.</string>
+    <string name="login_success">Logged in successfully:</string>
     <string name="waiting_for_callout">Waiting for callout...</string>
     <string name="callout_respond_success">You are responding!</string>
     <string name="complete_call">End Callout</string>
     <string name="cancel_call">Cancel Callout</string>
-    <string name="call_details">Call Details</string>
+    <string name="call_details">Callout Detail</string>
         
     <string name="dialog_title_question">Confirmation</string>
     

@@ -1359,16 +1359,16 @@ containing a value of this type.
         public static final int action_bar_root=0x7f07002a;
         public static final int action_bar_subtitle=0x7f070033;
         public static final int action_bar_title=0x7f070032;
-        public static final int action_clear=0x7f070060;
+        public static final int action_clear=0x7f070061;
         public static final int action_context_bar=0x7f07002d;
-        public static final int action_logout=0x7f07005f;
-        public static final int action_mapmygps=0x7f070061;
+        public static final int action_logout=0x7f070060;
+        public static final int action_mapmygps=0x7f070062;
         public static final int action_menu_divider=0x7f070016;
         public static final int action_menu_presenter=0x7f070017;
         public static final int action_mode_bar=0x7f070041;
         public static final int action_mode_bar_stub=0x7f070040;
         public static final int action_mode_close_button=0x7f070034;
-        public static final int action_settings=0x7f070062;
+        public static final int action_settings=0x7f070063;
         public static final int activity_chooser_view_content=0x7f070035;
         public static final int always=0x7f07000b;
         public static final int beginning=0x7f070011;
@@ -1376,7 +1376,7 @@ containing a value of this type.
         public static final int btnCallDetails=0x7f07005b;
         public static final int btnCancelCall=0x7f07005d;
         public static final int btnCompleteCall=0x7f07005c;
-        public static final int btnLogin=0x7f070058;
+        public static final int btnLogin=0x7f070057;
         public static final int btnMap=0x7f070059;
         public static final int btnRespond=0x7f07005a;
         public static final int buyButton=0x7f070020;
@@ -1409,6 +1409,7 @@ containing a value of this type.
         public static final int left_icon=0x7f070043;
         public static final int listMode=0x7f070001;
         public static final int list_item=0x7f070039;
+        public static final int map=0x7f07005f;
         public static final int match_parent=0x7f070022;
         public static final int middle=0x7f070012;
         public static final int monochrome=0x7f070029;
@@ -1446,7 +1447,7 @@ containing a value of this type.
         public static final int title=0x7f07003b;
         public static final int title_container=0x7f070042;
         public static final int top_action_bar=0x7f070030;
-        public static final int txtMsg=0x7f070057;
+        public static final int txtMsg=0x7f070058;
         public static final int up=0x7f070031;
         public static final int useLogo=0x7f070003;
         public static final int withText=0x7f07000c;

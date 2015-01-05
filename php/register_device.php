@@ -122,7 +122,10 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 			}
 			
 			if($row = $sql_result->fetch_object()) {
-				$register_result .= '|' . $row->id . '|';
+				$register_result .= '|' . $row->id . '|' . 
+									$FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LATITUDE . 
+									',' . 
+									$FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LONGITUDE . '|';
 				echo $register_result;
 				
 				$callDateTimeNative = $row->calltime;
@@ -194,7 +197,10 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 			else {
 				$sql_result->close();
 				
-				$register_result .= '|?|';
+				$register_result .= '|?|' . 
+									$FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LATITUDE . 
+									',' . 
+									$FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LONGITUDE . '|';
 				echo $register_result;
 
 				$loginMsg = 'GCM_LOGINOK';

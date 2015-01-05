@@ -321,16 +321,16 @@ int id action_bar_overlay_layout 0x7f07002f
 int id action_bar_root 0x7f07002a
 int id action_bar_subtitle 0x7f070033
 int id action_bar_title 0x7f070032
-int id action_clear 0x7f070060
+int id action_clear 0x7f070061
 int id action_context_bar 0x7f07002d
-int id action_logout 0x7f07005f
-int id action_mapmygps 0x7f070061
+int id action_logout 0x7f070060
+int id action_mapmygps 0x7f070062
 int id action_menu_divider 0x7f070016
 int id action_menu_presenter 0x7f070017
 int id action_mode_bar 0x7f070041
 int id action_mode_bar_stub 0x7f070040
 int id action_mode_close_button 0x7f070034
-int id action_settings 0x7f070062
+int id action_settings 0x7f070063
 int id activity_chooser_view_content 0x7f070035
 int id always 0x7f07000b
 int id beginning 0x7f070011
@@ -338,7 +338,7 @@ int id book_now 0x7f070026
 int id btnCallDetails 0x7f07005b
 int id btnCancelCall 0x7f07005d
 int id btnCompleteCall 0x7f07005c
-int id btnLogin 0x7f070058
+int id btnLogin 0x7f070057
 int id btnMap 0x7f070059
 int id btnRespond 0x7f07005a
 int id buyButton 0x7f070020
@@ -371,6 +371,7 @@ int id image 0x7f070037
 int id left_icon 0x7f070043
 int id listMode 0x7f070001
 int id list_item 0x7f070039
+int id map 0x7f07005f
 int id match_parent 0x7f070022
 int id middle 0x7f070012
 int id monochrome 0x7f070029
@@ -408,7 +409,7 @@ int id terrain 0x7f070019
 int id title 0x7f07003b
 int id title_container 0x7f070042
 int id top_action_bar 0x7f070030
-int id txtMsg 0x7f070057
+int id txtMsg 0x7f070058
 int id up 0x7f070031
 int id useLogo 0x7f070003
 int id withText 0x7f07000c

@@ -22,63 +22,72 @@
                   android:layout_height="fill_parent"
                   android:orientation="vertical">
                   
-    <LinearLayout android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" >
-           
-            <EditText
-                android:id="@+id/etFhid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="textAutoComplete"
-                android:text="@string/firehallid" >
-
-                <requestFocus />
-            </EditText>
-
-            <EditText
-                android:id="@+id/etUid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="11"
-                android:inputType="textAutoComplete"
-                android:text="@string/userid" />
-
-            <EditText
-                android:id="@+id/etUpw"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="12"
-                android:inputType="textAutoComplete|textWebPassword"
-                android:text="" />
-
-            <TextView
-                android:id="@+id/txtMsg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/login_credentials"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-
-    </LinearLayout>            
+	    <LinearLayout android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:orientation="vertical" >
+	           
+	            <EditText
+	                android:id="@+id/etFhid"
+	                android:layout_width="match_parent"
+	                android:layout_height="wrap_content"
+	                android:ems="10"
+	                android:inputType="textAutoComplete"
+	                android:text="@string/firehallid" >
+	
+	                <requestFocus />
+	            </EditText>
+	
+	            <EditText
+	                android:id="@+id/etUid"
+	                android:layout_width="match_parent"
+	                android:layout_height="wrap_content"
+	                android:ems="11"
+	                android:inputType="textAutoComplete"
+	                android:text="@string/userid" />
+	
+				<LinearLayout android:layout_width="match_parent"
+				        android:layout_height="match_parent"
+				        android:orientation="horizontal" >
+	                            
+		            <EditText
+		                android:id="@+id/etUpw"
+		                android:layout_width="247dp"
+		                android:layout_height="wrap_content"
+		                android:layout_toLeftOf="@+id/btnLogin"
+		                android:ems="12"
+		                android:inputType="textAutoComplete|textWebPassword"
+		                android:maxWidth="50dp"
+		                android:minWidth="50dp"
+		                android:text="" />
+		
+		            <Button
+		                android:id="@+id/btnLogin"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:minHeight="30dp"
+		                android:onClick="onClick"
+		                android:text="@string/login" />
+	
+	            </LinearLayout>
+	            
+	            <TextView
+	                android:id="@+id/txtMsg"
+	                android:layout_width="match_parent"
+	                android:layout_height="wrap_content"
+	                android:text="@string/login_credentials" />
+	
+	    </LinearLayout>            
         
         <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
 
-            <Button
-                android:id="@+id/btnLogin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onClick"
-                android:text="@string/login" />
-            
             <Button
                 android:id="@+id/btnMap"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.15"
                 android:onClick="onClick"
                 android:text="@string/map" />
 
@@ -88,15 +97,15 @@
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
                 android:text="@string/respond" />
-        
+
             <Button
                 android:id="@+id/btnCallDetails"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
                 android:text="@string/call_details" />
-            
         </LinearLayout>
+
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -118,11 +127,27 @@
 
             
         </LinearLayout>
+        
         <TextView
-                android:id="@+id/display"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"/>
+            android:id="@+id/display"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" 
+            android:scrollbars="vertical"
+            android:maxLines="10"/>
+    
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="425dp" >
 
+	        <fragment
+	            android:id="@+id/map"
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent"
+	            class="com.google.android.gms.maps.SupportMapFragment" />
+            
+        </LinearLayout>
+        
     </LinearLayout>
 
+    
 </ScrollView>

@@ -81,10 +81,15 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 			if(isset($callKey) == false || $callKey == '') {
 				$callKey = '?';
 			}
+			
+			$callType = convertCallOutTypeToText($callCode);
+			
+						
 				
 			$message = array("CALLOUT_MSG" => urlencode($smsMsg),
 					"call-id"  => urlencode($callout_id),
 					"call-key-id"  => urlencode($callKey),
+					"call-type"  => urlencode($callCode . ' - ' . $callType),
 					"call-gps-lat"  => urlencode($callGPSLat),
 					"call-gps-long"  => urlencode($callGPSLong),
 					"call-address"  => urlencode($callAddress),

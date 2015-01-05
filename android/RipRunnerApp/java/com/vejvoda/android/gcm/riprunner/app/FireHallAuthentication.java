@@ -12,6 +12,8 @@ public class FireHallAuthentication {
 	String user_id;
 	String user_password;
 	String gcm_registration_id;
+	String firehall_geo_lat;
+	String firehall_geo_long;
 	boolean registered_backend;
 	
 	public FireHallAuthentication(String hostURL, String firehall_id, 
@@ -50,4 +52,18 @@ public class FireHallAuthentication {
 	public void setGCMRegistrationId(String id) {
 		gcm_registration_id = id;
 	}
+	
+	public void setFireHallGeoLatitude(String value) {
+		firehall_geo_lat = value;
+	}
+	public String getFireHallGeoLatitude() {
+		return firehall_geo_lat;
+	}
+	public void setFireHallGeoLongitude(String value) {
+		firehall_geo_long = value;
+	}
+	public String getFireHallGeoLongitude() {
+		return firehall_geo_long;
+	}
+	
 }

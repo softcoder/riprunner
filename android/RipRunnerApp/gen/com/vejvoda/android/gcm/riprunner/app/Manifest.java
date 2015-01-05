@@ -17,5 +17,6 @@ public final class Manifest {
     
          */
         public static final String C2D_MESSAGE="com.vejvoda.android.gcm.riprunner.app.permission.C2D_MESSAGE";
+        public static final String MAPS_RECEIVE="com.vejvoda.android.gcm.riprunner.app.permission.MAPS_RECEIVE";
     }
 }

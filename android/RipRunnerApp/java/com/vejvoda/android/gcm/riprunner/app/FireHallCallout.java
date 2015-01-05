@@ -8,6 +8,7 @@ package com.vejvoda.android.gcm.riprunner.app;
 public class FireHallCallout {
 	String calloutId;
 	String calloutKeyId;
+	String calloutType;
 	String gpsLat;
 	String gpsLong;
 	String address;
@@ -15,11 +16,12 @@ public class FireHallCallout {
 	String units;
 	String status;
 	
-	public FireHallCallout(String calloutId, String calloutKeyId, 
+	public FireHallCallout(String calloutId, String calloutKeyId, String calloutType, 
 			 String gpsLat, String gpsLong, String address, String mapAddress, 
 			 	String units, String status) {
 		 this.calloutId = calloutId;
 		 this.calloutKeyId = calloutKeyId;
+		 this.calloutType = calloutType;
 		 this.gpsLat = gpsLat;
 		 this.gpsLong = gpsLong;
 		 this.address = address;
@@ -33,6 +35,9 @@ public class FireHallCallout {
 	}
 	public String getCalloutKeyId() {
 		 return calloutKeyId;
+	}
+	public String getCalloutType() {
+		return calloutType;
 	}
 	public String getGPSLat() {
 		 return gpsLat;

@@ -181,10 +181,15 @@ public class AppMainBroadcastReceiver extends BroadcastReceiver {
 		if(callMapAddress == null || callMapAddress.equals("?")) {
 			callMapAddress = "";
 		}
-		
+		String callType = "?";
+		if(json.has("call-type")) {
+			callType = URLDecoder.decode(json.getString("call-type"), "utf-8");
+		}
+				
 		getMainApp().processCalloutTrigger(
 				URLDecoder.decode(json.getString("call-id"), "utf-8"),
 				callKeyId,
+				callType,
 				gpsLatStr,gpsLongStr,
 				callAddress,
 				callMapAddress,
