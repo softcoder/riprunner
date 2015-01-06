@@ -40,8 +40,8 @@ System Requirements:
 - An email account that recieves Callout information during a 911 page
 - A webserver that can run PHP 5.x
 - A MySQL database to install the Rip Runner Schema
-- A Registered Account on an SMS Gateway Provider (Twilio,Sendhub,EzTexting,TextBelt)
-- A Google Maps API key
+- A Registered Account on an SMS Gateway Provider (Twilio (recommended),Sendhub,EzTexting,TextBelt)
+- A Google Maps API key: https://developers.google.com/maps/documentation/javascript/tutorial#api_key (one key for server applications and one for android apps)
 - Optional: If using the experimental Android app, you need a Google Apps Engine (GAE) Project # (see http://developer.android.com/google/gcm/gs.html)
 
 Screenshots:
