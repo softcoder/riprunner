@@ -64,6 +64,7 @@
 		                android:id="@+id/btnLogin"
 		                android:layout_width="wrap_content"
 		                android:layout_height="wrap_content"
+		                android:background="@drawable/rounded_button"
 		                android:minHeight="30dp"
 		                android:onClick="onClick"
 		                android:text="@string/login" />
@@ -74,6 +75,8 @@
 	                android:id="@+id/txtMsg"
 	                android:layout_width="match_parent"
 	                android:layout_height="wrap_content"
+	                android:gravity="center"
+	                android:textColor="#0FF"
 	                android:text="@string/login_credentials" />
 	
 	    </LinearLayout>            
@@ -90,46 +93,65 @@
 	            <Button
 	                android:id="@+id/btnMap"
 	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_weight="0.15"
+	                android:layout_height="35dp"
+	                android:layout_weight="0.06"
+	                android:background="@drawable/rounded_button"
+	                android:gravity="center_vertical|center_horizontal"
 	                android:onClick="onClick"
-	                android:text="@string/map" />
+	                android:text="@string/map"
+	                android:textSize="16sp" />
 	
 	            <Button
 	                android:id="@+id/btnRespond"
 	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
+	                android:layout_height="35dp"
+	                android:layout_weight="0.03"
+	                android:background="@drawable/rounded_button"
+	                android:gravity="center_vertical|center_horizontal"
 	                android:onClick="onClick"
-	                android:text="@string/respond" />
+	                android:text="@string/respond"
+	                android:textSize="16sp" />
 	
 	            <Button
 	                android:id="@+id/btnCallDetails"
 	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
+	                android:layout_height="35dp"
+	                android:layout_weight="0.02"
+	                android:background="@drawable/rounded_button"
+	                android:gravity="center_vertical|center_horizontal"
 	                android:onClick="onClick"
-	                android:text="@string/call_details" />
+	                android:text="@string/call_details"
+	                android:textSize="16sp" />
+	            
 	        </LinearLayout>
 	
 	        <LinearLayout
-	                android:layout_width="match_parent"
-	                android:layout_height="wrap_content"
-	                android:orientation="horizontal">
-	
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:orientation="horizontal" >
+
 	            <Button
 	                android:id="@+id/btnCompleteCall"
 	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
+	                android:layout_height="35dp"
+	                android:layout_weight="0.73"
 	                android:onClick="onClick"
-	                android:text="@string/complete_call" />
-	
+	                android:text="@string/complete_call"
+	                android:gravity="center_vertical|center_horizontal"
+	                android:background="@drawable/rounded_button"
+	                android:textSize="16sp" />
+
 	            <Button
 	                android:id="@+id/btnCancelCall"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
+	                android:layout_width="154dp"
+	                android:layout_height="35dp"
+	                android:layout_weight="0.19"
+	                android:background="@drawable/rounded_button"
+	                android:gravity="center_vertical|center_horizontal"
 	                android:onClick="onClick"
-	                android:text="@string/cancel_call" />
-	
-	            
+	                android:text="@string/cancel_call"
+	                android:textSize="16sp" />
+
 	        </LinearLayout>
 	        
 	        <ScrollView
@@ -143,12 +165,12 @@
 	                android:id="@+id/display"
 	                android:layout_width="fill_parent"
 	                android:layout_height="fill_parent"
+	                android:textColor="#FF0"
 	                android:layout_weight="1.0" />
 	            
 	        </ScrollView>
 	        	        
         </LinearLayout>
-        
         
         <LinearLayout
             android:layout_width="fill_parent"

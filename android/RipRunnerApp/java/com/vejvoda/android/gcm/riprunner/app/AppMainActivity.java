@@ -433,6 +433,10 @@ public class AppMainActivity extends ActionBarActivity implements
         Button btnRespond = (Button)findViewById(R.id.btnRespond);
         btnRespond.setEnabled(false);
         btnRespond.setVisibility(View.INVISIBLE);
+
+        Button btnCallDetails = (Button)findViewById(R.id.btnCallDetails);
+        btnCallDetails.setEnabled(false);
+        btnCallDetails.setVisibility(View.INVISIBLE);
         
         Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
         btnCompleteCall.setEnabled(false);
@@ -454,13 +458,57 @@ public class AppMainActivity extends ActionBarActivity implements
         etUpw.setText("");
         etUpw.setVisibility(View.VISIBLE);
         
-        Button btnCallDetails = (Button)findViewById(R.id.btnCallDetails);
-        btnCallDetails.setEnabled(false);
-        btnCallDetails.setVisibility(View.INVISIBLE);
-        
         hideFragment(R.id.map);
     }
 
+    private void setupCalloutUI(String respondingUserId) {
+        Button btnMap = (Button)findViewById(R.id.btnMap);
+        btnMap.setEnabled(false);
+        btnMap.setVisibility(View.VISIBLE);
+
+        Button btnRespond = (Button)findViewById(R.id.btnRespond);
+        btnRespond.setVisibility(View.VISIBLE);
+        btnRespond.setEnabled(false);
+
+        Button btnCallDetails = (Button)findViewById(R.id.btnCallDetails);
+        btnCallDetails.setEnabled(false);
+        btnCallDetails.setVisibility(View.VISIBLE);
+        
+        Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+        btnCompleteCall.setEnabled(false);
+        btnCompleteCall.setVisibility(View.VISIBLE);
+
+        Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+        btnCancelCall.setEnabled(false);
+        btnCancelCall.setVisibility(View.VISIBLE);
+        
+    	if(lastCallout != null &&
+    		CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
+    		
+    		btnCallDetails.setEnabled(true);
+            btnCompleteCall.setEnabled(true);
+            btnCancelCall.setEnabled(true);
+            
+            if(respondingUserId == null || respondingUserId.isEmpty()) {
+            	btnRespond.setEnabled(true);
+            }
+            showFragment(R.id.map);
+    	}
+    	else {
+	    	if(lastCallout != null &&
+	        	CalloutStatusType.isComplete(lastCallout.getStatus())) {
+	        
+		        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
+		        txtMsg.setText(getResources().getString(R.string.waiting_for_callout));
+	    	}
+	    	hideFragment(R.id.map);
+    	}
+    	
+    	if(lastCallout != null) {
+    		btnMap.setEnabled(true);
+    	}
+    }
+    
     @Override
     protected void onStart() {
     	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner in onStart mLocationClient: " + (mGoogleApiClient == null ? "null" : mGoogleApiClient));
@@ -1109,17 +1157,17 @@ public class AppMainActivity extends ActionBarActivity implements
 		runOnUiThread(new Runnable() {
 		    public void run() {
 		    	
-		        Button btnLogin = (Button)findViewById(R.id.btnLogin);
-		        btnLogin.setEnabled(false);
-		        btnLogin.setVisibility(View.INVISIBLE);
-		    	
 		        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
 		        txtMsg.setText(getResources().getString(R.string.login_success) + 
 		        		" " + loggedOnUser);
 
 		        // Enable when debugging
 		        //mDisplay.setText(responseString);
-		        
+
+		        Button btnLogin = (Button)findViewById(R.id.btnLogin);
+		        btnLogin.setEnabled(false);
+		        btnLogin.setVisibility(View.GONE);
+	        
 		        EditText etFhid = (EditText)findViewById(R.id.etFhid);
 		        etFhid.setText("");
 		        etFhid.setVisibility(View.GONE);
@@ -1129,6 +1177,8 @@ public class AppMainActivity extends ActionBarActivity implements
 		        EditText etUpw = (EditText)findViewById(R.id.etUpw);
 		        etUpw.setText("");
 		        etUpw.setVisibility(View.GONE);
+
+		        setupCalloutUI(null);
 		        
 		        playSound(context,FireHallSoundPlayer.SOUND_LOGIN);
 		        
@@ -1417,35 +1467,38 @@ public class AppMainActivity extends ActionBarActivity implements
 		    	mDisplay.append("\n" + calloutMsg);
 		    	scrollToBottom(mDisplayScroll, mDisplay);
 
-		    	if(lastCallout != null &&
-		    		CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
-		    		
-		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-		            btnCompleteCall.setVisibility(View.VISIBLE);
-		            btnCompleteCall.setEnabled(true);
-
-		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
-		            btnCancelCall.setVisibility(View.VISIBLE);
-		            btnCancelCall.setEnabled(true);
-
-		            if(isUserLoggedOn(response_userId)) {
-				        Button btnRespond = (Button)findViewById(R.id.btnRespond);
-				        btnRespond.setVisibility(View.VISIBLE);
-				        btnRespond.setEnabled(false);
-		            }
-		    	}
-		    	else {
-		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-		            btnCompleteCall.setVisibility(View.VISIBLE);
-		            btnCompleteCall.setEnabled(false);
-		            
-		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
-		            btnCancelCall.setVisibility(View.VISIBLE);
-		            btnCancelCall.setEnabled(false);
-		            
-			        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-			        txtMsg.setText(getResources().getString(R.string.waiting_for_callout));
-		    	}
+		    	//!!!
+//		    	if(lastCallout != null &&
+//		    		CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
+//		    		
+//		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+//		            btnCompleteCall.setVisibility(View.VISIBLE);
+//		            btnCompleteCall.setEnabled(true);
+//
+//		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+//		            btnCancelCall.setVisibility(View.VISIBLE);
+//		            btnCancelCall.setEnabled(true);
+//
+//		            if(isUserLoggedOn(response_userId)) {
+//				        Button btnRespond = (Button)findViewById(R.id.btnRespond);
+//				        btnRespond.setVisibility(View.VISIBLE);
+//				        btnRespond.setEnabled(false);
+//		            }
+//		    	}
+//		    	else {
+//		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+//		            btnCompleteCall.setVisibility(View.VISIBLE);
+//		            btnCompleteCall.setEnabled(false);
+//		            
+//		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+//		            btnCancelCall.setVisibility(View.VISIBLE);
+//		            btnCancelCall.setEnabled(false);
+//		            
+//			        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
+//			        txtMsg.setText(getResources().getString(R.string.waiting_for_callout));
+//		    	}
+		    	
+		    	setupCalloutUI(response_userId);
 		    	
 		    	playSound(context,FireHallSoundPlayer.SOUND_DINGLING);
 		   }
@@ -1479,40 +1532,42 @@ public class AppMainActivity extends ActionBarActivity implements
 		    	
 		    	playSound(context,FireHallSoundPlayer.SOUND_PAGER_TONE_PG);
 		    	
-		        Button btnMap = (Button)findViewById(R.id.btnMap);
-		        btnMap.setVisibility(View.VISIBLE);
-		        btnMap.setEnabled(true);
-		        
-		        Button btnRespond = (Button)findViewById(R.id.btnRespond);
-		        btnRespond.setVisibility(View.VISIBLE);
-		        btnRespond.setEnabled(true);
-		        
-		        Button btnCallDetails = (Button)findViewById(R.id.btnCallDetails);
-		        btnCallDetails.setEnabled(true);
-		        btnCallDetails.setVisibility(View.VISIBLE);
-		        
-		    	if(CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
-	                Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-	                btnCompleteCall.setVisibility(View.VISIBLE);
-	                btnCompleteCall.setEnabled(true);
-	                
-		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
-		            btnCancelCall.setVisibility(View.VISIBLE);
-		            btnCancelCall.setEnabled(true);
-		            
-		            showFragment(R.id.map);
-		    	}
-		    	else {
-		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-		            btnCompleteCall.setVisibility(View.VISIBLE);
-		            btnCompleteCall.setEnabled(false);
-		            
-		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
-		            btnCancelCall.setVisibility(View.VISIBLE);
-		            btnCancelCall.setEnabled(false);
-		            
-		            hideFragment(R.id.map);
-		    	}
+//		        Button btnMap = (Button)findViewById(R.id.btnMap);
+//		        btnMap.setVisibility(View.VISIBLE);
+//		        btnMap.setEnabled(true);
+//		        
+//		        Button btnRespond = (Button)findViewById(R.id.btnRespond);
+//		        btnRespond.setVisibility(View.VISIBLE);
+//		        btnRespond.setEnabled(true);
+//		        
+//		        Button btnCallDetails = (Button)findViewById(R.id.btnCallDetails);
+//		        btnCallDetails.setEnabled(true);
+//		        btnCallDetails.setVisibility(View.VISIBLE);
+//		        
+//		    	if(CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
+//	                Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+//	                btnCompleteCall.setVisibility(View.VISIBLE);
+//	                btnCompleteCall.setEnabled(true);
+//	                
+//		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+//		            btnCancelCall.setVisibility(View.VISIBLE);
+//		            btnCancelCall.setEnabled(true);
+//		            
+//		            showFragment(R.id.map);
+//		    	}
+//		    	else {
+//		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
+//		            btnCompleteCall.setVisibility(View.VISIBLE);
+//		            btnCompleteCall.setEnabled(false);
+//		            
+//		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
+//		            btnCancelCall.setVisibility(View.VISIBLE);
+//		            btnCancelCall.setEnabled(false);
+//		            
+//		            hideFragment(R.id.map);
+//		    	}
+		    	
+		    	setupCalloutUI(null);
 		   }
 		});
 	}

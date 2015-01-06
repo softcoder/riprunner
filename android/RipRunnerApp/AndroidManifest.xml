@@ -93,7 +93,7 @@
         
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCOvivvScQeKA5IdCpR9XH42P5B9Vv2Cjg" />
+            android:value="insert your API key here" />
         
         <meta-data
             android:name="com.google.android.gms.version"

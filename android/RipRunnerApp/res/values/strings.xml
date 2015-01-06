@@ -34,7 +34,7 @@
     <string name="login_success">Logged in successfully:</string>
     <string name="waiting_for_callout">Waiting for callout...</string>
     <string name="callout_respond_success">You are responding!</string>
-    <string name="complete_call">End Callout</string>
+    <string name="complete_call">Complete Callout</string>
     <string name="cancel_call">Cancel Callout</string>
     <string name="call_details">Callout Detail</string>
         
