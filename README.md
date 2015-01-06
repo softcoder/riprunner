@@ -167,14 +167,10 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	// for details
 	$LOCAL_DEBUG_SMS = new FireHallSMS(
 		true,
-		//SMS_GATEWAY_TEXTBELT,
-		//SMS_GATEWAY_EZTEXTING,
-		SMS_GATEWAY_SENDHUB,
-		//SMS_GATEWAY_TWILIO, 
-		//'2505551212', false, true,		// TEXTBELT
-		//'svvfd', true, false, 				// EZTEXTING
-		'103740731333333333', true, false, 	// SENDHUB (The sendhub group id)
-		//'2505551212', false, true, 		// TWILIO
+		SMS_GATEWAY_TWILIO, 
+		'', 
+		false, 
+		true,
 		DEFAULT_SMS_PROVIDER_SENDHUB_BASE_URL, 
 		DEFAULT_SMS_PROVIDER_TEXTBELT_BASE_URL,
 		DEFAULT_SMS_PROVIDER_EZTEXTING_BASE_URL,
@@ -198,6 +194,7 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	$LOCAL_DEBUG_MOBILE = new FireHallMobile(
 	    true, 
 	    true,
+	    true,
 	    DEFAULT_GCM_SEND_URL,
 	    DEFAULT_GCM_API_KEY,
 	    DEFAULT_GCM_PROJECTID);
@@ -219,9 +216,29 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	$LOCAL_DEBUG_WEBSITE = new FireHallWebsite(
 	    'Local Test Fire Department',
 	    '5155 Salmon Valley Road, Prince George, BC',
+ 	    54.0916667,
+	    -122.6537361,
 	    'http://yourwebsite.com/riprunner/',
 	    DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY, 
-	    DEFAULT_WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION);
+	    $GOOGLE_MAP_CITY_LOOKUP);
+	
+	// ----------------------------------------------------------------------
+	// LDAP Settings
+	$LOCAL_DEBUG_LDAP = new FireHall_LDAP(
+			false,
+			'ldap://myhost.example.com',
+			null, null,
+			'dc=example,dc=com',
+			'ou=users,dc=example,dc=com',
+			'(|(uid=${login})(cn=${login})(mail=${login}@\*))',
+			'dn',
+			'sn',
+			'(&(objectClass=posixGroup)(cn=admin))',
+			'(&(objectClass=posixGroup)(cn=sms))',
+			'memberuid',
+			'mobile',
+			'uidnumber',
+			'uid');
 	
 	// ----------------------------------------------------------------------
 	// Main Firehall Configuration Container Settings
@@ -236,7 +253,8 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 		$LOCAL_DEBUG_EMAIL,
 		$LOCAL_DEBUG_SMS,
 		$LOCAL_DEBUG_WEBSITE,
-		$LOCAL_DEBUG_MOBILE);
+		$LOCAL_DEBUG_MOBILE,
+		$LOCAL_DEBUG_LDAP);
 	
 	// Add as many firehalls to the array as you desire to support
 	// This array is used through Rip Runner and lookups are done using the firehall id
