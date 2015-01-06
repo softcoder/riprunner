@@ -30,7 +30,12 @@ function login_ldap($FIREHALL, $user_id, $password, $db_connection) {
 	//$bind = @ldap_bind($ldap, $ldaprdn, $password) or die ("Error in bind: ".ldap_error($ldap));
 	
 	// Bind anonymously to the LDAP server to search and retrieve DN.
-	$bind = ldap_bind($ldap) or die("Could not bind anonymously.");
+	if(isset($FIREHALL->LDAP->LDAP_BIND_RDN)) {
+		$bind = ldap_bind($ldap,$FIREHALL->LDAP->LDAP_BIND_RDN,$FIREHALL->LDAP->LDAP_BIND_PASSWORD) or die("Could not bind anonymously.");
+	}
+	else {
+		$bind = ldap_bind($ldap) or die("Could not bind anonymously.");
+	}
 	
 	if($debug_functions) echo "LDAP AFTER bind..." . PHP_EOL;
 	
@@ -81,7 +86,9 @@ function login_ldap($FIREHALL, $user_id, $password, $db_connection) {
 	
 		// Search AD
 		//if($debug_functions) echo "GID FOUND: " . $gidNumber . PHP_EOL;
+
 		
+/*		
 		$filter="*";
         //$result = ldap_search($ldap,"dc=vejvoda,dc=com,",$filter,array("memberof","primarygroupid"));
 		//$result = ldap_search($ldap,"dc=vejvoda,dc=com (&(objectClass=posixGroup)(gidNumber=$gidNumber))",$filter);
@@ -97,14 +104,19 @@ function login_ldap($FIREHALL, $user_id, $password, $db_connection) {
 		$result = ldap_search($ldap,$FIREHALL->LDAP->LDAP_BASEDN,$search_filter);
 		
 		//echo "TESTING 123" . PHP_EOL;
-		//var_dump($result);
+		if($debug_functions) echo "Admin Group results:" . PHP_EOL;
+		if($debug_functions) var_dump($result);
 		
         ldap_sort($ldap,$result,$FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
 	    $info = ldap_get_entries($ldap, $result);
-	
+
+	    if($debug_functions) echo "Admin sorted results:" . PHP_EOL;
+	    if($debug_functions) var_dump($info);
+	     
 	    $userAccess = 0;
 	    for ($i=0; $i<$info["count"]; $i++) {
-	    	//var_dump($info[$i]);
+	    	if($debug_functions) echo "Admin sorted result #:" . $i . PHP_EOL;
+	    	if($debug_functions) var_dump($info[$i]);
 	    	
 	    	$user_found_in_group = false;
 	    	if(isset($info[$i]) && 
@@ -114,9 +126,11 @@ function login_ldap($FIREHALL, $user_id, $password, $db_connection) {
 	    		unset($members['count']);
 	    		
 	    		foreach($members as $member) {
-	    			if($debug_functions) echo "searching for admin group users found: $member" . PHP_EOL;
+	    			if($debug_functions) echo "searching for admin group users found: [$member] looking for [$user_id]" . PHP_EOL;
 	    			
-	    			if($member == $user_id) {
+	    			if($member == $user_id || $member == $userDn) {
+	    				if($debug_functions) echo "Found admin group user: [$member]" . PHP_EOL;
+	    				
 	    				$user_found_in_group = true;
 	    				$userAccess |= USER_ACCESS_ADMIN;
 	    				break;
@@ -156,7 +170,9 @@ function login_ldap($FIREHALL, $user_id, $password, $db_connection) {
 	    		foreach($members as $member) {
 	    			if($debug_functions) echo "searching for sms group users found: $member" . PHP_EOL;
 	    			
-	    			if($member == $user_id) {
+	    			if($member == $user_id || $member == $userDn) {
+	    				if($debug_functions) echo "Found sms group user: [$member]" . PHP_EOL;
+	    				
 	    				$user_found_in_group = true;
 	    				$userAccess |= USER_ACCESS_SIGNAL_SMS;
 	    				break;
@@ -167,7 +183,10 @@ function login_ldap($FIREHALL, $user_id, $password, $db_connection) {
 	    		}
 	    	}
 	    }
-	    	     
+*/
+
+		$userAccess = ldap_get_user_access($FIREHALL, $ldap, $user_id, $userDn);
+		
 	    //!!
 	    // Password is correct!
 	    // Get the user-agent string of the user.
@@ -184,10 +203,14 @@ function login_ldap($FIREHALL, $user_id, $password, $db_connection) {
 	    //$_SESSION['user_access'] = $userAccess;
 	    $_SESSION['user_access'] = $userAccess;
 	    
+	    if($debug_functions) echo "LDAP user access: $userAccess". PHP_EOL;
+	    
 	    // Login successful.
 	    if($debug_functions) echo "LDAP LOGIN OK". PHP_EOL;
 	    	     
 		@ldap_close($ldap);
+		
+		// Enable for DEBUGGING
 		//die("FORCE EXIT!");
 		
 		return true;
@@ -204,6 +227,104 @@ function login_ldap($FIREHALL, $user_id, $password, $db_connection) {
 	}
 	
    	return false;
+}
+
+function ldap_get_user_access($FIREHALL, $ldap, $user_id, $userDn) {
+	$debug_functions = false;
+	
+	// Default user access to 0
+	$userAccess = 0;
+	
+	// Check if user has admin access
+	$str_group_filter = $FIREHALL->LDAP->LDAP_LOGIN_ADMIN_GROUP_FILTER;
+	//echo "#1 search filter [$search_filter]" . PHP_EOL;
+	
+	//$search_filter = str_replace( '${login}', $user_id, $str_group_filter );
+	$search_filter = $str_group_filter;
+	//echo "#2 search filter [$search_filter]" . PHP_EOL;
+	$result = ldap_search($ldap,$FIREHALL->LDAP->LDAP_BASEDN,$search_filter);
+	
+	//echo "TESTING 123" . PHP_EOL;
+	if($debug_functions) echo "Admin Group results:" . PHP_EOL;
+	if($debug_functions) var_dump($result);
+	
+	ldap_sort($ldap,$result,$FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
+	$info = ldap_get_entries($ldap, $result);
+	
+	if($debug_functions) echo "Admin sorted results:" . PHP_EOL;
+	if($debug_functions) var_dump($info);
+		
+	for ($i=0; $i<$info["count"]; $i++) {
+		if($debug_functions) echo "Admin sorted result #:" . $i . PHP_EOL;
+		if($debug_functions) var_dump($info[$i]);
+	
+		$user_found_in_group = false;
+		if(isset($info[$i]) &&
+		isset($info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME])) {
+			 
+			$members = $info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME];
+			unset($members['count']);
+			 
+			foreach($members as $member) {
+				if($debug_functions) echo "searching for admin group users found: [$member] looking for [$user_id]" . PHP_EOL;
+	
+				if($member == $user_id || $member == $userDn) {
+					if($debug_functions) echo "Found admin group user: [$member]" . PHP_EOL;
+		    
+					$user_found_in_group = true;
+					$userAccess |= USER_ACCESS_ADMIN;
+					break;
+				}
+			}
+			if($user_found_in_group) {
+				break;
+			}
+		}
+	}
+	 
+	// Check if user has sms access
+	$str_group_filter = $FIREHALL->LDAP->LDAP_LOGIN_SMS_GROUP_FILTER;
+	//echo "#1 search filter [$search_filter]" . PHP_EOL;
+	 
+	//$search_filter = str_replace( '${login}', $user_id, $str_group_filter );
+	$search_filter = $str_group_filter;
+	//echo "#2 search filter [$search_filter]" . PHP_EOL;
+	$result = ldap_search($ldap,$FIREHALL->LDAP->LDAP_BASEDN,$search_filter);
+	 
+	//echo "TESTING 123" . PHP_EOL;
+	//var_dump($result);
+	 
+	ldap_sort($ldap,$result,$FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
+	$info = ldap_get_entries($ldap, $result);
+	
+	for ($i=0; $i<$info["count"]; $i++) {
+		//var_dump($info[$i]);
+	
+		$user_found_in_group = false;
+		if(isset($info[$i]) &&
+		isset($info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME])) {
+			 
+			$members = $info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME];
+			unset($members['count']);
+			 
+			foreach($members as $member) {
+				if($debug_functions) echo "searching for sms group users found: $member" . PHP_EOL;
+	
+				if($member == $user_id || $member == $userDn) {
+					if($debug_functions) echo "Found sms group user: [$member]" . PHP_EOL;
+		    
+					$user_found_in_group = true;
+					$userAccess |= USER_ACCESS_SIGNAL_SMS;
+					break;
+				}
+			}
+			if($user_found_in_group) {
+				break;
+			}
+		}
+	}
+	
+	return $userAccess;
 }
 
 function login_check_ldap($db_connection) {
@@ -260,7 +381,12 @@ function get_sms_recipients_ldap($FIREHALL) {
 	//$bind = @ldap_bind($ldap, $ldaprdn, $password) or die ("Error in bind: ".ldap_error($ldap));
 	
 	// Bind anonymously to the LDAP server to search and retrieve DN.
-	$bind = ldap_bind($ldap) or die("Could not bind anonymously.");
+	if(isset($FIREHALL->LDAP->LDAP_BIND_RDN)) {
+		$bind = ldap_bind($ldap,$FIREHALL->LDAP->LDAP_BIND_RDN,$FIREHALL->LDAP->LDAP_BIND_PASSWORD) or die("Could not bind anonymously.");
+	}
+	else {
+		$bind = ldap_bind($ldap) or die("Could not bind anonymously.");
+	}
 	
 	if($debug_functions) echo "LDAP AFTER bind..." . PHP_EOL;
 	
@@ -396,7 +522,12 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 	
 		// Bind anonymously to the LDAP server to search and retrieve DN.
-		$bind = ldap_bind($ldap) or die("Could not bind anonymously.");
+		if(isset($FIREHALL->LDAP->LDAP_BIND_RDN)) {
+			$bind = ldap_bind($ldap,$FIREHALL->LDAP->LDAP_BIND_RDN,$FIREHALL->LDAP->LDAP_BIND_PASSWORD) or die("Could not bind anonymously.");
+		}
+		else {
+			$bind = ldap_bind($ldap) or die("Could not bind anonymously.");
+		}
 	
 		if($debug_functions) echo "LDAP AFTER bind..." . PHP_EOL;
 	
@@ -419,6 +550,10 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 					$username = $info[$i][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME];
 					unset($username['count']);
 
+					$userDn = $info[$i][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
+					//unset($userDn['count']);
+					//echo "User DN #$i [$userDn]" .PHP_EOL;
+					
 					$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
 					unset($user_id_number['count']);
 
@@ -428,10 +563,12 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 						unset($sms_value['count']);
 					}
 
+					$userAccess = ldap_get_user_access($FIREHALL, $ldap, $username[0], $userDn);
+					
 					//echo "INSERT: $username[0]" . PHP_EOL;
 					$sql = "INSERT IGNORE INTO `ldap_user_accounts` 
 							(`id`,`firehall_id`,`user_id`,`mobile_phone`,`access`)
-							values($user_id_number[0],$FIREHALL->FIREHALL_ID,'$username[0]','$sms_value[0]',0);";
+							values($user_id_number[0],$FIREHALL->FIREHALL_ID,'$username[0]','$sms_value[0]',$userAccess);";
 					
 					$sql_result = $db_connection->query( $sql );
 					

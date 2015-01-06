@@ -216,6 +216,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_LDAP = new FireHall_LDAP(
 			false,
 			'ldap://myhost.example.com',
+			null, null,
 			'dc=example,dc=com',
 			'ou=users,dc=example,dc=com',
 			'(|(uid=${login})(cn=${login})(mail=${login}@\*))',

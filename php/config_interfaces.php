@@ -175,6 +175,10 @@
 		public $ENABLED;
 		// The ldap connect url
 		public $LDAP_SERVERNAME;
+		// The ldap bind root dn (or null if anonymous binds allowed) 
+		public $LDAP_BIND_RDN;
+		// The ldap bind password (or null if anonymous binds allowed)
+		public $LDAP_BIND_PASSWORD;
 		// The ldap base bind dn
 		public $LDAP_BASEDN;
 		// The ldap bind user accounts dn
@@ -198,13 +202,16 @@
 		// The ldap user name attribute name
 		public $LDAP_USER_NAME_ATTR_NAME;
 				
-		public function __construct($enabled,$name,$dn,$user_dn,$login_filter, 
+		public function __construct($enabled,$name,$bind_rdn,$bind_password,$dn,
+									$user_dn,$login_filter, 
 									$user_dn_attr, 
 				                    $user_sort_attr, $user_admin_group_filter_attr,
 									$user_sms_group_filter_attr, $group_member_of_attr,
 									$user_sms_attr, $user_id_attr, $user_name_attr) {
 			$this->ENABLED = $enabled;
 			$this->LDAP_SERVERNAME = $name;
+			$this->LDAP_BIND_RDN = $bind_rdn;
+			$this->LDAP_BIND_PASSWORD = $bind_password;
 			$this->LDAP_BASEDN = $dn;
 			$this->LDAP_BASE_USERDN = $user_dn;
 			$this->LDAP_LOGIN_FILTER = $login_filter;
