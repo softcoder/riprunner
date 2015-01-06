@@ -132,7 +132,7 @@ if(isset($firehall_id) && isset($callout_id) &&
 						$responding_people .= ',' . PHP_EOL;
 					}
 					$responding_people .= "['". $row->user_id ."', ". $row->latitude .", ". $row->longitude ."]";
-					
+						
 					if($responding_people_icons != '') {
 						$responding_people_icons .= ',' . PHP_EOL;
 					}
@@ -436,7 +436,33 @@ if(isset($firehall_id) && isset($callout_id) &&
 						echo $html_output;
 					}
 					else {
-						echo "OK=" . $callout_tracking_id;
+						// Get the latest GEO coordinates for each responding member
+						$sql = 'SELECT a.useracctid, a.calloutid, a.latitude,a.longitude, b.user_id ' .
+								' FROM callouts_geo_tracking a ' .
+								' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
+								' WHERE firehall_id = \'' .
+								$db_connection->real_escape_string( $firehall_id ) . '\'' .
+								' AND a.calloutid = ' . $db_connection->real_escape_string( $callout_id ) .
+								' AND a.trackingtime = (SELECT MAX(a1.trackingtime) FROM callouts_geo_tracking a1 WHERE a.calloutid = a1.calloutid AND a.useracctid = a1.useracctid)' .
+								' ORDER BY a.useracctid,a.trackingtime DESC;';
+						$sql_result = $db_connection->query( $sql );
+						if($sql_result == false) {
+							if($debug_registration) echo "E3bx";
+						
+							printf("Error: %s\n", mysqli_error($db_connection));
+							throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+						}
+						
+						$responding_people_geo_list = '';
+						while($row = $sql_result->fetch_object()) {
+							if($responding_people_geo_list != '') {
+								$responding_people_geo_list .= '^' . PHP_EOL;
+							}
+							$responding_people_geo_list .=  $row->user_id ."', ". $row->latitude .", ". $row->longitude;
+						}
+						$sql_result->close();
+
+						echo "OK=" . $callout_tracking_id . "|" . $responding_people_geo_list . "|";
 					}
 				}
 				else {

@@ -4,6 +4,7 @@
  */
 package com.vejvoda.android.gcm.riprunner.app;
 
+import com.vejvoda.android.gcm.riprunner.app.FireHallCallout.Responder;
 import com.vejvoda.android.gcm.riprunner.app.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -18,6 +19,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -54,6 +56,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -140,6 +143,8 @@ public class AppMainActivity extends ActionBarActivity implements
     };
 
     TextView mDisplay = null;
+    ScrollView mDisplayScroll = null;
+    
     GoogleCloudMessaging gcm = null;
     Context context = null;
     MenuItem logout_menu = null;
@@ -163,6 +168,7 @@ public class AppMainActivity extends ActionBarActivity implements
     
     private SupportMapFragment mapFragment;
 	private GoogleMap map;
+	private List<Marker> mapMarkers;
 	
     // Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -208,6 +214,8 @@ public class AppMainActivity extends ActionBarActivity implements
         
         setContentView(R.layout.main);
         mDisplay = (TextView) findViewById(R.id.display);
+        mDisplayScroll = (ScrollView) findViewById(R.id.textAreaScroller);
+                
         context = getApplicationContext();
         initSounds(context);
         
@@ -406,6 +414,10 @@ public class AppMainActivity extends ActionBarActivity implements
 //        gcm = null;
 
         mDisplay.setText("");
+        //mDisplay.setText("1xxxx\n2xxxxx\n3xxxx\n4xxxx\n5xxxx\n6xxxx\n7xxxx\n8xxxx\n9xxxx\n10xxx");
+        //mDisplay.append("1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
+        //mDisplay.setMovementMethod(new ScrollingMovementMethod());
+        scrollToBottom(mDisplayScroll, mDisplay);
         
         TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
         txtMsg.setText(getResources().getString(R.string.login_credentials));
@@ -727,6 +739,7 @@ public class AppMainActivity extends ActionBarActivity implements
             @Override
             protected void onPostExecute(String msg) {
                 mDisplay.append(msg + "\n");
+                scrollToBottom(mDisplayScroll, mDisplay);
             }
         }.execute(null, null, null);
     }
@@ -771,6 +784,7 @@ public class AppMainActivity extends ActionBarActivity implements
             @Override
             protected void onPostExecute(String msg) {
                 mDisplay.append(msg + "\n");
+                mDisplay.setMovementMethod(new ScrollingMovementMethod());
             }
         }.execute(null, null, null);
     }
@@ -824,6 +838,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		            @Override
 		            protected void onPostExecute(String msg) {
 		                mDisplay.append(msg + "\n");
+		                scrollToBottom(mDisplayScroll, mDisplay);
 		            }
 		        }.execute(null, null, null);
 		    }})
@@ -856,6 +871,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		            @Override
 		            protected void onPostExecute(String msg) {
 		                mDisplay.append(msg + "\n");
+		                scrollToBottom(mDisplayScroll, mDisplay);
 		            }
 		        }.execute(null, null, null);
 		    }})
@@ -880,6 +896,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		    @Override
 		    protected void onPostExecute(String msg) {
 		        mDisplay.append(msg + "\n");
+		        scrollToBottom(mDisplayScroll, mDisplay);
 		    }
 		}.execute(null, null, null);
 	}
@@ -902,6 +919,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		    @Override
 		    protected void onPostExecute(String msg) {
 		        mDisplay.append(msg + "\n");
+		        scrollToBottom(mDisplayScroll, mDisplay);
 		    }
 		}.execute(null, null, null);
 	}
@@ -1223,14 +1241,14 @@ public class AppMainActivity extends ActionBarActivity implements
     	if(isLoggedIn() && lastCallout != null &&
 	    	CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
 
-    		runOnUiThread(new Runnable() {
-     		   public void run() {
-    		
-	    		Toast.makeText(context, "Tracking GEO Coordinates: " + 
-	    					String.valueOf(getLastGPSLatitude()) + "," + 
-	    					String.valueOf(getLastGPSLongitude()), Toast.LENGTH_LONG).show();
-    		   }
-    		});
+//    		runOnUiThread(new Runnable() {
+//     		   public void run() {
+//    		
+//	    		Toast.makeText(context, "Tracking GEO Coordinates: " + 
+//	    					String.valueOf(getLastGPSLatitude()) + "," + 
+//	    					String.valueOf(getLastGPSLongitude()), Toast.LENGTH_LONG).show();
+//    		   }
+//    		});
     		
     		boolean track_geo_coords = (getLastGPSLatitude() != 0 && getLastGPSLongitude() != 0);
     		//boolean track_geo_coords = true;
@@ -1263,12 +1281,38 @@ public class AppMainActivity extends ActionBarActivity implements
 			            Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner response for ct: " + responseString);
 			            
 			            if(responseString != null && responseString.startsWith("OK=")) {
-			        		runOnUiThread(new Runnable() {
-			        		   public void run() {
-			
-			        			   Toast.makeText(context, "Success tracking GEO Coordinates now.", Toast.LENGTH_LONG).show();
-			        		   }
-			        		});
+			            	
+			            	if(this.lastCallout != null) {
+				            	this.lastCallout.clearResponders();
+				            	
+				            	String [] responseParts = responseString.split("\\|");
+				            	if(responseParts != null && responseParts.length >= 2) {
+				            		String responders = responseParts[1];
+				            		String [] respondersList = responders.split("\\^");
+				            		if(respondersList != null && respondersList.length > 0) {
+				            			Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner adding responder count: " + respondersList.length);
+				            			
+				            			for(String responder : respondersList) {
+							            	String [] responderParts = responder.split("\\,");
+							            	if(responseParts != null && responseParts.length >= 3) {
+							            		Responder respondingPerson = 
+							            				this.lastCallout.new Responder(
+							            						responderParts[0],
+							            						responderParts[1],
+							            						responderParts[2]); 
+							            		this.lastCallout.addResponder(respondingPerson);
+							            	}			            				
+				            			}
+				            		}
+				            	}
+			            	}
+			            	
+//			        		runOnUiThread(new Runnable() {
+//			        		   public void run() {
+//			
+//			        			   Toast.makeText(context, "Success tracking GEO Coordinates now.", Toast.LENGTH_LONG).show();
+//			        		   }
+//			        		});
 			        		
 			        		result = responseString;
 			            }
@@ -1371,6 +1415,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		    public void run() {
 		    	mDisplay = (TextView) findViewById(R.id.display);
 		    	mDisplay.append("\n" + calloutMsg);
+		    	scrollToBottom(mDisplayScroll, mDisplay);
 
 		    	if(lastCallout != null &&
 		    		CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
@@ -1412,6 +1457,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		    public void run() {
 		    	mDisplay = (TextView) findViewById(R.id.display);
 		    	mDisplay.append("\n" + deviceMsg);
+		    	scrollToBottom(mDisplayScroll, mDisplay);
 		   }
 		});
 	}
@@ -1429,7 +1475,7 @@ public class AppMainActivity extends ActionBarActivity implements
 
 		    	mDisplay = (TextView) findViewById(R.id.display);
 		    	mDisplay.setText(calloutMsg);
-		    	mDisplay.setMovementMethod(new ScrollingMovementMethod());
+		    	scrollToBottom(mDisplayScroll, mDisplay);
 		    	
 		    	playSound(context,FireHallSoundPlayer.SOUND_PAGER_TONE_PG);
 		    	
@@ -1601,6 +1647,7 @@ public class AppMainActivity extends ActionBarActivity implements
 	
 	private void clearUI() {
         mDisplay.setText("");
+        scrollToBottom(mDisplayScroll, mDisplay);
 	}
 	
 	private void openSettings() {
@@ -1723,8 +1770,14 @@ public class AppMainActivity extends ActionBarActivity implements
 					//	showFragment(R.id.map);
 					//}
 					if(isFragmentVisible(R.id.map)) {
+						
+						CameraPosition cp = null;
+						if(mapMarkers != null && mapMarkers.size() >= 3) {
+							cp = map.getCameraPosition();
+						}
+						
 						map.clear();
-						List<Marker> markers = new ArrayList<Marker>();
+						mapMarkers = new ArrayList<Marker>();
 						
 						// Add current user location
 						MarkerOptions currentUserMarkerOptions = new MarkerOptions();
@@ -1736,7 +1789,7 @@ public class AppMainActivity extends ActionBarActivity implements
 						currentUserMarkerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 						Marker currentUserMarker = map.addMarker(currentUserMarkerOptions);
 						//currentUserMarker.showInfoWindow();
-						markers.add(currentUserMarker);
+						mapMarkers.add(currentUserMarker);
 	
 						// Add Callout Info to map
 						if(lastCallout != null) {
@@ -1764,7 +1817,7 @@ public class AppMainActivity extends ActionBarActivity implements
 							currentCalloutMarkerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
 							Marker currentCalloutMarker = map.addMarker(currentCalloutMarkerOptions);
 							currentCalloutMarker.showInfoWindow();
-							markers.add(currentCalloutMarker);
+							mapMarkers.add(currentCalloutMarker);
 						}
 						
 						// Add Firehall location
@@ -1782,11 +1835,37 @@ public class AppMainActivity extends ActionBarActivity implements
 							firehallMarkerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
 							Marker firehallMarker = map.addMarker(firehallMarkerOptions);
 							//firehallMarker.showInfoWindow();
-							markers.add(firehallMarker);
+							mapMarkers.add(firehallMarker);
+						}
+
+						// Add responders
+						if(lastCallout != null) {
+							for(Responder responder : lastCallout.getResponders()) {
+
+								if(responder.getGPSLat() != null && 
+									responder.getGPSLat().isEmpty() == false &&
+									responder.getGPSLong() != null && 
+									responder.getGPSLong().isEmpty() == false) {
+									
+									if(auth.getUserId().equals(responder.getName()) == false) {
+										// Add current user location
+										MarkerOptions responderMarkerOptions = new MarkerOptions();
+										responderMarkerOptions.position(
+												new LatLng(Double.valueOf(responder.getGPSLat()), 
+														Double.valueOf(responder.getGPSLong())));
+										responderMarkerOptions.draggable(false);
+										responderMarkerOptions.title(responder.getName());
+										responderMarkerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+										Marker responderMarker = map.addMarker(responderMarkerOptions);
+										//currentUserMarker.showInfoWindow();
+										mapMarkers.add(responderMarker);
+									}
+								}
+							}
 						}
 						
 						LatLngBounds.Builder builder = new LatLngBounds.Builder();
-						for (Marker marker : markers) {
+						for (Marker marker : mapMarkers) {
 						    builder.include(marker.getPosition());
 						}
 						LatLngBounds bounds = builder.build();
@@ -1795,6 +1874,10 @@ public class AppMainActivity extends ActionBarActivity implements
 						CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
 						map.moveCamera(cameraUpdate);
 						map.animateCamera(cameraUpdate);
+						
+						if(cp != null) {
+							map.moveCamera(CameraUpdateFactory.newCameraPosition(cp));
+						}
 					}
 				}
 			}
@@ -1847,5 +1930,12 @@ public class AppMainActivity extends ActionBarActivity implements
         }
         return false;
 	}
-	
+
+	private void scrollToBottom(final ScrollView scrollView, final TextView textView) {
+		scrollView.post(new Runnable() { 
+	        public void run() { 
+	        	scrollView.smoothScrollTo(0, textView.getBottom());
+	        } 
+	    });
+	}	
 }
