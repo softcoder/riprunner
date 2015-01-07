@@ -189,6 +189,8 @@
 		public $LDAP_USER_DN_ATTR_NAME;
 		// The ldap sortby filter expression
 		public $LDAP_USER_SORT_ATTR_NAME;
+		// The ldap all users filter expression
+		public $LDAP_LOGIN_ALL_USERS_FILTER;
 		// The ldap administrator group filter expression
 		public $LDAP_LOGIN_ADMIN_GROUP_FILTER;
 		// The ldap sms group filter expression
@@ -204,8 +206,9 @@
 				
 		public function __construct($enabled,$name,$bind_rdn,$bind_password,$dn,
 									$user_dn,$login_filter, 
-									$user_dn_attr, 
-				                    $user_sort_attr, $user_admin_group_filter_attr,
+									$user_dn_attr, $user_sort_attr, 
+									$user_all_users_filter_attr, 
+									$user_admin_group_filter_attr,
 									$user_sms_group_filter_attr, $group_member_of_attr,
 									$user_sms_attr, $user_id_attr, $user_name_attr) {
 			$this->ENABLED = $enabled;
@@ -217,6 +220,7 @@
 			$this->LDAP_LOGIN_FILTER = $login_filter;
 			$this->LDAP_USER_DN_ATTR_NAME = $user_dn_attr;
 			$this->LDAP_USER_SORT_ATTR_NAME = $user_sort_attr;
+			$this->LDAP_LOGIN_ALL_USERS_FILTER = $user_all_users_filter_attr;
 			$this->LDAP_LOGIN_ADMIN_GROUP_FILTER = $user_admin_group_filter_attr;
 			$this->LDAP_LOGIN_SMS_GROUP_FILTER = $user_sms_group_filter_attr;
 			$this->LDAP_GROUP_MEMBER_OF_ATTR_NAME = $group_member_of_attr;

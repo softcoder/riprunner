@@ -222,6 +222,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 			'(|(uid=${login})(cn=${login})(mail=${login}@\*))',
 			'dn',
 			'sn',
+			'(&(objectClass=posixGroup)(|(cn=users)))',
 			'(&(objectClass=posixGroup)(cn=admin))',
 			'(&(objectClass=posixGroup)(cn=sms))',
 			'memberuid',

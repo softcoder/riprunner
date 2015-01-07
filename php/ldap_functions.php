@@ -4,6 +4,18 @@
 //require_once( 'config.php' );
 //require_once( 'functions.php' );
 
+function extractDelimitedValueFromString($rawValue, $regularExpression, $groupResultIndex, $isMultiLine) {
+	 
+	//$cleanRawValue = preg_replace( '/[^[:print:]]/', '',$rawValue);
+	$cleanRawValue = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/u', '',$rawValue);
+	preg_match($regularExpression, $cleanRawValue, $result);
+	if(isset($result[$groupResultIndex])) {
+		$result[$groupResultIndex] = str_replace(array("\n", "\r"), '', $result[$groupResultIndex]);
+		return $result[$groupResultIndex];
+	}
+	return null;
+}
+
 function login_ldap($FIREHALL, $user_id, $password, $db_connection) {
 	$debug_functions = false;
 
@@ -474,6 +486,153 @@ function get_sms_recipients_ldap($FIREHALL) {
 	
 }
 
+function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
+	$debug_functions = false;
+	
+	
+	if($debug_functions) echo "looking for LDAP users using filter [$filter]" . PHP_EOL;
+	
+	// Find all users
+	$result = ldap_search($ldap,$FIREHALL->LDAP->LDAP_BASE_USERDN,$filter);
+	ldap_sort($ldap,$result,$FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
+	$info = ldap_get_entries($ldap, $result);
+	
+	if($debug_functions) echo "Search results:" . PHP_EOL;
+	if($debug_functions) var_dump($result);
+		
+	for ($i=0; $i<$info["count"]; $i++) {
+		//var_dump($info[$i]);
+		if($debug_functions) echo "Sorted result #:" . $i . PHP_EOL;
+		if($debug_functions) var_dump($info[$i]);
+		
+		// Extract ldap attributes into our temp user table
+		if(isset($info[$i]) &&
+			isset($info[$i][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME])) {
+
+			$username = $info[$i][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME];
+			unset($username['count']);
+
+			if($debug_functions) echo "Found username [$username]" . PHP_EOL;
+			
+			$userDn = $info[$i][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
+			//unset($userDn['count']);
+			//echo "User DN #$i [$userDn]" .PHP_EOL;
+
+			$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
+			unset($user_id_number['count']);
+
+			$sms_value = array('');
+			if(isset($info[$i][$FIREHALL->LDAP->LDAP_USER_SMS_ATTR_NAME])) {
+				$sms_value = $info[$i][$FIREHALL->LDAP->LDAP_USER_SMS_ATTR_NAME];
+				unset($sms_value['count']);
+			}
+
+			$userAccess = ldap_get_user_access($FIREHALL, $ldap, $username[0], $userDn);
+
+			//echo "INSERT: $username[0]" . PHP_EOL;
+			$sql = "INSERT IGNORE INTO `ldap_user_accounts`
+			(`id`,`firehall_id`,`user_id`,`mobile_phone`,`access`)
+			values($user_id_number[0],$FIREHALL->FIREHALL_ID,'$username[0]','$sms_value[0]',$userAccess);";
+
+			$sql_result = $db_connection->query( $sql );
+
+			if($sql_result == false) {
+				printf("Error: %s\n", mysqli_error($db_connection));
+				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+			}
+
+			//echo "INSERT LDAP [$sql] affectedrows: $db_connection->affected_rows" . PHP_EOL;
+		}
+		else if(isset($info[$i]) &&
+			isset($info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME])) {
+			 
+			$basedn = $FIREHALL->LDAP->LDAP_BASE_USERDN;
+			
+			$members = $info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME];
+			unset($members['count']);
+			 
+			foreach($members as $member) {
+				if($debug_functions) echo "group has member [$member]" . PHP_EOL;
+				
+				//!!!
+				$member_uid = $member;
+				$parsed_member_uid = extractDelimitedValueFromString($member, '/uid=(.*?),/m', 1, true);
+				
+				if($debug_functions) echo "group has parsed member [$parsed_member_uid]" . PHP_EOL;
+				
+				if(isset($parsed_member_uid) && $parsed_member_uid != '') {
+					$member_uid = $parsed_member_uid;
+				}
+				
+				//!!!
+				
+				$user_filter = str_replace( '${login}', $member_uid, $FIREHALL->LDAP->LDAP_LOGIN_FILTER );
+				if($debug_functions) echo "filter [$user_filter]" . PHP_EOL;
+				
+				//$result_user_search = ldap_search($ldap,$basedn,$user_filter) or die ("Search error.");
+				$result_user_search = ldap_search($ldap,$basedn,$user_filter);
+				if($result_user_search) {
+					$users_list = ldap_get_entries($ldap, $result_user_search);
+					
+					//if($debug_functions) echo "#1 matching users:" . PHP_EOL;
+					//if($debug_functions) var_dump($users_list);
+						
+					unset($users_list['count']);
+
+					//if($debug_functions) echo "#2 matching users:" . PHP_EOL;
+					//if($debug_functions) var_dump($users_list);
+						
+					if(isset($users_list[0]) &&
+						isset($users_list[0][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME])) {
+					
+						$username = $users_list[0][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME];
+
+						//if($debug_functions) echo "#3 matching users:" . PHP_EOL;
+						//if($debug_functions) var_dump($username);
+						
+						//if($debug_functions) echo "Found #1 username [$username]" . PHP_EOL;
+						
+						unset($username['count']);
+
+						//if($debug_functions) echo "#4 matching users:" . PHP_EOL;
+						//if($debug_functions) var_dump($username);
+						//if($debug_functions) echo "Found username [$username]" . PHP_EOL;
+							
+						$userDn = $users_list[0][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
+						//unset($userDn['count']);
+						//echo "User DN #$i [$userDn]" .PHP_EOL;
+					
+						$user_id_number = $users_list[0][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
+						unset($user_id_number['count']);
+					
+						$sms_value = array('');
+						if(isset($users_list[0][$FIREHALL->LDAP->LDAP_USER_SMS_ATTR_NAME])) {
+							$sms_value = $users_list[0][$FIREHALL->LDAP->LDAP_USER_SMS_ATTR_NAME];
+							unset($sms_value['count']);
+						}
+					
+						$userAccess = ldap_get_user_access($FIREHALL, $ldap, $username[0], $userDn);
+					
+						//echo "INSERT: $username[0]" . PHP_EOL;
+						$sql = "INSERT IGNORE INTO `ldap_user_accounts`
+							(`id`,`firehall_id`,`user_id`,`mobile_phone`,`access`)
+							values($user_id_number[0],$FIREHALL->FIREHALL_ID,'$username[0]','$sms_value[0]',$userAccess);";
+					
+						$sql_result = $db_connection->query( $sql );
+					
+						if($sql_result == false) {
+							printf("Error: %s\n", mysqli_error($db_connection));
+							throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+						}
+					
+						if($debug_functions) echo "INSERT LDAP [$sql] affectedrows: $db_connection->affected_rows" . PHP_EOL;
+					}
+				}
+			}
+		}
+	}
+}
+
 function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 	
 	// Create a temp table of users from LDAP
@@ -536,6 +695,9 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 		if ($bind) {
 
 			// Find all users
+			populateLDAPUsers($FIREHALL, $ldap, $db_connection, $FIREHALL->LDAP->LDAP_LOGIN_ALL_USERS_FILTER);
+						
+/*			
 			$result = ldap_search($ldap,$FIREHALL->LDAP->LDAP_BASE_USERDN,'(cn=*)');
 			ldap_sort($ldap,$result,$FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
 			$info = ldap_get_entries($ldap, $result);
@@ -581,6 +743,7 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 					//echo "INSERT LDAP [$sql] affectedrows: $db_connection->affected_rows" . PHP_EOL;
 				}
 			}
+*/
 	
 			@ldap_close($ldap);
 			//die("FORCE EXIT!");
@@ -597,3 +760,5 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 		}
 	}
 }
+
+
