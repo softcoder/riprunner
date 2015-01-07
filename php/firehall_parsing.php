@@ -93,6 +93,7 @@
 	   			 	 $callType);
 	}
 	
+/*	
 	function extractDelimitedValueFromString($rawValue, $regularExpression, $groupResultIndex, $isMultiLine) {
 	    	 
 		//$cleanRawValue = preg_replace( '/[^[:print:]]/', '',$rawValue);
@@ -104,7 +105,8 @@
 		}
 		return null;
 	}
-	
+*/
+		
 	function convertCallOutTypeToText($type) {
 		global $CALLOUT_CODES_LOOKUP;
 		$typeText = "UNKNOWN [" + $type + "]";
