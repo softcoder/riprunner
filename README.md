@@ -38,7 +38,7 @@ Key Android App Features:
 System Requirements:
 --------------------
 - An email account that recieves Callout information during a 911 page
-- A service that call periodically trigger the email polling (like cron). One free option (included in the source tree) is to use a google app engine (GAE) account to do the polling for you (see the googleae folder contents)
+- A service that periodically triggers the email polling (like cron) if your dispatch system is based off emails. One free option (included in the source tree) is to use a google app engine (GAE) account to do the polling for you (see the googleae folder contents)
 - A webserver that can run PHP 5.x
 - A MySQL database to install the Rip Runner Schema
 - A Registered Account on an SMS Gateway Provider (Twilio (recommended),Sendhub,EzTexting,TextBelt)
