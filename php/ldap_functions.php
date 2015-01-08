@@ -198,8 +198,6 @@ function ldap_get_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 		
 			if($debug_functions) echo "Found username [$username[0]]" . PHP_EOL;
 				
-			//$userDn = $info[$i][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
-		
 			$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
 			unset($user_id_number['count']);
 			
@@ -252,6 +250,30 @@ function ldap_get_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 				break;
 			}
 		}
+		// Find by user member of attribute
+		else if(isset($info[$i]) &&
+			isset($info[$i][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME])) {
+		
+			if($debug_functions) echo "=====> looking for SMS LDAP users using a USER filter" . PHP_EOL;
+			
+			$username = $info[$i][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME];
+			unset($username['count']);
+		
+			if($debug_functions) echo "Found username [$username[0]]" . PHP_EOL;
+				
+			$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
+			unset($user_id_number['count']);
+			
+			if($debug_functions) echo "Found user_id_number [$user_id_number[0]]" . PHP_EOL;
+			
+			if($username[0] == $user_id || $username[0] == $userDn) {
+				if($debug_functions) echo "Found sms group user: [$username[0]]" . PHP_EOL;
+					
+				$user_found_in_group = true;
+				$userAccess |= USER_ACCESS_SIGNAL_SMS;
+				break;
+			}
+		}
 	}
 	
 	return $userAccess;
@@ -285,7 +307,7 @@ function login_check_ldap($db_connection) {
 	}
 }
 
-//get_sms_recipients_ldap($FIREHALLS[0]);
+//echo "TEST SMS #'s: " . get_sms_recipients_ldap($FIREHALLS[0]) . PHP_EOL;
 
 function get_sms_recipients_ldap($FIREHALL) {
 	$debug_functions = false;
@@ -326,11 +348,13 @@ function get_sms_recipients_ldap($FIREHALL) {
 		
 		$recipient_list = '';
 		for ($i=0; $i<$info["count"]; $i++) {
-	    	var_dump($info[$i]);
+	    	if($debug_functions) var_dump($info[$i]);
 	    	
 	    	$user_found_in_group = false;
 	    	if(isset($info[$i]) && 
 	    		isset($info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME])) {
+	    		
+	    		if($debug_functions) echo "=====> SMS_LIST looking for SMS LDAP users using a GROUP MEMBER OF filter" . PHP_EOL;
 	    		
 	    		$members = $info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME];
 	    		unset($members['count']);
@@ -357,6 +381,44 @@ function get_sms_recipients_ldap($FIREHALL) {
 	    			}
 	    		}
 	    	}
+	    	// Find by user member of attribute
+	    	else if(isset($info[$i]) &&
+	    		isset($info[$i][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME])) {
+	    	
+	    		if($debug_functions) echo "=====> SMS_LIST looking for SMS LDAP users using a USER filter" . PHP_EOL;
+	    			
+	    		$username = $info[$i][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME];
+	    		unset($username['count']);
+	    	
+	    		if($debug_functions) echo "Found username [$username[0]]" . PHP_EOL;
+	    	
+	    		//$userDn = $info[$i][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
+	    	
+	    		$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
+	    		unset($user_id_number['count']);
+	    			
+	    		if($debug_functions) echo "Found user_id_number [$user_id_number[0]]" . PHP_EOL;
+	    			
+// 	    		if($username[0] == $user_id || $username[0] == $userDn) {
+// 	    			if($debug_functions) echo "Found admin group user: [$username[0]]" . PHP_EOL;
+	    				
+// 	    			$user_found_in_group = true;
+// 	    			$userAccess |= USER_ACCESS_ADMIN;
+// 	    			break;
+// 	    		}
+
+	    		if(isset($info[$i][$FIREHALL->LDAP->LDAP_USER_SMS_ATTR_NAME])) {
+	    			$sms_value = $info[$i][$FIREHALL->LDAP->LDAP_USER_SMS_ATTR_NAME];
+	    			unset($sms_value['count']);
+	    		
+	    			if($recipient_list != '') {
+	    				$recipient_list .= ';';
+	    			}
+	    			$recipient_list .= $sms_value[0];
+	    		}
+	    		 
+	    	}
+	    	
 	    }
 		
 		@ldap_close($ldap);
