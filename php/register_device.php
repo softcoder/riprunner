@@ -142,9 +142,9 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 				$sql_result->close();
 				
 				// Send Callout details to logged in user only
-				$gcmMsg = getSMSCalloutMessage($FIREHALL,$callDateTimeNative,
+				$gcmMsg = getGCMCalloutMessage($FIREHALL,$callDateTimeNative,
 						$callCode, $callAddress, $callGPSLat, $callGPSLong,
-						$callUnitsResponding, $callType, $callout_id, $callKey,0);
+						$callUnitsResponding, $callType, $callout_id, $callKey);
 				
 				signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 					$callCode, $callAddress, $callGPSLat, $callGPSLong,

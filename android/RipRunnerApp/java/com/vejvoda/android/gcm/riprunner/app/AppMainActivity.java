@@ -314,6 +314,7 @@ public class AppMainActivity extends ActionBarActivity implements
         //savedInstanceState.putInt(STATE_LEVEL, mCurrentLevel);
         
         // Always call the superclass so it can save the view hierarchy state
+    	savedInstanceState.putString("WORKAROUND_FOR_BUG_19917_KEY", "WORKAROUND_FOR_BUG_19917_VALUE");
         super.onSaveInstanceState(savedInstanceState);
     }
     
@@ -1483,7 +1484,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		runOnUiThread(new Runnable() {
 		    public void run() {
 		    	mDisplay = (TextView) findViewById(R.id.display);
-		    	mDisplay.append(getResources().getString(R.string.Message_from_admin_prefix) + adminMsg + "\n");
+		    	mDisplay.append("\n" + getResources().getString(R.string.Message_from_admin_prefix) + adminMsg);
 		    	scrollToBottom(mDisplayScroll, mDisplay);
 		    	
 		    	Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -1919,7 +1920,7 @@ public class AppMainActivity extends ActionBarActivity implements
         	fragment.getFragmentManager().beginTransaction()
 		        //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
 		        .show(fragment)
-		        .commit();
+		        .commitAllowingStateLoss();
         }
 	}
 	private void hideFragment(int id) {
@@ -1928,7 +1929,7 @@ public class AppMainActivity extends ActionBarActivity implements
         	fragment.getFragmentManager().beginTransaction()
 		        //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
 		        .hide(fragment)
-		        .commit();
+		        .commitAllowingStateLoss();
         }
 	}
 	private boolean isFragmentVisible(int id) {

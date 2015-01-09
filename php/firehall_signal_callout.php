@@ -10,7 +10,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 
 require_once( 'config.php' );
 require_once( 'functions.php' );
-require_once( 'plugins_loader.php' );
+require_once( 'firehall_signal_sms.php' );
 require_once( 'firehall_signal_gcm.php' );
 
 function signalFireHallCallout($FIREHALL, $callDateTimeNative, $callCode, 
@@ -81,9 +81,9 @@ function signalFireHallCallout($FIREHALL, $callDateTimeNative, $callCode,
 				$callUnitsResponding, $callType, $callout_id, $callKey,
 				$update_callout_prefix_msg);
 			
-			$gcmMsg = getSMSCalloutMessage($FIREHALL,$callDateTimeNative,
+			$gcmMsg = getGCMCalloutMessage($FIREHALL,$callDateTimeNative,
 					$callCode, $callAddress, $callGPSLat, $callGPSLong,
-					$callUnitsResponding, $callType, $callout_id, $callKey,0);
+					$callUnitsResponding, $callType, $callout_id, $callKey);
 			
 			signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 				$callCode, $callAddress, $callGPSLat, $callGPSLong,
@@ -119,9 +119,9 @@ function signalFireHallCallout($FIREHALL, $callDateTimeNative, $callCode,
 				$callUnitsResponding, $callType, $callout_id, $callKey,
 				null);
 	
-		$gcmMsg = getSMSCalloutMessage($FIREHALL,$callDateTimeNative,
+		$gcmMsg = getGCMCalloutMessage($FIREHALL,$callDateTimeNative,
 				$callCode, $callAddress, $callGPSLat, $callGPSLong,
-				$callUnitsResponding, $callType, $callout_id, $callKey,0);
+				$callUnitsResponding, $callType, $callout_id, $callKey);
 		
 		signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 			$callCode, $callAddress, $callGPSLat, $callGPSLong,
@@ -143,114 +143,6 @@ function signalFireHallCallout($FIREHALL, $callDateTimeNative, $callCode,
 	if($db_connection != null) {
 		db_disconnect( $db_connection );
 	}
-}
-
-function signalCalloutToSMSPlugin($FIREHALL, $callDateTimeNative, $callCode, 
-	                		$callAddress, $callGPSLat, $callGPSLong, 
-	                		$callUnitsResponding, $callType, $callout_id,
-							$callKey, $msgPrefix) {
-	
-	if($FIREHALL->SMS->SMS_SIGNAL_ENABLED) {	
-		$smsPlugin = findPlugin('ISMSPlugin', $FIREHALL->SMS->SMS_GATEWAY_TYPE);
-		if($smsPlugin == null) {
-			throw new Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
-		}
-		
-		if($FIREHALL->LDAP->ENABLED) {
-			$recipients = get_sms_recipients_ldap($FIREHALL);
-			$recipient_list = explode(';',$recipients);
-			$recipient_list_array = $recipient_list;
-		}
-		else {
-			$recipient_list_type = ($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP ?
-					RecipientListType::GroupList : RecipientListType::MobileList);
-			if($recipient_list_type == RecipientListType::GroupList) {
-				$recipients_group = $FIREHALL->SMS->SMS_RECIPIENTS;
-				$recipient_list_array = explode(';',$recipients_group);
-			}
-			else if($FIREHALL->SMS->SMS_RECIPIENTS_FROM_DB) {
-				$recipient_list = getMobilePhoneListFromDB($FIREHALL,null);
-				$recipient_list_array = $recipient_list;
-			}
-			else {
-				$recipients = $FIREHALL->SMS->SMS_RECIPIENTS;
-				$recipient_list = explode(';',$recipients);
-				$recipient_list_array = $recipient_list;
-			}
-		}
-		
-		$smsText = getSMSCalloutMessage($FIREHALL,$callDateTimeNative,
-				$callCode, $callAddress, $callGPSLat, $callGPSLong,
-				$callUnitsResponding, $callType, $callout_id, $callKey,
-				$smsPlugin->getMaxSMSTextLength());
-		if(isset($msgPrefix)) {
-			$smsText = $msgPrefix . $smsText;
-		}
-		$resultSMS = $smsPlugin->signalRecipients($FIREHALL->SMS, $recipient_list_array,
-				$recipient_list_type, $smsText);
-		if(isset($resultSMS)) {
-			echo $resultSMS;
-		}
-	}
-}
-
-function sendSMSPlugin_Message($FIREHALL, $msg) {
-	$resultSMS = "";
-	
-	if($FIREHALL->SMS->SMS_SIGNAL_ENABLED) {
-		$smsPlugin = findPlugin('ISMSPlugin', $FIREHALL->SMS->SMS_GATEWAY_TYPE);
-		if($smsPlugin == null) {
-			throw new Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
-		}
-
-		if($FIREHALL->LDAP->ENABLED) {
-			$recipients = get_sms_recipients_ldap($FIREHALL);
-			$recipient_list = explode(';',$recipients);
-			$recipient_list_array = $recipient_list;
-		}
-		else {
-			$recipient_list_type = ($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP ?
-					RecipientListType::GroupList : RecipientListType::MobileList);
-			if($recipient_list_type == RecipientListType::GroupList) {
-				$recipients_group = $FIREHALL->SMS->SMS_RECIPIENTS;
-				$recipient_list_array = explode(';',$recipients_group);
-			}
-			else if($FIREHALL->SMS->SMS_RECIPIENTS_FROM_DB) {
-				$recipient_list = getMobilePhoneListFromDB($FIREHALL,null);
-				$recipient_list_array = $recipient_list;
-			}
-			else {
-				$recipients = $FIREHALL->SMS->SMS_RECIPIENTS;
-				$recipient_list = explode(';',$recipients);
-				$recipient_list_array = $recipient_list;
-			}
-		}
-		
-		$resultSMS = $smsPlugin->signalRecipients($FIREHALL->SMS, $recipient_list_array,
-				$recipient_list_type, $msg);
-	}
-	
-	return $resultSMS;
-}
-
-function getSMSCalloutMessage($FIREHALL,$callDateTimeNative,
-			$callCode, $callAddress, $callGPSLat, $callGPSLong,
-			$callUnitsResponding, $callType, $callout_id, $callKey,
-			$maxLength) {
-	
-	$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . ', ' . $callAddress;
-	
- 	$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL 
- 		. 'ci.php?cid=' . $callout_id
- 		. '&fhid=' . $FIREHALL->FIREHALL_ID
- 		. '&ckid=' . $callKey;
-	
-	$smsMsg = $msgSummary .', ' . $details_link;
-	if(isset($maxLength) && $maxLength > 0) {
-		$smsMsg = array($msgSummary, 
-						$details_link);
-	}
-	return $smsMsg;
 }
 
 ?>

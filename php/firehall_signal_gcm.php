@@ -480,3 +480,12 @@ function checkGCMResultError($index, $results) {
 	}
 	return null;
 }
+
+function getGCMCalloutMessage($FIREHALL,$callDateTimeNative,
+		$callCode, $callAddress, $callGPSLat, $callGPSLong,
+		$callUnitsResponding, $callType, $callout_id, $callKey) {
+
+	$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . 
+				  ', ' . $callAddress . ' @' . $callDateTimeNative->format('Y-m-d H:i:s');;
+	return $msgSummary;
+}
