@@ -42,4 +42,7 @@
     
     <string name="dialog_text_complete_call">Complete the current callout?</string>
     <string name="dialog_text_cancel_call">Cancel the current callout?</string>
+    
+    <string name="Message_from_admin_prefix">*From Admin:</string>
+    
 </resources>

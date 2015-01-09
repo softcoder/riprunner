@@ -112,9 +112,11 @@ public class AppMainBroadcastReceiver extends BroadcastReceiver {
 			else if(json.has("CALLOUT_RESPONSE_MSG")) {
 				processCalloutResponseTrigger(json);       
 			}
+			else if(json.has("ADMIN_MSG")) {
+				processAdminMsgTrigger(json);       
+			}
 			else {
 		    	Log.e(Utils.TAG, Utils.getLineNumber() + ": Broadcaster got UNKNOWN callout message type: " + json.toString());
-				
 			}
 		}
 		catch (JSONException e) {
@@ -131,6 +133,14 @@ public class AppMainBroadcastReceiver extends BroadcastReceiver {
 		}
 	}
 
+	void processAdminMsgTrigger(JSONObject json)
+			throws UnsupportedEncodingException, JSONException {
+		final String adminMsg = URLDecoder.decode(json.getString("ADMIN_MSG"), "utf-8");
+		if(adminMsg != null) {
+			getMainApp().processAdminMsgTrigger(adminMsg);
+		}
+	}
+	
 	void processDeviceMsgTrigger(JSONObject json)
 			throws UnsupportedEncodingException, JSONException {
 		final String deviceMsg = URLDecoder.decode(json.getString("DEVICE_MSG"), "utf-8");

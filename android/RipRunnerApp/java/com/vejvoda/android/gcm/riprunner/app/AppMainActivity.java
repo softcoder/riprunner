@@ -84,6 +84,8 @@ import org.apache.http.message.BasicNameValuePair;
 
 import android.location.Location;
 import android.media.AudioManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.media.SoundPool;
 
 /**
@@ -1504,7 +1506,21 @@ public class AppMainActivity extends ActionBarActivity implements
 		   }
 		});
 	}
-    
+	
+	public void processAdminMsgTrigger(final String adminMsg) {
+		runOnUiThread(new Runnable() {
+		    public void run() {
+		    	mDisplay = (TextView) findViewById(R.id.display);
+		    	mDisplay.append(getResources().getString(R.string.Message_from_admin_prefix) + adminMsg + "\n");
+		    	scrollToBottom(mDisplayScroll, mDisplay);
+		    	
+		    	Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		    	Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+		    	r.play();		    	
+		   }
+		});
+	}
+	
 	public void processDeviceMsgTrigger(final String deviceMsg) {
 		runOnUiThread(new Runnable() {
 		    public void run() {
