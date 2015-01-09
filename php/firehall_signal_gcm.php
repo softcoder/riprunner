@@ -419,6 +419,8 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 
 			// Close connection
 			curl_close($ch);
+			
+			//echo "SENT GCM API KEY [".$FIREHALL->MOBILE->GCM_API_KEY."]" . PHP_EOL;
 			//echo "GOT GCM Result [$result]" . PHP_EOL;
 				
 			$gcm_err = checkGCMResultError(null, $result);
@@ -441,8 +443,16 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 	return $resultGCM;
 }
 
+function isGCMError($result) {
+	//|GCM_ERROR:
+	if(isset($result) && strpos($result,"|GCM_ERROR:")) {
+		return true;
+	}
+	return false;
+}
+
 function removeDeviceIfNotRegistered($device_id, $gcm_err, $db_connection) {
-	if(isset($gcm_err) && $gcm_err == 'NotRegistered') {
+	if(isset($gcm_err) && ($gcm_err == 'NotRegistered' || $gcm_err == 'MismatchSenderId')) {
 		// Delete from the database connected devices to GCM
 		$adhoc_db_connection = false;
 		if(isset($db_connection) == false) {

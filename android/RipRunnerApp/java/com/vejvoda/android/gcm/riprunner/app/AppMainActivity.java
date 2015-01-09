@@ -189,8 +189,9 @@ public class AppMainActivity extends ActionBarActivity implements
     LocationRequest mLocationRequest;
     Location lastTrackedGEOLocation = null;
     boolean mUpdatesRequested = true;
-    
     PendingIntent geoTrackingIntent = null;
+    
+    int gcmLoginErrorCount = 0;
     
     /**
      * This class contains a wrapper for accessing predefined sounds
@@ -1105,23 +1106,52 @@ public class AppMainActivity extends ActionBarActivity implements
             Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner response for register_device: " + responseString);
             
             if(isGcmErrorBadSenderId(responseString)) {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        EditText etUpw = (EditText)findViewById(R.id.etUpw);
-                        etUpw.setText("");
-                        
-                        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-                        txtMsg.setText("Server config error: Invalid SenderId");
-                        
-                        showProgressDialog(false, null);
-                   }
-                });            
+            	if(gcmLoginErrorCount == 0) {
+            		gcmLoginErrorCount++;
+            		
+                	String regid = getGcmDeviceRegistrationId(true);
+                	auth.setGCMRegistrationId(regid);
+                	sendRegistrationIdToBackend(auth);
+                	return;
+            	}
+            	else {
+            		gcmLoginErrorCount = 0;
+	                runOnUiThread(new Runnable() {
+	                    public void run() {
+	                        EditText etUpw = (EditText)findViewById(R.id.etUpw);
+	                        etUpw.setText("");
+	                        
+	                        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
+	                        txtMsg.setText("Server config error: Invalid SenderId");
+	                        
+	                        showProgressDialog(false, null);
+	                   }
+	                });
+            	}
             }
             else if(isGcmErrorNotRegistered(responseString)) {
-            	String regid = getGcmDeviceRegistrationId(true);
-            	auth.setGCMRegistrationId(regid);
-            	sendRegistrationIdToBackend(auth);
-            	return;
+            	if(gcmLoginErrorCount == 0) {
+            		gcmLoginErrorCount++;
+
+	            	String regid = getGcmDeviceRegistrationId(true);
+	            	auth.setGCMRegistrationId(regid);
+	            	sendRegistrationIdToBackend(auth);
+	            	return;
+            	}
+            	else {
+            		gcmLoginErrorCount = 0;
+	                runOnUiThread(new Runnable() {
+	                    public void run() {
+	                        EditText etUpw = (EditText)findViewById(R.id.etUpw);
+	                        etUpw.setText("");
+	                        
+	                        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
+	                        txtMsg.setText("Android device error: " + responseString);
+	                        
+	                        showProgressDialog(false, null);
+	                   }
+	                });
+            	}
             }
             else {		
 	            if(responseString != null && responseString.startsWith("OK=")) {
