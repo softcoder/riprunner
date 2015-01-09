@@ -564,5 +564,4 @@
 			return 0; // tiebreakers exhausted, so $first == $second
 		};
 	}
-		
 ?>

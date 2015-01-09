@@ -65,6 +65,9 @@
 		// To Support additional SMS Providers contact the author or implement
 		// an SMS plugin class in the plugins/sms folder.
 		public $SMS_GATEWAY_TYPE;
+		// The type of SMS Callout provider. Current supported types:
+		// DEFAULT
+		public $SMS_CALLOUT_PROVIDER_TYPE;
 		// The recipients to send an SMS during communications such as a callout
 		// This can be a ; delimited list of mobile phone #'s (set are_group and from_db to false)
 		// or it can by a specific Group Name defined by the particular SMS provider (set are_group to true)
@@ -91,14 +94,15 @@
 		// The API FROM mobile phone # to use for twilio
 		public $SMS_PROVIDER_TWILIO_FROM;
 		
-		public function __construct($sms_enabled, $gateway_type, $recipients,
-				$recipients_are_group, $recipients_from_db,
+		public function __construct($sms_enabled, $gateway_type, $callout_type,
+				$recipients, $recipients_are_group, $recipients_from_db,
 				$sendhub_base_url, $textbelt_base_url, $eztexting_base_url,
 				$eztexting_username, $eztexting_password, $twilio_base_url,
 				$twilio_auth_token, $twilio_from) {
 			
 			$this->SMS_SIGNAL_ENABLED = $sms_enabled;
 			$this->SMS_GATEWAY_TYPE = $gateway_type;
+			$this->SMS_CALLOUT_PROVIDER_TYPE = $callout_type;
 			$this->SMS_RECIPIENTS = $recipients;
 			$this->SMS_RECIPIENTS_ARE_GROUP = $recipients_are_group;
 			$this->SMS_RECIPIENTS_FROM_DB = $recipients_from_db;

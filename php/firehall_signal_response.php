@@ -44,7 +44,9 @@ function signalResponseToSMSPlugin($FIREHALL, $callId, $userId,
 	}
 	
 	if($FIREHALL->LDAP->ENABLED) {
-		$recipients = get_sms_recipients_ldap($FIREHALL);
+		$recipients = get_sms_recipients_ldap($FIREHALL,null);
+		$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients);
+		
 		$recipient_list = explode(';',$recipients);
 		$recipient_list_array = $recipient_list;
 	}

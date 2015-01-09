@@ -309,7 +309,7 @@ function login_check_ldap($db_connection) {
 
 //echo "TEST SMS #'s: " . get_sms_recipients_ldap($FIREHALLS[0]) . PHP_EOL;
 
-function get_sms_recipients_ldap($FIREHALL) {
+function get_sms_recipients_ldap($FIREHALL, $str_group_filter) {
 	$debug_functions = false;
 	
 	$adServer = $FIREHALL->LDAP->LDAP_SERVERNAME;
@@ -335,7 +335,9 @@ function get_sms_recipients_ldap($FIREHALL) {
 
 	if ($bind) {
 		// Check if user has sms access
-		$str_group_filter = $FIREHALL->LDAP->LDAP_LOGIN_SMS_GROUP_FILTER;
+		if(isset($str_group_filter) == false) {
+			$str_group_filter = $FIREHALL->LDAP->LDAP_LOGIN_SMS_GROUP_FILTER;
+		}
 		 
 		$search_filter = $str_group_filter;
 		$result = ldap_search($ldap,$FIREHALL->LDAP->LDAP_BASEDN,$search_filter);
@@ -360,6 +362,15 @@ function get_sms_recipients_ldap($FIREHALL) {
 	    		
 	    		foreach($members as $member) {
 	    			
+	    			$original_member = $member;
+	    			$member = extractDelimitedValueFromString($original_member, "/uid=(.*?),/m", 1, true);
+	    			if($member == '') {
+	    				$member = extractDelimitedValueFromString($original_member, "/uid=(.*?)$/m", 1, true);
+	    			}
+	    			if($member == '') {
+	    				$member = $original_member;
+	    			}
+	    			
 	    			$user_filter = str_replace( '${login}', $member, $FIREHALL->LDAP->LDAP_LOGIN_FILTER );
 	    			if($debug_functions) echo "filter [$user_filter]" . PHP_EOL;
 	    			
@@ -371,11 +382,11 @@ function get_sms_recipients_ldap($FIREHALL) {
 		    			if(isset($users_list[0][$FIREHALL->LDAP->LDAP_USER_SMS_ATTR_NAME])) {
 			    			$sms_value = $users_list[0][$FIREHALL->LDAP->LDAP_USER_SMS_ATTR_NAME];
 			    			unset($sms_value['count']);
-			    			
+
 			    			if($recipient_list != '') {
 			    				$recipient_list .= ';';
 			    			}
-			    			$recipient_list .= $sms_value[0]; 	    			
+			    			$recipient_list .= $sms_value[0] . '<uid>' . $member . '</uid>';
 		    			}
 	    			}
 	    		}
@@ -403,7 +414,7 @@ function get_sms_recipients_ldap($FIREHALL) {
 	    			if($recipient_list != '') {
 	    				$recipient_list .= ';';
 	    			}
-	    			$recipient_list .= $sms_value[0];
+	    			$recipient_list .= $sms_value[0] . '<uid>' . $username[0] . '</uid>';
 	    		}
 	    	}
 	    }
@@ -494,16 +505,25 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 			foreach($members as $member) {
 				if($debug_functions) echo "group has member [$member]" . PHP_EOL;
 				
-				$member_uid = $member;
-				$parsed_member_uid = extractDelimitedValueFromString($member, '/uid=(.*?),/m', 1, true);
+// 				$member_uid = $member;
+// 				$parsed_member_uid = extractDelimitedValueFromString($member, '/uid=(.*?),/m', 1, true);
 				
-				if($debug_functions) echo "group has parsed member [$parsed_member_uid]" . PHP_EOL;
+// 				if($debug_functions) echo "group has parsed member [$parsed_member_uid]" . PHP_EOL;
 				
-				if(isset($parsed_member_uid) && $parsed_member_uid != '') {
-					$member_uid = $parsed_member_uid;
+// 				if(isset($parsed_member_uid) && $parsed_member_uid != '') {
+// 					$member_uid = $parsed_member_uid;
+// 				}
+
+				$original_member = $member;
+				$member = extractDelimitedValueFromString($original_member, "/uid=(.*?),/m", 1, true);
+				if($member == '') {
+					$member = extractDelimitedValueFromString($original_member, "/uid=(.*?)$/m", 1, true);
+				}
+				if($member == '') {
+					$member = $original_member;
 				}
 				
-				$user_filter = str_replace( '${login}', $member_uid, $FIREHALL->LDAP->LDAP_LOGIN_FILTER );
+				$user_filter = str_replace( '${login}', $member, $FIREHALL->LDAP->LDAP_LOGIN_FILTER );
 				if($debug_functions) echo "filter [$user_filter]" . PHP_EOL;
 				
 				$result_user_search = ldap_search($ldap,$basedn,$user_filter);

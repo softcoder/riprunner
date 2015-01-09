@@ -30,6 +30,8 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	define( 'SMS_GATEWAY_SENDHUB', 						'SENDHUB');
 	define( 'SMS_GATEWAY_EZTEXTING', 					'EZTEXTING');
 	define( 'SMS_GATEWAY_TWILIO', 						'TWILIO');
+	
+	define( 'SMS_CALLOUT_PROVIDER_DEFAULT', 			'DEFAULT');
 
 	// ----------------------------------------------------------------------
 	// Mobile App Settings

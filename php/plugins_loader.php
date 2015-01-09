@@ -6,7 +6,8 @@
 
 // The list of plugin paths
 $plugin_paths = array(
-	'plugins/sms/'
+	'plugins/sms/',
+	'plugins/sms-callout/'
 );
 
 foreach ($plugin_paths as $path) {

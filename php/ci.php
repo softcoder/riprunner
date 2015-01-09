@@ -204,6 +204,8 @@ if(isset($firehall_id)) {
 				$html .= '<h2><b><font color="white">No results for: [' . $sql . ']</font></b></h2>' . PHP_EOL;
 			}
 			else {
+				$user_id = get_query_param('uid');
+				
 				// Now show respond UI if applicable
 				if ( isset($callkey_id) && $callkey_id != null && $callkey_validated == true) {
 	
@@ -228,20 +230,26 @@ if(isset($firehall_id)) {
 					$html .='<br /><br />' . PHP_EOL;
 					$html .='<div id="callNoResponseContent' . $row_number . '">' . PHP_EOL;
 					while($row_no_response = $sql_no_response_result->fetch_object()) {
+						if(isset($user_id) == false || $user_id == $row_no_response->user_id) {
+							$injectUIDParam = '';
+							if(isset($user_id)) {
+								$injectUIDParam = '&uid=' . urlencode($user_id);
+							}
+							$html .='<br /><form id="call_no_response_' . $row_no_response->id .
+							'" action="cr.php?fhid=' . urlencode($firehall_id)
+							. '&cid=' . urlencode($callout_id)
+							. '&uid=' . urlencode($row_no_response->user_id)
+							. '&ckid=' . urlencode($callkey_id)
+							. $injectUIDParam
+							. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm ' . 
+																	$row_no_response->user_id . 
+																	' is responding?\',this);">'. PHP_EOL;
 							
-						$html .='<br /><form id="call_no_response_' . $row_no_response->id .
-						'" action="cr.php?fhid=' . urlencode($firehall_id)
-						. '&cid=' . urlencode($callout_id)
-						. '&uid=' . urlencode($row_no_response->user_id)
-						. '&ckid=' . urlencode($callkey_id)
-						. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm ' . 
-																$row_no_response->user_id . 
-																' is responding?\',this);">'. PHP_EOL;
-						
-						$html .='<INPUT TYPE="submit" VALUE="Repond Now - ' .
-								$row_no_response->user_id .
-								'" style="font-size: 25px; background-color:yellow" />'. PHP_EOL;
-						$html .='</form>'. PHP_EOL;
+							$html .='<INPUT TYPE="submit" VALUE="Repond Now - ' .
+									$row_no_response->user_id .
+									'" style="font-size: 25px; background-color:yellow" />'. PHP_EOL;
+							$html .='</form>'. PHP_EOL;
+						}
 					}
 					$sql_no_response_result->close();
 						
@@ -265,24 +273,33 @@ if(isset($firehall_id)) {
 							
 						$html .='<div id="callYesResponseContent' . $row_number . '">' . PHP_EOL;
 						while($row_yes_response = $sql_yes_response_result->fetch_object()) {
-							$html .='<br /><form id="call_yes_response_' . $row_yes_response->id . '" action="cr.php?fhid=' . urlencode($firehall_id)
-							. '&cid=' . urlencode($callout_id)
-							. '&uid=' . urlencode($row_yes_response->user_id)
-							. '&ckid=' . urlencode($callkey_id)
-							. '&status=' . urlencode(CalloutStatusType::Complete)
-							. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm that the call should be set to COMPLETE?\',this);">'. PHP_EOL;
-							$html .='<INPUT TYPE="submit" VALUE="End the Callout - '. $row_yes_response->user_id .'" style="font-size: 25px; background-color:lime" />'. PHP_EOL;
-							$html .='</form>'. PHP_EOL;
 							
-							$html .='<form id="call_cancel_response_' . $row_yes_response->id . '" action="cr.php?fhid=' . urlencode($firehall_id)
-							. '&cid=' . urlencode($callout_id)
-							. '&uid=' . urlencode($row_yes_response->user_id)
-							. '&ckid=' . urlencode($callkey_id)
-							. '&status=' . urlencode(CalloutStatusType::Cancelled)
-							. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'CANCEL this call?\nConfirm that the call should be CANCELLED?\',this);">'. PHP_EOL;
-							$html .='<INPUT TYPE="submit" VALUE="CANCEL the Callout - '. $row_yes_response->user_id .'" style="font-size: 25px; background-color:red" />'. PHP_EOL;
-							$html .='</form>'. PHP_EOL;
+							if(isset($user_id) == false || $user_id == $row_yes_response->user_id) {
+								$injectUIDParam = '';
+								if(isset($user_id)) {
+									$injectUIDParam = '&uid=' . urlencode($user_id);
+								}
 								
+								$html .='<br /><form id="call_yes_response_' . $row_yes_response->id . '" action="cr.php?fhid=' . urlencode($firehall_id)
+								. '&cid=' . urlencode($callout_id)
+								. '&uid=' . urlencode($row_yes_response->user_id)
+								. '&ckid=' . urlencode($callkey_id)
+								. $injectUIDParam
+								. '&status=' . urlencode(CalloutStatusType::Complete)
+								. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm that the call should be set to COMPLETE?\',this);">'. PHP_EOL;
+								$html .='<INPUT TYPE="submit" VALUE="End the Callout - '. $row_yes_response->user_id .'" style="font-size: 25px; background-color:lime" />'. PHP_EOL;
+								$html .='</form>'. PHP_EOL;
+								
+								$html .='<form id="call_cancel_response_' . $row_yes_response->id . '" action="cr.php?fhid=' . urlencode($firehall_id)
+								. '&cid=' . urlencode($callout_id)
+								. '&uid=' . urlencode($row_yes_response->user_id)
+								. '&ckid=' . urlencode($callkey_id)
+								. $injectUIDParam
+								. '&status=' . urlencode(CalloutStatusType::Cancelled)
+								. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'CANCEL this call?\nConfirm that the call should be CANCELLED?\',this);">'. PHP_EOL;
+								$html .='<INPUT TYPE="submit" VALUE="CANCEL the Callout - '. $row_yes_response->user_id .'" style="font-size: 25px; background-color:red" />'. PHP_EOL;
+								$html .='</form>'. PHP_EOL;
+							}
 						}
 						$sql_yes_response_result->close();
 						$html .='</div>' . PHP_EOL;
