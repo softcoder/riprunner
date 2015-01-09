@@ -1155,13 +1155,14 @@ public class AppMainActivity extends ActionBarActivity implements
 		
 		auth.setRegisteredBackend(true);
 		final String loggedOnUser = auth.getUserId();
+		final String loggedOnUserFirehallId = auth.getFirehallId();
 		
 		runOnUiThread(new Runnable() {
 		    public void run() {
 		    	
 		        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
 		        txtMsg.setText(getResources().getString(R.string.login_success) + 
-		        		" " + loggedOnUser);
+		        		" " + loggedOnUser + " - " + loggedOnUserFirehallId);
 
 		        // Enable when debugging
 		        //mDisplay.setText(responseString);
@@ -1333,31 +1334,7 @@ public class AppMainActivity extends ActionBarActivity implements
 			            Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner response for ct: " + responseString);
 			            
 			            if(responseString != null && responseString.startsWith("OK=")) {
-			            	
-			            	if(this.lastCallout != null) {
-				            	this.lastCallout.clearResponders();
-				            	
-				            	String [] responseParts = responseString.split("\\|");
-				            	if(responseParts != null && responseParts.length >= 2) {
-				            		String responders = responseParts[1];
-				            		String [] respondersList = responders.split("\\^");
-				            		if(respondersList != null && respondersList.length > 0) {
-				            			Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner adding responder count: " + respondersList.length);
-				            			
-				            			for(String responder : respondersList) {
-							            	String [] responderParts = responder.split("\\,");
-							            	if(responseParts != null && responseParts.length >= 3) {
-							            		Responder respondingPerson = 
-							            				this.lastCallout.new Responder(
-							            						responderParts[0],
-							            						responderParts[1],
-							            						responderParts[2]); 
-							            		this.lastCallout.addResponder(respondingPerson);
-							            	}			            				
-				            			}
-				            		}
-				            	}
-			            	}
+			            	extractCalloutResponders(responseString);
 			            	
 //			        		runOnUiThread(new Runnable() {
 //			        		   public void run() {
@@ -1372,7 +1349,6 @@ public class AppMainActivity extends ActionBarActivity implements
 			            	
 			        		runOnUiThread(new Runnable() {
 				        		   public void run() {
-			            	
 				        			   Toast.makeText(context, "CALLOUT ENDED - GEO Coordinates check.", Toast.LENGTH_LONG).show();
 				        		   }
 				        	});
@@ -1448,6 +1424,33 @@ public class AppMainActivity extends ActionBarActivity implements
         			null);
        	}
     }
+
+	private void extractCalloutResponders(final String responseString) {
+		if(this.lastCallout != null) {
+			this.lastCallout.clearResponders();
+			
+			String [] responseParts = responseString.split("\\|");
+			if(responseParts != null && responseParts.length >= 2) {
+				String responders = responseParts[1];
+				String [] respondersList = responders.split("\\^");
+				if(respondersList != null && respondersList.length > 0) {
+					Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner adding responder count: " + respondersList.length);
+					
+					for(String responder : respondersList) {
+		            	String [] responderParts = responder.split("\\,");
+		            	if(responseParts != null && responseParts.length >= 3) {
+		            		Responder respondingPerson = 
+		            				this.lastCallout.new Responder(
+		            						responderParts[0],
+		            						responderParts[1],
+		            						responderParts[2]); 
+		            		this.lastCallout.addResponder(respondingPerson);
+		            	}			            				
+					}
+				}
+			}
+		}
+	}
 	
 	public void processCalloutResponseTrigger(final String calloutMsg,
 			String callout_id, String callout_status, final String response_userId) {
@@ -1468,37 +1471,6 @@ public class AppMainActivity extends ActionBarActivity implements
 		    	mDisplay = (TextView) findViewById(R.id.display);
 		    	mDisplay.append("\n" + calloutMsg);
 		    	scrollToBottom(mDisplayScroll, mDisplay);
-
-		    	//!!!
-//		    	if(lastCallout != null &&
-//		    		CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
-//		    		
-//		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-//		            btnCompleteCall.setVisibility(View.VISIBLE);
-//		            btnCompleteCall.setEnabled(true);
-//
-//		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
-//		            btnCancelCall.setVisibility(View.VISIBLE);
-//		            btnCancelCall.setEnabled(true);
-//
-//		            if(isUserLoggedOn(response_userId)) {
-//				        Button btnRespond = (Button)findViewById(R.id.btnRespond);
-//				        btnRespond.setVisibility(View.VISIBLE);
-//				        btnRespond.setEnabled(false);
-//		            }
-//		    	}
-//		    	else {
-//		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-//		            btnCompleteCall.setVisibility(View.VISIBLE);
-//		            btnCompleteCall.setEnabled(false);
-//		            
-//		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
-//		            btnCancelCall.setVisibility(View.VISIBLE);
-//		            btnCancelCall.setEnabled(false);
-//		            
-//			        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-//			        txtMsg.setText(getResources().getString(R.string.waiting_for_callout));
-//		    	}
 		    	
 		    	setupCalloutUI(response_userId);
 		    	
@@ -1516,7 +1488,7 @@ public class AppMainActivity extends ActionBarActivity implements
 		    	
 		    	Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 		    	Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-		    	r.play();		    	
+		    	r.play();
 		   }
 		});
 	}
@@ -1547,41 +1519,6 @@ public class AppMainActivity extends ActionBarActivity implements
 		    	scrollToBottom(mDisplayScroll, mDisplay);
 		    	
 		    	playSound(context,FireHallSoundPlayer.SOUND_PAGER_TONE_PG);
-		    	
-//		        Button btnMap = (Button)findViewById(R.id.btnMap);
-//		        btnMap.setVisibility(View.VISIBLE);
-//		        btnMap.setEnabled(true);
-//		        
-//		        Button btnRespond = (Button)findViewById(R.id.btnRespond);
-//		        btnRespond.setVisibility(View.VISIBLE);
-//		        btnRespond.setEnabled(true);
-//		        
-//		        Button btnCallDetails = (Button)findViewById(R.id.btnCallDetails);
-//		        btnCallDetails.setEnabled(true);
-//		        btnCallDetails.setVisibility(View.VISIBLE);
-//		        
-//		    	if(CalloutStatusType.isComplete(lastCallout.getStatus()) == false) {
-//	                Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-//	                btnCompleteCall.setVisibility(View.VISIBLE);
-//	                btnCompleteCall.setEnabled(true);
-//	                
-//		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
-//		            btnCancelCall.setVisibility(View.VISIBLE);
-//		            btnCancelCall.setEnabled(true);
-//		            
-//		            showFragment(R.id.map);
-//		    	}
-//		    	else {
-//		            Button btnCompleteCall = (Button)findViewById(R.id.btnCompleteCall);
-//		            btnCompleteCall.setVisibility(View.VISIBLE);
-//		            btnCompleteCall.setEnabled(false);
-//		            
-//		            Button btnCancelCall = (Button)findViewById(R.id.btnCancelCall);
-//		            btnCancelCall.setVisibility(View.VISIBLE);
-//		            btnCancelCall.setEnabled(false);
-//		            
-//		            hideFragment(R.id.map);
-//		    	}
 		    	
 		    	setupCalloutUI(null);
 		   }
