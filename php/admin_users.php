@@ -6,7 +6,8 @@
 define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
-//require_once( 'firehall_signal_callout.php' );
+require_once( 'firehall_signal_callout.php' );
+require_once( 'firehall_signal_gcm.php' );
 
 // These lines are mandatory.
 require_once 'Mobile_Detect.php';
@@ -405,14 +406,76 @@ sec_session_start();
 			    </ul>
 			  </nav>
 			</div>
-            
+
+            <?php
+            $sendMsgResult = null;
+            $sendMsgResultStatus = null;
+            $form_action = get_query_param('form_action');
+            if(isset($form_action) && $form_action == "sms") {
+				//
+				$smsMsg = get_query_param('txtMsg');
+				$sendMsgResult = sendSMSPlugin_Message($FIREHALL, $smsMsg);
+				$sendMsgResultStatus = "SMS Message sent to applicable recipients.";
+				//echo "SMS send result [$sms_result]" . PHP_EOL;
+			}
+			else if(isset($form_action) && $form_action == "gcm") {
+				//
+				$gcmMsg = get_query_param('txtMsg');
+				$sendMsgResult = sendGCM_Message($FIREHALL,$gcmMsg,$db_connection);
+				$sendMsgResultStatus = "Android Message sent to applicable recipients.";
+				//echo "GCM send result [$gcm_result]" . PHP_EOL;
+			}
+			?>
+						
+			<button onclick="toggleVisibility('user_send_msg');">Show/Hide Send Message</button>			
+            <form action="admin_users.php" method="post" 
+            	id="user_send_msg" name="user_send_msg" 
+            	style="display:<?php if(isset($sendMsgResultStatus) == false) echo 'none';?>" >
+				<center>
+            	<table id="box-table-a" style="width:350px; height:100px;">
+	            	<tr>
+	            		<td>
+						<span id="msgTitle">Send a message:</span>
+						</td>
+	        		</tr>
+	            	<tr>
+	            		<td>
+						<textarea id="txtMsg" name="txtMsg" type="text" style="width:100%; height:100px;"></textarea>
+						</td>
+	        		</tr>
+	            	<tr>
+	            		<td>
+	        			<input type="button" value="Send using SMS" onclick="send_msg(this.form, 'sms');" />
+	        			<input type="button" value="Send using Android" onclick="send_msg(this.form, 'gcm');" />
+						</td>
+	        		</tr>
+	            	<tr>
+	            		<td>
+	        			<span id="msgStatus"><?php if(isset($sendMsgResultStatus)) echo $sendMsgResultStatus;?></span>
+						</td>
+	        		</tr>
+        		</table>
+        		</center>
+            </form>
             <form action="admin_users.php" method="post" name="user_edit_form">
             <?php
 
             $insert_new_account = false;
             $edit_user_id = null;
-            $form_action = get_query_param('form_action');
-            
+//             $form_action = get_query_param('form_action');
+//             if(isset($form_action) && $form_action == "sms") {
+// 				//
+// 				$smsMsg = get_query_param('txtMsg');
+// 				$sms_result = sendSMSPlugin_Message($FIREHALL, $smsMsg);
+// 				//echo "SMS send result [$sms_result]" . PHP_EOL;
+// 			}
+// 			else if(isset($form_action) && $form_action == "gcm") {
+// 				//
+// 				$gcmMsg = get_query_param('txtMsg');
+// 				$gcm_result = sendGCM_Message($FIREHALL,$gcmMsg,$db_connection);
+// 				//echo "GCM send result [$gcm_result]" . PHP_EOL;
+// 			}
+				
             // Handle CRUD operations
             $edit_user_id = handleEditAccount(false);
             $insert_new_account = isInsertAccount(false,$edit_user_id);
@@ -508,8 +571,23 @@ sec_session_start();
   	   		return true;
    		}
    		return false;
-     }
-    
+    }
+
+   	function send_msg(form, msg_type) {
+ 	   addformhiddenfield(form, 'form_action', msg_type);
+ 	   form.submit();
+   	}
+
+   	function toggleVisibility(itemId) {
+   		var item = document.getElementById(itemId);
+   	    if(item.style.display == "none") {
+   	    	item.style.display="block";
+   	    }
+   	    else {
+   	    	item.style.display="none";
+   	    }
+   	}
+   	
    	var item = document.getElementById("edit_firehall_id");
 	if(item) {
 		item.focus();

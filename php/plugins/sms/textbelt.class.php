@@ -20,7 +20,7 @@ class SMSTextBeltPlugin implements ISMSPlugin {
 		return 130;
 	}
 	public function signalRecipients($SMSConfig, $recipient_list, $recipient_list_type, $smsText) {
-		echo 'START Send SMS using TextBelt.' . PHP_EOL;
+		$resultSMS = 'START Send SMS using TextBelt.' . PHP_EOL;
 		
 		if($recipient_list_type == RecipientListType::GroupList) {
 			throw new Exception("TextBelt SMS Plugin does not support groups!");
@@ -29,7 +29,7 @@ class SMSTextBeltPlugin implements ISMSPlugin {
 			$recipient_list_numbers = $recipient_list;
 		}
 				
-		echo 'About to send SMS to: [' . implode(",", $recipient_list_numbers) . ']' . PHP_EOL;
+		$resultSMS .= 'About to send SMS to: [' . implode(",", $recipient_list_numbers) . ']' . PHP_EOL;
 		
 		$url = $SMSConfig->SMS_PROVIDER_TEXTBELT_BASE_URL;
 		
@@ -62,14 +62,15 @@ class SMSTextBeltPlugin implements ISMSPlugin {
 		
 				if(!curl_errno($s)) {
 					$info = curl_getinfo($s);
-					echo 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
+					$resultSMS .= 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
 				}
 				else {
-					echo 'Curl error: ' . curl_error($s) . PHP_EOL;
+					$resultSMS .= 'Curl error: ' . curl_error($s) . PHP_EOL;
 				}
 			}
 				
 			curl_close($s);
 		}
+		return $resultSMS;
 	}
 }

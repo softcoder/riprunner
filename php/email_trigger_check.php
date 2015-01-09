@@ -16,6 +16,7 @@ require_once( 'config.php' );
 require_once( 'functions.php' );
 require_once( 'firehall_parsing.php' );
 require_once( 'firehall_signal_callout.php' );
+require_once( 'third-party/html2text/Html2Text.php' );
 
 // Disable caching to ensure LIVE results.
 header( 'Cache-Control: no-store, no-cache, must-revalidate' );
@@ -85,6 +86,8 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 		$multi = $st->parts;
 	}
 	$nparts = count($multi);
+	$html .=  "Email contains [$nparts] parts<br>";
+	
 	if ($nparts == 0) {
 		$html .=  "* SINGLE part email<br>";
 	} 
@@ -93,6 +96,7 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 	}
 		
 	# look at the main part of the email, and subparts if they're present
+	$fullEmailBodyText = "";
 	for ($p = 0; $p <= $nparts; $p++) {
 		if($st->type == 1) {
 			$text = imap_fetchbody($mail,$n,$p);
@@ -116,6 +120,7 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 		$mimetype = "$it/$is";
 		$html .=  "<br /><b>Part $p ... ";
 		$html .=  "Encoding: $ie for $mimetype</b><br />";
+		//echo "****Email MIME type [$mimetype]" . PHP_EOL; 
 			
 		# decode content if it's encoded (more types to add later!)
 		if ($ie == "7bit") {
@@ -132,27 +137,16 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 			//$realdata = quoted_printable_decode($text);
 		}
 		 
-		list($isCallOutEmail, 
-			 $callDateTimeNative, 
-			 $callCode,
-			 $callAddress, 
-			 $callGPSLat, 
-			 $callGPSLong,
-			 $callUnitsResponding, 
-			 $callType) = processFireHallText($realdata);
-	
-		if($isCallOutEmail == true) {
-	
-			signalFireHallCallout($FIREHALL, $callDateTimeNative,
-				$callCode, $callAddress, $callGPSLat,
-				$callGPSLong, $callUnitsResponding, $callType);
-	
-			# Delete processed email message
-			if($FIREHALL->EMAIL->EMAIL_DELETE_PROCESSED) {
-				echo 'Delete email message#: ' . $n . PHP_EOL;
-				imap_delete($mail, $n);
-			}
+		if($mimetype == "Text/Html") {
+			//echo "****Email BEFORE convert:\n[$realdata]" . PHP_EOL;
+			$html .=  "**CONVERTING email from [$mimetype] to plain text</b><br />";
+			
+			$html_email = new \Html2Text\Html2Text($realdata);
+			$realdata = $html_email->getText();
+			
+			//echo "****Email AFTER convert:\n[$realdata]" . PHP_EOL;
 		}
+		$fullEmailBodyText .= $realdata;
 	
 		# If it's a .jpg image, save it (more types to add later)
 		// 			                if ($mimetype == "Image/Jpeg") {
@@ -170,6 +164,31 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 			$shorttext .= " ...\n";
 		}
 		$html .=  nl2br(htmlspecialchars($shorttext))."<br>";
+	}
+	
+	//!!!
+	if(isset($fullEmailBodyText) && strlen($fullEmailBodyText) > 0) {
+		list($isCallOutEmail,
+				$callDateTimeNative,
+				$callCode,
+				$callAddress,
+				$callGPSLat,
+				$callGPSLong,
+				$callUnitsResponding,
+				$callType) = processFireHallText($realdata);
+		
+		if($isCallOutEmail == true) {
+		
+			signalFireHallCallout($FIREHALL, $callDateTimeNative,
+							$callCode, $callAddress, $callGPSLat,
+							$callGPSLong, $callUnitsResponding, $callType);
+			
+			# Delete processed email message
+			if($FIREHALL->EMAIL->EMAIL_DELETE_PROCESSED) {
+				echo 'Delete email message#: ' . $n . PHP_EOL;
+				imap_delete($mail, $n);
+			}
+		}
 	}
 }
 

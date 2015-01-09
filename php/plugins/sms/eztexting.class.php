@@ -20,7 +20,7 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 		return 136;
 	}
 	public function signalRecipients($SMSConfig, $recipient_list, $recipient_list_type, $smsText) {
-		echo 'START Send SMS using EzTexting.' . PHP_EOL;
+		$resultSMS = "START Send SMS using EzTexting." . PHP_EOL;
 
 		if($recipient_list_type == RecipientListType::GroupList) {
 			$recipients_group = $recipient_list;
@@ -30,13 +30,13 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 		}
 			
 		if($recipient_list_type == RecipientListType::GroupList) {
-			echo 'About to send SMS to: [' . implode(",", $recipients_group) . ']' . PHP_EOL;
+			$resultSMS .= 'About to send SMS to: [' . implode(",", $recipients_group) . ']' . PHP_EOL;
 		}
 		else {
 			foreach($recipient_list_numbers as &$recipient) {
 				$recipient = '+1' . $recipient;
 			}
-			echo 'About to send SMS to: [' . implode(",", $recipient_list_numbers) . ']' . PHP_EOL;
+			$resultSMS .= 'About to send SMS to: [' . implode(",", $recipient_list_numbers) . ']' . PHP_EOL;
 		}
 	
 		$url = $SMSConfig->SMS_PROVIDER_EZTEXTING_BASE_URL;
@@ -75,10 +75,10 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 			$response = curl_exec($curl);
 			if(!curl_errno($curl)) {
 				$info = curl_getinfo($curl);
-				echo 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
+				$resultSMS .= 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
 			}
 			else {
-				echo 'Curl error: ' . curl_error($curl) . PHP_EOL;
+				$resultSMS .= 'Curl error: ' . curl_error($curl) . PHP_EOL;
 			}
 			
 			curl_close($curl);
@@ -90,8 +90,8 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 					$errors[] = (string) $error;
 				}
 			
-				echo 'Status: ' . $xml->Status . "\n" .
-						'Errors: ' . implode(', ' , $errors) . "\n";
+				$resultSMS .= 'Status: ' . $xml->Status . "\n" .
+							  'Errors: ' . implode(', ' , $errors) . "\n";
 			} 
 			else {
 				$phoneNumbers = array();
@@ -114,7 +114,7 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 					$groups[] = (string) $group;
 				}
 			
-				echo 'Status: ' . $xml->Status . "\n" .
+				$resultSMS .= 'Status: ' . $xml->Status . "\n" .
 						'Message ID : ' . $xml->Entry->ID . "\n" .
 						'Subject: ' . $xml->Entry->Subject . "\n" .
 						'Message: ' . $xml->Entry->Message . "\n" .
@@ -128,5 +128,7 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 						'Globally Opted Out Numbers: ' . implode(', ' , $globalOptOuts) . "\n";
 			}
 		}
+		
+		return $resultSMS;
 	}
 }

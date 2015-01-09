@@ -20,7 +20,7 @@ class SMSSendhubPlugin implements ISMSPlugin {
 		return 0;
 	}
 	public function signalRecipients($SMSConfig, $recipient_list, $recipient_list_type, $smsText) {
-		echo 'START Send SMS using SendHub.' . PHP_EOL;
+		$resultSMS = 'START Send SMS using SendHub.' . PHP_EOL;
 		
 		if($recipient_list_type == RecipientListType::GroupList) {
 			$recipients_group = $recipient_list;
@@ -32,13 +32,13 @@ class SMSSendhubPlugin implements ISMSPlugin {
 		$s = curl_init();
 		
 		if($recipient_list_type == RecipientListType::GroupList) {
-			echo 'About to send SMS to: [' . implode(",", $recipients_group) . ']' . PHP_EOL;
+			$resultSMS .= 'About to send SMS to: [' . implode(",", $recipients_group) . ']' . PHP_EOL;
 		}
 		else {
 			foreach($recipient_list_numbers as &$recipient) {
 				$recipient = '+1' . $recipient;
 			}
-			echo 'About to send SMS to: [' . implode(",", $recipient_list_numbers) . ']' . PHP_EOL;
+			$resultSMS .= 'About to send SMS to: [' . implode(",", $recipient_list_numbers) . ']' . PHP_EOL;
 		}
 		
 		$url = $SMSConfig->SMS_PROVIDER_SENDHUB_BASE_URL;
@@ -63,20 +63,22 @@ class SMSSendhubPlugin implements ISMSPlugin {
 		'Content-Length: ' . strlen($data_string))
 		);
 		
-		echo 'Sending JSON: ' . $data_string .PHP_EOL;
+		$resultSMS .= 'Sending JSON: ' . $data_string .PHP_EOL;
 		
 		$result = curl_exec($s);
 		
-		echo 'RESPONSE: ' . $result .PHP_EOL;
+		$resultSMS .= 'RESPONSE: ' . $result .PHP_EOL;
 		
 		if(!curl_errno($s)) {
 			$info = curl_getinfo($s);
-			echo 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
+			$resultSMS .= 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
 		}
 		else {
-			echo 'Curl error: ' . curl_error($s) . PHP_EOL;
+			$resultSMS .= 'Curl error: ' . curl_error($s) . PHP_EOL;
 		}
 		
 		curl_close($s);
+		
+		return $resultSMS;
 	}
 }
