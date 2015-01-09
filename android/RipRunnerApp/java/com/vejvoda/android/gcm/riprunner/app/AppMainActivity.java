@@ -1067,6 +1067,15 @@ public class AppMainActivity extends ActionBarActivity implements
     	return false;
     }
     
+    //GCM_ERROR:MismatchSenderId
+    private boolean isGcmErrorBadSenderId(String responseString) {
+    	//|GCM_ERROR:
+    	if(responseString != null && responseString.contains("|GCM_ERROR:MismatchSenderId")) {
+    		return true;
+    	}
+    	return false;
+    }
+    
     /**
      * Sends the registration ID to your server over HTTP, so it can use GCM/HTTP or CCS to send
      * messages to your app. Not needed for this demo since the device sends upstream messages
@@ -1095,38 +1104,52 @@ public class AppMainActivity extends ActionBarActivity implements
             final String responseString = out.toString();
             Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner response for register_device: " + responseString);
             
-            if(isGcmErrorNotRegistered(responseString)) {
-            	String regid = getGcmDeviceRegistrationId(true);
-            	auth.setGCMRegistrationId(regid);
-            	sendRegistrationIdToBackend(auth);
-            	return;
-            }
-            		
-            if(responseString != null && responseString.startsWith("OK=")) {
-            	String [] responseParts = responseString.split("\\|");
-            	if(responseParts != null && responseParts.length > 2) {
-            		String firehallCoords = responseParts[2];
-            		String [] firehallCoordsParts = firehallCoords.split("\\,");
-            		if(firehallCoordsParts != null && firehallCoordsParts.length == 2) {
-            			auth.setFireHallGeoLatitude(firehallCoordsParts[0]);
-            			auth.setFireHallGeoLongitude(firehallCoordsParts[1]);
-            		}
-            	}
-            	
-	            handleRegistrationSuccess(auth);
-            }
-            else {
+            if(isGcmErrorBadSenderId(responseString)) {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         EditText etUpw = (EditText)findViewById(R.id.etUpw);
                         etUpw.setText("");
                         
                         TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-                        txtMsg.setText("Invalid login attempt: " + responseString);
+                        txtMsg.setText("Server config error: Invalid SenderId");
                         
                         showProgressDialog(false, null);
                    }
                 });            
+            }
+            else if(isGcmErrorNotRegistered(responseString)) {
+            	String regid = getGcmDeviceRegistrationId(true);
+            	auth.setGCMRegistrationId(regid);
+            	sendRegistrationIdToBackend(auth);
+            	return;
+            }
+            else {		
+	            if(responseString != null && responseString.startsWith("OK=")) {
+	            	String [] responseParts = responseString.split("\\|");
+	            	if(responseParts != null && responseParts.length > 2) {
+	            		String firehallCoords = responseParts[2];
+	            		String [] firehallCoordsParts = firehallCoords.split("\\,");
+	            		if(firehallCoordsParts != null && firehallCoordsParts.length == 2) {
+	            			auth.setFireHallGeoLatitude(firehallCoordsParts[0]);
+	            			auth.setFireHallGeoLongitude(firehallCoordsParts[1]);
+	            		}
+	            	}
+	            	
+		            handleRegistrationSuccess(auth);
+	            }
+	            else {
+	                runOnUiThread(new Runnable() {
+	                    public void run() {
+	                        EditText etUpw = (EditText)findViewById(R.id.etUpw);
+	                        etUpw.setText("");
+	                        
+	                        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
+	                        txtMsg.setText("Invalid login attempt: " + responseString);
+	                        
+	                        showProgressDialog(false, null);
+	                   }
+	                });            
+	            }
             }
         } 
         else {

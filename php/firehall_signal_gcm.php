@@ -406,6 +406,7 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 			// Disabling SSL Certificate support temporarly
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
 			curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
@@ -418,7 +419,7 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 
 			// Close connection
 			curl_close($ch);
-			//echo $result;
+			//echo "GOT GCM Result [$result]" . PHP_EOL;
 				
 			$gcm_err = checkGCMResultError(null, $result);
 			if(isset($gcm_err)) {

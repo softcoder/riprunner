@@ -60,13 +60,20 @@ class SMSTwilioPlugin implements ISMSPlugin {
 		
 			curl_close($s);
 			
-		 	$xml = new SimpleXMLElement($result);
-		 	if ( isset($xml->RestException) ) {
-		 		$resultSMS .= 'TWILIO ERROR RESPONSE!' . PHP_EOL;
+			try {
+		 		$xml = new SimpleXMLElement($result);
+		 		
+		 		if ( isset($xml->RestException) ) {
+		 			$resultSMS .= 'TWILIO ERROR RESPONSE!' . PHP_EOL;
+		 		}
+		 		else {
+		 			$resultSMS .= 'TWILIO SUCCESS RESPONSE!' . PHP_EOL;
+		 		}
 			}
-			else {
-				$resultSMS .= 'TWILIO SUCCESS RESPONSE!' . PHP_EOL;
-			}
+		 	catch(Excepton $oException) {
+		 		$resultSMS .= "TWILIO XML ERROR RESPONSE: [$result]" . PHP_EOL;
+		 	}		 		
+		 	
 		}
 		return $resultSMS;
 	}

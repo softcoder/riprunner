@@ -422,8 +422,14 @@ sec_session_start();
 				//
 				$gcmMsg = get_query_param('txtMsg');
 				$sendMsgResult = sendGCM_Message($FIREHALL,$gcmMsg,$db_connection);
-				$sendMsgResultStatus = "Android Message sent to applicable recipients.";
-				//echo "GCM send result [$gcm_result]" . PHP_EOL;
+				
+				if(strpos($sendMsgResult,"|GCM_ERROR:")) {
+					$sendMsgResultStatus = "Error sending Android Message: " . $sendMsgResult;
+				}
+				else {
+					$sendMsgResultStatus = "Android Message sent to applicable recipients.";
+				}
+				//echo "GCM send result [$sendMsgResult]" . PHP_EOL;
 			}
 			?>
 						
