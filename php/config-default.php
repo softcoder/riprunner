@@ -192,6 +192,9 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// ----------------------------------------------------------------------
 	// Mobile App Settings
 	define( 'DEFAULT_GCM_API_KEY', 	'X');
+	// This is the Google 'Key for browser applications' API key from your google project:
+	// https://console.developers.google.com/project/<your proj name>/apiui/credential
+	// The google Project Number
 	define( 'DEFAULT_GCM_PROJECTID','X');
 	
 	$LOCAL_DEBUG_MOBILE = new FireHallMobile(true, true, true,

@@ -220,13 +220,21 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 
 			// Redirect to call info page
 			if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
+				
+				$user_id = get_query_param('uid');
+				$injectUIDParam = '';
+				if(isset($user_id)) {
+					$injectUIDParam = '&uid=' . urlencode($user_id);
+				}
+				
 				// Redirect to call info page
 				$redirect_host  = $_SERVER['HTTP_HOST'];
 				$redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
 				
 				$redirect_extra = 'ci.php?fhid='  . urlencode($firehall_id) .
 										 '&cid='  . urlencode($callout_id)  .
-										 '&ckid=' . urlencode($callkey_id);
+										 '&ckid=' . urlencode($callkey_id)  .
+										  $injectUIDParam;
 				if($startTrackingResponder) {
 					$redirect_extra .= '&cruid=' . urlencode($user_id);
 				}
