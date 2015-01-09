@@ -185,8 +185,10 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	// Mobile App Settings
 	
 	// Below is the Google Cloud Messaging API Key
+	// This is the Google 'Key for browser applications' API key from your google project:
+	// https://console.developers.google.com/project/<your proj name>/apiui/credential
 	define( 'DEFAULT_GCM_API_KEY', 	'X');
-	// Below is the Google Cloud Messaging Project Id (aka sender id)
+	// Below is the Google Cloud Messaging Project Number (aka sender id)
 	define( 'DEFAULT_GCM_PROJECTID','X');
 
 	// Below we create a Mobile structure for our firehall.
