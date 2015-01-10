@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="http://logging.apache.org/log4php/">
+    <appender name="myAppender" class="LoggerAppenderFile">
+        <param name="file" value="riprunner.log" />
+        <layout class="LoggerLayoutPattern">
+            <param name="conversionPattern" value="%date %-5level %msg%n" />
+        </layout>        
+    </appender>
+    <root>
+        <level value="WARN" />
+        <appender_ref ref="myAppender" />
+    </root>
+</configuration>
