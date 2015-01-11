@@ -199,7 +199,14 @@ public class SettingsActivity extends PreferenceActivity implements
 				                processMobileSettingsResponse(context, response);
 				            }
 				            else {
-				            	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner get defaults got error [" + statusLine.getReasonPhrase() + "]");
+				            	final String error = "code: " + statusLine.getStatusCode() + " msg: " + statusLine.getReasonPhrase();
+				            	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner get defaults got error [" + error + "]");
+				            	
+								runOnUiThread(new Runnable() {
+							        public void run() {
+										Toast.makeText(context, "*ERROR* receiving settings: " + error, Toast.LENGTH_LONG).show();
+							        }
+								});
 				            }
 						} 
 						catch (ClientProtocolException e) {
