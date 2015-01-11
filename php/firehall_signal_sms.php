@@ -11,31 +11,47 @@ if ( !defined('INCLUSION_PERMITTED') ||
 require_once( 'config.php' );
 require_once( 'functions.php' );
 require_once( 'plugins_loader.php' );
+require_once( 'logging.php' );
 
 function signalCalloutToSMSPlugin($FIREHALL, $callDateTimeNative, $callCode,
 		$callAddress, $callGPSLat, $callGPSLong,
 		$callUnitsResponding, $callType, $callout_id,
 		$callKey, $msgPrefix) {
-
+	
+	global $log;
+	$log->trace("Check SMS callout signal for SMS Enabled [" . $FIREHALL->SMS->SMS_SIGNAL_ENABLED . "]");
+	
 	if($FIREHALL->SMS->SMS_SIGNAL_ENABLED) {
 		$smsCalloutPlugin = findPlugin('ISMSCalloutPlugin', $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE);
 		if($smsCalloutPlugin == null) {
+			$log->error("Invalid SMS Callout Plugin type: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
 			throw new Exception("Invalid SMS Callout Plugin type: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
 		}
 		
-		$smsCalloutPlugin->signalRecipients($FIREHALL, 
+		$result = $smsCalloutPlugin->signalRecipients($FIREHALL, 
 				$callDateTimeNative, $callCode, $callAddress, 
 				$callGPSLat, $callGPSLong, $callUnitsResponding, 
 				$callType, $callout_id, $callKey, $msgPrefix);
+		
+		if(strpos($result,"ERROR")) {
+			$log->error("Error calling SMS callout provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$result]");
+		}
+		else {
+			$log->trace("Called SMS callout provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$result]");
+		}
 	}
 }
 
 function sendSMSPlugin_Message($FIREHALL, $msg) {
+	global $log;
+	$log->trace("Check SMS send message for SMS Enabled [" . $FIREHALL->SMS->SMS_SIGNAL_ENABLED . "]");
+	
 	$resultSMS = "";
 
 	if($FIREHALL->SMS->SMS_SIGNAL_ENABLED) {
 		$smsPlugin = findPlugin('ISMSPlugin', $FIREHALL->SMS->SMS_GATEWAY_TYPE);
 		if($smsPlugin == null) {
+			$log->error("Invalid SMS send msg Plugin type: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
 			throw new Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
 		}
 
@@ -66,6 +82,14 @@ function sendSMSPlugin_Message($FIREHALL, $msg) {
 
 		$resultSMS = $smsPlugin->signalRecipients($FIREHALL->SMS, $recipient_list_array,
 				$recipient_list_type, $msg);
+		
+		if(strpos($resultSMS,"ERROR")) {
+			$log->error("Error calling send msg SMS provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$resultSMS]");
+		}
+		else {
+			$log->trace("Called SMS send msg provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$resultSMS]");
+		}
+		
 	}
 
 	return $resultSMS;

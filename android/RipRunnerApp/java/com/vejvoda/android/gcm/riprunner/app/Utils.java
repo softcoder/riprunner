@@ -10,6 +10,7 @@ public class Utils {
      * Tag used on log messages.
      */
     static final String TAG = "RipRunner";
+    static final String APK_NAME = "RipRunnerApp.apk";
 	
 	public static int getLineNumber() {
 		if(Thread.currentThread().getStackTrace().length > 2) {

@@ -6,9 +6,15 @@
 package com.vejvoda.android.gcm.riprunner.app;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -86,10 +92,46 @@ public class SettingsActivity extends PreferenceActivity implements
 		getGeneralSettingsDefaults();
 	}
 
+    /**
+     * @return Application's version code from the {@code PackageManager}.
+     */
+    private static int getAppVersion(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+        } 
+        catch (NameNotFoundException e) {
+            // should never happen
+        	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", e);
+            throw new RuntimeException("Could not get package name: " + e);
+        }
+    }
+
+    /**
+     * @return Application's version code from the {@code PackageManager}.
+     */
+    private static String getAppVersionName(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionName;
+        } 
+        catch (NameNotFoundException e) {
+            // should never happen
+        	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Error", e);
+            throw new RuntimeException("Could not get package name: " + e);
+        }
+    }
+
 	void setupGeneralPrefsUI() {
 		// Add 'general' preferences.
 		addPreferencesFromResource(R.xml.pref_general);
 
+		String appVersionName = getAppVersionName(this);
+		Preference appVersion = (Preference)findPreference("appVersion");
+		appVersion.setTitle(getResources().getString(R.string.pref_appversion) +  " " + appVersionName);
+		
 		// Bind the summaries of EditText/List/Dialog/Ringtone preferences to
 		// their values. When their values change, their summaries are updated
 		// to reflect the new value, per the Android Design guidelines.
@@ -148,6 +190,7 @@ public class SettingsActivity extends PreferenceActivity implements
 				    public void run() {            	
 				    	HttpClient httpclient = new DefaultHttpClient();
 						try {
+							Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner get defaults calling url [" + URL+ "]");
 							// Ask the website for the mobile app settings
 							HttpResponse response = httpclient.execute(new HttpGet(URL));
 							
@@ -155,17 +198,20 @@ public class SettingsActivity extends PreferenceActivity implements
 				            if(statusLine.getStatusCode() == HttpStatus.SC_OK) {
 				                processMobileSettingsResponse(context, response);
 				            }
+				            else {
+				            	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner get defaults got error [" + statusLine.getReasonPhrase() + "]");
+				            }
 						} 
 						catch (ClientProtocolException e) {
-							Log.e(Utils.TAG, Utils.getLineNumber() + ": Error ", e);
+							Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
 				        	Toast.makeText(context, "#2 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
 						} 
 						catch (IOException e) {
-							Log.e(Utils.TAG, Utils.getLineNumber() + ": Error ", e);
+							Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
 							Toast.makeText(context, "#3 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
 						} 
 						catch (JSONException e) {
-							Log.e(Utils.TAG, Utils.getLineNumber() + ": Error ", e);
+							Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
 							Toast.makeText(context, "#4 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
 						}
 				    }
@@ -177,8 +223,11 @@ public class SettingsActivity extends PreferenceActivity implements
 						response.getEntity().writeTo(out);
 						out.close();
 						
+						final int current_client_android_versionCode = getAppVersion(context);
 						// Parse the JSON results
-						final String responseString = out.toString();
+						final String responseString = out.toString().trim();
+						Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner get defaults got response [" + responseString + "]");
+						
 						if(responseString != null && responseString.startsWith("{")) {
 							final JSONObject json = new JSONObject( responseString );
 							
@@ -195,13 +244,27 @@ public class SettingsActivity extends PreferenceActivity implements
 										else {
 											tracking_enabled.setChecked(false);
 										}
-																						
+										
+										Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Successfully received app settings.");
 										Toast.makeText(context, "Successfully received app settings.", Toast.LENGTH_LONG).show();
+										
+										if(json.has("android:versionCode")) {
+											int current_server_android_versionCode = json.getInt("android:versionCode");
+											Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner client ver [" + current_server_android_versionCode + "] server [" + current_server_android_versionCode + "]");
+											
+											if(current_server_android_versionCode > current_client_android_versionCode) {
+												createAndShowUpgradeDialog(getResources().getString(R.string.upgrade_message));
+											}
+										}
 									} 
 						        	catch (JSONException e) {
-						        		Log.e(Utils.TAG, Utils.getLineNumber() + ": Error ", e);
+						        		Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
 						            	Toast.makeText(context, "#1 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
 									}
+						        	catch (Exception e) {
+						        		Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
+						            	Toast.makeText(context, "#2 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+						        	}
 						        }
 						    });
 						}
@@ -211,6 +274,47 @@ public class SettingsActivity extends PreferenceActivity implements
         });
 	}
 	
+	 private void createAndShowUpgradeDialog(final String title) {
+		 final Activity ac = this;
+		 runOnUiThread(new Runnable() {
+			 public void run() {
+		 
+	         final Context context = getBaseContext();
+		     AlertDialog.Builder builder = new AlertDialog.Builder(ac);
+		     builder.setTitle(title);
+		     
+		     builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+		         public void onClick(DialogInterface dialog, int id) {
+		        	 dialog.dismiss();
+		              
+		        	 EditTextPreference host_url = (EditTextPreference)findPreference("host_url");
+	            	
+					 String updateAPK_URL = host_url.getText() + "apk/" + Utils.APK_NAME;
+					 Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner upgrade URL [" + updateAPK_URL + "]");
+					
+					 try {
+						Intent intent = new Intent(Intent.ACTION_VIEW );
+						intent.setData(Uri.parse(updateAPK_URL));
+						intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						context.startActivity(intent);
+					 }
+			 		 catch(Exception e) {
+		         		Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner upgrade Error ", e);
+		             	Toast.makeText(context, "#1 Error upgrading:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+ 					 }
+		        }
+		     });
+		     builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+		    	 public void onClick(DialogInterface dialog, int id) {
+		    		 dialog.dismiss();
+		         }
+		     });
+		     AlertDialog dialog = builder.create();
+		     dialog.show();
+			 }
+        });
+	}
+	 
 	/** {@inheritDoc} */
 	@Override
 	public boolean onIsMultiPane() {

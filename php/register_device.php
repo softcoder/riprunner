@@ -12,6 +12,7 @@ require_once( 'functions.php' );
 require_once( 'firehall_parsing.php' );
 require_once( 'firehall_signal_callout.php' );
 require_once( 'firehall_signal_response.php' );
+require_once( 'logging.php' );
 
 $registration_id = get_query_param('rid');
 $firehall_id = get_query_param('fhid');
@@ -29,6 +30,7 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
 	if($FIREHALL != null) {
 
+		$log->trace("device register registration_id = [$registration_id] firehall_id = [$firehall_id] user_id = [$user_id] user_pwd = [$user_pwd]");
 		if($debug_registration) echo "registration_id = [$registration_id] firehall_id = [$firehall_id] user_id = [$user_id] user_pwd = [$user_pwd]" .PHP_EOL;
 		
 		$db_connection = null;
@@ -49,7 +51,8 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 			if($sql_result == false) {
 				if($debug_registration) echo "E3";
 				
-				printf("Error: %s\n", mysqli_error($db_connection));
+				$log->error("device register sql error for sql [$sql] message [" . mysqli_error( $db_connection ) . "]");
+				//printf("Error: %s\n", mysqli_error($db_connection));
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
 	
@@ -60,10 +63,12 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 					$user_authenticated = true;
 				}
 				else {
+					$log->error("device register invalid password for user_id [$user_id]");
 					if($debug_registration) echo "E4";
 				}
 			}
 			else {
+				$log->error("device register invalid user_id [$user_id]");
 				if($debug_registration) echo "E5 [" . $sql . "]";
 			}
 			$sql_result->close();
@@ -100,7 +105,8 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 				if($sql_result == false) {
 					if($debug_registration) echo "E6";
 					
-					printf("Error: %s\n", mysqli_error($db_connection));
+					$log->error("device register register sql error for sql [$sql] message [" . mysqli_error( $db_connection ) . "]");
+					//printf("Error: %s\n", mysqli_error($db_connection));
 					throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 				}
 				
@@ -117,7 +123,9 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 					' ORDER BY id DESC LIMIT 1;';
 			$sql_result = $db_connection->query( $sql );
 			if($sql_result == false) {
-				printf("Error: %s\n", mysqli_error($db_connection));
+				//printf("Error: %s\n", mysqli_error($db_connection));
+				$log->error("device register callout sql error for sql [$sql] message [" . mysqli_error( $db_connection ) . "]");
+				
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
 			
@@ -170,7 +178,9 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 					
 					$sql_response_result = $db_connection->query( $sql_response );
 					if($sql_response_result == false) {
-						printf("Error: %s\n", mysqli_error($db_connection));
+						//printf("Error: %s\n", mysqli_error($db_connection));
+						$log->error("device register callout responders sql error for sql [$sql_response] message [" . mysqli_error( $db_connection ) . "]");
+						
 						throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql_response . "]");
 					}
 					
@@ -215,10 +225,13 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 		}
 	}
 	else {
+		$log->error("device register invalid firehall id [$firehall_id]!");
+		
 		if($debug_registration) echo "E2";
 	}
 }
 else {
+	$log->error("device register no query params!");
 	if($debug_registration) echo "E1";
 }
 

@@ -17,6 +17,7 @@ require_once( 'functions.php' );
 require_once( 'firehall_parsing.php' );
 require_once( 'firehall_signal_callout.php' );
 require_once( 'third-party/html2text/Html2Text.php' );
+require_once( 'logging.php' );
 
 // Disable caching to ensure LIVE results.
 header( 'Cache-Control: no-store, no-cache, must-revalidate' );
@@ -27,12 +28,16 @@ header( 'Pragma: no-cache' );
 $html = poll_email_callouts($FIREHALLS);
 
 function validate_email_sender($FIREHALL, &$html, &$mail, $n) {
+	global $log;
+	
 	$valid_email_trigger = true;
 	
 	if(isset($FIREHALL->EMAIL->EMAIL_FROM_TRIGGER) &&
 			 $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER != null &&
 			 $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER != '') {
-		 
+
+		$log->trace("Email trigger check from field for [" . $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER . "]");
+		
 		$valid_email_trigger = false;
 		 
 		$html .=  "<h3>Looking for email from trigger [" .
@@ -55,6 +60,8 @@ function validate_email_sender($FIREHALL, &$html, &$mail, $n) {
 				if($fromaddr == $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER) {
 					$valid_email_trigger = true;
 				}
+				
+				$log->trace("Email trigger check from field result: $valid_email_trigger for value [$fromaddr]");
 				 
 				$html .=  "<h3>Found email from [" .
 						$header->from[0]->mailbox . "@" .
@@ -63,10 +70,12 @@ function validate_email_sender($FIREHALL, &$html, &$mail, $n) {
 	
 			}
 			else {
+				$log->warn("Email trigger check from field Error, Header->from is not set!");
 				$html .=  "<h3>Error, Header->from is not set</h3><br />" . PHP_EOL;
 			}
 		}
 		else {
+			$log->warn("Email trigger check from field Error, Header is not set!");
 			$html .=  "<h3>Error, Header is not set</h3><br />" . PHP_EOL;
 		}
 	}
@@ -74,6 +83,8 @@ function validate_email_sender($FIREHALL, &$html, &$mail, $n) {
 }
 
 function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
+	global $log;
+	
 	# Following are number to names mappings
 	$codes = array("7bit","8bit","binary","base64","quoted-printable","other");
 	$stt = array("Text","Multipart","Message","Application","Audio","Image","Video","Other");
@@ -86,6 +97,8 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 		$multi = $st->parts;
 	}
 	$nparts = count($multi);
+	
+	$log->trace("Email trigger check Email contains [$nparts] parts.");
 	$html .=  "Email contains [$nparts] parts<br>";
 	
 	if ($nparts == 0) {
@@ -136,7 +149,9 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 			$realdata = imap_qprint($text);
 			//$realdata = quoted_printable_decode($text);
 		}
-		 
+
+		$log->trace("Email trigger check part# $p is mime type [$mimetype].");
+		
 		if($mimetype == "Text/Html") {
 			//echo "****Email BEFORE convert:\n[$realdata]" . PHP_EOL;
 			$html .=  "**CONVERTING email from [$mimetype] to plain text</b><br />";
@@ -146,6 +161,8 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 			
 			//echo "****Email AFTER convert:\n[$realdata]" . PHP_EOL;
 		}
+		$log->trace("Email trigger check part# $p contents [$realdata].");
+		
 		$fullEmailBodyText .= $realdata;
 	
 		# If it's a .jpg image, save it (more types to add later)
@@ -168,6 +185,8 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 	
 	//!!!
 	if(isset($fullEmailBodyText) && strlen($fullEmailBodyText) > 0) {
+		$log->trace("Email trigger processing contents...");
+		
 		list($isCallOutEmail,
 				$callDateTimeNative,
 				$callCode,
@@ -177,14 +196,17 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 				$callUnitsResponding,
 				$callType) = processFireHallText($realdata);
 		
-		if($isCallOutEmail == true) {
+		$log->trace("Email trigger processing contents signal result: $isCallOutEmail");
 		
+		if($isCallOutEmail == true) {
 			signalFireHallCallout($FIREHALL, $callDateTimeNative,
 							$callCode, $callAddress, $callGPSLat,
 							$callGPSLong, $callUnitsResponding, $callType);
 			
 			# Delete processed email message
 			if($FIREHALL->EMAIL->EMAIL_DELETE_PROCESSED) {
+				$log->trace("Email trigger processing Delete email message#: $n");
+				
 				echo 'Delete email message#: ' . $n . PHP_EOL;
 				imap_delete($mail, $n);
 			}
@@ -193,7 +215,7 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 }
 
 function poll_email_callouts($FIREHALLS_LIST) {
-
+	global $log;
 	$html = "";
 	
 	echo 'Loop count: ' . sizeof($FIREHALLS_LIST) .PHP_EOL;
@@ -205,28 +227,38 @@ function poll_email_callouts($FIREHALLS_LIST) {
 			continue;
 		}
 		$pictures = 0;
-				
+
+		$log->trace("Email trigger checking firehall: " . 
+				$FIREHALL->WEBSITE->FIREHALL_NAME . 
+				" connection string [" . 
+				$FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING . "]");
+		
 		$html .= '<h2>Checking for: ' . $FIREHALL->WEBSITE->FIREHALL_NAME . '</h2><br />';
 		# Connect to the mail server and grab headers from the mailbox
 		$mail = imap_open($FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING, 
 						  $FIREHALL->EMAIL->EMAIL_HOST_USERNAME, 
 						  $FIREHALL->EMAIL->EMAIL_HOST_PASSWORD);
 		
-		//if (imap_num_msg($mail) == 0)
-		//	$errors = imap_errors();
-				
-		$headers = imap_headers($mail);
-		
-		# loop through each email header
-		for ($n=1; $n<=count($headers); $n++) {
-			$html .=  "<h3>".$headers[$n-1]."</h3><br />" . PHP_EOL;
-		
-		    $valid_email_trigger = validate_email_sender($FIREHALL, $html, $mail, $n);
-		    if($valid_email_trigger == true) {
-		    	process_email_trigger($FIREHALL, $html, $mail, $n);
-		    }
+		if($mail == false) {
+			$err_text = imap_last_error();
+			$log->error("Email trigger checking imap_open response [$err_text]");
 		}
-		imap_expunge($mail);
+		else {
+			//if (imap_num_msg($mail) == 0)
+			//	$errors = imap_errors();
+			$headers = imap_headers($mail);
+			
+			# loop through each email header
+			for ($n=1; $n<=count($headers); $n++) {
+				$html .=  "<h3>".$headers[$n-1]."</h3><br />" . PHP_EOL;
+			
+			    $valid_email_trigger = validate_email_sender($FIREHALL, $html, $mail, $n);
+			    if($valid_email_trigger == true) {
+			    	process_email_trigger($FIREHALL, $html, $mail, $n);
+			    }
+			}
+			imap_expunge($mail);
+		}
 		imap_close($mail);
 	}
 	

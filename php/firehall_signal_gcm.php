@@ -13,16 +13,21 @@ if ( !defined('INCLUSION_PERMITTED') ||
 require_once( 'config.php' );
 require_once( 'functions.php' );
 require_once( 'plugins_loader.php' );
+require_once( 'logging.php' );
 
 function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 		$callCode, $callAddress, $callGPSLat, $callGPSLong,
 		$callUnitsResponding, $callType, $callout_id, $callKey, $callStatus,
 		$device_id,$smsMsg,$db_connection) {
 
+	global $log;
+	$log->trace("Check GCM callout signal for MOBILE Enabled [" . 
+			$FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED . "] GCM [" . $FIREHALL->MOBILE->GCM_SIGNAL_ENABLED . "]");
+	
 	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
 		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
 
-		echo 'START Send Callout Notifications using GCM.' . PHP_EOL;
+		//echo 'START Send Callout Notifications using GCM.' . PHP_EOL;
 
 		$adhoc_db_connection = false;
 		if(isset($db_connection) == false) {
@@ -39,25 +44,27 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 					'\';';
 			$sql_result = $db_connection->query( $sql );
 			if($sql_result == false) {
-				printf("Error: %s\n", mysqli_error($db_connection));
+				$log->error("Send GCM callout SQL error for sql [$sql] error: " . mysqli_error($db_connection));
+				//printf("Error: %s\n", mysqli_error($db_connection));
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
 				
 			$row_number = 1;
 			while($row = $sql_result->fetch_object()) {
-					
 				array_push($registration_ids, $row->registration_id);
 				$row_number++;
 			}
 			$sql_result->close();
 			//echo 'Found devices: ' . $row_number . PHP_EOL;
+			$log->trace("Send GCM callout Found devices: $row_number");
 		}
 		else {
 			array_push($registration_ids, $device_id);
 			//echo 'Reg DeviceId [' . $device_id . ']';
 		}
 			
-		if(sizeof($registration_ids) > 0) {
+		$log->trace("Send GCM callout check device count: " . count($registration_ids));
+		if(count($registration_ids) > 0) {
 			// Set POST variables
 			$url = $FIREHALL->MOBILE->GCM_SEND_URL;
 				
@@ -83,8 +90,6 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 			}
 			
 			$callType = convertCallOutTypeToText($callCode);
-			
-						
 				
 			$message = array("CALLOUT_MSG" => urlencode($smsMsg),
 					"call-id"  => urlencode($callout_id),
@@ -107,6 +112,9 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 					'Authorization: key=' . $FIREHALL->MOBILE->GCM_API_KEY,
 					'Content-Type: application/json'
 			);
+			
+			$log->trace("Send GCM callout about to send headers [" . json_encode($headers) ."] fields [" . json_encode($fields) ."]");
+			
 			// Open connection
 			$ch = curl_init();
 
@@ -125,6 +133,7 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 			// Execute post
 			$result = curl_exec($ch);
 			if ($result === FALSE) {
+				$log->error("Send GCM callout error detected [" . curl_error($ch) ."]");
 				die('Curl failed: ' . curl_error($ch));
 			}
 
@@ -134,6 +143,8 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 			
 			$gcm_err = checkGCMResultError(null, $result);
 			if(isset($gcm_err)) {
+				$log->error("Send GCM callout error response [" . $gcm_err ."]");
+				
 				foreach( $registration_ids as $reg_device_id ) {
 					removeDeviceIfNotRegistered($reg_device_id, $gcm_err, $db_connection);
 				}
@@ -141,6 +152,7 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 				echo '|GCM_ERROR:' . $gcm_err . '|';
 			}
 			else {
+				$log->trace("Send GCM callout success response [" . $result ."]");
 				echo $result;
 			}
 		}
@@ -155,10 +167,14 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 		$callGPSLat, $callGPSLong,
 		$userStatus, $callkey_id, $smsMsg,$device_id,$db_connection) {
 
+	global $log;
+	$log->trace("Check GCM response signal for MOBILE Enabled [" .
+			$FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED . "] GCM [" . $FIREHALL->MOBILE->GCM_SIGNAL_ENABLED . "]");
+	
 	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
 		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
 	
-		echo 'START Send Response Notifications using GCM.' . PHP_EOL;
+		//echo 'START Send Response Notifications using GCM.' . PHP_EOL;
 	
 		//$db_connection = null;
 		$adhoc_db_connection = false;
@@ -176,26 +192,28 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 					'\';';
 			$sql_result = $db_connection->query( $sql );
 			if($sql_result == false) {
-				printf("Error: %s\n", mysqli_error($db_connection));
+				$log->error("Send GCM response SQL error for sql [$sql] error: " . mysqli_error($db_connection));
+				//printf("Error: %s\n", mysqli_error($db_connection));
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
 		
 			$row_number = 1;
 			while($row = $sql_result->fetch_object()) {
-					
 				array_push($registration_ids, $row->registration_id);
 				$row_number++;
 			}
 			$sql_result->close();
+			
 			//echo 'Found devices: ' . $row_number . PHP_EOL;
-			echo 'Found devices: ' . $row_number . PHP_EOL;
+			$log->trace("Send GCM response Found devices: $row_number");
 		}
 		else {
 			array_push($registration_ids, $device_id);
 			//echo 'Reg DeviceId [' . $device_id . ']';
 		}
 	
-		if(sizeof($registration_ids) > 0) {
+		$log->trace("Send GCM response check device count: " . count($registration_ids));
+		if(count($registration_ids) > 0) {
 			// Set POST variables
 			$url = $FIREHALL->MOBILE->GCM_SEND_URL;
 	
@@ -228,6 +246,9 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 					'Authorization: key=' . $FIREHALL->MOBILE->GCM_API_KEY,
 					'Content-Type: application/json'
 			);
+			
+			$log->trace("Send GCM response about to send headers [" . json_encode($headers) ."] fields [" . json_encode($fields) ."]");
+			
 			// Open connection
 			$ch = curl_init();
 				
@@ -246,6 +267,7 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 			// Execute post
 			$result = curl_exec($ch);
 			if ($result === FALSE) {
+				$log->error("Send GCM callout error detected [" . curl_error($ch) ."]");
 				die('Curl failed: ' . curl_error($ch));
 			}
 				
@@ -255,6 +277,8 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 			
 			$gcm_err = checkGCMResultError(null, $result);
 			if(isset($gcm_err)) {
+				$log->error("Send GCM response error response [" . $gcm_err ."]");
+				
 				foreach( $registration_ids as $reg_device_id ) {
 					removeDeviceIfNotRegistered($reg_device_id, $gcm_err, $db_connection);
 				}
@@ -262,6 +286,7 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 				echo '|GCM_ERROR:' . $gcm_err . '|';
 			}
 			else {
+				$log->trace("Send GCM response success response [" . $result ."]");
 				echo $result;
 			}
 		}
@@ -274,16 +299,20 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 
 function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connection) {
 
+	global $log;
+	$log->trace("Check GCM login signal for MOBILE Enabled [" .
+			$FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED . "] GCM [" . $FIREHALL->MOBILE->GCM_SIGNAL_ENABLED . "]");
+	
 	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
 		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
 
-		echo 'START Send Notifications using GCM.' . PHP_EOL;
+		//echo 'START Send Notifications using GCM.' . PHP_EOL;
 
 		$registration_ids = array();
 		array_push($registration_ids, $device_id);
 		//echo 'Reg DeviceId [' . $device_id . ']';
 		
-		if(sizeof($registration_ids) > 0) {
+		if(count($registration_ids) > 0) {
 			// Set POST variables
 			$url = $FIREHALL->MOBILE->GCM_SEND_URL;
 
@@ -300,6 +329,9 @@ function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connectio
 					'Authorization: key=' . $FIREHALL->MOBILE->GCM_API_KEY,
 					'Content-Type: application/json'
 			);
+			
+			$log->trace("Send GCM response about to send headers [" . json_encode($headers) ."] fields [" . json_encode($fields) ."]");
+			
 			// Open connection
 			$ch = curl_init();
 
@@ -318,6 +350,7 @@ function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connectio
 			// Execute post
 			$result = curl_exec($ch);
 			if ($result === FALSE) {
+				$log->error("Send GCM login error detected [" . curl_error($ch) ."]");
 				die('Curl failed: ' . curl_error($ch));
 			}
 
@@ -326,6 +359,8 @@ function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connectio
 
 			$gcm_err = checkGCMResultError(null, $result);
 			if(isset($gcm_err)) {
+				$log->error("Send GCM login error response [" . $gcm_err ."]");
+				
 				foreach( $registration_ids as $reg_device_id ) {
 					removeDeviceIfNotRegistered($reg_device_id, $gcm_err, $db_connection);
 				}
@@ -333,6 +368,7 @@ function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connectio
 				echo '|GCM_ERROR:' . $gcm_err . '|';
 			}
 			else {
+				$log->trace("Send GCM login success response [" . $result ."]");
 				echo $result;
 			}
 		}
@@ -340,6 +376,11 @@ function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connectio
 }
 
 function sendGCM_Message($FIREHALL,$msg,$db_connection) {
+	
+	global $log;
+	$log->trace("Check GCM send_msg signal for MOBILE Enabled [" .
+			$FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED . "] GCM [" . $FIREHALL->MOBILE->GCM_SIGNAL_ENABLED . "]");
+	
 	$resultGCM = "";
 	
 	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
@@ -362,25 +403,27 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 					'\';';
 			$sql_result = $db_connection->query( $sql );
 			if($sql_result == false) {
-				printf("Error: %s\n", mysqli_error($db_connection));
+				$log->error("Send GCM response SQL error for sql [$sql] error: " . mysqli_error($db_connection));
+				//printf("Error: %s\n", mysqli_error($db_connection));
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
 
-			$row_number = 1;
+			$row_number = 0;
 			while($row = $sql_result->fetch_object()) {
-					
 				array_push($registration_ids, $row->registration_id);
 				$row_number++;
 			}
 			$sql_result->close();
 			//echo 'Found devices: ' . $row_number . PHP_EOL;
+			$log->trace("Send GCM send_msg Found devices: $row_number");
 		}
 		else {
 			array_push($registration_ids, $device_id);
 			//echo 'Reg DeviceId [' . $device_id . ']';
 		}
 			
-		if(sizeof($registration_ids) > 0) {
+		$log->trace("Send GCM send_msg check device count: " . count($registration_ids));
+		if(count($registration_ids) > 0) {
 			// Set POST variables
 			$url = $FIREHALL->MOBILE->GCM_SEND_URL;
 
@@ -395,6 +438,9 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 					'Authorization: key=' . $FIREHALL->MOBILE->GCM_API_KEY,
 					'Content-Type: application/json'
 			);
+			
+			$log->trace("Send GCM send_msg about to send headers [" . json_encode($headers) ."] fields [" . json_encode($fields) ."]");
+			
 			// Open connection
 			$ch = curl_init();
 
@@ -414,6 +460,7 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 			// Execute post
 			$result = curl_exec($ch);
 			if ($result === FALSE) {
+				$log->error("Send GCM send_msg error detected [" . curl_error($ch) ."]");
 				die('Curl failed: ' . curl_error($ch));
 			}
 
@@ -425,6 +472,8 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 				
 			$gcm_err = checkGCMResultError(null, $result);
 			if(isset($gcm_err)) {
+				$log->error("Send GCM send_msg error response [" . $gcm_err ."]");
+				
 				foreach( $registration_ids as $reg_device_id ) {
 					removeDeviceIfNotRegistered($reg_device_id, $gcm_err, $db_connection);
 				}
@@ -432,6 +481,7 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 				$resultGCM .= '|GCM_ERROR:' . $gcm_err . '|';
 			}
 			else {
+				$log->trace("Send GCM send_msg success response [" . $result ."]");
 				$resultGCM .= $result;
 			}
 		}
@@ -444,7 +494,6 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 }
 
 function isGCMError($result) {
-	//|GCM_ERROR:
 	if(isset($result) && strpos($result,"|GCM_ERROR:")) {
 		return true;
 	}
@@ -452,6 +501,8 @@ function isGCMError($result) {
 }
 
 function removeDeviceIfNotRegistered($device_id, $gcm_err, $db_connection) {
+	global $log;
+	
 	if(isset($gcm_err) && ($gcm_err == 'NotRegistered' || $gcm_err == 'MismatchSenderId')) {
 		// Delete from the database connected devices to GCM
 		$adhoc_db_connection = false;
@@ -463,7 +514,8 @@ function removeDeviceIfNotRegistered($device_id, $gcm_err, $db_connection) {
 		$sql = 'DELETE FROM devicereg WHERE registration_id = \'' . $db_connection->real_escape_string($device_id) . '\';';
 		$sql_result = $db_connection->query( $sql );
 		if($sql_result == false) {
-			printf("Error: %s\n", mysqli_error($db_connection));
+			$log->error("Remove GCM device SQL error for sql [$sql] error: " . mysqli_error($db_connection));
+			//printf("Error: %s\n", mysqli_error($db_connection));
 			throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 		}
 			
@@ -497,6 +549,6 @@ function getGCMCalloutMessage($FIREHALL,$callDateTimeNative,
 		$callUnitsResponding, $callType, $callout_id, $callKey) {
 
 	$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . 
-				  ', ' . $callAddress . ' @' . $callDateTimeNative->format('Y-m-d H:i:s');;
+				  ', ' . $callAddress . ' @' . $callDateTimeNative->format('Y-m-d H:i:s');
 	return $msgSummary;
 }

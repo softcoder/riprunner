@@ -1673,19 +1673,21 @@ containing a value of this type.
         public static final int map=0x7f0c0038;
         public static final int mapmygps=0x7f0c002d;
         public static final int password=0x7f0c0033;
-        public static final int pref_default_host_url=0x7f0c0047;
-        public static final int pref_default_sender_id=0x7f0c0049;
-        public static final int pref_defaults_get=0x7f0c004b;
         /**  Strings related to Settings 
- Example General settings 
+ General settings 
          */
-        public static final int pref_header_general=0x7f0c0045;
-        public static final int pref_title_host_url=0x7f0c0046;
-        public static final int pref_title_sender_id=0x7f0c0048;
-        public static final int pref_title_tracking_enabled=0x7f0c004a;
+        public static final int pref_appversion=0x7f0c0046;
+        public static final int pref_default_host_url=0x7f0c0049;
+        public static final int pref_default_sender_id=0x7f0c004b;
+        public static final int pref_defaults_get=0x7f0c004d;
+        public static final int pref_header_general=0x7f0c0047;
+        public static final int pref_title_host_url=0x7f0c0048;
+        public static final int pref_title_sender_id=0x7f0c004a;
+        public static final int pref_title_tracking_enabled=0x7f0c004c;
         public static final int respond=0x7f0c0039;
         public static final int settings=0x7f0c002e;
-        public static final int title_activity_settings=0x7f0c0044;
+        public static final int title_activity_settings=0x7f0c0045;
+        public static final int upgrade_message=0x7f0c0044;
         public static final int userid=0x7f0c0032;
         public static final int waiting_for_callout=0x7f0c003b;
         /**  Text on a placeholder buy button when Google Play services is not

@@ -1102,7 +1102,7 @@ public class AppMainActivity extends ActionBarActivity implements
             response.getEntity().writeTo(out);
             out.close();
             
-            final String responseString = out.toString();
+            final String responseString = out.toString().trim();
             Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner response for register_device: " + responseString);
             
             if(isGcmErrorBadSenderId(responseString)) {
@@ -1279,7 +1279,7 @@ public class AppMainActivity extends ActionBarActivity implements
             response.getEntity().writeTo(out);
             out.close();
             
-            final String responseString = out.toString();
+            final String responseString = out.toString().trim();
             Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner response for cr: " + responseString);
             
             if(responseString != null && responseString.startsWith("OK=")) {
@@ -1384,7 +1384,7 @@ public class AppMainActivity extends ActionBarActivity implements
 			            response.getEntity().writeTo(out);
 			            out.close();
 			            
-			            final String responseString = out.toString();
+			            final String responseString = out.toString().trim();
 			            Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner response for ct: " + responseString);
 			            
 			            if(responseString != null && responseString.startsWith("OK=")) {
