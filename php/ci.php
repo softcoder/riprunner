@@ -16,6 +16,7 @@ define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
 require_once( 'firehall_parsing.php' );
+require_once( 'logging.php' );
 
 $firehall_id = get_query_param('fhid');
 $callkey_id = get_query_param('ckid');
@@ -29,6 +30,12 @@ if(isset($firehall_id)) {
 	if(isset($FIREHALL) && $FIREHALL != null) {
 		echo '<title>' . $FIREHALL->WEBSITE->FIREHALL_NAME . ' - Callout Detail</title>';
 	}
+	else {
+		$log->error("Call Info firehall_id NOT FOUND [$firehall_id]!");
+	}
+}
+else {
+	$log->error("Call Info firehall_id is NOT SET!");
 }
 ?>
 <script type="text/JavaScript" src="js/common-utils.js"></script>
@@ -55,16 +62,6 @@ if(isset($firehall_id)) {
 </head>
 
 <?php
-ini_set('display_errors', 'On');
-error_reporting(E_ALL);
-
-//	Copyright (C) 2014 Mark Vejvoda
-//	Under GNU GPL v3.0
-
-require_once( 'config.php' );
-require_once( 'functions.php' );
-require_once( 'firehall_parsing.php' );
-
 $html = "";
 
 if(isset($firehall_id)) {
@@ -93,14 +90,18 @@ if(isset($firehall_id)) {
 			//$sql_where_clause = ' ORDER BY updatetime DESC LIMIT 1';
 		}
 		
+		$log->trace("Call Info for firehall_id [$firehall_id] callout_id [$callout_id] callkey_id [$callkey_id]");
+		
 		if($callout_id != -1 && isset($callkey_id)) {
 			// Read from the database info about this callout
 			$sql = 'SELECT * FROM callouts' . $sql_where_clause . ';';
 			$sql_result = $db_connection->query( $sql );
 			if($sql_result == false) {
-				printf("Error: %s\n", mysqli_error($db_connection));
+				$log->error("Call Info callouts SQL error for sql [$sql] error: " . mysqli_error($db_connection));
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
+			
+			$log->trace("Call Info callouts SQL success for sql [$sql] row count: " . $sql_result->num_rows);
 			
 			$callout_status_complete = false;
 			$row_number = 1;
@@ -128,9 +129,11 @@ if(isset($firehall_id)) {
 
 				$sql_response_result = $db_connection->query( $sql_response );
 				if($sql_response_result == false) {
-					printf("Error: %s\n", mysqli_error($db_connection));
+					$log->error("Call Info callouts responders SQL error for sql [$sql_response] error: " . mysqli_error($db_connection));
 					throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql_response . "]");
 				}
+
+				$log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . $sql_response_result->num_rows);
 				
 				$html .='<div id="callResponseContent' . $row_number . '">' . PHP_EOL;
 				$html .='<h3><b><font color="white">Responders:' . PHP_EOL;
@@ -142,12 +145,8 @@ if(isset($firehall_id)) {
 					}
 					if(isset($row_response->latitude) && $row_response->latitude != 0.0 &&
 						isset($row_response->longitude) && $row_response->longitude != 0.0) {
-						//$html_responders .= '<a href="">' . $row_response->user_id . '</a>';
 						$responderOrigin = urlencode($row_response->latitude) . ',' . urlencode($row_response->longitude);
-						//$callDest = getAddressForMapping($FIREHALL,$row["address"]);
 						$fireHallDest = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
-						//$callDest = getAddressForMapping($FIREHALL,$row->address);
-						//$fireHallDest = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
 						
 						$html_responders .= '<a target="_blank" href="http://maps.google.com/maps?saddr='.$responderOrigin.'&daddr=' . $fireHallDest.' ('.$fireHallDest.')"><font color="Lime">'.$row_response->user_id.'</font></a>';
 					}
@@ -159,7 +158,6 @@ if(isset($firehall_id)) {
 				
 				$html .= $html_responders . '</font></b></h2>' . PHP_EOL;
 				
-				
 				$html .= '<a target="_blank" href="ct.php?fhid=' . urlencode($firehall_id) 
 										. '&cid=' . urlencode($callout_id) 
 										. '&ta=mr'
@@ -170,19 +168,11 @@ if(isset($firehall_id)) {
 				
 				$callOrigin = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
 				
-				//echo "ADDRESS: [" . $row->address . "]";
 				if(isset($row->address) == false || $row->address == '') {
 					$callDest = $row->latitude . ',' . $row->longitude;
 				}
 				else {
-					
-					//$geo_lookup = getGEOCoordinatesFromAddress($FIREHALL,$row->address);
-					//if(isset($geo_lookup)) {
-					//	$callDest = $geo_lookup[0] . ',' . $geo_lookup[1];
-					//}
-					//else {
 					$callDest = getAddressForMapping($FIREHALL,$row->address);
-					//}
 				}
 
 				$url = '<div class="google-maps">' . PHP_EOL;
@@ -201,16 +191,16 @@ if(isset($firehall_id)) {
 				}
 			}
 			if($row_number == 1) {
-				$html .= '<h2><b><font color="white">No results for: [' . $sql . ']</font></b></h2>' . PHP_EOL;
+				$log->error("Call Info callouts NO RESULTS unexpected for sql [$sql]!");
+				//$html .= '<h2><b><font color="white">No results for: [' . $sql . ']</font></b></h2>' . PHP_EOL;
+				$html .= '<h2><b><font color="white">No results unexpected!</font></b></h2>' . PHP_EOL;
 			}
 			else {
 				$user_id = get_query_param('uid');
 				
 				// Now show respond UI if applicable
 				if ( isset($callkey_id) && $callkey_id != null && $callkey_validated == true) {
-	
 					// Select all user accounts for the firehall that did not yet respond
-					
 					if($FIREHALL->LDAP->ENABLED) {
 						create_temp_users_table_for_ldap($FIREHALL, $db_connection);						
 						// START: responders
@@ -223,10 +213,12 @@ if(isset($firehall_id)) {
 
 					$sql_no_response_result = $db_connection->query( $sql_no_response );
 					if($sql_no_response_result == false) {
-						printf("Error: %s\n", mysqli_error($db_connection));
+						$log->error("Call Info callouts no responses SQL error for sql [$sql_no_response] error: " . mysqli_error($db_connection));
 						throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql_no_response . "]");
 					}
-						
+
+					$log->trace("Call Info callouts no responses SQL success for sql [$sql_no_response] row count: " . $sql_no_response_result->num_rows);
+					
 					$html .='<br /><br />' . PHP_EOL;
 					$html .='<div id="callNoResponseContent' . $row_number . '">' . PHP_EOL;
 					while($row_no_response = $sql_no_response_result->fetch_object()) {
@@ -256,7 +248,6 @@ if(isset($firehall_id)) {
 					if($callout_status_complete == false) {
 						// Select all user accounts for the firehall that did respond to the call
 						// START: responders
-						
 						if($FIREHALL->LDAP->ENABLED) {
 							create_temp_users_table_for_ldap($FIREHALL, $db_connection);
 							$sql_yes_response = 'SELECT id,user_id FROM ldap_user_accounts WHERE id IN (SELECT useracctid FROM callouts_response WHERE calloutid = ' .  $callout_id . ');';
@@ -267,10 +258,12 @@ if(isset($firehall_id)) {
 						
 						$sql_yes_response_result = $db_connection->query( $sql_yes_response );
 						if($sql_yes_response_result == false) {
-							printf("Error: %s\n", mysqli_error($db_connection));
+							$log->error("Call Info callouts yes responses SQL error for sql [$sql_yes_response] error: " . mysqli_error($db_connection));
 							throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql_yes_response . "]");
 						}
-							
+
+						$log->trace("Call Info callouts yes responses SQL success for sql [$sql_yes_response] row count: " . $sql_yes_response_result->num_rows);
+						
 						$html .='<div id="callYesResponseContent' . $row_number . '">' . PHP_EOL;
 						while($row_yes_response = $sql_yes_response_result->fetch_object()) {
 							
@@ -314,6 +307,9 @@ if(isset($firehall_id)) {
 			if($db_connection != null) {
 				db_disconnect( $db_connection );
 			}
+		}
+		else {
+			$log->error("Call Info for firehall_id [$firehall_id] INVALID state for callout_id [$callout_id] callkey_id [$callkey_id]");
 		}
 	}
 	else {

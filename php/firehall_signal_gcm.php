@@ -94,6 +94,8 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 		$userStatus, $callkey_id, $smsMsg,$device_id,$db_connection) {
 
 	global $log;
+	$resultGCM = "";
+	
 	$log->trace("Check GCM response signal for MOBILE Enabled [" .
 			$FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED . "] GCM [" . 
 			$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED . "]");
@@ -147,6 +149,8 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 
 function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connection) {
 	global $log;
+	$resultGCM = "";
+	
 	$log->trace("Check GCM login signal for MOBILE Enabled [" .
 			$FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED . "] GCM [" . 
 			$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED . "]");

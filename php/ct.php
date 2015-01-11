@@ -12,6 +12,7 @@ error_reporting(E_ALL);
 define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
+require_once( 'logging.php' );
 
 $firehall_id = get_query_param('fhid');
 $callout_id = get_query_param('cid');
@@ -38,6 +39,7 @@ $debug_registration = false;
 // $user_status = CalloutStatusType::Notified;
 
 if($debug_registration) echo "fhid = $firehall_id cid = $callout_id uid = $user_id ckid = $callkey_id" . PHP_EOL;
+$log->trace("Call Tracking firehall_id [$firehall_id] cid [$callout_id] user_id [$user_id] ckid [$callkey_id]");
 
 if(isset($firehall_id) && isset($callout_id) && 
     (isset($user_id) || isset($tracking_action)) && 
@@ -47,7 +49,6 @@ if(isset($firehall_id) && isset($callout_id) &&
 
 	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
 	if($FIREHALL != null) {
-
 		$db_connection = null;
 		if($db_connection == null) {
 			$db_connection = db_connect_firehall($FIREHALL);
@@ -64,15 +65,13 @@ if(isset($firehall_id) && isset($callout_id) &&
 				if($sql_result == false) {
 					if($debug_registration) echo "E3";
 				
-					printf("Error: %s\n", mysqli_error($db_connection));
+					$log->error("Call Tracking callouts SQL error for sql [$sql] error: " . mysqli_error($db_connection));
 					throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 				}
 
 				$responding_people = '';
 				$responding_people_icons = '';
-				
-				
-				//$callOrigin = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
+								
 				$responding_people .= "['FireHall: ". $FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS ."', ". $FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LATITUDE .", ". $FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LONGITUDE ."]";
 				$responding_people_icons .= "iconURLPrefix + 'blue-dot.png'";
 				
@@ -123,7 +122,7 @@ if(isset($firehall_id) && isset($callout_id) &&
 				if($sql_result == false) {
 					if($debug_registration) echo "E3b";
 						
-					printf("Error: %s\n", mysqli_error($db_connection));
+					$log->error("Call Tracking callouts geo tracking SQL error for sql [$sql] error: " . mysqli_error($db_connection));
 					throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 				}
 								
@@ -305,7 +304,7 @@ if(isset($firehall_id) && isset($callout_id) &&
 			if($sql_result == false) {
 				if($debug_registration) echo "E3";
 					
-				printf("Error: %s\n", mysqli_error($db_connection));
+				$log->error("Call Tracking callouts user_id check tracking SQL error for sql [$sql] error: " . mysqli_error($db_connection));
 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 			}
 	
@@ -322,7 +321,7 @@ if(isset($firehall_id) && isset($callout_id) &&
 				if($sql_callkey_result == false) {
 					if($debug_registration) echo "E3a";
 				
-					printf("Error: %s\n", mysqli_error($db_connection));
+					$log->error("Call Tracking callouts status tracking SQL error for sql [$sql_callkey] error: " . mysqli_error($db_connection));
 					throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql_callkey . "]");
 				}
 				
@@ -379,7 +378,7 @@ if(isset($firehall_id) && isset($callout_id) &&
 						if($sql_result == false) {
 							if($debug_registration) echo "E6";
 					
-							printf("Error: %s\n", mysqli_error($db_connection));
+							$log->error("Call Tracking callouts insert tracking SQL error for sql [$sql] error: " . mysqli_error($db_connection));
 							throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 						}
 						
@@ -449,7 +448,7 @@ if(isset($firehall_id) && isset($callout_id) &&
 						if($sql_result == false) {
 							if($debug_registration) echo "E3bx";
 						
-							printf("Error: %s\n", mysqli_error($db_connection));
+							$log->error("Call Tracking callouts get geo members tracking SQL error for sql [$sql] error: " . mysqli_error($db_connection));
 							throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 						}
 						
