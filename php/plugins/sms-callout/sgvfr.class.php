@@ -10,6 +10,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 }
 
 require_once( 'plugin_interfaces.php' );
+require_once( 'ldap_functions.php' );
 
 class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 
@@ -33,7 +34,8 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 		$recipient_list_type = RecipientListType::MobileList;
 		
 		// First we will send our sms callout to officers
-		$recipients_officers = get_sms_recipients_ldap($FIREHALL,"(&(memberOf=cn=SGVFR-OFFICERS,ou=Groups,dc=sgvfr,dc=com)(memberOf=cn=SGVFR-SMSCALLOUT,ou=Groups,dc=sgvfr,dc=com))");
+		$recipients_officers = get_sms_recipients_ldap($FIREHALL,
+				"(&(memberOf=cn=SGVFR-OFFICERS,ou=Groups,dc=sgvfr,dc=com)(memberOf=cn=SGVFR-SMSCALLOUT,ou=Groups,dc=sgvfr,dc=com))");
 		//echo "Officers found: [$recipients_officers]" . PHP_EOL;
 		
 		if(isset($recipients_officers) && strlen($recipients_officers) > 0) {
