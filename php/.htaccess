@@ -1,4 +1,6 @@
 <Files ~ "riprunner.log">
   Order allow,deny
   Deny from all
+  Satisfy all
 </Files>
+

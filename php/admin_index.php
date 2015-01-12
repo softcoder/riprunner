@@ -54,6 +54,7 @@ sec_session_start();
 			        <div>
 			          <ul>
 			            <li><a href="admin_users.php">User Accounts</a></li>
+			            <li><a href="logtail.php">View Logs</a></li>
 			          </ul>
 			        </div>
 			      </li>
