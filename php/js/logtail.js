@@ -5,6 +5,7 @@
 
 var dataelem = "#data";
 var pausetoggle = "#pause";
+var counterUI = "#counter";
 var scrollelems = ["html", "body"];
 
 //var url = "riprunner.log";
@@ -12,6 +13,8 @@ var scrollelems = ["html", "body"];
 var fix_rn = true;
 var load = 30 * 1024; /* 30KB */
 var poll = 15000; /* 15s */
+var count = poll / 1000;
+var counter = null;
 
 var kill = false;
 var loading = false;
@@ -20,8 +23,23 @@ var reverse = true;
 var log_data = "";
 var log_size = 0;
 
+function start_timer() {
+	count = poll / 1000;
+	counter=setInterval(update_timer, 1000);
+}
+
+function update_timer() {
+	count=count-1;
+	$(counterUI).text(count);
+	
+	if(count <= 0 || pause) {
+		clearInterval(counter);
+		return;
+	}
+}
+
 function get_log() {
-    if (kill | loading) return;
+    if (kill | loading | pause) return;
     loading = true;
 
     var range;
@@ -101,6 +119,8 @@ function get_log() {
             if (added)
                 show_log(added);
             setTimeout(get_log, poll);
+            start_timer();
+            
         },
         error: function (xhr, s, t) {
             
@@ -127,6 +147,7 @@ function get_log() {
                 show_log('Logfile not found!');
 
                 setTimeout(get_log, poll);
+                start_timer();
             } 
             else {
                 if (s == "error")
@@ -193,6 +214,17 @@ $(document).ready(function () {
     $(pausetoggle).click(function (e) {
         pause = !pause;
         $(pausetoggle).text(pause ? "Unpause" : "Pause");
+        if(pause) {
+        	fix_rn = true;
+        	load = 30 * 1024; /* 30KB */
+
+        	kill = false;
+        	loading = false;
+        	log_size = 0;
+        }
+        else {
+        	get_log();
+        }
         show_log();
         e.preventDefault();
     });

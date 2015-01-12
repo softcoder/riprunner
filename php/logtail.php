@@ -35,15 +35,29 @@ sec_session_start();
         <title>Logfile viewer</title>
         <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
         <script type="text/javascript" src="js/logtail.js"></script>
+        <style>
+        
+		div.rounded {
+			background-color: #f2f2f2;
+			color: #555;
+			font-weight: bold;
+			padding: 10px;
+			-moz-border-radius: 5px;
+			-webkit-border-radius: 5px; }
+	        
+		</style>
     </head>
     <body>
-        <div id="header" style="height: 800px; overflow: auto;">
-            View logfile:
-            <a href="logtail.php">Most recent at top</a> or
-            <a href="logtail.php?noreverse">Chronological</a> view.
-            <a id="pause" href='#'>Pause</a>.
-            
-            <pre id="data">Loading...</pre>
+        <div id="header" class="rounded" style="height: 800px; overflow: none; box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5), 0 0 8px rgba(0, 0, 0, 0.9);">
+            Show recent entries on
+            <a href="logtail.php">Top</a> or
+            <a href="logtail.php?noreverse">Bottom</a>.
+            <br />
+            Refresh in <span id="counter">x</span> seconds. <a id="pause" href='#'>Pause</a>.
+            <br />
+            <div id="data_header" style="height: 600px; overflow: auto;border: 2px solid #555;">
+            	<pre id="data" style="">Loading...</pre>
+            </div>
         </div>
     </body>
     
