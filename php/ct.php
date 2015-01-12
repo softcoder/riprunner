@@ -461,7 +461,10 @@ if(isset($firehall_id) && isset($callout_id) &&
 						}
 						$sql_result->close();
 
-						echo "OK=" . $callout_tracking_id . "|" . $responding_people_geo_list . "|";
+						$response_result = "OK=" . $callout_tracking_id . "|" . $responding_people_geo_list . "|";
+						
+						echo $response_result;
+						$log->trace("Call Tracking end result [$response_result]");
 					}
 				}
 				else {
@@ -484,7 +487,11 @@ if(isset($firehall_id) && isset($callout_id) &&
 						echo $html_output;
 					}
 					else {
-						echo "CALLOUT_ENDED=" . $callout_status;
+
+						$response_result = "CALLOUT_ENDED=" . $callout_status;
+						
+						echo $response_result;
+						$log->trace("Call Tracking end result [$response_result]");
 					}
 				}
 			}
@@ -501,5 +508,4 @@ if(isset($firehall_id) && isset($callout_id) &&
 else {
 	if($debug_registration) echo "E1";
 }
-
 ?>

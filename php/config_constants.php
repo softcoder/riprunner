@@ -15,7 +15,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 
 	define( 'PRODUCT_NAME', 		'RipRunner' );
 	define( 'PRODUCT_URL',  		'http://soft-haus.com' );
-	define( 'DEBUG_MODE', 			true);
+	define( 'DEBUG_MODE', 			false);
 	define( "SECURE", 				FALSE);    // FOR DEVELOPMENT ONLY!!!!
 	define( "ENABLE_ASYNCH_MODE", 	true);
 
@@ -42,7 +42,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	define( 'DEFAULT_GOOGLE_MAPS_API_URL',	'http://maps.googleapis.com/maps/api/geocode/');
 	
 	// The current versions of the Rip Runner Android app
-	define( 'CURRENT_ANDROID_VERSIONCODE',	2);
-	define( 'CURRENT_ANDROID_VERSIONNAME',	'1.1');
+	define( 'CURRENT_ANDROID_VERSIONCODE',	3);
+	define( 'CURRENT_ANDROID_VERSIONNAME',	'1.2');
 	
 ?>

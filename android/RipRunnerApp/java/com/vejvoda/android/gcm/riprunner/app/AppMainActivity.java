@@ -1290,8 +1290,8 @@ public class AppMainActivity extends ActionBarActivity implements
                     public void run() {
                         
                         TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-                        txtMsg.setText("Invalid server response: " + 
-                        		(responseString != null ? responseString : "null"));
+                        txtMsg.setText("Invalid cr server response: [" + 
+                        		(responseString != null ? responseString : "null") + "]");
                         
                         showProgressDialog(false, null);
                    }
@@ -1414,8 +1414,8 @@ public class AppMainActivity extends ActionBarActivity implements
 			                    public void run() {
 			                        
 			                        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
-			                        txtMsg.setText("Invalid server response: " + 
-			                        		(responseString != null ? responseString : "null"));
+			                        txtMsg.setText("Invalid ct server response: [" + 
+			                        		(responseString != null ? responseString : "null") + "]");
 			                        
 			                        //showProgressDialog(false, null);
 			                   }
