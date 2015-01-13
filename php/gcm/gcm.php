@@ -36,6 +36,10 @@ class GCM {
 	*/
 	function GCM($apiKeyIn) {
 		$this->GCMApiKey = $apiKeyIn;
+
+		if(isset($this->GCMApiKey) == false || strlen($this->GCMApiKey) < 8) {
+			throwExceptionAndLogError("GCM API Key is not set!","GCM API Key is not set [" . $this->GCMApiKey . "]");
+		}
 	}
 
 	/*
@@ -65,15 +69,27 @@ class GCM {
 	
 	function setURL($url_value) {
 		$this->url = $url_value;
+		
+		if(isset($this->url) == false || strlen($this->url) == 0) {
+			throwExceptionAndLogError("GCM URL is not set!","GCM URL is not set [" . $this->url . "]");
+		}
 	}
 	
 	function setDBConnection($connection) {
 		$this->db_connection = $connection;
+		
+		if(isset($this->db_connection) == false) {
+			throwExceptionAndLogError("GCM DB is not set!","GCM DB is not set [" . $this->db_connection . "]");
+		}
 	}
 	
 
 	function setFirehallId($firehallID) {
 		$this->firehall_id = $firehallID;
+		
+		if(isset($this->firehall_id) == false) {
+			throwExceptionAndLogError("GCM fhid is not set!","GCM fhid is not set [" . $this->firehall_id . "]");
+		}
 	}
 	
 	/*
@@ -85,11 +101,11 @@ class GCM {
 		
 		$resultGCM = "";
 		if(is_array($this->devices) == false || count($this->devices) == 0) {
-			$this->error("No devices set");
+			$this->error("GCM No devices set!","GCM No devices set.");
 		}
 		
 		if(strlen($this->GCMApiKey) < 8) {
-			$this->error("GCM API Key not set");
+			throwExceptionAndLogError("GCM API Key is not set!","GCM API Key is not set [" . $this->GCMApiKey . "]");
 		}
 		
 		$fields = array(
@@ -108,25 +124,31 @@ class GCM {
 		// Open connection
 		$ch = curl_init();
 		
-		// Set the url, number of POST vars, POST data
-		curl_setopt( $ch, CURLOPT_URL, $this->url );
-		
-		curl_setopt( $ch, CURLOPT_POST, true );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $fields ) );
-		
-		// Avoids problem with https certificate
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, false);
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false);
-		
-		// Execute post
-		$result = curl_exec($ch);
-		if ($result === FALSE) {
-			$this->error("exec result [" . curl_error($ch) ."]");
+		$result = "";
+		try {
+			// Set the url, number of POST vars, POST data
+			curl_setopt( $ch, CURLOPT_URL, $this->url );
+			
+			curl_setopt( $ch, CURLOPT_POST, true );
+			curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+			
+			curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $fields ) );
+			
+			// Avoids problem with https certificate
+			curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false);
+			
+			// Execute post
+			$result = curl_exec($ch);
+			if ($result === FALSE) {
+				$this->error("GCM exec result [" . curl_error($ch) ."]");
+			}
 		}
-		
+		catch(Exception $ex) {
+			curl_close($ch);
+			$this->error("GCM SEND ERROR ocurred!","GCM SEND ERROR [" . $ex->getMessage() . "]");
+		}		
 		// Close connection
 		curl_close($ch);
 
@@ -190,6 +212,8 @@ class GCM {
 			$sql_result = $this->db_connection->query( $sql );
 			if($sql_result == false) {
 				$this->error("Remove GCM device SQL error for sql [$sql] error: " .
+						mysqli_error($this->db_connection),
+						"Remove GCM device SQL error for sql [$sql] error: " .
 						mysqli_error($this->db_connection));
 			}
 	
@@ -207,7 +231,8 @@ class GCM {
 					$this->db_connection->real_escape_string($this->firehall_id) . '\';';
 			$sql_result = $this->db_connection->query( $sql );
 			if($sql_result == false) {
-				$this->error("Send GCM SQL error for sql [$sql] error: " . mysqli_error($this->db_connection));
+				$this->error("Send GCM SQL error for sql [$sql] error: " . mysqli_error($this->db_connection),
+						"Send GCM SQL error for sql [$sql] error: " . mysqli_error($this->db_connection));
 			}
 	
 			$row_number = 0;
@@ -225,10 +250,7 @@ class GCM {
 		return $registration_ids;
 	}
 	
-	private function error($msg) {
-		global $log;
-		$log->error("GCM failed with error: [$msg]");
-		//die("GCM failed with error: [$msg]");
-		throw new Exception("GCM failed with error: [$msg]");
+	private function error($ui_msg,$log_msg) {
+		throwExceptionAndLogError($ui_msg,$log_msg);
 	}
 }
