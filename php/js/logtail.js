@@ -72,7 +72,7 @@ function get_log() {
 
             if (xhr.status === 206) {
                 if (data.length > load)
-                    throw "Expected 206 Partial Content";
+                    throw "Expected 206 Partial Content (data.length > load)\n" + data;
 
                 var c_r = xhr.getResponseHeader("Content-Range");
                 if (!c_r)
@@ -84,7 +84,7 @@ function get_log() {
             } 
             else if (xhr.status === 200) {
                 if (log_size > 1)
-                    throw "Expected 206 Partial Content";
+                    throw "Expected 206 Partial Content (log_size > 1)\n" + data;
 
                 size = data.length;
             }

@@ -18,3 +18,14 @@ include('third-party/apache-log4php/Logger.php');
 Logger::configure('config-logging.xml');
 // Fetch a logger, it will inherit settings from the root logger
 $log = Logger::getLogger('myLogger');
+
+function throwExceptionAndLogError($ui_error_msg,$log_error_msg) {
+	try {
+		throw new Exception($log_error_msg);
+	}
+	catch(Exception $ex) {
+		global $log;
+		$log->error($ui_error_msg,$ex);
+		die($ui_error_msg);
+	}
+}
