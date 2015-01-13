@@ -118,6 +118,9 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 							$user_status = CalloutStatusType::Responding;
 						}
 					}
+					else {
+						$log->error("Call Response got firehall_id [$firehall_id] user_id [$user_id] LDAP pwd check failed!");
+					}
 				}
 				else {				
 					if (crypt($db_connection->real_escape_string( $user_pwd ), $row->user_pwd) === $row->user_pwd ) {

@@ -26,6 +26,9 @@ class LDAP {
 	
 	function LDAP($adServer) {
 		$this->ad_server = $adServer;
+		if(isset($this->ad_server) == false || $this->ad_server == '') {
+			throwExceptionAndLogError("Invalid LDAP server configuration.","Invalid LDAP server specified [" . $this->ad_server . "]");
+		}
 	}
 	
 	function __destruct() {
@@ -45,8 +48,7 @@ class LDAP {
 		
 		$result = ldap_search($this->connection,$base_dn,$filter);
 		if($result == false) {
-			handleSearchFailed($base_dn,$filter,$sort_by);
-			die("LDAP Search error.");
+			throwExceptionAndLogError("LDAP Search error.",handleSearchFailed($base_dn,$filter,$sort_by));
 		}
 		else {
 			if(isset($sort_by)) {
@@ -68,8 +70,7 @@ class LDAP {
 			
 			$this->connection = ldap_connect($this->ad_server);
 			if($this->connection == false) {
-				$log->error("Could not connect to LDAP server [" . $this->ad_server . "]");
-				die("Could not connect to LDAP server.");
+				throwExceptionAndLogError("Could not connect to LDAP server.","Could not connect to LDAP server [" . $this->ad_server . "]");
 			}
 			ldap_set_option($this->connection, LDAP_OPT_PROTOCOL_VERSION, 3);
 			ldap_set_option($this->connection, LDAP_OPT_REFERRALS, 0);
@@ -87,14 +88,15 @@ class LDAP {
 		global $log;
 		
 		if(isset($this->connection) == false) {
-			die("Cannot bind before connecting!");
+			throwExceptionAndLogError("LDAP Cannot bind before connecting!","connection not set.");
+			//die("Cannot bind before connecting!");
 		}
 		// Bind to the LDAP server using rdn and password
 		$log->trace("LDAP binding to rdn [" . $binddn . "] pwd [" . $password . "]");
 		$this->bind = @ldap_bind($this->connection,$binddn, $password);
 			
 		if ($this->bind == false) {
-			$this->handleBindFailed($binddn, $password);
+			$log->error($this->handleBindFailed($binddn, $password));
 			return false;
 		}
 		return true;
@@ -105,7 +107,7 @@ class LDAP {
 		
 		if(isset($this->bind) == false) {
 			if(isset($this->connection) == false) {
-				die("Cannot bind before connecting!");
+				throwExceptionAndLogError("LDAP Cannot bind before connecting!","connection not set.");
 			}
 			// Bind to the LDAP server using rdn and password
 			if(isset($this->bind_rdn)) {
@@ -119,35 +121,35 @@ class LDAP {
 			}
 			
 			if ($this->bind == false) {
-				$this->handleBindFailed($this->bind_rdn,$this->bind_password);
-				die("Could not bind to ldap.");
+				throwExceptionAndLogError("Could not bind to ldap.",$this->handleBindFailed($this->bind_rdn,$this->bind_password));
 			}
 		}
 	}
 	
 	private function handleBindFailed($binddn, $password) {
-		global $log;
 		define('LDAP_OPT_DIAGNOSTIC_MESSAGE', 0x0032);
 			
+		$error_msg = "LDAP bind error ";
 		if (ldap_get_option($this->connection, LDAP_OPT_DIAGNOSTIC_MESSAGE, $extended_error)) {
-			$log->error("LDAP bind error [$extended_error]");
+			$error_msg .= "ext info [$extended_error]";
 		}
 		if(isset($binddn)) {
-			$log->error("LDAP bind failed for rdn [" . $binddn . "] pwd [" . $password . "] error: " . ldap_err2str(ldap_errno($this->connection)));
+			$error_msg .= "failed for rdn [" . $binddn . "] pwd [" . $password . "] error: " . ldap_err2str(ldap_errno($this->connection));
 		}
 		else {
-			$log->error("LDAP bind failed for anonymous error: " . ldap_err2str(ldap_errno($this->connection)));
+			$error_msg .= "failed for anonymous error: " . ldap_err2str(ldap_errno($this->connection));
 		}
+		return $error_msg;
 	}
 	
 	private function handleSearchFailed($base_dn, $filter, $sort_by) {
-		global $log;
 		define('LDAP_OPT_DIAGNOSTIC_MESSAGE', 0x0032);
-			
+
+		$error_msg = "LDAP search error ";
 		if (ldap_get_option($this->connection, LDAP_OPT_DIAGNOSTIC_MESSAGE, $extended_error)) {
-			$log->error("LDAP search error [$extended_error]");
+			$error_msg .= "ext info: [$extended_error] ";
 		}
-		$log->error("LDAP search failed for dn [" . $base_dn . "] filter [" . $filter . "] sort by [" . (isset($sort_by) == null ? "null" : $sort_by) ."] error: " . ldap_err2str(ldap_errno($this->connection)));
+		$error_msg .= "failed for dn [" . $base_dn . "] filter [" . $filter . "] sort by [" . (isset($sort_by) == null ? "null" : $sort_by) ."] error: " . ldap_err2str(ldap_errno($this->connection));
+		return $error_msg;
 	}
-	
 }

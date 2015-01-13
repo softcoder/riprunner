@@ -244,7 +244,7 @@ sec_session_start();
 		}
 
 		function getCallResponseVolumeStatsForDateRange($db_connection,$startDate,$endDate,
-				&$dynamicColumnTitles, $use_ldap) {
+				&$dynamicColumnTitles, $FIREHALL) {
 			$jsOutput = '';
 		
 			$MAX_MONTHLY_LABEL = "*MONTH - MAX";
@@ -256,7 +256,7 @@ sec_session_start();
 			        WHERE responsetime BETWEEN '2014-01-01' AND '2014-12-31'
 			        GROUP BY user_id) ORDER BY user_id;			*/
 			
-			if($use_ldap) {
+			if($FIREHALL->LDAP->ENABLED) {
 				create_temp_users_table_for_ldap($FIREHALL, $db_connection);
 				
 				$sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
@@ -305,7 +305,7 @@ sec_session_start();
 			GROUP BY month,datalabel); 
 			*/
 			
-			if($use_ldap) {
+			if($FIREHALL->LDAP->ENABLED) {
 				create_temp_users_table_for_ldap($FIREHALL, $db_connection);
 				
 				$sql = '(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, count(*) AS count ' .
@@ -569,7 +569,7 @@ sec_session_start();
 												$current_year_start,
 												$current_year_end,
 												$dynamicColumnTitles_response,
-		        								$FIREHALL->LDAP->ENABLED);
+		        								$FIREHALL);
 		        ?>');
 		        <?php 
 		        foreach($dynamicColumnTitles_response as $title) {

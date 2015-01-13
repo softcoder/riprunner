@@ -237,7 +237,7 @@ if(isset($firehall_id)) {
 																	$row_no_response->user_id . 
 																	' is responding?\',this);">'. PHP_EOL;
 							
-							$html .='<INPUT TYPE="submit" VALUE="Repond Now - ' .
+							$html .='<INPUT TYPE="submit" VALUE="Respond Now - ' .
 									$row_no_response->user_id .
 									'" style="font-size: 25px; background-color:yellow" />'. PHP_EOL;
 							$html .='</form>'. PHP_EOL;
