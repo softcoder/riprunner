@@ -11,7 +11,7 @@ Key Features:
 -------------
 - Email polling to check for an emergency 911 callout (or page) received from your FOCC (Fire Operations Command Center). Easily adaptable to other callout trigger mechanisms.
 - Pluggable support for SMS gateway providers to send SMS information to fire fighters. 
-  Currently providers implemented include (all offer free acounts with limited SMS / month):
+  Current SMS providers implemented include (all offer free acounts with limited SMS / month):
   - Twilio (twilio.com) <-- recommended (paid account charges approx $0.0075 per SMS)
   - Sendhub (sendhub.com)
   - EzTexting (eztexting.com)
@@ -43,7 +43,7 @@ System Requirements:
 - A MySQL database to install the Rip Runner Schema
 - A Registered Account on an SMS Gateway Provider (Twilio (recommended),Sendhub,EzTexting,TextBelt)
 - A Google Maps API key: https://developers.google.com/maps/documentation/javascript/tutorial#api_key (one key for server applications and one for android apps)
-- Optional: If using the experimental Android app, you need a Google Apps Engine (GAE) Project # (see http://developer.android.com/google/gcm/gs.html)
+- Optional: If using the experimental Android app, you need a Google Apps Engine (GAE) Project Number (see http://developer.android.com/google/gcm/gs.html) and Browser API Key.
 
 Screenshots:
 ------------
@@ -84,12 +84,12 @@ Installation:
 - If everything was done correctly you should see an install page offering to install one the firehall's 
   you configured in config.php (we support more than 1 firehall if desired). Select the firehall and click install.
 - If successful the installation will display the admin user's password. Click the link to login using it.
-- Add firehall members to the user accounts page. Users given admin access can modify user accounts.
+- Add firehall members to the user accounts page. Users given admin access can modify user accounts. You may also choose to use an LDAP server to manage accounts in which case you should specify LDAP values in config.php.
 - You will need something that will trigger the email trigger checker. If your server offers a 'cron' or 
   scheduler process, configure it to visit http://www.yourwebserver.com/uploadlocation/email_trigger_check.php
   every minute. If your server does not have cron or limits the frequency, you can use Google App Engine's 
   cron service to call your email trigger every minute. (see files in [php/googleae](php/googleae) folder as a reference)
-- Send a test email to the trigger email address in order to see if you get notified of a callout.
+- Send a test email to the trigger email address in order to see if you get notified of a callout (if using a 'from' filter make sure you send the email from the 'from' address that you specified).
 - To allow use of the Android app, either copy the prebuilt apk located in 
   android/RipRunnerApp/bin/RipRunnerApp.apk to apk/ or compile the Android app in Eclipse and copy to apk/
   This will allow users to select the Android app from the Mobile menu item for download and installation 
@@ -227,6 +227,8 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	
 	// ----------------------------------------------------------------------
 	// LDAP Settings
+	// These are the LDAP settings for sites that wish to have an LDAP server manage user accounts
+	// See config_interfaces.php for more info about these fields
 	$LOCAL_DEBUG_LDAP = new FireHall_LDAP(
 			false,
 			'ldap://myhost.example.com',
