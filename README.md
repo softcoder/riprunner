@@ -276,3 +276,9 @@ Special Notes:
 --------------
 
 Compiling the Android application in the Eclipse IDE requires you to install the ADT plugin (http://developer.android.com/tools/sdk/eclipse-adt.html) as well as setup the Google Play Services SDK (https://developer.android.com/google/play-services/setup.html#Setup) as this is a dependency in the riprunner android app.
+
+Contact Info:
+--------------
+Email: mark_vejvoda@hotmail.com
+IRC: Freenode, channel: #softcoder
+irc://irc.freenode.net/softcoder
