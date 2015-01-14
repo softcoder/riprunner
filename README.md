@@ -1,4 +1,4 @@
-riprunner
+Rip Runner
 =========
 
 A Firehall dispatching communication suite.
