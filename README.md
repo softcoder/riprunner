@@ -3,9 +3,7 @@ Rip Runner
 
 A Firehall dispatching communication suite.
 
-Current Version:
----------------
-1.0.0
+######Current Version: 1.0.0
 
 Description:
 
