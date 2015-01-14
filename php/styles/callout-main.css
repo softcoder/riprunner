@@ -1,0 +1,93 @@
+@CHARSET "UTF-8";
+
+.ci_body {
+  background-color:black;
+}
+
+.ci_body_error {
+  background-color:white;
+}
+
+.ci_header {
+	color:white;
+	font-size:30px;
+	font-weight: bold;
+}
+
+.ci_header_time {
+    color:white;
+    font-size:25px;
+    font-weight: bold;
+}
+
+.ci_header_type {
+    color:yellow;
+    font-size:25px;
+    font-weight: bold;
+}
+
+.ci_header_address {
+    color:cyan;
+    font-size:25px;
+    font-weight: bold;
+}
+
+.ci_header_units {
+    color:lime;
+    font-size:25px;
+    font-weight: bold;
+}
+
+.ci_header_status {
+    color:yellow;
+    font-size:25px;
+    font-weight: bold;
+}
+
+.ci_responders_header {
+    color:white;
+    font-size:25px;
+    font-weight: bold;
+}
+
+.ci_responders_user_link {
+    color:lime;
+}
+
+.ci_responders_map_link {
+    color:yellow;
+    font-size:28px;
+}
+
+.ci_respondnow {
+  background-color:yellow;
+  font-size:25px; 
+}
+
+.ci_completenow {
+  background-color:lime;
+  font-size:25px; 
+}
+
+.ci_cancelnow {
+  background-color:red;
+  font-size:25px; 
+}
+
+.google-maps {
+	position: relative;
+	#padding-bottom: 75%; // This is the aspect ratio
+	#height: 0;
+	#overflow: hidden;
+	width: 900 !important;
+	height: 600 !important;
+     
+}
+
+.google-maps iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100% !important;
+	height: 100% !important;
+}

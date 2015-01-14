@@ -17,6 +17,84 @@ require_once( 'config_constants.php' );
 // ==============================================================
 
 // ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
+// Customziable Text and HTML Tags
+
+// Call Information page header
+define( 'CALLOUT_HEADER', '<span class="ci_header">Call Information:</span>');
+// The inline google map for callouts
+define( 'GOOGLE_MAP_INLINE_TAG', 
+		'<div class="google-maps">' . PHP_EOL . 
+		  '<iframe frameborder="1" style="border:1" ' . 
+		  'src="https://www.google.com/maps/embed/v1/directions?key=${API_KEY}' .
+		  '&mode=driving&zoom=11&origin=${ORIGIN}' .
+		  '&destination=${DESTINATION}"></iframe>' . PHP_EOL .
+		'</div>' . PHP_EOL);
+
+// This callout details
+define( 'CALLOUT_DETAIL_ROW',
+		'<div id="callContent${ROW_NUMBER}">' . PHP_EOL .
+		'<span class="ci_header_time">Page Time: ${CALLOUT_TIME}</span><br />' . PHP_EOL .
+		'<span class="ci_header_type">Call Type: ${CALLOUT_TYPE} - ${CALLOUT_TYPE_TEXT}</span><br />' . PHP_EOL .
+		'<span class="ci_header_address">Call Address: ${CALLOUT_ADDRESS}</span><br />' . PHP_EOL.
+		'<span class="ci_header_units">Responding Units: ${CALLOUT_UNITS}</span><br />' . PHP_EOL.
+		'<span class="ci_header_status">Call Status: ${CALLOUT_STATUS}</span>' . PHP_EOL.
+		'</div>' . PHP_EOL);
+
+// callout responders that are attending the call
+define( 'CALLOUT_RESPONDERS_HEADER',
+		'<div id="callResponseContent${ROW_NUMBER}">' . PHP_EOL.
+		'<span class="ci_responders_header">Responders:' . PHP_EOL);
+
+define( 'CALLOUT_RESPONDERS_DETAIL',
+		'<a target="_blank" href="http://maps.google.com/maps?saddr='.
+		'${ORIGIN}&daddr=${DESTINATION} (${DESTINATION})"' .
+		' class="ci_responders_user_link">${USER_ID}</a>');
+
+define( 'CALLOUT_RESPONDERS_FOOTER',
+		'</span><br />' . PHP_EOL .
+		'<a target="_blank" href="ct.php?fhid=${FHID}' .
+		'&cid=${CID}' .
+		'&ta=mr' .
+		'&ckid=${CKID}"' .
+		' class="ci_responders_map_link">Show Responders Map</a>' . PHP_EOL .
+		'</div>' . PHP_EOL);
+
+// This is the UI for members that have not responded yet
+define( 'CALLOUT_RESPOND_NOW_HEADER',
+		'<br /><br />' . PHP_EOL .
+		'<div id="callNoResponseContent${ROW_NUMBER}">' . PHP_EOL);
+
+define( 'CALLOUT_RESPOND_NOW_TRIGGER', 
+		'<INPUT TYPE="submit" VALUE="Respond Now - ${USER_ID}' .
+		'" class="ci_respondnow" />'. PHP_EOL);
+
+define( 'CALLOUT_RESPOND_NOW_TRIGGER_CONFIRM',
+		'Confirm that ${USER_ID} is responding?');
+
+define( 'CALLOUT_RESPOND_NOW_FOOTER',
+		'</div>' . PHP_EOL);
+
+// These tags are for Complete and Cancel callout tags
+define( 'CALLOUT_FINISH_NOW_HEADER',
+		'<div id="callYesResponseContent${ROW_NUMBER}">' . PHP_EOL);
+
+define( 'CALLOUT_COMPLETE_NOW_TRIGGER',
+		'<INPUT TYPE="submit" VALUE="CALLOUT COMPLETE - ${USER_ID}' .
+		'" class="ci_completenow" />'. PHP_EOL);
+define( 'CALLOUT_COMPLETE_NOW_TRIGGER_CONFIRM',
+		'COMPLETE this call?\nConfirm that the call should be set to COMPLETE?');
+
+define( 'CALLOUT_CANCEL_NOW_TRIGGER',
+		'<INPUT TYPE="submit" VALUE="CALLOUT CANCELED - ${USER_ID}' .
+		'" class="ci_cancelnow" />'. PHP_EOL);
+define( 'CALLOUT_CANCEL_NOW_TRIGGER_CONFIRM',
+		'CANCEL this call?\nConfirm that the call should be CANCELLED?');
+
+define( 'CALLOUT_FINISH_NOW_FOOTER',
+		'</div>' . PHP_EOL);
+
+// ----------------------------------------------------------------------
 // Max hours old to trigger a live callout page
 define( 'DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD',	48);
 

@@ -719,6 +719,10 @@ nav.vertical {
                 padding: 10px 0 10px 50px;
               }            
               
+.notice {
+  color:yellow;
+  font-size:42px; 
+}
 
 a.alert {
   color:yellow;

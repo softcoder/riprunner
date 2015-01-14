@@ -233,10 +233,10 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 			
 			// Redirect to call info page
 			if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
-				$user_id = get_query_param('uid');
+				$member_id = get_query_param('member_id');
 				$injectUIDParam = '';
-				if(isset($user_id)) {
-					$injectUIDParam = '&uid=' . urlencode($user_id);
+				if(isset($member_id)) {
+					$injectUIDParam = '&member_id=' . urlencode($member_id);
 				}
 				
 				// Redirect to call info page

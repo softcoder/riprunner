@@ -17,6 +17,8 @@ require_once( 'config.php' );
 require_once( 'functions.php' );
 require_once( 'firehall_parsing.php' );
 require_once( 'logging.php' );
+require_once( 'Mobile_Detect.php' );
+$detect = new Mobile_Detect;
 
 $firehall_id = get_query_param('fhid');
 $callkey_id = get_query_param('ckid');
@@ -40,25 +42,11 @@ else {
 ?>
 <script type="text/JavaScript" src="js/common-utils.js"></script>
 
-<style>
-    .google-maps {
-        position: relative;
-        #padding-bottom: 75%; // This is the aspect ratio
-        #height: 0;
-        #overflow: hidden;
-        width: 900 !important;
-        height: 600 !important;
-        
-    }
-    .google-maps iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100% !important;
-        height: 100% !important;
-   }
-</style>
-
+<?php if ($detect->isMobile()) : ?>
+<link rel="stylesheet" href="styles/callout-mobile.css" />
+<?php else : ?>
+<link rel="stylesheet" href="styles/callout-main.css" />
+<?php endif; ?>
 </head>
 
 <?php
@@ -107,23 +95,23 @@ if(isset($firehall_id)) {
 			$row_number = 1;
 			while($row = $sql_result->fetch_object()) {
 				
-				$html .='<div id="callContent' . $row_number . '">' . PHP_EOL;
-				$html .='<h2><b><font color="white">Page Time: ' . $row->calltime . '</font></b></h2>' . PHP_EOL;
-				$html .='<h2><b><font color="yellow">Call Type: ' . $row->calltype . ' - ' . convertCallOutTypeToText($row->calltype) . '</font></b></h2>' . PHP_EOL;
-				$html .='<h2><b><font color="cyan">Call Address: ' . $row->address .'</font></b></h2>' . PHP_EOL;
-				$html .='<h2><b><font color="lime">Responding Units: ' . $row->units .'</font></b></h2>' . PHP_EOL;
-				$html .='<h2><b><font color="yellow">Call Status: ' . getCallStatusDisplayText($row->status) .'</font></b></h2>' . PHP_EOL;
-				$html .='</div>' . PHP_EOL;
-	
+				$callout_detail_html = str_replace('${ROW_NUMBER}', $row_number, CALLOUT_DETAIL_ROW);
+				$callout_detail_html = str_replace('${CALLOUT_TIME}', $row->calltime, $callout_detail_html);
+				$callout_detail_html = str_replace('${CALLOUT_TYPE}', $row->calltype, $callout_detail_html);
+				$callout_detail_html = str_replace('${CALLOUT_TYPE_TEXT}', convertCallOutTypeToText($row->calltype), $callout_detail_html);
+				$callout_detail_html = str_replace('${CALLOUT_ADDRESS}', $row->address, $callout_detail_html);
+				$callout_detail_html = str_replace('${CALLOUT_UNITS}', $row->units, $callout_detail_html);
+				$callout_detail_html = str_replace('${CALLOUT_STATUS}', getCallStatusDisplayText($row->status), $callout_detail_html);
+				
+				$html .= $callout_detail_html;
+				
 				$callout_status_complete = ($row->status == CalloutStatusType::Cancelled || $row->status == CalloutStatusType::Complete);
 				
 				if($FIREHALL->LDAP->ENABLED) {
 					create_temp_users_table_for_ldap($FIREHALL, $db_connection);
-					// START: responders
 					$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id WHERE calloutid = ' . $row->id . ';';
 				}
 				else {								
-					// START: responders
 					$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a LEFT JOIN user_accounts b ON a.useracctid = b.id WHERE calloutid = ' . $row->id . ';';
 				}
 
@@ -135,8 +123,7 @@ if(isset($firehall_id)) {
 
 				$log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . $sql_response_result->num_rows);
 				
-				$html .='<div id="callResponseContent' . $row_number . '">' . PHP_EOL;
-				$html .='<h3><b><font color="white">Responders:' . PHP_EOL;
+				$html .= str_replace('${ROW_NUMBER}', $row_number, CALLOUT_RESPONDERS_HEADER);
 				
 				$html_responders = '';
 				while($row_response = $sql_response_result->fetch_object()) {
@@ -148,7 +135,10 @@ if(isset($firehall_id)) {
 						$responderOrigin = urlencode($row_response->latitude) . ',' . urlencode($row_response->longitude);
 						$fireHallDest = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
 						
-						$html_responders .= '<a target="_blank" href="http://maps.google.com/maps?saddr='.$responderOrigin.'&daddr=' . $fireHallDest.' ('.$fireHallDest.')"><font color="Lime">'.$row_response->user_id.'</font></a>';
+						$html_responders_detail = str_replace('${ORIGIN}', $responderOrigin, CALLOUT_RESPONDERS_DETAIL);
+						$html_responders_detail = str_replace('${DESTINATION}', $fireHallDest, $html_responders_detail);
+						$html_responders_detail = str_replace('${USER_ID}', $row_response->user_id, $html_responders_detail);
+						$html_responders .= $html_responders_detail;
 					}
 					else {
 						$html_responders .= $row_response->user_id;
@@ -156,14 +146,12 @@ if(isset($firehall_id)) {
 				}
 				$sql_response_result->close();
 				
-				$html .= $html_responders . '</font></b></h2>' . PHP_EOL;
+				$html .= $html_responders;
 				
-				$html .= '<a target="_blank" href="ct.php?fhid=' . urlencode($firehall_id) 
-										. '&cid=' . urlencode($callout_id) 
-										. '&ta=mr'
-										. '&ckid=' . urlencode($callkey_id) . 
-						 '"><h2><font color="Yellow">Show Responders Map</font></h2></a>'  . PHP_EOL;				
-				$html .='</div>' . PHP_EOL;
+				$html_responders_footer = str_replace('${FHID}', urlencode($firehall_id), CALLOUT_RESPONDERS_FOOTER);
+				$html_responders_footer = str_replace('${CID}', urlencode($callout_id), $html_responders_footer);
+				$html_responders_footer = str_replace('${CKID}', urlencode($callkey_id), $html_responders_footer);
+				$html .= $html_responders_footer;
 				// END: responders
 				
 				$callOrigin = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
@@ -174,13 +162,10 @@ if(isset($firehall_id)) {
 				else {
 					$callDest = getAddressForMapping($FIREHALL,$row->address);
 				}
-
-				$url = '<div class="google-maps">' . PHP_EOL;
-				$url .= '<iframe frameborder="1" style="border:1" ' .
-				       'src="https://www.google.com/maps/embed/v1/directions?key=' . 
-				       $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY . '&mode=driving&zoom=11&origin=' . 
-				       $callOrigin . '&destination=' . $callDest . '"></iframe>' . PHP_EOL;
-				$url .= '</div>' . PHP_EOL;
+				
+				$url = str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_INLINE_TAG);
+				$url = str_replace('${ORIGIN}', $callOrigin, $url);
+				$url = str_replace('${DESTINATION}', $callDest, $url);
 				
 				$row_number++;
 				
@@ -190,24 +175,22 @@ if(isset($firehall_id)) {
 					$callkey_validated = true;
 				}
 			}
+			
 			if($row_number == 1) {
 				$log->error("Call Info callouts NO RESULTS unexpected for sql [$sql]!");
-				//$html .= '<h2><b><font color="white">No results for: [' . $sql . ']</font></b></h2>' . PHP_EOL;
-				$html .= '<h2><b><font color="white">No results unexpected!</font></b></h2>' . PHP_EOL;
+				$html .= '<span class="ci_header">No results unexpected!</span>' . PHP_EOL;
 			}
 			else {
-				$user_id = get_query_param('uid');
+				$user_id = get_query_param('member_id');
 				
 				// Now show respond UI if applicable
 				if ( isset($callkey_id) && $callkey_id != null && $callkey_validated == true) {
 					// Select all user accounts for the firehall that did not yet respond
 					if($FIREHALL->LDAP->ENABLED) {
 						create_temp_users_table_for_ldap($FIREHALL, $db_connection);						
-						// START: responders
 						$sql_no_response = 'SELECT id, user_id FROM ldap_user_accounts WHERE id NOT IN (SELECT useracctid FROM callouts_response WHERE calloutid = ' .  $callout_id . ');';
 					}
 					else {						
-						// START: responders
 						$sql_no_response = 'SELECT id, user_id FROM user_accounts WHERE id NOT IN (SELECT useracctid FROM callouts_response WHERE calloutid = ' .  $callout_id . ');';
 					}
 
@@ -219,35 +202,41 @@ if(isset($firehall_id)) {
 
 					$log->trace("Call Info callouts no responses SQL success for sql [$sql_no_response] row count: " . $sql_no_response_result->num_rows);
 					
-					$html .='<br /><br />' . PHP_EOL;
-					$html .='<div id="callNoResponseContent' . $row_number . '">' . PHP_EOL;
+					$html .= str_replace('${ROW_NUMBER}', $row_number, CALLOUT_RESPOND_NOW_HEADER);
+					
+					$no_response_count = 0;
 					while($row_no_response = $sql_no_response_result->fetch_object()) {
 						if(isset($user_id) == false || $user_id == $row_no_response->user_id) {
 							$injectUIDParam = '';
 							if(isset($user_id)) {
-								$injectUIDParam = '&uid=' . urlencode($user_id);
+								$injectUIDParam = '&member_id=' . urlencode($user_id);
 							}
-							$html .='<br /><form id="call_no_response_' . $row_no_response->id .
+							if($no_response_count > 0) {
+								$html .='<br />' . PHP_EOL;
+							}
+							$html .='<form id="call_no_response_' . $row_no_response->id .
 							'" action="cr.php?fhid=' . urlencode($firehall_id)
 							. '&cid=' . urlencode($callout_id)
 							. '&uid=' . urlencode($row_no_response->user_id)
 							. '&ckid=' . urlencode($callkey_id)
 							. $injectUIDParam
-							. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm ' . 
-																	$row_no_response->user_id . 
-																	' is responding?\',this);">'. PHP_EOL;
+							. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'' 
+							. str_replace('${USER_ID}', $row_no_response->user_id, CALLOUT_RESPOND_NOW_TRIGGER_CONFIRM)  
+							. '\',this);">'. PHP_EOL;
 							
-							$html .='<INPUT TYPE="submit" VALUE="Respond Now - ' .
-									$row_no_response->user_id .
-									'" style="font-size: 25px; background-color:yellow" />'. PHP_EOL;
+							$html .= str_replace('${USER_ID}', $row_no_response->user_id, CALLOUT_RESPOND_NOW_TRIGGER);
 							$html .='</form>'. PHP_EOL;
+							
+							$no_response_count++;
 						}
 					}
 					$sql_no_response_result->close();
-						
+
+					$html .= CALLOUT_RESPOND_NOW_FOOTER;
+					
+					
 					if($callout_status_complete == false) {
 						// Select all user accounts for the firehall that did respond to the call
-						// START: responders
 						if($FIREHALL->LDAP->ENABLED) {
 							create_temp_users_table_for_ldap($FIREHALL, $db_connection);
 							$sql_yes_response = 'SELECT id,user_id FROM ldap_user_accounts WHERE id IN (SELECT useracctid FROM callouts_response WHERE calloutid = ' .  $callout_id . ');';
@@ -264,41 +253,51 @@ if(isset($firehall_id)) {
 
 						$log->trace("Call Info callouts yes responses SQL success for sql [$sql_yes_response] row count: " . $sql_yes_response_result->num_rows);
 						
-						$html .='<div id="callYesResponseContent' . $row_number . '">' . PHP_EOL;
+						$html .= str_replace('${ROW_NUMBER}', $row_number, CALLOUT_FINISH_NOW_HEADER);
+						
 						while($row_yes_response = $sql_yes_response_result->fetch_object()) {
 							
 							if(isset($user_id) == false || $user_id == $row_yes_response->user_id) {
 								$injectUIDParam = '';
 								if(isset($user_id)) {
-									$injectUIDParam = '&uid=' . urlencode($user_id);
+									$injectUIDParam = '&member_id=' . urlencode($user_id);
 								}
 								
-								$html .='<br /><form id="call_yes_response_' . $row_yes_response->id . '" action="cr.php?fhid=' . urlencode($firehall_id)
+								$html .='<br /><form id="call_yes_response_' . $row_yes_response->id . 
+								'" action="cr.php?fhid=' . urlencode($firehall_id)
 								. '&cid=' . urlencode($callout_id)
 								. '&uid=' . urlencode($row_yes_response->user_id)
 								. '&ckid=' . urlencode($callkey_id)
 								. $injectUIDParam
 								. '&status=' . urlencode(CalloutStatusType::Complete)
-								. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'Confirm that the call should be set to COMPLETE?\',this);">'. PHP_EOL;
-								$html .='<INPUT TYPE="submit" VALUE="End the Callout - '. $row_yes_response->user_id .'" style="font-size: 25px; background-color:lime" />'. PHP_EOL;
+								. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\''
+								. str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_COMPLETE_NOW_TRIGGER_CONFIRM) 
+								. '\',this);">'. PHP_EOL;
+								
+								$html .= str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_COMPLETE_NOW_TRIGGER);
 								$html .='</form>'. PHP_EOL;
 								
-								$html .='<form id="call_cancel_response_' . $row_yes_response->id . '" action="cr.php?fhid=' . urlencode($firehall_id)
+								$html .='<form id="call_cancel_response_' . $row_yes_response->id . 
+								'" action="cr.php?fhid=' . urlencode($firehall_id)
 								. '&cid=' . urlencode($callout_id)
 								. '&uid=' . urlencode($row_yes_response->user_id)
 								. '&ckid=' . urlencode($callkey_id)
 								. $injectUIDParam
 								. '&status=' . urlencode(CalloutStatusType::Cancelled)
-								. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'CANCEL this call?\nConfirm that the call should be CANCELLED?\',this);">'. PHP_EOL;
-								$html .='<INPUT TYPE="submit" VALUE="CANCEL the Callout - '. $row_yes_response->user_id .'" style="font-size: 25px; background-color:red" />'. PHP_EOL;
+								. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\''
+									. str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_CANCEL_NOW_TRIGGER_CONFIRM)
+									. '\',this);">'. PHP_EOL;
+								
+								$html .= str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_CANCEL_NOW_TRIGGER);
+								
 								$html .='</form>'. PHP_EOL;
 							}
 						}
 						$sql_yes_response_result->close();
-						$html .='</div>' . PHP_EOL;
+						
+						$html .= CALLOUT_FINISH_NOW_FOOTER;
 					}
 					
-					$html .='</div>' . PHP_EOL;
 					// END: responders
 				}
 			}
@@ -330,10 +329,10 @@ else {
 ?>
 
 <?php if($callout_id != -1 && isset($callkey_id)) : ?>
-<body bgcolor="black">
-<h1><font color="white">Call Information:</font></h1>
+<body class="ci_body">
+<?php echo CALLOUT_HEADER; ?>
 <?php else : ?>
-<body bgcolor="white">
+<body class="ci_body_error">
 <h2><b>Invalid Request</b></h2>
 <?php endif; ?>
 

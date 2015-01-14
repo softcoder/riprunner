@@ -23,7 +23,10 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	define('USER_ACCESS_SIGNAL_SMS', 0x2);
 	//define('USER_ACCESS_X', 0x4);
 	//define('USER_ACCESS_X', 0x8);
-	
+
+	# Actual application version
+	define('CURRENT_VERSION', '1.0.0');
+		
 	// ----------------------------------------------------------------------
 	// SMS Provider Settings
 	define( 'SMS_GATEWAY_TEXTBELT', 					'TEXTBELT');

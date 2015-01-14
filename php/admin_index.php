@@ -44,6 +44,11 @@ sec_session_start();
             <p>Welcome <?php echo htmlentities($_SESSION['user_id']); ?>!</p>
             
             <?php checkForLiveCallout($FIREHALL,$db_connection); ?>
+
+            <?php if(userHasAcess(USER_ACCESS_ADMIN)) : ?>
+            <?php checkApplicationUpdates(); ?>
+            <?php endif; ?>
+            
 			<div class="menudiv_wrapper">
 			  <nav class="vertical">
 			    <ul>

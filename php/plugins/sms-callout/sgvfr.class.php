@@ -133,7 +133,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 		. 'ci.php?cid=' . $callout_id
 		. '&fhid=' . $FIREHALL->FIREHALL_ID
 		. '&ckid=' . $callKey
-		. '&uid=' . $user_id;
+		. '&member_id=' . $user_id;
 	
 		$smsMsg = $msgSummary .', ' . $details_link;
 		if(isset($maxLength) && $maxLength > 0) {

@@ -720,7 +720,11 @@ nav.vertical {
               }            
               
               
-              
+.notice {
+  color:yellow;
+  font-size:22px; 
+}
+
 a.alert {
   color:yellow;
   font-size:22px; 
