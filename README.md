@@ -280,4 +280,5 @@ Compiling the Android application in the Eclipse IDE requires you to install the
 Contact Info:
 --------------
 - Email: mark_vejvoda@hotmail.com
-- IRC: `irc.freenode.net` server, in the `#softhaus` channel.
+- Join our IRC channel `#softhaus` on FreeNode.
+- Webchat IRC channel: http://webchat.freenode.net/?channels=softhaus
