@@ -19,6 +19,8 @@ require_once( 'config_constants.php' );
 // ----------------------------------------------------------------------
 // ----------------------------------------------------------------------
 // Customziable Text and HTML Tags
+define( 'CALLOUT_MAIN_CSS', 'styles/callout-main.css');
+define( 'CALLOUT_MOBILE_CSS', 'styles/callout-mobile.css');
 
 // Call Information page header
 define( 'CALLOUT_HEADER', '<span class="ci_header">Call Information:</span>');

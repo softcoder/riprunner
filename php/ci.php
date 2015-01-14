@@ -43,9 +43,9 @@ else {
 <script type="text/JavaScript" src="js/common-utils.js"></script>
 
 <?php if ($detect->isMobile()) : ?>
-<link rel="stylesheet" href="styles/callout-mobile.css" />
+<link rel="stylesheet" href="<?php echo CALLOUT_MOBILE_CSS; ?>" />
 <?php else : ?>
-<link rel="stylesheet" href="styles/callout-main.css" />
+<link rel="stylesheet" href="<?php echo CALLOUT_MAIN_CSS; ?>" />
 <?php endif; ?>
 </head>
 
