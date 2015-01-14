@@ -3,6 +3,10 @@ riprunner
 
 A Firehall dispatching communication suite.
 
+Current Version:
+---------------
+1.0.0
+
 Description:
 
 This application suite was designed by a volunteer fire fighter (whose full time job is software development) to enhance the experience of First Responders during an emergency 911 callout. The main goal of this application is to provide a completely free suite of applications which help fire fighters receive timely information and communicate activities with one another as incidents progress.
