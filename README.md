@@ -280,4 +280,4 @@ Compiling the Android application in the Eclipse IDE requires you to install the
 Contact Info:
 --------------
 - Email: mark_vejvoda@hotmail.com
-- IRC: `irc.freenode.net` server, in the `#softcoder` channel.
+- IRC: `irc.freenode.net` server, in the `#softhaus` channel.
