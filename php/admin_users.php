@@ -296,7 +296,6 @@ sec_session_start();
 					}
 					// INSERT
 					else if($self_edit == false) {
-						$sql_pwd_fieldvalue = '';
 						if(isset($new_pwd)) {
 							$new_pwd_value = $db_connection->real_escape_string($new_pwd);
 						}

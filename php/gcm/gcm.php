@@ -34,7 +34,7 @@ class GCM {
 		Constructor
 		@param $apiKeyIn the server API key
 	*/
-	function GCM($apiKeyIn) {
+	function __construct($apiKeyIn) {
 		$this->GCMApiKey = $apiKeyIn;
 
 		if(isset($this->GCMApiKey) == false || strlen($this->GCMApiKey) < 8) {
@@ -157,7 +157,7 @@ class GCM {
 			$log->error("Send GCM error response [" . $gcm_err ."]");
 		
 			if($this->isRegisterDeviceRequired($gcm_err)) {
-				foreach( $registration_ids as $reg_device_id ) {
+				foreach( $this->devices as $reg_device_id ) {
 					$this->removeDevice($reg_device_id);
 				}
 			}				
@@ -171,12 +171,12 @@ class GCM {
 		return $resultGCM;
 	}
 	
-	private function isGCMError($result) {
-		if(isset($result) && strpos($result,"|GCM_ERROR:")) {
-			return true;
-		}
-		return false;
-	}
+// 	private function isGCMError($result) {
+// 		if(isset($result) && strpos($result,"|GCM_ERROR:")) {
+// 			return true;
+// 		}
+// 		return false;
+// 	}
 	
 	private function isRegisterDeviceRequired($gcm_err) {
 		if(isset($gcm_err) && 

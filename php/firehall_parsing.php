@@ -34,7 +34,7 @@
 		$calloutOutMatchCount = 0;
 		
 		$callDateTimeNative = null;
-		$callDateTime = extractDelimitedValueFromString($msgText, EMAIL_PARSING_DATETIME_PATTERN, 1, true);
+		$callDateTime = extractDelimitedValueFromString($msgText, EMAIL_PARSING_DATETIME_PATTERN, 1);
 		$callDateTime = trim($callDateTime);
 		print("DateTime : [" . $callDateTime . "]\n");
 		if($callDateTime != null) {
@@ -49,7 +49,7 @@
 			}
 		}
 		
-		$callCode =  extractDelimitedValueFromString($msgText, EMAIL_PARSING_CALLCODE_PATTERN, 1, true);
+		$callCode =  extractDelimitedValueFromString($msgText, EMAIL_PARSING_CALLCODE_PATTERN, 1);
 		$callCode = trim($callCode);
 		print("Code : [" . $callCode . "]\n");
 		if($callCode != null) {
@@ -59,28 +59,28 @@
 		$callType = convertCallOutTypeToText($callCode);
 		print("Incident Description : [" . $callType . "]\n");
 		
-		$callAddress = extractDelimitedValueFromString($msgText, EMAIL_PARSING_ADDRESS_PATTERN, 1, true);
+		$callAddress = extractDelimitedValueFromString($msgText, EMAIL_PARSING_ADDRESS_PATTERN, 1);
 		$callAddress = trim($callAddress);
 		print("Incident Address : [" . $callAddress . "]\n");
 		if($callAddress != null) {
 			$calloutOutMatchCount++;
 		}
 		
-		$callGPSLat = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LATITUDE_PATTERN, 1, true);
+		$callGPSLat = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LATITUDE_PATTERN, 1);
 		$callGPSLat = trim($callGPSLat);
 		print("Incident GPS Lat : [" . $callGPSLat . "]\n");
 		if($callGPSLat != null) {
 			$calloutOutMatchCount++;
 		}
 		
-	   	$callGPSLong = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LONGITUDE_PATTERN, 1, true);
+	   	$callGPSLong = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LONGITUDE_PATTERN, 1);
 	   	$callGPSLong = trim($callGPSLong);
 		print("Incident GPS Long : [" . $callGPSLong . "]\n");
 		if($callGPSLong != null) {
 			$calloutOutMatchCount++;
 		}
 		
-	   	$callUnitsResponding = extractDelimitedValueFromString($msgText, EMAIL_PARSING_UNITS_PATTERN, 1, true);
+	   	$callUnitsResponding = extractDelimitedValueFromString($msgText, EMAIL_PARSING_UNITS_PATTERN, 1);
 	   	$callUnitsResponding = trim($callUnitsResponding);
 	   	print("Incident Units Responding : [" . $callUnitsResponding . "]\n");
 	   	if($callUnitsResponding != null) {
@@ -100,20 +100,6 @@
 	   			 	 $callType);
 	}
 	
-/*	
-	function extractDelimitedValueFromString($rawValue, $regularExpression, $groupResultIndex, $isMultiLine) {
-	    	 
-		//$cleanRawValue = preg_replace( '/[^[:print:]]/', '',$rawValue);
-		$cleanRawValue = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/u', '',$rawValue);
-		preg_match($regularExpression, $cleanRawValue, $result);
-		if(isset($result[$groupResultIndex])) {
-			$result[$groupResultIndex] = str_replace(array("\n", "\r"), '', $result[$groupResultIndex]);
-	    	return $result[$groupResultIndex];
-		}
-		return null;
-	}
-*/
-		
 	function convertCallOutTypeToText($type) {
 		global $CALLOUT_CODES_LOOKUP;
 		$typeText = "UNKNOWN [" + $type + "]";

@@ -40,7 +40,7 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 		
 		$user_account_id = null;
 		if($FIREHALL->LDAP->ENABLED) {
-			$user_authenticated = login_ldap($FIREHALL, $user_id, $user_pwd, $db_connection);
+			$user_authenticated = login_ldap($FIREHALL, $user_id, $user_pwd);
 		}
 		else {
 			// Read from the database info about this callout

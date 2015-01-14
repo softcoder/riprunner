@@ -62,7 +62,9 @@ class SMSTextBeltPlugin implements ISMSPlugin {
 		
 				if(!curl_errno($s)) {
 					$info = curl_getinfo($s);
-					$resultSMS .= 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
+					$resultSMS .= 'Took ' . $info['total_time'] . 
+						' seconds to send a request to ' . $info['url'] . 
+						' response [' . $result .']' . PHP_EOL;
 				}
 				else {
 					$resultSMS .= 'Curl error: ' . curl_error($s) . PHP_EOL;

@@ -24,7 +24,7 @@ class LDAP {
 	var $connection = null;
 	var $bind = null;
 	
-	function LDAP($adServer) {
+	function __construct($adServer) {
 		$this->ad_server = $adServer;
 		if(isset($this->ad_server) == false || $this->ad_server == '') {
 			throwExceptionAndLogError("Invalid LDAP server configuration.","Invalid LDAP server specified [" . $this->ad_server . "]");
@@ -48,7 +48,7 @@ class LDAP {
 		
 		$result = ldap_search($this->connection,$base_dn,$filter);
 		if($result == false) {
-			throwExceptionAndLogError("LDAP Search error.",handleSearchFailed($base_dn,$filter,$sort_by));
+			throwExceptionAndLogError("LDAP Search error.",$this->handleSearchFailed($base_dn,$filter,$sort_by));
 		}
 		else {
 			if(isset($sort_by)) {

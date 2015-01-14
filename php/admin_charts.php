@@ -215,7 +215,7 @@ sec_session_start();
 				$monthNumber = $row[0];
 				$monthName = date("F", mktime(0, 0, 0, $monthNumber, 10));
 				
-				$datalabel = $row[1];
+				//$datalabel = $row[1];
 				$monthCount = $row[2];
 				
 				if($current_month_number != $monthNumber) {
@@ -376,7 +376,7 @@ sec_session_start();
 				$monthNumber = $row[0];
 				$monthName = date("F", mktime(0, 0, 0, $monthNumber, 10));
 				
-				$datalabel = $row[1];
+				//$datalabel = $row[1];
 				$monthCount = $row[2];
 				
 				if($current_month_number != $monthNumber) {

@@ -128,7 +128,7 @@ function getGEOCoordinatesFromAddress($FIREHALL,$address) {
 	//echo 'RESPONSE: ' . $result .PHP_EOL;
 	
 	if(!curl_errno($curl_handle)) {
-		$info = curl_getinfo($curl_handle);
+		//$info = curl_getinfo($curl_handle);
 		curl_close($curl_handle);
 		//echo 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
 			
@@ -209,7 +209,7 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
 	$log->trace("Login attempt for user [$user_id] fhid [" . $FIREHALL->FIREHALL_ID . "]");
 	
 	if($FIREHALL->LDAP->ENABLED) {
-		return login_ldap($FIREHALL, $user_id, $password, $db_connection);
+		return login_ldap($FIREHALL, $user_id, $password);
 	}
 	
 	// Using prepared statements means that SQL injection is not possible.
@@ -264,7 +264,7 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
         			// We record this attempt in the database
         			$log->error("Login attempt for user [$user_id] FAILED pwd check!");
         			
-        			$now = time();
+        			//$now = time();
         			$db_connection->query("INSERT INTO login_attempts(useracctid, time)
         					VALUES ($dbId, CURRENT_TIMESTAMP())");
         			
@@ -324,7 +324,7 @@ function login_check($db_connection) {
 
 		$user_id = $_SESSION['user_db_id'];
 		$login_string = $_SESSION['login_string'];
-		$username = $_SESSION['user_id'];
+		//$username = $_SESSION['user_id'];
 			
 		$ldap_enabled = $_SESSION['ldap_enabled'];
 	

@@ -226,7 +226,7 @@ function poll_email_callouts($FIREHALLS_LIST) {
 			$FIREHALL->EMAIL->EMAIL_HOST_ENABLED == false) {
 			continue;
 		}
-		$pictures = 0;
+		//$pictures = 0;
 
 		$log->trace("Email trigger checking firehall: " . 
 				$FIREHALL->WEBSITE->FIREHALL_NAME . 

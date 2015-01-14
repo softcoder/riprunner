@@ -15,7 +15,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 //require_once( 'functions.php' );
 require_once( 'ldap/ldap.php' );
 
-function extractDelimitedValueFromString($rawValue, $regularExpression, $groupResultIndex, $isMultiLine) {
+function extractDelimitedValueFromString($rawValue, $regularExpression, $groupResultIndex) {
 	//$cleanRawValue = preg_replace( '/[^[:print:]]/', '',$rawValue);
 	$cleanRawValue = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/u', '',$rawValue);
 	preg_match($regularExpression, $cleanRawValue, $result);
@@ -26,13 +26,13 @@ function extractDelimitedValueFromString($rawValue, $regularExpression, $groupRe
 	return null;
 }
 
-function login_ldap($FIREHALL, $user_id, $password, $db_connection) {
+function login_ldap($FIREHALL, $user_id, $password) {
 	$debug_functions = false;
 
 	$ldap = new LDAP($FIREHALL->LDAP->LDAP_SERVERNAME);
 	$ldap->setBindRdn($FIREHALL->LDAP->LDAP_BIND_RDN, $FIREHALL->LDAP->LDAP_BIND_PASSWORD);
 	
-	$basedn = $FIREHALL->LDAP->LDAP_BASE_USERDN;
+	//$basedn = $FIREHALL->LDAP->LDAP_BASE_USERDN;
 	$filter = str_replace( '${login}', $user_id, $FIREHALL->LDAP->LDAP_LOGIN_FILTER );
 	
 	if($debug_functions) echo "filter [$filter]" . PHP_EOL;
@@ -246,12 +246,12 @@ function login_check_ldap($db_connection) {
 			$_SESSION['login_string'],
 			$db_connection)) {
 
-		$user_id = $_SESSION['user_db_id'];
-		$login_string = $_SESSION['login_string'];
-		$username = $_SESSION['user_id'];
+		//$user_id = $_SESSION['user_db_id'];
+		//$login_string = $_SESSION['login_string'];
+		//$username = $_SESSION['user_id'];
 
 		// Get the user-agent string of the user.
-		$user_browser = $_SERVER['HTTP_USER_AGENT'];
+		//$user_browser = $_SERVER['HTTP_USER_AGENT'];
 
 		if($debug_functions) echo "LOGINCHECK OK" . PHP_EOL;
 		
@@ -285,7 +285,7 @@ function get_sms_recipients_ldap($FIREHALL, $str_group_filter) {
 	for ($i=0; $i<$info["count"]; $i++) {
     	if($debug_functions) var_dump($info[$i]);
     	
-    	$user_found_in_group = false;
+    	//$user_found_in_group = false;
     	
     	// Find by group member of attribute
     	if(isset($info[$i]) && 
@@ -299,9 +299,9 @@ function get_sms_recipients_ldap($FIREHALL, $str_group_filter) {
     		foreach($members as $member) {
     			
     			$original_member = $member;
-    			$member = extractDelimitedValueFromString($original_member, "/uid=(.*?),/m", 1, true);
+    			$member = extractDelimitedValueFromString($original_member, "/uid=(.*?),/m", 1);
     			if($member == '') {
-    				$member = extractDelimitedValueFromString($original_member, "/uid=(.*?)$/m", 1, true);
+    				$member = extractDelimitedValueFromString($original_member, "/uid=(.*?)$/m", 1);
     			}
     			if($member == '') {
     				$member = $original_member;
@@ -423,9 +423,9 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 				if($debug_functions) echo "group has member [$member]" . PHP_EOL;
 				
 				$original_member = $member;
-				$member = extractDelimitedValueFromString($original_member, "/uid=(.*?),/m", 1, true);
+				$member = extractDelimitedValueFromString($original_member, "/uid=(.*?),/m", 1);
 				if($member == '') {
-					$member = extractDelimitedValueFromString($original_member, "/uid=(.*?)$/m", 1, true);
+					$member = extractDelimitedValueFromString($original_member, "/uid=(.*?)$/m", 1);
 				}
 				if($member == '') {
 					$member = $original_member;
@@ -436,7 +436,7 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 				
 				$result = $ldap->search($FIREHALL->LDAP->LDAP_BASE_USERDN,$user_filter,null);
 				
-				if(isset($result_user_search)) {
+				if(isset($result)) {
 					$users_list = $result;
 					unset($users_list['count']);
 

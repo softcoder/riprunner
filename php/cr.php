@@ -110,7 +110,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 				
 				// Validate the users password
 				if($FIREHALL->LDAP->ENABLED) {
-					if(login_ldap($FIREHALL, $user_id, $user_pwd, $db_connection)) {
+					if(login_ldap($FIREHALL, $user_id, $user_pwd)) {
 						$user_authenticated = true;
 						$useracctid = $row->id;
 						
