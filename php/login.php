@@ -56,7 +56,7 @@ else {
         
         <?php else : ?>
 		<div class="container">
-		<section id="content">   
+		<section id="content">
         <form action="process_login.php" method="post" accept-charset="utf-8" id="login_form" name="login_form">
         	<h1>Login User</h1>
         	
@@ -85,12 +85,10 @@ else {
 		</section><!-- content -->
 		</div><!-- container -->
 
-<!--    <p>If you don't have a login, please <a href="register.php">register</a></p> -->
         <p>If you are done, please <a href="logout.php">log out</a>.</p>
         <p>You are currently logged <?php echo $logged ?>.</p>
         
         <?php endif; ?>
         </div>
-        
     </body>
 </html>

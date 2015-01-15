@@ -376,7 +376,8 @@ sec_session_start();
                 
         if (login_check($db_connection) && 
 				(userHasAcess(USER_ACCESS_ADMIN) || $self_edit)) : ?>
-            <p>Welcome <?php echo htmlentities($_SESSION['user_id']); ?>!</p>
+	        <h3>Welcome <?php echo htmlentities($_SESSION['user_id']) . 
+	        	   ' - '. $FIREHALL->WEBSITE->FIREHALL_NAME; ?>!</h3>
 
             <?php checkForLiveCallout($FIREHALL,$db_connection); ?>
             <?php echo '<input type="hidden" id="se" name="se" value="true"/>' . PHP_EOL; ?>

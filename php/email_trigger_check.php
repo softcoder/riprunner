@@ -224,6 +224,10 @@ function poll_email_callouts($FIREHALLS_LIST) {
 	foreach ($FIREHALLS_LIST as &$FIREHALL) {
 		if($FIREHALL->ENABLED == false || 
 			$FIREHALL->EMAIL->EMAIL_HOST_ENABLED == false) {
+			
+			$html .= '<h2>Skipping: ' . $FIREHALL->WEBSITE->FIREHALL_NAME .'</h2>';
+			$html .= 'config enabled = '. $FIREHALL->ENABLED; 
+			$html .= ', email = ' . $FIREHALL->EMAIL->EMAIL_HOST_ENABLED .'<br />';
 			continue;
 		}
 		//$pictures = 0;
@@ -233,7 +237,10 @@ function poll_email_callouts($FIREHALLS_LIST) {
 				" connection string [" . 
 				$FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING . "]");
 		
-		$html .= '<h2>Checking for: ' . $FIREHALL->WEBSITE->FIREHALL_NAME . '</h2><br />';
+		$html .= '<h2>Checking for: ' . $FIREHALL->WEBSITE->FIREHALL_NAME . '</h2>';
+		$html .= 'config enabled = '. $FIREHALL->ENABLED; 
+		$html .= ', email = ' . $FIREHALL->EMAIL->EMAIL_HOST_ENABLED .'<br />';
+				
 		# Connect to the mail server and grab headers from the mailbox
 		$mail = imap_open($FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING, 
 						  $FIREHALL->EMAIL->EMAIL_HOST_USERNAME, 

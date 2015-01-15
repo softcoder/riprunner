@@ -233,15 +233,21 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// Email Settings
 	define( 'DEFAULT_EMAIL_FROM_TRIGGER', 'donotreply@focc.mycity.ca');
 	
-	$LOCAL_DEBUG_EMAIL = new FireHallEmailAccount(true, 
-			DEFAULT_EMAIL_FROM_TRIGGER,
-			'{pop.secureserver.net:995/pop3/ssl/novalidate-cert}INBOX',
-			'my-email-trigger@my-email-host.com','my-email-password',true);
-				
+	$LOCAL_DEBUG_EMAIL = new FireHallEmailAccount();
+	$LOCAL_DEBUG_EMAIL->setHostEnabled(true);
+	$LOCAL_DEBUG_EMAIL->setFromTrigger(DEFAULT_EMAIL_FROM_TRIGGER);
+	$LOCAL_DEBUG_EMAIL->setConnectionString('{pop.secureserver.net:995/pop3/ssl/novalidate-cert}INBOX');
+	$LOCAL_DEBUG_EMAIL->setUserName('my-email-trigger@my-email-host.com');
+	$LOCAL_DEBUG_EMAIL->setPassword('my-email-password');
+	$LOCAL_DEBUG_EMAIL->setDeleteOnProcessed(true);
+	
 	// ----------------------------------------------------------------------
 	// MySQL Database Settings
-	$LOCAL_DEBUG_MYSQL = new FireHallMySQL('localhost',
-			'riprunner', 'riprunner', 'riprunner');
+	$LOCAL_DEBUG_MYSQL = new FireHallMySQL();
+	$LOCAL_DEBUG_MYSQL->setHostName('localhost');
+	$LOCAL_DEBUG_MYSQL->setDatabseName('riprunner');
+	$LOCAL_DEBUG_MYSQL->setUserName('riprunner');
+	$LOCAL_DEBUG_MYSQL->setPassword('riprunner');
 	
 	// ----------------------------------------------------------------------
 	// SMS Provider Settings
@@ -254,21 +260,14 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'DEFAULT_SMS_PROVIDER_TWILIO_AUTH_TOKEN', 	'X:X');
 	define( 'DEFAULT_SMS_PROVIDER_TWILIO_FROM', 		'+12505551212');
 	
-	$LOCAL_DEBUG_SMS = new FireHallSMS(true,
-		//SMS_GATEWAY_TEXTBELT,
-		//SMS_GATEWAY_EZTEXTING,
-		//SMS_GATEWAY_SENDHUB,
-		SMS_GATEWAY_TWILIO,
-		SMS_CALLOUT_PROVIDER_DEFAULT,
-		//'2505551212', false, true,			// TEXTBELT
-		//'svvfd', true, false, 				// EZTEXTING
-		//'103740731333333333', true, false, 	// SENDHUB (The sendhub group id)
-		'', false, true, 						// TWILIO (read sms mobile #'s from database)
-		DEFAULT_SMS_PROVIDER_SENDHUB_BASE_URL, DEFAULT_SMS_PROVIDER_TEXTBELT_BASE_URL,
-		DEFAULT_SMS_PROVIDER_EZTEXTING_BASE_URL,DEFAULT_SMS_PROVIDER_EZTEXTING_USERNAME,
-		DEFAULT_SMS_PROVIDER_EZTEXTING_PASSWORD, DEFAULT_SMS_PROVIDER_TWILIO_BASE_URL,
-		DEFAULT_SMS_PROVIDER_TWILIO_AUTH_TOKEN,DEFAULT_SMS_PROVIDER_TWILIO_FROM);
-
+	$LOCAL_DEBUG_SMS = new FireHallSMS();
+	$LOCAL_DEBUG_SMS->setSignalEnabled(true);
+	$LOCAL_DEBUG_SMS->setGatewayType(SMS_GATEWAY_TWILIO);
+	$LOCAL_DEBUG_SMS->setCalloutProviderType(SMS_CALLOUT_PROVIDER_DEFAULT);
+	$LOCAL_DEBUG_SMS->setTwilioBaseURL(DEFAULT_SMS_PROVIDER_TWILIO_BASE_URL);
+	$LOCAL_DEBUG_SMS->setTwilioAuthToken(DEFAULT_SMS_PROVIDER_TWILIO_AUTH_TOKEN);
+	$LOCAL_DEBUG_SMS->setTwilioFromNumber(DEFAULT_SMS_PROVIDER_TWILIO_FROM);
+	
 	// ----------------------------------------------------------------------
 	// Mobile App Settings
 	define( 'DEFAULT_GCM_API_KEY', 	'X');
@@ -277,53 +276,51 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// The google Project Number
 	define( 'DEFAULT_GCM_PROJECTID','X');
 	
-	$LOCAL_DEBUG_MOBILE = new FireHallMobile(true, true, true,
-			DEFAULT_GCM_SEND_URL,DEFAULT_GCM_API_KEY,DEFAULT_GCM_PROJECTID);
+	$LOCAL_DEBUG_MOBILE = new FireHallMobile();
+	$LOCAL_DEBUG_MOBILE->setSignalEnabled(true);
+	$LOCAL_DEBUG_MOBILE->setTrackingEnabled(true);
+	$LOCAL_DEBUG_MOBILE->setSignalGCM_Enabled(true);
+	$LOCAL_DEBUG_MOBILE->setSignalGCM_URL(DEFAULT_GCM_SEND_URL);
+	$LOCAL_DEBUG_MOBILE->setGCM_ApiKey(DEFAULT_GCM_API_KEY);
+	$LOCAL_DEBUG_MOBILE->setGCM_ProjectNumber(DEFAULT_GCM_PROJECTID);
 	
 	// ----------------------------------------------------------------------
 	// Website and Location Settings
 	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY', 						'X' );
-	// A ; delimited list of original_city_name|new_city_name city names to swap for google maps 
-	//define( 'DEFAULT_WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION', 	'SALMON VALLEY,|PRINCE GEORGE,;NORTH KELLY,|PRINCE GEORGE,;' );
 
-	$LOCAL_DEBUG_WEBSITE = new FireHallWebsite('Local Test Fire Department',
-			'5155 Salmon Valley Road, Prince George, BC',
-			54.0916667,
-			-122.6537361,
-			'http://svvfd-1.local/php/',
-			//'http://bit.ly/1nR3D3N/',
-			DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY, 
-			$GOOGLE_MAP_CITY_LOOKUP);
+	$LOCAL_DEBUG_WEBSITE = new FireHallWebsite();
+	$LOCAL_DEBUG_WEBSITE->setFirehallName('Local Test Fire Department');
+	$LOCAL_DEBUG_WEBSITE->setFirehallAddress('5155 Salmon Valley Road, Prince George, BC');
+	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLatitude(54.0916667);
+	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLongitude(122.6537361);
+	$LOCAL_DEBUG_WEBSITE->setCalloutDetailURL('http://svvfd-1.local/php/');
+	$LOCAL_DEBUG_WEBSITE->setGoogleMap_ApiKey(DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY);
+	$LOCAL_DEBUG_WEBSITE->setCityNameSubs($GOOGLE_MAP_CITY_LOOKUP);
 	
 	// ----------------------------------------------------------------------
 	// LDAP Settings
-	$LOCAL_DEBUG_LDAP = new FireHall_LDAP(
-			false,
-			'ldap://myhost.example.com',
-			null, null,
-			'dc=example,dc=com',
-			'ou=users,dc=example,dc=com',
-			'(|(uid=${login})(cn=${login})(mail=${login}@\*))',
-			'dn',
-			'sn',
-			'(&(objectClass=posixGroup)(|(cn=users)))',
-			'(&(objectClass=posixGroup)(cn=admin))',
-			'(&(objectClass=posixGroup)(cn=sms))',
-			'memberuid',
-			'mobile',
-			'uidnumber',
-			'uid');
+	$LOCAL_DEBUG_LDAP = new FireHall_LDAP();
+	$LOCAL_DEBUG_LDAP->setEnabled(false);
+	$LOCAL_DEBUG_LDAP->setHostName('ldap://softcoder-linux.vejvoda.com');
+	$LOCAL_DEBUG_LDAP->setBaseDN('dc=vejvoda,dc=com');
+	$LOCAL_DEBUG_LDAP->setBaseUserDN('ou=users,dc=vejvoda,dc=com');
+	$LOCAL_DEBUG_LDAP->setLoginFilter('(|(uid=${login})(cn=${login})(mail=${login}@\*))');
+	$LOCAL_DEBUG_LDAP->setLoginAllUsersFilter('(&(objectClass=posixGroup)(|(cn=admin)(cn=sms)))');
+	$LOCAL_DEBUG_LDAP->setAdminGroupFilter('(&(objectClass=posixGroup)(cn=admin))');
+	$LOCAL_DEBUG_LDAP->setSMSGroupFilter('(&(objectClass=posixGroup)(cn=sms))');
+	$LOCAL_DEBUG_LDAP->setGroupMemberOf_Attribute('memberuid');
 	
 	// ----------------------------------------------------------------------
 	// Main Firehall Configuration Container Settings
-	$LOCAL_DEBUG_FIREHALL = new FireHallConfig(	true, 
-												0,
-												$LOCAL_DEBUG_MYSQL,
-												$LOCAL_DEBUG_EMAIL,
-												$LOCAL_DEBUG_SMS,
-												$LOCAL_DEBUG_WEBSITE,
-												$LOCAL_DEBUG_MOBILE,
-												$LOCAL_DEBUG_LDAP);
+	$LOCAL_DEBUG_FIREHALL = new FireHallConfig();
+	$LOCAL_DEBUG_FIREHALL->setEnabled(true);
+	$LOCAL_DEBUG_FIREHALL->setFirehallId(0);
+	$LOCAL_DEBUG_FIREHALL->setMySQLSettings($LOCAL_DEBUG_MYSQL);
+	$LOCAL_DEBUG_FIREHALL->setEmailSettings($LOCAL_DEBUG_EMAIL);
+	$LOCAL_DEBUG_FIREHALL->setSMS_Settings($LOCAL_DEBUG_SMS);
+	$LOCAL_DEBUG_FIREHALL->setWebsiteSettings($LOCAL_DEBUG_WEBSITE);
+	$LOCAL_DEBUG_FIREHALL->setMobileSettings($LOCAL_DEBUG_MOBILE);
+	$LOCAL_DEBUG_FIREHALL->setLDAP_Settings($LOCAL_DEBUG_LDAP);
 	
 	// Add as many firehalls to the array as you desire to support
 	$FIREHALLS = array(	$LOCAL_DEBUG_FIREHALL);

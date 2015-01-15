@@ -170,7 +170,7 @@ if(isset($firehall_id)) {
 				
 				$row_number++;
 				
-				$html .=$url;
+				$html .= $url;
 				
 				if ( isset($callkey_id) && $callkey_id != null && $callkey_id == $row->call_key) {
 					$callkey_validated = true;
