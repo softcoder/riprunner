@@ -22,6 +22,7 @@ $detect = new Mobile_Detect;
 
 $firehall_id = get_query_param('fhid');
 $callkey_id = get_query_param('ckid');
+$user_id = get_query_param('member_id');
 $callkey_validated = false;
 
 // used for debugging
@@ -78,7 +79,7 @@ if(isset($firehall_id)) {
 			//$sql_where_clause = ' ORDER BY updatetime DESC LIMIT 1';
 		}
 		
-		$log->trace("Call Info for firehall_id [$firehall_id] callout_id [$callout_id] callkey_id [$callkey_id]");
+		$log->trace("Call Info for firehall_id [$firehall_id] callout_id [$callout_id] callkey_id [$callkey_id] member_id [". (isset($user_id) ? $user_id : "null") ."]");
 		
 		if($callout_id != -1 && isset($callkey_id)) {
 			// Read from the database info about this callout
@@ -181,8 +182,6 @@ if(isset($firehall_id)) {
 				$html .= '<span class="ci_header">No results unexpected!</span>' . PHP_EOL;
 			}
 			else {
-				$user_id = get_query_param('member_id');
-				
 				// Now show respond UI if applicable
 				if ( isset($callkey_id) && $callkey_id != null && $callkey_validated == true) {
 					// Select all user accounts for the firehall that did not yet respond
