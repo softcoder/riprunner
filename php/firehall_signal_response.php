@@ -42,7 +42,8 @@ function signalResponseToSMSPlugin($FIREHALL, $callId, $userId,
 	if($smsPlugin == null) {
 		throw new Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
 	}
-	
+
+	$recipient_list_type = RecipientListType::MobileList;
 	if($FIREHALL->LDAP->ENABLED) {
 		$recipients = get_sms_recipients_ldap($FIREHALL,null);
 		$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients);
