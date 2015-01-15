@@ -71,7 +71,7 @@ function get_log() {
             var size;
 
             if (xhr.status === 206) {
-                if (data.length > load)
+                if (data.length > load+1)
                     throw "Expected 206 Partial Content (data.length > load) : " + data.length + " : " + load;
 
                 var c_r = xhr.getResponseHeader("Content-Range");
