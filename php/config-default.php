@@ -172,9 +172,15 @@ $CALLOUT_CODES_LOOKUP = array(
 				);
 
 // ----------------------------------------------------------------------
-define( 'GOOGLE_MAP_CITY_DEFAULT', 'PRINCE GEORGE,' );
+
+// Google maps street name substitution list
+$GOOGLE_MAP_STREET_LOOKUP = array(
+		" EAGLE VIEW RD, " => " EAGLEVIEW RD, "
+);
 
 // Google maps city name substitution list
+define( 'GOOGLE_MAP_CITY_DEFAULT', 'PRINCE GEORGE,' );
+
 $GOOGLE_MAP_CITY_LOOKUP = array(
 
 		//"ALBREDA," => "ALBREDA,",
@@ -228,7 +234,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 		"WOODPECKER," => GOOGLE_MAP_CITY_DEFAULT
 
 );
-
+		
 	// ----------------------------------------------------------------------
 	// Email Settings
 	define( 'DEFAULT_EMAIL_FROM_TRIGGER', 'donotreply@focc.mycity.ca');
@@ -296,6 +302,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_WEBSITE->setCalloutDetailURL('http://svvfd-1.local/php/');
 	$LOCAL_DEBUG_WEBSITE->setGoogleMap_ApiKey(DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY);
 	$LOCAL_DEBUG_WEBSITE->setCityNameSubs($GOOGLE_MAP_CITY_LOOKUP);
+	$LOCAL_DEBUG_WEBSITE->setStreetNameSubs($GOOGLE_MAP_STREET_LOOKUP);
 	
 	// ----------------------------------------------------------------------
 	// LDAP Settings

@@ -19,7 +19,8 @@ function signalCalloutToSMSPlugin($FIREHALL, $callDateTimeNative, $callCode,
 		$callKey, $msgPrefix) {
 	
 	global $log;
-	$log->trace("Check SMS callout signal for SMS Enabled [" . $FIREHALL->SMS->SMS_SIGNAL_ENABLED . "]");
+	$log->trace("Check SMS callout signal for SMS Enabled [" . 
+			var_export($FIREHALL->SMS->SMS_SIGNAL_ENABLED,true) . "]");
 	
 	if($FIREHALL->SMS->SMS_SIGNAL_ENABLED) {
 		$smsCalloutPlugin = findPlugin('ISMSCalloutPlugin', $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE);
@@ -44,7 +45,8 @@ function signalCalloutToSMSPlugin($FIREHALL, $callDateTimeNative, $callCode,
 
 function sendSMSPlugin_Message($FIREHALL, $msg) {
 	global $log;
-	$log->trace("Check SMS send message for SMS Enabled [" . $FIREHALL->SMS->SMS_SIGNAL_ENABLED . "]");
+	$log->trace("Check SMS send message for SMS Enabled [" . 
+			var_export($FIREHALL->SMS->SMS_SIGNAL_ENABLED,true) . "]");
 	
 	$resultSMS = "";
 

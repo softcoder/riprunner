@@ -94,20 +94,32 @@ function db_disconnect( $linkid ) {
 }
 
 function getAddressForMapping($FIREHALL,$address) {
+	global $log;
+	$log->trace("About to find google map address for [$address]");
+	
 	$result_address = $address;
+	
+	$streetSubstList = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_STREET_NAME_SUBSTITUTION;
+	if(isset($streetSubstList) && $streetSubstList != null && count($streetSubstList) > 0) {
+		foreach($streetSubstList as $sourceStreetName => $destStreetName) {
+			$result_address = str_replace($sourceStreetName, $destStreetName, $result_address);
+		}
+	}
+	
+	$log->trace("After street subst map address is [$result_address]");
+	
 	$citySubstList = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION;
-	if($citySubstList != null) {
+	if(isset($citySubstList) && $citySubstList != null && count($citySubstList) > 0) {
 		foreach($citySubstList as $sourceCityName => $destCityName) {
 			$result_address = str_replace($sourceCityName, $destCityName, $result_address);
 		}
 	}
+	
+	$log->trace("After city subst map address is [$result_address]");
+	
 	return $result_address;
 }
 
-//$FIREHALL = findFireHallConfigById(0, $FIREHALLS);
-//getGEOCoordinatesFromAddress($FIREHALL,'17760 lacasse road prince george BC');
-//getGEOCoordinatesFromAddress($FIREHALL,'2595 1ST AVE, PRINCE GEORGE, BC');
-	
 function getGEOCoordinatesFromAddress($FIREHALL,$address) {
 	global $log;
 	//http://maps.googleapis.com/maps/api/geocode/xml?address=17760 lacasse road prince george BC canada&sensor=false

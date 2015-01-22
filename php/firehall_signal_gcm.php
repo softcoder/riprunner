@@ -24,8 +24,8 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 	$resultGCM = "";
 	
 	$log->trace("Check GCM callout signal for MOBILE Enabled [" . 
-			$FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED . "] GCM [" . 
-			$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED . "]");
+			var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED,true) . "] GCM [" . 
+			var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED,true) . "]");
 	
 	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
 		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
@@ -97,8 +97,8 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 	$resultGCM = "";
 	
 	$log->trace("Check GCM response signal for MOBILE Enabled [" .
-			$FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED . "] GCM [" . 
-			$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED . "]");
+			var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED,true) . "] GCM [" . 
+			var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED,true) . "]");
 	
 	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
 		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
@@ -152,8 +152,8 @@ function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connectio
 	$resultGCM = "";
 	
 	$log->trace("Check GCM login signal for MOBILE Enabled [" .
-			$FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED . "] GCM [" . 
-			$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED . "]");
+			var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED,true) . "] GCM [" . 
+			var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED,true) . "]");
 	
 	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
 		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
@@ -177,8 +177,8 @@ function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connectio
 function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 	global $log;
 	$log->trace("Check GCM send_msg signal for MOBILE Enabled [" .
-			$FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED . "] GCM [" . 
-			$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED . "]");
+			var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED, true) . "] GCM [" . 
+			var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED,true) . "]");
 	
 	$resultGCM = "";
 	
