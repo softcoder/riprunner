@@ -200,7 +200,7 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 							$gcmResponseMsg = getSMSCalloutResponseMessage($FIREHALL, $callout_id, $user_id,
 									$callGPSLat, $callGPSLong, $userStatus, $callKey, 0);
 							
-							signalResponseRecipientsUsingGCM($FIREHALL, $callout_id, $user_id,
+							echo signalResponseRecipientsUsingGCM($FIREHALL, $callout_id, $user_id,
 												$callGPSLat, $callGPSLong, $userStatus, 
 												$callKey, $gcmResponseMsg,$registration_id,
 												$db_connection);

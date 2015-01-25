@@ -23,7 +23,7 @@ function signalCalloutToSMSPlugin($FIREHALL, $callDateTimeNative, $callCode,
 			var_export($FIREHALL->SMS->SMS_SIGNAL_ENABLED,true) . "]");
 	
 	if($FIREHALL->SMS->SMS_SIGNAL_ENABLED) {
-		$smsCalloutPlugin = findPlugin('ISMSCalloutPlugin', $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE);
+		$smsCalloutPlugin = \riprunner\PluginsLoader::findPlugin('riprunner\ISMSCalloutPlugin', $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE);
 		if($smsCalloutPlugin == null) {
 			$log->error("Invalid SMS Callout Plugin type: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
 			throw new Exception("Invalid SMS Callout Plugin type: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
@@ -51,7 +51,7 @@ function sendSMSPlugin_Message($FIREHALL, $msg) {
 	$resultSMS = "";
 
 	if($FIREHALL->SMS->SMS_SIGNAL_ENABLED) {
-		$smsPlugin = findPlugin('ISMSPlugin', $FIREHALL->SMS->SMS_GATEWAY_TYPE);
+		$smsPlugin = \riprunner\PluginsLoader::findPlugin('riprunner\ISMSPlugin', $FIREHALL->SMS->SMS_GATEWAY_TYPE);
 		if($smsPlugin == null) {
 			$log->error("Invalid SMS send msg Plugin type: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
 			throw new Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
@@ -66,8 +66,8 @@ function sendSMSPlugin_Message($FIREHALL, $msg) {
 		}
 		else {
 			$recipient_list_type = ($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP ?
-					RecipientListType::GroupList : RecipientListType::MobileList);
-			if($recipient_list_type == RecipientListType::GroupList) {
+					\riprunner\RecipientListType::GroupList : \riprunner\RecipientListType::MobileList);
+			if($recipient_list_type == \riprunner\RecipientListType::GroupList) {
 				$recipients_group = $FIREHALL->SMS->SMS_RECIPIENTS;
 				$recipient_list_array = explode(';',$recipients_group);
 			}

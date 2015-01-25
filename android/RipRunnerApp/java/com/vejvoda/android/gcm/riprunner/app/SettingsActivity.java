@@ -129,15 +129,15 @@ public class SettingsActivity extends PreferenceActivity implements
 		addPreferencesFromResource(R.xml.pref_general);
 
 		String appVersionName = getAppVersionName(this);
-		Preference appVersion = (Preference)findPreference("appVersion");
+		Preference appVersion = (Preference)findPreference(AppConstants.PROPERTY_APP_VERSION);
 		appVersion.setTitle(getResources().getString(R.string.pref_appversion) +  " " + appVersionName);
 		
 		// Bind the summaries of EditText/List/Dialog/Ringtone preferences to
 		// their values. When their values change, their summaries are updated
 		// to reflect the new value, per the Android Design guidelines.
-		bindPreferenceSummaryToValue(findPreference("host_url"));
-		bindPreferenceSummaryToValue(findPreference("sender_id"));
-		bindPreferenceSummaryToValue(findPreference("tracking_enabled"));
+		bindPreferenceSummaryToValue(findPreference(AppConstants.PROPERTY_WEBSITE_URL));
+		bindPreferenceSummaryToValue(findPreference(AppConstants.PROPERTY_SENDER_ID));
+		bindPreferenceSummaryToValue(findPreference(AppConstants.PROPERTY_TRACKING_ENABLED));
 	}
 
 	@Override
@@ -173,7 +173,7 @@ public class SettingsActivity extends PreferenceActivity implements
             public boolean onPreferenceClick(Preference arg0) { 
 
             	// Get Default settings from the host
-            	EditTextPreference host_url = (EditTextPreference)findPreference("host_url");
+            	EditTextPreference host_url = (EditTextPreference)findPreference(AppConstants.PROPERTY_WEBSITE_URL);
             	if(host_url != null && host_url.getText() != "") {
 	            	getMobileAppSettingsFromWebsite(host_url);						
             	}
@@ -183,7 +183,10 @@ public class SettingsActivity extends PreferenceActivity implements
 
 			void getMobileAppSettingsFromWebsite(EditTextPreference host_url) {
 				
-				final String URL = host_url.getText() + "mobile_app_info.php";
+				// Original main URL for app info
+				final String URL_deprecated = host_url.getText() + "mobile_app_info.php";
+				// Latest main URL for app info
+				final String URL = host_url.getText() + "controllers/mobile-app-info-controller.php";
 				final Context context = getBaseContext();
 				
 				new Thread(new Runnable() {
@@ -198,7 +201,17 @@ public class SettingsActivity extends PreferenceActivity implements
 				            if(statusLine.getStatusCode() == HttpStatus.SC_OK) {
 				                processMobileSettingsResponse(context, response);
 				            }
-				            else {
+				            else if(statusLine.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+				            	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner fallback get defaults calling url [" + URL_deprecated + "]");
+				            	
+				            	response = httpclient.execute(new HttpGet(URL_deprecated));
+				            	statusLine = response.getStatusLine();
+				            	if(statusLine.getStatusCode() == HttpStatus.SC_OK) {
+				            		processMobileSettingsResponse(context, response);
+				            	}
+				            }
+				            
+				            if(statusLine.getStatusCode() != HttpStatus.SC_OK) {
 				            	final String error = "code: " + statusLine.getStatusCode() + " msg: " + statusLine.getReasonPhrase();
 				            	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner get defaults got error [" + error + "]");
 				            	
@@ -240,8 +253,8 @@ public class SettingsActivity extends PreferenceActivity implements
 							
 							runOnUiThread(new Runnable() {
 						        public void run() {
-						        	EditTextPreference sender_id = (EditTextPreference)findPreference("sender_id");
-						        	CheckBoxPreference tracking_enabled = (CheckBoxPreference)findPreference("tracking_enabled");
+						        	EditTextPreference sender_id = (EditTextPreference)findPreference(AppConstants.PROPERTY_SENDER_ID);
+						        	CheckBoxPreference tracking_enabled = (CheckBoxPreference)findPreference(AppConstants.PROPERTY_TRACKING_ENABLED);
 						        	try {
 										sender_id.setText(json.getString("gcm-projectid"));
 										
@@ -250,6 +263,57 @@ public class SettingsActivity extends PreferenceActivity implements
 										}
 										else {
 											tracking_enabled.setChecked(false);
+										}
+										
+										if(json.has(AppConstants.PROPERTY_LOGIN_PAGE_URI)) {
+											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+											SharedPreferences.Editor editor = sharedPrefs.edit();
+											editor.putString(AppConstants.PROPERTY_LOGIN_PAGE_URI, json.getString(AppConstants.PROPERTY_LOGIN_PAGE_URI));
+											editor.commit();
+										}
+										else {
+											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+											SharedPreferences.Editor editor = sharedPrefs.edit();
+											editor.putString(AppConstants.PROPERTY_LOGIN_PAGE_URI, "register_device.php");
+											editor.commit();
+										}
+										if(json.has(AppConstants.PROPERTY_CALLOUT_PAGE_URI)) {
+											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+											SharedPreferences.Editor editor = sharedPrefs.edit();
+											editor.putString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, json.getString(AppConstants.PROPERTY_CALLOUT_PAGE_URI));
+											editor.commit();
+										}
+										else {
+											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+											SharedPreferences.Editor editor = sharedPrefs.edit();
+											editor.putString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, "ci.php");
+											editor.commit();
+										}
+										
+										if(json.has(AppConstants.PROPERTY_RESPOND_PAGE_URI)) {
+											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+											SharedPreferences.Editor editor = sharedPrefs.edit();
+											editor.putString(AppConstants.PROPERTY_RESPOND_PAGE_URI, json.getString(AppConstants.PROPERTY_RESPOND_PAGE_URI));
+											editor.commit();
+										}
+										else {
+											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+											SharedPreferences.Editor editor = sharedPrefs.edit();
+											editor.putString(AppConstants.PROPERTY_RESPOND_PAGE_URI, "cr.php");
+											editor.commit();
+										}
+										
+										if(json.has(AppConstants.PROPERTY_TRACKING_PAGE_URI)) {
+											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+											SharedPreferences.Editor editor = sharedPrefs.edit();
+											editor.putString(AppConstants.PROPERTY_TRACKING_PAGE_URI, json.getString(AppConstants.PROPERTY_TRACKING_PAGE_URI));
+											editor.commit();
+										}
+										else {
+											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+											SharedPreferences.Editor editor = sharedPrefs.edit();
+											editor.putString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct.php");
+											editor.commit();
 										}
 										
 										Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Successfully received app settings.");
@@ -294,7 +358,7 @@ public class SettingsActivity extends PreferenceActivity implements
 		         public void onClick(DialogInterface dialog, int id) {
 		        	 dialog.dismiss();
 		              
-		        	 EditTextPreference host_url = (EditTextPreference)findPreference("host_url");
+		        	 EditTextPreference host_url = (EditTextPreference)findPreference(AppConstants.PROPERTY_WEBSITE_URL);
 	            	
 					 String updateAPK_URL = host_url.getText() + "apk/" + Utils.APK_NAME;
 					 Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner upgrade URL [" + updateAPK_URL + "]");
@@ -464,9 +528,9 @@ public class SettingsActivity extends PreferenceActivity implements
 			// to their values. When their values change, their summaries are
 			// updated to reflect the new value, per the Android Design
 			// guidelines.
-			bindPreferenceSummaryToValue(findPreference("host_url"));
-			bindPreferenceSummaryToValue(findPreference("sender_id"));
-			bindPreferenceSummaryToValue(findPreference("tracking_enabled"));
+			bindPreferenceSummaryToValue(findPreference(AppConstants.PROPERTY_WEBSITE_URL));
+			bindPreferenceSummaryToValue(findPreference(AppConstants.PROPERTY_SENDER_ID));
+			bindPreferenceSummaryToValue(findPreference(AppConstants.PROPERTY_TRACKING_ENABLED));
 		}
 	}
 

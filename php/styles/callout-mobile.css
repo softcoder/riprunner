@@ -74,6 +74,12 @@
   font-size:30px; 
 }
 
+.ci_reload_timer {
+  font-size:40px;
+  font-weight: bold;
+  color: white;
+}
+
 .google-maps {
     position: relative;
     #padding-bottom: 75%; // This is the aspect ratio

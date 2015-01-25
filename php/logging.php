@@ -12,16 +12,21 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	die( 'This file must not be invoked directly.' ); 
 }
 
-include('third-party/apache-log4php/Logger.php');
+if(defined('__RIPRUNNER_ROOT__') == false) define('__RIPRUNNER_ROOT__', dirname(__FILE__));
+include(__RIPRUNNER_ROOT__ . '/third-party/apache-log4php/Logger.php');
 
 // Tell log4php to use our configuration file.
-Logger::configure('config-logging.xml');
+\Logger::configure(__RIPRUNNER_ROOT__ . '/config-logging.xml');
 // Fetch a logger, it will inherit settings from the root logger
-$log = Logger::getLogger('myLogger');
+$log = \Logger::getLogger('myLogger');
+
+// Ensure we locate the logfile in one common place
+$appender = $log->getRootLogger()->getAppender('myAppender');
+$appender->setFile(__RIPRUNNER_ROOT__ . '/' . $appender->getFile());
 
 function throwExceptionAndLogError($ui_error_msg,$log_error_msg) {
 	try {
-		throw new Exception($log_error_msg);
+		throw new \Exception($log_error_msg);
 	}
 	catch(Exception $ex) {
 		global $log;

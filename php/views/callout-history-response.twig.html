@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Secure Login: Protected Page</title>
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
+        {% endif %}
+        
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
+        
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/freeze-header.js"></script>
+    </head>
+    <body>
+
+    <div class="container_center">
+        {% if gvm.auth.isAuth %}
+            {% include 'user-welcome.twig.html' %}
+            {% include 'live-callout-warning.twig.html' %}
+        
+        <div class="menudiv_wrapper">
+          <nav class="vertical">
+            <ul>
+              <li>
+                <label for="main_page">Return to ..</label>
+                <input type="radio" name="verticalMenu" id="main_page" />
+                <div>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/callout-history-controller.php">Callouts</a></li>
+                  </ul>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <label for="logout">Exit</label>
+                <input type="radio" name="verticalMenu" id="logout" />
+                <div>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}logout.php">Logout</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </nav>
+        </div>
+                    
+        {% if response_history_vm.response_list is empty %}
+        <b>NO Data.</b>
+        {% endif %}
+                    
+        <div class="inner_table">
+	        <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
+	        
+	        {% if response_history_vm.response_cols is defined %}
+	            <thead>
+	             <tr>
+	             {% for col_name in response_history_vm.response_cols 
+	                   if col_name != 'address' and 
+	                      col_name != 'responder_origin' and 
+	                      col_name != 'callout_address_dest' and
+	                      col_name != 'callout_status_desc' %}
+	                    <th scope="col">{{ col_name }}</th>
+	             {% endfor %}
+	             </tr>
+	            </thead>
+	
+	            {% for row in response_history_vm.response_list %}
+	                <tr>
+	                {% for col_name in response_history_vm.response_cols 
+	                   if col_name != 'address' and 
+	                      col_name != 'responder_origin' and 
+	                      col_name != 'callout_address_dest' and
+	                      col_name != 'callout_status_desc' %}
+	
+	                    {% if col_name == 'responsetime' %}
+	                        <td class="column_nowrap">{{ row[col_name] }}</td>
+	                    {% elseif col_name == 'latitude' or col_name == 'longitude' %}
+	                        {% if row.latitude != 0.0 and row.longitude != 0.0 %}
+	                        <td>
+	                            <a target="_blank" 
+	                                href="http://maps.google.com/maps?saddr={{ row.responder_origin }}&daddr={{ row.callout_address_dest }} ({{ row.callout_address_dest }})">
+	                                {{ row[col_name] }}
+	                            </a>
+	                        </td>
+	                        {% else %}
+	                        <td>{{ row[col_name] }}</td>
+	                        {% endif %}
+	                    {% elseif col_name == 'status' %}
+	                        <td>{{ row.callout_status_desc }}</td>
+	                    {% elseif col_name == 'updatetime' %}
+	                        <td class="column_nowrap">{{ row[col_name] }}</td>
+	                    {% else %}
+	                        <td>{{ row[col_name] }}</td>
+	                    {% endif %}
+	                {% endfor %}
+	                </tr>
+	                
+	            {% endfor %}
+	        {% endif %}
+	        
+	        </table>
+        </div>
+
+        {% else %}
+            {% include 'access-denied.twig.html' %}
+        {% endif %}
+    </div>
+    </body>
+</html>

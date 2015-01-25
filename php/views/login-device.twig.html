@@ -1,0 +1,27 @@
+{% if logindevice_vm.reg_id is not null and logindevice_vm.firehall_id is not null and 
+      logindevice_vm.user_id is not null and logindevice_vm.has_user_password %}
+    {% if logindevice_vm.firehall_id is not null %}
+        {% if logindevice_vm.user_authenticated %}
+
+            {% if logindevice_vm.firehall.MOBILE.MOBILE_SIGNAL_ENABLED == false or
+                  logindevice_vm.firehall.MOBILE.GCM_SIGNAL_ENABLED == false %}
+                ERROR DISABLED!
+            {% else %}
+                {% set result = logindevice_vm.register_result %}                
+                {% if logindevice_vm.live_callout is not null and logindevice_vm.live_callout is not empty %}
+                    {{ result }}|{{ logindevice_vm.live_callout[0]['id'] }}|{{ logindevice_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE }},{{ logindevice_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE }}|
+                    {{ logindevice_vm.signal_callout }}
+                {% else %}
+                    {{ result }}|?|{{ logindevice_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE }},{{ logindevice_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE }}|
+                    {{ logindevice_vm.signal_login }}
+                {% endif %}
+            {% endif %}
+        {% else %}
+        ERROR3
+        {% endif %}
+    {% else %}
+        ERROR2
+    {% endif %}
+{% else %}
+    ERROR1
+{% endif %}

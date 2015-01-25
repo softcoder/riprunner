@@ -98,18 +98,6 @@ public class AppMainActivity extends ActionBarActivity implements
         GoogleApiClient.OnConnectionFailedListener,		
 		LocationListener {
 
-	// Property names to store app settings
-    public static final String PROPERTY_REG_ID 				= "registration_id";
-        
-    public static final String PROPERTY_WEBSITE_URL 		= "host_url";
-    public static final String PROPERTY_SENDER_ID 			= "sender_id";
-    public static final String PROPERTY_TRACKING_ENABLED 	= "tracking_enabled";
-    
-    public static final String PROPERTY_FIREHALL_ID 		= "firehall_id";
-    public static final String PROPERTY_USER_ID 			= "user_id";
-    
-    private static final String PROPERTY_APP_VERSION 		= "appVersion";
-    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     /**
      * This enum describes possible callout statuses
@@ -244,12 +232,12 @@ public class AppMainActivity extends ActionBarActivity implements
         	setupGPSTracking();
         	setupMapFragment();
         	
-        	if(hasConfigItem(context,PROPERTY_WEBSITE_URL,String.class) && 
-        			hasConfigItem(context,PROPERTY_SENDER_ID,String.class) &&
-        			hasConfigItem(context,PROPERTY_TRACKING_ENABLED,Boolean.class)) {
+        	if(hasConfigItem(context,AppConstants.PROPERTY_WEBSITE_URL,String.class) && 
+        			hasConfigItem(context,AppConstants.PROPERTY_SENDER_ID,String.class) &&
+        			hasConfigItem(context,AppConstants.PROPERTY_TRACKING_ENABLED,Boolean.class)) {
         		
-	            etFhid.setText(getConfigItem(context,PROPERTY_FIREHALL_ID,String.class));
-	            etUid.setText(getConfigItem(context,PROPERTY_USER_ID,String.class));
+	            etFhid.setText(getConfigItem(context,AppConstants.PROPERTY_FIREHALL_ID,String.class));
+	            etUid.setText(getConfigItem(context,AppConstants.PROPERTY_USER_ID,String.class));
 	            
 	            startGEOAlarm();
 	            
@@ -295,7 +283,7 @@ public class AppMainActivity extends ActionBarActivity implements
 	}
 
     public Boolean isTrackingEnabled() {
-    	return getConfigItem(context,AppMainActivity.PROPERTY_TRACKING_ENABLED,Boolean.class);
+    	return getConfigItem(context,AppConstants.PROPERTY_TRACKING_ENABLED,Boolean.class);
     }
     public boolean isUserLoggedOn(String userId) {
     	boolean result = false;
@@ -589,7 +577,7 @@ public class AppMainActivity extends ActionBarActivity implements
         if (resultCode != ConnectionResult.SUCCESS) {
             if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
                 GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+                		AppConstants.PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } 
             else {
                 Log.i(Utils.TAG, Utils.getLineNumber() + ": This device is not supported.");
@@ -629,7 +617,7 @@ public class AppMainActivity extends ActionBarActivity implements
         else if(value instanceof Boolean) {
         	editor.putBoolean(keyName, (Boolean)value);
         }
-        editor.putInt(PROPERTY_APP_VERSION, appVersion);
+        editor.putInt(AppConstants.PROPERTY_APP_VERSION, appVersion);
         editor.commit();
     }
 
@@ -650,7 +638,7 @@ public class AppMainActivity extends ActionBarActivity implements
         // Check if app was updated; if so, it must clear the registration ID
         // since the existing regID is not guaranteed to work with the new
         // app version.
-        int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+        int registeredVersion = prefs.getInt(AppConstants.PROPERTY_APP_VERSION, Integer.MIN_VALUE);
         int currentVersion = getAppVersion(context);
         if (registeredVersion != currentVersion) {
             return false;
@@ -699,7 +687,7 @@ public class AppMainActivity extends ActionBarActivity implements
         // Check if app was updated; if so, it must clear the registration ID
         // since the existing regID is not guaranteed to work with the new
         // app version.
-        int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+        int registeredVersion = prefs.getInt(AppConstants.PROPERTY_APP_VERSION, Integer.MIN_VALUE);
         int currentVersion = getAppVersion(context);
         if (registeredVersion != currentVersion) {
             Log.i(Utils.TAG, Utils.getLineNumber() + ": App version changed.");
@@ -725,12 +713,12 @@ public class AppMainActivity extends ActionBarActivity implements
             gcm = GoogleCloudMessaging.getInstance(context);
         }
         
-        String regid = getConfigItem(context,PROPERTY_REG_ID,String.class);
+        String regid = getConfigItem(context,AppConstants.PROPERTY_REG_ID,String.class);
         if (forceNewId == true || regid.isEmpty()) {
-        	regid = gcm.register(getConfigItem(context,PROPERTY_SENDER_ID,String.class));
+        	regid = gcm.register(getConfigItem(context,AppConstants.PROPERTY_SENDER_ID,String.class));
 
         	// Persist the regID - no need to register again.
-        	storeConfigItem(context, PROPERTY_REG_ID, regid);
+        	storeConfigItem(context, AppConstants.PROPERTY_REG_ID, regid);
         }
     	return regid;
     }
@@ -766,7 +754,7 @@ public class AppMainActivity extends ActionBarActivity implements
                     EditText etUpw = (EditText)findViewById(R.id.etUpw);
                     
                     auth = new FireHallAuthentication(
-                    		getConfigItem(context,PROPERTY_WEBSITE_URL,String.class).toString(), 
+                    		getConfigItem(context,AppConstants.PROPERTY_WEBSITE_URL,String.class).toString(), 
                     		etFhid.getText().toString(),
                     		etUid.getText().toString(), 
                     		etUpw.getText().toString(),
@@ -1013,8 +1001,9 @@ public class AppMainActivity extends ActionBarActivity implements
         
     private void handleCalloutDetailsView() {
     	try {
-    		String uri = auth.getHostURL() + 
-    					"ci.php?cid=" + URLEncoder.encode(lastCallout.getCalloutId(), "utf-8")  + 
+    		String uri = auth.getHostURL() +
+    				getConfigItem(context,AppConstants.PROPERTY_CALLOUT_PAGE_URI,String.class).toString() +
+    					"?cid=" + URLEncoder.encode(lastCallout.getCalloutId(), "utf-8")  + 
     					"&fhid=" + URLEncoder.encode(auth.getFirehallId(), "utf-8") + 
     					"&ckid=" + URLEncoder.encode(lastCallout.getCalloutKeyId(), "utf-8");
     		Intent intent = new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uri));
@@ -1092,7 +1081,9 @@ public class AppMainActivity extends ActionBarActivity implements
     	params.add(new BasicNameValuePair("uid", auth.getUserId()));
     	params.add(new BasicNameValuePair("upwd", auth.getUserPassword()));
     	String paramString = URLEncodedUtils.format(params, "utf-8");
-    	String URL = auth.getHostURL() + "register_device.php?" + paramString;
+    	String URL = auth.getHostURL() + 
+    			getConfigItem(context,AppConstants.PROPERTY_LOGIN_PAGE_URI,String.class).toString() +
+    			"?" + paramString;
     	
     	HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response = httpclient.execute(new HttpGet(URL));
@@ -1204,8 +1195,8 @@ public class AppMainActivity extends ActionBarActivity implements
     }
 
 	void handleRegistrationSuccess(FireHallAuthentication auth) {
-		storeConfigItem(context, PROPERTY_FIREHALL_ID, auth.getFirehallId());
-		storeConfigItem(context, PROPERTY_USER_ID, auth.getUserId());
+		storeConfigItem(context, AppConstants.PROPERTY_FIREHALL_ID, auth.getFirehallId());
+		storeConfigItem(context, AppConstants.PROPERTY_USER_ID, auth.getUserId());
 		
 		auth.setRegisteredBackend(true);
 		final String loggedOnUser = auth.getUserId();
@@ -1269,7 +1260,10 @@ public class AppMainActivity extends ActionBarActivity implements
     	params.add(new BasicNameValuePair("status", String.valueOf(statusType.valueOf())));
     	
     	String paramString = URLEncodedUtils.format(params, "utf-8");
-    	String URL = auth.getHostURL() + "cr.php?" + paramString;
+    	String URL = auth.getHostURL() + 
+    			getConfigItem(context,AppConstants.PROPERTY_RESPOND_PAGE_URI,String.class).toString() +
+    			"?" + paramString;
+    	
     	
     	HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response = httpclient.execute(new HttpGet(URL));
@@ -1372,8 +1366,10 @@ public class AppMainActivity extends ActionBarActivity implements
 		   		params.add(new BasicNameValuePair("long", String.valueOf(getLastGPSLongitude())));
 		    	
 		    	String paramString = URLEncodedUtils.format(params, "utf-8");
-		    	String URL = auth.getHostURL() + "ct.php?" + paramString;
-		    	
+		    	String URL = auth.getHostURL() + 
+		    			getConfigItem(context,AppConstants.PROPERTY_TRACKING_PAGE_URI,String.class).toString() + 
+		    			"?" + paramString;
+		    			    	
 		    	HttpClient httpclient = new DefaultHttpClient();
 		        
 				try {
@@ -1729,13 +1725,26 @@ public class AppMainActivity extends ActionBarActivity implements
     private void displayUserSettings() {
 	    SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 	
-	    String host_url = sharedPrefs.getString(PROPERTY_WEBSITE_URL, "");
-	    String sender_id = sharedPrefs.getString(PROPERTY_SENDER_ID, "");
-	    Boolean tracking_enabled = sharedPrefs.getBoolean(PROPERTY_TRACKING_ENABLED, true);
-	
-	    storeConfigItem(context, PROPERTY_WEBSITE_URL, host_url);
-	    storeConfigItem(context, PROPERTY_SENDER_ID, sender_id);
-	    storeConfigItem(context, PROPERTY_TRACKING_ENABLED, tracking_enabled);
+	    String host_url = sharedPrefs.getString(AppConstants.PROPERTY_WEBSITE_URL, "");
+	    String sender_id = sharedPrefs.getString(AppConstants.PROPERTY_SENDER_ID, "");
+	    Boolean tracking_enabled = sharedPrefs.getBoolean(AppConstants.PROPERTY_TRACKING_ENABLED, true);
+	    
+	    storeConfigItem(context, AppConstants.PROPERTY_WEBSITE_URL, host_url);
+	    storeConfigItem(context, AppConstants.PROPERTY_SENDER_ID, sender_id);
+	    storeConfigItem(context, AppConstants.PROPERTY_TRACKING_ENABLED, tracking_enabled);
+
+	    String login_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_LOGIN_PAGE_URI, "register_device.php");
+	    String callout_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, "ci.php");
+	    String respond_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_RESPOND_PAGE_URI, "cr.php");
+	    String tracking_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct.php");
+
+	    Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner updating app URLs [" + login_page_uri + "]" +
+	    			" [" + callout_page_uri + "]" + " [" + respond_page_uri + "]" + " [" + tracking_page_uri + "]");
+	    
+	    storeConfigItem(context, AppConstants.PROPERTY_LOGIN_PAGE_URI, login_page_uri);
+	    storeConfigItem(context, AppConstants.PROPERTY_CALLOUT_PAGE_URI, callout_page_uri);
+	    storeConfigItem(context, AppConstants.PROPERTY_RESPOND_PAGE_URI, respond_page_uri);
+	    storeConfigItem(context, AppConstants.PROPERTY_TRACKING_PAGE_URI, tracking_page_uri);
 	    
 	    startGEOAlarm();
     }

@@ -3,18 +3,17 @@
 //  Copyright (C) 2014 Mark Vejvoda
 //  Under GNU GPL v3.0
 // ==============================================================
+namespace riprunner;
+
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
-//- turn off compression on the server
-//@apache_setenv('no-gzip', 1);
-//@ini_set('zlib.output_compression', 'Off');
-
 define( 'INCLUSION_PERMITTED', true );
 
-require_once( 'config.php' );
-require_once( 'functions.php' );
-require_once( 'logging.php' );
+require_once 'config_constants.php';
+require_once 'config.php';
+require_once 'functions.php';
+require_once 'logging.php';
 
 sec_session_start();
 
@@ -30,7 +29,7 @@ if (login_check($db_connection) == true) {
 	if(isset($file_path) && empty($file_path) == false) {
 		$path_parts = pathinfo($file_path);
 		$file_name  = $path_parts['basename'];
-		$file_ext   = $path_parts['extension'];
+		//$file_ext   = $path_parts['extension'];
 		$file_path  = './' . $file_name;
 		
 		// allow a file to be streamed instead of sent as an attachment
@@ -41,8 +40,7 @@ if (login_check($db_connection) == true) {
 			$file_size  = filesize($file_path);
 			$file = @fopen($file_path,"rb");
 			if ($file) {
-		
-				ob_start();
+				
 				//check if http_range is sent by browser (or download manager)
 				if(isset($_SERVER['HTTP_RANGE'])) {
 					list($size_unit, $range_orig) = explode('=', $_SERVER['HTTP_RANGE'], 2);
@@ -50,11 +48,12 @@ if (login_check($db_connection) == true) {
 						//multiple ranges could be specified at the same time, but for simplicity only serve the first range
 						//http://tools.ietf.org/id/draft-ietf-http-range-retrieval-00.txt
 						if(strpos($range_orig,',')) {
-							list($range, $extra_ranges) = explode(',', $range_orig, 2);
+							//list($range, $extra_ranges) = explode(',', $range_orig, 2);
+							$range = explode(',', $range_orig, 2);
 						}
 						else {
 							$range = $range_orig;
-							$extra_ranges = "";
+							//$extra_ranges = "";
 						}
 					}
 					else {
@@ -71,7 +70,7 @@ if (login_check($db_connection) == true) {
 				header("Pragma: public");
 				header("Expires: -1");
 				header("Cache-Control: public, must-revalidate, post-check=0, pre-check=0");
-				
+								
 				// set appropriate headers for attachment or streamed file
 				if ($is_attachment)
 					header("Content-Disposition: attachment; filename=\"$file_name\"");
@@ -119,12 +118,17 @@ if (login_check($db_connection) == true) {
 					header("Content-Length: $file_size");
 		
 				header('Accept-Ranges: bytes');
+				
+				// This line turns off the web server's gzip compression
+				// which messes up our result.
+				header("Content-Encoding: none");
 		
 				set_time_limit(0);
 				if($seek_start > 0) {
 					fseek($file, $seek_start);
 				}
 		
+				ob_start();
 				while(!feof($file)) {
 					print(@fread($file, 1024*8));
 					ob_flush();
@@ -140,21 +144,24 @@ if (login_check($db_connection) == true) {
 			}
 			else {
 				// file couldn't be opened
+				$log->error("HTTP 500 detected for file get request for file [$file_path]");
 				header("HTTP/1.0 500 Internal Server Error");
 			}
 		}
 		else {
 			// file does not exist
+			$log->error("HTTP 404 detected for file get request for file [$file_path]");
 			header("HTTP/1.0 404 Not Found");
 		}	
 	}
 	else {
+		$log->error("HTTP 400 detected for file get request for file [$file_path]");
 		header("HTTP/1.0 400 Bad Request");
 	}
 }
 else {
 	$file_path = get_query_param('file');
-	$log->error("Invalid session for file get request for file[$file_path]");
+	$log->error("Invalid session for file get request for file [$file_path]");
 	
 	echo "<body>" . PHP_EOL;
 	echo "<p>" . PHP_EOL;

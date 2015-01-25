@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Secure Login: Protected Page</title>
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
+        {% endif %}
+        
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
+        
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/freeze-header.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
+    </head>
+    <body>
+
+    <div class="container_center">
+        {% if gvm.auth.isAuth %}
+            {% include 'user-welcome.twig.html' %}
+            {% include 'live-callout-warning.twig.html' %}
+        
+        <div class="menudiv_wrapper">
+          <nav class="vertical">
+            <ul>
+              <li>
+                <label for="main_page">Return to ..</label>
+                <input type="radio" name="verticalMenu" id="main_page" />
+                <div>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <label for="logout">Exit</label>
+                <input type="radio" name="verticalMenu" id="logout" />
+                <div>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}logout.php">Logout</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        {% if callout_history_vm.callout_list is empty %}
+        <b>NO Data.</b>
+        {% endif %}
+        
+        <div class="inner_table">
+	        <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
+	        
+	        {% if callout_history_vm.callout_cols is defined %}
+	            <thead>
+		            <tr>
+		            {% for col_name in callout_history_vm.callout_cols 
+		               if col_name != 'callout_type_desc' and 
+		                  col_name != 'callout_address_origin' and 
+		                  col_name != 'callout_address_dest' and
+		                  col_name != 'callout_status_desc' %}
+		                {% if col_name == 'address' %}
+		                    <th scope="col" class="column_nowrap">{{ col_name }}</th>
+		                {% else  %}
+		                    <th scope="col">{{ col_name }}</th>
+		                {% endif %}
+		            {% endfor %}
+	                <th scope="col">call details</th>
+	            </tr>
+	            </thead>
+	            
+	            {% for row in callout_history_vm.callout_list %}
+	                <tr>
+	                
+	                {% for col_name in callout_history_vm.callout_cols 
+                       if col_name != 'callout_type_desc' and 
+                          col_name != 'callout_address_origin' and 
+                          col_name != 'callout_address_dest' and
+                          col_name != 'callout_status_desc' %}
+	                    {% if col_name == 'calltype' %}
+	                        <td title='{{ row.callout_type_desc }}'>{{ row[col_name] }}</td>
+	                    {% elseif col_name == 'calltime' %}
+	                        <td class="column_nowrap">{{ row[col_name] }}</td>
+	                    {% elseif col_name == 'address' %}
+	                        <td class="column_nowrap">
+	                            <a target="_blank" 
+	                               href="http://maps.google.com/maps?saddr={{ row.callout_address_origin }}&daddr={{ row.callout_address_dest }} ({{ row[col_name] }})&dirflg=d">
+	                               {{ row[col_name] }}
+	                            </a>
+	                        </td>
+	                    {% elseif col_name == 'updatetime' %}                    
+	                        <td class="column_nowrap">{{ row[col_name] }}</td>
+	                    {% elseif col_name == 'status' %}
+	                        <td>{{ row.callout_status_desc }}</td>
+	                    {% elseif col_name == 'responders' %}
+	                        <td>
+	                            <a href="{{ gvm.RR_DOC_ROOT }}controllers/callout-history-response-controller.php?cid={{ row.id }}">{{ row[col_name] }}</a>
+	                        </td>
+	                    {% else %}
+	                        <td>{{ row[col_name] }}</td>
+	                    {% endif %}
+	                {% endfor %}
+	                
+	                <td class="column_nowrap">
+	                   <a target="_blank" 
+	                      href="{{ gvm.firehall.WEBSITE.WEBSITE_CALLOUT_DETAIL_URL }}ci/cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}">
+	                      details
+	                   </a> 
+	                </td>
+	                
+	                </tr>
+	            {% endfor %}
+	        {% endif %}
+	        </table>
+        </div>
+        
+        {% else %}
+            {% include 'access-denied.twig.html' %}
+        {% endif %}
+      </div>
+    </body>
+</html>

@@ -17,33 +17,35 @@ function signalFireHallResponse($FIREHALL, $callId, $userId,
 	                		$callGPSLat, $callGPSLong, 
 	                		$userStatus, $callkey_id) {
 	
+	$result = "";
 	if($FIREHALL->SMS->SMS_SIGNAL_ENABLED) {
-		signalResponseToSMSPlugin($FIREHALL, $callId, $userId,
+		$result .= signalResponseToSMSPlugin($FIREHALL, $callId, $userId,
 				$callGPSLat, $callGPSLong, $userStatus, $callkey_id);
 	}
 
 	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED && 
 		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
 	
-		$smsMsg = getSMSCalloutResponseMessage($FIREHALL, $callId, $userId,
+		$gcmMsg = getSMSCalloutResponseMessage($FIREHALL, $callId, $userId,
 				$callGPSLat, $callGPSLong, $userStatus, $callkey_id, 0);
 		
-		signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId, 
+		$result .= signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId, 
 	                		$callGPSLat, $callGPSLong, 
-	                		$userStatus, $callkey_id, $smsMsg, null, null, null);
+	                		$userStatus, $callkey_id, $gcmMsg, null, null, null);
 	}
+	return $result;
 }
 
 function signalResponseToSMSPlugin($FIREHALL, $callId, $userId, 
 	                		$callGPSLat, $callGPSLong, 
 	                		$userStatus, $callkey_id) {
 
-	$smsPlugin = findPlugin('ISMSPlugin', $FIREHALL->SMS->SMS_GATEWAY_TYPE);
+	$smsPlugin = \riprunner\PluginsLoader::findPlugin('riprunner\ISMSPlugin', $FIREHALL->SMS->SMS_GATEWAY_TYPE);
 	if($smsPlugin == null) {
 		throw new Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
 	}
 
-	$recipient_list_type = RecipientListType::MobileList;
+	$recipient_list_type = \riprunner\RecipientListType::MobileList;
 	if($FIREHALL->LDAP->ENABLED) {
 		$recipients = get_sms_recipients_ldap($FIREHALL,null);
 		$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients);
@@ -53,8 +55,8 @@ function signalResponseToSMSPlugin($FIREHALL, $callId, $userId,
 	}
 	else {
 		$recipient_list_type = ($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP ?
-				RecipientListType::GroupList : RecipientListType::MobileList);
-		if($recipient_list_type == RecipientListType::GroupList) {
+				\riprunner\RecipientListType::GroupList : \riprunner\RecipientListType::MobileList);
+		if($recipient_list_type == \riprunner\RecipientListType::GroupList) {
 			$recipients_group = $FIREHALL->SMS->SMS_RECIPIENTS;
 			$recipient_list_array = explode(';',$recipients_group);
 		}
@@ -93,7 +95,7 @@ function getSMSCalloutResponseMessage($FIREHALL, $callId, $userId,
 	// 	. '&ckid=' . $callKey;
 
 	$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL
-	. 'ci.php?cid=' . $callId
+	. 'ci/cid=' . $callId
 	. '&fhid=' . $FIREHALL->FIREHALL_ID
 	. '&ckid=' . $callkey_id;
 

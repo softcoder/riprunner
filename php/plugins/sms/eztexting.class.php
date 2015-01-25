@@ -3,6 +3,7 @@
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
 // ==============================================================
+namespace riprunner;
 
 if ( !defined('INCLUSION_PERMITTED') ||
 ( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
@@ -83,7 +84,7 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 			
 			curl_close($curl);
 			
-			$xml = new SimpleXMLElement($response);
+			$xml = new \SimpleXMLElement($response);
 			if ( 'Failure' == $xml->Status ) {
 				$errors = array();
 				foreach( $xml->Errors->children() as $error ) {

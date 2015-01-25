@@ -7,10 +7,8 @@ define( 'INCLUSION_PERMITTED', true );
 require_once( 'config.php' );
 require_once( 'functions.php' );
 require_once( 'firehall_parsing.php' );
-
-// These lines are mandatory.
-require_once 'Mobile_Detect.php';
-$detect = new Mobile_Detect;
+require_once( 'object_factory.php' );
+$detect = \riprunner\MobileDetect_Factory::create('browser_type');
 
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);

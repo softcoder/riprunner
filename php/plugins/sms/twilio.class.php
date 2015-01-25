@@ -3,6 +3,7 @@
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
 // ==============================================================
+namespace riprunner;
 
 if ( !defined('INCLUSION_PERMITTED') ||
 ( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
@@ -24,7 +25,7 @@ class SMSTwilioPlugin implements ISMSPlugin {
 		$resultSMS = 'START Send SMS using Twilio.' . PHP_EOL;
 
 		if($recipient_list_type == RecipientListType::GroupList) {
-			throw new Exception("Twilio SMS Plugin does not support groups!");
+			throw new \Exception("Twilio SMS Plugin does not support groups!");
 		}
 		else {
 			$recipient_list_numbers = $recipient_list;
@@ -61,7 +62,7 @@ class SMSTwilioPlugin implements ISMSPlugin {
 			curl_close($s);
 			
 			try {
-		 		$xml = new SimpleXMLElement($result);
+		 		$xml = new \SimpleXMLElement($result);
 		 		
 		 		if ( isset($xml->RestException) ) {
 		 			$resultSMS .= 'TWILIO ERROR RESPONSE!' . PHP_EOL;

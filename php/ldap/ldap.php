@@ -7,13 +7,14 @@
 
 	Class to handle LDAP features
 */
+namespace riprunner;
 
 if ( !defined('INCLUSION_PERMITTED') ||
 ( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once( 'logging.php' );
+require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class LDAP {
 
@@ -43,19 +44,30 @@ class LDAP {
 	}
 	
 	function search($base_dn, $filter, $sort_by) {
+		global $log;
 		$this->connect();
 		$this->bind();
+		
+		$log->trace("LDAP search using basedn [$base_dn] filter [$filter] sortby [$sort_by]");
 		
 		$result = ldap_search($this->connection,$base_dn,$filter);
 		if($result == false) {
 			throwExceptionAndLogError("LDAP Search error.",$this->handleSearchFailed($base_dn,$filter,$sort_by));
 		}
 		else {
+			$log->trace("LDAP search result count: " . ldap_count_entries($this->connection,$result));
+			
 			if(isset($sort_by)) {
 				ldap_sort($this->connection,$result,$sort_by);
 			}
 			
 			$entries = ldap_get_entries($this->connection, $result);
+// 			if($log->isTraceEnabled()) {
+// 				for ($i=0; $i<$entries["count"]; $i++) {
+// 					$ldap_results = serialize($entries[$i]);
+// 					$log->trace("LDAP search results:\n{$ldap_results}");
+// 				}
+// 			}
 			return $entries;
 		}
 	}

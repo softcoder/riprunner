@@ -4,6 +4,15 @@
 //	Under GNU GPL v3.0
 // ==============================================================
 
+// Types of recipient lists
+abstract class CalloutStatusType {
+	const Paged = 0;
+	const Notified = 1;
+	const Responding = 2;
+	const Cancelled = 3;
+	const Complete = 10;
+}
+
 // ----------------------------------------------------------------------
 class FireHallEmailAccount
 {

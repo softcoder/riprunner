@@ -3,11 +3,13 @@
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
 // ==============================================================
+namespace riprunner;
 
+if(defined('__RIPRUNNER_ROOT__') == false) define('__RIPRUNNER_ROOT__', dirname(__FILE__));
 // The list of plugin paths
 $plugin_paths = array(
-	'plugins/sms/',
-	'plugins/sms-callout/'
+	__RIPRUNNER_ROOT__ . '/plugins/sms/',
+	__RIPRUNNER_ROOT__ . '/plugins/sms-callout/'
 );
 
 foreach ($plugin_paths as $path) {
@@ -19,23 +21,27 @@ foreach ($plugin_paths as $path) {
 	}
 }
 
-function getImplementingClasses( $interfaceName ) {
-	return array_filter(
-			get_declared_classes(),
-			function( $className ) use ( $interfaceName ) {
-				return in_array( $interfaceName, class_implements( $className ) );
-			}
-	);
-}
-
-function findPlugin($interfaceName, $pluginType) {
-	foreach (getImplementingClasses($interfaceName) as $className) {
-		$class = new $className;
-		if($class->getPluginType() == $pluginType) {
-			return $class;
-		}
+class PluginsLoader {
+	
+	static public function getImplementingClasses($interfaceName) {
+		return array_filter(
+				get_declared_classes(),
+				function( $className ) use ( $interfaceName ) {
+					//echo "Looking for intferface [$interfaceName] for class [$className]" .PHP_EOL;
+					return in_array( $interfaceName, class_implements( $className ) );
+				}
+		);
 	}
-	return null;
+	
+	static public function findPlugin($interfaceName, $pluginType) {
+		foreach (PluginsLoader::getImplementingClasses($interfaceName) as $className) {
+			$class = new $className;
+			if($class->getPluginType() == $pluginType) {
+				return $class;
+			}
+		}
+		return null;
+	}
 }
 
 ?>

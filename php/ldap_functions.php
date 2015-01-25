@@ -11,9 +11,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	die( 'This file must not be invoked directly.' );
 }
 
-//require_once( 'config.php' );
-//require_once( 'functions.php' );
-require_once( 'ldap/ldap.php' );
+require_once( 'object_factory.php' );
 
 function extractDelimitedValueFromString($rawValue, $regularExpression, $groupResultIndex) {
 	//$cleanRawValue = preg_replace( '/[^[:print:]]/', '',$rawValue);
@@ -29,10 +27,9 @@ function extractDelimitedValueFromString($rawValue, $regularExpression, $groupRe
 function login_ldap($FIREHALL, $user_id, $password) {
 	$debug_functions = false;
 
-	$ldap = new LDAP($FIREHALL->LDAP->LDAP_SERVERNAME);
+	$ldap = \riprunner\LDAP_Factory::create('ldap',$FIREHALL->LDAP->LDAP_SERVERNAME);
 	$ldap->setBindRdn($FIREHALL->LDAP->LDAP_BIND_RDN, $FIREHALL->LDAP->LDAP_BIND_PASSWORD);
 	
-	//$basedn = $FIREHALL->LDAP->LDAP_BASE_USERDN;
 	$filter = str_replace( '${login}', $user_id, $FIREHALL->LDAP->LDAP_LOGIN_FILTER );
 	
 	if($debug_functions) echo "filter [$filter]" . PHP_EOL;
@@ -264,11 +261,10 @@ function login_check_ldap($db_connection) {
 	}
 }
 
-//echo "TEST SMS #'s: " . get_sms_recipients_ldap($FIREHALLS[0]) . PHP_EOL;
 function get_sms_recipients_ldap($FIREHALL, $str_group_filter) {
 	$debug_functions = false;
 	
-	$ldap = new LDAP($FIREHALL->LDAP->LDAP_SERVERNAME);
+	$ldap = \riprunner\LDAP_Factory::create('ldap',$FIREHALL->LDAP->LDAP_SERVERNAME);
 	$ldap->setBindRdn($FIREHALL->LDAP->LDAP_BIND_RDN, $FIREHALL->LDAP->LDAP_BIND_PASSWORD);
 	
 	$basedn = $FIREHALL->LDAP->LDAP_BASE_USERDN;
@@ -509,7 +505,7 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 	// Check if the table has been populated yet
 	if($count_response->usercount <= 0) {
 		// Insert Users into temp table
-		$ldap = new LDAP($FIREHALL->LDAP->LDAP_SERVERNAME);
+		$ldap = \riprunner\LDAP_Factory::create('ldap',$FIREHALL->LDAP->LDAP_SERVERNAME);
 		$ldap->setBindRdn($FIREHALL->LDAP->LDAP_BIND_RDN, $FIREHALL->LDAP->LDAP_BIND_PASSWORD);
 	
 		if($debug_functions) echo "LDAP AFTER bind..." . PHP_EOL;

@@ -89,7 +89,7 @@ function install($FIREHALL, &$db_connection) {
 		}
 		
 		echo '<b>A default admin account has been created, with the following information:<br />Firehall Id: <font color="red">' . $FIREHALL->FIREHALL_ID . '</font><br />User id: <font color="red">admin</font><br />Password: <font color="red">' . $random_password . '</font></b><br />' . PHP_EOL;
-		echo '<b><a href="login.php">Login Page</a></b>' . PHP_EOL;
+		echo '<b><a href="login">Login Page</a></b>' . PHP_EOL;
 	}
 }
 
@@ -172,7 +172,7 @@ function db_exists($db_connection,$dbname, $dbtable) {
 				if($db_exist) {
 					//echo "B" .PHP_EOL;
 					echo '<p>The Firehall already exists.</p><br />' . PHP_EOL;
-					echo '<b><a href="login.php">Login Page</a></b><br />' . PHP_EOL;
+					echo '<b><a href="login">Login Page</a></b><br />' . PHP_EOL;
 				}
 				else {
 					//echo "C" .PHP_EOL;

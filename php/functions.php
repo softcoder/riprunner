@@ -4,9 +4,6 @@
 //	Under GNU GPL v3.0
 // ==============================================================
 
-//define( 'INCLUSION_PERMITTED', true );
-//require_once( 'config.php' );
-
 if ( !defined('INCLUSION_PERMITTED') || 
 ( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) { 
 	die( 'This file must not be invoked directly.' ); 
@@ -14,17 +11,6 @@ if ( !defined('INCLUSION_PERMITTED') ||
 
 require_once( 'ldap_functions.php' );
 require_once( 'logging.php' );
-
-//define( 'USE_LDAP', true );
-	
-// Types of recipient lists
-abstract class CalloutStatusType {
-	const Paged = 0; 
-	const Notified = 1;
-	const Responding = 2;
-	const Cancelled = 3;
-	const Complete = 10;
-}
 
 # This function cleans out special characters
 function clean_str( $text )	{  
@@ -137,8 +123,6 @@ function getGEOCoordinatesFromAddress($FIREHALL,$address) {
 	
 	$result = curl_exec($curl_handle);
 	
-	//echo 'RESPONSE: ' . $result .PHP_EOL;
-	
 	if(!curl_errno($curl_handle)) {
 		//$info = curl_getinfo($curl_handle);
 		curl_close($curl_handle);
@@ -190,28 +174,35 @@ function getFirstActiveFireHallConfig($list) {
 
 function sec_session_start() {
 	global $log;
-	$session_name = 'sec_session_id';   // Set a custom session name
-	$secure = SECURE;
-	// This stops JavaScript being able to access the session id.
-	$httponly = true;
-	// Forces sessions to only use cookies.
-	if (ini_set('session.use_only_cookies', 1) === FALSE) {
-		$log->error("Location: error.php?err=Could not initiate a safe session (ini_set)");
-		
-		header("Location: error.php?err=Could not initiate a safe session (ini_set)");
-		exit();
+	
+	$ses_already_started = isset($_SESSION);
+	//if ( function_exists( 'session_start' )) {
+		//$ses_already_started = (session_status() != PHP_SESSION_NONE);
+	//}
+	if ($ses_already_started == false) {
+		$session_name = 'sec_session_id';   // Set a custom session name
+		$secure = SECURE;
+		// This stops JavaScript being able to access the session id.
+		$httponly = true;
+		// Forces sessions to only use cookies.
+		if (ini_set('session.use_only_cookies', 1) === FALSE) {
+			$log->error("Location: error.php?err=Could not initiate a safe session (ini_set)");
+			
+			header("Location: error.php?err=Could not initiate a safe session (ini_set)");
+			exit();
+		}
+		// Gets current cookies params.
+		$cookieParams = session_get_cookie_params();
+		session_set_cookie_params($cookieParams["lifetime"],
+			$cookieParams["path"],
+			$cookieParams["domain"],
+			$secure,
+			$httponly);
+		// Sets the session name to the one set above.
+		session_name($session_name);
+		session_start();            // Start the PHP session
+		session_regenerate_id();    // regenerated the session, delete the old one.
 	}
-	// Gets current cookies params.
-	$cookieParams = session_get_cookie_params();
-	session_set_cookie_params($cookieParams["lifetime"],
-		$cookieParams["path"],
-		$cookieParams["domain"],
-		$secure,
-		$httponly);
-	// Sets the session name to the one set above.
-	session_name($session_name);
-	session_start();            // Start the PHP session
-	session_regenerate_id();    // regenerated the session, delete the old one.
 }
 	
 function login($FIREHALL,$user_id, $password, $db_connection) {
@@ -525,7 +516,7 @@ function checkForLiveCallout($FIREHALL,$db_connection) {
 
 		$redirect_host  = $_SERVER['HTTP_HOST'];
 		$redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-		$redirect_extra = 'ci.php?fhid=' . urlencode($FIREHALL->FIREHALL_ID) .
+		$redirect_extra = 'ci/fhid=' . urlencode($FIREHALL->FIREHALL_ID) .
 							'&cid=' . urlencode($callout_id) .
 							'&ckid=' . urlencode($callkey_id);
 
@@ -639,4 +630,9 @@ function checkApplicationUpdates() {
 						  "' class='notice'>Click here for update information</a>" . PHP_EOL;
 		echo $updates_html;
 	}
+}
+
+function validateDate($date, $format = 'Y-m-d H:i:s') {
+	$d = DateTime::createFromFormat($format, $date);
+	return $d && $d->format($format) == $date;
 }

@@ -14,13 +14,14 @@
 	http://stackoverflow.com/questions/11242743/gcm-with-php-google-cloud-messaging
 
 */
+namespace riprunner;
 
 if ( !defined('INCLUSION_PERMITTED') ||
 ( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once( 'logging.php' );
+require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class GCM {
 
@@ -254,3 +255,4 @@ class GCM {
 		throwExceptionAndLogError($ui_msg,$log_msg);
 	}
 }
+

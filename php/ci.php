@@ -17,8 +17,8 @@ require_once( 'config.php' );
 require_once( 'functions.php' );
 require_once( 'firehall_parsing.php' );
 require_once( 'logging.php' );
-require_once( 'Mobile_Detect.php' );
-$detect = new Mobile_Detect;
+require_once( 'object_factory.php' );
+$detect = \riprunner\MobileDetect_Factory::create('browser_type');
 
 $firehall_id = get_query_param('fhid');
 $callkey_id = get_query_param('ckid');

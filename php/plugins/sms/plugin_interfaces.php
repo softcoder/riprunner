@@ -3,6 +3,7 @@
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
 // ==============================================================
+namespace riprunner;
 
 // Types of recipient lists
 abstract class RecipientListType {

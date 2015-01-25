@@ -11,6 +11,37 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	die( 'This file must not be invoked directly.' ); 
 }
 
+	if(defined('__RIPRUNNER_ROOT__') == false) define('__RIPRUNNER_ROOT__', dirname(__FILE__));
+
+	$domain = (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '');
+	$docRoot = (isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : '');
+	$dirRoot = dirname(__FILE__);
+	$protocol = isset($_SERVER["HTTPS"]) ? 'https://' : 'http://';
+	//$urlDir = str_replace($docRoot, '', $dirRoot);
+	//$site_path = $protocol . $domain . $urlDir . '/';
+	//$site_path = $protocol . $domain . dirname($_SERVER['REQUEST_URI']) .'/';
+	//$site_path = $protocol . $domain . dirname($_SERVER['PHP_SELF']) .'/';
+	
+	$a = explode('/',$docRoot);
+	$b = explode('/',$dirRoot);
+	$a_last = $a[count($a)-1];
+	$rel_path = '';
+	for($index = count($b)-1; $index >= 0;$index--) {
+		if($a_last != $b[$index]) {
+			$rel_path = $b[$index] . '/' . $rel_path;
+		}
+		else {
+			break;
+		}
+	}
+	$site_path = $protocol . $domain . '/' . $rel_path;
+	
+	define ('RR_BASE_URL', $site_path);
+	
+	define ('NEWEST_SITE_VERSION', 'MVC_V1');
+	//define ('DEFAULT_SITE_VERSION', 'MVC_V1');
+	define ('DEFAULT_SITE_VERSION', 'LEGACY_V1');
+
 // ==============================================================
 
 	define( 'PRODUCT_NAME', 		'RipRunner' );
@@ -45,7 +76,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	define( 'DEFAULT_GOOGLE_MAPS_API_URL',	'http://maps.googleapis.com/maps/api/geocode/');
 	
 	// The current versions of the Rip Runner Android app
-	define( 'CURRENT_ANDROID_VERSIONCODE',	3);
-	define( 'CURRENT_ANDROID_VERSIONNAME',	'1.2');
+	define( 'CURRENT_ANDROID_VERSIONCODE',	4);
+	define( 'CURRENT_ANDROID_VERSIONNAME',	'1.3');
 	
 ?>

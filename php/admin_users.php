@@ -8,10 +8,9 @@ require_once( 'config.php' );
 require_once( 'functions.php' );
 require_once( 'firehall_signal_callout.php' );
 require_once( 'firehall_signal_gcm.php' );
-
-// These lines are mandatory.
-require_once 'Mobile_Detect.php';
-$detect = new Mobile_Detect;
+require_once( 'logging.php' );
+require_once( 'object_factory.php' );
+$detect = \riprunner\MobileDetect_Factory::create('browser_type');
 
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
@@ -468,19 +467,6 @@ sec_session_start();
 
             $insert_new_account = false;
             $edit_user_id = null;
-//             $form_action = get_query_param('form_action');
-//             if(isset($form_action) && $form_action == "sms") {
-// 				//
-// 				$smsMsg = get_query_param('txtMsg');
-// 				$sms_result = sendSMSPlugin_Message($FIREHALL, $smsMsg);
-// 				//echo "SMS send result [$sms_result]" . PHP_EOL;
-// 			}
-// 			else if(isset($form_action) && $form_action == "gcm") {
-// 				//
-// 				$gcmMsg = get_query_param('txtMsg');
-// 				$gcm_result = sendGCM_Message($FIREHALL,$gcmMsg,$db_connection);
-// 				//echo "GCM send result [$gcm_result]" . PHP_EOL;
-// 			}
 				
             // Handle CRUD operations
             $edit_user_id = handleEditAccount(false);
@@ -513,6 +499,8 @@ sec_session_start();
             	printf("Error: %s\n", mysqli_error($db_connection));
             	throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
             }
+
+            $log->trace("About to display user list for sql [$sql] result count: " . $sql_result->num_rows);
             
             $edit_mode = isset($edit_user_id);
             

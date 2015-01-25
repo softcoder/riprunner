@@ -267,7 +267,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 			
 			// Signal everyone with the status update if required
 			if($affected_update_rows > 0) {
-				signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat,
+				echo signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat,
 								$user_long,$user_status, $callkey_id);
 			}
 		}

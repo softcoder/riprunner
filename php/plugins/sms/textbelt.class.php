@@ -3,6 +3,7 @@
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
 // ==============================================================
+namespace riprunner;
 
 if ( !defined('INCLUSION_PERMITTED') ||
 ( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
@@ -23,7 +24,7 @@ class SMSTextBeltPlugin implements ISMSPlugin {
 		$resultSMS = 'START Send SMS using TextBelt.' . PHP_EOL;
 		
 		if($recipient_list_type == RecipientListType::GroupList) {
-			throw new Exception("TextBelt SMS Plugin does not support groups!");
+			throw new \Exception("TextBelt SMS Plugin does not support groups!");
 		}
 		else {
 			$recipient_list_numbers = $recipient_list;

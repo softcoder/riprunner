@@ -3,14 +3,15 @@
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
 // ==============================================================
+namespace riprunner;
 
 if ( !defined('INCLUSION_PERMITTED') ||
 ( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once( 'plugin_interfaces.php' );
-require_once( 'ldap_functions.php' );
+require_once 'plugin_interfaces.php';
+require_once __RIPRUNNER_ROOT__ . '/ldap_functions.php';
 
 class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 
@@ -22,13 +23,13 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 									 $callUnitsResponding, $callType, $callout_id,
 									 $callKey, $msgPrefix) {
 		
-		$smsPlugin = findPlugin('ISMSPlugin', $FIREHALL->SMS->SMS_GATEWAY_TYPE);
+		$smsPlugin = \riprunner\PluginsLoader::findPlugin('riprunner\ISMSPlugin', $FIREHALL->SMS->SMS_GATEWAY_TYPE);
 		if($smsPlugin == null) {
-			throw new Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
+			throw new \Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
 		}
 		
 		if($FIREHALL->LDAP->ENABLED == false) {
-			throw new Exception("Invalid Plugin mode. This plugin REQUIRES LDAP to be enabled!");
+			throw new \Exception("Invalid Plugin mode. This plugin REQUIRES LDAP to be enabled!");
 		}
 
 		$recipient_list_type = RecipientListType::MobileList;
@@ -110,7 +111,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 		$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . ', ' . $callAddress;
 	
 		$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL
-		. 'ci.php?cid=' . $callout_id
+		. 'ci/cid=' . $callout_id
 		. '&fhid=' . $FIREHALL->FIREHALL_ID
 		. '&ckid=' . $callKey;
 	
@@ -130,7 +131,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 		$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . ', ' . $callAddress;
 	
 		$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL
-		. 'ci.php?cid=' . $callout_id
+		. 'ci/cid=' . $callout_id
 		. '&fhid=' . $FIREHALL->FIREHALL_ID
 		. '&ckid=' . $callKey
 		. '&member_id=' . $user_id;

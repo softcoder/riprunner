@@ -7,12 +7,13 @@ ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
 define( 'INCLUSION_PERMITTED', true );
-require_once( 'config.php' );
-require_once( 'functions.php' );
-require_once( 'logging.php' );
+
+require_once 'config.php';
+require_once 'functions.php';
+require_once 'logging.php';
 
 $result = "?";
-if(isset($FIREHALLS) && sizeof($FIREHALLS) > 0) {
+if(isset($FIREHALLS) && count($FIREHALLS) > 0) {
 	$FIREHALL = getFirstActiveFireHallConfig($FIREHALLS);
 	if(isset($FIREHALL) && $FIREHALL != null) {
 		$log->trace("Mobile app info fhid [" . $FIREHALL->FIREHALL_ID . "]");

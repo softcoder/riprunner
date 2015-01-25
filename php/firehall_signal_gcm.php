@@ -12,7 +12,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 require_once( 'config.php' );
 require_once( 'functions.php' );
 require_once( 'plugins_loader.php' );
-require_once( 'gcm/gcm.php' );
+require_once( 'object_factory.php' );
 require_once( 'logging.php' );
 
 function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
@@ -36,7 +36,7 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 			$adhoc_db_connection = true;
 		}
 
-		$gcmInstance = new GCM($FIREHALL->MOBILE->GCM_API_KEY);
+		$gcmInstance = \riprunner\GCM_Factory::create('gcm',$FIREHALL->MOBILE->GCM_API_KEY);
 		$gcmInstance->setURL($FIREHALL->MOBILE->GCM_SEND_URL);
 		$gcmInstance->setDBConnection($db_connection);
 		$gcmInstance->setFirehallId($FIREHALL->FIREHALL_ID);
@@ -109,7 +109,7 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 			$adhoc_db_connection = true;
 		}
 
-		$gcmInstance = new GCM($FIREHALL->MOBILE->GCM_API_KEY);
+		$gcmInstance = \riprunner\GCM_Factory::create('gcm',$FIREHALL->MOBILE->GCM_API_KEY);
 		$gcmInstance->setURL($FIREHALL->MOBILE->GCM_SEND_URL);
 		$gcmInstance->setDBConnection($db_connection);
 		$gcmInstance->setFirehallId($FIREHALL->FIREHALL_ID);
@@ -138,13 +138,14 @@ function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
 			);
 
 			$resultGCM .= $gcmInstance->send($message);
-			echo $resultGCM;
+			//echo $resultGCM;
 		}
 
 		if($adhoc_db_connection == true && $db_connection != null) {
 			db_disconnect( $db_connection );
 		}
 	}
+	return $resultGCM;
 }
 
 function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connection) {
@@ -158,7 +159,7 @@ function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connectio
 	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
 		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
 
-		$gcmInstance = new GCM($FIREHALL->MOBILE->GCM_API_KEY);
+		$gcmInstance = \riprunner\GCM_Factory::create('gcm',$FIREHALL->MOBILE->GCM_API_KEY);
 		$gcmInstance->setURL($FIREHALL->MOBILE->GCM_SEND_URL);
 		$gcmInstance->setDevices($device_id);
 		$gcmInstance->setDBConnection($db_connection);
@@ -193,7 +194,7 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 			$adhoc_db_connection = true;
 		}
 
-		$gcmInstance = new GCM($FIREHALL->MOBILE->GCM_API_KEY);
+		$gcmInstance = \riprunner\GCM_Factory::create('gcm',$FIREHALL->MOBILE->GCM_API_KEY);
 		$gcmInstance->setURL($FIREHALL->MOBILE->GCM_SEND_URL);
 		$gcmInstance->setDBConnection($db_connection);
 		$gcmInstance->setFirehallId($FIREHALL->FIREHALL_ID);
@@ -216,8 +217,16 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 function getGCMCalloutMessage($FIREHALL,$callDateTimeNative,
 		$callCode, $callAddress, $callGPSLat, $callGPSLong,
 		$callUnitsResponding, $callType, $callout_id, $callKey) {
-
+	global $log;
+	//$log->trace("GCM callout msg calltime [". $callDateTimeNative . "]");
+	
 	$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . 
-				  ', ' . $callAddress . ' @' . $callDateTimeNative->format('Y-m-d H:i:s');
+				  ', ' . $callAddress . ' @' . 
+				  ($callDateTimeNative instanceof DateTime ? 
+				  		$callDateTimeNative->format('Y-m-d H:i:s') : 
+				  		$callDateTimeNative);
+	
+	$log->trace("GCM callout msg [". $msgSummary . "]");
+	
 	return $msgSummary;
 }
