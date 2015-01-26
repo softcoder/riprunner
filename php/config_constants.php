@@ -39,8 +39,8 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	define ('RR_BASE_URL', $site_path);
 	
 	define ('NEWEST_SITE_VERSION', 'MVC_V1');
-	//define ('DEFAULT_SITE_VERSION', 'MVC_V1');
-	define ('DEFAULT_SITE_VERSION', 'LEGACY_V1');
+	define ('DEFAULT_SITE_VERSION', 'MVC_V1');
+	//define ('DEFAULT_SITE_VERSION', 'LEGACY_V1');
 
 // ==============================================================
 
