@@ -163,6 +163,9 @@ if(isset($firehall_id)) {
 				// END: responders
 				
 				$fdLocation = $FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LATITUDE . ',' . $FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LONGITUDE;
+				if ($google_map_type == "iframe") {
+					$fdLocation = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
+				}
 				
 				if(isset($row->address) == false || $row->address == '') {
 					$callDest = $row->latitude . ',' . $row->longitude;
@@ -172,13 +175,14 @@ if(isset($firehall_id)) {
 					$callDest = getAddressForMapping($FIREHALL,$row->address);
 					$callOrigin = $row->latitude . ',' . $row->longitude;
 				}
+				
 				if ($google_map_type == "javascript") {
 					$url = str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_JAVASCRIPT_BODY);
 					$url = str_replace('${FDLOCATION}', $fdLocation, $url);
 					$url = str_replace('${DESTINATION}', $callDest, $url);
 					$url = str_replace('$(CALLORIGIN)', $callOrigin, $url);
 				}
-				if ($google_map_type == "iframe") {
+				elseif ($google_map_type == "iframe") {
 					$url = str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_INLINE_TAG);
 					$url = str_replace('${FDLOCATION}', $fdLocation, $url);
 					$url = str_replace('${DESTINATION}', $callDest, $url);
