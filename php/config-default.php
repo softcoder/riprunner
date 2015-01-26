@@ -45,7 +45,7 @@ define( 'GOOGLE_MAP_INLINE_TAG',
 		'<div class="google-maps">' . PHP_EOL .
 		'<iframe frameborder="1" style="border:1" ' .
 		'src="https://www.google.com/maps/embed/v1/directions?key=${API_KEY}' .
-		'&mode=driving&zoom=11&origin=${ORIGIN}' .
+		'&mode=driving&zoom=11&origin=${FDLOCATION}' .
 		'&destination=${DESTINATION}"></iframe>' . PHP_EOL .
 		'</div>' . PHP_EOL);
 

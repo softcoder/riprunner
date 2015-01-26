@@ -193,7 +193,7 @@ if(isset($firehall_id)) {
 			
 			if($row_number == 1) {
 				$log->error("Call Info callouts NO RESULTS unexpected for sql [$sql]!");
-				$html .= '<span class="ci_header">No results unexpected!</span>' . PHP_EOL;
+				$html .= '<span class="ci_header"> - No results - This is unexpected...</span>' . PHP_EOL;
 			}
 			else {
 				// Now show respond UI if applicable
@@ -275,7 +275,6 @@ if(isset($firehall_id)) {
 								if(isset($user_id)) {
 									$injectUIDParam = '&member_id=' . urlencode($user_id);
 								}
-								
 								$html .='<div class="responderTable">' . PHP_EOL;
 								$html .='<div class="responderCell"><form id="call_yes_response_' . $row_yes_response->id . 
 								'" action="cr.php?fhid=' . urlencode($firehall_id)
@@ -291,7 +290,7 @@ if(isset($firehall_id)) {
 								$html .= str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_COMPLETE_NOW_TRIGGER);
 								$html .='</form></div>'. PHP_EOL;
 								
-								$html .='<form id="call_cancel_response_' . $row_yes_response->id . 
+								$html .='<div class="responderCell"><form id="call_cancel_response_' . $row_yes_response->id . 
 								'" action="cr.php?fhid=' . urlencode($firehall_id)
 								. '&cid=' . urlencode($callout_id)
 								. '&uid=' . urlencode($row_yes_response->user_id)
