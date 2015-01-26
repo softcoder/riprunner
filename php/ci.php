@@ -166,6 +166,7 @@ if(isset($firehall_id)) {
 				
 				if(isset($row->address) == false || $row->address == '') {
 					$callDest = $row->latitude . ',' . $row->longitude;
+					$callOrigin = $row->latitude . ',' . $row->longitude;
 				}
 				else {
 					$callDest = getAddressForMapping($FIREHALL,$row->address);
