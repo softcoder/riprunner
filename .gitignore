@@ -1,6 +1,10 @@
 ### LOCAL CONFIG FILES
 config.php
+php/apk/*
 .check_version
+/third-party/*
+styles/sgvfr-callout-main.css
+styles/sgvfr-callout-mobile.css
 
 #################
 ## Eclipse

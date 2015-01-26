@@ -75,7 +75,7 @@
 		preserveViewport: true,
 		supressInfoWindows: true
 	});
-	//boundaryLayer.setMap(map);
+	boundaryLayer.setMap(map);
 	marker.setMap(map);
 	});
 </script> 
