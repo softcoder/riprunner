@@ -36,7 +36,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 		
 		// First we will send our sms callout to officers
 		$recipients_officers = get_sms_recipients_ldap($FIREHALL,
-				"(&(memberOf=cn=SGVFR-OFFICERS,ou=Groups,dc=sgvfr,dc=com)(memberOf=cn=SGVFR-SMSCALLOUT,ou=Groups,dc=sgvfr,dc=com))");
+				"(&(memberOf=cn=SGVFR-OFFICERS-TEST,ou=Groups,dc=sgvfr,dc=lan)(memberOf=cn=SGVFR-SMSCALLOUT-TEST,ou=Groups,dc=sgvfr,dc=lan))");
 		//echo "Officers found: [$recipients_officers]" . PHP_EOL;
 		
 		if(isset($recipients_officers) && strlen($recipients_officers) > 0) {

@@ -1,6 +1,3 @@
-<html>
-<head>
-
 <?php
 // ==============================================================
 //	Copyright (C) 2014 Mark Vejvoda
@@ -25,6 +22,10 @@ $callkey_id = get_query_param('ckid');
 $user_id = get_query_param('member_id');
 $callkey_validated = false;
 
+$html_top = "";
+$html_top .= '<html>' . PHP_EOL;
+$html_top .= '<head>' . PHP_EOL;
+
 // used for debugging
 //$firehall_id = 0;
 
@@ -40,18 +41,24 @@ if(isset($firehall_id)) {
 else {
 	$log->error("Call Info firehall_id is NOT SET!");
 }
+$html_top .= '<script type="text/JavaScript" src="js/common-utils.js"></script>' . PHP_EOL;
+
 ?>
-<script type="text/JavaScript" src="js/common-utils.js"></script>
+<?php 
+if ($detect->isMobile()) {
+	$html_top .= '<link rel="stylesheet" href="' . CALLOUT_MOBILE_CSS . '" />' . PHP_EOL;
+} else {
+	$html_top .= '<link rel="stylesheet" href="' . CALLOUT_MAIN_CSS . '" />' . PHP_EOL;
+}
 
-<?php if ($detect->isMobile()) : ?>
-<link rel="stylesheet" href="<?php echo CALLOUT_MOBILE_CSS; ?>" />
-<?php else : ?>
-<link rel="stylesheet" href="<?php echo CALLOUT_MAIN_CSS; ?>" />
-<?php endif; ?>
-</head>
-
+if ($google_map_type == "javascript") {
+	$html_top .= str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_JAVASCRIPT_HEAD);
+}
+?>
 <?php
+
 $html = "";
+$html_bottom = "";
 
 if(isset($firehall_id)) {
 	if($FIREHALL != null) {
@@ -155,21 +162,28 @@ if(isset($firehall_id)) {
 				$html .= $html_responders_footer;
 				// END: responders
 				
-				$callOrigin = urlencode($FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS);
+				$fdLocation = $FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LATITUDE . ',' . $FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LONGITUDE;
 				
 				if(isset($row->address) == false || $row->address == '') {
 					$callDest = $row->latitude . ',' . $row->longitude;
 				}
 				else {
 					$callDest = getAddressForMapping($FIREHALL,$row->address);
+					$callOrigin = $row->latitude . ',' . $row->longitude;
 				}
-				
-				$url = str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_INLINE_TAG);
-				$url = str_replace('${ORIGIN}', $callOrigin, $url);
-				$url = str_replace('${DESTINATION}', $callDest, $url);
-				
+				if ($google_map_type == "javascript") {
+					$url = str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_JAVASCRIPT_BODY);
+					$url = str_replace('${FDLOCATION}', $fdLocation, $url);
+					$url = str_replace('${DESTINATION}', $callDest, $url);
+					$url = str_replace('$(CALLORIGIN)', $callOrigin, $url);
+				}
+				if ($google_map_type == "iframe") {
+					$url = str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_INLINE_TAG);
+					$url = str_replace('${FDLOCATION}', $fdLocation, $url);
+					$url = str_replace('${DESTINATION}', $callDest, $url);
+				}
+
 				$row_number++;
-				
 				$html .= $url;
 				
 				if ( isset($callkey_id) && $callkey_id != null && $callkey_id == $row->call_key) {
@@ -262,7 +276,8 @@ if(isset($firehall_id)) {
 									$injectUIDParam = '&member_id=' . urlencode($user_id);
 								}
 								
-								$html .='<br /><form id="call_yes_response_' . $row_yes_response->id . 
+								$html .='<div class="responderTable">' . PHP_EOL;
+								$html .='<div class="responderCell"><form id="call_yes_response_' . $row_yes_response->id . 
 								'" action="cr.php?fhid=' . urlencode($firehall_id)
 								. '&cid=' . urlencode($callout_id)
 								. '&uid=' . urlencode($row_yes_response->user_id)
@@ -274,7 +289,7 @@ if(isset($firehall_id)) {
 								. '\',this);">'. PHP_EOL;
 								
 								$html .= str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_COMPLETE_NOW_TRIGGER);
-								$html .='</form>'. PHP_EOL;
+								$html .='</form></div>'. PHP_EOL;
 								
 								$html .='<form id="call_cancel_response_' . $row_yes_response->id . 
 								'" action="cr.php?fhid=' . urlencode($firehall_id)
@@ -289,7 +304,9 @@ if(isset($firehall_id)) {
 								
 								$html .= str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_CANCEL_NOW_TRIGGER);
 								
-								$html .='</form>'. PHP_EOL;
+								$html .='</form></div>'. PHP_EOL;
+								$html .='<div class="responderCell">' . strtoupper(urlencode($row_yes_response->user_id)) . '</div>' . PHP_EOL;
+								$html .='</div>' . PHP_EOL;
 							}
 						}
 						$sql_yes_response_result->close();
@@ -327,14 +344,6 @@ else {
 }
 ?>
 
-<?php if($callout_id != -1 && isset($callkey_id)) : ?>
-<body class="ci_body">
-<?php echo CALLOUT_HEADER; ?>
-<?php else : ?>
-<body class="ci_body_error">
-<h2><b>Invalid Request</b></h2>
-<?php endif; ?>
-
 <?php  
 if(isset($FIREHALL) && $FIREHALL != null && $FIREHALL->MOBILE->MOBILE_TRACKING_ENABLED) {
 	$cruid = get_query_param('cruid');
@@ -363,7 +372,31 @@ if(isset($FIREHALL) && $FIREHALL != null && $FIREHALL->MOBILE->MOBILE_TRACKING_E
 }								
 ?>
 
+<?php
+if($callout_id != -1 && isset($callkey_id)) {
+	$html_top .= '</head>' . PHP_EOL;
+	if ($google_map_type == "javascript") {
+		$html_top .= '<body class="ci_body">' . PHP_EOL;
+	} else {
+		$html_top .= '<body class="ci_body">' . PHP_EOL;
+	}
+	$html_top .= CALLOUT_HEADER . PHP_EOL;
+}
+
+if ($callout_status_complete == false) {
+	$html_top .= '<span class="ci_header_reload_timer">' . MAP_AUTO_REFRESH_SECONDS . ' Second Auto Refresh</span>' .PHP_EOL;
+} 
+?>
+<?= $html_top ?>
 <?= $html ?>
+<?php 
+if ($callout_status_complete == false) { 
+$html_bottom .='<script type="text/javascript">' . PHP_EOL;
+$html_bottom .='setTimeout(function () { location.reload(true); }, ' . MAP_AUTO_REFRESH_SECONDS .'*1000);' . PHP_EOL;
+$html_bottom .='</script>' . PHP_EOL;
+echo $html_bottom;
+}
+?>
 
 </body>
 </html>
