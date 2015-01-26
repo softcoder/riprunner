@@ -107,73 +107,82 @@
                       callout_details_vm.calloutkey_id != null and 
                       callkey_validated == true %}
 
-			        <br /><br />
-			        <div id="callNoResponseContent">
+			        <br />
+			        <table>
 
                     {% set no_response_count = 0 %}
                     {% for row_no in callout_details_vm.callout_details_not_responding_list %}
 
                         {% if callout_details_vm.member_id is null or
                            callout_details_vm.member_id == row_no.user_id %}
-                        
-                            {% if no_response_count > 0 %}
-                                <br />
-                            {% endif %}
                 
                             {% block callout_no_response %}
-                            <form id="call_no_response_{{ row_no.id }}" 
+                            <tr>
+                            <td class="ci_align_cell">
+                                <span class='inset-button'>{{ row_no.user_id }}</span>
+                            </td>
+                            <td class="ci_align_cell" colspan="2">
+                                <INPUT TYPE="button" VALUE="Respond" 
+                                       class="ci_respondnow" 
+                                       onclick="if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',this)) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
+
+                                <form id="call_no_response_{{ row_no.id }}" 
                                   action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}" 
                                   method="POST" 
                                   onsubmit="return confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',this);">
-                            
-						        <INPUT TYPE="submit" VALUE="Respond Now - {{ row_no.user_id }}" 
-						               class="ci_respondnow" />
-                            </form>
+                                </form>
+                            </td>
+                            </tr>
                             {% endblock %}
                             
                             {% set no_response_count = no_response_count + 1 %}
                         {% endif %}
                     {% endfor %}
                     
-                    </div>
-                    
                     {% if callout_pending %}
-                    
-                        <div id="callYesResponseContent">
                     
                         {% for row_yes in callout_details_vm.callout_details_end_responding_list %}
                     
 	                        {% if callout_details_vm.member_id is null or
 	                           callout_details_vm.member_id == row_yes.user_id %}
                     
-                                <br />
-                                
                                 {% block callout_yes_response_complete %}
-                                <form id="call_yes_response_{{ row_yes.id }}" 
-                                  action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_yes.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status={{ callout_details_vm.callout_status_complete }}" 
-                                  method="POST" 
-                                  onsubmit="return confirmAppendGeoCoordinates('COMPLETE this call?\nConfirm that the call should be set to COMPLETE?',this);">
+	                            <tr>
+	                            <td class="ci_align_cell">
+                                    <span class='inset-button'>{{ row_yes.user_id }}</span>
+                                </td>
+                                <td class="ci_align_cell">
+                                    <INPUT TYPE="button" VALUE="Complete the call" 
+                                       class="ci_completenow" 
+                                       onclick="if(confirmAppendGeoCoordinates('COMPLETE this call?\nConfirm that the call should be set to COMPLETE?',this)) document.getElementById('call_yes_response_complete_{{ row_yes.id }}').submit();" />
                                 
-							        <INPUT TYPE="submit" VALUE="CALLOUT COMPLETE - {{ row_yes.user_id }}" 
-							               class="ci_completenow" />
-                                </form>
+                                    <form id="call_yes_response_complete_{{ row_yes.id }}" 
+                                      action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_yes.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status={{ callout_details_vm.callout_status_complete }}" 
+                                      method="POST" 
+                                      onsubmit="return confirmAppendGeoCoordinates('COMPLETE this call?\nConfirm that the call should be set to COMPLETE?',this);">
+                                    </form>
+                                </td>
                                 {% endblock %}
 
                                 {% block callout_yes_response_cancel %}
-                                <form id="call_yes_response_{{ row_yes.id }}" 
+                                <td>
+                                    <INPUT TYPE="button" VALUE="Cancel the call" 
+                                       class="ci_cancelnow" 
+                                       onclick="if(confirmAppendGeoCoordinates('CANCEL this call?\nConfirm that the call should be CANCELLED?',this)) document.getElementById('call_yes_response_cancel_{{ row_yes.id }}').submit();" />
+                                
+                                    <form id="call_yes_response_cancel_{{ row_yes.id }}" 
                                   action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_yes.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status={{ callout_details_vm.callout_status_cancel }}" 
                                   method="POST" 
                                   onsubmit="return confirmAppendGeoCoordinates('CANCEL this call?\nConfirm that the call should be CANCELLED?',this);">
-                                
-                                    <INPUT TYPE="submit" VALUE="CALLOUT CANCELED - {{ row_yes.user_id }}" 
-                                           class="ci_cancelnow" />
-                                </form>
+                                    </form>
+                                </td>
+                                </tr>
                                 {% endblock %}
                                 
                             {% endif %}
                         {% endfor %}
                         
-                        </div>
+                        </table>
                     
                     {% endif %}
                 {% endif %}

@@ -1,5 +1,66 @@
 @CHARSET "UTF-8";
 
+@mixin vertical-align {
+  position: relative;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.ci_triangle-right {
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-left: 50px solid red;
+    border-bottom: 10px solid transparent;
+    
+    @include vertical-align;
+}   
+
+.ci_align_cell {
+    vertical-align: top;
+}
+
+.inset-button {
+	
+    border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-transition: 0.1s linear all;
+    -moz-transition: 0.1s linear all;
+    -ms-transition: 0.1s linear all;
+    -o-transition: 0.1s linear all;
+    transition: 0.1s linear all;
+}
+
+.inset-button {
+    background: rgba(0, 0, 0, 0.16);
+    box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 5px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 6px 0px rgba(0, 0, 0, 0.58);
+    -moz-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 5px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 6px 0px rgba(0, 0, 0, 0.58);
+    -webkit-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 5px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 6px 0px rgba(0, 0, 0, 0.58);
+    
+    color:white;
+    background-color:blue;
+    font-size:30px;
+    font-weight: bold;
+    
+    @include vertical-align;
+}
+
+.inset-button:hover {
+    box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 7px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 7px 0px rgba(0, 0, 0, 0.58);
+    -moz-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 7px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 7px 0px rgba(0, 0, 0, 0.58);
+    -webkit-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 7px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 7px 0px rgba(0, 0, 0, 0.58);
+}
+
+.inset-button:active {
+    box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 10px 0px rgba(255, 255, 255, 0.16), inset 0px 0px 10px 0px rgba(0, 0, 0, 0.68);
+    -moz-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 10px 0px rgba(255, 255, 255, 0.16), inset 0px 0px 10px 0px rgba(0, 0, 0, 0.68);
+    -webkit-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 10px 0px rgba(255, 255, 255, 0.16), inset 0px 0px 10px 0px rgba(0, 0, 0, 0.68);
+}
+
+
 .ci_body {
   background-color:black;
 }
@@ -61,17 +122,69 @@
 
 .ci_respondnow {
   background-color:yellow;
-  font-size:25px; 
+  font-size:25px;
+  color: red;
+  
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    border-radius: 30px;
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -moz-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -ms-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -o-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    border: 1px solid #aabcfe;
+    cursor: pointer;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+}
+
+.ci_finish_now_user {
+    color:white;
+    background-color:blue;
+    font-size:35px;
+    font-weight: bold;
 }
 
 .ci_completenow {
-  background-color:lime;
-  font-size:25px; 
+  background-color:green;
+  font-size:25px;
+  color: white;
+  
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    border-radius: 30px;
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -moz-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -ms-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -o-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    border: 1px solid #aabcfe;
+    cursor: pointer;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
 }
 
 .ci_cancelnow {
   background-color:red;
-  font-size:25px; 
+  font-size:25px;
+  color: white;
+  
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    border-radius: 30px;
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -moz-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -ms-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -o-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    border: 1px solid #aabcfe;
+    cursor: pointer;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
 }
 
 .ci_reload_timer {
@@ -97,3 +210,4 @@
 	width: 100% !important;
 	height: 100% !important;
 }
+
