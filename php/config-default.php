@@ -38,7 +38,7 @@ define( 'GOOGLE_MAP_JAVASCRIPT_HEAD',
 		'</script>' . PHP_EOL
 );
 
-define('GOOGLE_MAP_JAVASCRIPT_BODY', file_get_contents('javascript/config-javascript-map.php'));
+define('GOOGLE_MAP_JAVASCRIPT_BODY', file_get_contents(__RIPRUNNER_ROOT__ . '/js/config-javascript-map.php'));
 
 
 define( 'GOOGLE_MAP_INLINE_TAG',
