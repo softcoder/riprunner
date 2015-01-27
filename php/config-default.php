@@ -21,7 +21,10 @@ require_once( 'config_constants.php' );
 // To preserve your custom styles across upgrades, create a copy of "styles/callout-main.css and styles/callout-mobile.css"
 // define your new stylesheets here.
 define( 'CALLOUT_MAIN_CSS', 'styles/callout-main.css');
+//define( 'CUSTOM_CALLOUT_MAIN_CSS','styles/custom-callout-main.css');
+
 define( 'CALLOUT_MOBILE_CSS', 'styles/callout-mobile.css');
+//define( 'CUSTOM_CALLOUT_MOBILE_CSS','styles/custom-callout-mobile.css');
 
 // Call Information page header
 define( 'CALLOUT_HEADER', '<span class="ci_header">Call Details  </span>');
@@ -29,6 +32,9 @@ define( 'CALLOUT_HEADER', '<span class="ci_header">Call Details  </span>');
 // valid choices are "javascript" or "iframe"
 // Javascript Maps have much more configuration options with the file 
 // defined in GOOGLE_MAP_JAVASCRIPT_BODY
+// EDIT AND RENAME  js/config-javascript-map-default.php to js/config-javascript-map.php and make changes
+// to show water locations if desired, and uncomment overlay line if you wish to add an kml overlay
+// such as boundaries.
 
 $google_map_type = "javascript";
 
@@ -317,10 +323,10 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_WEBSITE->setFirehallAddress('FIREHALL ADDRESS');
 	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLatitude(YOUR FIREHALL LATTATUDE);
 	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLongitude(YOU FIREHALL LONGITUDE);
-	$LOCAL_DEBUG_WEBSITE->setCalloutDetailURL('http://FIREHALL.COM');
 	$LOCAL_DEBUG_WEBSITE->setGoogleMap_ApiKey(DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY);
 	$LOCAL_DEBUG_WEBSITE->setCityNameSubs($GOOGLE_MAP_CITY_LOOKUP);
 	$LOCAL_DEBUG_WEBSITE->setStreetNameSubs($GOOGLE_MAP_STREET_LOOKUP);
+	$LOCAL_DEBUG_WEBSITE->setRootURL('http://www.example.com/');	
 	
 	// ----------------------------------------------------------------------
 	// LDAP Settings
