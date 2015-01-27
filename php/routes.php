@@ -40,7 +40,7 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 	}
 });
 	
-\Flight::route('GET|POST /ci(/@params)', function($params) {
+\Flight::route('GET|POST /ci/(@params)', function($params) {
 	$query = array();
 	parse_str($params, $query);
 
@@ -52,7 +52,7 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 	}
 });
 
-\Flight::route('GET|POST /cr(/@params)', function($params) {
+\Flight::route('GET|POST /cr/(@params)', function($params) {
 	$query = array();
 	parse_str($params, $query);
 
@@ -64,7 +64,7 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 	}
 });
 
-\Flight::route('GET|POST /ct(/@params)', function($params) {
+\Flight::route('GET|POST /ct/(@params)', function($params) {
 	$query = array();
 	parse_str($params, $query);
 

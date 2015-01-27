@@ -12,6 +12,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 
 require_once 'plugin_interfaces.php';
 require_once __RIPRUNNER_ROOT__ . '/ldap_functions.php';
+require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 
@@ -107,7 +108,9 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 			$callCode, $callAddress, $callGPSLat, $callGPSLong,
 			$callUnitsResponding, $callType, $callout_id, $callKey,
 			$maxLength) {
-	
+		
+		global $log;
+		
 		$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . ', ' . $callAddress;
 	
 		$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL
@@ -120,6 +123,8 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 			$smsMsg = array($msgSummary,
 					$details_link);
 		}
+		$log->trace("Sending SMS Callout msg [$smsMsg]");
+		
 		return $smsMsg;
 	}
 	
@@ -127,7 +132,9 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 			$callCode, $callAddress, $callGPSLat, $callGPSLong,
 			$callUnitsResponding, $callType, $callout_id, $callKey, $user_id,
 			$maxLength) {
-	
+
+		global $log;
+		
 		$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . ', ' . $callAddress;
 	
 		$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL
@@ -141,6 +148,9 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 			$smsMsg = array($msgSummary,
 					$details_link);
 		}
+		
+		$log->trace("Sending SMS Callout msg [$smsMsg]");
+		
 		return $smsMsg;
 	}
 	

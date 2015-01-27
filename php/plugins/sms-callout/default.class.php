@@ -11,6 +11,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 }
 
 require_once( 'plugin_interfaces.php' );
+require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 
@@ -72,7 +73,9 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 			$callCode, $callAddress, $callGPSLat, $callGPSLong,
 			$callUnitsResponding, $callType, $callout_id, $callKey,
 			$maxLength) {
-	
+		
+		global $log;
+		
 		$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . ', ' . $callAddress;
 	
 		$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL
@@ -85,6 +88,9 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 			$smsMsg = array($msgSummary,
 					$details_link);
 		}
+		
+		$log->trace("Sending SMS Callout msg [$smsMsg]");
+		
 		return $smsMsg;
 	}
 }
