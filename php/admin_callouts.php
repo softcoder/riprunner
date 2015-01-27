@@ -164,7 +164,7 @@ sec_session_start();
 			    	$col_num++;
 			    }
 			    
-			    $details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL
+			    $details_link = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL
 			    . 'ci.php?cid=' . $row['id']
 			    . '&fhid=' . $FIREHALL->FIREHALL_ID
 			    . '&ckid=' . $row['call_key'];

@@ -34,6 +34,7 @@ class GlobalViewModel {
 	}
 	
 	public function __get($name) {
+		
 		if('isMobile' == $name) {
 			return $this->getDetectBrowser()->isMobile();
 		}
@@ -41,7 +42,9 @@ class GlobalViewModel {
 			return $this->getDetectBrowser()->isTablet();
 		}
 		if('RR_DOC_ROOT' == $name) {
-			return RR_BASE_URL;			
+			//return $this->getFireHall()->WEBSITE->WEBSITE_ROOT_URL;
+			return getFirehallRootURLFromRequest(
+					null,$this->firehalls);
 		}
 		if('RR_DB_CONN' == $name) {
 			return $this->getDBConnection();

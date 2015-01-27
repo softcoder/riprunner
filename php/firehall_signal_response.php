@@ -94,7 +94,7 @@ function getSMSCalloutResponseMessage($FIREHALL, $callId, $userId,
 	// 	. '&fhid=' . $FIREHALL->FIREHALL_ID
 	// 	. '&ckid=' . $callKey;
 
-	$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL
+	$details_link = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL
 	. 'ci/cid=' . $callId
 	. '&fhid=' . $FIREHALL->FIREHALL_ID
 	. '&ckid=' . $callkey_id;

@@ -264,7 +264,7 @@ class FireHallWebsite
 	public $FIREHALL_GEO_COORD_LATITUDE;
 	public $FIREHALL_GEO_COORD_LONGITUDE;
 	// The Base URL where you installed rip runner example: http://mywebsite.com/riprunner/
-	public $WEBSITE_CALLOUT_DETAIL_URL;
+	public $WEBSITE_ROOT_URL;
 	// The Google Map API Key
 	public $WEBSITE_GOOGLE_MAP_API_KEY;
 	// An array of source = destination city names of original_city_name = new_city_name city names to swap for google maps
@@ -274,14 +274,14 @@ class FireHallWebsite
 	public $WEBSITE_CALLOUT_DETAIL_STREET_NAME_SUBSTITUTION;
 		
 	public function __construct($name=null,$home_address=null,$home_geo_coord_lat=null,
-			$home_geo_coord_long=null,$callout_detail_url=null, 
+			$home_geo_coord_long=null,$root_url=null, 
 			$google_map_api_key=null,$city_name_substition=null) {
 		
 		$this->FIREHALL_NAME = $name;
 		$this->FIREHALL_HOME_ADDRESS = $home_address;
 		$this->FIREHALL_GEO_COORD_LATITUDE = $home_geo_coord_lat;
 		$this->FIREHALL_GEO_COORD_LONGITUDE = $home_geo_coord_long;
-		$this->WEBSITE_CALLOUT_DETAIL_URL = $callout_detail_url;
+		$this->WEBSITE_ROOT_URL = $root_url;
 		$this->WEBSITE_GOOGLE_MAP_API_KEY = $google_map_api_key;
 		$this->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION = $city_name_substition;
 	}
@@ -298,8 +298,8 @@ class FireHallWebsite
 	public function setFirehallGeoLongitude($home_geo_coord_long) {
 		$this->FIREHALL_GEO_COORD_LONGITUDE = $home_geo_coord_long;
 	}
-	public function setCalloutDetailURL($callout_detail_url) {
-		$this->WEBSITE_CALLOUT_DETAIL_URL = $callout_detail_url;
+	public function setRootURL($root_url) {
+		$this->WEBSITE_ROOT_URL = $root_url;
 	}
 	public function setGoogleMap_ApiKey($google_map_api_key) {
 		$this->WEBSITE_GOOGLE_MAP_API_KEY = $google_map_api_key;

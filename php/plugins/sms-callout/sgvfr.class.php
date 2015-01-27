@@ -113,7 +113,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 		
 		$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . ', ' . $callAddress;
 	
-		$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL
+		$details_link = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL
 		. 'ci/cid=' . $callout_id
 		. '&fhid=' . $FIREHALL->FIREHALL_ID
 		. '&ckid=' . $callKey;
@@ -137,7 +137,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 		
 		$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . ', ' . $callAddress;
 	
-		$details_link = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_URL
+		$details_link = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL
 		. 'ci/cid=' . $callout_id
 		. '&fhid=' . $FIREHALL->FIREHALL_ID
 		. '&ckid=' . $callKey
