@@ -121,8 +121,9 @@
 }
 
 .ci_respondnow {
+  padding: 25px;
   background-color:yellow;
-  font-size:30px; 
+  font-size:50px; 
   color: red;
   
     -webkit-border-radius: 30px;
@@ -148,8 +149,9 @@
 }
 
 .ci_completenow {
+  padding: 25px;
   background-color:green;
-  font-size:30px; 
+  font-size:50px; 
   color: white;
   
     -webkit-border-radius: 30px;
@@ -168,8 +170,9 @@
 }
 
 .ci_cancelnow {
+  padding: 25px;
   background-color:red;
-  font-size:30px; 
+  font-size:50px; 
   color: white;
   
     -webkit-border-radius: 30px;
@@ -186,9 +189,10 @@
     cursor: pointer;
     text-shadow: 0 1px 0 rgba(255,255,255,0.5);
 }
-.ci_respondername {
+.ci_responderName {
+	padding-left: 50px;
     color:yellow;
-    font-size:25px;
+    font-size:50px;
     font-weight: bold;
 }
 

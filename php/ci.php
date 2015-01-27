@@ -318,7 +318,7 @@ if(isset($firehall_id)) {
 								$html .= str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_CANCEL_NOW_TRIGGER);
 								
 								$html .='</form></div>'. PHP_EOL;
-								$html .='<div class="ci_responderCell">' . strtoupper(urlencode($row_yes_response->user_id)) . '</div>' . PHP_EOL;
+								$html .='<div class="ci_responderName">' . strtoupper(urlencode($row_yes_response->user_id)) . '</div>' . PHP_EOL;
 								$html .='</div>' . PHP_EOL;
 							}
 						}

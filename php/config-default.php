@@ -18,8 +18,10 @@ require_once( 'config_constants.php' );
 
 // ----------------------------------------------------------------------
 // Customziable Text and HTML Tags
-// To preserve your custom styles across upgrades, create a copy of "styles/callout-main.css and styles/callout-mobile.css"
-// define your new stylesheets here.
+// To preserve your custom styles across upgrades, uncomment the CUSTOM lines and edit those files.
+// styles defined in callout-main.css and callout-mobile.css can be copied to the CUSTOM file
+// and they will override anything previously defined
+
 define( 'CALLOUT_MAIN_CSS', 'styles/callout-main.css');
 //define( 'CUSTOM_CALLOUT_MAIN_CSS','styles/custom-callout-main.css');
 
