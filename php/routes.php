@@ -19,24 +19,27 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 \Flight::route('GET|POST /login|/logon(/@params)', function($params) {
 	$query = array();
 	parse_str($params, $query);
+	//$request = \Flight::request();
+	//echo "Request [".$request->base."]" . PHP_EOL;
 	
 	if(DEFAULT_SITE_VERSION == NEWEST_SITE_VERSION) {
-		\Flight::redirect('controllers/login-controller.php?' . $params);
+		\Flight::redirect(RR_BASE_URL .'controllers/login-controller.php?' . $params);
 	}
 	else {
-		\Flight::redirect('login.php?' . $params);
+		\Flight::redirect(RR_BASE_URL .'login.php?' . $params);
 	}
 });
 
 \Flight::route('GET|POST /login-device(/@params)', function($params) {
 	$query = array();
 	parse_str($params, $query);
+	$request = \Flight::request();
 
 	if(DEFAULT_SITE_VERSION == NEWEST_SITE_VERSION) {
-		\Flight::redirect('controllers/login-device-controller.php?' . $params);
+		\Flight::redirect($request->base .'/controllers/login-device-controller.php?' . $params);
 	}
 	else {
-		\Flight::redirect('register_device.php?' . $params);
+		\Flight::redirect($request->base .'/register_device.php?' . $params);
 	}
 });
 	
@@ -45,10 +48,10 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 	parse_str($params, $query);
 
 	if(DEFAULT_SITE_VERSION == NEWEST_SITE_VERSION) {
-		\Flight::redirect('controllers/callout-details-controller.php?' . $params);
+		\Flight::redirect(RR_BASE_URL .'controllers/callout-details-controller.php?' . $params);
 	}
 	else {
-		\Flight::redirect('ci.php?' . $params);
+		\Flight::redirect(RR_BASE_URL .'ci.php?' . $params);
 	}
 });
 
@@ -57,10 +60,10 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 	parse_str($params, $query);
 
 	if(DEFAULT_SITE_VERSION == NEWEST_SITE_VERSION) {
-		\Flight::redirect('controllers/callout-response-controller.php?' . $params);
+		\Flight::redirect(RR_BASE_URL .'controllers/callout-response-controller.php?' . $params);
 	}
 	else {
-		\Flight::redirect('cr.php?' . $params);
+		\Flight::redirect(RR_BASE_URL .'cr.php?' . $params);
 	}
 });
 
@@ -69,10 +72,10 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 	parse_str($params, $query);
 
 	if(DEFAULT_SITE_VERSION == NEWEST_SITE_VERSION) {
-		\Flight::redirect('controllers/callout-tracking-controller.php?' . $params);
+		\Flight::redirect(RR_BASE_URL .'controllers/callout-tracking-controller.php?' . $params);
 	}
 	else {
-		\Flight::redirect('ct.php?' . $params);
+		\Flight::redirect(RR_BASE_URL .'ct.php?' . $params);
 	}
 });
 	
