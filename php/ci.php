@@ -240,6 +240,7 @@ if(isset($firehall_id)) {
 							if($no_response_count > 0) {
 								$html .='<br />' . PHP_EOL;
 							}
+							if ($callout_status_complete == false) {
 							$html .='<form id="call_no_response_' . $row_no_response->id .
 							'" action="cr.php?fhid=' . urlencode($firehall_id)
 							. '&cid=' . urlencode($callout_id)
@@ -252,7 +253,7 @@ if(isset($firehall_id)) {
 							
 							$html .= str_replace('${USER_ID}', $row_no_response->user_id, CALLOUT_RESPOND_NOW_TRIGGER);
 							$html .='</form>'. PHP_EOL;
-							
+							}
 							$no_response_count++;
 						}
 					}
