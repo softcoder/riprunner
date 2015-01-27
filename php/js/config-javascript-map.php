@@ -13,7 +13,7 @@
     ];
     var map = new google.maps.Map(document.getElementById('map'), {
 		zoom: 13,
-		center: new google.maps.LatLng($(CALLORIGIN)),
+		center: new google.maps.LatLng(${CALLORIGIN}),
 		draggable: true,
 		scrollwheel: false,
 		mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -32,7 +32,7 @@
 
 	var callOriginMarker = new google.maps.Marker({
 		map: map,
-		position: new google.maps.LatLng($(CALLORIGIN)), 
+		position: new google.maps.LatLng(${CALLORIGIN}), 
 		title: "DESTINATION",
 		clickable: true,
 		icon: {
@@ -71,7 +71,7 @@
 			directionsDisplay.setDirections(response);
 		}
 	var boundaryLayer = new google.maps.KmlLayer({
-		url: 'http://rr3.sgvfr.com/kml/boundaries.kml',
+		url: '${WEB_ROOT}kml/boundaries.kml',
 		preserveViewport: true,
 		supressInfoWindows: true
 	});

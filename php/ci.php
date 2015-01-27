@@ -52,7 +52,7 @@ if ($detect->isMobile()) {
 }
 
 if ($google_map_type == "javascript") {
-	$html_top .= str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_JAVASCRIPT_HEAD);
+	//$html_top .= str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_JAVASCRIPT_HEAD);
 }
 ?>
 <?php
@@ -180,7 +180,9 @@ if(isset($firehall_id)) {
 					$url = str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_JAVASCRIPT_BODY);
 					$url = str_replace('${FDLOCATION}', $fdLocation, $url);
 					$url = str_replace('${DESTINATION}', $callDest, $url);
-					$url = str_replace('$(CALLORIGIN)', $callOrigin, $url);
+					$url = str_replace('${CALLORIGIN}', $callOrigin, $url);
+					$url = str_replace('${WEB_ROOT}', $FIREHALL->WEBSITE->WEBSITE_ROOT_URL, $url);
+					
 				}
 				elseif ($google_map_type == "iframe") {
 					$url = str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_INLINE_TAG);
