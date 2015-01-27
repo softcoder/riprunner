@@ -32,7 +32,7 @@ $html_top .= '<head>' . PHP_EOL;
 if(isset($firehall_id)) {
 	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
 	if(isset($FIREHALL) && $FIREHALL != null) {
-		echo '<title>' . $FIREHALL->WEBSITE->FIREHALL_NAME . ' - Callout Detail</title>';
+		$html_top .= '<title>' . $FIREHALL->WEBSITE->FIREHALL_NAME . ' - Callout Detail</title>' .PHP_EOL;
 	}
 	else {
 		$log->error("Call Info firehall_id NOT FOUND [$firehall_id]!");
