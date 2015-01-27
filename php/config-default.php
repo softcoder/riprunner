@@ -18,10 +18,12 @@ require_once( 'config_constants.php' );
 
 // ----------------------------------------------------------------------
 // Customziable Text and HTML Tags
-// To preserve your custom styles across upgrades, create a copy of "styles/callout-main.css and styles/callout-mobile.css"
-// define your new stylesheets here.
+// To preserve your custom styles across upgrades, uncomment the CUSTOM options and add your own styles to those files. 
 define( 'CALLOUT_MAIN_CSS', 'styles/callout-main.css');
+//define( 'CUSTOM_CALLOUT_MAIN_CSS','styles/custom-callout-main.css');
+
 define( 'CALLOUT_MOBILE_CSS', 'styles/callout-mobile.css');
+//define( 'CUSTOM_CALLOUT_MOBILE_CSS','styles/custom-callout-mobile.css');
 
 // Call Information page header
 define( 'CALLOUT_HEADER', '<span class="ci_header">Call Details  </span>');

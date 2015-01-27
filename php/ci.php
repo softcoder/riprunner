@@ -47,8 +47,15 @@ $html_top .= '<script type="text/JavaScript" src="js/common-utils.js"></script>'
 <?php 
 if ($detect->isMobile()) {
 	$html_top .= '<link rel="stylesheet" href="' . CALLOUT_MOBILE_CSS . '" />' . PHP_EOL;
+	if (defined('CUSTOM_CALLOUT_MOBILE_CSS')) {
+			$html_top .= '<link rel="stylesheet" href="' . CUSTOM_CALLOUT_MOBILE_CSS . '" />' . PHP_EOL;
+	}
 } else {
 	$html_top .= '<link rel="stylesheet" href="' . CALLOUT_MAIN_CSS . '" />' . PHP_EOL;
+	if (defined('CUSTOM_CALLOUT_MAIN_CSS')) {
+			$html_top .= '<link rel="stylesheet" href="' . CUSTOM_CALLOUT_MAIN_CSS . '" />' . PHP_EOL;
+	}
+	
 }
 
 if ($google_map_type == "javascript") {
@@ -280,8 +287,8 @@ if(isset($firehall_id)) {
 								if(isset($user_id)) {
 									$injectUIDParam = '&member_id=' . urlencode($user_id);
 								}
-								$html .='<div class="responderTable">' . PHP_EOL;
-								$html .='<div class="responderCell"><form id="call_yes_response_' . $row_yes_response->id . 
+								$html .='<div class="ci_responderTable">' . PHP_EOL;
+								$html .='<div class="ci_responderCell"><form id="call_yes_response_' . $row_yes_response->id . 
 								'" action="cr.php?fhid=' . urlencode($firehall_id)
 								. '&cid=' . urlencode($callout_id)
 								. '&uid=' . urlencode($row_yes_response->user_id)
@@ -295,7 +302,7 @@ if(isset($firehall_id)) {
 								$html .= str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_COMPLETE_NOW_TRIGGER);
 								$html .='</form></div>'. PHP_EOL;
 								
-								$html .='<div class="responderCell"><form id="call_cancel_response_' . $row_yes_response->id . 
+								$html .='<div class="ci_responderCell"><form id="call_cancel_response_' . $row_yes_response->id . 
 								'" action="cr.php?fhid=' . urlencode($firehall_id)
 								. '&cid=' . urlencode($callout_id)
 								. '&uid=' . urlencode($row_yes_response->user_id)
@@ -309,7 +316,7 @@ if(isset($firehall_id)) {
 								$html .= str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_CANCEL_NOW_TRIGGER);
 								
 								$html .='</form></div>'. PHP_EOL;
-								$html .='<div class="responderCell">' . strtoupper(urlencode($row_yes_response->user_id)) . '</div>' . PHP_EOL;
+								$html .='<div class="ci_responderCell">' . strtoupper(urlencode($row_yes_response->user_id)) . '</div>' . PHP_EOL;
 								$html .='</div>' . PHP_EOL;
 							}
 						}
