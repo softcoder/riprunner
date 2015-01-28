@@ -24,6 +24,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
@@ -39,6 +41,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -70,6 +73,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Vector;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -159,6 +163,11 @@ public class AppMainActivity extends ActionBarActivity implements
     private SupportMapFragment mapFragment;
 	private GoogleMap map;
 	private List<Marker> mapMarkers;
+	
+	//private boolean isKMLCached = false;
+	//private Vector<PolylineOptions> KMLPathList;
+	//private Vector<Polyline> KMLLineList;
+	private KMLData kmlData;
 	
     // Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -451,6 +460,8 @@ public class AppMainActivity extends ActionBarActivity implements
         etUpw.setVisibility(View.VISIBLE);
         
         hideFragment(R.id.map);
+        
+        kmlData = null;
     }
 
     private void setupCalloutUI(String respondingUserId) {
@@ -1701,6 +1712,8 @@ public class AppMainActivity extends ActionBarActivity implements
         else {
             Log.i(Utils.TAG, Utils.getLineNumber() + ": No valid Google Play Services APK found.");
         }
+        
+        kmlData = null;
 	}
 	
 	private void clearUI() {
@@ -1737,14 +1750,17 @@ public class AppMainActivity extends ActionBarActivity implements
 	    String callout_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, "ci.php");
 	    String respond_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_RESPOND_PAGE_URI, "cr.php");
 	    String tracking_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct.php");
+	    String kml_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_KML_PAGE_URI, "");
 
 	    Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner updating app URLs [" + login_page_uri + "]" +
-	    			" [" + callout_page_uri + "]" + " [" + respond_page_uri + "]" + " [" + tracking_page_uri + "]");
+	    			" [" + callout_page_uri + "]" + " [" + respond_page_uri + "]" + " [" + tracking_page_uri + "]" +
+	    		    " [" + kml_page_uri + "]");
 	    
 	    storeConfigItem(context, AppConstants.PROPERTY_LOGIN_PAGE_URI, login_page_uri);
 	    storeConfigItem(context, AppConstants.PROPERTY_CALLOUT_PAGE_URI, callout_page_uri);
 	    storeConfigItem(context, AppConstants.PROPERTY_RESPOND_PAGE_URI, respond_page_uri);
 	    storeConfigItem(context, AppConstants.PROPERTY_TRACKING_PAGE_URI, tracking_page_uri);
+	    storeConfigItem(context, AppConstants.PROPERTY_KML_PAGE_URI, kml_page_uri);
 	    
 	    startGEOAlarm();
     }
@@ -1940,6 +1956,22 @@ public class AppMainActivity extends ActionBarActivity implements
 						    builder.include(marker.getPosition());
 						}
 						LatLngBounds bounds = builder.build();
+										
+						
+						if(kmlData != null && kmlData.getPathList() != null && 
+								kmlData.getPathList().isEmpty() == false) {
+							Vector<Polyline> lines = new Vector<Polyline>();
+							for(PolylineOptions line : kmlData.getPathList()) {
+								lines.add(map.addPolyline(line));
+							}
+								
+					        for(Polyline line : lines) {
+					        	line.setWidth(4);
+					        	line.setColor(Color.RED);
+					        	line.setGeodesic(true);
+					        	line.setVisible(true);
+					         }
+						}
 						
 						int padding = 150; // offset from edges of the map in pixels
 						CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding);
@@ -1948,6 +1980,18 @@ public class AppMainActivity extends ActionBarActivity implements
 						
 						if(cp != null) {
 							map.moveCamera(CameraUpdateFactory.newCameraPosition(cp));
+						}
+
+						if(kmlData == null) {
+				    		String kmlUrl = getConfigItem(context,AppConstants.PROPERTY_KML_PAGE_URI,String.class).toString();
+							if(auth != null && auth.getHostURL() != null && 
+									kmlUrl != null && kmlUrl.isEmpty() == false) {
+								
+								kmlData = new KMLData();
+								//new KmlLoader(map).execute(Environment.getExternalStorageDirectory().getPath() + "FILE.kml");
+								String URL = auth.getHostURL() + kmlUrl;
+								new KmlLoader(kmlData).execute(URL);
+							}
 						}
 					}
 				}

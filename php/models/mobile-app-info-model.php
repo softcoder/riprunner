@@ -60,7 +60,8 @@ class MobileAppInfoViewModel extends BaseViewModel {
 					"login_page_uri" => "controllers/login-device-controller.php",
 					"callout_page_uri" => "controllers/callout-details-controller.php",
 					"respond_page_uri" => "controllers/callout-response-controller.php",
-					"tracking_page_uri" => "controllers/callout-tracking-controller.php"
+					"tracking_page_uri" => "controllers/callout-tracking-controller.php",
+					"kml_page_uri" => "kml/boundaries.kml"
 			);
 		}
 		else {

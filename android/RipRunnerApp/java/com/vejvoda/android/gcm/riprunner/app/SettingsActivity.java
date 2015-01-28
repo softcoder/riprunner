@@ -315,6 +315,19 @@ public class SettingsActivity extends PreferenceActivity implements
 											editor.putString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct.php");
 											editor.commit();
 										}
+
+										if(json.has(AppConstants.PROPERTY_KML_PAGE_URI)) {
+											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+											SharedPreferences.Editor editor = sharedPrefs.edit();
+											editor.putString(AppConstants.PROPERTY_KML_PAGE_URI, json.getString(AppConstants.PROPERTY_KML_PAGE_URI));
+											editor.commit();
+										}
+										else {
+											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+											SharedPreferences.Editor editor = sharedPrefs.edit();
+											editor.putString(AppConstants.PROPERTY_KML_PAGE_URI, "");
+											editor.commit();
+										}
 										
 										Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Successfully received app settings.");
 										Toast.makeText(context, "Successfully received app settings.", Toast.LENGTH_LONG).show();
