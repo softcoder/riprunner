@@ -1,2 +1,132 @@
 @CHARSET "UTF-8";
 
+.ci_body {
+  background-color:black;
+}
+
+.ci_body_error {
+  background-color:white;
+}
+
+.ci_header {
+    color:white;
+    font-size:35px;
+    font-weight: bold;
+}
+
+.ci_header_time {
+    color:white;
+    font-size:30px;
+    font-weight: bold;
+}
+
+.ci_header_type {
+    color:yellow;
+    font-size:30px;
+    font-weight: bold;
+}
+.ci_header_reload_timer {
+  font-size:35px;
+  color: white;
+  font-weight: bold;
+}
+.ci_header_address {
+    color:cyan;
+    font-size:30px;
+    font-weight: bold;
+}
+
+.ci_header_units {
+    color:lime;
+    font-size:30px;
+    font-weight: bold;
+}
+
+.ci_header_status {
+    color:yellow;
+    font-size:30px;
+    font-weight: bold;
+}
+
+.ci_responders_header {
+    color:white;
+    font-size:30px;
+    font-weight: bold;
+}
+
+.ci_responders_user_link {
+    color:lime;
+}
+
+.ci_responders_map_link {
+    color:yellow;
+    font-size:33px;
+}
+.ci_respondnow {
+  -webkit-border-radius: 28;
+  -moz-border-radius: 28;
+  border-radius: 28px;
+  font-family: Arial;
+  color: black;
+  font-size: 45px;
+  background: yellow;
+  padding: 5px 15px 5px 15px;
+  text-decoration: none;
+ }
+
+.ci_completenow {
+  -webkit-border-radius: 28;
+  -moz-border-radius: 28;
+  border-radius: 28px;
+  font-family: Arial;
+  color: black;
+  font-size: 45px;
+  padding: 15px 15px 15px 15px;
+  text-decoration: none;
+  background-color:lime;
+}
+
+.ci_cancelnow {
+  -webkit-border-radius: 28;
+  -moz-border-radius: 28;
+  border-radius: 28px;
+  font-family: Arial;
+  color: white;
+  font-size: 45px;
+  padding: 15px 15px 15px 15px;
+  text-decoration: none;
+  background-color:red;
+}
+.google-maps {
+    position: relative;
+    #padding-bottom: 75%; // This is the aspect ratio
+    #height: 0;
+    #overflow: hidden;
+    width: 900 !important;
+    height: 600 !important;
+     
+}
+
+.google-maps iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+.responderTable    {
+        display: table;
+    }
+.Row    {
+        display: table-row;
+    }
+.responderCell    {
+        display: table-cell;
+        border: none;
+        border-width: thin;
+        padding-left: 5px;
+        padding-right: 5px;
+		color:yellow;
+		font-size:45px;
+		font-weight: bold;
+    }
