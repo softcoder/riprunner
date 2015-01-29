@@ -1,5 +1,6 @@
 ### LOCAL CONFIG FILES
 config.php
+config-jsmap-extras.php
 config-javascript-map.php
 php/apk/*
 .check_version
