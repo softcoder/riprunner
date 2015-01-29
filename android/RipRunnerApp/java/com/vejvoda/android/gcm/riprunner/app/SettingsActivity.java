@@ -72,7 +72,10 @@ public class SettingsActivity extends PreferenceActivity implements
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 
-		setupSimplePreferencesScreen();
+		boolean auto_update_settings = this.getIntent().getBooleanExtra(
+				"com.vejvoda.android.gcm.riprunner.app.auto_update_settings", false);
+		
+		setupSimplePreferencesScreen(auto_update_settings);
 	}
 
 	/**
@@ -80,7 +83,7 @@ public class SettingsActivity extends PreferenceActivity implements
 	 * device configuration dictates that a simplified, single-pane UI should be
 	 * shown.
 	 */
-	private void setupSimplePreferencesScreen() {
+	private void setupSimplePreferencesScreen(boolean auto_update_settings) {
 		if (!isSimplePreferences(this)) {
 			return;
 		}
@@ -90,6 +93,13 @@ public class SettingsActivity extends PreferenceActivity implements
 		setupGeneralPrefsUI();
 		
 		getGeneralSettingsDefaults();
+		
+		if(auto_update_settings) {
+	    	EditTextPreference host_url = (EditTextPreference)findPreference(AppConstants.PROPERTY_WEBSITE_URL);
+	    	if(host_url != null && host_url.getText() != "") {
+	        	getMobileAppSettingsFromWebsite(host_url);						
+	    	}
+		}		
 	}
 
     /**
@@ -180,182 +190,195 @@ public class SettingsActivity extends PreferenceActivity implements
             	
                 return true;
             }
-
-			void getMobileAppSettingsFromWebsite(EditTextPreference host_url) {
-				
-				// Original main URL for app info
-				final String URL_deprecated = host_url.getText() + "mobile_app_info.php";
-				// Latest main URL for app info
-				final String URL = host_url.getText() + "controllers/mobile-app-info-controller.php";
-				final Context context = getBaseContext();
-				
-				new Thread(new Runnable() {
-				    public void run() {            	
-				    	HttpClient httpclient = new DefaultHttpClient();
-						try {
-							Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner get defaults calling url [" + URL+ "]");
-							// Ask the website for the mobile app settings
-							HttpResponse response = httpclient.execute(new HttpGet(URL));
-							
-				            StatusLine statusLine = response.getStatusLine();
-				            if(statusLine.getStatusCode() == HttpStatus.SC_OK) {
-				                processMobileSettingsResponse(context, response);
-				            }
-				            else if(statusLine.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-				            	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner fallback get defaults calling url [" + URL_deprecated + "]");
-				            	
-				            	response = httpclient.execute(new HttpGet(URL_deprecated));
-				            	statusLine = response.getStatusLine();
-				            	if(statusLine.getStatusCode() == HttpStatus.SC_OK) {
-				            		processMobileSettingsResponse(context, response);
-				            	}
-				            }
-				            
-				            if(statusLine.getStatusCode() != HttpStatus.SC_OK) {
-				            	final String error = "code: " + statusLine.getStatusCode() + " msg: " + statusLine.getReasonPhrase();
-				            	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner get defaults got error [" + error + "]");
-				            	
-								runOnUiThread(new Runnable() {
-							        public void run() {
-										Toast.makeText(context, "*ERROR* receiving settings: " + error, Toast.LENGTH_LONG).show();
-							        }
-								});
-				            }
-						} 
-						catch (ClientProtocolException e) {
-							Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
-				        	Toast.makeText(context, "#2 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
-						} 
-						catch (IOException e) {
-							Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
-							Toast.makeText(context, "#3 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
-						} 
-						catch (JSONException e) {
-							Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
-							Toast.makeText(context, "#4 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
-						}
-				    }
-
-					void processMobileSettingsResponse(final Context context,
-							HttpResponse response) throws IOException,
-							JSONException {
-						ByteArrayOutputStream out = new ByteArrayOutputStream();
-						response.getEntity().writeTo(out);
-						out.close();
-						
-						final int current_client_android_versionCode = getAppVersion(context);
-						// Parse the JSON results
-						final String responseString = out.toString().trim();
-						Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner get defaults got response [" + responseString + "]");
-						
-						if(responseString != null && responseString.startsWith("{")) {
-							final JSONObject json = new JSONObject( responseString );
-							
-							runOnUiThread(new Runnable() {
-						        public void run() {
-						        	EditTextPreference sender_id = (EditTextPreference)findPreference(AppConstants.PROPERTY_SENDER_ID);
-						        	CheckBoxPreference tracking_enabled = (CheckBoxPreference)findPreference(AppConstants.PROPERTY_TRACKING_ENABLED);
-						        	try {
-										sender_id.setText(json.getString("gcm-projectid"));
-										
-										if(Integer.valueOf(json.getString("tracking-enabled")) != 0) {
-											tracking_enabled.setChecked(true);
-										}
-										else {
-											tracking_enabled.setChecked(false);
-										}
-										
-										if(json.has(AppConstants.PROPERTY_LOGIN_PAGE_URI)) {
-											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-											SharedPreferences.Editor editor = sharedPrefs.edit();
-											editor.putString(AppConstants.PROPERTY_LOGIN_PAGE_URI, json.getString(AppConstants.PROPERTY_LOGIN_PAGE_URI));
-											editor.commit();
-										}
-										else {
-											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-											SharedPreferences.Editor editor = sharedPrefs.edit();
-											editor.putString(AppConstants.PROPERTY_LOGIN_PAGE_URI, "register_device.php");
-											editor.commit();
-										}
-										if(json.has(AppConstants.PROPERTY_CALLOUT_PAGE_URI)) {
-											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-											SharedPreferences.Editor editor = sharedPrefs.edit();
-											editor.putString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, json.getString(AppConstants.PROPERTY_CALLOUT_PAGE_URI));
-											editor.commit();
-										}
-										else {
-											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-											SharedPreferences.Editor editor = sharedPrefs.edit();
-											editor.putString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, "ci.php");
-											editor.commit();
-										}
-										
-										if(json.has(AppConstants.PROPERTY_RESPOND_PAGE_URI)) {
-											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-											SharedPreferences.Editor editor = sharedPrefs.edit();
-											editor.putString(AppConstants.PROPERTY_RESPOND_PAGE_URI, json.getString(AppConstants.PROPERTY_RESPOND_PAGE_URI));
-											editor.commit();
-										}
-										else {
-											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-											SharedPreferences.Editor editor = sharedPrefs.edit();
-											editor.putString(AppConstants.PROPERTY_RESPOND_PAGE_URI, "cr.php");
-											editor.commit();
-										}
-										
-										if(json.has(AppConstants.PROPERTY_TRACKING_PAGE_URI)) {
-											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-											SharedPreferences.Editor editor = sharedPrefs.edit();
-											editor.putString(AppConstants.PROPERTY_TRACKING_PAGE_URI, json.getString(AppConstants.PROPERTY_TRACKING_PAGE_URI));
-											editor.commit();
-										}
-										else {
-											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-											SharedPreferences.Editor editor = sharedPrefs.edit();
-											editor.putString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct.php");
-											editor.commit();
-										}
-
-										if(json.has(AppConstants.PROPERTY_KML_PAGE_URI)) {
-											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-											SharedPreferences.Editor editor = sharedPrefs.edit();
-											editor.putString(AppConstants.PROPERTY_KML_PAGE_URI, json.getString(AppConstants.PROPERTY_KML_PAGE_URI));
-											editor.commit();
-										}
-										else {
-											SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-											SharedPreferences.Editor editor = sharedPrefs.edit();
-											editor.putString(AppConstants.PROPERTY_KML_PAGE_URI, "");
-											editor.commit();
-										}
-										
-										Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Successfully received app settings.");
-										Toast.makeText(context, "Successfully received app settings.", Toast.LENGTH_LONG).show();
-										
-										if(json.has("android:versionCode")) {
-											int current_server_android_versionCode = json.getInt("android:versionCode");
-											Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner client ver [" + current_server_android_versionCode + "] server [" + current_server_android_versionCode + "]");
-											
-											if(current_server_android_versionCode > current_client_android_versionCode) {
-												createAndShowUpgradeDialog(getResources().getString(R.string.upgrade_message));
-											}
-										}
-									} 
-						        	catch (JSONException e) {
-						        		Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
-						            	Toast.makeText(context, "#1 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
-									}
-						        	catch (Exception e) {
-						        		Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
-						            	Toast.makeText(context, "#2 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
-						        	}
-						        }
-						    });
-						}
-					}
-				  }).start();
-			}
         });
+	}
+
+	private void getMobileAppSettingsFromWebsite(EditTextPreference host_url) {
+		
+		// Original main URL for app info
+		final String URL_deprecated = host_url.getText() + "mobile_app_info.php";
+		// Latest main URL for app info
+		final String URL = host_url.getText() + "controllers/mobile-app-info-controller.php";
+		final Context context = getBaseContext();
+		
+		new Thread(new Runnable() {
+		    public void run() {            	
+		    	HttpClient httpclient = new DefaultHttpClient();
+				try {
+					Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner get defaults calling url [" + URL+ "]");
+					// Ask the website for the mobile app settings
+					HttpResponse response = httpclient.execute(new HttpGet(URL));
+					
+		            StatusLine statusLine = response.getStatusLine();
+		            if(statusLine.getStatusCode() == HttpStatus.SC_OK) {
+		                processMobileSettingsResponse(context, response);
+		            }
+		            else if(statusLine.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+		            	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner fallback get defaults calling url [" + URL_deprecated + "]");
+		            	
+		            	response = httpclient.execute(new HttpGet(URL_deprecated));
+		            	statusLine = response.getStatusLine();
+		            	if(statusLine.getStatusCode() == HttpStatus.SC_OK) {
+		            		processMobileSettingsResponse(context, response);
+		            	}
+		            }
+		            
+		            if(statusLine.getStatusCode() != HttpStatus.SC_OK) {
+		            	final String error = "code: " + statusLine.getStatusCode() + " msg: " + statusLine.getReasonPhrase();
+		            	Log.e(Utils.TAG, Utils.getLineNumber() + ": Rip Runner get defaults got error [" + error + "]");
+		            	
+						runOnUiThread(new Runnable() {
+					        public void run() {
+								Toast.makeText(context, "*ERROR* receiving settings: " + error, Toast.LENGTH_LONG).show();
+					        }
+						});
+		            }
+				} 
+				catch (ClientProtocolException e) {
+					Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
+		        	Toast.makeText(context, "#2 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+				} 
+				catch (IOException e) {
+					Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
+					Toast.makeText(context, "#3 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+				} 
+				catch (JSONException e) {
+					Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
+					Toast.makeText(context, "#4 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+				}
+		    }
+
+			void processMobileSettingsResponse(final Context context,
+					HttpResponse response) throws IOException,
+					JSONException {
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				response.getEntity().writeTo(out);
+				out.close();
+				
+				final int current_client_android_versionCode = getAppVersion(context);
+				// Parse the JSON results
+				final String responseString = out.toString().trim();
+				Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner get defaults got response [" + responseString + "]");
+				
+				if(responseString != null && responseString.startsWith("{")) {
+					final JSONObject json = new JSONObject( responseString );
+					
+					runOnUiThread(new Runnable() {
+				        public void run() {
+				        	EditTextPreference sender_id = (EditTextPreference)findPreference(AppConstants.PROPERTY_SENDER_ID);
+				        	CheckBoxPreference tracking_enabled = (CheckBoxPreference)findPreference(AppConstants.PROPERTY_TRACKING_ENABLED);
+				        	try {
+								sender_id.setText(json.getString("gcm-projectid"));
+								
+								if(Integer.valueOf(json.getString("tracking-enabled")) != 0) {
+									tracking_enabled.setChecked(true);
+								}
+								else {
+									tracking_enabled.setChecked(false);
+								}
+								
+								if(json.has(AppConstants.PROPERTY_LOGIN_PAGE_URI)) {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_LOGIN_PAGE_URI, json.getString(AppConstants.PROPERTY_LOGIN_PAGE_URI));
+									editor.commit();
+								}
+								else {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_LOGIN_PAGE_URI, "register_device.php");
+									editor.commit();
+								}
+								if(json.has(AppConstants.PROPERTY_CALLOUT_PAGE_URI)) {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, json.getString(AppConstants.PROPERTY_CALLOUT_PAGE_URI));
+									editor.commit();
+								}
+								else {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, "ci.php");
+									editor.commit();
+								}
+								
+								if(json.has(AppConstants.PROPERTY_RESPOND_PAGE_URI)) {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_RESPOND_PAGE_URI, json.getString(AppConstants.PROPERTY_RESPOND_PAGE_URI));
+									editor.commit();
+								}
+								else {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_RESPOND_PAGE_URI, "cr.php");
+									editor.commit();
+								}
+								
+								if(json.has(AppConstants.PROPERTY_TRACKING_PAGE_URI)) {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_TRACKING_PAGE_URI, json.getString(AppConstants.PROPERTY_TRACKING_PAGE_URI));
+									editor.commit();
+								}
+								else {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct.php");
+									editor.commit();
+								}
+
+								if(json.has(AppConstants.PROPERTY_KML_PAGE_URI)) {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_KML_PAGE_URI, json.getString(AppConstants.PROPERTY_KML_PAGE_URI));
+									editor.commit();
+								}
+								else {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_KML_PAGE_URI, "");
+									editor.commit();
+								}
+
+								if(json.has(AppConstants.PROPERTY_ANDROID_ERROR_PAGE_URI)) {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_ANDROID_ERROR_PAGE_URI, json.getString(AppConstants.PROPERTY_ANDROID_ERROR_PAGE_URI));
+									editor.commit();
+								}
+								else {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_ANDROID_ERROR_PAGE_URI, "");
+									editor.commit();
+								}
+								
+								Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Successfully received app settings.");
+								Toast.makeText(context, "Successfully received app settings.", Toast.LENGTH_LONG).show();
+								
+								if(json.has("android:versionCode")) {
+									int current_server_android_versionCode = json.getInt("android:versionCode");
+									Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner client ver [" + current_server_android_versionCode + "] server [" + current_server_android_versionCode + "]");
+									
+									if(current_server_android_versionCode > current_client_android_versionCode) {
+										createAndShowUpgradeDialog(getResources().getString(R.string.upgrade_message));
+									}
+								}
+							} 
+				        	catch (JSONException e) {
+				        		Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
+				            	Toast.makeText(context, "#1 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+							}
+				        	catch (Exception e) {
+				        		Log.e(Utils.TAG, Utils.getLineNumber() + " RipRunner Error ", e);
+				            	Toast.makeText(context, "#2 Error getting defaults:" +  e.getMessage(), Toast.LENGTH_LONG).show();
+				        	}
+				        }
+				    });
+				}
+			}
+		  }).start();
 	}
 	
 	 private void createAndShowUpgradeDialog(final String title) {

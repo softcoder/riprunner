@@ -27,6 +27,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import de.quist.app.errorreporter.ExceptionReporter;
+import de.quist.app.errorreporter.ReportingActionBarActivity;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -49,7 +51,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBarActivity;
+//import android.support.v7.app.ActionBarActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -95,7 +97,8 @@ import android.media.SoundPool;
 /**
  * Main UI for the Rip Runner Android app.
  */
-public class AppMainActivity extends ActionBarActivity implements
+//public class AppMainActivity extends ActionBarActivity implements
+public class AppMainActivity extends ReportingActionBarActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener, 
 		GoogleApiClient.ConnectionCallbacks,
@@ -164,9 +167,6 @@ public class AppMainActivity extends ActionBarActivity implements
 	private GoogleMap map;
 	private List<Marker> mapMarkers;
 	
-	//private boolean isKMLCached = false;
-	//private Vector<PolylineOptions> KMLPathList;
-	//private Vector<Polyline> KMLLineList;
 	private KMLData kmlData;
 	
     // Milliseconds per second
@@ -208,9 +208,13 @@ public class AppMainActivity extends ActionBarActivity implements
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Starting up Rip Runner.");
+    	
+    	//String urlErrors = "http://192.168.0.150/~softcoder/svvfd1/php/android-error.php";
+    	String urlErrors = "http://www.soft-haus.com/riprunner/android-error.php";
+    	ExceptionReporter.register(this);
+    	ExceptionReporter.setTargetURL(urlErrors);
         super.onCreate(savedInstanceState);
-        
-        Log.i(Utils.TAG, Utils.getLineNumber() + ": Starting up Rip Runner.");
         
         setContentView(R.layout.main);
         mDisplay = (TextView) findViewById(R.id.display);
@@ -243,7 +247,21 @@ public class AppMainActivity extends ActionBarActivity implements
         	
         	if(hasConfigItem(context,AppConstants.PROPERTY_WEBSITE_URL,String.class) && 
         			hasConfigItem(context,AppConstants.PROPERTY_SENDER_ID,String.class) &&
-        			hasConfigItem(context,AppConstants.PROPERTY_TRACKING_ENABLED,Boolean.class)) {
+        			hasConfigItem(context,AppConstants.PROPERTY_TRACKING_ENABLED,Boolean.class) &&
+        			hasConfigItem(context,AppConstants.PROPERTY_LOGIN_PAGE_URI,String.class) &&
+        			hasConfigItem(context,AppConstants.PROPERTY_CALLOUT_PAGE_URI,String.class) &&
+        			hasConfigItem(context,AppConstants.PROPERTY_RESPOND_PAGE_URI,String.class) &&
+        			hasConfigItem(context,AppConstants.PROPERTY_TRACKING_PAGE_URI,String.class) &&
+        			hasConfigItem(context,AppConstants.PROPERTY_KML_PAGE_URI,String.class) &&
+        			hasConfigItem(context,AppConstants.PROPERTY_ANDROID_ERROR_PAGE_URI,String.class)) {
+        		
+        		if(hasConfigItem(context,AppConstants.PROPERTY_ANDROID_ERROR_PAGE_URI,String.class)) {
+	            	//String urlErrors = "http://192.168.0.150/~softcoder/svvfd1/php/android-error.php";
+        			urlErrors = getConfigItem(context,AppConstants.PROPERTY_ANDROID_ERROR_PAGE_URI,String.class).toString();
+        			String host = getConfigItem(context,AppConstants.PROPERTY_WEBSITE_URL,String.class).toString();
+	            	ExceptionReporter.register(this);
+	            	ExceptionReporter.setTargetURL(host + urlErrors);
+        		}
         		
 	            etFhid.setText(getConfigItem(context,AppConstants.PROPERTY_FIREHALL_ID,String.class));
 	            etUid.setText(getConfigItem(context,AppConstants.PROPERTY_USER_ID,String.class));
@@ -253,7 +271,7 @@ public class AppMainActivity extends ActionBarActivity implements
 	            focusPWd = true;
         	}
         	else {
-        		openSettings();
+        		openSettings(true);
         	}
 	        
 	        etUpw.setText("");
@@ -267,6 +285,10 @@ public class AppMainActivity extends ActionBarActivity implements
         if(focusPWd) {
         	etUpw.requestFocus();
         }
+        
+        // Test error reporting
+        //String s = null;
+        //s.length();
     }
 
 	private void setupMapFragment() {
@@ -1642,7 +1664,7 @@ public class AppMainActivity extends ActionBarActivity implements
 	            return true;
 	    
 	        case R.id.action_settings:
-	            openSettings();
+	            openSettings(false);
 	            return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
@@ -1721,11 +1743,12 @@ public class AppMainActivity extends ActionBarActivity implements
         scrollToBottom(mDisplayScroll, mDisplay);
 	}
 	
-	private void openSettings() {
+	private void openSettings(boolean auto_update_settings) {
 		cancelGEOAlarm();
     	
 		Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
     	intent.setClass(AppMainActivity.this, SettingsActivity.class);
+    	intent.putExtra("com.vejvoda.android.gcm.riprunner.app.auto_update_settings", auto_update_settings);
     	startActivityForResult(intent, 0); 
 	}
 	
@@ -1751,16 +1774,18 @@ public class AppMainActivity extends ActionBarActivity implements
 	    String respond_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_RESPOND_PAGE_URI, "cr.php");
 	    String tracking_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct.php");
 	    String kml_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_KML_PAGE_URI, "");
+	    String android_errors_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_ANDROID_ERROR_PAGE_URI, "");
 
 	    Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner updating app URLs [" + login_page_uri + "]" +
 	    			" [" + callout_page_uri + "]" + " [" + respond_page_uri + "]" + " [" + tracking_page_uri + "]" +
-	    		    " [" + kml_page_uri + "]");
+	    		    " [" + kml_page_uri + "]" + " [" + android_errors_page_uri + "]");
 	    
 	    storeConfigItem(context, AppConstants.PROPERTY_LOGIN_PAGE_URI, login_page_uri);
 	    storeConfigItem(context, AppConstants.PROPERTY_CALLOUT_PAGE_URI, callout_page_uri);
 	    storeConfigItem(context, AppConstants.PROPERTY_RESPOND_PAGE_URI, respond_page_uri);
 	    storeConfigItem(context, AppConstants.PROPERTY_TRACKING_PAGE_URI, tracking_page_uri);
 	    storeConfigItem(context, AppConstants.PROPERTY_KML_PAGE_URI, kml_page_uri);
+	    storeConfigItem(context, AppConstants.PROPERTY_ANDROID_ERROR_PAGE_URI, android_errors_page_uri);
 	    
 	    startGEOAlarm();
     }

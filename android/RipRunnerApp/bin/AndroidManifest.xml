@@ -16,8 +16,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.vejvoda.android.gcm.riprunner.app"
-    android:versionCode="4"
-    android:versionName="1.3" >
+    android:versionCode="6"
+    android:versionName="1.5" >
 
     <!-- GCM requires Android SDK version 2.2 (API level 8) or above. -->
     <!--
@@ -76,6 +76,15 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <service
+            android:name="de.quist.app.errorreporter.ExceptionReportService"
+            android:process=":exceptionReporter"/>
+    
+	    <activity
+	        android:name="de.quist.app.errorreporter.ExceptionReportActivity"
+	        android:process=":exceptionReporter"
+	        android:theme="@android:style/Theme.NoDisplay"/>        
 
         <activity
             android:name=".AppMainActivity"
