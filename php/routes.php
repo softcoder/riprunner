@@ -88,5 +88,27 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 		\Flight::redirect($root_url .'ct.php?' . $params);
 	}
 });
+
+\Flight::route('GET|POST /android-error(/@params)', function($params) {
+	//global $FIREHALLS;
+	$query = array();
+	parse_str($params, $query);
+	//$root_url = getFirehallRootURLFromRequest(\Flight::request()->url,$FIREHALLS);
+
+	echo "Got android errors\n${params}" . PHP_EOL;
 	
+	if(DEFAULT_SITE_VERSION == NEWEST_SITE_VERSION) {
+		//\Flight::redirect($root_url .'controllers/callout-tracking-controller.php?' . $params);
+	}
+	else {
+		//\Flight::redirect($root_url .'ct.php?' . $params);
+	}
+});
+	
+\Flight::map('notFound', function(){
+	// Handle not found
+	echo "route NOT FOUND!" . PHP_EOL;
+});
+		
+\Flight::set('flight.log_errors', true);	
 \Flight::start();
