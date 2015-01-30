@@ -16,11 +16,11 @@ require_once( 'config_constants.php' );
 require_once( 'config-jsmap-extras.php' );
 
 // ====================================================================================================
-// === 							CUSTOMZIABLE TEXT AND HTML TAGS										===
+// ===                           CUSTOMZIABLE TEXT AND HTML TAGS                                    ===
 // ====================================================================================================
-// === TO PRESERVE CUSTOM STYLES ACROSS UPGRADES, UNCOMMENT THE CUSTOM LINES AND EDIT THE FILES		===
-// === STYLES DEFINED IN CALLOUT-MAIN.CSS AND CALLOUT-MOBILE.CSS CAN BE COPIED TO THE CUSTOM FILE	===
-// === AND THEY WILL OVERRIDE ANYTHING PREVIOUSLY DEFINED											===
+// === TO PRESERVE CUSTOM STYLES ACROSS UPGRADES, UNCOMMENT THE CUSTOM LINES AND EDIT THE FILES     ===
+// === STYLES DEFINED IN CALLOUT-MAIN.CSS AND CALLOUT-MOBILE.CSS CAN BE COPIED TO THE CUSTOM FILE   ===
+// === AND THEY WILL OVERRIDE ANYTHING PREVIOUSLY DEFINED                                           ===
 // ====================================================================================================
 
 define( 'CALLOUT_MAIN_CSS', 'styles/callout-main.css');
@@ -37,10 +37,10 @@ define( 'CALLOUT_HEADER', '<span class="ci_header">Call Details  </span>');
 // ====================================================================================================
 // === VALID CHOICES ARE "javascript" OR "iframe". JAVASCRIPT MAPS HAVE MANY MORE CONFIGURABLE      ===
 // === OPTIONS SUCH AS OVERLAYS: EG. MUTAUAL AID BOUNDARIES, OR MARKERS TO IDENTIFY LANDMARKS       ===
-// === SUCH AS WATER SOURCES OR HYDRANT LOCATIONS. 						 		                    ===
+// === SUCH AS WATER SOURCES OR HYDRANT LOCATIONS.                                                  ===
 // ===                                                                                              ===
 // === IF JAVASCRIPT, RENAME "config-jsmap-extras-DEFAULT.php" TO: "config-jsmap-extras.php"        ===
-// === AND EDIT OPTIONS TO ENABLE ADVANCED FEATRUES SUCH AS OVERLAY AND MARKERS				        ===
+// === AND EDIT OPTIONS TO ENABLE ADVANCED FEATRUES SUCH AS OVERLAY AND MARKERS                     ===
 // ====================================================================================================
 
 $google_map_type = "javascript";
