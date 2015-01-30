@@ -184,6 +184,13 @@ if(isset($firehall_id)) {
 				
 				if ($google_map_type == "javascript") {
 					$url = str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_JAVASCRIPT_BODY);
+						if ($enablewatersources == "yes"){
+							$url = str_replace('//${WATERSOURCE_LIST}', WATER_SOURCES, $url);
+							$url = str_replace('//${WATERSOURCE_CODE}', WATER_SOURCES_CODE, $url);
+						}
+						if ($enablekmloverlay == "yes") {
+							$url = str_replace('//${KMLOVERLAY}', KML_OVERLAY, $url);
+						}
 					$url = str_replace('${FDLOCATION}', $fdLocation, $url);
 					$url = str_replace('${DESTINATION}', $callDest, $url);
 					$url = str_replace('${CALLORIGIN}', $callOrigin, $url);

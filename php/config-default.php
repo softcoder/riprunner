@@ -13,14 +13,15 @@ if ( !defined('INCLUSION_PERMITTED') ||
 
 require_once( 'config_interfaces.php' );
 require_once( 'config_constants.php' );
+require_once( 'config-jsmap-extras.php' );
 
-// ==============================================================
-
-// ----------------------------------------------------------------------
-// Customziable Text and HTML Tags
-// To preserve your custom styles across upgrades, uncomment the CUSTOM lines and edit those files.
-// styles defined in callout-main.css and callout-mobile.css can be copied to the CUSTOM file
-// and they will override anything previously defined
+// ====================================================================================================
+// ===                           CUSTOMZIABLE TEXT AND HTML TAGS                                    ===
+// ====================================================================================================
+// === TO PRESERVE CUSTOM STYLES ACROSS UPGRADES, UNCOMMENT THE CUSTOM LINES AND EDIT THE FILES     ===
+// === STYLES DEFINED IN CALLOUT-MAIN.CSS AND CALLOUT-MOBILE.CSS CAN BE COPIED TO THE CUSTOM FILE   ===
+// === AND THEY WILL OVERRIDE ANYTHING PREVIOUSLY DEFINED                                           ===
+// ====================================================================================================
 
 define( 'CALLOUT_MAIN_CSS', 'styles/callout-main.css');
 //define( 'CUSTOM_CALLOUT_MAIN_CSS','styles/custom-callout-main.css');
@@ -31,14 +32,23 @@ define( 'CALLOUT_MOBILE_CSS', 'styles/callout-mobile.css');
 // Call Information page header
 define( 'CALLOUT_HEADER', '<span class="ci_header">Call Details  </span>');
 
-// valid choices are "javascript" or "iframe"
-// Javascript Maps have much more configuration options with the file 
-// defined in GOOGLE_MAP_JAVASCRIPT_BODY
-// EDIT AND RENAME  js/config-javascript-map-default.php to js/config-javascript-map.php and make changes
-// to show water locations if desired, and uncomment overlay line if you wish to add an kml overlay
-// such as boundaries.
+// ====================================================================================================
+// ===                     ENABLE JAVASCRIPT OR IFRAME MAPPING STYLES                               ===
+// ====================================================================================================
+// === VALID CHOICES ARE "javascript" OR "iframe". JAVASCRIPT MAPS HAVE MANY MORE CONFIGURABLE      ===
+// === OPTIONS SUCH AS OVERLAYS: EG. MUTAUAL AID BOUNDARIES, OR MARKERS TO IDENTIFY LANDMARKS       ===
+// === SUCH AS WATER SOURCES OR HYDRANT LOCATIONS.                                                  ===
+// ===                                                                                              ===
+// === IF JAVASCRIPT, RENAME "config-jsmap-extras-DEFAULT.php" TO: "config-jsmap-extras.php"        ===
+// === AND EDIT OPTIONS TO ENABLE ADVANCED FEATRUES SUCH AS OVERLAY AND MARKERS                     ===
+// ====================================================================================================
 
 $google_map_type = "javascript";
+
+// ====================================================================================================
+// ===--------------EDIT BLOCKS BELOW ONLY IF YOU KNOW WHAT YOUR DOING------------------------------===
+// ===--------------MORE USER OPTIONS ARE FURTHER DOWN ---------------------------------------------===
+// ====================================================================================================
 
 define( 'GOOGLE_MAP_JAVASCRIPT_HEAD',
 		'<script type="text/javascript"' . PHP_EOL .
@@ -56,8 +66,11 @@ define( 'GOOGLE_MAP_INLINE_TAG',
 		'&mode=driving&zoom=11&origin=${FDLOCATION}' .
 		'&destination=${DESTINATION}"></iframe>' . PHP_EOL .
 		'</div>' . PHP_EOL);
-
+// ====================================================================================================
+// ====================================================================================================
+// ====================================================================================================
 // This callout details
+
 define( 'CALLOUT_DETAIL_ROW',
 		'<div id="callContent${ROW_NUMBER}">' . PHP_EOL .
 		'<span class="ci_header_time">Page Time: ${CALLOUT_TIME}</span><br />' . PHP_EOL .
@@ -260,8 +273,13 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 		"WILLOW RIVER VALLEY," => "WILLOW RIVER,",
 		"WOODPECKER," => GOOGLE_MAP_CITY_DEFAULT
 	);
-		
-	// ----------------------------------------------------------------------
+	
+	
+// =============================================================================================
+// ===--------------EDIT BLOCKS BELOW TO COMPLETE THE SETUP FOR YOUR SITE--------------------===
+// =============================================================================================
+
+
 	// Email Settings
 	define( 'DEFAULT_EMAIL_FROM_TRIGGER', '');
 	
