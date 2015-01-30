@@ -13,10 +13,18 @@ abstract class BaseViewModel {
 
 	// Global View Model Reference
 	private $gvm;
+	private $view_template_vars;
 	
 	function __construct($gvm=null,&$view_template_vars=null) { 
 		$this->gvm = $gvm;
+		
 		$this->registerVars($view_template_vars);
+		
+		$this->view_template_vars = $view_template_vars;
+	}
+	
+	protected function getModelValue($name) {
+		return $this->view_template_vars[$name];
 	}
 	
 	public function registerVars(&$view_template_vars) {
