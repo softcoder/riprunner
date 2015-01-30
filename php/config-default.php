@@ -44,6 +44,8 @@ define( 'CALLOUT_HEADER', '<span class="ci_header">Call Details  </span>');
 // ====================================================================================================
 
 $google_map_type = "javascript";
+$enablewatersources = "no";
+$enablekmloverlay = "no";
 
 // ====================================================================================================
 // ===--------------EDIT BLOCKS BELOW ONLY IF YOU KNOW WHAT YOUR DOING------------------------------===
