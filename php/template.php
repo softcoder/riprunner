@@ -13,7 +13,9 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/Twig/Autoloader.php';
 $twig_template_loader = new \Twig_Loader_Filesystem(
 		__RIPRUNNER_ROOT__ . '/views');
 // This allows customized views to be placed in the folder below
-$twig_template_loader->addPath(__RIPRUNNER_ROOT__ . '/views-custom', 'custom');
+if(file_exists(__RIPRUNNER_ROOT__ . '/views-custom')) {
+	$twig_template_loader->addPath(__RIPRUNNER_ROOT__ . '/views-custom', 'custom');
+}
 
 $twig = new \Twig_Environment($twig_template_loader, array(
 	'cache' => __RIPRUNNER_ROOT__ . '/temp/twig',

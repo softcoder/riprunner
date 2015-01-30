@@ -80,13 +80,30 @@
 		        
 		        </div>
             
-		        <div class="google-maps">
-		          {% block callout_inline_map %} 
-		          <iframe frameborder="1" style="border:1"  
-		              src="https://www.google.com/maps/embed/v1/directions?key={{ callout_details_vm.firehall.WEBSITE.WEBSITE_GOOGLE_MAP_API_KEY }}&mode=driving&zoom=11&origin={{ callout_details_vm.firehall.WEBSITE.FIREHALL_HOME_ADDRESS }}&destination={{ row.callout_address_dest }}">
-		          </iframe>
+                {% if callout_details_vm.google_map_type == 'javascript' %}
+
+		          {% block callout_js_inline_map %}
+		          
+		          {% include 'google-map-js-api.twig.html' with 
+		             { 'CALLORIGIN' : row.callout_geo_dest, 
+		               'DESTINATION' : row.callout_address_dest,
+		               'FDLOCATION' : callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE ~ 
+		                              ',' ~ 
+		                              callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE }
+		          %}
+		           
 		          {% endblock %}
-		        </div>
+		        
+		        {% else %}
+                <div class="google-maps">
+                  {% block callout_inline_map %} 
+                  <iframe frameborder="1" style="border:1"  
+                      src="https://www.google.com/maps/embed/v1/directions?key={{ callout_details_vm.firehall.WEBSITE.WEBSITE_GOOGLE_MAP_API_KEY }}&mode=driving&zoom=11&origin={{ callout_details_vm.firehall.WEBSITE.FIREHALL_HOME_ADDRESS }}&destination={{ row.callout_address_dest }}">
+                  </iframe>
+                  {% endblock %}
+                </div>
+		        
+		        {% endif %}
                 
                 {% if callout_details_vm.calloutkey_id is defined and 
                       callout_details_vm.calloutkey_id != null and 

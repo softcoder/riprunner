@@ -23,6 +23,8 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
+		global $google_map_type;
+		
 		if('firehall_id' == $name) {
 			return $this->getFirehallId();
 		}
@@ -59,6 +61,9 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		if('callout_details_end_responding_list' == $name) {
 			return $this->getCalloutDetailsEndRespondingList();
 		}
+		if('google_map_type' == $name) {
+			return $google_map_type;
+		}
 		
 		return parent::__get($name);
 	}
@@ -68,7 +73,8 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			array('firehall_id','firehall','callout_id','calloutkey_id', 'member_id',
 				  'callout_responding_user_id', 'callout_status_complete', 'callout_status_cancel',
 			      'callout_details_list','callout_details_responding_list',
-				  'callout_details_not_responding_list', 'callout_details_end_responding_list'
+				  'callout_details_not_responding_list', 'callout_details_end_responding_list',
+				  'google_map_type'
 			))) {
 			return true;
 		}
@@ -168,6 +174,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	 				else {
 	 					$row['callout_address_dest'] = getAddressForMapping($this->getFirehall(),$row['address']);
 	 				}
+	 				$row['callout_geo_dest'] = $row['latitude'] . ',' . $row['longitude'];
 	 				
 					$results[] = $row;
 				}
