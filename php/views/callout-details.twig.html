@@ -84,12 +84,13 @@
 
 		          {% block callout_js_inline_map %}
 		          
-		          {% include 'google-map-js-api.twig.html' with 
+		          {% include ['@custom/google-map-js-api-custom.twig.html', 'google-map-js-api.twig.html'] with 
 		             { 'CALLORIGIN' : row.callout_geo_dest, 
 		               'DESTINATION' : row.callout_address_dest,
 		               'FDLOCATION' : callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE ~ 
 		                              ',' ~ 
-		                              callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE }
+		                              callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE,
+		               'WEB_ROOT' : callout_details_vm.firehall.WEBSITE.WEBSITE_ROOT_URL }
 		          %}
 		           
 		          {% endblock %}
