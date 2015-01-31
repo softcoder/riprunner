@@ -11,9 +11,6 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	die( 'This file must not be invoked directly.' ); 
 }
 
-require_once( 'config_interfaces.php' );
-require_once( 'config_constants.php' );
-
 
 // ===============================================================================================
 // === EDIT THE VALUES BELOW TO INCLUDE YOUR WATER SOURCE LOCATIONS ON YOUR MAP                ===
@@ -28,7 +25,8 @@ $watersourcecolor = "blue";
 
 define(	'WATER_SOURCES',
 		'var waterSource = [' . PHP_EOL .
-		'		[\'Community Park - 8000L\', 53.963694, -122.567766, 1]' . PHP_EOL .
+		'		["WATERSOURCE ONE - 10,000L", 53.963694, -122.567766, 1]' . PHP_EOL .
+		'		["WATERSOURCE TWO - 20,000L", 53.963690, -122.567760, 2]' . PHP_EOL .
 		'	];' . PHP_EOL
 );
 
@@ -41,7 +39,7 @@ define(	'WATER_SOURCES',
 // ===============================================================================================
 
 $enablekmloverlay = "no";
-$kmlhttplocation = "http://www.example.com/yourkmlfile.kml";
+$kmlhttplocation = "http://www.example.com/kml/myoverlay.kml";
 
 
 
@@ -81,11 +79,11 @@ define('WATER_SOURCES_CODE',
 
 
 define ('KML_OVERLAY',
-		'	var boundaryLayer = new google.maps.KmlLayer({' . PHP_EOL .
-		'	url: \'' . $kmlhttplocation . '\',' . PHP_EOL .
-		'	preserveViewport: true,' . PHP_EOL .
-		'	supressInfoWindows: true' . PHP_EOL .
+		'var boundaryLayer = new google.maps.KmlLayer({' . PHP_EOL .
+		'		url: \'' . $kmlhttplocation . '\',' . PHP_EOL .
+		'		preserveViewport: true,' . PHP_EOL .
+		'		supressInfoWindows: true' . PHP_EOL .
 		'	});' . PHP_EOL .
-		'boundaryLayer.setMap(map);'. PHP_EOL
+		'	boundaryLayer.setMap(map);'. PHP_EOL
 );
 ?>

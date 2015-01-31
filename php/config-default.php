@@ -13,7 +13,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 
 require_once( 'config_interfaces.php' );
 require_once( 'config_constants.php' );
-require_once( 'config-jsmap-extras.php' );
+if(file_exists('config-jsmap-extras.php')) require_once('config-jsmap-extras.php');
 
 // ====================================================================================================
 // ===                           CUSTOMZIABLE TEXT AND HTML TAGS                                    ===
@@ -44,8 +44,6 @@ define( 'CALLOUT_HEADER', '<span class="ci_header">Call Details  </span>');
 // ====================================================================================================
 
 $google_map_type = "javascript";
-$enablewatersources = "no";
-$enablekmloverlay = "no";
 
 // ====================================================================================================
 // ===--------------EDIT BLOCKS BELOW ONLY IF YOU KNOW WHAT YOUR DOING------------------------------===
@@ -58,7 +56,7 @@ define( 'GOOGLE_MAP_JAVASCRIPT_HEAD',
 		'</script>' . PHP_EOL
 );
 
-define('GOOGLE_MAP_JAVASCRIPT_BODY', file_get_contents(__RIPRUNNER_ROOT__ . '/js/config-javascript-map.php'));
+define('GOOGLE_MAP_JAVASCRIPT_BODY', file_get_contents(__RIPRUNNER_ROOT__ . '/js/js-map.js'));
 
 
 define( 'GOOGLE_MAP_INLINE_TAG',
