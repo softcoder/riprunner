@@ -227,20 +227,30 @@ class LoginDeviceViewModel extends BaseViewModel {
 		$callGPSLat = $this->live_callout[0]['latitude'];
 		$callGPSLong = $this->live_callout[0]['longitude'];
 		$callUnitsResponding = $this->live_callout[0]['units'];
-		$callType = convertCallOutTypeToText($callCode);
+		//$callType = convertCallOutTypeToText($callCode);
 		$callout_id = $this->live_callout[0]['id'];
 		$callKey = $this->live_callout[0]['call_key'];
 		$callStatus = $this->live_callout[0]['status'];
 		
-		// Send Callout details to logged in user only
-		$gcmMsg = getGCMCalloutMessage($this->getFirehall(),$callDateTimeNative,
-				$callCode, $callAddress, $callGPSLat, $callGPSLong,
-				$callUnitsResponding, $callType, $callout_id, $callKey);
+		$callout = new \riprunner\CalloutDetails();
+		$callout->setFirehall($this->getFirehall());
+		$callout->setDateTime($callDateTimeNative);
+		$callout->setCode($callCode);
+		$callout->setAddress($callAddress);
+		$callout->setGPSLat($callGPSLat);
+		$callout->setGPSLong($callGPSLong);
+		$callout->setUnitsResponding($callUnitsResponding);
+		$callout->setId($callout_id);
+		$callout->setKeyId($callKey);
+		$callout->setStatus($callStatus);
 		
-		$result .= signalCallOutRecipientsUsingGCM($this->getFirehall(),$callDateTimeNative,
-						$callCode, $callAddress, $callGPSLat, $callGPSLong,
-						$callUnitsResponding, $callType, $callout_id, $callKey,
-						$callStatus,$this->getRegistrationId(),$gcmMsg,$this->getGvm()->RR_DB_CONN);
+		// Send Callout details to logged in user only
+		$gcmMsg = getGCMCalloutMessage($callout);
+		
+		$result .= signalCallOutRecipientsUsingGCM($callout,
+												$this->getRegistrationId(),
+												$gcmMsg,
+												$this->getGvm()->RR_DB_CONN);
 		
 		if(isset($this->user_account_id)) {
 			if($this->getFirehall()->LDAP->ENABLED) {
@@ -270,13 +280,12 @@ class LoginDeviceViewModel extends BaseViewModel {
 				$userStatus = $row->status;
 				$sql_response_result->close();
 		
-				$gcmResponseMsg = getSMSCalloutResponseMessage($this->getFirehall(), 
-						$callout_id, $this->getUserId(), $callGPSLat, $callGPSLong, 
-						$userStatus, $callKey, 0);
+				$gcmResponseMsg = getSMSCalloutResponseMessage($callout,
+										$this->getUserId(), $userStatus, 0);
 		
-				$result .= signalResponseRecipientsUsingGCM($this->getFirehall(), $callout_id, 
-										$this->getUserId(),$callGPSLat, $callGPSLong, 
-										$userStatus, $callKey, $gcmResponseMsg,
+				$result .= signalResponseRecipientsUsingGCM($callout, 
+										$this->getUserId(), $userStatus, 
+										$gcmResponseMsg,
 										$this->getRegistrationId(),
 										$this->getGvm()->RR_DB_CONN);
 			}

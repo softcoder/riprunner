@@ -12,12 +12,14 @@ error_reporting(E_ALL);
  * */
 
 define( 'INCLUSION_PERMITTED', true );
-require_once( 'config.php' );
-require_once( 'functions.php' );
-require_once( 'firehall_parsing.php' );
-require_once( 'firehall_signal_callout.php' );
-require_once( 'third-party/html2text/Html2Text.php' );
-require_once( 'logging.php' );
+
+require_once 'config.php';
+require_once 'models/callout-details.php';
+require_once 'functions.php';
+require_once 'firehall_parsing.php';
+require_once 'firehall_signal_callout.php';
+require_once 'third-party/html2text/Html2Text.php';
+require_once 'logging.php';
 
 // Disable caching to ensure LIVE results.
 header( 'Cache-Control: no-store, no-cache, must-revalidate' );
@@ -187,22 +189,36 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 	if(isset($fullEmailBodyText) && strlen($fullEmailBodyText) > 0) {
 		$log->trace("Email trigger processing contents...");
 		
-		list($isCallOutEmail,
-				$callDateTimeNative,
-				$callCode,
-				$callAddress,
-				$callGPSLat,
-				$callGPSLong,
-				$callUnitsResponding,
-				$callType) = processFireHallText($realdata);
+// 		list($isCallOutEmail,
+// 				$callDateTimeNative,
+// 				$callCode,
+// 				$callAddress,
+// 				$callGPSLat,
+// 				$callGPSLong,
+// 				$callUnitsResponding,
+// 				$callType) = processFireHallText($realdata);
+
+		$callout = processFireHallText($realdata);
+		$log->trace("Email trigger processing contents signal result: " . var_export($callout->isValid(),true));
 		
-		$log->trace("Email trigger processing contents signal result: $isCallOutEmail");
-		
-		if($isCallOutEmail == true) {
-			signalFireHallCallout($FIREHALL, $callDateTimeNative,
-							$callCode, $callAddress, $callGPSLat,
-							$callGPSLong, $callUnitsResponding, $callType);
-			
+		//if($isCallOutEmail == true) {
+		if($callout->isValid()) {
+// 			$callout = new CalloutDetails();
+// 			$callout->setFirehall($FIREHALL);
+// 			$callout->setDateTime($callDateTimeNative);
+// 			$callout->setCode($callCode);
+// 			$callout->setAddress($callAddress);
+// 			$callout->setGPSLat($callGPSLat);
+// 			$callout->setGPSLong($callGPSLong);
+// 			$callout->setUnitsResponding($callUnitsResponding);
+				
+// 			signalFireHallCallout($FIREHALL, $callDateTimeNative,
+// 							$callCode, $callAddress, $callGPSLat,
+// 							$callGPSLong, $callUnitsResponding, $callType);
+
+			$callout->setFirehall($FIREHALL);
+			signalFireHallCallout($callout);
+
 			# Delete processed email message
 			if($FIREHALL->EMAIL->EMAIL_DELETE_PROCESSED) {
 				$log->trace("Email trigger processing Delete email message#: $n");

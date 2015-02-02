@@ -5,12 +5,11 @@
 // ==============================================================
 namespace riprunner;
 
+require_once __RIPRUNNER_ROOT__ . '/models/callout-details.php'; 
+
 interface ISMSCalloutPlugin {
 	// The Unique String identifying the plugin provider
 	public function getPluginType();
 	// The implementation for sending an SMS callout message to recipients
-	public function signalRecipients($FIREHALL, $callDateTimeNative, $callCode,
-									 $callAddress, $callGPSLat, $callGPSLong,
-									 $callUnitsResponding, $callType, $callout_id,
-									 $callKey, $msgPrefix);
+	public function signalRecipients($callout, $msgPrefix);
 }

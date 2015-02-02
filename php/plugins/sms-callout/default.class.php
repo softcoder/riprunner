@@ -18,18 +18,22 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 	public function getPluginType() {
 		return 'DEFAULT';
 	}
-	public function signalRecipients($FIREHALL, $callDateTimeNative, $callCode,
-									 $callAddress, $callGPSLat, $callGPSLong,
-									 $callUnitsResponding, $callType, $callout_id,
-									 $callKey, $msgPrefix) {
+	
+	public function signalRecipients($callout, $msgPrefix) {
+		global $log;
 		
-		$smsPlugin = \riprunner\PluginsLoader::findPlugin('riprunner\ISMSPlugin', $FIREHALL->SMS->SMS_GATEWAY_TYPE);
+		$smsPlugin = \riprunner\PluginsLoader::findPlugin(
+				'riprunner\ISMSPlugin', 
+				$callout->getFirehall()->SMS->SMS_GATEWAY_TYPE);
 		if($smsPlugin == null) {
-			throw new \Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
+			$log->error("Invalid SMS Plugin type: [" . $callout->getFirehall()->SMS->SMS_GATEWAY_TYPE . "]");
+			throw new \Exception("Invalid SMS Plugin type: [" . $callout->getFirehall()->SMS->SMS_GATEWAY_TYPE . "]");
 		}
+
+		$log->trace("Using SMS plugin [". $smsPlugin->getPluginType() ."]");
 		
-		if($FIREHALL->LDAP->ENABLED) {
-			$recipients = get_sms_recipients_ldap($FIREHALL,null);
+		if($callout->getFirehall()->LDAP->ENABLED) {
+			$recipients = get_sms_recipients_ldap($callout->getFirehall(),null);
 			$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients);
 			
 			$recipient_list = explode(';',$recipients);
@@ -38,50 +42,49 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 			$recipient_list_type = RecipientListType::MobileList;
 		}
 		else {
-			$recipient_list_type = ($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP ?
+			$recipient_list_type = ($callout->getFirehall()->SMS->SMS_RECIPIENTS_ARE_GROUP ?
 					RecipientListType::GroupList : RecipientListType::MobileList);
 			if($recipient_list_type == RecipientListType::GroupList) {
-				$recipients_group = $FIREHALL->SMS->SMS_RECIPIENTS;
+				$recipients_group = $callout->getFirehall()->SMS->SMS_RECIPIENTS;
 				$recipient_list_array = explode(';',$recipients_group);
 			}
-			else if($FIREHALL->SMS->SMS_RECIPIENTS_FROM_DB) {
-				$recipient_list = getMobilePhoneListFromDB($FIREHALL,null);
+			else if($callout->getFirehall()->SMS->SMS_RECIPIENTS_FROM_DB) {
+				$recipient_list = getMobilePhoneListFromDB($callout->getFirehall(),null);
 				$recipient_list_array = $recipient_list;
 			}
 			else {
-				$recipients = $FIREHALL->SMS->SMS_RECIPIENTS;
+				$recipients = $callout->getFirehall()->SMS->SMS_RECIPIENTS;
 				$recipient_list = explode(';',$recipients);
 				$recipient_list_array = $recipient_list;
 			}
 		}
 		
-		$smsText = self::getSMSCalloutMessage($FIREHALL,$callDateTimeNative,
-				$callCode, $callAddress, $callGPSLat, $callGPSLong,
-				$callUnitsResponding, $callType, $callout_id, $callKey,
-				$smsPlugin->getMaxSMSTextLength());
+		$smsText = self::getSMSCalloutMessage($callout,
+										$smsPlugin->getMaxSMSTextLength());
 		if(isset($msgPrefix)) {
 			$smsText = $msgPrefix . $smsText;
 		}
-		$resultSMS = $smsPlugin->signalRecipients($FIREHALL->SMS, $recipient_list_array,
-				$recipient_list_type, $smsText);
+		$resultSMS = $smsPlugin->signalRecipients($callout->getFirehall()->SMS, 
+				$recipient_list_array,$recipient_list_type, $smsText);
+		
+		$log->trace("Result from SMS plugin [$resultSMS]");
+		
 		if(isset($resultSMS)) {
 			echo $resultSMS;
 		}
 	}
 	
-	private function getSMSCalloutMessage($FIREHALL,$callDateTimeNative,
-			$callCode, $callAddress, $callGPSLat, $callGPSLong,
-			$callUnitsResponding, $callType, $callout_id, $callKey,
-			$maxLength) {
-		
+	private function getSMSCalloutMessage($callout, $maxLength) {
 		global $log;
 		
-		$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . ', ' . $callAddress;
+		$msgSummary = '911-Page: ' . $callout->getCode() . ', ' . 
+						$callout->getCodeDescription() . ', ' . 
+						$callout->getAddress();
 	
-		$details_link = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL
-		. 'ci/cid=' . $callout_id
-		. '&fhid=' . $FIREHALL->FIREHALL_ID
-		. '&ckid=' . $callKey;
+		$details_link = $callout->getFirehall()->WEBSITE->WEBSITE_ROOT_URL
+		. 'ci/cid=' . $callout->getId()
+		. '&fhid=' . $callout->getFirehall()->FIREHALL_ID
+		. '&ckid=' . $callout->getKeyId();
 	
 		$smsMsg = $msgSummary .', ' . $details_link;
 		if(isset($maxLength) && $maxLength > 0) {

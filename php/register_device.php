@@ -155,15 +155,23 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 	
 					$sql_result->close();
 					
+					$callout = new \riprunner\CalloutDetails();
+					$callout->setFirehall($FIREHALL);
+					$callout->setDateTime($callDateTimeNative);
+					$callout->setCode($callCode);
+					$callout->setAddress($callAddress);
+					$callout->setGPSLat($callGPSLat);
+					$callout->setGPSLong($callGPSLong);
+					$callout->setUnitsResponding($callUnitsResponding);
+					$callout->setId($callout_id);
+					$callout->setKeyId($callKey);
+					$callout->setStatus($callStatus);
+						
 					// Send Callout details to logged in user only
-					$gcmMsg = getGCMCalloutMessage($FIREHALL,$callDateTimeNative,
-							$callCode, $callAddress, $callGPSLat, $callGPSLong,
-							$callUnitsResponding, $callType, $callout_id, $callKey);
+					$gcmMsg = getGCMCalloutMessage($callout);
 					
-					signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
-						$callCode, $callAddress, $callGPSLat, $callGPSLong,
-						$callUnitsResponding, $callType, $callout_id, $callKey,
-						$callStatus,$registration_id,$gcmMsg,$db_connection);
+					signalCallOutRecipientsUsingGCM($callout,$registration_id,
+													$gcmMsg,$db_connection);
 					
 					// Check if user is already responding and send response
 					// details to logged in user only
@@ -197,12 +205,14 @@ if(isset($registration_id) && isset($firehall_id) && isset($user_id) && isset($u
 	
 							//echo 'Sending GCM response data!';
 							
-							$gcmResponseMsg = getSMSCalloutResponseMessage($FIREHALL, $callout_id, $user_id,
-									$callGPSLat, $callGPSLong, $userStatus, $callKey, 0);
+							$gcmResponseMsg = getSMSCalloutResponseMessage(
+									$callout,$user_id,$userStatus, 0);
 							
-							echo signalResponseRecipientsUsingGCM($FIREHALL, $callout_id, $user_id,
-												$callGPSLat, $callGPSLong, $userStatus, 
-												$callKey, $gcmResponseMsg,$registration_id,
+							echo signalResponseRecipientsUsingGCM($callout, 
+												$user_id,
+												$userStatus, 
+												$gcmResponseMsg,
+												$registration_id,
 												$db_connection);
 						}
 						else {

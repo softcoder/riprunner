@@ -13,32 +13,32 @@ require_once( 'functions.php' );
 require_once( 'plugins_loader.php' );
 require_once( 'logging.php' );
 
-function signalCalloutToSMSPlugin($FIREHALL, $callDateTimeNative, $callCode,
-		$callAddress, $callGPSLat, $callGPSLong,
-		$callUnitsResponding, $callType, $callout_id,
-		$callKey, $msgPrefix) {
+// function signalCalloutToSMSPlugin($FIREHALL, $callDateTimeNative, $callCode,
+// 		$callAddress, $callGPSLat, $callGPSLong,
+// 		$callUnitsResponding, $callType, $callout_id,
+// 		$callKey, $msgPrefix) {
+function signalCalloutToSMSPlugin($callout, $msgPrefix) {
 	
 	global $log;
 	$log->trace("Check SMS callout signal for SMS Enabled [" . 
-			var_export($FIREHALL->SMS->SMS_SIGNAL_ENABLED,true) . "]");
+			var_export($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED,true) . "]");
 	
-	if($FIREHALL->SMS->SMS_SIGNAL_ENABLED) {
-		$smsCalloutPlugin = \riprunner\PluginsLoader::findPlugin('riprunner\ISMSCalloutPlugin', $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE);
+	if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED) {
+		$smsCalloutPlugin = \riprunner\PluginsLoader::findPlugin(
+				'riprunner\ISMSCalloutPlugin', 
+				$callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE);
 		if($smsCalloutPlugin == null) {
-			$log->error("Invalid SMS Callout Plugin type: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
-			throw new Exception("Invalid SMS Callout Plugin type: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
+			$log->error("Invalid SMS Callout Plugin type: [" . $callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
+			throw new Exception("Invalid SMS Callout Plugin type: [" . $callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
 		}
 		
-		$result = $smsCalloutPlugin->signalRecipients($FIREHALL, 
-				$callDateTimeNative, $callCode, $callAddress, 
-				$callGPSLat, $callGPSLong, $callUnitsResponding, 
-				$callType, $callout_id, $callKey, $msgPrefix);
+		$result = $smsCalloutPlugin->signalRecipients($callout, $msgPrefix);
 		
 		if(strpos($result,"ERROR")) {
-			$log->error("Error calling SMS callout provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$result]");
+			$log->error("Error calling SMS callout provider: [" . $callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$result]");
 		}
 		else {
-			$log->trace("Called SMS callout provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$result]");
+			$log->trace("Called SMS callout provider: [" . $callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$result]");
 		}
 	}
 }

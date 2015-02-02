@@ -327,13 +327,23 @@ class CalloutResponseViewModel extends BaseViewModel {
 			
 			// Signal everyone with the status update if required
 			if($affected_update_rows > 0) {
-				$this->respond_result .= signalFireHallResponse($this->getGvm()->firehall, 
-										$this->getCalloutId(), 
+				$callout = new \riprunner\CalloutDetails();
+				$callout->setFirehall($this->getGvm()->firehall);
+				//$callout->setDateTime();
+				//$callout->setCode();
+				//$callout->setAddress();
+				//$callout->setGPSLat();
+				//$callout->setGPSLong();
+				//$callout->setUnitsResponding();
+				$callout->setId($this->getCalloutId());
+				$callout->setKeyId($this->getCalloutKeyId());
+				//$callout->setStatus();
+				
+				$this->respond_result .= signalFireHallResponse($callout, 
 										$this->getUserId(), 
 										$this->getUserLat(),
 										$this->getUserLong(),
-										$this->getUserStatus(), 
-										$this->getCalloutKeyId());
+										$this->getUserStatus());
 			}
 			$log->trace("Call Response END --> getRespondResult");
 		}
