@@ -7,7 +7,7 @@ A Firehall dispatching communication suite.
 
 Description:
 
-This application suite was designed by a volunteer fire fighter (whose full time job is software development) to enhance the experience of First Responders during an emergency 911 callout. The main goal of this application is to provide a completely free suite of applications which help fire fighters receive timely information and communicate activities with one another as incidents progress.
+This application suite was designed by volunteer fire fighters to enhance the experience of First Responders during an emergency 911 callout. The main goal of this application is to provide a completely free suite of applications which help fire fighters receive timely information and communicate activities with one another as incidents progress.
 
 Key Features:
 -------------
@@ -24,6 +24,7 @@ Key Features:
 - Google Maps showing Distance from Firehall to Incident
 - Google charts shows statistical view of data.
 - Ability for members to indicate a response to callouts allowing other members to know who is responding
+- Customizable user interface using twig templates (http://twig.sensiolabs.org/)
 - Experimental Android App which interfaces to the web application (does not require SMS Gateway, uses free GCM)
 
 Key Android App Features:
