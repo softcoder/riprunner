@@ -267,8 +267,21 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 			
 			// Signal everyone with the status update if required
 			if($affected_update_rows > 0) {
-				echo signalFireHallResponse($FIREHALL, $callout_id, $user_id, $user_lat,
-								$user_long,$user_status, $callkey_id);
+				
+				$callout = new \riprunner\CalloutDetails();
+				$callout->setFirehall($FIREHALL);
+				//$callout->setDateTime();
+				//$callout->setCode();
+				//$callout->setAddress();
+				//$callout->setGPSLat();
+				//$callout->setGPSLong();
+				//$callout->setUnitsResponding();
+				$callout->setId($callout_id);
+				$callout->setKeyId($callkey_id);
+				//$callout->setStatus();
+				
+				echo signalFireHallResponse($callout, $user_id, $user_lat,
+											$user_long,$user_status);
 			}
 		}
 

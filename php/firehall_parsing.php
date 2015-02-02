@@ -9,7 +9,8 @@
 		die( 'This file must not be invoked directly.' );
 	}
 
-	require_once( 'config.php' );
+	require_once 'config.php';
+	require_once 'models/callout-details.php';
 	
 	// The email just contains basic incident information.  Here is a sample:
 	//
@@ -30,30 +31,34 @@
 	//
 	function processFireHallText($msgText) {
 	 
-		$isCallOutEmail = false;
-		$calloutOutMatchCount = 0;
+		//$isCallOutEmail = false;
+		//$calloutOutMatchCount = 0;
 		
-		$callDateTimeNative = null;
+		$callout = new \riprunner\CalloutDetails();
+		
+		//$callDateTimeNative = null;
 		$callDateTime = extractDelimitedValueFromString($msgText, EMAIL_PARSING_DATETIME_PATTERN, 1);
 		$callDateTime = trim($callDateTime);
 		print("DateTime : [" . $callDateTime . "]\n");
 		if($callDateTime != null) {
-			$calloutOutMatchCount++;
+			//$calloutOutMatchCount++;
 			// 2014-07-10 16:36:30
 			//$callDateTime = preg_replace( '/[^[:print:]]/', '',$callDateTime);
 			//$callDateTime = preg_replace( '/[^\P{C}\n]+/u', '',$callDateTime);
 			//$callDateTime = preg_replace( '/[^(\x20-\x7F)]*/', '',$callDateTime);
-			$callDateTimeNative = date_create_from_format('Y-m-d H:i:s', $callDateTime);
-			if($callDateTimeNative == false) {
-				$callDateTimeNative = null;
-			}
+			//$callDateTimeNative = date_create_from_format('Y-m-d H:i:s', $callDateTime);
+			//if($callDateTimeNative == false) {
+			//	$callDateTimeNative = null;
+			//}
+			$callout->setDateTime($callDateTime);
 		}
 		
 		$callCode =  extractDelimitedValueFromString($msgText, EMAIL_PARSING_CALLCODE_PATTERN, 1);
 		$callCode = trim($callCode);
 		print("Code : [" . $callCode . "]\n");
 		if($callCode != null) {
-			$calloutOutMatchCount++;
+			//$calloutOutMatchCount++;
+			$callout->setCode($callCode);
 		}
 		 
 		$callType = convertCallOutTypeToText($callCode);
@@ -63,41 +68,47 @@
 		$callAddress = trim($callAddress);
 		print("Incident Address : [" . $callAddress . "]\n");
 		if($callAddress != null) {
-			$calloutOutMatchCount++;
+			//$calloutOutMatchCount++;
+			$callout->setAddress($callAddress);
 		}
 		
 		$callGPSLat = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LATITUDE_PATTERN, 1);
 		$callGPSLat = trim($callGPSLat);
 		print("Incident GPS Lat : [" . $callGPSLat . "]\n");
 		if($callGPSLat != null) {
-			$calloutOutMatchCount++;
+			//$calloutOutMatchCount++;
+			$callout->setGPSLat($callGPSLat);
 		}
 		
 	   	$callGPSLong = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LONGITUDE_PATTERN, 1);
 	   	$callGPSLong = trim($callGPSLong);
 		print("Incident GPS Long : [" . $callGPSLong . "]\n");
 		if($callGPSLong != null) {
-			$calloutOutMatchCount++;
+			//$calloutOutMatchCount++;
+			$callout->setGPSLong($callGPSLong);
 		}
 		
 	   	$callUnitsResponding = extractDelimitedValueFromString($msgText, EMAIL_PARSING_UNITS_PATTERN, 1);
 	   	$callUnitsResponding = trim($callUnitsResponding);
 	   	print("Incident Units Responding : [" . $callUnitsResponding . "]\n");
 	   	if($callUnitsResponding != null) {
-	   		$calloutOutMatchCount++;
+	   		//$calloutOutMatchCount++;
+	   		$callout->setUnitsResponding($callUnitsResponding);
 	   	}
 	   	
-	   	if($calloutOutMatchCount >= 3) {
-	   		$isCallOutEmail = true;
-	   	}
-	   	return array($isCallOutEmail, 
-	   				 $callDateTimeNative, 
-	   				 $callCode, 
-	   				 $callAddress, 
-	   				 $callGPSLat, 
-	   				 $callGPSLong, 
-	   				 $callUnitsResponding, 
-	   			 	 $callType);
+	   	//if($calloutOutMatchCount >= 3) {
+	   	//	$isCallOutEmail = true;
+	   	//}
+	   	//return array($isCallOutEmail, 
+	   	//			 $callDateTimeNative, 
+	   	//			 $callCode, 
+	   	//			 $callAddress, 
+	   	//			 $callGPSLat, 
+	   	//			 $callGPSLong, 
+	   	//			 $callUnitsResponding, 
+	   	//		 	 $callType);
+	   	
+	   	return $callout;
 	}
 	
 	function convertCallOutTypeToText($type) {

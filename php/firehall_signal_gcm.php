@@ -15,68 +15,70 @@ require_once( 'plugins_loader.php' );
 require_once( 'object_factory.php' );
 require_once( 'logging.php' );
 
-function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
-		$callCode, $callAddress, $callGPSLat, $callGPSLong,
-		$callUnitsResponding, $callType, $callout_id, $callKey, $callStatus,
-		$device_id,$smsMsg,$db_connection) {
-
+function signalCallOutRecipientsUsingGCM($callout, $device_id,$smsMsg,$db_connection) {
 	global $log;
 	$resultGCM = "";
 	
 	$log->trace("Check GCM callout signal for MOBILE Enabled [" . 
-			var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED,true) . "] GCM [" . 
-			var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED,true) . "]");
+			var_export($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED,true) . "] GCM [" . 
+			var_export($callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED,true) . "]");
 	
-	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
-		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
+	if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED &&
+		$callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED) {
 
 		$adhoc_db_connection = false;
 		if(isset($db_connection) == false) {
-			$db_connection = db_connect_firehall($FIREHALL);
+			$db_connection = db_connect_firehall($callout->getFirehall());
 			$adhoc_db_connection = true;
 		}
 
-		$gcmInstance = \riprunner\GCM_Factory::create('gcm',$FIREHALL->MOBILE->GCM_API_KEY);
-		$gcmInstance->setURL($FIREHALL->MOBILE->GCM_SEND_URL);
+		$gcmInstance = \riprunner\GCM_Factory::create('gcm',$callout->getFirehall()->MOBILE->GCM_API_KEY);
+		$gcmInstance->setURL($callout->getFirehall()->MOBILE->GCM_SEND_URL);
 		$gcmInstance->setDBConnection($db_connection);
-		$gcmInstance->setFirehallId($FIREHALL->FIREHALL_ID);
+		$gcmInstance->setFirehallId($callout->getFirehall()->FIREHALL_ID);
 		$gcmInstance->setGCM_Devices($device_id);
 			
 		$log->trace("Send GCM callout check device count: " . $gcmInstance->getDeviceCount());
 		if($gcmInstance->getDeviceCount() > 0) {
+			$callGPSLat = $callout->getGPSLat();
 			if(isset($callGPSLat) == false) {
 				$callGPSLat = '0';
 			}
+			$callGPSLong = $callout->getGPSLong();
 			if(isset($callGPSLong) == false) {
 				$callGPSLong = '0';
 			}
+			
+			$callAddress = $callout->getAddress();
 			if(isset($callAddress) == false || $callAddress == '') {
 				$callAddress = '?';
 				$callMapAddress = '?';
 			}
 			else {
-				$callMapAddress = getAddressForMapping($FIREHALL,$callAddress);
+				$callMapAddress = $callout->getAddressForMap();
 			}
-			if(isset($callUnitsResponding) == false || $callUnitsResponding == '') {
+			
+			$callUnitsResponding = $callout->getUnitsResponding();
+			if(isset($callUnitsResponding) == false || 
+					$callUnitsResponding == '') {
 				$callUnitsResponding = '?';
 			}
 				
+			$callKey = $callout->getKeyId();
 			if(isset($callKey) == false || $callKey == '') {
 				$callKey = '?';
 			}
-				
-			$callType = convertCallOutTypeToText($callCode);
 			
 			$message = array("CALLOUT_MSG" => urlencode($smsMsg),
-					"call-id"  => urlencode($callout_id),
+					"call-id"  => urlencode($callout->getId()),
 					"call-key-id"  => urlencode($callKey),
-					"call-type"  => urlencode($callCode . ' - ' . $callType),
+					"call-type"  => urlencode($callout->getCode() . ' - ' . $callout->getCodeDescription()),
 					"call-gps-lat"  => urlencode($callGPSLat),
 					"call-gps-long"  => urlencode($callGPSLong),
 					"call-address"  => urlencode($callAddress),
 					"call-map-address"  => urlencode($callMapAddress),
 					"call-units"  => urlencode($callUnitsResponding),
-					"call-status"  => urlencode($callStatus)
+					"call-status"  => urlencode($callout->getStatus())
 			);
 			
 			$resultGCM .= $gcmInstance->send($message);
@@ -89,48 +91,48 @@ function signalCallOutRecipientsUsingGCM($FIREHALL,$callDateTimeNative,
 	}
 }
 
-function signalResponseRecipientsUsingGCM($FIREHALL, $callId, $userId,
-		$callGPSLat, $callGPSLong,
-		$userStatus, $callkey_id, $smsMsg,$device_id,$db_connection) {
-
+function signalResponseRecipientsUsingGCM($callout, $userId, $userStatus, 
+											$smsMsg,$device_id,$db_connection) {
 	global $log;
 	$resultGCM = "";
 	
 	$log->trace("Check GCM response signal for MOBILE Enabled [" .
-			var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED,true) . "] GCM [" . 
-			var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED,true) . "]");
+			var_export($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED,true) . "] GCM [" . 
+			var_export($callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED,true) . "]");
 	
-	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
-		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
+	if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED &&
+		$callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED) {
 	
 		$adhoc_db_connection = false;
 		if(isset($db_connection) == false) {
-			$db_connection = db_connect_firehall($FIREHALL);
+			$db_connection = db_connect_firehall($callout->getFirehall());
 			$adhoc_db_connection = true;
 		}
 
-		$gcmInstance = \riprunner\GCM_Factory::create('gcm',$FIREHALL->MOBILE->GCM_API_KEY);
-		$gcmInstance->setURL($FIREHALL->MOBILE->GCM_SEND_URL);
+		$gcmInstance = \riprunner\GCM_Factory::create('gcm',$callout->getFirehall()->MOBILE->GCM_API_KEY);
+		$gcmInstance->setURL($callout->getFirehall()->MOBILE->GCM_SEND_URL);
 		$gcmInstance->setDBConnection($db_connection);
-		$gcmInstance->setFirehallId($FIREHALL->FIREHALL_ID);
+		$gcmInstance->setFirehallId($callout->getFirehall()->FIREHALL_ID);
 		$gcmInstance->setGCM_Devices($device_id);
 	
 		$log->trace("Send GCM response check device count: " . $gcmInstance->getDeviceCount());
 		if($gcmInstance->getDeviceCount() > 0) {
+			$callGPSLat = $callout->getGPSLat();
 			if(isset($callGPSLat) == false || $callGPSLat == "") {
 				$callGPSLat = 0;
 			}
+			$callGPSLong = $callout->getGPSLong();
 			if(isset($callGPSLong) == false || $callGPSLong == "") {
 				$callGPSLong = 0;
 			}
-			
+			$callkey_id = $callout->getKeyId();
 			if(isset($callkey_id) == false || $callkey_id == '') {
 				$callkey_id = '?';
 			}
 				
 			$message = array("CALLOUT_RESPONSE_MSG" => urlencode($smsMsg),
-					"call-id"  => urlencode($callId),
-					"call-key-id" => urlencode($callkey_id),
+					"call-id"  => urlencode($callout->getId()),
+					"call-key-id" => urlencode($callout->getKeyId()),
 					"user-id"  => urlencode($userId),
 					"user-gps-lat"  => urlencode($callGPSLat),
 					"user-gps-long"  => urlencode($callGPSLong),
@@ -214,17 +216,14 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 	return $resultGCM;
 }
 
-function getGCMCalloutMessage($FIREHALL,$callDateTimeNative,
-		$callCode, $callAddress, $callGPSLat, $callGPSLong,
-		$callUnitsResponding, $callType, $callout_id, $callKey) {
+function getGCMCalloutMessage($callout) {
 	global $log;
 	//$log->trace("GCM callout msg calltime [". $callDateTimeNative . "]");
 	
-	$msgSummary = '911-Page: ' . $callCode . ', ' . $callType . 
-				  ', ' . $callAddress . ' @' . 
-				  ($callDateTimeNative instanceof DateTime ? 
-				  		$callDateTimeNative->format('Y-m-d H:i:s') : 
-				  		$callDateTimeNative);
+	$msgSummary = '911-Page: ' . $callout->getCode() . ', ' . 
+					$callout->getCodeDescription() . ', ' . 
+					$callout->getAddress() . ' @' . 
+					$callout->getDateTimeAsString();
 	
 	$log->trace("GCM callout msg [". $msgSummary . "]");
 	
