@@ -76,22 +76,38 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 		$useracctid = null;
 		$user_authenticated = false;
 		if($row = $sql_result->fetch_object()) {
-			if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
-				// Validate the the callkey is legit
-				$sql_callkey = 'SELECT * FROM callouts WHERE id = ' .
-						$db_connection->real_escape_string( $callout_id ) . 
-						' AND call_key = \'' . $db_connection->real_escape_string( $callkey_id ) . '\';';
-				$sql_callkey_result = $db_connection->query( $sql_callkey );
-				if($sql_callkey_result == false) {
-					if($debug_registration) echo "E3a";
-					$log->error("Call Response callout validation SQL error for sql [$sql_callkey] error: " . mysqli_error($db_connection));
+
+			$callout = new \riprunner\CalloutDetails();
+			$callout->setFirehall($FIREHALL);
 					
-					throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql_callkey . "]");
+			// Validate the the callkey is legit
+			$sql_callkey = 'SELECT * FROM callouts WHERE id = ' .
+					$db_connection->real_escape_string( $callout_id ) .
+					' AND call_key = \'' . $db_connection->real_escape_string( $callkey_id ) . '\';';
+			$sql_callkey_result = $db_connection->query( $sql_callkey );
+			if($sql_callkey_result == false) {
+				if($debug_registration) echo "E3a";
+				$log->error("Call Response callout validation SQL error for sql [$sql_callkey] error: " . mysqli_error($db_connection));
+					
+				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql_callkey . "]");
+			}
+			
+			$log->trace("Call Response got firehall_id [$firehall_id] user_id [$user_id] got callout validation count: " . $sql_callkey_result->num_rows);
+			if( $sql_callkey_result->num_rows > 0) {
+
+				if($row_ci = $sql_callkey_result->fetch_object()) {
+					$callout->setDateTime($row_ci->calltime);
+					$callout->setCode($row_ci->calltype);
+					$callout->setAddress($row_ci->address);
+					$callout->setGPSLat($row_ci->latitude);
+					$callout->setGPSLong($row_ci->longitude);
+					$callout->setUnitsResponding($row_ci->units);
+					$callout->setId($row_ci->id);
+					$callout->setKeyId($row_ci->call_key);
+					$callout->setStatus($row_ci->status);
 				}
 				
-				$log->trace("Call Response got firehall_id [$firehall_id] user_id [$user_id] got callout validation count: " . $sql_callkey_result->num_rows);
-				if( $sql_callkey_result->num_rows > 0) {
-					
+				if(isset($user_pwd) == false) {
 					$user_authenticated = true;
 					$useracctid = $row->id;
 					
@@ -99,13 +115,16 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 						$user_status = CalloutStatusType::Responding;
 					}
 				}
-				else {
-					if($debug_registration) echo "E3b";
-					$log->error("Call Response got firehall_id [$firehall_id] user_id [$user_id] got unexpected callout validation count: " . $sql_callkey_result->num_rows);
-				}
-				$sql_callkey_result->close();
 			}
 			else {
+				if($debug_registration) echo "E3b";
+				$log->error("Call Response got firehall_id [$firehall_id] user_id [$user_id] got unexpected callout validation count: " . $sql_callkey_result->num_rows);
+			}
+			$sql_callkey_result->close();
+				
+			
+			//if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
+			if(isset($user_pwd)) {
 				$log->trace("Call Response got firehall_id [$firehall_id] user_id [$user_id] no pwd check, ldap = " . $FIREHALL->LDAP->ENABLED);
 				
 				// Validate the users password
@@ -141,7 +160,7 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 		}
 		else {
 			if($debug_registration) echo "E5 [" . $sql . "]";
-			$log->error("Call Response got firehall_id [$firehall_id] user_id [$user_id] BUT NOT FOUND in databse!");
+			$log->error("Call Response got firehall_id [$firehall_id] user_id [$user_id] BUT NOT FOUND in database!");
 		}
 		$sql_result->close();
 
@@ -231,6 +250,8 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 			$affected_update_rows = $db_connection->affected_rows;
 			$log->trace("Call Response callout update SQL success for sql [$sql] affected rows: " . $affected_update_rows);
 			
+			$callout->setStatus($user_status);
+			
 			// Redirect to call info page
 			if(isset($user_pwd) == false && isset($callkey_id) && $callkey_id != null) {
 				$member_id = get_query_param('member_id');
@@ -267,18 +288,6 @@ if(isset($firehall_id) && isset($callout_id) && isset($user_id) &&
 			
 			// Signal everyone with the status update if required
 			if($affected_update_rows > 0) {
-				
-				$callout = new \riprunner\CalloutDetails();
-				$callout->setFirehall($FIREHALL);
-				//$callout->setDateTime();
-				//$callout->setCode();
-				//$callout->setAddress();
-				//$callout->setGPSLat();
-				//$callout->setGPSLong();
-				//$callout->setUnitsResponding();
-				$callout->setId($callout_id);
-				$callout->setKeyId($callkey_id);
-				//$callout->setStatus();
 				
 				echo signalFireHallResponse($callout, $user_id, $user_lat,
 											$user_long,$user_status);
