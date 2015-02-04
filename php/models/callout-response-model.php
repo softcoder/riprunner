@@ -21,6 +21,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 	private $startTrackingResponder;
 	private $callout_respond_id;
 	private $respond_result;
+	private $callout;
 	
 	protected function getVarContainerName() { 
 		return "response_vm";
@@ -150,34 +151,51 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$this->user_authenticated = false;
 			
 			if($row = $sql_result->fetch_object()) {
-				if($this->getUserPassword() == null && $this->getCalloutKeyId() != null) {
-					// Validate the the callkey is legit
-					$sql_callkey = "SELECT * FROM callouts " .
-									" WHERE id = " . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
-									" AND call_key = '" . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutKeyId() ) . "';";
-					$sql_callkey_result = $this->getGvm()->RR_DB_CONN->query( $sql_callkey );
-					if($sql_callkey_result == false) {
-						$log->error("Call Response callout validation SQL error for sql [". $sql_callkey ."] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-			
-						throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $this->getCalloutKeyId() . "]");
+				
+				$this->callout = new \riprunner\CalloutDetails();
+				$this->callout->setFirehall($this->getGvm()->firehall);
+				
+				// Validate the the callkey is legit
+				$sql_callkey = "SELECT * FROM callouts " .
+						" WHERE id = " . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
+						" AND call_key = '" . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutKeyId() ) . "';";
+				$sql_callkey_result = $this->getGvm()->RR_DB_CONN->query( $sql_callkey );
+				if($sql_callkey_result == false) {
+					$log->error("Call Response callout validation SQL error for sql [". $sql_callkey ."] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+						
+					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $this->getCalloutKeyId() . "]");
+				}
+					
+				$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation count: " . $sql_callkey_result->num_rows);
+				if( $sql_callkey_result->num_rows > 0) {
+
+					if($row_ci = $sql_callkey_result->fetch_object()) {
+						$this->callout->setDateTime($row_ci->calltime);
+						$this->callout->setCode($row_ci->calltype);
+						$this->callout->setAddress($row_ci->address);
+						$this->callout->setGPSLat($row_ci->latitude);
+						$this->callout->setGPSLong($row_ci->longitude);
+						$this->callout->setUnitsResponding($row_ci->units);
+						$this->callout->setId($row_ci->id);
+						$this->callout->setKeyId($row_ci->call_key);
+						$this->callout->setStatus($row_ci->status);
 					}
-			
-					$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation count: " . $sql_callkey_result->num_rows);
-					if( $sql_callkey_result->num_rows > 0) {
-			
+											
+					if($this->getUserPassword() == null) {
 						$this->user_authenticated = true;
 						$this->useracctid = $row->id;
-			
+							
 						if($this->getUserStatus() == null) {
 							$this->user_status = \CalloutStatusType::Responding;
 						}
 					}
-					else {
-						$log->error("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got unexpected callout validation count: " . $sql_callkey_result->num_rows);
-					}
-					$sql_callkey_result->close();
 				}
 				else {
+					$log->error("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got unexpected callout validation count: " . $sql_callkey_result->num_rows);
+				}
+				$sql_callkey_result->close();
+				
+				if($this->getUserPassword() != null) {
 					$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] no pwd check, ldap = " . $this->getGvm()->firehall->LDAP->ENABLED);
 			
 					// Validate the users password
@@ -209,6 +227,8 @@ class CalloutResponseViewModel extends BaseViewModel {
 						}
 					}
 				}
+				
+				$this->callout->setStatus($this->user_status);
 			}
 			else {
 				$log->error("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] BUT NOT FOUND in databse!");
@@ -327,19 +347,8 @@ class CalloutResponseViewModel extends BaseViewModel {
 			
 			// Signal everyone with the status update if required
 			if($affected_update_rows > 0) {
-				$callout = new \riprunner\CalloutDetails();
-				$callout->setFirehall($this->getGvm()->firehall);
-				//$callout->setDateTime();
-				//$callout->setCode();
-				//$callout->setAddress();
-				//$callout->setGPSLat();
-				//$callout->setGPSLong();
-				//$callout->setUnitsResponding();
-				$callout->setId($this->getCalloutId());
-				$callout->setKeyId($this->getCalloutKeyId());
-				//$callout->setStatus();
 				
-				$this->respond_result .= signalFireHallResponse($callout, 
+				$this->respond_result .= signalFireHallResponse($this->callout, 
 										$this->getUserId(), 
 										$this->getUserLat(),
 										$this->getUserLong(),
