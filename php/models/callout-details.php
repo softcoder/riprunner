@@ -5,11 +5,6 @@
 // ==============================================================
 namespace riprunner;
 
-//require_once __RIPRUNNER_ROOT__ . '/config.php';
-//require_once __RIPRUNNER_ROOT__ . '/functions.php';
-//require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
-//require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
-
 // The model class containing callout information
 class CalloutDetails {
 	
@@ -154,7 +149,6 @@ class CalloutDetails {
 	public function setStatus($value) {
 		$this->status = $value;
 	}
-
 	
 	private function convertCallOutCodeToText($code) {
 		global $CALLOUT_CODES_LOOKUP;
@@ -164,6 +158,4 @@ class CalloutDetails {
 		}
 		return $codeText;
 	}
-	
 }
-

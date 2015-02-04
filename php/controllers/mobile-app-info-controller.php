@@ -21,6 +21,5 @@ $template = $twig->resolveTemplate(
 		array('@custom/mobile-app-info-custom.twig.html',
 			  'mobile-app-info.twig.html'));
 
-//$template = $twig->loadTemplate('mobile-app-info.twig.html');
 // Output our template
 echo $template->render($view_template_vars);

@@ -49,6 +49,5 @@ $template = $twig->resolveTemplate(
 		array('@custom/view-logs-custom.twig.html',
 			  'view-logs.twig.html'));
 
-//$template = $twig->loadTemplate('view-logs.twig.html');
 // Output our template
 echo $template->render($view_template_vars);

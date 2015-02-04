@@ -72,9 +72,3 @@ class SendMessageController {
         $this->view_template_vars["sendmsg_ctl_result_status"] = $sendMsgResultStatus;
 	}
 }
-
-// Should be inserted into other templates and not explicitly rendered
-// Load out template
-//$template = $twig->loadTemplate('send-message.twig.html');
-// Output our template
-//echo $template->render($view_template_vars);

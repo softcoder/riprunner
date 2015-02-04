@@ -322,6 +322,5 @@ $template = $twig->resolveTemplate(
 		array('@custom/users-menu-custom.twig.html',
 			  'users-menu.twig.html'));
 
-//$template = $twig->loadTemplate('users-menu.twig.html');
 // Output our template
 echo $template->render($view_template_vars);

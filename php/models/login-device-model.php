@@ -107,9 +107,12 @@ class LoginDeviceViewModel extends BaseViewModel {
 			}
 			else {
 				// Read from the database info about this callout
-				$sql = 'SELECT user_pwd,id FROM user_accounts WHERE  firehall_id = \'' .
-						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . '\'' .
-						' AND user_id = \'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() ) . '\';';
+				$sql = "SELECT user_pwd,id FROM user_accounts WHERE  firehall_id = '" .
+						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . 
+						"'" .
+						" AND user_id = '" . 
+						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() ) . 
+						"';";
 				$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 				if($sql_result == false) {
 					$log->error("device register sql error for sql [$sql] message [" . mysqli_error( $this->getGvm()->RR_DB_CONN ) . "]");
@@ -141,12 +144,14 @@ class LoginDeviceViewModel extends BaseViewModel {
 			global $log;
 			
 			$sql = "UPDATE devicereg SET user_id = '" . 
-					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() ) . "'," .
+					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() ) . 
+					"'," .
 					" updatetime = CURRENT_TIMESTAMP() " .
 					" WHERE registration_id = '" .
 					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getRegistrationId() ) .
 					"' AND firehall_id = '" .
-					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . "';";
+					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . 
+					"';";
 			
 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 			
@@ -157,11 +162,15 @@ class LoginDeviceViewModel extends BaseViewModel {
 			
 			$this->register_result = '';
 			if($this->getGvm()->RR_DB_CONN->affected_rows <= 0) {
-				$sql = 'INSERT INTO devicereg (registration_id,firehall_id,user_id) ' .
-						' values(' .
-						'\'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getRegistrationId() ) . '\', ' .
-						'\'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() )     . '\', ' .
-						'\'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() )         . '\');';
+				$sql = "INSERT INTO devicereg (registration_id,firehall_id,user_id) " .
+						" values(" .
+						"'" . 
+						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getRegistrationId() ) . 
+						"', '" .
+						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . 
+						"','" .
+						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() ) . 
+						"');";
 			
 				$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 			
@@ -186,7 +195,8 @@ class LoginDeviceViewModel extends BaseViewModel {
 			
 			// Check if there is an active callout (within last 48 hours) and if so send the details
 			$sql = 'SELECT * FROM callouts' .
-					' WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
+					' WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . 
+					DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
 					' ORDER BY id DESC LIMIT 1;';
 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 			if($sql_result == false) {
@@ -199,8 +209,6 @@ class LoginDeviceViewModel extends BaseViewModel {
 			$this->live_callout = array();
 			while ($row = $sql_result->fetch_assoc()) {
 				// Add any custom fields with values here
-				//$row['access_admin'] = userHasAcessValueDB($row['access'],USER_ACCESS_ADMIN);
-				//$row['access_sms'] = userHasAcessValueDB($row['access'],USER_ACCESS_SIGNAL_SMS);
 				$row['calltype_desc'] = convertCallOutTypeToText($row['calltype']);
 					
 				$this->live_callout[] = $row;
@@ -258,13 +266,18 @@ class LoginDeviceViewModel extends BaseViewModel {
 				// START: responders
 				$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a ' .
 								' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
-								' WHERE calloutid = ' . $callout_id . ' AND b.user_id = \'' . $this->getUserId() .'\';';
+								' WHERE calloutid = ' . 
+								$callout_id . 
+								' AND b.user_id = \'' . $this->getUserId() .'\';';
 			}
 			else {
 				// START: responders
 				$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a ' .
 								' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-								' WHERE calloutid = ' . $callout_id . ' AND b.user_id = \'' . $this->getUserId() .'\';';
+								' WHERE calloutid = ' . 
+								$callout_id . 
+								' AND b.user_id = \'' . 
+								$this->getUserId() .'\';';
 			}
 		
 			$sql_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_response );

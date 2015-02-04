@@ -13,10 +13,6 @@ require_once( 'functions.php' );
 require_once( 'plugins_loader.php' );
 require_once( 'logging.php' );
 
-// function signalCalloutToSMSPlugin($FIREHALL, $callDateTimeNative, $callCode,
-// 		$callAddress, $callGPSLat, $callGPSLong,
-// 		$callUnitsResponding, $callType, $callout_id,
-// 		$callKey, $msgPrefix) {
 function signalCalloutToSMSPlugin($callout, $msgPrefix) {
 	
 	global $log;

@@ -130,13 +130,21 @@ class CalloutResponseViewModel extends BaseViewModel {
 			if($this->getGvm()->firehall->LDAP->ENABLED) {
 				create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
 				$sql = "SELECT id,user_pwd FROM ldap_user_accounts " .
-						" WHERE firehall_id = '" . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . "'" .
-						" AND user_id = '" . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() ) . "';";
+						" WHERE firehall_id = '" . 
+						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . 
+						"'" .
+						" AND user_id = '" . 
+						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() ) . 
+						"';";
 			}
 			else {
 				$sql = "SELECT id,user_pwd FROM user_accounts " .
-						" WHERE firehall_id = '" . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . "'" .
-						" AND user_id = '" . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() ) . "';";
+						" WHERE firehall_id = '" . 
+						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . 
+						"'" .
+						" AND user_id = '" . 
+						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() ) . 
+						"';";
 			}
 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 			if($sql_result == false) {
@@ -157,8 +165,12 @@ class CalloutResponseViewModel extends BaseViewModel {
 				
 				// Validate the the callkey is legit
 				$sql_callkey = "SELECT * FROM callouts " .
-						" WHERE id = " . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
-						" AND call_key = '" . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutKeyId() ) . "';";
+						" WHERE id = " . 
+						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
+						" AND call_key = '" . 
+						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutKeyId() ) . 
+						"';";
+				
 				$sql_callkey_result = $this->getGvm()->RR_DB_CONN->query( $sql_callkey );
 				if($sql_callkey_result == false) {
 					$log->error("Call Response callout validation SQL error for sql [". $sql_callkey ."] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
@@ -248,18 +260,28 @@ class CalloutResponseViewModel extends BaseViewModel {
 		// Update the response table
 		if($this->getUserPassword() == null && $this->getUserLat() == null && 
 				$this->getCalloutKeyId() != null) {
-			$sql = 'UPDATE callouts_response SET status = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) . ',' .
+			$sql = 'UPDATE callouts_response SET status = ' . 
+					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) . 
+					',' .
 					'        updatetime = CURRENT_TIMESTAMP() ' .
-					' WHERE calloutid = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
-					' AND useracctid = ' .  $this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid ) . ';';
+					' WHERE calloutid = ' . 
+					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
+					' AND useracctid = ' . 
+					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid ) . 
+					';';
 		}
 		else {
-			$sql = 'UPDATE callouts_response SET latitude = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserLat() ) . ',' .
-					'        longitude = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserLong() ) . ',' .
-					'        status = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) . ',' .
+			$sql = 'UPDATE callouts_response SET latitude = ' . 
+					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserLat() ) . 
+					',' .
+					'        longitude = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserLong() ) . 
+					',' .
+					'        status = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) . 
+					',' .
 					'        updatetime = CURRENT_TIMESTAMP() ' .
 					' WHERE calloutid = ' .  $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
-					' AND useracctid = ' .   $this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid ) . ';';
+					' AND useracctid = ' .   $this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid ) . 
+					';';
 		}
 		
 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
@@ -318,9 +340,12 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$this->updateCallResponse();
 			
 			// Update the main callout status Unless its already set to cancelled or completed
-			$sql = 'UPDATE callouts SET status = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) . ',' .
+			$sql = 'UPDATE callouts SET status = ' . 
+					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) . 
+					',' .
 					'                   updatetime = CURRENT_TIMESTAMP() ' .
-					' WHERE id = ' .    $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
+					' WHERE id = ' . 
+					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
 					' AND status NOT IN (3,10);';
 			
 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );

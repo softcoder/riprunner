@@ -166,7 +166,10 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			// Get the callout info
 			$sql = 'SELECT status, latitude, longitude, address ' .
 					' FROM callouts ' .
-					' WHERE id = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) . ';';
+					' WHERE id = ' . 
+					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) . 
+					';';
+			
 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 			if($sql_result == false) {
 				$log->error("Call Tracking callouts SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
@@ -176,7 +179,12 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			$this->responding_people = '';
 			$this->responding_people_icons = '';
 			
-			$this->responding_people .= "['FireHall: ". $this->getFirehall()->WEBSITE->FIREHALL_HOME_ADDRESS ."', ". $this->getFirehall()->WEBSITE->FIREHALL_GEO_COORD_LATITUDE .", ". $this->getFirehall()->WEBSITE->FIREHALL_GEO_COORD_LONGITUDE ."]";
+			$this->responding_people .= "['FireHall: ". 
+					$this->getFirehall()->WEBSITE->FIREHALL_HOME_ADDRESS .
+					"', ". 
+					$this->getFirehall()->WEBSITE->FIREHALL_GEO_COORD_LATITUDE .
+					", ". $this->getFirehall()->WEBSITE->FIREHALL_GEO_COORD_LONGITUDE .
+					"]";
 			$this->responding_people_icons .= "iconURLPrefix + 'blue-dot.png'";
 			
 			$this->callout_status = null;
@@ -359,5 +367,4 @@ class CalloutTrackingViewModel extends BaseViewModel {
 		}
 		return $this->responding_people_geo_list;
 	}
-	
 }
