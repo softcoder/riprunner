@@ -9,11 +9,12 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once( 'config.php' );
-require_once( 'functions.php' );
-require_once( 'plugins_loader.php' );
-require_once( 'object_factory.php' );
-require_once( 'logging.php' );
+require_once 'config.php';
+require_once 'functions.php';
+require_once 'plugins_loader.php';
+require_once 'object_factory.php';
+require_once 'template.php';
+require_once 'logging.php';
 
 function signalCallOutRecipientsUsingGCM($callout, $device_id,$smsMsg,$db_connection) {
 	global $log;
@@ -218,12 +219,17 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 
 function getGCMCalloutMessage($callout) {
 	global $log;
-	//$log->trace("GCM callout msg calltime [". $callDateTimeNative . "]");
+	global $twig;
 	
-	$msgSummary = '911-Page: ' . $callout->getCode() . ', ' . 
-					$callout->getCodeDescription() . ', ' . 
-					$callout->getAddress() . ' @' . 
-					$callout->getDateTimeAsString();
+	$view_template_vars = array();
+	$view_template_vars['callout'] = $callout;
+	
+	// Load our template
+	$template = $twig->resolveTemplate(
+			array('@custom/gcm-callout-msg-custom.twig.html',
+				  'gcm-callout-msg.twig.html'));
+	// Output our template
+	$msgSummary = $template->render($view_template_vars);
 	
 	$log->trace("GCM callout msg [". $msgSummary . "]");
 	
