@@ -89,7 +89,8 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	private function getFirehall() {
 		$firehall = null;
 		if($this->getFirehallId() != null) {
-			$firehall = findFireHallConfigById($this->getFirehallId(), $this->getGvm()->firehall_list);
+			$firehall = findFireHallConfigById($this->getFirehallId(), 
+											$this->getGvm()->firehall_list);
 		}
 		return $firehall;
 	}
@@ -127,17 +128,19 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			$firehall_id = get_query_param('fhid');
 			$callkey_id = get_query_param('ckid');
 			$user_id = get_query_param('member_id');
-			//$callkey_validated = false;
-			
-			$sql_where_clause = '';
-			
 			$callout_id = get_query_param('cid');
+			
+			$sql_where_clause = "";
+			
 			if(isset($callout_id) && $callout_id != null) {
 				$callout_id = (int) $callout_id;
-				$sql_where_clause = ' WHERE id = ' . $this->getGvm()->RR_DB_CONN->real_escape_string($callout_id);
+				$sql_where_clause = " WHERE id = " . 
+						$this->getGvm()->RR_DB_CONN->real_escape_string($callout_id);
 			
 				if(isset($callkey_id) && $callkey_id != null) {
-					$sql_where_clause .= ' AND call_key = \'' . $this->getGvm()->RR_DB_CONN->real_escape_string($callkey_id) . '\'';
+					$sql_where_clause .= " AND call_key = '" . 
+							$this->getGvm()->RR_DB_CONN->real_escape_string($callkey_id) . 
+										 "'";
 				}
 			}
 			else {
@@ -151,7 +154,8 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			
 			if($callout_id != -1 && isset($callkey_id)) {
 				// Read from the database info about this callout
-				$sql = 'SELECT * FROM callouts' . $sql_where_clause . ';';
+				$sql = "SELECT * FROM callouts $sql_where_clause ;";
+				
 				$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 				if($sql_result == false) {
 					$log->error("Call Info callouts SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
@@ -240,12 +244,14 @@ class CalloutDetailsViewModel extends BaseViewModel {
 				create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 				$sql_no_response = 'SELECT id, user_id FROM ldap_user_accounts ' .
 								   ' WHERE id NOT IN (SELECT useracctid ' .
-								   ' FROM callouts_response WHERE calloutid = ' .  $this->getCalloutId() . ');';
+								   ' FROM callouts_response WHERE calloutid = ' .  
+								   $this->getCalloutId() . ');';
 			}
 			else {
 				$sql_no_response = 'SELECT id, user_id FROM user_accounts ' .
 								   ' WHERE id NOT IN (SELECT useracctid ' .
-								   ' FROM callouts_response WHERE calloutid = ' .  $this->getCalloutId() . ');';
+								   ' FROM callouts_response WHERE calloutid = ' .  
+								   $this->getCalloutId() . ');';
 			}
 			
 			$sql_no_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_no_response );
@@ -259,9 +265,6 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			$results = array();
 			while($row = $sql_no_response_result->fetch_assoc()) {
 				// Add any custom fields with values here
-				//$row['responder_location'] = urlencode($row_r->latitude) . ',' . urlencode($row_r->longitude);
-				//$row['firehall_location'] = urlencode($this->getGvm()->firehall->WEBSITE->FIREHALL_HOME_ADDRESS);
-			
 				$results[] = $row;
 			}
 			$sql_no_response_result->close();
@@ -280,12 +283,14 @@ class CalloutDetailsViewModel extends BaseViewModel {
 				create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 				$sql_yes_response = 'SELECT id,user_id FROM ldap_user_accounts ' .
 									' WHERE id IN (SELECT useracctid ' .
-									' FROM callouts_response WHERE calloutid = ' .  $this->getCalloutId() . ');';
+									' FROM callouts_response WHERE calloutid = ' .  
+									$this->getCalloutId() . ');';
 			}
 			else {
 				$sql_yes_response = 'SELECT id,user_id FROM user_accounts ' .
 									' WHERE id IN (SELECT useracctid ' .
-									' FROM callouts_response WHERE calloutid = ' .  $this->getCalloutId() . ');';
+									' FROM callouts_response WHERE calloutid = ' .  
+									$this->getCalloutId() . ');';
 			}
 			
 			$sql_yes_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_yes_response );
@@ -299,9 +304,6 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			$results = array();
 			while($row = $sql_yes_response_result->fetch_assoc()) {
 				// Add any custom fields with values here
-				//$row['responder_location'] = urlencode($row_r->latitude) . ',' . urlencode($row_r->longitude);
-				//$row['firehall_location'] = urlencode($this->getGvm()->firehall->WEBSITE->FIREHALL_HOME_ADDRESS);
-					
 				$results[] = $row;
 			}
 			$sql_yes_response_result->close();
@@ -310,7 +312,4 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		}
 		return $this->callout_details_end_responding_list;
 	}
-	
-	
 }
-

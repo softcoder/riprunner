@@ -34,7 +34,6 @@ abstract class BaseViewModel {
 	}
 	
 	public function __get($name) {
-		// throw some kind of error
 		throw new \Exception("Invalid var reference [$name].");
 	}
 

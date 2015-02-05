@@ -22,6 +22,5 @@ $template = $twig->resolveTemplate(
 		array('@custom/login-custom.twig.html',
 			  'login.twig.html'));
 
-//$template = $twig->loadTemplate('login.twig.html');
 // Output our template
 echo $template->render($view_template_vars);

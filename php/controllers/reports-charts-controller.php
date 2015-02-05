@@ -23,6 +23,5 @@ $template = $twig->resolveTemplate(
 		array('@custom/reports-charts-custom.twig.html',
 			  'reports-charts.twig.html'));
 
-//$template = $twig->loadTemplate('reports-charts.twig.html');
 // Output our template
 echo $template->render($view_template_vars);

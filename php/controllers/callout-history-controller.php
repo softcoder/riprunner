@@ -25,6 +25,5 @@ $template = $twig->resolveTemplate(
 		array('@custom/callout-history-custom.twig.html',
 			  'callout-history.twig.html'));
 
-//$template = $twig->loadTemplate('callout-history.twig.html');
 // Output our template
 echo $template->render($view_template_vars);

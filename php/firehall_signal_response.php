@@ -8,10 +8,12 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once( 'config.php' );
-require_once( 'functions.php' );
-require_once( 'plugins_loader.php' );
-require_once( 'firehall_signal_gcm.php' );
+require_once 'config.php';
+require_once __RIPRUNNER_ROOT__ . '/functions.php';
+require_once __RIPRUNNER_ROOT__ . '/plugins_loader.php';
+require_once __RIPRUNNER_ROOT__ . '/firehall_signal_gcm.php';
+require_once __RIPRUNNER_ROOT__ . '/template.php';
+require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 function signalFireHallResponse($callout, $userId, $userGPSLat, $userGPSLong, 
 								$userStatus) {
@@ -75,25 +77,43 @@ function signalResponseToSMSPlugin($callout, $userId, $userGPSLat, $userGPSLong,
 }
 
 function getSMSCalloutResponseMessage($callout, $userId, $userStatus, $maxLength) {
+	global $log;
+	global $twig;
+	
+	$view_template_vars = array();
+	$view_template_vars['callout'] = $callout;
+	$view_template_vars['responding_userid'] = $userId;
+	$view_template_vars['responding_userstatus'] = $userStatus;
+	$view_template_vars['responding_userstatus'] = $userStatus;
+	$view_template_vars['responding_userstatus_description'] = getCallStatusDisplayText($userStatus);
+	$view_template_vars['status_type_complete'] = CalloutStatusType::Complete;
+	$view_template_vars['status_type_cancelled'] = CalloutStatusType::Cancelled;
+	
+	// Load our template
+	$template = $twig->resolveTemplate(
+			array('@custom/sms-callout-response-msg-custom.twig.html',
+				  'sms-callout-response-msg.twig.html'));
+	// Output our template
+	$smsMsg = $template->render($view_template_vars);
+		
+// 	if($userStatus == CalloutStatusType::Complete ||
+// 		$userStatus == CalloutStatusType::Cancelled) {
+// 		$msgSummary = 'Responder: ' . $userId . 
+// 		' has marked the callout as: ' . getCallStatusDisplayText($userStatus);
+// 	}
+// 	else {
+// 		$msgSummary = 'Responder attending: ' . $userId;
+// 	}
 
-	if($userStatus == CalloutStatusType::Complete ||
-		$userStatus == CalloutStatusType::Cancelled) {
-		$msgSummary = 'Responder: ' . $userId . 
-		' has marked the callout as: ' . getCallStatusDisplayText($userStatus);
-	}
-	else {
-		$msgSummary = 'Responder attending: ' . $userId;
-	}
+// 	$details_link = $callout->getFirehall()->WEBSITE->WEBSITE_ROOT_URL
+// 	. 'ci/cid=' . $callout->getId()
+// 	. '&fhid=' . $callout->getFirehall()->FIREHALL_ID
+// 	. '&ckid=' . $callout->getKeyId();
 
-	$details_link = $callout->getFirehall()->WEBSITE->WEBSITE_ROOT_URL
-	. 'ci/cid=' . $callout->getId()
-	. '&fhid=' . $callout->getFirehall()->FIREHALL_ID
-	. '&ckid=' . $callout->getKeyId();
-
-	$smsMsg = $msgSummary;
-	if(isset($maxLength) && $maxLength > 0) {
-		$smsMsg = array($msgSummary,$details_link);
-	}
+// 	$smsMsg = $msgSummary;
+// 	if(isset($maxLength) && $maxLength > 0) {
+// 		$smsMsg = array($msgSummary,$details_link);
+// 	}
 	return $smsMsg;
 }
 

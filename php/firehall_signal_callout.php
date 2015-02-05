@@ -14,9 +14,6 @@ require_once 'functions.php';
 require_once 'firehall_signal_sms.php';
 require_once 'firehall_signal_gcm.php';
 
-// function signalFireHallCallout($FIREHALL, $callDateTimeNative, $callCode, 
-// 	                		$callAddress, $callGPSLat, $callGPSLong, 
-// 	                		$callUnitsResponding, $callType) {
 function signalFireHallCallout($callout) {
 
 	// Connect to the database
@@ -24,31 +21,31 @@ function signalFireHallCallout($callout) {
 	
 	// update database info about this callout
 	$callOutDateTimeString = $callout->getDateTimeAsString();
-// 	if($callDateTimeNative != null && $callDateTimeNative != '') {
-// 		$callOutDateTimeString = $callDateTimeNative->format('Y-m-d H:i:s');
-// 	}
 	
 	// See if this is a duplicate callout?
 	$sql = "SELECT id,call_key,status " .
-			"FROM callouts WHERE calltime = '" . $db_connection->real_escape_string( $callOutDateTimeString ) . "'" .
-			" AND calltype = '" . $db_connection->real_escape_string( $callout->getCode() ) . "'" .
-			" AND (address = '" . $db_connection->real_escape_string( $callout->getAddress() ) . "'" .
-			" OR (latitude = " . $db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat())) ) . 
-	        "     AND longitude = " . $db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong())) ). "));";
+			"FROM callouts WHERE calltime = '" . 
+			$db_connection->real_escape_string( $callOutDateTimeString ) . 
+			"'" .
+			" AND calltype = '" . 
+			$db_connection->real_escape_string( $callout->getCode() ) . 
+			"'" .
+			" AND (address = '" . 
+			$db_connection->real_escape_string( $callout->getAddress() ) . 
+			"'" .
+			" OR (latitude = " . 
+			$db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat())) ) . 
+	        "     AND longitude = " . 
+	        $db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong())) ). 
+	        "));";
+	
 	$sql_result = $db_connection->query( $sql );
 	if($sql_result == false) {
 		printf("Error: %s\n", mysqli_error($db_connection));
 		throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 	}
 	
-	//$callout_id = null;
-	//$callout_status = null;
-	//$callKey = null;
-	
 	if($row = $sql_result->fetch_object()) {
-		//$callout_id = $row->id;
-		//$callKey = $row->call_key;
-		//$callout_status = $row->status;
 		$callout->setId($row->id);
 		$callout->setKeyId($row->call_key);
 		$callout->setStatus($row->status);
@@ -59,15 +56,29 @@ function signalFireHallCallout($callout) {
 	if($callout->getId() != null) {
 		// Insert the new callout
 		$sql = 'UPDATE callouts' .
-				' SET address = \'' . $db_connection->real_escape_string( $callout->getAddress() )           . '\', ' .
-				' latitude = ' . $db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat())) )  . ', ' .
-				' longitude = ' . $db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong())) ) . ', ' .
-				' units = \'' . $db_connection->real_escape_string( $callout->getUnitsResponding() ) . '\'' .
+				' SET address = \'' . 
+				$db_connection->real_escape_string( $callout->getAddress() )           . 
+				'\', ' .
+				' latitude = ' . 
+				$db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat())) )  . 
+				', ' .
+				' longitude = ' . 
+				$db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong())) ) . 
+				', ' .
+				' units = \'' . 
+				$db_connection->real_escape_string( $callout->getUnitsResponding() ) . 
+				'\'' .
 				' WHERE id = ' . $callout->getId() . 
-				' AND (address <> \'' . $db_connection->real_escape_string( $callout->getAddress() )           . '\'' . 
-				' OR latitude <> ' . $db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat())) )  . 		
-				' OR longitude <> ' . $db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong())) ) .
-				' OR units <> \'' . $db_connection->real_escape_string( $callout->getUnitsResponding() ) . '\');';
+				' AND (address <> \'' . 
+				$db_connection->real_escape_string( $callout->getAddress() )           . 
+				'\'' . 
+				' OR latitude <> ' . 
+				$db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat())) )  .
+				' OR longitude <> ' . 
+				$db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong())) ) .
+				' OR units <> \'' . 
+				$db_connection->real_escape_string( $callout->getUnitsResponding() ) . 
+				'\');';
 		
 		$sql_result = $db_connection->query( $sql );
 		
@@ -86,8 +97,7 @@ function signalFireHallCallout($callout) {
 			$gcmMsg = getGCMCalloutMessage($callout);
 			
 			signalCallOutRecipientsUsingGCM($callout,null,
-				$update_callout_prefix_msg . $gcmMsg,
-				$db_connection);
+					$update_callout_prefix_msg . $gcmMsg, $db_connection);
 		}
 	}
 	else {
@@ -111,7 +121,6 @@ function signalFireHallCallout($callout) {
 			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 		}
 		
-		//$callout_id = $db_connection->insert_id;
 		$callout->setId($db_connection->insert_id);
 		$callout->setStatus(CalloutStatusType::Paged);
 		
@@ -122,11 +131,14 @@ function signalFireHallCallout($callout) {
 		signalCallOutRecipientsUsingGCM($callout,null,$gcmMsg,$db_connection);
 
 		// Only update status if not cancelled or completed already
-		$sql_update = 'UPDATE callouts SET status=' . CalloutStatusType::Notified .' WHERE id = ' .
-				$db_connection->real_escape_string( $callout->getId() ) . ' AND status NOT in(3,10);';
+		$sql_update = 'UPDATE callouts SET status=' . 
+					  CalloutStatusType::Notified . 
+					  ' WHERE id = ' .
+					  $db_connection->real_escape_string( $callout->getId() ) . 
+					  ' AND status NOT in(3,10);';
 			
 		$sql_result = $db_connection->query( $sql_update );
-			
+		
 		if($sql_result == false) {
 			printf("SQL #2 Error: %s\n", mysqli_error($db_connection));
 			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql_update . "]");

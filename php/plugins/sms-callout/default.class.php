@@ -10,7 +10,8 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once( 'plugin_interfaces.php' );
+require_once 'plugin_interfaces.php';
+require_once __RIPRUNNER_ROOT__ . '/template.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
@@ -76,21 +77,22 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 	
 	private function getSMSCalloutMessage($callout, $maxLength) {
 		global $log;
+		global $twig;
+
+		$view_template_vars = array();
+		$view_template_vars['callout'] = $callout;
 		
-		$msgSummary = '911-Page: ' . $callout->getCode() . ', ' . 
-						$callout->getCodeDescription() . ', ' . 
-						$callout->getAddress();
-	
-		$details_link = $callout->getFirehall()->WEBSITE->WEBSITE_ROOT_URL
-		. 'ci/cid=' . $callout->getId()
-		. '&fhid=' . $callout->getFirehall()->FIREHALL_ID
-		. '&ckid=' . $callout->getKeyId();
-	
-		$smsMsg = $msgSummary .', ' . $details_link;
-		if(isset($maxLength) && $maxLength > 0) {
-			$smsMsg = array($msgSummary,
-					$details_link);
-		}
+		// Load our template
+		$template = $twig->resolveTemplate(
+				array('@custom/sms-callout-msg-custom.twig.html',
+					  'sms-callout-msg.twig.html'));
+		// Output our template
+		$smsMsg = $template->render($view_template_vars);
+		
+		//if(isset($maxLength) && $maxLength > 0) {
+		//	$smsMsg = array($msgSummary,
+		//			$details_link);
+		//}
 		
 		$log->trace("Sending SMS Callout msg [$smsMsg]");
 		

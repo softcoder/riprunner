@@ -42,7 +42,6 @@ class GlobalViewModel {
 			return $this->getDetectBrowser()->isTablet();
 		}
 		if('RR_DOC_ROOT' == $name) {
-			//return $this->getFireHall()->WEBSITE->WEBSITE_ROOT_URL;
 			return getFirehallRootURLFromRequest(
 					null,$this->firehalls);
 		}

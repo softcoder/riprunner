@@ -21,6 +21,5 @@ $template = $twig->resolveTemplate(
 		array('@custom/login-device-custom.twig.html',
 			  'login-device.twig.html'));
 
-//$template = $twig->loadTemplate('login-device.twig.html');
 // Output our template
 echo $template->render($view_template_vars);

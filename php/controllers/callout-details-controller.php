@@ -22,6 +22,6 @@ new CalloutDetailsViewModel($global_vm,$view_template_vars);
 $template = $twig->resolveTemplate(
 	array('@custom/callout-details-custom.twig.html',
 		  'callout-details.twig.html'));
-//$template = $twig->loadTemplate($twig_controller_view);
+
 // Output our template
 echo $template->render($view_template_vars);

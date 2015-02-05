@@ -22,6 +22,5 @@ $template = $twig->resolveTemplate(
 		array('@custom/callout-response-custom.twig.html',
 			  'callout-response.twig.html'));
 
-//$template = $twig->loadTemplate('callout-response.twig.html');
 // Output our template
 echo $template->render($view_template_vars);

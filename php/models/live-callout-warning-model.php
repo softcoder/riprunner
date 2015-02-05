@@ -46,7 +46,8 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 		// Check if there is an active callout (within last 48 hours) and if so send the details
 		$sql = 'SELECT * FROM callouts' .
 				' WHERE status NOT IN (3,10) AND ' .
-				' TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
+				' TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . 
+				DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
 				' ORDER BY id DESC LIMIT 1;';
 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 		if($sql_result == false) {
@@ -65,4 +66,3 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 		return $this->getCalloutModel();
 	}
 }
-

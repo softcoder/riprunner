@@ -23,6 +23,5 @@ $template = $twig->resolveTemplate(
 		array('@custom/main-menu-custom.twig.html',
 			  'main-menu.twig.html'));
 
-//$template = $twig->loadTemplate('main-menu.twig.html');
 // Output our template
 echo $template->render($view_template_vars);

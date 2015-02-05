@@ -1,0 +1,6 @@
+{% if responding_userstatus == status_type_complete or
+      responding_userstatus == status_type_cancelled %}
+Responder: {{ responding_userid }} has marked the callout as: {{ responding_userstatus_description }}.
+{% else %}
+Responder: {{ responding_userid }} is attending the callout: {{ callout.code }}.
+{% endif %}

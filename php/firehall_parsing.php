@@ -30,26 +30,13 @@
 	// Incident Units Responding : [SALGRP1]
 	//
 	function processFireHallText($msgText) {
-	 
-		//$isCallOutEmail = false;
-		//$calloutOutMatchCount = 0;
 		
 		$callout = new \riprunner\CalloutDetails();
 		
-		//$callDateTimeNative = null;
 		$callDateTime = extractDelimitedValueFromString($msgText, EMAIL_PARSING_DATETIME_PATTERN, 1);
 		$callDateTime = trim($callDateTime);
 		print("DateTime : [" . $callDateTime . "]\n");
 		if($callDateTime != null) {
-			//$calloutOutMatchCount++;
-			// 2014-07-10 16:36:30
-			//$callDateTime = preg_replace( '/[^[:print:]]/', '',$callDateTime);
-			//$callDateTime = preg_replace( '/[^\P{C}\n]+/u', '',$callDateTime);
-			//$callDateTime = preg_replace( '/[^(\x20-\x7F)]*/', '',$callDateTime);
-			//$callDateTimeNative = date_create_from_format('Y-m-d H:i:s', $callDateTime);
-			//if($callDateTimeNative == false) {
-			//	$callDateTimeNative = null;
-			//}
 			$callout->setDateTime($callDateTime);
 		}
 		
@@ -57,7 +44,6 @@
 		$callCode = trim($callCode);
 		print("Code : [" . $callCode . "]\n");
 		if($callCode != null) {
-			//$calloutOutMatchCount++;
 			$callout->setCode($callCode);
 		}
 		 
@@ -68,7 +54,6 @@
 		$callAddress = trim($callAddress);
 		print("Incident Address : [" . $callAddress . "]\n");
 		if($callAddress != null) {
-			//$calloutOutMatchCount++;
 			$callout->setAddress($callAddress);
 		}
 		
@@ -76,7 +61,6 @@
 		$callGPSLat = trim($callGPSLat);
 		print("Incident GPS Lat : [" . $callGPSLat . "]\n");
 		if($callGPSLat != null) {
-			//$calloutOutMatchCount++;
 			$callout->setGPSLat($callGPSLat);
 		}
 		
@@ -84,7 +68,6 @@
 	   	$callGPSLong = trim($callGPSLong);
 		print("Incident GPS Long : [" . $callGPSLong . "]\n");
 		if($callGPSLong != null) {
-			//$calloutOutMatchCount++;
 			$callout->setGPSLong($callGPSLong);
 		}
 		
@@ -92,21 +75,8 @@
 	   	$callUnitsResponding = trim($callUnitsResponding);
 	   	print("Incident Units Responding : [" . $callUnitsResponding . "]\n");
 	   	if($callUnitsResponding != null) {
-	   		//$calloutOutMatchCount++;
 	   		$callout->setUnitsResponding($callUnitsResponding);
 	   	}
-	   	
-	   	//if($calloutOutMatchCount >= 3) {
-	   	//	$isCallOutEmail = true;
-	   	//}
-	   	//return array($isCallOutEmail, 
-	   	//			 $callDateTimeNative, 
-	   	//			 $callCode, 
-	   	//			 $callAddress, 
-	   	//			 $callGPSLat, 
-	   	//			 $callGPSLong, 
-	   	//			 $callUnitsResponding, 
-	   	//		 	 $callType);
 	   	
 	   	return $callout;
 	}

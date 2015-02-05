@@ -32,4 +32,3 @@ class LoginViewModel extends BaseViewModel {
 		return parent::__isset($name);
 	}
 }
-

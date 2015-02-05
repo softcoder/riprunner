@@ -53,10 +53,14 @@ class UsersMenuViewModel extends BaseViewModel {
 		
 		if($this->getGvm()->firehall->LDAP->ENABLED) {
 			create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
-			$sql = 'SELECT * FROM ldap_user_accounts ' . $sql_where_clause . ';';
+			$sql = 'SELECT * FROM ldap_user_accounts ' . 
+					$sql_where_clause . 
+					';';
 		}
 		else {
-			$sql = 'SELECT * FROM user_accounts ' . $sql_where_clause . ';';
+			$sql = 'SELECT * FROM user_accounts ' . 
+					$sql_where_clause . 
+					';';
 		}
 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 		if($sql_result == false) {
@@ -79,4 +83,3 @@ class UsersMenuViewModel extends BaseViewModel {
 		return $resultArray;
 	}	
 }
-
