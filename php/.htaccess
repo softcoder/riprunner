@@ -4,8 +4,15 @@
   Satisfy all
 </FilesMatch>
 
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ routes.php [QSA,L]
+#RewriteEngine On
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^(.*)$ routes.php [QSA,L]
 
+RewriteEngine On
+RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond $1#%{REQUEST_URI} ([^#]*)#(.*?)\1$
+RewriteRule ^(.*)$ %2routes.php [QSA,L]

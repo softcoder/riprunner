@@ -40,6 +40,7 @@ else {
         <link rel="stylesheet" href="styles/main.css" />
         <?php endif; ?>
         <script type="text/JavaScript" src="js/sha512.js"></script> 
+        <script type="text/JavaScript" src="js/jquery-2.1.1.min.js"></script>
         <script type="text/JavaScript" src="js/spin.js"></script>
         <script type="text/JavaScript" src="js/forms.js"></script> 
         <script type="text/JavaScript" src="js/common-utils.js"></script>

@@ -390,6 +390,7 @@ if(isset($firehall_id) && isset($callout_id) &&
 						$html_output = '<html>' . PHP_EOL;
 						$html_output .= '<head>' . PHP_EOL;
 						
+						$html_output .= '<script type="text/JavaScript" src="js/jquery-2.1.1.min.js"></script>' . PHP_EOL;
 						$html_output .= '<script type="text/JavaScript" src="js/spin.js"></script>' . PHP_EOL;
 						$html_output .= '<script type="text/JavaScript" src="js/common-utils.js"></script>' . PHP_EOL;
 						$html_output .= '</head>' . PHP_EOL;

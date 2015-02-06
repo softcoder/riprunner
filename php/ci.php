@@ -41,6 +41,7 @@ if(isset($firehall_id)) {
 else {
 	$log->error("Call Info firehall_id is NOT SET!");
 }
+$html_top .= '<script type="text/JavaScript" src="js/jquery-2.1.1.min.js"></script>' . PHP_EOL;
 $html_top .= '<script type="text/JavaScript" src="js/spin.js"></script>' . PHP_EOL;
 $html_top .= '<script type="text/JavaScript" src="js/common-utils.js"></script>' . PHP_EOL;
 
