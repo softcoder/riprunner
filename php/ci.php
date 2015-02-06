@@ -41,8 +41,9 @@ if(isset($firehall_id)) {
 else {
 	$log->error("Call Info firehall_id is NOT SET!");
 }
-$html_top .= '<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>' . PHP_EOL;
-$html_top .= '<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>' . PHP_EOL;
+$html_top .= '<script type="text/JavaScript" src="js/jquery-2.1.1.min.js"></script>' . PHP_EOL;
+$html_top .= '<script type="text/JavaScript" src="js/spin.js"></script>' . PHP_EOL;
+$html_top .= '<script type="text/JavaScript" src="js/common-utils.js"></script>' . PHP_EOL;
 
 ?>
 <?php 
@@ -56,10 +57,6 @@ if ($detect->isMobile()) {
  		if (defined('CUSTOM_CALLOUT_MAIN_CSS')) {
 			$html_top .= '<link rel="stylesheet" href="' . CUSTOM_CALLOUT_MAIN_CSS . '" />' . PHP_EOL;
 		}
-}
-
-if ($google_map_type == "javascript") {
-	//$html_top .= str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_JAVASCRIPT_HEAD);
 }
 ?>
 <?php
@@ -248,7 +245,8 @@ if(isset($firehall_id)) {
 							if($no_response_count > 0) {
 								$html .='<br />' . PHP_EOL;
 							}
-							if ($callout_status_complete == false) {
+							if (ALLOW_CALLOUT_UPDATES_AFTER_FINISHED == true || 
+									$callout_status_complete == false) {
 							$html .='<form id="call_no_response_' . $row_no_response->id .
 							'" action="cr.php?fhid=' . urlencode($firehall_id)
 							. '&cid=' . urlencode($callout_id)

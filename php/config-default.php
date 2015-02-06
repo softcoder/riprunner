@@ -15,6 +15,8 @@ require_once( 'config_interfaces.php' );
 require_once( 'config_constants.php' );
 if(file_exists('config-jsmap-extras.php')) require_once('config-jsmap-extras.php');
 
+define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
+
 // ====================================================================================================
 // ===                           CUSTOMZIABLE TEXT AND HTML TAGS                                    ===
 // ====================================================================================================
