@@ -90,17 +90,29 @@ function getGeoCoordinates_success(position) {
 	}
 };
 function getGeoCoordinates_error(err) {
-	//debugger;
-	clearTimeout(getGeoCoordinatesTimeoutId);
-	//alert('GEO error: ' + err);
-	alert('GEO error (' + err.code + '): ' + err.message);
-	
-	if(getGeoCoordinatesForm != null) {
-		if(appendGeoCoordinatesSpinner != null) {
-			appendGeoCoordinatesSpinner.stop();
-		}
+	try {
+		//debugger;
+		clearTimeout(getGeoCoordinatesTimeoutId);
+		//alert('GEO error: ' + err);
+		alert('GEO error (' + err.code + '): ' + err.message);
 		
-		getGeoCoordinatesForm.submit();
+		if(getGeoCoordinatesForm != null) {
+			if(appendGeoCoordinatesSpinner != null) {
+				appendGeoCoordinatesSpinner.stop();
+			}
+			
+			getGeoCoordinatesForm.submit();
+		}
+	}
+	catch(ex) {
+		try {
+			if(getGeoCoordinatesForm != null) {
+				getGeoCoordinatesForm.submit();
+			}
+		}
+		catch(ex2) {
+			alert('Error submitting form: [' + ex.message + '] [' + ex2.message + ']');
+		}
 	}
 };
 
