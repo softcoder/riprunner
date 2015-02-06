@@ -248,7 +248,8 @@ if(isset($firehall_id)) {
 							if($no_response_count > 0) {
 								$html .='<br />' . PHP_EOL;
 							}
-							if ($callout_status_complete == false) {
+							if (ALLOW_CALLOUT_UPDATES_AFTER_FINISHED == true || 
+									$callout_status_complete == false) {
 							$html .='<form id="call_no_response_' . $row_no_response->id .
 							'" action="cr.php?fhid=' . urlencode($firehall_id)
 							. '&cid=' . urlencode($callout_id)

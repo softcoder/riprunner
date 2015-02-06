@@ -64,6 +64,9 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		if('google_map_type' == $name) {
 			return $google_map_type;
 		}
+		if('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED' == $name) {
+			return ALLOW_CALLOUT_UPDATES_AFTER_FINISHED;
+		}
 		
 		return parent::__get($name);
 	}
@@ -74,7 +77,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 				  'callout_responding_user_id', 'callout_status_complete', 'callout_status_cancel',
 			      'callout_details_list','callout_details_responding_list',
 				  'callout_details_not_responding_list', 'callout_details_end_responding_list',
-				  'google_map_type'
+				  'google_map_type', 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED'
 			))) {
 			return true;
 		}

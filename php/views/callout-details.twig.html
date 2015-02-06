@@ -136,6 +136,7 @@
                            callout_details_vm.member_id == row_no.user_id %}
                 
                             {% block callout_no_response %}
+                            {% if callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED or callout_pending %}
                             <tr>
                             <td class="ci_align_cell">
                                 <span class='inset-button'>{{ row_no.user_id }}</span>
@@ -152,6 +153,7 @@
                                 </form>
                             </td>
                             </tr>
+                            {% endif %}
                             {% endblock %}
                             
                             {% set no_response_count = no_response_count + 1 %}
