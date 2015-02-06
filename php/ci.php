@@ -57,10 +57,6 @@ if ($detect->isMobile()) {
 			$html_top .= '<link rel="stylesheet" href="' . CUSTOM_CALLOUT_MAIN_CSS . '" />' . PHP_EOL;
 		}
 }
-
-if ($google_map_type == "javascript") {
-	//$html_top .= str_replace('${API_KEY}', $FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY, GOOGLE_MAP_JAVASCRIPT_HEAD);
-}
 ?>
 <?php
 
