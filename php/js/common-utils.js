@@ -92,7 +92,8 @@ function getGeoCoordinates_success(position) {
 function getGeoCoordinates_error(err) {
 	//debugger;
 	clearTimeout(getGeoCoordinatesTimeoutId);
-	alert('GEO error: ' + err);
+	//alert('GEO error: ' + err);
+	alert('GEO error (' + err.code + '): ' + err.message);
 	
 	if(getGeoCoordinatesForm != null) {
 		if(appendGeoCoordinatesSpinner != null) {
