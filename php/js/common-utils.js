@@ -206,7 +206,10 @@ function openURLHidden(url) {
 	//window.open(url,'_blank', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=10000, top=10000, width=10, height=10, visible=none', '');
 	//window.open(url,'_blank', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no, visible=none', '');
 	//window.open(url,'_blank', '', '');
-	window.open(url,'_blank', 'width=400, height=100, visible=none', '');
+	
+	// Visible for debugging
+	//window.open(url,'_blank', 'width=400, height=100, visible=none', '');
+	window.open(url,'_blank', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=-1, top=-1, width=10, height=10, visible=none', '');
 }
 
 var openAjaxUrlSpinner = null;
@@ -247,7 +250,8 @@ function openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt) {
     		  w = window.open();
     	  }
     	  else {
-    		  w = window.open('','_blank', 'width=400, height=100, visible=none', '');
+    		  //w = window.open('','_blank', 'width=400, height=100, visible=none', '');
+    		  window.open('','_blank', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=-1, top=-1, width=1, height=1, visible=none', '');
     	  }
     	  
     	  $(w.document.body).html(result);

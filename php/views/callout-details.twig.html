@@ -143,12 +143,12 @@
                             <td class="ci_align_cell" colspan="2">
                                 <INPUT TYPE="button" VALUE="Respond" 
                                        class="ci_respondnow" 
-                                       onclick="if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',this)) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
+                                       onclick="if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
 
                                 <form id="call_no_response_{{ row_no.id }}" 
                                   action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}" 
                                   method="POST" 
-                                  onsubmit="return confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',this);">
+                                  onsubmit="return confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',document.getElementById('call_no_response_{{ row_no.id }}'));">
                                 </form>
                             </td>
                             </tr>
@@ -174,12 +174,12 @@
                                 <td class="ci_align_cell">
                                     <INPUT TYPE="button" VALUE="Complete the call" 
                                        class="ci_completenow" 
-                                       onclick="if(confirmAppendGeoCoordinates('COMPLETE this call?\nConfirm that the call should be set to COMPLETE?',this)) document.getElementById('call_yes_response_complete_{{ row_yes.id }}').submit();" />
+                                       onclick="if(confirmAppendGeoCoordinates('COMPLETE this call?\nConfirm that the call should be set to COMPLETE?',document.getElementById('call_yes_response_complete_{{ row_yes.id }}'))) document.getElementById('call_yes_response_complete_{{ row_yes.id }}').submit();" />
                                 
                                     <form id="call_yes_response_complete_{{ row_yes.id }}" 
                                       action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_yes.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status={{ callout_details_vm.callout_status_complete }}" 
                                       method="POST" 
-                                      onsubmit="return confirmAppendGeoCoordinates('COMPLETE this call?\nConfirm that the call should be set to COMPLETE?',this);">
+                                      onsubmit="return confirmAppendGeoCoordinates('COMPLETE this call?\nConfirm that the call should be set to COMPLETE?',document.getElementById('call_yes_response_complete_{{ row_yes.id }}'));">
                                     </form>
                                 </td>
                                 {% endblock %}
@@ -188,12 +188,12 @@
                                 <td>
                                     <INPUT TYPE="button" VALUE="Cancel the call" 
                                        class="ci_cancelnow" 
-                                       onclick="if(confirmAppendGeoCoordinates('CANCEL this call?\nConfirm that the call should be CANCELLED?',this)) document.getElementById('call_yes_response_cancel_{{ row_yes.id }}').submit();" />
+                                       onclick="if(confirmAppendGeoCoordinates('CANCEL this call?\nConfirm that the call should be CANCELLED?',document.getElementById('call_yes_response_cancel_{{ row_yes.id }}'))) document.getElementById('call_yes_response_cancel_{{ row_yes.id }}').submit();" />
                                 
                                     <form id="call_yes_response_cancel_{{ row_yes.id }}" 
                                   action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_yes.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status={{ callout_details_vm.callout_status_cancel }}" 
                                   method="POST" 
-                                  onsubmit="return confirmAppendGeoCoordinates('CANCEL this call?\nConfirm that the call should be CANCELLED?',this);">
+                                  onsubmit="return confirmAppendGeoCoordinates('CANCEL this call?\nConfirm that the call should be CANCELLED?',document.getElementById('call_yes_response_cancel_{{ row_yes.id }}'));">
                                     </form>
                                 </td>
                                 </tr>
