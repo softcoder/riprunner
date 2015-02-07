@@ -14,6 +14,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	die( 'This file must not be invoked directly.' );
 }
 
+require_once __RIPRUNNER_ROOT__ . '/cache/cache-proxy.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class LDAP {
@@ -25,11 +26,14 @@ class LDAP {
 	var $connection = null;
 	var $bind = null;
 	
+	var $cache = null;
+	
 	function __construct($adServer) {
 		$this->ad_server = $adServer;
 		if(isset($this->ad_server) == false || $this->ad_server == '') {
 			throwExceptionAndLogError("Invalid LDAP server configuration.","Invalid LDAP server specified [" . $this->ad_server . "]");
 		}
+		$this->cache = new CacheProxy();
 	}
 	
 	function __destruct() {
@@ -45,10 +49,20 @@ class LDAP {
 	
 	function search($base_dn, $filter, $sort_by) {
 		global $log;
-		$this->connect();
-		$this->bind();
 		
 		$log->trace("LDAP search using basedn [$base_dn] filter [$filter] sortby [$sort_by]");
+		
+		$this->connect();
+		$this->bind();
+
+		$cache_key_lookup = "RIPRUNNER_LDAP_SEARCH_" . $base_dn . (isset($filter) ? $filter : "") . (isset($sort_by) ? $sort_by : "");
+		if ($this->cache->getItem($cache_key_lookup) !== FALSE) {
+			$log->trace("LDAP search found in CACHE.");
+			return $this->cache->getItem($cache_key_lookup);
+		}
+		else {
+			$log->trace("LDAP search NOT in CACHE.");
+		}
 		
 		$result = ldap_search($this->connection,$base_dn,$filter);
 		if($result == false) {
@@ -68,6 +82,9 @@ class LDAP {
 // 					$log->trace("LDAP search results:\n{$ldap_results}");
 // 				}
 // 			}
+
+			$this->cache->setItem($cache_key_lookup,$entries);
+			
 			return $entries;
 		}
 	}
