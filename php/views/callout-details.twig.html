@@ -244,6 +244,12 @@ $( document ).ready(function() {
 	      callout_details_vm.callout_responding_user_id is not null and
 	      callout_details_vm.firehall.MOBILE.MOBILE_TRACKING_ENABLED %}
 
+	    var uri = window.location.toString();
+	    if (uri.indexOf("?") > 0) {
+	      var clean_uri = uri.substring(0, uri.indexOf("&cruid"));
+	      window.history.replaceState({}, document.title, clean_uri);
+	    }
+	
         {% if gvm.enabled_asynch_mode %}
         openAjaxUrl("{{ gvm.RR_DOC_ROOT }}ct/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&delay=60&uid={{ callout_details_vm.callout_responding_user_id }}&ckid={{ callout_details_vm.calloutkey_id }}",true,10,30000);
         {% else %}

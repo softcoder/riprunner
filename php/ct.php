@@ -395,16 +395,15 @@ if(isset($firehall_id) && isset($callout_id) &&
 						$html_output .= '<script type="text/JavaScript" src="js/common-utils.js"></script>' . PHP_EOL;
 						$html_output .= '</head>' . PHP_EOL;
 						$html_output .= '<body>' . PHP_EOL;
-										
+
+						$html_output .= '<div id="call_tracking_response_counter">waiting...</div>' . PHP_EOL;
 						$html_output .='<form id="call_tracking_response" action="ct.php?fhid=' . urlencode($firehall_id)
 									 . '&cid=' . urlencode($callout_id)
 									 . '&delay=60'
 									 . '&uid=' . urlencode($user_id)
 									 . '&ckid=' . urlencode($callkey_id)
 									 . '" method="POST" onsubmit="return appendGeoCoordinates(document.getElementById(\'call_tracking_response\'));">'. PHP_EOL;
-						$html_output .= '<div id="call_tracking_response_counter"></div>' . PHP_EOL;
-						$html_output .= '<INPUT TYPE="submit" VALUE="GEO Track Now - ' .
-										$user_id .
+						$html_output .= '  <INPUT TYPE="submit" VALUE="GEO Track Now - ' .	$user_id .
 									    '" style="font-size: 25px; background-color:yellow" />'. PHP_EOL;
 						$html_output .= '</form>'. PHP_EOL;
 						
@@ -413,24 +412,31 @@ if(isset($firehall_id) && isset($callout_id) &&
 						$html_output .= 'var trackResponderTimer=null;'. PHP_EOL;
 						$html_output .= 'var trackResponderTimerCounter=null;'. PHP_EOL;
 						$html_output .= 'function trackResponder() {'. PHP_EOL;
-						//$html_output .= '  debugger;'. PHP_EOL;
+						$html_output .= '  //debugger;'. PHP_EOL;
 						$html_output .= '  window.clearInterval(trackResponderTimerCounter);'. PHP_EOL;
-						$html_output .= '  var div = document.getElementById("call_tracking_response_counter");'. PHP_EOL;
-						$html_output .= '  div.innerHTML="<b>Tracking GEO coords now!</b>";'. PHP_EOL;
-						$html_output .= '  var form = document.getElementById("call_tracking_response");'. PHP_EOL;
-						$html_output .= '  appendGeoCoordinates(form);'. PHP_EOL;
+						$html_output .= '  var div1 = document.getElementById("call_tracking_response_counter");'. PHP_EOL;
+						$html_output .= '  //if(div1) {'. PHP_EOL;
+						$html_output .= '  	  div1.innerHTML="<b>Tracking GEO coords now!</b>";'. PHP_EOL;
+						$html_output .= '  	  var form1 = document.getElementById("call_tracking_response");'. PHP_EOL;
+						$html_output .= '  	  appendGeoCoordinates(form1);'. PHP_EOL;
+						$html_output .= '  //}'. PHP_EOL;
 						//$html_output .= '  form.submit();'. PHP_EOL;
 						$html_output .= '}'. PHP_EOL;
 						$html_output .= 'function trackResponderCounter() {'. PHP_EOL;
-						//$html_output .= '  debugger;'. PHP_EOL;
-						$html_output .= '  var div = document.getElementById("call_tracking_response_counter");'. PHP_EOL;
-						$html_output .= '  div.innerHTML="<b>Tracking GEO coords in " + delay_seconds + " seconds.</b>";'. PHP_EOL;
-						$html_output .= '  delay_seconds -= 1;'. PHP_EOL;
+						$html_output .= '  //debugger;'. PHP_EOL;
+						$html_output .= '  var div1 = document.getElementById("call_tracking_response_counter");'. PHP_EOL;
+						$html_output .= '  //if(div1) {'. PHP_EOL;
+						$html_output .= '      div1.innerHTML="<b>Tracking GEO coords in " + delay_seconds + " seconds.</b>";'. PHP_EOL;
+						$html_output .= '      delay_seconds -= 1;'. PHP_EOL;
+						$html_output .= '  //}'. PHP_EOL;
 						$html_output .= '}'. PHP_EOL;
 						
 						//$html_output .= '  debugger;'. PHP_EOL;
-						$html_output .= 'setInterval(function () {trackResponder()}, ' . $tracking_delay .'000);'. PHP_EOL;
-						$html_output .= 'setInterval(function () {trackResponderCounter()}, 1000);'. PHP_EOL;
+						$html_output .= '//$( document ).ready(function() {'. PHP_EOL;
+						$html_output .= '//debugger;;'. PHP_EOL;
+						$html_output .= '    setInterval(function () {trackResponder()}, ' . $tracking_delay .'000);'. PHP_EOL;
+						$html_output .= '    setInterval(function () {trackResponderCounter()}, 1000);'. PHP_EOL;
+						$html_output .= '//});'. PHP_EOL;
 						$html_output .= '</script>'. PHP_EOL;
 						
 						$html_output .= '</body>' . PHP_EOL;
