@@ -401,7 +401,7 @@ if(isset($firehall_id) && isset($callout_id) &&
 									 . '&delay=60'
 									 . '&uid=' . urlencode($user_id)
 									 . '&ckid=' . urlencode($callkey_id)
-									 . '" method="POST" onsubmit="return appendGeoCoordinates(this);">'. PHP_EOL;
+									 . '" method="POST" onsubmit="return appendGeoCoordinates(document.getElementById(\'call_tracking_response\'));">'. PHP_EOL;
 						$html_output .= '<div id="call_tracking_response_counter"></div>' . PHP_EOL;
 						$html_output .= '<INPUT TYPE="submit" VALUE="GEO Track Now - ' .
 										$user_id .

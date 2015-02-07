@@ -255,7 +255,7 @@ if(isset($firehall_id)) {
 							. $injectUIDParam
 							. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\'' 
 							. str_replace('${USER_ID}', $row_no_response->user_id, CALLOUT_RESPOND_NOW_TRIGGER_CONFIRM)  
-							. '\',this);">'. PHP_EOL;
+							. '\',document.getElementById(\'call_no_response_'.$row_no_response->id.'\'));">'. PHP_EOL;
 							
 							$html .= str_replace('${USER_ID}', $row_no_response->user_id, CALLOUT_RESPOND_NOW_TRIGGER);
 							$html .='</form>'. PHP_EOL;
@@ -305,7 +305,7 @@ if(isset($firehall_id)) {
 								. '&status=' . urlencode(CalloutStatusType::Complete)
 								. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\''
 								. str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_COMPLETE_NOW_TRIGGER_CONFIRM) 
-								. '\',this);">'. PHP_EOL;
+								. '\',document.getElementById(\'call_yes_response_'.$row_yes_response->id.'\'));">'. PHP_EOL;
 								
 								$html .= str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_COMPLETE_NOW_TRIGGER);
 								$html .='</form></div>'. PHP_EOL;
@@ -319,7 +319,7 @@ if(isset($firehall_id)) {
 								. '&status=' . urlencode(CalloutStatusType::Cancelled)
 								. '" method="POST" onsubmit="return confirmAppendGeoCoordinates(\''
 									. str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_CANCEL_NOW_TRIGGER_CONFIRM)
-									. '\',this);">'. PHP_EOL;
+									. '\',document.getElementById(\'call_cancel_response_'.$row_yes_response->id.'\'));">'. PHP_EOL;
 								
 								$html .= str_replace('${USER_ID}', $row_yes_response->user_id, CALLOUT_CANCEL_NOW_TRIGGER);
 								
