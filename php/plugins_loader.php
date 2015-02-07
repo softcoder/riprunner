@@ -8,6 +8,7 @@ namespace riprunner;
 if(defined('__RIPRUNNER_ROOT__') == false) define('__RIPRUNNER_ROOT__', dirname(__FILE__));
 // The list of plugin paths
 $plugin_paths = array(
+	__RIPRUNNER_ROOT__ . '/plugins/cache/',
 	__RIPRUNNER_ROOT__ . '/plugins/sms/',
 	__RIPRUNNER_ROOT__ . '/plugins/sms-callout/'
 );

@@ -15,47 +15,63 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	die( 'This file must not be invoked directly.' );
 }
 
+require_once __RIPRUNNER_ROOT__ . '/plugins_loader.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class CacheProxy {
 
-	private $memcache = null;
+	private $cacheProviderType = 'MEMCACHE';
+	private $cacheProviderTypeFallback = 'SQLITECACHE';
+	private $cacheProvider = null;
 		
 	/*
 		Constructor
 	*/
-	function __construct() {
+	function __construct($cacheProviderType=null) {
 		global $log;
-		try {
-			if(class_exists("\Memcache")) {
-				$this->memcache = new \Memcache();
-				@$this->memcache->connect("127.0.0.1",11211);  // connect memcahe server
+		
+		if(isset($cacheProviderType)) {
+			$this->cacheProviderType = $cacheProviderType;
+		}
+		if($this->getCacheProvider() == null && 
+				$this->cacheProviderType !== $this->cacheProviderTypeFallback) {
+			$this->cacheProviderType = $this->cacheProviderTypeFallback;
+		}
 				
-				$log->trace("Cache proxy init SUCCESS using memcached on this host!");
-			}
-			else {
-				$log->trace("Cache proxy init FAILED cannot use memcached on this host!");
-			}
-		}
-		catch(Exception $ex) {
-			$this->memcache = null;
-			
-			$log->error("Cache proxy init error [" . $ex->getMessage() . "]");
-		}
+		$log->trace("Cache proxy constructor will use type: " . $this->cacheProviderType);
 	}
 
+	private function getCacheProvider() {
+		global $log;
+		if(isset($this->cacheProvider) == false) {
+			$this->cacheProvider = \riprunner\PluginsLoader::findPlugin(
+					'riprunner\ICachePlugin', $this->cacheProviderType);
+			if($this->cacheProvider == null) {
+				$log->error("Invalid Cache Plugin type: [" . $this->cacheProviderType . "]");
+				throw new \Exception("Invalid Cache Plugin type: [" . $this->cacheProviderType . "]");
+			}
+		}
+		
+		return $this->cacheProvider;
+	}
+	
 	public function getItem($key) {
-		if(isset($this->memcache) == false) {
+		if($this->getCacheProvider() == null) {
 			return null;
 		}
-		return $this->memcache->get($key);
+		return $this->getCacheProvider()->getItem($key);
 	}
 	public function setItem($key, $value, $cache_seconds=null) {
-		if(isset($this->memcache)) {
+		if($this->getCacheProvider() != null) {
 			if(isset($cache_seconds) == FALSE) {
 				$cache_seconds = 60 * 10;
 			}
-			$this->memcache->set($key,$value,0,$cache_seconds);
+			$this->getCacheProvider()->setItem($key,$value,$cache_seconds);
+		}
+	}
+	public function deleteItem($key) {
+		if($this->getCacheProvider() != null) {
+			$this->getCacheProvider()->deleteItem($key);
 		}
 	}
 }
