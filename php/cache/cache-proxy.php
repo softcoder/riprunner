@@ -19,7 +19,7 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class CacheProxy {
 
-	private $memcache;
+	private $memcache = null;
 		
 	/*
 		Constructor
@@ -27,8 +27,15 @@ class CacheProxy {
 	function __construct() {
 		global $log;
 		try {
-			$this->memcache = new \Memcache;
-			@$this->memcache->connect("127.0.0.1",11211);  // connect memcahe server
+			if(class_exists("\Memcache")) {
+				$this->memcache = new \Memcache();
+				@$this->memcache->connect("127.0.0.1",11211);  // connect memcahe server
+				
+				$log->trace("Cache proxy init SUCCESS using memcached on this host!");
+			}
+			else {
+				$log->trace("Cache proxy init FAILED cannot use memcached on this host!");
+			}
 		}
 		catch(Exception $ex) {
 			$this->memcache = null;

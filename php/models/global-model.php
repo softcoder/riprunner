@@ -63,6 +63,9 @@ class GlobalViewModel {
 		if('enabled_asynch_mode' == $name) {
 			return ENABLE_ASYNCH_MODE;
 		}
+		if('phpinfo' == $name) {
+			return $this->getPhpInfo();
+		}
 		
 		// throw some kind of error
 		throw new \Exception("Invalid var reference [$name].");
@@ -72,10 +75,18 @@ class GlobalViewModel {
 		if(in_array($name,
 			array('isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN',
 					AuthViewModel::getAuthVarContainerName(),'firehall',
-					'firehall_list','user_firehallid','enabled_asynch_mode'))) {
+					'firehall_list','user_firehallid','enabled_asynch_mode',
+					'phpinfo'
+			))) {
 			return true;
 		}
 		return false;
+	}
+	
+	private function getPhpInfo() {
+		ob_start();
+		phpinfo();
+		return ob_get_clean();
 	}
 	
 	// Lazy init as much as possible
