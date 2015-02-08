@@ -17,7 +17,7 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 // Register our view and variables for the template
 sec_session_start();
 new LiveCalloutWarningViewModel($global_vm,$view_template_vars);
-//new CalloutDetailsViewModel($global_vm,$view_template_vars);
+$view_template_vars["riprunner_config"] = $global_vm->firehall->toString();
 
 // Load out template
 $template = $twig->resolveTemplate(

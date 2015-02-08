@@ -45,8 +45,13 @@
               </nav>
             </div>
 
+            <h2>Rip Runner Info</h2>
+            <div id="riprunner_config" style="font-size:20px; color: white; height: 400px; overflow: auto;border: 2px solid #555;">
+                {{ riprunner_config|nl2br }}
+            </div>            
+
             <h2>PHP Info</h2>
-		    <div id="phpinfo" style="height: 600px; overflow: auto;border: 2px solid #555;">
+		    <div id="phpinfo" style="height: 400px; overflow: auto;border: 2px solid #555;">
 		        {{ gvm.phpinfo|raw }}
 		    </div>            
                         
