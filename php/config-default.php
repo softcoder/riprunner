@@ -76,7 +76,7 @@ define( 'GOOGLE_MAP_INLINE_TAG',
 define( 'CALLOUT_DETAIL_ROW',
 		'<div id="callContent${ROW_NUMBER}">' . PHP_EOL .
 		'<span class="ci_header_time">Page Time: ${CALLOUT_TIME}</span><br />' . PHP_EOL .
-		'<span class="ci_header_type">Call Type: ${CALLOUT_TYPE} - ${CALLOUT_TYPE_TEXT}</span><br />' . PHP_EOL .
+		'<span class="ci_header_type">Call Type: ${CALLOUT_TYPE_TEXT}</span><br />' . PHP_EOL .
 		'<span class="ci_header_address">Call Address: ${CALLOUT_ADDRESS}</span><br />' . PHP_EOL.
 		'<span class="ci_header_units">Responding Units: ${CALLOUT_UNITS}</span><br />' . PHP_EOL.
 		'<span class="ci_header_status">Call Status: ${CALLOUT_STATUS}</span>' . PHP_EOL.

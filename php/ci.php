@@ -369,6 +369,12 @@ if(isset($FIREHALL) && $FIREHALL != null && $FIREHALL->MOBILE->MOBILE_TRACKING_E
 	if ( isset($cruid) && $cruid != null ) {
 		$html .= '<script type="text/javascript">'. PHP_EOL;
 		
+		$html .= 'var uri = window.location.toString();'. PHP_EOL;
+		$html .= 'if (uri.indexOf("?") > 0) {'. PHP_EOL;
+		$html .= '	var clean_uri = uri.substring(0, uri.indexOf("&cruid"));'. PHP_EOL;
+		$html .= '	window.history.replaceState({}, document.title, clean_uri);'. PHP_EOL;
+		$html .= '}'. PHP_EOL;
+				
 		//$html .= 'debugger;'. PHP_EOL;
 		if(ENABLE_ASYNCH_MODE) {
 			$html .= 'openAjaxUrl("ct.php?fhid='  . urlencode($firehall_id)

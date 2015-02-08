@@ -251,10 +251,13 @@ function openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt) {
     	  }
     	  else {
     		  //w = window.open('','_blank', 'width=400, height=100, visible=none', '');
-    		  window.open('','_blank', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=-1, top=-1, width=1, height=1, visible=none', '');
+    		  w= window.open('','_blank', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=-1, top=-1, width=1, height=1, visible=none', '');
     	  }
     	  
-    	  $(w.document.body).html(result);
+    	  w.document.write(result);
+    	  //$(w.document.body).html(result);
+    	  //$(w.document.documentElement).outerHTML(result);
+    	  //w.document.documentElement.outerHTML = result;
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
     	  //debugger;

@@ -11,7 +11,9 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once( 'object_factory.php' );
+require_once 'object_factory.php';
+require_once 'cache/cache-proxy.php';
+require_once 'logging.php';
 
 function extractDelimitedValueFromString($rawValue, $regularExpression, $groupResultIndex) {
 	//$cleanRawValue = preg_replace( '/[^[:print:]]/', '',$rawValue);
@@ -94,8 +96,19 @@ function login_ldap($FIREHALL, $user_id, $password) {
 }
 
 function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
-	$debug_functions = false;
+	global $log;
 
+	$cache_key_lookup = "RIPRUNNER_LDAP_USER_ACCESS_" . $FIREHALL->FIREHALL_ID . (isset($user_id) ? $user_id : "") . (isset($userDn) ? $userDn : "");
+	$cache = new \riprunner\CacheProxy();
+	if ($cache->getItem($cache_key_lookup) != null) {
+		$log->trace("LDAP user access found in CACHE.");
+		return $cache->getItem($cache_key_lookup);
+	}
+	else {
+		$log->trace("LDAP user access NOT in CACHE.");
+	}
+
+	$debug_functions = false;
 	if($debug_functions) echo "=-=-=-=-=-=-=> USER ACCESS lookup for user [$user_id] [$userDn]" . PHP_EOL;
 
 	// Default user access to 0
@@ -231,6 +244,8 @@ function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 		}
 	}
 
+	$cache->setItem($cache_key_lookup,$userAccess);
+	
 	return $userAccess;
 }
 

@@ -171,9 +171,9 @@
                         <body>
                         
 
+                        <div id="call_tracking_response_counter"></div>
                         <form id="call_tracking_response" action="{{ gvm.RR_DOC_ROOT }}ct/fhid={{ callout_tracking_vm.firehall_id }}&cid={{ callout_tracking_vm.callout_id }}&delay=60&uid={{ callout_tracking_vm.user_id }}&ckid={{ callout_tracking_vm.calloutkey_id }}" 
                               method="POST" onsubmit="return appendGeoCoordinates(document.getElementById('call_tracking_response'));">
-                            <div id="call_tracking_response_counter"></div>
                                 <INPUT TYPE="submit" VALUE="GEO Track Now - {{ callout_tracking_vm.user_id }}" 
                                        style="font-size: 25px; background-color:yellow" />
                         </form>
@@ -185,22 +185,28 @@
                         function trackResponder() {
                           //debugger;
                           window.clearInterval(trackResponderTimerCounter);
-                          var div = document.getElementById("call_tracking_response_counter");
-                          div.innerHTML="<b>Tracking GEO coords now!</b>";
-                          var form = document.getElementById("call_tracking_response");
-                          appendGeoCoordinates(form);
-                          //  form.submit();
+                          var div1 = document.getElementById("call_tracking_response_counter");
+                          //if(div1) {
+	                          div1.innerHTML="<b>Tracking GEO coords now!</b>";
+	                          var form1 = document.getElementById("call_tracking_response");
+	                          appendGeoCoordinates(form1);
+	                          //  form.submit();
+	                      //}
                         }
                         function trackResponderCounter() {
                         // debugger;
-                          var div = document.getElementById("call_tracking_response_counter");
-                          div.innerHTML="<b>Tracking GEO coords in " + delay_seconds + " seconds.</b>";
-                          delay_seconds -= 1;
+                          var div1 = document.getElementById("call_tracking_response_counter");
+                          //if(div1) {
+                        	  div1.innerHTML="<b>Tracking GEO coords in " + delay_seconds + " seconds.</b>";
+                        	  delay_seconds -= 1;
+                          //}
                         }
                         
                         //$html_output .= '  debugger;
-                        setInterval(function () {trackResponder()}, {{ callout_tracking_vm.tracking_delay }}000);
-                        setInterval(function () {trackResponderCounter()}, 1000);
+                        //$( document ).ready(function() {
+                            setInterval(function () {trackResponder()}, {{ callout_tracking_vm.tracking_delay }}000);
+                            setInterval(function () {trackResponderCounter()}, 1000);
+                        //});
                         </script>
                         
                         </body>
