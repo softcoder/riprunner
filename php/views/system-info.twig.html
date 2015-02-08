@@ -28,7 +28,11 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
+                        {% if ui_type == 'LEGACY_V1' %}
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}admin_index.php">Main Menu</a></li>
+                        {% else %}
                         <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
+                        {% endif %}
                       </ul>
                     </div>
                   </li>

@@ -58,6 +58,7 @@ sec_session_start();
 			        <div>
 			          <ul>
 			            <li><a href="admin_users.php">User Accounts</a></li>
+			            <li><a href="controllers/system-info-controller.php">System Information</a></li>
 			            <li><a href="logtail.php">View Logs</a></li>
 			          </ul>
 			        </div>

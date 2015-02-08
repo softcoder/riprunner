@@ -19,6 +19,11 @@ sec_session_start();
 new LiveCalloutWarningViewModel($global_vm,$view_template_vars);
 $view_template_vars["riprunner_config"] = $global_vm->firehall->toString();
 
+$view_template_vars["ui_type"] = '';
+if(isset($_SESSION) && isset($_SESSION['LOGIN_REFERRER'])  && $_SESSION['LOGIN_REFERRER'] === 'login.php') {
+	$view_template_vars["ui_type"] = 'LEGACY_V1'; 
+}
+
 // Load out template
 $template = $twig->resolveTemplate(
 	array('@custom/system-info-custom.twig.html',
