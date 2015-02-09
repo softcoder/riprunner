@@ -10,6 +10,7 @@ import java.net.URLDecoder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import de.quist.app.errorreporter.ExceptionReporter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -44,6 +45,8 @@ public class AppMainBroadcastReceiver extends BroadcastReceiver {
 	
     @Override
     public void onReceive(Context context, Intent intent) {
+    	ExceptionReporter.register(context);
+    	
     	Log.i(Utils.TAG, Utils.getLineNumber() + ": Broadcaster got intent action: " + (intent == null ? "null" : intent) +
     			" appmain = " + (getMainApp() == null ? "null" : getMainApp().toString()));
     	

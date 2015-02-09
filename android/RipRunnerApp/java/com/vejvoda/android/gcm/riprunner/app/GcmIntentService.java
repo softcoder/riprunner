@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import com.vejvoda.android.gcm.riprunner.app.R;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import de.quist.app.errorreporter.ExceptionReporter;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -45,6 +46,8 @@ public class GcmIntentService extends IntentService {
     
     @Override
     protected void onHandleIntent(Intent intent) {
+    	ExceptionReporter.register(this);
+    	
         Bundle extras = intent.getExtras();
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         // The getMessageType() intent parameter must be the intent you received

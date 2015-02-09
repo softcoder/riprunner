@@ -5,6 +5,7 @@
 
 package com.vejvoda.android.gcm.riprunner.app;
 
+import de.quist.app.errorreporter.ExceptionReporter;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -25,6 +26,7 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+    	ExceptionReporter.register(context);
         // Explicitly specify that GcmIntentService will handle the intent.
         ComponentName comp = new ComponentName(context.getPackageName(),
                 GcmIntentService.class.getName());
