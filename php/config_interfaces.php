@@ -44,7 +44,16 @@ class FireHallEmailAccount
 		$this->EMAIL_HOST_PASSWORD = $host_password;
 		$this->EMAIL_DELETE_PROCESSED = $host_delete_processed;
 	}
-	
+
+	public function toString() {
+		$result = "Email Settings:" .
+				  "\nhost enabled: " . var_export($this->EMAIL_HOST_ENABLED,true) .
+				  "\nfrom trigger: " . $this->EMAIL_FROM_TRIGGER .
+				  "\nconnection string: " . $this->EMAIL_HOST_CONNECTION_STRING .
+				  "\nusername: " . $this->EMAIL_HOST_USERNAME .
+				  "\ndelete processed emails: " . var_export($this->EMAIL_DELETE_PROCESSED,true);
+		return $result;
+	}
 	public function setHostEnabled($host_enabled) {
 		$this->EMAIL_HOST_ENABLED = $host_enabled;
 	}
@@ -83,6 +92,14 @@ class FireHallMySQL
 		$this->MYSQL_DATABASE = $database;
 		$this->MYSQL_USER = $username;
 		$this->MYSQL_PASSWORD = $password;
+	}
+
+	public function toString() {
+		$result = "MySQL Settings:" .
+ 				  "\nhostname: " . $this->MYSQL_HOST .
+				  "\ndb: " . $this->MYSQL_DATABASE .
+				  "\nusername: " . $this->MYSQL_USER;
+		return $result;
 	}
 	
 	public function setHostName($host) {
@@ -161,6 +178,24 @@ class FireHallSMS
 		$this->SMS_PROVIDER_TWILIO_FROM = $twilio_from;
 	}
 	
+	public function toString() {
+		$result = "SMS Settings:" .
+				"\nenabled: " . var_export($this->SMS_SIGNAL_ENABLED,true) .
+				"\ngateway type: " . $this->SMS_GATEWAY_TYPE .
+				"\ncallout provider type: " . $this->SMS_CALLOUT_PROVIDER_TYPE .
+				"\nrecipients list: " . $this->SMS_RECIPIENTS .
+				"\nrecipients are a group name: " . var_export($this->SMS_RECIPIENTS_ARE_GROUP,true) .
+				"\nGet recipients from DB: " . var_export($this->SMS_RECIPIENTS_FROM_DB,true) .
+				"\nSendhub url: " . $this->SMS_PROVIDER_SENDHUB_BASE_URL .
+				"\nTextbelt url: " . $this->SMS_PROVIDER_TEXTBELT_BASE_URL .
+				"\nEzTexting url: " . $this->SMS_PROVIDER_EZTEXTING_BASE_URL .
+				"\nEzTexting username: " . $this->SMS_PROVIDER_EZTEXTING_USERNAME .
+				"\nTwilio url: " . $this->SMS_PROVIDER_TWILIO_BASE_URL .
+				//"\nTwilio auth token: " . $this->SMS_PROVIDER_TWILIO_AUTH_TOKEN .
+				"\nTwilio from sms: " . $this->SMS_PROVIDER_TWILIO_FROM;
+		return $result;
+	}
+	
 	public function setSignalEnabled($sms_enabled) {
 		$this->SMS_SIGNAL_ENABLED = $sms_enabled;
 	}
@@ -232,6 +267,17 @@ class FireHallMobile
 		$this->GCM_API_KEY = $gcm_api_key;
 		$this->GCM_PROJECTID = $gcm_projectid;
 	}
+
+	public function toString() {
+		$result = "Mobile Settings:" .
+				"\nsms signal enabled: " . var_export($this->MOBILE_SIGNAL_ENABLED,true) .
+				"\ntracking enabled: " . var_export($this->MOBILE_TRACKING_ENABLED,true) .
+				"\ngcm signal enabled: " . $this->GCM_SIGNAL_ENABLED .
+				"\nGCM send url: " . $this->GCM_SEND_URL .
+				"\nGCM API Key: " . $this->GCM_API_KEY .
+				"\nGCM Project Number: " . $this->GCM_PROJECTID;
+		return $result;
+	}
 	
 	public function setSignalEnabled($mobile_enabled) {
 		$this->MOBILE_SIGNAL_ENABLED = $mobile_enabled;
@@ -284,6 +330,16 @@ class FireHallWebsite
 		$this->WEBSITE_ROOT_URL = $root_url;
 		$this->WEBSITE_GOOGLE_MAP_API_KEY = $google_map_api_key;
 		$this->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION = $city_name_substition;
+	}
+
+	public function toString() {
+		$result = "Website Settings:" .
+				"\nFirehall name: " . $this->FIREHALL_NAME .
+				"\nFirehall address: " . $this->FIREHALL_HOME_ADDRESS .
+				"\nFirehall GEO coords: " . $this->FIREHALL_GEO_COORD_LATITUDE . "," . $this->FIREHALL_GEO_COORD_LONGITUDE .
+				"\nBase URL: " . $this->WEBSITE_ROOT_URL .
+				"\nGoogle Map API Key: " . $this->WEBSITE_GOOGLE_MAP_API_KEY;
+		return $result;
 	}
 	
 	public function setFirehallName($name) {
@@ -372,6 +428,27 @@ class FireHall_LDAP
 		$this->LDAP_USER_ID_ATTR_NAME = $user_id_attr;
 		$this->LDAP_USER_NAME_ATTR_NAME = $user_name_attr;
 	}
+
+	public function toString() {
+		$result = "LDAP Settings:" .
+				"\nenabled: " . var_export($this->ENABLED,true) .
+				"\nhostname: " . $this->LDAP_SERVERNAME .
+				"\nBIND_RDN: " . $this->LDAP_BIND_RDN .
+				"\nBASEDN: " . $this->LDAP_BASEDN .
+				"\nBASE UserDN: " . $this->LDAP_BASE_USERDN .
+				"\nUserDN attr: " . $this->LDAP_USER_DN_ATTR_NAME .
+				"\nUser Sort attr: " . $this->LDAP_USER_SORT_ATTR_NAME .
+				"\nLogin all users filter: " . $this->LDAP_LOGIN_ALL_USERS_FILTER .
+				"\nAdmin group filter: " . $this->LDAP_LOGIN_ADMIN_GROUP_FILTER .
+				"\nSMS group filter: " . $this->LDAP_LOGIN_SMS_GROUP_FILTER .
+				"\nSMS group filter: " . $this->LDAP_LOGIN_SMS_GROUP_FILTER .
+				"\nSMS group filter: " . $this->LDAP_LOGIN_SMS_GROUP_FILTER .
+				"\nGroup memberof attr: " . $this->LDAP_GROUP_MEMBER_OF_ATTR_NAME .
+				"\nUser SMS attr: " . $this->LDAP_USER_SMS_ATTR_NAME .
+				"\nUserId attr: " . $this->LDAP_USER_ID_ATTR_NAME .
+				"\nUserName attr: " . $this->LDAP_USER_NAME_ATTR_NAME;
+		return $result;
+	}
 	
 	public function setEnabled($enabled) {
 		$this->ENABLED = $enabled;
@@ -454,6 +531,19 @@ class FireHallConfig
 		$this->WEBSITE = $website;
 		$this->MOBILE = $mobile;
 		$this->LDAP = $ldapcfg;
+	}
+
+	public function toString() {
+		$result = "Firehall Settings:" .
+				"\nenabled: " . var_export($this->ENABLED,true) .
+				"\nFirehall ID: " . $this->FIREHALL_ID .
+				"\n" . $this->EMAIL->toString() .
+				"\n" . $this->MYSQL->toString() .
+				"\n" . $this->SMS->toString() .
+				"\n" . $this->WEBSITE->toString() .
+				"\n" . $this->MOBILE->toString() .
+				"\n" . $this->LDAP->toString();
+		return $result;
 	}
 	
 	public function setEnabled($enabled) {

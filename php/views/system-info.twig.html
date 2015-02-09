@@ -28,7 +28,11 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
+                        {% if ui_type == 'LEGACY_V1' %}
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}admin_index.php">Main Menu</a></li>
+                        {% else %}
                         <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
+                        {% endif %}
                       </ul>
                     </div>
                   </li>
@@ -45,8 +49,13 @@
               </nav>
             </div>
 
+            <h2>Rip Runner Info</h2>
+            <div id="riprunner_config" style="font-size:20px; color: white; height: 400px; overflow: auto;border: 2px solid #555;">
+                {{ riprunner_config|nl2br }}
+            </div>            
+
             <h2>PHP Info</h2>
-		    <div id="phpinfo" style="height: 600px; overflow: auto;border: 2px solid #555;">
+		    <div id="phpinfo" style="height: 400px; overflow: auto;border: 2px solid #555;">
 		        {{ gvm.phpinfo|raw }}
 		    </div>            
                         
