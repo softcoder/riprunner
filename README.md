@@ -84,9 +84,10 @@ Live Callout Screen:
 
 Installation:
 -------------
-- Edit values in [config-default.php](php/config-default.php) to suit your environment. (see Configuration section below)
+- Download the application either using git commands (for those who know how to use git) or download the master archive here: https://github.com/softcoder/riprunner/archive/master.zip and extract to a folder on your local PC.
+- Edit the values in [config-default.php](php/config-default.php) to suit your environment. (see Configuration section below)
 - Rename the file config-default.php to config.php
-- Upload the files in the php folder to a location on your webserver.
+- Upload the files in the php folder to a location on your webserver (this will be the root folder for riprunner).
 - Open the url: http://www.yourwebserver.com/uploadlocation/install.php
 - If everything was done correctly you should see an install page offering to install one the firehall's 
   you configured in config.php (we support more than 1 firehall if desired). Select the firehall and click install.
