@@ -7,7 +7,7 @@ A Firehall dispatching communication suite.
 
 Description:
 
-This application suite was designed by volunteer fire fighters to enhance the experience of First Responders during an emergency 911 callout. The main goal of this application is to provide a completely free suite of applications which help fire fighters receive timely information and communicate activities with one another as incidents progress. This software is currently in use by firehalls in the Prince George, BC Canada, Regional District. For contact information see the section fo the bottom of this page.
+This application suite was designed by volunteer fire fighters to enhance the experience of First Responders during an emergency 911 callout. The main goal of this application is to provide a completely free suite of applications which help fire fighters receive timely information and communicate activities with one another as incidents progress. This software is currently in use by firehalls in the Prince George, BC Canada, Regional District. For contact information see the contact section at the bottom of this page.
 
 Key Features:
 -------------
