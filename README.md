@@ -14,10 +14,10 @@ Key Features:
 - Email polling to check for an emergency 911 callout (or page) received from your FOCC (Fire Operations Command Center). Easily adaptable to other callout trigger mechanisms.
 - Pluggable support for SMS gateway providers to send SMS information to fire fighters. 
   Current SMS providers implemented include (all offer free acounts with limited SMS / month):
-  - Twilio (twilio.com) <-- recommended (paid account charges approx $0.0075 per SMS)
+  - Twilio (twilio.com) <-- recommended (paid account charges approx $0.0075 per SMS -> https://www.twilio.com/sms/pricing)
   - Sendhub (sendhub.com)
   - EzTexting (eztexting.com)
-  - TextBelt (textbelt.com)
+  - TextBelt (textbelt.com -> a free service but not as reliable and not available everywhere)
 - Self Installation
 - User Account management (LDAP support optional)
 - Callout history with responding members
@@ -42,8 +42,8 @@ System Requirements:
 --------------------
 - An email account that recieves Callout information during a 911 page (other trigger mechanisms can be easily supported, please contact using the details at the bottom of this page)
 - A service that periodically triggers the email polling (like cron) if your dispatch system is based off emails. One free option (included in the source tree) is to use a google app engine (GAE) account to do the polling for you (see the googleae folder contents)
-- A webserver that can run PHP 5.x
-- A MySQL database to install the Rip Runner Schema
+- A webserver that can run PHP 5.x (such as Apache, IIS or NGinx)
+- A MySQL database to install the Rip Runner Schema and store the data
 - A Registered Account on an SMS Gateway Provider (Twilio (recommended),Sendhub,EzTexting,TextBelt)
 - A Google Maps API key: https://developers.google.com/maps/documentation/javascript/tutorial#api_key (one key for server applications and one for android apps)
 - Optional: If using the experimental Android app, you need a Google Apps Engine (GAE) Project Number (see http://developer.android.com/google/gcm/gs.html) and Browser API Key.
@@ -88,7 +88,13 @@ Installation:
 - Edit the values in [config-default.php](php/config-default.php) to suit your environment. (see Configuration section below)
 - Rename the file config-default.php to config.php
 - Upload the files in the php folder to a location on your webserver (this will be the root folder for riprunner).
-- Open the url: http://www.yourwebserver.com/uploadlocation/install.php
+- If using IIS (Apache user skip to Open the url step) you should import the file [IIS_Import.htaccess](php/IIS_Import.htaccess) following these steps:
+-  1. Start IIS Manager. 
+-  2. On the left, in the Connections pane, select Default Web Site.
+-  3. On the right, in Features View, click URL Rewrite.
+-  4. On the right, in the Actions pane, click Import Rules. 
+-  5. Select the file IIS_import.htaccess using the ... elipses and import, then click apply.
+- Open the url: http://www.yourwebserver.com/uploadlocation/install.php (substitute your root riprunner host:/path)
 - If everything was done correctly you should see an install page offering to install one the firehall's 
   you configured in config.php (we support more than 1 firehall if desired). Select the firehall and click install.
 - If successful the installation will display the admin user's password. Click the link to login using it.
