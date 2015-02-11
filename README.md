@@ -94,7 +94,7 @@ Installation:
 -  3. On the right, in Features View, click URL Rewrite.
 -  4. On the right, in the Actions pane, click Import Rules. 
 -  5. Select the file IIS_import.htaccess using the ... elipses and import, then click apply.
-- Open the url: http://www.yourwebserver.com/uploadlocation/install.php
+- Open the url: http://www.yourwebserver.com/uploadlocation/install.php (substitute your root riprunner host:/path)
 - If everything was done correctly you should see an install page offering to install one the firehall's 
   you configured in config.php (we support more than 1 firehall if desired). Select the firehall and click install.
 - If successful the installation will display the admin user's password. Click the link to login using it.
