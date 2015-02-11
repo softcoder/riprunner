@@ -88,7 +88,7 @@ Installation:
 - Edit the values in [config-default.php](php/config-default.php) to suit your environment. (see Configuration section below)
 - Rename the file config-default.php to config.php
 - Upload the files in the php folder to a location on your webserver (this will be the root folder for riprunner).
-- If using IIS you should import the file [IIS_import.htaccess](php/IIS_import.htaccess) following these steps:
+- If using IIS (Apache user skip to Open the url step) you should import the file [IIS_import.htaccess](php/IIS_import.htaccess) following these steps:
 -  1. Start IIS Manager. 
 -  2. On the left, in the Connections pane, select Default Web Site.
 -  3. On the right, in Features View, click URL Rewrite.
