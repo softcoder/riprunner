@@ -81,7 +81,7 @@ function install($FIREHALL, &$db_connection) {
 
 		$random_password = uniqid('', true);
 		$new_pwd = encryptPassword($random_password);
-		$sql = "INSERT INTO `user_accounts` (firehall_id,user_id,user_pwd,access) VALUES(0,'admin','$new_pwd',1)";
+		$sql = "INSERT INTO `user_accounts` (firehall_id,user_id,user_pwd,access) VALUES(".$FIREHALL->FIREHALL_ID.",'admin','$new_pwd',1)";
 		$sql_result = $db_connection->query( $sql );
 		if($sql_result == false) {
 			printf("Error: %s\n", mysqli_error($db_connection));
