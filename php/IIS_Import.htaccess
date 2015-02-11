@@ -10,7 +10,7 @@
 #RewriteRule ^(.*)$ routes.php [QSA,L]
 
 RewriteEngine On
-RewriteBase /
+#RewriteBase /
 
 RewriteCond %{REQUEST_FILENAME} !-f
 #RewriteCond %{REQUEST_FILENAME} !-d
