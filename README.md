@@ -89,11 +89,11 @@ Installation:
 - Rename the file config-default.php to config.php
 - Upload the files in the php folder to a location on your webserver (this will be the root folder for riprunner).
 - If using IIS you should import the file [IIS_import.htaccess](php/IIS_import.htaccess) following these steps:
---  1. Start IIS Manager. 
---  2. On the left, in the Connections pane, select Default Web Site.
---  3. On the right, in Features View, click URL Rewrite.
---  4. On the right, in the Actions pane, click Import Rules. 
---  5. Select the file IIS_import.htaccess using the ... elipses and import, then click apply.
+-  1. Start IIS Manager. 
+-  2. On the left, in the Connections pane, select Default Web Site.
+-  3. On the right, in Features View, click URL Rewrite.
+-  4. On the right, in the Actions pane, click Import Rules. 
+-  5. Select the file IIS_import.htaccess using the ... elipses and import, then click apply.
 - Open the url: http://www.yourwebserver.com/uploadlocation/install.php
 - If everything was done correctly you should see an install page offering to install one the firehall's 
   you configured in config.php (we support more than 1 firehall if desired). Select the firehall and click install.
