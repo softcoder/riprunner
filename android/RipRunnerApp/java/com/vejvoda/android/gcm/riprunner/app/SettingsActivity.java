@@ -47,6 +47,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import de.quist.app.errorreporter.ExceptionReporter;
+
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
  * handset devices, settings are presented as a single list. On tablets,
@@ -70,6 +72,7 @@ public class SettingsActivity extends PreferenceActivity implements
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
+		ExceptionReporter.register(this);
 		super.onPostCreate(savedInstanceState);
 
 		boolean auto_update_settings = this.getIntent().getBooleanExtra(

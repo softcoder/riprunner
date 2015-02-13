@@ -96,24 +96,6 @@ function getSMSCalloutResponseMessage($callout, $userId, $userStatus, $maxLength
 	// Output our template
 	$smsMsg = $template->render($view_template_vars);
 		
-// 	if($userStatus == CalloutStatusType::Complete ||
-// 		$userStatus == CalloutStatusType::Cancelled) {
-// 		$msgSummary = 'Responder: ' . $userId . 
-// 		' has marked the callout as: ' . getCallStatusDisplayText($userStatus);
-// 	}
-// 	else {
-// 		$msgSummary = 'Responder attending: ' . $userId;
-// 	}
-
-// 	$details_link = $callout->getFirehall()->WEBSITE->WEBSITE_ROOT_URL
-// 	. 'ci/cid=' . $callout->getId()
-// 	. '&fhid=' . $callout->getFirehall()->FIREHALL_ID
-// 	. '&ckid=' . $callout->getKeyId();
-
-// 	$smsMsg = $msgSummary;
-// 	if(isset($maxLength) && $maxLength > 0) {
-// 		$smsMsg = array($msgSummary,$details_link);
-// 	}
 	return $smsMsg;
 }
 

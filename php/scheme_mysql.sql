@@ -42,7 +42,7 @@ CREATE TABLE  `user_accounts` (
 `firehall_id` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
 `user_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
 `user_pwd` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-`mobile_phone` varchar(25) COLLATE utf8_unicode_ci NOT NULL,
+`mobile_phone` varchar(25) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
 `access` INT( 11 ) NOT NULL DEFAULT 0,
 `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE = INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

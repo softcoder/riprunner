@@ -81,7 +81,7 @@ function install($FIREHALL, &$db_connection) {
 
 		$random_password = uniqid('', true);
 		$new_pwd = encryptPassword($random_password);
-		$sql = "INSERT INTO `user_accounts` (firehall_id,user_id,user_pwd,access) VALUES(0,'admin','$new_pwd',1)";
+		$sql = "INSERT INTO `user_accounts` (firehall_id,user_id,user_pwd,access) VALUES(".$FIREHALL->FIREHALL_ID.",'admin','$new_pwd',1)";
 		$sql_result = $db_connection->query( $sql );
 		if($sql_result == false) {
 			printf("Error: %s\n", mysqli_error($db_connection));
@@ -150,7 +150,7 @@ function db_exists($db_connection,$dbname, $dbtable) {
         	}
         }
         else {
-			$html_select = '<select id="fhid" name="fhid">' . PHP_EOL;
+			$html_select = '<select style="font-size:16px" id="fhid" name="fhid">' . PHP_EOL;
 			foreach($FIREHALLS as $FIREHALL) {
 				$html_select .= '<option value="'.$FIREHALL->FIREHALL_ID.'">'
 							 . $FIREHALL->WEBSITE->FIREHALL_NAME 
@@ -161,6 +161,7 @@ function db_exists($db_connection,$dbname, $dbtable) {
 		}
         
 		if (isset($firehall_id)) : ?>
+			<div style="font-size:20px; color: yellow">
             <p>Checking to see if the Firehall is already installed: <?php echo $FIREHALL->WEBSITE->FIREHALL_NAME; ?>.</p>
             
             <?php
@@ -183,16 +184,19 @@ function db_exists($db_connection,$dbname, $dbtable) {
 			}
 			//echo "D" .PHP_EOL;
             ?>
+			</div>
         <?php else : ?>
+		<center>
         <form action="install.php" method="post" name="install_form">
-            <p>
+            <p style="font-size:20px; color: yellow">
                 Please select the firehall to check if installation is required.<br>
                 <?php echo $html_select; ?>
             </p>
-			<input type="submit" value="Install"/>
+			<input style="font-size:16px;background-color:lime;width: 100px" type="submit" value="Install"/>
 			<input type="hidden" id="form_action" name="form_action" value="install"/>
             
         </form>
+		</center>
         <?php endif; ?>
         
         <?php
