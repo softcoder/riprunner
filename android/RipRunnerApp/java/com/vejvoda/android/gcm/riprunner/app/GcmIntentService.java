@@ -124,7 +124,7 @@ public class GcmIntentService extends IntentService {
     private void updateUI(Bundle extras) {
     	if (extras != null) {
         	String callout = extras.toString();
-        	Intent intent = new Intent(AppMainActivity.RECEIVE_CALLOUT);
+        	Intent intent = new Intent(Utils.RECEIVE_CALLOUT);
         	intent.putExtra("callout", callout);
         	
         	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner sending broadcast intent for callout: " + callout);

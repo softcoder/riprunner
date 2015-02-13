@@ -68,6 +68,7 @@ import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,6 +88,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.location.Location;
 import android.media.AudioManager;
@@ -153,9 +156,9 @@ public class AppMainActivity extends ReportingActionBarActivity implements
     FireHallCallout lastCallout;
     
     // Your activity will respond to this action String
-    public static final String RECEIVE_CALLOUT = "callout_data";
+    //public static final String RECEIVE_CALLOUT = "callout_data";
     
-    public static final String TRACKING_GEO = "tracking_data";
+    //public static final String TRACKING_GEO = "tracking_data";
     
     /** The broadcast receiver class for getting broadcast messages */
     private BroadcastReceiver bReceiver = null;
@@ -205,6 +208,172 @@ public class AppMainActivity extends ReportingActionBarActivity implements
     private static Map<Integer,Integer> soundPoolMap;
 
     
+    private BroadcastReceiver activityReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+        	Log.i(Utils.TAG, Utils.getLineNumber() + ": MainApp Broadcaster got intent action: " + (intent == null ? "null" : intent));
+        	
+            if(intent != null && intent.getAction() != null) {
+            	Log.i(Utils.TAG, Utils.getLineNumber() + ": MainApp Broadcaster got intent action: " + intent.getAction());
+            	
+    	    	if(intent.getAction().equals(Utils.RECEIVE_CALLOUT_MAIN)) {
+    	    		processRecieveCalloutMsg(intent);
+    	        }
+    	        else if(intent.getAction().equals(Utils.TRACKING_GEO_MAIN)) {
+    	        	processTrackingGeoCoordinates();
+    	        }
+    	        else {
+    	        	Log.e(Utils.TAG, Utils.getLineNumber() + ": MainApp Broadcaster got ***UNHANDLED*** intent action: " + intent.getAction());
+    	        }
+            }
+            else {
+            	Log.e(Utils.TAG, Utils.getLineNumber() + ": MainApp Broadcaster Error null intent or action.");
+            }
+        }
+
+    	private void processTrackingGeoCoordinates() {
+    		Boolean tracking_enabled = isTrackingEnabled();
+    		if(tracking_enabled != null && tracking_enabled.booleanValue()) {
+    		    new AsyncTask<Void, Void, String>() {
+    		    	@Override
+    		        protected void onPreExecute() {
+    		            super.onPreExecute();
+    		    	}
+    		        @Override
+    		        protected String doInBackground(Void... params) {
+    		        	try {
+    		               	sendGeoTrackingToBackend();
+    		        	}
+    		        	catch (Exception e) {
+    		        		Log.e(Utils.TAG, Utils.getLineNumber() + ": GEO Tracking", e);
+    						throw new RuntimeException("Error with GEO Tracking: " + e);
+    		        	}
+    		        	
+    		           	return "";
+    		        }
+    		        @Override
+    		        protected void onPostExecute(String msg) {
+    		        	super.onPostExecute(msg);
+    		        }
+    		    }.execute(null, null, null);
+    		}
+    	}
+        
+    	private void processRecieveCalloutMsg(Intent intent) {
+    		String serviceJsonString = "";
+    		try {
+    			serviceJsonString = intent.getStringExtra("callout");
+    			serviceJsonString = FireHallUtil.extractDelimitedValueFromString(
+    					serviceJsonString, "Bundle\\[(.*?)\\]", 1, true);
+    			
+    			JSONObject json = new JSONObject( serviceJsonString );
+
+    			if(json.has("DEVICE_MSG")) {
+    				processDeviceMsgTrigger(json);
+    			}
+    			else if(json.has("CALLOUT_MSG")) {
+    				processCalloutTrigger(json);
+    			}
+    			else if(json.has("CALLOUT_RESPONSE_MSG")) {
+    				processCalloutResponseTrigger(json);       
+    			}
+    			else if(json.has("ADMIN_MSG")) {
+    				processAdminMsgTrigger(json);       
+    			}
+    			else {
+    		    	Log.e(Utils.TAG, Utils.getLineNumber() + ": Broadcaster got UNKNOWN callout message type: " + json.toString());
+    			}
+    		}
+    		catch (JSONException e) {
+    			Log.e(Utils.TAG, Utils.getLineNumber() + ": " + serviceJsonString, e);
+    			throw new RuntimeException("Could not parse JSON data: " + e);
+    		}
+    		catch (UnsupportedEncodingException e) {
+    			Log.e(Utils.TAG, Utils.getLineNumber() + ": " + serviceJsonString, e);
+    			throw new RuntimeException("Could not decode JSON data: " + e);
+    		}
+    		catch (Exception e) {
+    			Log.e(Utils.TAG, Utils.getLineNumber() + ": " + serviceJsonString, e);
+    			throw new RuntimeException("Error with JSON data: " + e);
+    		}
+    	}
+
+    	void processAdminMsgTrigger(JSONObject json)
+    			throws UnsupportedEncodingException, JSONException {
+    		final String adminMsg = URLDecoder.decode(json.getString("ADMIN_MSG"), "utf-8");
+    		if(adminMsg != null) {
+    			AppMainActivity.this.processAdminMsgTrigger(adminMsg);
+    		}
+    	}
+    	
+    	void processDeviceMsgTrigger(JSONObject json)
+    			throws UnsupportedEncodingException, JSONException {
+    		final String deviceMsg = URLDecoder.decode(json.getString("DEVICE_MSG"), "utf-8");
+    		if(deviceMsg != null && deviceMsg.equals("GCM_LOGINOK") == false) {
+    			AppMainActivity.this.processDeviceMsgTrigger(deviceMsg);
+    		}
+    	}
+
+    	void processCalloutResponseTrigger(JSONObject json)
+    			throws UnsupportedEncodingException, JSONException {
+    		final String calloutMsg = URLDecoder.decode(json.getString("CALLOUT_RESPONSE_MSG"), "utf-8");
+
+    		String callout_id = URLDecoder.decode(json.getString("call-id"), "utf-8");
+    		String callout_status = URLDecoder.decode(json.getString("user-status"), "utf-8");
+    		String response_userid = URLDecoder.decode(json.getString("user-id"), "utf-8");
+    		
+    		AppMainActivity.this.processCalloutResponseTrigger(calloutMsg, callout_id, 
+    				callout_status, response_userid);
+    	}
+    	
+
+    	void processCalloutTrigger(JSONObject json)
+    			throws UnsupportedEncodingException, JSONException {
+    		final String calloutMsg = URLDecoder.decode(json.getString("CALLOUT_MSG"), "utf-8");
+
+    		String gpsLatStr = "";
+    		String gpsLongStr = "";
+    		
+    		try {
+    			gpsLatStr = URLDecoder.decode(json.getString("call-gps-lat"), "utf-8");
+    			gpsLongStr = URLDecoder.decode(json.getString("call-gps-long"), "utf-8");
+    		}
+    		catch(Exception e) {
+    			Log.e(Utils.TAG, Utils.getLineNumber() + ": " + calloutMsg, e);
+    			
+    			throw new RuntimeException("Could not parse JSON data: " + e);
+    		}
+    		
+    		String callKeyId = URLDecoder.decode(json.getString("call-key-id"), "utf-8");
+    		if(callKeyId == null || callKeyId.equals("?")) {
+    			callKeyId = "";
+    		}
+    		String callAddress = URLDecoder.decode(json.getString("call-address"), "utf-8");
+    		if(callAddress == null || callAddress.equals("?")) {
+    			callAddress = "";
+    		}
+    		String callMapAddress = URLDecoder.decode(json.getString("call-map-address"), "utf-8");
+    		if(callMapAddress == null || callMapAddress.equals("?")) {
+    			callMapAddress = "";
+    		}
+    		String callType = "?";
+    		if(json.has("call-type")) {
+    			callType = URLDecoder.decode(json.getString("call-type"), "utf-8");
+    		}
+    				
+    		AppMainActivity.this.processCalloutTrigger(
+    				URLDecoder.decode(json.getString("call-id"), "utf-8"),
+    				callKeyId,
+    				callType,
+    				gpsLatStr,gpsLongStr,
+    				callAddress,
+    				callMapAddress,
+    				URLDecoder.decode(json.getString("call-units"), "utf-8"),
+    				URLDecoder.decode(json.getString("call-status"), "utf-8"), 
+    				calloutMsg);
+    	}
+        
+    };    
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -223,11 +392,10 @@ public class AppMainActivity extends ReportingActionBarActivity implements
         context = getApplicationContext();
         initSounds(context);
         
-        AppMainBroadcastReceiver.setMainApp(this);
         LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(RECEIVE_CALLOUT);
-        intentFilter.addAction(TRACKING_GEO);
+        intentFilter.addAction(Utils.RECEIVE_CALLOUT);
+        intentFilter.addAction(Utils.TRACKING_GEO);
         bManager.registerReceiver(getBroadCastReceiver(), intentFilter);
         
         getProgressDialog();
@@ -340,20 +508,10 @@ public class AppMainActivity extends ReportingActionBarActivity implements
     
     PendingIntent getGeoTrackingIntent() {
     	if(geoTrackingIntent == null) {
-	    	//Intent intent = new Intent( TRACKING_GEO );
-	    	//Intent intent = new Intent(this, AppMainBroadcastReceiver.class);
-    		
-    		//Intent intent = new Intent(this, AppMainActivity.class);
     		Intent intent = new Intent(this, AppMainBroadcastReceiver.class);
-	    	intent.setAction(TRACKING_GEO);
+	    	intent.setAction(Utils.TRACKING_GEO);
 	    	geoTrackingIntent = PendingIntent.getBroadcast( this, 0, intent, 
 	    			PendingIntent.FLAG_CANCEL_CURRENT );
-	    	
-	    	//geoTrackingIntent = PendingIntent.getActivity(this, 0, intent, 
-	    	//		PendingIntent.FLAG_CANCEL_CURRENT);
-	    	
-	    	//geoTrackingIntent = PendingIntent.getActivity(this, 0,
-	        //        new Intent(this, AppMainActivity.class), 0);
     	}
     	return geoTrackingIntent;
     }
@@ -371,7 +529,6 @@ public class AppMainActivity extends ReportingActionBarActivity implements
 	    	//long interval = 5000;
 	    	long triggerTime = SystemClock.elapsedRealtime() + interval;
 	    	
-	    	AppMainBroadcastReceiver.setMainApp(this);
 	    	am.setInexactRepeating( type, triggerTime, interval, getGeoTrackingIntent() );
     	}
     }
@@ -596,6 +753,8 @@ public class AppMainActivity extends ReportingActionBarActivity implements
     	Log.i(Utils.TAG, Utils.getLineNumber() + ": resuming Rip Runner.");
     	
         super.onResume();
+        
+        registerReceiver(activityReceiver, Utils.getMainAppIntentFilter());
         // Check device for Play Services APK.
         checkPlayServices();
     }
@@ -1053,9 +1212,9 @@ public class AppMainActivity extends ReportingActionBarActivity implements
     protected void onDestroy() {
     	Log.i(Utils.TAG, Utils.getLineNumber() + ": destroying Rip Runner.");
     	
+    	LocalBroadcastManager.getInstance(this).unregisterReceiver(getBroadCastReceiver());
+    	 unregisterReceiver(activityReceiver);
         super.onDestroy();
-        
-        stopGPSTracking();
     }
 
     /**
@@ -1627,9 +1786,6 @@ public class AppMainActivity extends ReportingActionBarActivity implements
     		getProgressDialog().hide();
     	}
     }
-
-    public void stopGPSTracking() {
-    }
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -1793,7 +1949,6 @@ public class AppMainActivity extends ReportingActionBarActivity implements
     private BroadcastReceiver getBroadCastReceiver() {
     	if(bReceiver == null) {
     		bReceiver = new AppMainBroadcastReceiver();
-    		AppMainBroadcastReceiver.setMainApp(this);
     	}
     	return bReceiver;
     }
