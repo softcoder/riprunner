@@ -173,6 +173,10 @@ function getFirstActiveFireHallConfig($list) {
 }
 
 function sec_session_start() {
+	sec_session_start_ext(null);
+}
+
+function sec_session_start_ext($skip_regeneration) {
 	global $log;
 	
 	$ses_already_started = isset($_SESSION);
@@ -201,7 +205,9 @@ function sec_session_start() {
 		// Sets the session name to the one set above.
 		session_name($session_name);
 		session_start();            // Start the PHP session
-		session_regenerate_id();    // regenerated the session, delete the old one.
+		if(isset($skip_regeneration) == false || $skip_regeneration === false) {
+			session_regenerate_id();    // regenerated the session, delete the old one.
+		}
 	}
 }
 	
@@ -382,7 +388,9 @@ function login_check($db_connection) {
 	} 
 	else {
 		// Not logged in
-		$log->debug("Login check has no valid session!");
+		$log->debug("Login check has no valid session! db userid: " . @$_SESSION['user_db_id'] .
+			" userid: " . @$_SESSION['user_id'] . " login_String: " . @$_SESSION['login_string'] .
+			" DB obj: " . (isset($db_connection) ? "yes" : "no"));
 		
 		if($debug_functions) echo "LOGINCHECK F4" . PHP_EOL;
 		return false;
