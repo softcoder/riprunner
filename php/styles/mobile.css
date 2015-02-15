@@ -12,7 +12,7 @@ body {
 }
 a {
 	font-size:48px;
-    color:0033CC;
+    color:#0033CC;
     text-decoration:underline;
     cursor:pointer;
 }
@@ -626,6 +626,7 @@ table.center {
 }
 
 
+
 .center_div_wrapper {
   margin: auto;
   width: 400px;
@@ -718,6 +719,7 @@ nav.vertical {
                 color: rgb(255,255,255);
                 padding: 10px 0 10px 50px;
               }            
+              
               
 .notice {
   color:yellow;
@@ -853,4 +855,3 @@ a.alert {
    color: yellow;
  }
 }
-              

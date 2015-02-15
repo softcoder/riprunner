@@ -42,7 +42,7 @@
     
     color:white;
     background-color:blue;
-    font-size:30px;
+    font-size:50px;
     font-weight: bold;
     
     @include vertical-align;
@@ -189,7 +189,7 @@
     cursor: pointer;
     text-shadow: 0 1px 0 rgba(255,255,255,0.5);
 }
-.ci_responderName {
+.ci_respondername {
 	padding-left: 50px;
     color:yellow;
     font-size:50px;
