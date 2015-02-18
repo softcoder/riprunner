@@ -9,6 +9,7 @@
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
         {% endif %}
         
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/d3.min.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
@@ -178,6 +179,12 @@
                 data_year_response_volume.addColumn('string', 'Month');
 
                 var json_data_year_response_volume = jQuery.parseJSON('{{ reportscharts_vm.callresponsevol_currentyear|json_encode()|raw }}');
+                var max_data_year_response_volume_value = d3.max(json_data_year_response_volume, function(array) {
+                    return d3.max(array.filter(function(value) {
+                        return typeof value === "number";
+                    }));
+                });
+                //alert('Max value for json_data_year_response_volume: ' + max_data_year_response_volume_value);
 
                 {% for title in reportscharts_vm.callresponsevol_currentyear_cols %} 
                 data_year_response_volume.addColumn('number', '{{ title }}');
