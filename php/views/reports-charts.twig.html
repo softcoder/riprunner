@@ -7,10 +7,12 @@
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
         {% else %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
+		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/custom-main.css" />
         {% endif %}
         
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/smartresize.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
         <!--Load the AJAX API-->
         <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -104,9 +106,13 @@
                 // ------------------------------------------
                 // Pie chart of call types for current month
                 // Set chart options
-                var options = {'title':'Call Types - Current Month',
-                               'width':400,
-                               'height':300};
+                var options_month = {
+					title:'Call Types - Current Month'
+					,chartArea:{left:100,top:25,width:"75%",height:"75%"}
+					,width:'100%'
+					,height:'300'
+					,is3D: true
+				};
               
                 // Create the data table.
                 var data = new google.visualization.DataTable();
@@ -119,13 +125,17 @@
                 
                 // Instantiate and draw our chart, passing in some options.
                 var chart = new google.visualization.PieChart(document.getElementById('chart_month_div'));
-                chart.draw(data, options);
+                chart.draw(data, options_month);
 
                 // ------------------------------------------
                 // Pie chart of call types for current year
-                var options_year = {'title':'Call Types - Current Year',
-                                       'width':400,
-                                       'height':300};
+                var options_year = {
+					title:'Call Types - Current Year'
+					,chartArea:{left:100,top:25,width:"75%",height:"75%"}
+					,width:'50%'
+					,height:'300'
+					,is3D: true
+				};
                 
                 // Create the data table.
                 var data_year = new google.visualization.DataTable();
@@ -140,12 +150,48 @@
                 chart_year.draw(data_year, options_year);
 
                 // ------------------------------------------
+                // Pie chart of call types for all years
+                var options_allyears = {
+					'title':'Call Types - All Recorded Callouts'
+					,chartArea:{left:100,top:25,width:"75%",height:"75%"}
+					,width:'100%'
+					,height:'500'
+					,is3D: true
+					,pieSliceText: 'percent'
+					,pieSliceTextStyle: {color:'white', fontSize:'10'}
+					,fontSize: 14
+					
+				};
+                
+                // Create the data table.
+                var data_allyears = new google.visualization.DataTable();
+                data_allyears.addColumn('string', 'Call Type');
+                data_allyears.addColumn('number', 'Call Count');
+                var json_data_allyears = jQuery.parseJSON('{{ reportscharts_vm.calltypes_allyears|json_encode()|raw }}');
+
+                addJSONDataToChartData(json_data_allyears, data_allyears);
+                
+                // Instantiate and draw our chart, passing in some options.
+                var chart_allyears = new google.visualization.PieChart(document.getElementById('chart_allyears_div'));
+                chart_allyears.draw(data_allyears, options_allyears);
+				
+                // ------------------------------------------
                 // Line chart of call volume for current year
-                var options_year_volume = {'title':'Total Call Volume by Type (All Calls) - Current Year by Month',
-                                            'curveType': 'function',
-                                            'explorer' : {},
-                                            'width':802,
-                                            'height':300};
+                var options_year_volume = {
+					'title':'Total Call Volume by Type (All Calls) - Current Year by Month'
+					,vAxis: { format:'#'
+						,viewWindow: {max:10}
+					}
+					,hAxis: { slantedText:true, slantedTextAngle:45 }
+					,'legend': { 
+						position: 'right'
+							,textStyle: { fontSize:12 }
+						}
+					,'explorer' : {}
+					,chartArea:{left:100,top:25,width:"60%",height:"75%"}
+					,width:'100%'
+					,height:'400'
+				};
                 
                 // Create the data table.
                 var data_year_volume = new google.visualization.DataTable();
@@ -167,11 +213,23 @@
                 // ------------------------------------------
                 // Line chart of call response volume for current year
                 var options_year_response_volume = {
-                		'title':'Total Call Response Volume by Person (Completed Calls) - Current Year by Month',
-                        'curveType': 'function',
-                        'explorer' : {},
-                        'width':802,
-                        'height':300};
+					'title':'Total Call Response Volume by Person (Completed/Cancelled Calls) - Current Year by Month'
+					,hAxis: { 
+						//viewWindow: {max:10},gridlines: { count: -1}
+						}
+					//,'curveType': 'function'
+					,'explorer' : {}
+					,'legend': { 
+						position: 'right'
+							,textStyle: { fontSize:12 }
+						}
+					,'bar': { groupWidth: '75%' }
+					,chartArea:{left:100,top:25,width:"70%",height:"75%"}
+					,width:'100%'
+					,height:'400'
+					,isStacked: true
+				
+				};
                 
                 // Create the data table.
                 var data_year_response_volume = new google.visualization.DataTable();
@@ -187,33 +245,37 @@
                 addJSONDataToChartData(json_data_year_response_volume, data_year_response_volume);
                 
                 // Instantiate and draw our chart, passing in some options.
-                var chart_year_response_volume = new google.visualization.LineChart(document.getElementById('chart_year_response_volume_div'));
+                var chart_year_response_volume = new google.visualization.BarChart(document.getElementById('chart_year_response_volume_div'));
                 chart_year_response_volume.draw(data_year_response_volume, options_year_response_volume);
 
                 //spinner.stop();
+				$(window).resize(function(){
+					chart.draw(data, options_month);
+					chart_year.draw(data_year, options_year);
+					chart_allyears.draw(data_allyears, options_allyears);
+					chart_year_volume.draw(data_year_volume, options_year_volume);
+					chart_year_response_volume.draw(data_year_response_volume, options_year_response_volume);
+				});
               }
             </script>
             
             <!--Div that will hold the pie chart-->
-            <table class="center">
+            <table class="chart_center">
                 <tr>
-                <td>
-                <div id="chart_month_div"></div>
-                </td>
-                <td>
-                <div id="chart_year_div"></div>
-                </td>
+					<td><div id="chart_allyears_div"></div></td>
                 </tr>
                 <tr>
-                <td colspan="2">
-                <div id="chart_year_volume_div"></div>
-                </td>
+					<td><div id="chart_year_div"></div></td>
+				</tr>
+				<tr>
+					<td><div id="chart_month_div"></div></td>
+				</tr>
+                <tr>
+					<td><div id="chart_year_volume_div"></div></td>
                 </tr>
                 <tr>
-                <td colspan="2">
-                <div id="chart_year_response_volume_div"></div>
-                </td>
-                </tr>
+					<td><div id="chart_year_response_volume_div"></div></td>
+				</tr>
             </table>
     
         {% else %}
