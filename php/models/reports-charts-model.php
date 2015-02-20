@@ -167,10 +167,10 @@ class ReportsChartsViewModel extends BaseViewModel {
 		 */
 		$sql_titles = '(SELECT "' .$MAX_MONTHLY_LABEL . '" as datalabel)' .
 				' UNION (SELECT calltype as datalabel ' .
-				'        FROM callouts WHERE calltime BETWEEN \'' .
+				' FROM callouts WHERE calltime BETWEEN \'' .
 				$startDate .'\' AND \'' . $endDate . '\'' .
-							  ' AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
-				'        GROUP BY datalabel) ORDER BY datalabel;';
+				' AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
+				' GROUP BY datalabel) ORDER BY datalabel;';
 		$sql_titles_result = $this->getGvm()->RR_DB_CONN->query( $sql_titles );
 		if($sql_titles_result == false) {
 			printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
@@ -294,6 +294,7 @@ class ReportsChartsViewModel extends BaseViewModel {
                 		  '        LEFT JOIN callouts c ON a.calloutid = c.id ' .
                 		  '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN \'' .
                 				$startDate .'\' AND \'' . $endDate . '\'' .
+						  '     AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
                 		  '        GROUP BY datalabel) ORDER BY datalabel;';
         }
         else {
@@ -304,6 +305,7 @@ class ReportsChartsViewModel extends BaseViewModel {
 		           		'        LEFT JOIN callouts c ON a.calloutid = c.id ' .
 	                    '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN \'' .
 		                   		$startDate .'\' AND \'' . $endDate . '\'' .
+						  '     AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
 	       				'        GROUP BY datalabel) ORDER BY datalabel;';
         }
         $sql_titles_result = $this->getGvm()->RR_DB_CONN->query( $sql_titles );
@@ -334,18 +336,21 @@ class ReportsChartsViewModel extends BaseViewModel {
                     ' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id' .
                     ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
                     ' WHERE c.status IN (3,10) AND a.responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+					' AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
                     ' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
         }
         else {
-           	$sql = '(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, count(*) AS count ' .
-                   ' FROM callouts WHERE status NOT IN (3) AND calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
-                   ' GROUP BY month ORDER BY month)' .
-                   'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
-                   ' FROM callouts_response a ' .
-                   ' LEFT JOIN user_accounts b ON a.useracctid = b.id' .
-                   ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
-                   ' WHERE c.status NOT IN (3) AND a.responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
-                   ' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
+           	$sql =	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, count(*) AS count ' .
+					' FROM callouts WHERE status NOT IN (3,10) AND calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+					' AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
+					' GROUP BY month ORDER BY month)' .
+					'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
+					' FROM callouts_response a ' .
+					' LEFT JOIN user_accounts b ON a.useracctid = b.id' .
+					' LEFT JOIN callouts c ON a.calloutid = c.id ' .
+					' WHERE c.status NOT IN (3,10) AND a.responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+					' AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
+					' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
        }
        $sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
        if($sql_result == false) {
