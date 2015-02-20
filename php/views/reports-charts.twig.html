@@ -105,56 +105,11 @@
               function drawChart() {
 
                 // ------------------------------------------
-                // Pie chart of call types for current month
-                // Set chart options
-                var options_month = {
-					title:'Call Types - Current Month'
-					,chartArea:{left:100,top:25,width:"75%",height:"75%"}
-					,width:'100%'
-					,height:'300'
-					,is3D: true
-				};
-              
-                // Create the data table.
-                var data = new google.visualization.DataTable();
-                data.addColumn('string', 'Call Type');
-                data.addColumn('number', 'Call Count');
-
-                var json_data_month = jQuery.parseJSON('{{ reportscharts_vm.calltypes_currentmonth|json_encode()|raw }}');
-
-                addJSONDataToChartData(json_data_month, data);
-                
-                // Instantiate and draw our chart, passing in some options.
-                var chart = new google.visualization.PieChart(document.getElementById('chart_month_div'));
-                chart.draw(data, options_month);
-
-                // ------------------------------------------
-                // Pie chart of call types for current year
-                var options_year = {
-					title:'Call Types - Current Year'
-					,chartArea:{left:100,top:25,width:"75%",height:"75%"}
-					,width:'50%'
-					,height:'300'
-					,is3D: true
-				};
-                
-                // Create the data table.
-                var data_year = new google.visualization.DataTable();
-                data_year.addColumn('string', 'Call Type');
-                data_year.addColumn('number', 'Call Count');
-                var json_data_year = jQuery.parseJSON('{{ reportscharts_vm.calltypes_currentyear|json_encode()|raw }}');
-
-                addJSONDataToChartData(json_data_year, data_year);
-                
-                // Instantiate and draw our chart, passing in some options.
-                var chart_year = new google.visualization.PieChart(document.getElementById('chart_year_div'));
-                chart_year.draw(data_year, options_year);
-
-                // ------------------------------------------
                 // Pie chart of call types for all years
                 var options_allyears = {
 					'title':'Call Types - All Recorded Callouts'
-					,chartArea:{left:100,top:25,width:"75%",height:"75%"}
+					,'legend': { position: 'right', textStyle: { fontSize:14 } }
+					,chartArea:{left:100,top:25,width:"75%",height:"85%"}
 					,width:'100%'
 					,height:'500'
 					,is3D: true
@@ -175,23 +130,73 @@
                 // Instantiate and draw our chart, passing in some options.
                 var chart_allyears = new google.visualization.PieChart(document.getElementById('chart_allyears_div'));
                 chart_allyears.draw(data_allyears, options_allyears);
+
+				// ------------------------------------------
+                // Pie chart of call types for current year
+                var options_year = {
+					title:'Call Types - Current Year'
+					,'legend': { position: 'right', textStyle: { fontSize:14 } }
+					,chartArea:{left:100,top:25,width:"75%",height:"85%"}
+					,width:'50%'
+					,height:'300'
+					,is3D: true
+					,pieSliceText: 'percent'
+					,pieSliceTextStyle: {color:'white', fontSize:'10'}
+					,fontSize: 14
+				};
+                
+                // Create the data table.
+                var data_year = new google.visualization.DataTable();
+                data_year.addColumn('string', 'Call Type');
+                data_year.addColumn('number', 'Call Count');
+                var json_data_year = jQuery.parseJSON('{{ reportscharts_vm.calltypes_currentyear|json_encode()|raw }}');
+
+                addJSONDataToChartData(json_data_year, data_year);
+                
+                // Instantiate and draw our chart, passing in some options.
+                var chart_year = new google.visualization.PieChart(document.getElementById('chart_year_div'));
+                chart_year.draw(data_year, options_year);
+				
+				// ------------------------------------------
+                // Pie chart of call types for current month
+                var options_month = {
+					title:'Call Types - Current Month'
+					,'legend': { position: 'right', textStyle: { fontSize:14 } }
+					,chartArea:{left:100,top:25,width:"75%",height:"85%"}
+					,width:'100%'
+					,height:'300'
+					,is3D: true
+					,pieSliceText: 'percent'
+					,pieSliceTextStyle: {color:'white', fontSize:'10'}
+					,fontSize: 14
+				};
+              
+                // Create the data table.
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Call Type');
+                data.addColumn('number', 'Call Count');
+
+                var json_data_month = jQuery.parseJSON('{{ reportscharts_vm.calltypes_currentmonth|json_encode()|raw }}');
+
+                addJSONDataToChartData(json_data_month, data);
+                
+                // Instantiate and draw our chart, passing in some options.
+                var chart = new google.visualization.PieChart(document.getElementById('chart_month_div'));
+                chart.draw(data, options_month);
+
 				
                 // ------------------------------------------
                 // Line chart of call volume for current year
                 var options_year_volume = {
 					'title':'Total Call Volume by Type (All Calls) - Current Year by Month'
-					,vAxis: { format:'#'
-						,viewWindow: {max:10}
-					}
-					,hAxis: { slantedText:true, slantedTextAngle:45 }
-					,'legend': { 
-						position: 'right'
-							,textStyle: { fontSize:12 }
-						}
+					,hAxis: { baselineColor: '#fff', gridlineColor: 'lightgrey', textPosition: 'none' }
+					,vAxis:{ logScale:true }
+					,'legend': { position: 'right', textStyle: { fontSize:14 } }
 					,'explorer' : {}
-					,chartArea:{left:100,top:25,width:"60%",height:"75%"}
+					,chartArea:{ left:100,top:25,width:"60%",height:"85%" }
 					,width:'100%'
 					,height:'400'
+					,isStacked: true
 				};
                 
                 // Create the data table.
@@ -208,7 +213,7 @@
                 addJSONDataToChartData(json_data_year_volume, data_year_volume);
                 
                 // Instantiate and draw our chart, passing in some options.
-                var chart_year_volume = new google.visualization.LineChart(document.getElementById('chart_year_volume_div'));
+                var chart_year_volume = new google.visualization.BarChart(document.getElementById('chart_year_volume_div'));
                 chart_year_volume.draw(data_year_volume, options_year_volume);
 
                 // ------------------------------------------
@@ -216,16 +221,15 @@
                 var options_year_response_volume = {
 					'title':'Total Call Response Volume by Person (Completed/Cancelled Calls) - Current Year by Month'
 					,hAxis: { 
-						//viewWindow: {max:10},gridlines: { count: -1}
+						 baselineColor: '#fff'
+						,gridlineColor: 'lightgrey'
+						,textPosition: 'none'
 						}
 					//,'curveType': 'function'
 					,'explorer' : {}
-					,'legend': { 
-						position: 'right'
-							,textStyle: { fontSize:12 }
-						}
+					,'legend': { position: 'right', textStyle: { fontSize:14 } }
 					,'bar': { groupWidth: '75%' }
-					,chartArea:{left:100,top:25,width:"70%",height:"75%"}
+					,chartArea:{left:100,top:25,width:"70%",height:"85%"}
 					,width:'100%'
 					,height:'400'
 					,isStacked: true
@@ -235,7 +239,6 @@
                 // Create the data table.
                 var data_year_response_volume = new google.visualization.DataTable();
                 data_year_response_volume.addColumn('string', 'Month');
-
                 var json_data_year_response_volume = jQuery.parseJSON('{{ reportscharts_vm.callresponsevol_currentyear|json_encode()|raw }}');
                 var max_data_year_response_volume_value = d3.max(json_data_year_response_volume, function(array) {
                     return d3.max(array.filter(function(value) {
