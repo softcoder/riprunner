@@ -624,6 +624,11 @@ table.center {
     margin-left:auto; 
     margin-right:auto;
 }
+table.chart_center {
+    margin-left:auto; 
+    margin-right:auto;
+	width: 75%;
+}
 
 
 

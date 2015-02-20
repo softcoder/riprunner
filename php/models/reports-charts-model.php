@@ -136,7 +136,7 @@ class ReportsChartsViewModel extends BaseViewModel {
 	private function getCallTypeStatsForAllDates() {
 		$sql = " SELECT calltype, COUNT(*) count FROM callouts " .
 			   " WHERE calltype NOT IN ('TRAINING','TESTONLY') "			   .
-			   " GROUP BY calltype ORDER BY calltype;";
+			   " GROUP BY calltype ORDER BY count DESC;";
 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 		if($sql_result == false) {
 			printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
