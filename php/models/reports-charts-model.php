@@ -41,6 +41,9 @@ class ReportsChartsViewModel extends BaseViewModel {
 			return $this->getCallTypeStatsForDateRange(
 						$current_year_start,$current_year_end);
 		}
+		if('calltypes_allyears' == $name) {
+			return $this->getCallTypeStatsForAllDates();
+		}
 		if('callvoltypes_currentyear' == $name) {
 			$this->getCallVolTypesCurrentyear();
 			return $this->callvoltypes_currentyear;
@@ -63,7 +66,7 @@ class ReportsChartsViewModel extends BaseViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('calltypes_currentmonth','calltypes_currentyear',
+			array('calltypes_currentmonth','calltypes_currentyear','calltypes_allyears',
   				  'callvoltypes_currentyear', 'callvoltypes_currentyear_cols',
 				  'callresponsevol_currentyear', 'callresponsevol_currentyear_cols'
 			))) {
@@ -109,6 +112,7 @@ class ReportsChartsViewModel extends BaseViewModel {
 		// Read from the database
 		$sql = "SELECT calltype, COUNT(*) count FROM callouts " .
 			   " WHERE calltime BETWEEN '$startDate' AND '$endDate'" .
+			   " AND calltype NOT IN ('TRAINING','TESTONLY') " .
 			   " GROUP BY calltype ORDER BY calltype;";
 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 		if($sql_result == false) {
@@ -122,18 +126,37 @@ class ReportsChartsViewModel extends BaseViewModel {
 			$row_result = array();
 	
 			$callTypeDesc = convertCallOutTypeToText($row->calltype);
-			$row_result[$row->calltype . ' - ' . $callTypeDesc] = $row->count + 0;
+			$row_result[$callTypeDesc] = $row->count + 0;
 			array_push($data_results,$row_result);
 		}
 		$sql_result->close();
 	
 		return $data_results;
 	}
+	private function getCallTypeStatsForAllDates() {
+		$sql = " SELECT calltype, COUNT(*) count FROM callouts " .
+			   " WHERE calltype NOT IN ('TRAINING','TESTONLY') "			   .
+			   " GROUP BY calltype ORDER BY calltype;";
+		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+		if($sql_result == false) {
+			printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
+			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+		}
+		$data_results = array();
+		while($row = $sql_result->fetch_object()) {
+			$row_result = array();
+			$callTypeDesc = convertCallOutTypeToText($row->calltype);
+			$row_result[$callTypeDesc] = $row->count + 0;
+			array_push($data_results,$row_result);
+		}
+		$sql_result->close();
+		return $data_results;
+	}
 	
 	private function getCallVolumeStatsForDateRange($startDate,$endDate,
 													&$dynamicColumnTitles) {
 	
-		$MAX_MONTHLY_LABEL = "*MONTH - MAX";
+		$MAX_MONTHLY_LABEL = "*MONTH TOTAL";
 	
 		/*
 		 (SELECT "ALL" as datalabel)
@@ -146,6 +169,7 @@ class ReportsChartsViewModel extends BaseViewModel {
 				' UNION (SELECT calltype as datalabel ' .
 				'        FROM callouts WHERE calltime BETWEEN \'' .
 				$startDate .'\' AND \'' . $endDate . '\'' .
+							  ' AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
 				'        GROUP BY datalabel) ORDER BY datalabel;';
 		$sql_titles_result = $this->getGvm()->RR_DB_CONN->query( $sql_titles );
 		if($sql_titles_result == false) {
@@ -166,20 +190,16 @@ class ReportsChartsViewModel extends BaseViewModel {
 		$sql_titles_result->close();
 	
 		// Read from the database
-		/*
-		(SELECT MONTH(calltime) as month, "ALL" as datalabel, count(*) as count
-		FROM callouts WHERE calltime BETWEEN '2014-01-01' AND '2014-12-31'
-		GROUP BY month, datalabel ORDER BY month)
-		UNION
-		(SELECT MONTH(calltime) as month, calltype as datalabel, count(*) as count
-		FROM callouts WHERE calltime BETWEEN '2014-01-01' AND '2014-12-31'
-		GROUP BY datalabel, month ORDER BY month) ORDER BY month, datalabel;
-		*/
+		// This routine counts the number of calls in a given month. it will be displayed on the graphs page
+		// 'Total Call Volume by Type (All Calls) - Current Year by Month'
+		// TRAINING and TESTONLY records are filtered out
 		$sql = '(SELECT MONTH(calltime) AS month, "' . $MAX_MONTHLY_LABEL . '" AS datalabel, count(*) AS count ' .
 				' FROM callouts WHERE calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+				' AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
                 ' GROUP BY month ORDER BY month)' .
                 'UNION (SELECT MONTH(calltime) AS month, calltype AS datalabel, count(*) AS count ' .
                 ' FROM callouts WHERE calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+				' AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
                 ' GROUP BY datalabel, month ORDER BY month) ORDER BY month, datalabel;';
 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 		if($sql_result == false) {
@@ -259,18 +279,20 @@ class ReportsChartsViewModel extends BaseViewModel {
 	private function getCallResponseVolumeStatsForDateRange($startDate,$endDate,
 	                			&$dynamicColumnTitles) {
 	
-		$MAX_MONTHLY_LABEL = "*MONTH - MAX";
+		$MAX_MONTHLY_LABEL = "*MONTHLY TOTAL";
 
 		if($this->getGvm()->firehall->LDAP->ENABLED) {
 			create_temp_users_table_for_ldap($this->getGvm()->firehall, 
 												$this->getGvm()->RR_DB_CONN);
-
+			// Search the database
+			// Find all occourences of calls that are completed(10) or canceled(3).  
+			// TRAINING and TESTONLY records are excluded
 			$sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
             			  ' UNION (SELECT b.user_id AS datalabel ' .
                 		  '        FROM callouts_response a' .
                 		  '        LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
                 		  '        LEFT JOIN callouts c ON a.calloutid = c.id ' .
-                		  '        WHERE c.status NOT IN (3) AND a.responsetime BETWEEN \'' .
+                		  '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN \'' .
                 				$startDate .'\' AND \'' . $endDate . '\'' .
                 		  '        GROUP BY datalabel) ORDER BY datalabel;';
         }
@@ -280,7 +302,7 @@ class ReportsChartsViewModel extends BaseViewModel {
 		                '        FROM callouts_response a' .
 		           		'        LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
 		           		'        LEFT JOIN callouts c ON a.calloutid = c.id ' .
-	                    '        WHERE c.status NOT IN (3) AND a.responsetime BETWEEN \'' .
+	                    '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN \'' .
 		                   		$startDate .'\' AND \'' . $endDate . '\'' .
 	       				'        GROUP BY datalabel) ORDER BY datalabel;';
         }
@@ -300,15 +322,18 @@ class ReportsChartsViewModel extends BaseViewModel {
 	
         if($this->getGvm()->firehall->LDAP->ENABLED) {
         	create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
-	
+
+			// Find all occourences of calls that are completed(10) or canceled(3).  
+			// TRAINING and TESTONLY records are excluded
             $sql = 	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, count(*) AS count ' .
- 	            	' FROM callouts WHERE status NOT IN (3) AND calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+ 	            	' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+					' AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
                 	' GROUP BY month ORDER BY month)' .
-                	'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
+                	' UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
                     ' FROM callouts_response a ' .
                     ' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id' .
                     ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
-                    ' WHERE c.status NOT IN (3) AND a.responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+                    ' WHERE c.status IN (3,10) AND a.responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
                     ' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
         }
         else {
