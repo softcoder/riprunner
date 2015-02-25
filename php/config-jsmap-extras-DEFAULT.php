@@ -20,8 +20,16 @@ if ( !defined('INCLUSION_PERMITTED') ||
 // === EACH LOCATION IS CLICKABLE ON THE MAP, AND WILL POP UP THE DETAILS YOU ENTER BELOW      ===
 // ===============================================================================================
 
-$enablewatersources = "no";
+// Turn on the watersources overlay by choosing "yes"
+$enablewatersources = "yes";
+// Pick any color you wish
 $watersourcecolor = "blue";
+// Transparency level between 1(very transparent) and 9 (not transparent)
+$transparency = "9";
+// Size of the watersource marker
+$watermarker_size = "8";
+// black outline border size of the marker, 1 = very small
+$watermarker_outline = "1";
 
 define(	'WATER_SOURCES',
 		'var waterSource = [' . PHP_EOL .
@@ -61,10 +69,10 @@ define('WATER_SOURCES_CODE',
 		'		position: new google.maps.LatLng(waterSource[i][1], waterSource[i][2]),' . PHP_EOL .
 		'			icon: {' . PHP_EOL .
 		'				path: google.maps.SymbolPath.CIRCLE,' . PHP_EOL .
-		'				scale: 9,' . PHP_EOL .
+		'				scale: ' . $watermarker_size . ',' . PHP_EOL .
 		'				fillColor: "' . $watersourcecolor . '",' . PHP_EOL .
-		'				fillOpacity: 0.9,' . PHP_EOL .
-		'				strokeWeight: 0.9' . PHP_EOL .
+		'				fillOpacity: 0.' . $transparency . ',' . PHP_EOL .
+		'				strokeWeight: ' . $watermarker_outline . PHP_EOL .
 		'			},' . PHP_EOL .
 		'		map: map' . PHP_EOL .
 		'	  });' . PHP_EOL .

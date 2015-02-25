@@ -113,7 +113,7 @@ class ReportsChartsViewModel extends BaseViewModel {
 		$sql = "SELECT calltype, COUNT(*) count FROM callouts " .
 			   " WHERE calltime BETWEEN '$startDate' AND '$endDate'" .
 			   " AND calltype NOT IN ('TRAINING','TESTONLY') " .
-			   " GROUP BY calltype ORDER BY calltype;";
+			   " GROUP BY calltype ORDER BY count DESC;";
 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 		if($sql_result == false) {
 			printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
@@ -134,9 +134,9 @@ class ReportsChartsViewModel extends BaseViewModel {
 		return $data_results;
 	}
 	private function getCallTypeStatsForAllDates() {
-		$sql = " SELECT calltype, COUNT(*) count FROM callouts " .
-			   " WHERE calltype NOT IN ('TRAINING','TESTONLY') "			   .
-			   " GROUP BY calltype ORDER BY count DESC;";
+		$sql =	" SELECT calltype, COUNT(*) count FROM callouts " .
+				" WHERE calltype NOT IN ('TRAINING','TESTONLY') " .
+				" GROUP BY calltype ORDER BY count DESC;";
 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 		if($sql_result == false) {
 			printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
@@ -145,7 +145,8 @@ class ReportsChartsViewModel extends BaseViewModel {
 		$data_results = array();
 		while($row = $sql_result->fetch_object()) {
 			$row_result = array();
-			$callTypeDesc = convertCallOutTypeToText($row->calltype);
+			$callTypeDesc = $row->calltype . ' - ' . convertCallOutTypeToText($row->calltype);
+
 			$row_result[$callTypeDesc] = $row->count + 0;
 			array_push($data_results,$row_result);
 		}
@@ -158,13 +159,6 @@ class ReportsChartsViewModel extends BaseViewModel {
 	
 		$MAX_MONTHLY_LABEL = "*MONTH TOTAL";
 	
-		/*
-		 (SELECT "ALL" as datalabel)
-		 UNION
-		 (SELECT calltype as datalabel
-		 FROM callouts WHERE calltime BETWEEN '2014-01-01' AND '2014-12-31'
-		 GROUP BY datalabel) ORDER BY datalabel;
-		 */
 		$sql_titles = '(SELECT "' .$MAX_MONTHLY_LABEL . '" as datalabel)' .
 				' UNION (SELECT calltype as datalabel ' .
 				' FROM callouts WHERE calltime BETWEEN \'' .
@@ -276,8 +270,7 @@ class ReportsChartsViewModel extends BaseViewModel {
 	   return $formatted_data;
 	}
 	
-	private function getCallResponseVolumeStatsForDateRange($startDate,$endDate,
-	                			&$dynamicColumnTitles) {
+	private function getCallResponseVolumeStatsForDateRange($startDate,$endDate,&$dynamicColumnTitles) {
 	
 		$MAX_MONTHLY_LABEL = "*MONTHLY TOTAL";
 
