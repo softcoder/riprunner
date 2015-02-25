@@ -15,19 +15,7 @@ require_once( 'config_interfaces.php' );
 require_once( 'config_constants.php' );
 if(file_exists('config-jsmap-extras.php')) require_once('config-jsmap-extras.php');
 
-
-// ====================================================================================================
-// === DEFINE THE MENU STYLE FOR THE SITE, VALID OPTIONS ARE horizontal OR vertical
-// ====================================================================================================
-define ('MENU_TYPE', 'horizontal');
-
-// ====================================================================================================
-// SET true, TO ALLOW ANY USER TO RESPOND TO A CALL AFTER IT HAS BEEN MARKED AS COMPLETED
-define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', false);
-
-// SET true, TO ALLOW ANY OFFICER/ADMIN TO RESPOND FOR ANY MEMBER AFTER CALL IS COMPLETED
-define( 'ALLOW_OFFICER_CALLOUT_UPDATES_AFTER_FINISHED', true);   // still under development
-
+define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
 
 // ====================================================================================================
 // ===                           CUSTOMZIABLE TEXT AND HTML TAGS                                    ===
@@ -37,14 +25,11 @@ define( 'ALLOW_OFFICER_CALLOUT_UPDATES_AFTER_FINISHED', true);   // still under 
 // === AND THEY WILL OVERRIDE ANYTHING PREVIOUSLY DEFINED                                           ===
 // ====================================================================================================
 
-//define( 'CUSTOM_MAIN_CSS','styles/custom-main.css');
-//define( 'CUSTOM_MOBILE_CSS','styles/custom-mobile.css');
-
 define( 'CALLOUT_MAIN_CSS', 'styles/callout-main.css');
-define( 'CUSTOM_CALLOUT_MAIN_CSS','styles/custom-callout-main.css');
+//define( 'CUSTOM_CALLOUT_MAIN_CSS','styles/custom-callout-main.css');
 
 define( 'CALLOUT_MOBILE_CSS', 'styles/callout-mobile.css');
-define( 'CUSTOM_CALLOUT_MOBILE_CSS','styles/custom-callout-mobile.css');
+//define( 'CUSTOM_CALLOUT_MOBILE_CSS','styles/custom-callout-mobile.css');
 
 // Call Information page header
 define( 'CALLOUT_HEADER', '<span class="ci_header">Call Details  </span>');
@@ -231,7 +216,7 @@ $CALLOUT_CODES_LOOKUP = array(
 
 // Google maps street name substitution list
 $GOOGLE_MAP_STREET_LOOKUP = array(
-		"WRING EXAMPLE RD," => "RIGHTEXAMPLE RD,"
+		"EAGLE VIEW RD," => "EAGLEVIEW RD,"
 );
 
 // Google maps city name substitution list
@@ -272,7 +257,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 		"NORTH KELLY," => GOOGLE_MAP_CITY_DEFAULT,
 		//"PARSNIP," => "PARSNIP,",
 		"PINE PASS," => GOOGLE_MAP_CITY_DEFAULT,
-		"PINEVIEW," => GOOGLE_MAP_CITY_DEFAULT,
+		"PINEVIEW FFG," => GOOGLE_MAP_CITY_DEFAULT,
 		//"PRINCE GEORGE," => "PRINCE GEORGE,",
 		"PURDEN," => GOOGLE_MAP_CITY_DEFAULT,
 		"RED ROCK," => GOOGLE_MAP_CITY_DEFAULT,

@@ -66,23 +66,6 @@ class GlobalViewModel {
 		if('phpinfo' == $name) {
 			return $this->getPhpInfo();
 		}
-		if('MENU_TYPE' == $name) {
-			if(defined('MENU_TYPE')) {
-				return MENU_TYPE;
-			}
-		}
-		if('CUSTOM_MAIN_CSS' == $name) {
-			if(defined('CUSTOM_MAIN_CSS')) {
-				return CUSTOM_MAIN_CSS;
-			}
-			return '';
-		}
-		if('CUSTOM_MOBILE_CSS' == $name) {
-			if(defined('CUSTOM_MOBILE_CSS')) {
-				return CUSTOM_MOBILE_CSS;
-			}
-			return '';
-		}
 		
 		// throw some kind of error
 		throw new \Exception("Invalid var reference [$name].");
@@ -93,7 +76,7 @@ class GlobalViewModel {
 			array('isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN',
 					AuthViewModel::getAuthVarContainerName(),'firehall',
 					'firehall_list','user_firehallid','enabled_asynch_mode',
-					'phpinfo','MENU_TYPE','CUSTOM_MAIN_CSS','CUSTOM_MOBILE_CSS'
+					'phpinfo'
 			))) {
 			return true;
 		}
