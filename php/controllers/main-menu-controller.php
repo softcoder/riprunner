@@ -20,8 +20,7 @@ new LiveCalloutWarningViewModel($global_vm,$view_template_vars);
 new MainMenuViewModel($global_vm,$view_template_vars);
 // Load out template
 $template = $twig->resolveTemplate(
-		array('@custom/main-menu-custom.twig.html',
-			  'main-menu.twig.html'));
+		array('@custom/main-menu-custom.twig.html', 'main-menu.twig.html'));
 
 // Output our template
 echo $template->render($view_template_vars);
