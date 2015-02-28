@@ -78,7 +78,7 @@
 	                        <td class="column_nowrap">{{ row[col_name] }}</td>
 	                    {% elseif col_name == 'latitude' or col_name == 'longitude' %}
 	                        {% if row.latitude != 0.0 and row.longitude != 0.0 %}
-	                        <td>
+	                        <td class="column_nowrap">
 	                            <a target="_blank" 
 	                                href="http://maps.google.com/maps?saddr={{ row.responder_origin }}&daddr={{ row.callout_address_dest }} ({{ row.callout_address_dest }})">
 	                                {{ row[col_name] }}

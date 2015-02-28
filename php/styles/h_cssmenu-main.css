@@ -17,10 +17,6 @@
 
 /*Top level menu link items style*/
 .h_cssmenu ul li a{
-	background-image: -webkit-linear-gradient(135deg, #003399, #B2C2E0);
-	background-image: -moz-linear-gradient(135deg, #003399, #B2C2E0);
-	background-image: -o-linear-gradient(135deg, #003399, #B2C2E0);
-	background-image: linear-gradient(135deg, #003399, #B2C2E0);
     -moz-border-radius: 10px;
     border-radius: 10px;
 	display: block;
@@ -35,12 +31,24 @@
 	text-shadow: 0 1px 1px rgba(0,0,0,.1);
 	text-transform: uppercase;
 	transition: all .1s ease;
+	background: #003399; /* Old browsers */
+	background: -moz-linear-gradient(-135deg,  #003399 0%, #b2c2e0 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,#003399), color-stop(100%,#b2c2e0)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(-135deg,  #003399 0%,#b2c2e0 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(-135deg,  #003399 0%,#b2c2e0 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(-135deg,  #003399 0%,#b2c2e0 100%); /* IE10+ */
+	background: linear-gradient(135deg,  #003399 0%,#b2c2e0 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003399', endColorstr='#b2c2e0',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 }
 .h_cssmenu ul li a:hover{
-	background-image: -webkit-linear-gradient(150deg, #003399, #003399);
-	background-image: -moz-linear-gradient(150deg, #003399, #003399);
-	background-image: -o-linear-gradient(150deg, #003399, #003399);
-	background-image: linear-gradient(150deg, #003399, #003399); 
+	background: #003399; /* Old browsers */
+	background: -moz-linear-gradient(-45deg,  #003399 0%, #003399 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,#003399), color-stop(100%,#003399)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(-45deg,  #003399 0%,#003399 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(-45deg,  #003399 0%,#003399 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(-45deg,  #003399 0%,#003399 100%); /* IE10+ */
+	background: linear-gradient(135deg,  #003399 0%,#003399 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003399', endColorstr='#003399',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 }
 
 
@@ -75,7 +83,7 @@
 	text-shadow: 0 1px 1px rgba(0,0,0,.1);
 }
 .h_cssmenu ul li ul li a:hover{
-	color: rgb(255,255,255);
+	color: white;
 }
 
 

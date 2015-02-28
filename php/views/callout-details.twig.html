@@ -144,6 +144,21 @@
                                 </form>
                             </td>
                             </tr>
+							{% elseif callout_details_vm.ALLOW_OFFICER_CALLOUT_UPDATES_AFTER_FINISHED and gvm.auth.isAdmin and not callout_pending %}
+                            <tr>
+                            <td class="ci_align_cell" colspan="2">
+                                <INPUT TYPE="button" VALUE="Responding - {{ row_no.user_id|upper }}" 
+                                       class="ci_respondnow" 
+                                       onclick="if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
+
+                                <form id="call_no_response_{{ row_no.id }}" 
+                                  action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}" 
+                                  method="POST" 
+                                  onsubmit="return confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',document.getElementById('call_no_response_{{ row_no.id }}'));">
+                                </form>
+                            </td>
+                            </tr>
+							
                             {% endif %}
                             {% endblock %}
                             

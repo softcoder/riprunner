@@ -45,7 +45,7 @@
         <b>NO Data.</b>
         {% endif %}
         <div class="inner_table">
-	        <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
+	        <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left;">
 	        {% if callout_history_vm.callout_cols is defined %}
 	            <thead>
 		            <tr>
@@ -54,13 +54,20 @@
 		                  col_name != 'callout_address_origin' and 
 		                  col_name != 'callout_address_dest' and
 		                  col_name != 'callout_status_desc' %}
-						{% if col_name == 'address' %}
-		                    <th scope="col" class="column_nowrap">{{ col_name }}</th>
-		                {% else  %}
-		                    <th scope="col">{{ col_name }}</th>
-		                {% endif %}
+							{% if col_name == 'updatetime' %}
+							<th scope="col" class="column_nowrap"><input id="{{ col_name }}" type="checkbox" name='showhide' /><label for="{{ col_name }}"></label>&nbsp;{{ col_name}}</th>
+							{% elseif col_name == 'calltime' %}
+							<th scope="col">Time</th>
+							{% elseif col_name == 'calltype' %}
+							<th scope="col">Type</th>
+							{% elseif col_name == 'call_key' %}
+							<th scope="col" class="column_nowrap"><input id="{{ col_name }}" type="checkbox" name='showhide' /><label for="{{ col_name }}"></label>&nbsp;Key</th>
+							{% elseif col_name == 'responders' %}
+							<th colspan=2 scope="col">&nbsp;Responders</th>
+							{% else %}
+							<th scope="col" class="column_nowrap">{{ col_name }}</th>
+							{% endif %}
 		            {% endfor %}
-	                <th scope="col">Details</th>
 	            </tr>
 	            </thead>
 	            
@@ -72,29 +79,22 @@
                           col_name != 'callout_address_dest' and
                           col_name != 'callout_status_desc' %}
 	                    {% if col_name == 'calltype' %}
-	                        <td title='{{ row.callout_type_desc }}'>{{ row[col_name] }}</td>
-	                    {% elseif col_name == 'calltime' %}
-	                        <td>{{ row[col_name] }}</td>
+	                        <td title='{{ row.callout_type_desc }}'><p>{{ row[col_name] }}</p></td>
 	                    {% elseif col_name == 'address' %}
 	                        <td class="column_nowrap">
-	                            <a target="_blank" href="http://maps.google.com/maps?saddr={{ row.callout_address_origin }}&daddr={{ row.callout_address_dest }} ({{ row[col_name] }})&dirflg=d">{{ row[col_name] }}</a>
+	                            <a target="_blank" href="http://maps.google.com/maps?saddr={{ row.callout_address_origin }}&daddr={{ row.callout_address_dest }} ({{ row[col_name] }})&dirflg=d"><p>{{ row[col_name] }}</p></a>
 	                        </td>
-	                    {% elseif col_name == 'updatetime' %}                    
-	                        <td>{{ row[col_name] }}</td>
 	                    {% elseif col_name == 'status' %}
-	                        <td>{{ row.callout_status_desc }}</td>
+	                        <td><p>{{ row.callout_status_desc }}</p></td>
+						{% elseif col_name == 'units' %}
+							<td><p>{{ row[col_name] }}</p></td>
 	                    {% elseif col_name == 'responders' %}
-	                        <td align=center>
-	                            <a class=button-link href="{{ gvm.RR_DOC_ROOT }}controllers/callout-history-response-controller.php?cid={{ row.id }}">{{ row[col_name] }}</a>
-	                        </td>
-						{% elseif col_name == 'call_key' %}
-							<td>hidden</td>
+	                        <td class="column_nowrap"><p><a class=button-link href="{{ gvm.RR_DOC_ROOT }}controllers/callout-history-response-controller.php?cid={{ row.id }}">{{ row[col_name] }}</a></p></td>
 	                    {% else %}
-	                        <td>{{ row[col_name] }}</td>
+	                        <td class="column_nowrap"><p>{{ row[col_name] }}</p></td>
 	                    {% endif %}
 	                {% endfor %}
-	                <td class="column_nowrap">
-	                   <a class=button-link target="_blank" href="{{ gvm.firehall.WEBSITE.WEBSITE_ROOT_URL }}ci/cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}">details</a> 
+							<td class="column_nowrap"><p><a class=button-link href="{{ gvm.firehall.WEBSITE.WEBSITE_ROOT_URL }}ci/cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}" target="_blank">details</a></p> 
 	                </td>
 	                </tr>
 	            {% endfor %}
@@ -105,5 +105,18 @@
             {% include 'access-denied.twig.html' %}
         {% endif %}
       </div>
+	  <script>
+	  $(function() {
+    $("#box-table-a input[type=checkbox]").on("change", function(e) {
+        var id = $(this).parent().index()+1,
+            col = $("table tr td:nth-child("+id+") p");
+        $(this).is(":checked") ? col.show() : col.hide();
+    }).change();
+    
+    $("button").on("click", function(e) {
+        $("input[type=checkbox]").prop("checked", true).change();
+    });
+	})
+	</script>
     </body>
 </html>

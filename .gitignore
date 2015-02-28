@@ -1,13 +1,6 @@
 ### LOCAL CONFIG FILES
 config.php
-config-jsmap-extras.php
-config-javascript-map.php
-php/apk/*
-.check_version
-/third-party/*
-styles/sgvfr-callout-main.css
-styles/sgvfr-callout-mobile.css
-test.php
+/temp/
 
 #################
 ## Eclipse
@@ -225,3 +218,8 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+php/.check_version
+*.apk
+*.check_version
+php/config-jsmap-extras.php

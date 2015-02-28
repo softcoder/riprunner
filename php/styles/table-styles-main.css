@@ -34,13 +34,13 @@ body
 	border-bottom: 1px solid #fff;
 	color: #669;
 	border-top: 1px solid transparent;
+	vertical-align: top;
 }
 #box-table-a tr:hover td
 {
 	background: #d0dafd;
 	color: #339;
 }
-
 
 #box-table-b
 {
