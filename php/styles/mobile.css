@@ -638,6 +638,24 @@ form:after {
     color: #00aeef;
 }
 
+input[type=checkbox] {
+display:none;
+}
+ 
+input[type=checkbox] + label
+{
+background: red;
+height: 25px;
+width: 25px;
+border-radius: 15px;
+display:inline-block;
+padding: 0px;
+}
+input[type=checkbox]:checked + label
+{
+background: green;
+}
+
 .container_center {
     margin: 0 auto;
     text-align: center;
