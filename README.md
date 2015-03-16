@@ -26,6 +26,7 @@ Key Features:
 - Ability for members to indicate a response to callouts allowing other members to know who is responding
 - Customizable user interface using twig templates (http://twig.sensiolabs.org/)
 - Experimental Android App which interfaces to the web application (does not require SMS Gateway, uses free GCM)
+- Makes a great backup system in case of power outages at your firehall, still get callouts via cell phone when radio backup battery system fails.
 
 Key Android App Features:
 -------------------------
