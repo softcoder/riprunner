@@ -279,6 +279,9 @@ class ReportsChartsViewModel extends BaseViewModel {
 	private function getCallResponseVolumeStatsForDateRange($startDate,$endDate,
 	                			&$dynamicColumnTitles) {
 	
+		global $log;
+		$log->trace("Call getCallResponseVolumeStatsForDateRange START");
+		
 		$MAX_MONTHLY_LABEL = "*MONTHLY TOTAL";
 
 		if($this->getGvm()->firehall->LDAP->ENABLED) {
@@ -314,6 +317,8 @@ class ReportsChartsViewModel extends BaseViewModel {
 	        throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_titles . "]");
 	    }
 	
+	    $log->trace("Calling getCallResponseVolumeStatsForDateRange sql_titles [" . $sql_titles . "]");
+	    
         // Build the data array
         $titles_results = array();
         while($row_titles = $sql_titles_result->fetch_object()) {
@@ -341,14 +346,14 @@ class ReportsChartsViewModel extends BaseViewModel {
         }
         else {
            	$sql =	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, count(*) AS count ' .
-					' FROM callouts WHERE status NOT IN (3,10) AND calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+					' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
 					' AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
 					' GROUP BY month ORDER BY month)' .
 					'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
 					' FROM callouts_response a ' .
 					' LEFT JOIN user_accounts b ON a.useracctid = b.id' .
 					' LEFT JOIN callouts c ON a.calloutid = c.id ' .
-					' WHERE c.status NOT IN (3,10) AND a.responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
+					' WHERE c.status IN (3,10) AND a.responsetime BETWEEN \'' . $startDate .'\' AND \'' . $endDate . '\'' .
 					' AND calltype NOT IN (\'TRAINING\',\'TESTONLY\') ' .
 					' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
        }
@@ -358,6 +363,8 @@ class ReportsChartsViewModel extends BaseViewModel {
             throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
        }
 
+       $log->trace("Calling getCallResponseVolumeStatsForDateRange sql [" . $sql . "]");
+       
        // Build the data array
        $data_results = array();
        while($row = $sql_result->fetch_object()) {
@@ -420,6 +427,8 @@ class ReportsChartsViewModel extends BaseViewModel {
        		array_push($formatted_data,$current_month_array);
 	    }
 	
+	    $log->trace("Call getCallResponseVolumeStatsForDateRange END");
+	    
 	    return $formatted_data;
 	}
 }
