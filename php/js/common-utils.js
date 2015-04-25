@@ -97,7 +97,7 @@ function getGeoCoordinates_error(err) {
 		
 		// PERMISSION_DENIED
 		//if(err.code != 1) {
-		alert('GEO error (' + err.code + '): ' + err.message);
+		//alert('GEO error (' + err.code + '): ' + err.message);
 		//}
 		
 		if(getGeoCoordinatesForm != null) {
