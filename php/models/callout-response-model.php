@@ -257,6 +257,26 @@ class CalloutResponseViewModel extends BaseViewModel {
 		global $log;
 		$log->trace("Call Response START --> updateCallResponse");
 		
+		// Check if there is already a response record for this user and call
+		$sql = 'SELECT COUNT(*) total_count FROM callouts_response ' .
+				' WHERE calloutid = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
+				' AND useracctid = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid ) . 
+				' AND status = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) .
+				';';
+		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+		if($sql_result == false) {
+			$log->error("Call Response count check SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+		
+			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+		}
+		
+		$response_duplicate_count = 0;
+		if($row = $sql_result->fetch_object()) {
+			$response_duplicate_count = $row->total_count;
+		}
+		$sql_result->close();
+		$log->trace("Call Response count check got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . $response_duplicate_count);
+		
 		// Update the response table
 		if($this->getUserPassword() == null && $this->getUserLat() == null && 
 				$this->getCalloutKeyId() != null) {
@@ -264,10 +284,8 @@ class CalloutResponseViewModel extends BaseViewModel {
 					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) . 
 					',' .
 					'        updatetime = CURRENT_TIMESTAMP() ' .
-					' WHERE calloutid = ' . 
-					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
-					' AND useracctid = ' . 
-					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid ) . 
+					' WHERE calloutid = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
+					' AND useracctid = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid ) . 
 					';';
 		}
 		else {
@@ -330,6 +348,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$this->startTrackingResponder = true;
 		}
 		$log->trace("Call Response END --> updateCallResponse");
+		return $response_duplicate_count;
 	}
 	
 	private function getRespondResult() {
@@ -337,13 +356,13 @@ class CalloutResponseViewModel extends BaseViewModel {
 			global $log;
 			$log->trace("Call Response START --> getRespondResult");
 			
-			$this->updateCallResponse();
+			$response_duplicate_count = $this->updateCallResponse();
+			
+			$newStatus = $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() );
 			
 			// Update the main callout status Unless its already set to cancelled or completed
-			$sql = 'UPDATE callouts SET status = ' . 
-					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) . 
-					',' .
-					'                   updatetime = CURRENT_TIMESTAMP() ' .
+			$sql = 'UPDATE callouts SET status = ' . $newStatus . 
+					', updatetime = CURRENT_TIMESTAMP() ' .
 					' WHERE id = ' . 
 					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
 					' AND status NOT IN (3,10);';
@@ -371,7 +390,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$log->trace("Call Response end result [". $this->respond_result ."] affected rows: " . $this->affected_response_rows);
 			
 			// Signal everyone with the status update if required
-			if($affected_update_rows > 0) {
+			if($affected_update_rows > 0 && $response_duplicate_count == 0) {
 				
 				$this->respond_result .= signalFireHallResponse($this->callout, 
 										$this->getUserId(), 
