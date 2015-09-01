@@ -288,7 +288,7 @@ SMS command mode:
 --------------
 Currently users of the Twilio provider are able to offer users the ability to communicate using SMS (no data connection needed). To configure this option you must edit the following in your Twilio Account configuration:
 - Under Numbers -> Twilio Numbers -> SMS and MMS: Select Configure with URL as follows:
-       Request URL: http://<your-website>/riprunner/plugins/sms-provider-hook/twilio-webhook.php
+       Request URL: http://www.yourwebserver.com/riprunner/plugins/sms-provider-hook/twilio-webhook.php
        using HTTP Post.
 - Send the following text message to your Twilio phone # to get a list of availble commands: help
 
