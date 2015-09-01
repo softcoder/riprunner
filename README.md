@@ -21,6 +21,7 @@ Key Features:
 - Self Installation
 - User Account management (LDAP support optional)
 - Callout history with responding members
+- 'SMS command mode' allows SMS only users to respond to call
 - Google Maps showing Distance from Firehall to Incident
 - Google charts shows statistical view of data.
 - Ability for members to indicate a response to callouts allowing other members to know who is responding
@@ -282,6 +283,14 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	// to find the firehall configuration to use for a given request
 	$FIREHALLS = array($LOCAL_DEBUG_FIREHALL);
 
+
+SMS command mode:
+--------------
+Currently users of the Twilio provider are able to offer users the ability to communicate using SMS (no data connection needed). To configure this option you must edit the following in your Twilio Account configuration:
+1. Under Numbers -> Twilio Numbers -> SMS and MMS: Select Configure with URL as follows:
+   Request URL: http://<your-website>/riprunner/plugins/sms-provider-hook/twilio-webhook.php
+   using HTTP Post.
+2. Send the following text message to your Twilio phone # to get a list of availble commands: help
 
 Special Notes:
 --------------
