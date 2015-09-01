@@ -16,6 +16,7 @@ require_once __RIPRUNNER_ROOT__ . '/plugins_loader.php';
 require_once __RIPRUNNER_ROOT__ . '/object_factory.php';
 require_once __RIPRUNNER_ROOT__ . '/template.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
+require_once __RIPRUNNER_ROOT__ . '/third-party/twilio-php/Services/Twilio.php';
 
 $SMS_AUTO_CMD_BULK = 'ALL:';
 $SMS_AUTO_CMD_RESPONDING = array('RE','RP','RESPOND');
@@ -99,6 +100,10 @@ class SmSCommandResult {
 //header( 'Cache-Control: post-check=0, pre-check=0', false );
 //header( 'Pragma: no-cache' );
 
+if(validateTwilioHost($FIREHALLS) == false) {
+	header('HTTP/1.1 401 Unauthorized');
+	exit;
+}
 header("content-type: text/xml");
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 $result = handle_sms_command($FIREHALLS);
@@ -389,5 +394,36 @@ function process_bulk_sms_command($cmd_result) {
 	else {
 		return '';
 	}
+}
+function validateTwilioHost($FIREHALLS_LIST) {
+	global $log;
+	foreach ($FIREHALLS_LIST as &$FIREHALL) {
+		if($FIREHALL->ENABLED && $FIREHALL->SMS->SMS_SIGNAL_ENABLED && 
+				isset($FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN)) {
+	
+			// Load auth token from the TWILIO_AUTH_TOKEN environment variable
+			$authToken = explode(":",$FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
+			// You'll need to make sure the Twilio library is included, either by requiring
+			// it manually or loading Composer's autoload.php
+			$validator = new \Services_Twilio_RequestValidator($authToken[1]);
+			//$url = $_SERVER["SCRIPT_URI"];
+			$site_root = getFirehallRootURLFromRequest(null,$FIREHALLS_LIST);
+			$url = $site_root . "plugins/sms-provider-hook/twilio-webhook.php";
+				
+			//$vars = $_GET;
+			ksort($_POST);
+			$vars = $_POST;
+			$signature = isset($_SERVER["HTTP_X_TWILIO_SIGNATURE"]) ? $_SERVER["HTTP_X_TWILIO_SIGNATURE"] : null;
+
+			$log->trace("About to validate twilio host url [$url] vars [" . implode(', ', $vars) . "] sig [$signature] auth [$authToken[1]]");
+			$validate_result = $validator->validate($signature, $url, $vars);
+			if ($validate_result) {
+				// This request definitely came from Twilio, so continue onwards...
+				return true;
+			}
+			$log->error("Validate twilio host failed, returned [$validate_result] url [$url] vars [" . implode(', ', $vars) . "] sig [$signature] auth [$authToken[1]]");
+		}
+	}
+	return false;
 }
 ?>
