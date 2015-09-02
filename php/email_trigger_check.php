@@ -258,15 +258,19 @@ function poll_email_callouts($FIREHALLS_LIST) {
 		$html .= ', email = ' . var_export($FIREHALL->EMAIL->EMAIL_HOST_ENABLED,true) .'<br />';
 				
 		# Connect to the mail server and grab headers from the mailbox
-		$mail = imap_open($FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING, 
+		$mail = @imap_open($FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING, 
 						  $FIREHALL->EMAIL->EMAIL_HOST_USERNAME, 
-						  $FIREHALL->EMAIL->EMAIL_HOST_PASSWORD);
+						  $FIREHALL->EMAIL->EMAIL_HOST_PASSWORD,OP_SILENT,2);
 		
 		if($mail == false) {
 			$err_text = imap_last_error();
 			$log->error("Email trigger checking imap_open response [$err_text]");
 		}
 		else {
+			// call this to avoid the mailbox is empty error message
+			//if (imap_num_msg($mail) == 0) {
+			//	$errors = imap_errors();
+			//}
 			//if (imap_num_msg($mail) == 0)
 			//	$errors = imap_errors();
 			$headers = imap_headers($mail);

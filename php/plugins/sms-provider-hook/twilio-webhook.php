@@ -95,11 +95,7 @@ class SmSCommandResult {
 		$this->callout_list = $value;
 	}
 }
-
-//header( 'Cache-Control: no-store, no-cache, must-revalidate' );
-//header( 'Cache-Control: post-check=0, pre-check=0', false );
-//header( 'Pragma: no-cache' );
-
+// Check if Twilio is calling us, if not 401
 if(validateTwilioHost($FIREHALLS) == false) {
 	header('HTTP/1.1 401 Unauthorized');
 	exit;
@@ -116,12 +112,12 @@ Hello <?php echo $result->getUserId() ?>
 Processed SMS CMD: [<?php echo $result->getCmd() ?>]
 Body [<?php echo isset($_REQUEST['Body']) ? $_REQUEST['Body'] : '' ?>]
 <?php elseif(in_array(strtoupper($result->getCmd()),$SMS_AUTO_CMD_HELP)): ?>
-Current available commands:
-Respond to current live callout, any of: <?php echo implode(', ', $SMS_AUTO_CMD_RESPONDING) . PHP_EOL ?>
-Complete the current live callout, any of: <?php echo implode(', ', $SMS_AUTO_CMD_COMPLETED) . PHP_EOL ?>
-Cancel the current live callout, any of: <?php echo implode(', ', $SMS_AUTO_CMD_CANCELLED) . PHP_EOL ?>
-Send a message to all SMS users: <?php echo $SMS_AUTO_CMD_BULK . PHP_EOL ?>
-To get help, any of: <?php echo implode(', ', $SMS_AUTO_CMD_HELP) . PHP_EOL ?>
+Available commands:
+Respond to live callout, any of: <?php echo implode(', ', $SMS_AUTO_CMD_RESPONDING) . PHP_EOL ?>
+Complete current callout, any of: <?php echo implode(', ', $SMS_AUTO_CMD_COMPLETED) . PHP_EOL ?>
+Cancel current callout, any of: <?php echo implode(', ', $SMS_AUTO_CMD_CANCELLED) . PHP_EOL ?>
+Broadcast message to all: <?php echo $SMS_AUTO_CMD_BULK . PHP_EOL ?>
+Show help, any of: <?php echo implode(', ', $SMS_AUTO_CMD_HELP) . PHP_EOL ?>
 <?php else: ?>
 Received SMS
 From [<?php echo isset($_REQUEST['From']) ? $_REQUEST['From'] : '' ?>]
@@ -175,32 +171,32 @@ function getLiveCalloutModelList($FIREHALL, $db_connection) {
 			' TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' .
 			DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
 			' ORDER BY id DESC LIMIT 5;';
-// 	$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 	if($sql_result == false) {
-// 		$log->error("Call checkForLiveCallout SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-// 		throw new Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-// 	}
 	
 	$sql_result = $db_connection->query( $sql );
 	if($sql_result == false) {
 		$log->error("Call checkForLiveCalloutModelList SQL error for sql [$sql] error: " . mysqli_error($db_connection));
 		throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
 	}
-		
 	$log->trace("Call checkForLiveCalloutModelList SQL success for sql [$sql] row count: " . $sql_result->num_rows);
 
 	$callout_list = array();
 	while($row = $sql_result->fetch_assoc()) {
 	//if($row = $sql_result->fetch_object()) {
-		
 		//$calloutModel = new \riprunner\CalloutViewModel();
 		//$this->getCalloutModel()->id = $row->id;
 		//$this->getCalloutModel()->callkey = $row->call_key;
 		$callout_list[] = $row;
 	}
 	$sql_result->close();
-
 	return $callout_list;
+}
+
+function clean_mobile_number( $text )	{
+	$code_entities_match   = array('$','%','^','&','_','{','}','|','"','<','>','?','[',']','\\',';',"'",'/','~','`','=',' ');
+	$code_entities_replace = array('', '', '', '', '', '', '', '', '', '', '', '', '', '', '',  '', '', '', '', '', '', '');
+	 
+	$text = str_replace( $code_entities_match, $code_entities_replace, $text );
+	return $text;
 }
 
 function handle_sms_command($FIREHALLS_LIST) {
@@ -213,168 +209,163 @@ function handle_sms_command($FIREHALLS_LIST) {
 	$result->setIsProcessed(false);
 
 	if(isset($_REQUEST['From'])) {
-		$sms_user = $_REQUEST['From'];
+		$sms_user = clean_mobile_number($_REQUEST['From']);
 		$result->setSmsCaller($sms_user);
-		//$html = "";
 
 		//echo 'Loop count: ' . sizeof($FIREHALLS_LIST) .PHP_EOL;
-
-		# Loop through all Firehall email triggers
+		# Loop through all Firehalls
 		foreach ($FIREHALLS_LIST as &$FIREHALL) {
 			if($FIREHALL->ENABLED && $FIREHALL->SMS->SMS_SIGNAL_ENABLED) {
-				//$smsPlugin = \riprunner\PluginsLoader::findPlugin('riprunner\ISMSPlugin', $FIREHALL->SMS->SMS_GATEWAY_TYPE);
-				//if($smsPlugin == null) {
-				//	$log->error("Invalid SMS send msg Plugin type: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
-				//	throw new Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
-				//}
-					
 				//echo "Twilio trigger checking firehall: [" . $FIREHALL->WEBSITE->FIREHALL_NAME . "] looking for $sms_user";
 				$log->trace("Twilio trigger checking firehall: [" . $FIREHALL->WEBSITE->FIREHALL_NAME . "]");
-				
-				if($FIREHALL->LDAP->ENABLED) {
-					$recipients = get_sms_recipients_ldap($FIREHALL,null);
-					$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients);
 
-					$recipient_list = explode(';',$recipients);
-					$recipient_list_array = $recipient_list;
-				}
-				else {
-					$recipient_list_type = ($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP ?
-							\riprunner\RecipientListType::GroupList : \riprunner\RecipientListType::MobileList);
-					if($recipient_list_type == \riprunner\RecipientListType::GroupList) {
-						$recipients_group = $FIREHALL->SMS->SMS_RECIPIENTS;
-						$recipient_list_array = explode(';',$recipients_group);
-					}
-					else if($FIREHALL->SMS->SMS_RECIPIENTS_FROM_DB) {
-						$recipient_list = getMobilePhoneListFromDB($FIREHALL,null);
-						$recipient_list_array = $recipient_list;
-					}
-					else {
-						$recipients = $FIREHALL->SMS->SMS_RECIPIENTS;
+				$db_connection = null;
+				try {
+					$db_connection = db_connect_firehall($FIREHALL);
+					
+					if($FIREHALL->LDAP->ENABLED) {
+						$recipients = get_sms_recipients_ldap($FIREHALL,null);
+						$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients);
+	
 						$recipient_list = explode(';',$recipients);
 						$recipient_list_array = $recipient_list;
 					}
-				}
-
-				$matching_sms_user = find_sms_match($sms_user, $recipient_list_array);
-				if ($matching_sms_user != null) {
-					$result->setSmsCaller($matching_sms_user);
-					$result->setSmsRecipients($recipient_list_array);
-					
-					//echo "Twilio trigger FOUND MATCH for [$matching_sms_user]";
-					$result->setFirehall($FIREHALL);
-						
-					$db_connection = null;
-					if($db_connection == null) {
-						$db_connection = db_connect_firehall($FIREHALL);
+					else {
+						$recipient_list_type = ($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP ?
+								\riprunner\RecipientListType::GroupList : \riprunner\RecipientListType::MobileList);
+						if($recipient_list_type == \riprunner\RecipientListType::GroupList) {
+							$recipients_group = $FIREHALL->SMS->SMS_RECIPIENTS;
+							$recipient_list_array = explode(';',$recipients_group);
+						}
+						else if($FIREHALL->SMS->SMS_RECIPIENTS_FROM_DB) {
+							$recipient_list = getMobilePhoneListFromDB($FIREHALL,$db_connection);
+							$recipient_list_array = $recipient_list;
+						}
+						else {
+							$recipients = $FIREHALL->SMS->SMS_RECIPIENTS;
+							$recipient_list = explode(';',$recipients);
+							$recipient_list_array = $recipient_list;
+						}
 					}
+	
+					$matching_sms_user = find_sms_match($sms_user, $recipient_list_array);
+					if ($matching_sms_user != null) {
+						$result->setSmsCaller($matching_sms_user);
+						$result->setSmsRecipients($recipient_list_array);
 						
-					// Find matching user for mobile #
-					if($FIREHALL->LDAP->ENABLED) {
-						create_temp_users_table_for_ldap($FIREHALL, $db_connection);
-						$sql = "SELECT id,user_id FROM ldap_user_accounts WHERE firehall_id = '" .
-								$db_connection->real_escape_string( $FIREHALL->FIREHALL_ID ) . "'" .
-								" AND mobile_phone = '" . $db_connection->real_escape_string( $matching_sms_user ) . "';";
+						//echo "Twilio trigger FOUND MATCH for [$matching_sms_user]";
+						$result->setFirehall($FIREHALL);
+						// Find matching user for mobile #
+						if($FIREHALL->LDAP->ENABLED) {
+							create_temp_users_table_for_ldap($FIREHALL, $db_connection);
+							$sql = "SELECT id,user_id FROM ldap_user_accounts WHERE firehall_id = '" .
+									$db_connection->real_escape_string( $FIREHALL->FIREHALL_ID ) . "'" .
+									" AND mobile_phone = '" . $db_connection->real_escape_string( $matching_sms_user ) . "';";
+						}
+						else {
+							$sql = "SELECT id,user_id FROM user_accounts WHERE firehall_id = '" .
+									$db_connection->real_escape_string( $FIREHALL->FIREHALL_ID ) . "'" .
+									" AND mobile_phone = '" . $db_connection->real_escape_string( $matching_sms_user ) . "';";
+	
+						}
+						$sql_result = $db_connection->query( $sql );
+						if($sql_result == false) {
+							$log->error("Twilio userlist SQL error for sql [$sql] error: " . mysqli_error($db_connection));
+							throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+						}
+	
+						//echo "Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $sql_result->num_rows;
+						$log->trace("Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $sql_result->num_rows);
+							
+						if($row = $sql_result->fetch_object()) {
+							$result->setUserAccountId($row->id);
+							$result->setUserId($row->user_id);
+						}
+						$sql_result->close();
+	
+						//echo 'GOT HERE 1 ' . $result->getUserId();
+						// Account is valid
+						if($result->getUserId() != null) {
+							// Now check which command the user wants to process
+							$sms_cmd = isset($_REQUEST['Body']) ? $_REQUEST['Body'] : '';
+							$result->setCmd($sms_cmd);
+							//echo 'GOT HERE 2 ' . $result->getUserId() . $sms_cmd;
+							
+							if( in_array(strtoupper($sms_cmd),$SMS_AUTO_CMD_RESPONDING)) {
+								$live_callout_list = getLiveCalloutModelList($FIREHALL, $db_connection);
+								$result->setLiveCallouts($live_callout_list);
+								
+								if($live_callout_list != null && empty($live_callout_list) == false) {
+									$most_current_callout = reset($live_callout_list);
+									$site_root = getFirehallRootURLFromRequest(null,$FIREHALLS_LIST);
+									$URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) . 
+									    "&cid=" . urlencode($most_current_callout['id']) .
+									    "&uid=" . urlencode($result->getUserId()) . 
+									    "&ckid=" . urlencode($most_current_callout['call_key']);
+									
+									$log->error("Calling URL for twilio Call Response [$URL]");
+									$cmd_result = file_get_contents($URL);
+									$log->error("Called URL returned [$cmd_result]");
+										
+									$result->setIsProcessed(true);
+								}
+							}
+							else if( in_array(strtoupper($sms_cmd),$SMS_AUTO_CMD_COMPLETED)) {
+								$live_callout_list = getLiveCalloutModelList($FIREHALL, $db_connection);
+								$result->setLiveCallouts($live_callout_list);
+									
+								if($live_callout_list != null && empty($live_callout_list) == false) {
+									$most_current_callout = reset($live_callout_list);
+									$site_root = getFirehallRootURLFromRequest(null,$FIREHALLS_LIST);
+									$URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
+											"&cid=" . urlencode($most_current_callout['id']) .
+											"&uid=" . urlencode($result->getUserId()) .
+											"&ckid=" . urlencode($most_current_callout['call_key']) .
+											"&status=" . urlencode(\CalloutStatusType::Complete);
+									
+									$log->error("Calling URL for twilio Call Response [$URL]");
+									$cmd_result = file_get_contents($URL);
+									$log->error("Called URL returned [$cmd_result]");
+												
+									$result->setIsProcessed(true);
+								}
+							}
+							else if( in_array(strtoupper($sms_cmd),$SMS_AUTO_CMD_CANCELLED)) {
+								$live_callout_list = getLiveCalloutModelList($FIREHALL, $db_connection);
+								$result->setLiveCallouts($live_callout_list);
+									
+								if($live_callout_list != null && empty($live_callout_list) == false) {
+									$most_current_callout = reset($live_callout_list);
+									$site_root = getFirehallRootURLFromRequest(null,$FIREHALLS_LIST);
+									$URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
+									"&cid=" . urlencode($most_current_callout['id']) .
+									"&uid=" . urlencode($result->getUserId()) .
+									"&ckid=" . urlencode($most_current_callout['call_key']) .
+									"&status=" . urlencode(\CalloutStatusType::Cancelled);
+										
+									$log->error("Calling URL for twilio Call Response [$URL]");
+									$cmd_result = file_get_contents($URL);
+									$log->error("Called URL returned [$cmd_result]");
+									
+									$result->setIsProcessed(true);
+								}
+							}
+							break;
+						}
+						else {
+							$log->error("Internal failure DB matching for sms user [$sms_user] matching name [$matching_sms_user].");
+						}
 					}
 					else {
-						$sql = "SELECT id,user_id FROM user_accounts WHERE firehall_id = '" .
-								$db_connection->real_escape_string( $FIREHALL->FIREHALL_ID ) . "'" .
-								" AND mobile_phone = '" . $db_connection->real_escape_string( $matching_sms_user ) . "';";
-
+						$log->error("FAILED sms matching authentication for sms user [$sms_user].");
 					}
-					$sql_result = $db_connection->query( $sql );
-					if($sql_result == false) {
-						//if($debug_registration) echo "E3";
-						$log->error("Twilio userlist SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-							
-						throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-					}
-
-					//echo "Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $sql_result->num_rows;
-					$log->trace("Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $sql_result->num_rows);
-						
-					//$useracctid = null;
-					//$user_id = null;
-					if($row = $sql_result->fetch_object()) {
-						//$useracctid = $row->id;
-						//$user_id = $row->user_id;
-						$result->setUserAccountId($row->id);
-						$result->setUserId($row->user_id);
-					}
-					$sql_result->close();
-
-					//echo 'GOT HERE 1 ' . $result->getUserId();
-					// Account is valid
-					if($result->getUserId() != null) {
-						// Now check which command the user wants to process
-						$sms_cmd = isset($_REQUEST['Body']) ? $_REQUEST['Body'] : '';
-						$result->setCmd($sms_cmd);
-						//echo 'GOT HERE 2 ' . $result->getUserId() . $sms_cmd;
-						
-						if( in_array(strtoupper($sms_cmd),$SMS_AUTO_CMD_RESPONDING)) {
-							$live_callout_list = getLiveCalloutModelList($FIREHALL, $db_connection);
-							$result->setLiveCallouts($live_callout_list);
-							
-							if($live_callout_list != null && empty($live_callout_list) == false) {
-								$most_current_callout = reset($live_callout_list);
-								//http://soft-haus.com/svvfd/riprunner/cr/fhid=971&amp;cid=57&amp;uid=toby.haiste&amp;ckid=55d6d3401f4296.60464440
-								//action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}"
-								$site_root = getFirehallRootURLFromRequest(null,$FIREHALLS_LIST);
-								$URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) . 
-								    "&cid=" . urlencode($most_current_callout['id']) .
-								    "&uid=" . urlencode($result->getUserId()) . 
-								    "&ckid=" . urlencode($most_current_callout['call_key']);
-								
-								$log->error("Calling URL for twilio Call Response [$URL]");
-								$cmd_result = file_get_contents($URL);
-								$log->error("Called URL returned [$cmd_result]");
-									
-								$result->setIsProcessed(true);
-							}
-						}
-						else if( in_array(strtoupper($sms_cmd),$SMS_AUTO_CMD_COMPLETED)) {
-							$live_callout_list = getLiveCalloutModelList($FIREHALL, $db_connection);
-							$result->setLiveCallouts($live_callout_list);
-								
-							if($live_callout_list != null && empty($live_callout_list) == false) {
-								$most_current_callout = reset($live_callout_list);
-								$site_root = getFirehallRootURLFromRequest(null,$FIREHALLS_LIST);
-								$URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
-										"&cid=" . urlencode($most_current_callout['id']) .
-										"&uid=" . urlencode($result->getUserId()) .
-										"&ckid=" . urlencode($most_current_callout['call_key']) .
-										"&status=" . urlencode(\CalloutStatusType::Complete);
-								
-								$log->error("Calling URL for twilio Call Response [$URL]");
-								$cmd_result = file_get_contents($URL);
-								$log->error("Called URL returned [$cmd_result]");
-											
-								$result->setIsProcessed(true);
-							}
-						}
-						else if( in_array(strtoupper($sms_cmd),$SMS_AUTO_CMD_CANCELLED)) {
-							$live_callout_list = getLiveCalloutModelList($FIREHALL, $db_connection);
-							$result->setLiveCallouts($live_callout_list);
-								
-							if($live_callout_list != null && empty($live_callout_list) == false) {
-								$most_current_callout = reset($live_callout_list);
-								$site_root = getFirehallRootURLFromRequest(null,$FIREHALLS_LIST);
-								$URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
-								"&cid=" . urlencode($most_current_callout['id']) .
-								"&uid=" . urlencode($result->getUserId()) .
-								"&ckid=" . urlencode($most_current_callout['call_key']) .
-								"&status=" . urlencode(\CalloutStatusType::Cancelled);
-									
-								$log->error("Calling URL for twilio Call Response [$URL]");
-								$cmd_result = file_get_contents($URL);
-								$log->error("Called URL returned [$cmd_result]");
-								
-								$result->setIsProcessed(true);
-							}
-						}
-						break;
-					}
+				} 
+				catch (Exception $ex) {
+					db_disconnect( $db_connection );
+					$db_connection = null;
+					throw($ex);
 				}
+				db_disconnect( $db_connection );
 			}
 		}
 	}
@@ -383,34 +374,31 @@ function handle_sms_command($FIREHALLS_LIST) {
 function process_bulk_sms_command($cmd_result) {
 	global $SPECIAL_MOBILE_PREFIX;
 	global $SMS_AUTO_CMD_BULK;
+	$result = "";
 	if (startsWith(strtoupper($cmd_result->getCmd()),$SMS_AUTO_CMD_BULK)) {
-		$result = "";
 		$recipient_list = $cmd_result->getSmsRecipients();
 		foreach ($recipient_list as &$sms_user) {
-			$result .= "<Sms to='$SPECIAL_MOBILE_PREFIX$sms_user'>" . substr($cmd_result->getCmd(),5) . "</Sms>";
+			$result .= "<Sms to='$SPECIAL_MOBILE_PREFIX$sms_user'>Group SMS from " . $cmd_result->getUserId() . 
+				": " . substr($cmd_result->getCmd(),strlen($SMS_AUTO_CMD_BULK)) . "</Sms>";
 		}
 		return $result;
 	}
-	else {
-		return '';
-	}
+	return $result;
 }
 function validateTwilioHost($FIREHALLS_LIST) {
 	global $log;
 	foreach ($FIREHALLS_LIST as &$FIREHALL) {
 		if($FIREHALL->ENABLED && $FIREHALL->SMS->SMS_SIGNAL_ENABLED && 
 				isset($FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN)) {
-	
-			// Load auth token from the TWILIO_AUTH_TOKEN environment variable
+			// Load auth token
 			$authToken = explode(":",$FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-			// You'll need to make sure the Twilio library is included, either by requiring
-			// it manually or loading Composer's autoload.php
+			// You'll need to make sure the Twilio library is included
 			$validator = new \Services_Twilio_RequestValidator($authToken[1]);
 			//$url = $_SERVER["SCRIPT_URI"];
-			$site_root = getFirehallRootURLFromRequest(null,$FIREHALLS_LIST);
+			//$site_root = getFirehallRootURLFromRequest(null,$FIREHALLS_LIST);
+			$site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 			$url = $site_root . "plugins/sms-provider-hook/twilio-webhook.php";
 				
-			//$vars = $_GET;
 			ksort($_POST);
 			$vars = $_POST;
 			$signature = isset($_SERVER["HTTP_X_TWILIO_SIGNATURE"]) ? $_SERVER["HTTP_X_TWILIO_SIGNATURE"] : null;
@@ -418,10 +406,12 @@ function validateTwilioHost($FIREHALLS_LIST) {
 			$log->trace("About to validate twilio host url [$url] vars [" . implode(', ', $vars) . "] sig [$signature] auth [$authToken[1]]");
 			$validate_result = $validator->validate($signature, $url, $vars);
 			if ($validate_result) {
-				// This request definitely came from Twilio, so continue onwards...
+				// This request definitely came from Twilio
 				return true;
 			}
-			$log->error("Validate twilio host failed, returned [$validate_result] url [$url] vars [" . implode(', ', $vars) . "] sig [$signature] auth [$authToken[1]]");
+
+			$sms_user = isset($_REQUEST['From']) ? $_REQUEST['From'] : '';
+			$log->error("Validate twilio host failed for sms user [$sms_user], returned [$validate_result] url [$url] vars [" . implode(', ', $vars) . "] sig [$signature] auth [$authToken[1]]");
 		}
 	}
 	return false;
