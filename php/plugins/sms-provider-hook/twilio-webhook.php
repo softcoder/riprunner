@@ -106,7 +106,7 @@ $result = handle_sms_command($FIREHALLS);
 ?>
 <Response>
 <?php if($result->getFirehall() != null && $result->getUserId() != null): ?>
-    <Sms>
+    <Message>
 Hello <?php echo $result->getUserId() ?> 
 <?php if($result->getIsProcessed()): ?>
 Processed SMS CMD: [<?php echo $result->getCmd() ?>]
@@ -134,7 +134,7 @@ Cannot complete the callout, no callouts active!
 Cannot cancel the callout, no callouts active!
 <?php endif; ?>
 <?php endif; ?>
-    </Sms>
+    </Message>
 <?php echo process_bulk_sms_command($result) ?>
 <?php endif; ?>    
 </Response>
@@ -378,8 +378,8 @@ function process_bulk_sms_command($cmd_result) {
 	if (startsWith(strtoupper($cmd_result->getCmd()),$SMS_AUTO_CMD_BULK)) {
 		$recipient_list = $cmd_result->getSmsRecipients();
 		foreach ($recipient_list as &$sms_user) {
-			$result .= "<Sms to='$SPECIAL_MOBILE_PREFIX$sms_user'>Group SMS from " . $cmd_result->getUserId() . 
-				": " . substr($cmd_result->getCmd(),strlen($SMS_AUTO_CMD_BULK)) . "</Sms>";
+			$result .= "<Message to='$SPECIAL_MOBILE_PREFIX$sms_user'>Group SMS from " . $cmd_result->getUserId() . 
+				": " . substr($cmd_result->getCmd(),strlen($SMS_AUTO_CMD_BULK)) . "</Message>";
 		}
 		return $result;
 	}
