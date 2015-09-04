@@ -290,7 +290,7 @@ Currently users of the Twilio provider are able to offer users the ability to co
 - Under Numbers -> Twilio Numbers -> SMS and MMS: Select Configure with URL as follows:
        Request URL: http://www.yourwebserver.com/riprunner/plugins/sms-provider-hook/twilio-webhook.php
        using HTTP Post.
-- Send the following text message to your Twilio phone # to get a list of availble commands: help
+- Send the following text message to your Twilio phone # to get a list of availble commands: ?
 
 Special Notes:
 --------------
