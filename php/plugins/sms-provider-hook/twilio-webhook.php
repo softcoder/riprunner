@@ -196,6 +196,66 @@ function clean_mobile_number( $text )	{
 	return $text;
 }
 
+function get_recipients_list($FIREHALL, $db_connection) {
+	if($FIREHALL->LDAP->ENABLED) {
+		$recipients = get_sms_recipients_ldap($FIREHALL,null);
+		$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients);
+	
+		$recipient_list = explode(';',$recipients);
+		$recipient_list_array = $recipient_list;
+	}
+	else {
+		$recipient_list_type = ($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP ?
+				\riprunner\RecipientListType::GroupList : \riprunner\RecipientListType::MobileList);
+		if($recipient_list_type == \riprunner\RecipientListType::GroupList) {
+			$recipients_group = $FIREHALL->SMS->SMS_RECIPIENTS;
+			$recipient_list_array = explode(';',$recipients_group);
+		}
+		else if($FIREHALL->SMS->SMS_RECIPIENTS_FROM_DB) {
+			$recipient_list = getMobilePhoneListFromDB($FIREHALL,$db_connection);
+			$recipient_list_array = $recipient_list;
+		}
+		else {
+			$recipients = $FIREHALL->SMS->SMS_RECIPIENTS;
+			$recipient_list = explode(';',$recipients);
+			$recipient_list_array = $recipient_list;
+		}
+	}
+	return $recipient_list_array;
+}
+
+function find_matching_mobile_user($FIREHALL, $db_connection, $matching_sms_user, $result) {
+	global $log;
+	
+	// Find matching user for mobile #
+	if($FIREHALL->LDAP->ENABLED) {
+		create_temp_users_table_for_ldap($FIREHALL, $db_connection);
+		$sql = "SELECT id,user_id FROM ldap_user_accounts WHERE firehall_id = '" .
+				$db_connection->real_escape_string( $FIREHALL->FIREHALL_ID ) . "'" .
+				" AND mobile_phone = '" . $db_connection->real_escape_string( $matching_sms_user ) . "';";
+	}
+	else {
+		$sql = "SELECT id,user_id FROM user_accounts WHERE firehall_id = '" .
+				$db_connection->real_escape_string( $FIREHALL->FIREHALL_ID ) . "'" .
+				" AND mobile_phone = '" . $db_connection->real_escape_string( $matching_sms_user ) . "';";
+	
+	}
+	$sql_result = $db_connection->query( $sql );
+	if($sql_result == false) {
+		$log->error("Twilio userlist SQL error for sql [$sql] error: " . mysqli_error($db_connection));
+		throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+	}
+	
+	//echo "Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $sql_result->num_rows;
+	$log->trace("Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $sql_result->num_rows);
+		
+	if($row = $sql_result->fetch_object()) {
+		$result->setUserAccountId($row->id);
+		$result->setUserId($row->user_id);
+	}
+	$sql_result->close();
+}
+
 function handle_sms_command($FIREHALLS_LIST) {
 	global $log;
 	global $SMS_AUTO_CMD_RESPONDING;
@@ -219,32 +279,7 @@ function handle_sms_command($FIREHALLS_LIST) {
 				$db_connection = null;
 				try {
 					$db_connection = db_connect_firehall($FIREHALL);
-					
-					if($FIREHALL->LDAP->ENABLED) {
-						$recipients = get_sms_recipients_ldap($FIREHALL,null);
-						$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients);
-	
-						$recipient_list = explode(';',$recipients);
-						$recipient_list_array = $recipient_list;
-					}
-					else {
-						$recipient_list_type = ($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP ?
-								\riprunner\RecipientListType::GroupList : \riprunner\RecipientListType::MobileList);
-						if($recipient_list_type == \riprunner\RecipientListType::GroupList) {
-							$recipients_group = $FIREHALL->SMS->SMS_RECIPIENTS;
-							$recipient_list_array = explode(';',$recipients_group);
-						}
-						else if($FIREHALL->SMS->SMS_RECIPIENTS_FROM_DB) {
-							$recipient_list = getMobilePhoneListFromDB($FIREHALL,$db_connection);
-							$recipient_list_array = $recipient_list;
-						}
-						else {
-							$recipients = $FIREHALL->SMS->SMS_RECIPIENTS;
-							$recipient_list = explode(';',$recipients);
-							$recipient_list_array = $recipient_list;
-						}
-					}
-	
+					$recipient_list_array = get_recipients_list($FIREHALL, $db_connection);
 					$matching_sms_user = find_sms_match($sms_user, $recipient_list_array);
 					if ($matching_sms_user != null) {
 						$result->setSmsCaller($matching_sms_user);
@@ -252,34 +287,8 @@ function handle_sms_command($FIREHALLS_LIST) {
 						
 						//echo "Twilio trigger FOUND MATCH for [$matching_sms_user]";
 						$result->setFirehall($FIREHALL);
-						// Find matching user for mobile #
-						if($FIREHALL->LDAP->ENABLED) {
-							create_temp_users_table_for_ldap($FIREHALL, $db_connection);
-							$sql = "SELECT id,user_id FROM ldap_user_accounts WHERE firehall_id = '" .
-									$db_connection->real_escape_string( $FIREHALL->FIREHALL_ID ) . "'" .
-									" AND mobile_phone = '" . $db_connection->real_escape_string( $matching_sms_user ) . "';";
-						}
-						else {
-							$sql = "SELECT id,user_id FROM user_accounts WHERE firehall_id = '" .
-									$db_connection->real_escape_string( $FIREHALL->FIREHALL_ID ) . "'" .
-									" AND mobile_phone = '" . $db_connection->real_escape_string( $matching_sms_user ) . "';";
-	
-						}
-						$sql_result = $db_connection->query( $sql );
-						if($sql_result == false) {
-							$log->error("Twilio userlist SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-							throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-						}
-	
-						//echo "Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $sql_result->num_rows;
-						$log->trace("Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $sql_result->num_rows);
-							
-						if($row = $sql_result->fetch_object()) {
-							$result->setUserAccountId($row->id);
-							$result->setUserId($row->user_id);
-						}
-						$sql_result->close();
-	
+						find_matching_mobile_user($FIREHALL, $db_connection, $matching_sms_user, $result);
+						
 						//echo 'GOT HERE 1 ' . $result->getUserId();
 						// Account is valid
 						if($result->getUserId() != null) {
@@ -389,6 +398,8 @@ function process_bulk_sms_command($cmd_result) {
 	return $result;
 }
 function validateTwilioHost($FIREHALLS_LIST) {
+	//return true;
+	
 	global $log;
 	foreach ($FIREHALLS_LIST as &$FIREHALL) {
 		if($FIREHALL->ENABLED && $FIREHALL->SMS->SMS_SIGNAL_ENABLED && 

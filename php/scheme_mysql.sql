@@ -63,3 +63,13 @@ CREATE TABLE  `devicereg` (
 `user_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
 `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE = INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);
+
+CREATE INDEX callouts_id_callkey ON callouts (id,call_key);
+CREATE INDEX callouts_id_status ON callouts (id,status);
+
+CREATE INDEX callouts_response_useracctid ON callouts_response (useracctid);
+CREATE INDEX callouts_response_calloutid ON callouts_response (calloutid);
+CREATE INDEX callouts_response_status ON callouts_response (status);
