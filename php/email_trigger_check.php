@@ -244,9 +244,9 @@ function poll_email_callouts($FIREHALLS_LIST) {
 		}
 		else {
 			$headers = imap_headers($mail);
-			
+			$headers_count = count($headers);
 			# loop through each email header
-			for ($n=1; $n<=count($headers); $n++) {
+			for ($n=1; $n <= $headers_count; $n++) {
 				$html .=  "<h3>".$headers[$n-1]."</h3><br />" . PHP_EOL;
 			
 			    $valid_email_trigger = validate_email_sender($FIREHALL, $html, $mail, $n);

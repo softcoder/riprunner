@@ -58,24 +58,28 @@ function db_connect_firehall($FIREHALL) {
 	
 function db_connect($host, $user, $password, $database) {
 	global $log;
-	$linkid = mysqli_connect( $host, $user, $password, $database );
+	//$log->error("About to DB Connect for: host [$host] db [$database] user [$user]");
+	$link = mysqli_connect( $host, $user, $password, $database );
+	//$log->error("DB Connected for: host [$host] db [$database] user [$user] link [" . mysqli_get_host_info($link) . "]");
 
 	if (mysqli_connect_errno()) {
 		$log->error("DB Connect failed: ". mysqli_connect_errno() ." : ". mysqli_connect_error());
 		die("Connect failed: ".mysqli_connect_errno()." : ". mysqli_connect_error());
 	}
-	if(!$linkid) {
-		$log->error("DB Connect error: ". mysqli_error($linkid));
-		die("Connect Error #1: " . mysqli_error($linkid));
+	if(!$link) {
+		$log->error("DB Connect error: ". mysqli_error($link));
+		die("Connect Error #1: " . mysqli_error($link));
 	}
 	
-	return $linkid;
+	return $link;
 }	                		
 
-function db_disconnect( $linkid ) {
+function db_disconnect( $link ) {
+	global $log;
 	// note that mysql_close() only closes non-persistent connections
-	if($linkid != null) {
-		$linkid->close();
+	if($link != null) {
+		//$log->error("About to DB DisConnect for: [" .  mysqli_get_host_info($link) . "]");
+		$link->close();
 	}
 }
 
@@ -154,9 +158,9 @@ function getGEOCoordinatesFromAddress($FIREHALL,$address) {
 	return $result_geo_coords;
 }
 	
-function findFireHallConfigById($id, $list) {
+function findFireHallConfigById($fhid, $list) {
 	foreach ($list as &$firehall) {
-		if($firehall->FIREHALL_ID == $id) {
+		if($firehall->FIREHALL_ID == $fhid) {
 			return $firehall;
 		}
 	}
@@ -641,8 +645,8 @@ function checkApplicationUpdates() {
 }
 
 function validateDate($date, $format = 'Y-m-d H:i:s') {
-	$d = DateTime::createFromFormat($format, $date);
-	return $d && $d->format($format) == $date;
+	$date_format = DateTime::createFromFormat($format, $date);
+	return $date_format && $date_format->format($format) == $date;
 }
 
 function getFirehallRootURLFromRequest($request_url,$firehalls) {
@@ -667,18 +671,21 @@ function getFirehallRootURLFromRequest($request_url,$firehalls) {
 		
 		$url_parts = explode('/',$request_url);
 		if(isset($url_parts) && count($url_parts) > 0) {
+			$url_parts_count = count($url_parts);
+			
 			foreach ($firehalls as &$firehall) {
 				$log->trace("#3 Looking for website root URL req [$request_url] firehall root [" . $firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
 				
 				$fh_parts = explode('/',$firehall->WEBSITE->WEBSITE_ROOT_URL);
 				if(isset($fh_parts) && count($fh_parts) > 0) {
+					$fh_parts_count = count($fh_parts);
 					
-					for($index_fh = 0; $index_fh < count($fh_parts);$index_fh++) {
-						for($index = 0; $index < count($url_parts);$index++) {
+					for($index_fh = 0; $index_fh < $fh_parts_count;$index_fh++) {
+						for($index = 0; $index < $url_parts_count;$index++) {
 							$log->trace("#3 fhpart [" .  $fh_parts[$index_fh] . "] url part [" . $url_parts[$index] . "]");
 							
 							if($fh_parts[$index_fh] != '' && $url_parts[$index] != '' &&
-									$fh_parts[$index_fh] === $url_parts[$index]) {
+								$fh_parts[$index_fh] === $url_parts[$index]) {
 
 								$log->trace("#3 website matched!");
 								return $firehall->WEBSITE->WEBSITE_ROOT_URL;
