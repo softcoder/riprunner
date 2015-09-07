@@ -149,7 +149,6 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 		}
 		elseif ($ie == "quoted-printable") {
 			$realdata = imap_qprint($text);
-			//$realdata = quoted_printable_decode($text);
 		}
 
 		$log->trace("Email trigger check part# $p is mime type [$mimetype].");
@@ -185,37 +184,13 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $n) {
 		$html .=  nl2br(htmlspecialchars($shorttext))."<br>";
 	}
 	
-	//!!!
 	if(isset($fullEmailBodyText) && strlen($fullEmailBodyText) > 0) {
 		$log->trace("Email trigger processing contents...");
-		
-// 		list($isCallOutEmail,
-// 				$callDateTimeNative,
-// 				$callCode,
-// 				$callAddress,
-// 				$callGPSLat,
-// 				$callGPSLong,
-// 				$callUnitsResponding,
-// 				$callType) = processFireHallText($realdata);
 
 		$callout = processFireHallText($realdata);
 		$log->trace("Email trigger processing contents signal result: " . var_export($callout->isValid(),true));
 		
-		//if($isCallOutEmail == true) {
 		if($callout->isValid()) {
-// 			$callout = new CalloutDetails();
-// 			$callout->setFirehall($FIREHALL);
-// 			$callout->setDateTime($callDateTimeNative);
-// 			$callout->setCode($callCode);
-// 			$callout->setAddress($callAddress);
-// 			$callout->setGPSLat($callGPSLat);
-// 			$callout->setGPSLong($callGPSLong);
-// 			$callout->setUnitsResponding($callUnitsResponding);
-				
-// 			signalFireHallCallout($FIREHALL, $callDateTimeNative,
-// 							$callCode, $callAddress, $callGPSLat,
-// 							$callGPSLong, $callUnitsResponding, $callType);
-
 			$callout->setFirehall($FIREHALL);
 			signalFireHallCallout($callout);
 
@@ -263,16 +238,11 @@ function poll_email_callouts($FIREHALLS_LIST) {
 						  $FIREHALL->EMAIL->EMAIL_HOST_PASSWORD,OP_SILENT,2);
 		
 		if($mail == false) {
+			// call this to avoid the mailbox is empty error message
 			$err_text = imap_last_error();
 			$log->error("Email trigger checking imap_open response [$err_text]");
 		}
 		else {
-			// call this to avoid the mailbox is empty error message
-			//if (imap_num_msg($mail) == 0) {
-			//	$errors = imap_errors();
-			//}
-			//if (imap_num_msg($mail) == 0)
-			//	$errors = imap_errors();
 			$headers = imap_headers($mail);
 			
 			# loop through each email header
@@ -285,8 +255,8 @@ function poll_email_callouts($FIREHALLS_LIST) {
 			    }
 			}
 			imap_expunge($mail);
+			imap_close($mail);
 		}
-		imap_close($mail);
 	}
 	
 	return $html;

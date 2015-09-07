@@ -15,7 +15,7 @@ require_once( 'logging.php' );
 # This function cleans out special characters
 function clean_str( $text )	{  
 	$code_entities_match   = array('$','%','^','&','_','+','{','}','|','"','<','>','?','[',']','\\',';',"'",'/','+','~','`','=');
-	$code_entities_replace = array('','','','','','','','','','','','','');
+	$code_entities_replace = array('', '', '', '', '', '', '', '', '', '', '', '', '');
        
 	$text = str_replace( $code_entities_match, $code_entities_replace, $text );
 	return $text;

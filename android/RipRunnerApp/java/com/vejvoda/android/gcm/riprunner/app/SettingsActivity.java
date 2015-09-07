@@ -289,7 +289,8 @@ public class SettingsActivity extends PreferenceActivity implements
 								else {
 									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 									SharedPreferences.Editor editor = sharedPrefs.edit();
-									editor.putString(AppConstants.PROPERTY_LOGIN_PAGE_URI, "register_device.php");
+									//editor.putString(AppConstants.PROPERTY_LOGIN_PAGE_URI, "register_device.php");
+									editor.putString(AppConstants.PROPERTY_LOGIN_PAGE_URI, "mobile-login/");
 									editor.commit();
 								}
 								if(json.has(AppConstants.PROPERTY_CALLOUT_PAGE_URI)) {
@@ -301,7 +302,8 @@ public class SettingsActivity extends PreferenceActivity implements
 								else {
 									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 									SharedPreferences.Editor editor = sharedPrefs.edit();
-									editor.putString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, "ci.php");
+									//editor.putString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, "ci.php");
+									editor.putString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, "ci/");
 									editor.commit();
 								}
 								
@@ -314,7 +316,8 @@ public class SettingsActivity extends PreferenceActivity implements
 								else {
 									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 									SharedPreferences.Editor editor = sharedPrefs.edit();
-									editor.putString(AppConstants.PROPERTY_RESPOND_PAGE_URI, "cr.php");
+									//editor.putString(AppConstants.PROPERTY_RESPOND_PAGE_URI, "cr.php");
+									editor.putString(AppConstants.PROPERTY_RESPOND_PAGE_URI, "cr/");
 									editor.commit();
 								}
 								
@@ -327,7 +330,8 @@ public class SettingsActivity extends PreferenceActivity implements
 								else {
 									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 									SharedPreferences.Editor editor = sharedPrefs.edit();
-									editor.putString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct.php");
+									//editor.putString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct.php");
+									editor.putString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct/");
 									editor.commit();
 								}
 

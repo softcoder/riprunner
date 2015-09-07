@@ -10,8 +10,6 @@ ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
 sec_session_start();
-$login_referrer = (isset($_SESSION) && isset($_SESSION['LOGIN_REFERRER']) ? $_SESSION['LOGIN_REFERRER'] : null);
- 
 // Unset all session values 
 $_SESSION = array();
  
@@ -29,15 +27,4 @@ setcookie(session_name(),
 // Destroy session 
 session_destroy();
 
-//
-if(isset($login_referrer) && $login_referrer == 'login.php') {
-	header('Location: login.php');
-}
-else {
-	if(DEFAULT_SITE_VERSION == NEWEST_SITE_VERSION) {
-		header('Location: controllers/login-controller.php');
-	}
-	else {
-		header('Location: login.php');
-	}
-}
+header('Location: controllers/login-controller.php');

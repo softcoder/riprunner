@@ -24,10 +24,6 @@ if ( !defined('INCLUSION_PERMITTED') ||
  	//$site_path = $protocol . $domain . '/' . $rel_path;
  	// 	define ('RR_BASE_URL', $site_path);
 	
-	define ('NEWEST_SITE_VERSION', 'MVC_V1');
-	define ('DEFAULT_SITE_VERSION', 'MVC_V1');
-	//define ('DEFAULT_SITE_VERSION', 'LEGACY_V1');
-
 // ==============================================================
 
 	define( 'PRODUCT_NAME', 		'RipRunner' );
@@ -62,7 +58,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	define( 'DEFAULT_GOOGLE_MAPS_API_URL',	'http://maps.googleapis.com/maps/api/geocode/');
 	
 	// The current versions of the Rip Runner Android app
-	define( 'CURRENT_ANDROID_VERSIONCODE',	8);
-	define( 'CURRENT_ANDROID_VERSIONNAME',	'1.7');
+	define( 'CURRENT_ANDROID_VERSIONCODE',	9);
+	define( 'CURRENT_ANDROID_VERSIONNAME',	'1.8');
 	
 ?>

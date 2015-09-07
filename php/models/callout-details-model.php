@@ -23,8 +23,6 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		global $google_map_type;
-		
 		if('firehall_id' == $name) {
 			return $this->getFirehallId();
 		}
@@ -62,7 +60,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			return $this->getCalloutDetailsEndRespondingList();
 		}
 		if('google_map_type' == $name) {
-			return $google_map_type;
+			return GOOGLE_MAP_TYPE;
 		}
 		if('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED' == $name) {
 			return ALLOW_CALLOUT_UPDATES_AFTER_FINISHED;

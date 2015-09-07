@@ -12,6 +12,7 @@ if(defined('__RIPRUNNER_ROOT__') == false) define('__RIPRUNNER_ROOT__', dirname(
 
 require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
+require_once __RIPRUNNER_ROOT__ . '/url/http-cli.php';
 require_once __RIPRUNNER_ROOT__ . '/plugins_loader.php';
 require_once __RIPRUNNER_ROOT__ . '/object_factory.php';
 require_once __RIPRUNNER_ROOT__ . '/template.php';
@@ -163,7 +164,7 @@ function find_sms_match($sms_user, $recipient_list_array) {
 	return null;
 }
 
-function getLiveCalloutModelList($FIREHALL, $db_connection) {
+function getLiveCalloutModelList($db_connection) {
 	global $log;
 	// Check if there is an active callout (within last 48 hours) and if so send the details
 	$sql = 'SELECT * FROM callouts' .
@@ -181,10 +182,6 @@ function getLiveCalloutModelList($FIREHALL, $db_connection) {
 
 	$callout_list = array();
 	while($row = $sql_result->fetch_assoc()) {
-	//if($row = $sql_result->fetch_object()) {
-		//$calloutModel = new \riprunner\CalloutViewModel();
-		//$this->getCalloutModel()->id = $row->id;
-		//$this->getCalloutModel()->callkey = $row->call_key;
 		$callout_list[] = $row;
 	}
 	$sql_result->close();
@@ -292,7 +289,7 @@ function handle_sms_command($FIREHALLS_LIST) {
 							//echo 'GOT HERE 2 ' . $result->getUserId() . $sms_cmd;
 							
 							if( in_array(strtoupper($sms_cmd),$SMS_AUTO_CMD_RESPONDING)) {
-								$live_callout_list = getLiveCalloutModelList($FIREHALL, $db_connection);
+								$live_callout_list = getLiveCalloutModelList($db_connection);
 								$result->setLiveCallouts($live_callout_list);
 								
 								if($live_callout_list != null && empty($live_callout_list) == false) {
@@ -304,14 +301,16 @@ function handle_sms_command($FIREHALLS_LIST) {
 									    "&ckid=" . urlencode($most_current_callout['call_key']);
 									
 									$log->error("Calling URL for twilio Call Response [$URL]");
-									$cmd_result = file_get_contents($URL);
+									//$cmd_result = file_get_contents($URL);
+									$httpclient = new \riprunner\HTTPCli($URL);
+									$cmd_result = $httpclient->execute();
 									$log->error("Called URL returned [$cmd_result]");
 										
 									$result->setIsProcessed(true);
 								}
 							}
 							else if( in_array(strtoupper($sms_cmd),$SMS_AUTO_CMD_COMPLETED)) {
-								$live_callout_list = getLiveCalloutModelList($FIREHALL, $db_connection);
+								$live_callout_list = getLiveCalloutModelList($db_connection);
 								$result->setLiveCallouts($live_callout_list);
 									
 								if($live_callout_list != null && empty($live_callout_list) == false) {
@@ -324,14 +323,16 @@ function handle_sms_command($FIREHALLS_LIST) {
 											"&status=" . urlencode(\CalloutStatusType::Complete);
 									
 									$log->error("Calling URL for twilio Call Response [$URL]");
-									$cmd_result = file_get_contents($URL);
+									//$cmd_result = file_get_contents($URL);
+									$httpclient = new \riprunner\HTTPCli($URL);
+									$cmd_result = $httpclient->execute();
 									$log->error("Called URL returned [$cmd_result]");
 												
 									$result->setIsProcessed(true);
 								}
 							}
 							else if( in_array(strtoupper($sms_cmd),$SMS_AUTO_CMD_CANCELLED)) {
-								$live_callout_list = getLiveCalloutModelList($FIREHALL, $db_connection);
+								$live_callout_list = getLiveCalloutModelList($db_connection);
 								$result->setLiveCallouts($live_callout_list);
 									
 								if($live_callout_list != null && empty($live_callout_list) == false) {
@@ -344,7 +345,9 @@ function handle_sms_command($FIREHALLS_LIST) {
 									"&status=" . urlencode(\CalloutStatusType::Cancelled);
 										
 									$log->error("Calling URL for twilio Call Response [$URL]");
-									$cmd_result = file_get_contents($URL);
+									//$cmd_result = file_get_contents($URL);
+									$httpclient = new \riprunner\HTTPCli($URL);
+									$cmd_result = $httpclient->execute();
 									$log->error("Called URL returned [$cmd_result]");
 									
 									$result->setIsProcessed(true);

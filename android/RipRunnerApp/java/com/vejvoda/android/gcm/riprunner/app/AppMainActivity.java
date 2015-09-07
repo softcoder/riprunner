@@ -175,12 +175,12 @@ public class AppMainActivity extends ReportingActionBarActivity implements
     // Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
     // Update frequency in seconds
-    public static final int UPDATE_INTERVAL_IN_SECONDS = 5;
+    public static final int UPDATE_INTERVAL_IN_SECONDS = 15;
     // Update frequency in milliseconds
     private static final long UPDATE_INTERVAL =
             MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
     // The fastest update frequency, in seconds
-    private static final int FASTEST_INTERVAL_IN_SECONDS = 1;
+    private static final int FASTEST_INTERVAL_IN_SECONDS = 5;
     // A fast frequency ceiling in milliseconds
     private static final long FASTEST_INTERVAL =
             MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
@@ -740,24 +740,7 @@ public class AppMainActivity extends ReportingActionBarActivity implements
     	
         super.onStop();
     }
-    
-    @Override
-    protected void onPause() {
-    	Log.i(Utils.TAG, Utils.getLineNumber() + ": pausing Rip Runner.");
-    	
-        super.onPause();
-    }
-    
-    @Override
-    protected void onResume() {
-    	Log.i(Utils.TAG, Utils.getLineNumber() + ": resuming Rip Runner.");
-    	
-        super.onResume();
-        
-        registerReceiver(activityReceiver, Utils.getMainAppIntentFilter());
-        // Check device for Play Services APK.
-        checkPlayServices();
-    }
+   
 
     /**
      * Check the device to make sure it has the Google Play Services APK. If
@@ -1275,8 +1258,9 @@ public class AppMainActivity extends ReportingActionBarActivity implements
     	String paramString = URLEncodedUtils.format(params, "utf-8");
     	String URL = auth.getHostURL() + 
     			getConfigItem(context,AppConstants.PROPERTY_LOGIN_PAGE_URI,String.class).toString() +
-    			"?" + paramString;
+    			paramString;
     	
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner about to call url: [" + URL + "]");
     	HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response = httpclient.execute(new HttpGet(URL));
         StatusLine statusLine = response.getStatusLine();
@@ -1387,6 +1371,9 @@ public class AppMainActivity extends ReportingActionBarActivity implements
     }
 
 	void handleRegistrationSuccess(FireHallAuthentication auth) {
+		
+		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner start handleRegistrationSuccess ...");
+		
 		storeConfigItem(context, AppConstants.PROPERTY_FIREHALL_ID, auth.getFirehallId());
 		storeConfigItem(context, AppConstants.PROPERTY_USER_ID, auth.getUserId());
 		
@@ -1396,6 +1383,8 @@ public class AppMainActivity extends ReportingActionBarActivity implements
 		
 		runOnUiThread(new Runnable() {
 		    public void run() {
+		    	
+		    	Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner run handleRegistrationSuccess ...");
 		    	
 		        TextView txtMsg = (TextView)findViewById(R.id.txtMsg);
 		        txtMsg.setText(getResources().getString(R.string.login_success) + 
@@ -1454,7 +1443,7 @@ public class AppMainActivity extends ReportingActionBarActivity implements
     	String paramString = URLEncodedUtils.format(params, "utf-8");
     	String URL = auth.getHostURL() + 
     			getConfigItem(context,AppConstants.PROPERTY_RESPOND_PAGE_URI,String.class).toString() +
-    			"?" + paramString;
+    			paramString;
     	
     	
     	HttpClient httpclient = new DefaultHttpClient();
@@ -1560,7 +1549,7 @@ public class AppMainActivity extends ReportingActionBarActivity implements
 		    	String paramString = URLEncodedUtils.format(params, "utf-8");
 		    	String URL = auth.getHostURL() + 
 		    			getConfigItem(context,AppConstants.PROPERTY_TRACKING_PAGE_URI,String.class).toString() + 
-		    			"?" + paramString;
+		    			paramString;
 		    			    	
 		    	HttpClient httpclient = new DefaultHttpClient();
 		        
@@ -1925,10 +1914,15 @@ public class AppMainActivity extends ReportingActionBarActivity implements
 	    storeConfigItem(context, AppConstants.PROPERTY_SENDER_ID, sender_id);
 	    storeConfigItem(context, AppConstants.PROPERTY_TRACKING_ENABLED, tracking_enabled);
 
-	    String login_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_LOGIN_PAGE_URI, "register_device.php");
-	    String callout_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, "ci.php");
-	    String respond_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_RESPOND_PAGE_URI, "cr.php");
-	    String tracking_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct.php");
+//	    String login_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_LOGIN_PAGE_URI, "register_device.php");
+//	    String callout_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, "ci.php");
+//	    String respond_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_RESPOND_PAGE_URI, "cr.php");
+//	    String tracking_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct.php");
+	    String login_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_LOGIN_PAGE_URI, "mobile-login/");
+	    String callout_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_CALLOUT_PAGE_URI, "ci/");
+	    String respond_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_RESPOND_PAGE_URI, "cr/");
+	    String tracking_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_TRACKING_PAGE_URI, "ct/");
+	    
 	    String kml_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_KML_PAGE_URI, "");
 	    String android_errors_page_uri = sharedPrefs.getString(AppConstants.PROPERTY_ANDROID_ERROR_PAGE_URI, "");
 
@@ -1990,9 +1984,9 @@ public class AppMainActivity extends ReportingActionBarActivity implements
 	}
 	
 	@Override
-	public void onConnected(Bundle arg0) {
+	public void onConnected(Bundle connectionHint) {
 		// Display the connection status
-		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner GPS Connected: " + (arg0 == null ? "null" : arg0));
+		Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner GPS Connected: " + (connectionHint == null ? "null" : connectionHint));
         Toast.makeText(this, "GPS Connected", Toast.LENGTH_SHORT).show();
 
         // If already requested, start periodic updates
@@ -2003,13 +1997,44 @@ public class AppMainActivity extends ReportingActionBarActivity implements
         if (mUpdatesRequested) {
 	        mLocationRequest = LocationRequest.create();
 	        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-	        mLocationRequest.setInterval(20000); // Update location every 20 seconds
+	        //mLocationRequest.setInterval(20000); // Update location every 20 seconds
+			mLocationRequest.setInterval(UPDATE_INTERVAL);
+			// Set the fastest update interval to 1 second
+			mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
 	
 	        LocationServices.FusedLocationApi.requestLocationUpdates(
 	                mGoogleApiClient, mLocationRequest, this);
         }
 	}
 
+    @Override
+    protected void onPause() {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": pausing Rip Runner.");
+    	
+        super.onPause();
+        
+        //LocationServices.FusedLocationApi.removeLocationUpdates(
+        //        mGoogleApiClient, this);        
+    }
+
+    @Override
+    protected void onResume() {
+    	Log.i(Utils.TAG, Utils.getLineNumber() + ": resuming Rip Runner.");
+    	
+        super.onResume();
+        
+        registerReceiver(activityReceiver, Utils.getMainAppIntentFilter());
+        // Check device for Play Services APK.
+        checkPlayServices();
+        
+        if (mGoogleApiClient.isConnected() && mUpdatesRequested) {
+	        LocationServices.FusedLocationApi.requestLocationUpdates(
+	                mGoogleApiClient, mLocationRequest, this);
+
+        }
+    }
+
+    
 	@Override
 	public void onDisconnected() {
 		// Display the connection status

@@ -77,7 +77,6 @@ function signalResponseToSMSPlugin($callout, $userId, $userGPSLat, $userGPSLong,
 }
 
 function getSMSCalloutResponseMessage($callout, $userId, $userStatus, $maxLength) {
-	global $log;
 	global $twig;
 	
 	$view_template_vars = array();

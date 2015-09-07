@@ -165,7 +165,7 @@ else {
 	
 	echo "<body>" . PHP_EOL;
 	echo "<p>" . PHP_EOL;
-	echo "<span class='error'>You are not authorized to access this page.</span> Please <a href='login.php'>login</a>." . PHP_EOL;
+	echo "<span class='error'>You are not authorized to access this page.</span> Please <a href='login/'>login</a>." . PHP_EOL;
 	echo "</p>" . PHP_EOL;
 	echo "</body>" . PHP_EOL;
 }

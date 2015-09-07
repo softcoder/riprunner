@@ -59,7 +59,8 @@ public final class ExceptionReporter {
 	private static final CharSequence DEFAULT_NOTIFICATION_TEXT = "Click here to help fixing the issue";
 	private static final CharSequence DEFAULT_NOTIFICATION_TICKER_TEXT = "";
 
-	private static String TARGET_URL = null;
+	//private static String TARGET_URL = null;
+	private static String TARGET_URL = "http://soft-haus.com/riprunner/android-error.php";
 	/**
 	 * Registers this context and returns an error handler object
 	 * to be able to manually report errors.

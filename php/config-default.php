@@ -18,23 +18,6 @@ if(file_exists('config-jsmap-extras.php')) require_once('config-jsmap-extras.php
 define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
 
 // ====================================================================================================
-// ===                           CUSTOMZIABLE TEXT AND HTML TAGS                                    ===
-// ====================================================================================================
-// === TO PRESERVE CUSTOM STYLES ACROSS UPGRADES, UNCOMMENT THE CUSTOM LINES AND EDIT THE FILES     ===
-// === STYLES DEFINED IN CALLOUT-MAIN.CSS AND CALLOUT-MOBILE.CSS CAN BE COPIED TO THE CUSTOM FILE   ===
-// === AND THEY WILL OVERRIDE ANYTHING PREVIOUSLY DEFINED                                           ===
-// ====================================================================================================
-
-define( 'CALLOUT_MAIN_CSS', 'styles/callout-main.css');
-//define( 'CUSTOM_CALLOUT_MAIN_CSS','styles/custom-callout-main.css');
-
-define( 'CALLOUT_MOBILE_CSS', 'styles/callout-mobile.css');
-//define( 'CUSTOM_CALLOUT_MOBILE_CSS','styles/custom-callout-mobile.css');
-
-// Call Information page header
-define( 'CALLOUT_HEADER', '<span class="ci_header">Call Details  </span>');
-
-// ====================================================================================================
 // ===                     ENABLE JAVASCRIPT OR IFRAME MAPPING STYLES                               ===
 // ====================================================================================================
 // === VALID CHOICES ARE "javascript" OR "iframe". JAVASCRIPT MAPS HAVE MANY MORE CONFIGURABLE      ===
@@ -45,97 +28,13 @@ define( 'CALLOUT_HEADER', '<span class="ci_header">Call Details  </span>');
 // === AND EDIT OPTIONS TO ENABLE ADVANCED FEATRUES SUCH AS OVERLAY AND MARKERS                     ===
 // ====================================================================================================
 
-$google_map_type = "javascript";
+define( 'GOOGLE_MAP_TYPE', 'javascript');
+//define( 'GOOGLE_MAP_TYPE', 'iframe');
 
 // ====================================================================================================
 // ===--------------EDIT BLOCKS BELOW ONLY IF YOU KNOW WHAT YOUR DOING------------------------------===
 // ===--------------MORE USER OPTIONS ARE FURTHER DOWN ---------------------------------------------===
 // ====================================================================================================
-
-define( 'GOOGLE_MAP_JAVASCRIPT_HEAD',
-		'<script type="text/javascript"' . PHP_EOL .
-		'src="https://maps.googleapis.com/maps/api/js?key=${API_KEY}">' . PHP_EOL .
-		'</script>' . PHP_EOL
-);
-
-define('GOOGLE_MAP_JAVASCRIPT_BODY', file_get_contents(__RIPRUNNER_ROOT__ . '/js/js-map.js'));
-
-
-define( 'GOOGLE_MAP_INLINE_TAG',
-		'<div class="google-maps">' . PHP_EOL .
-		'<iframe frameborder="1" style="border:1" ' .
-		'src="https://www.google.com/maps/embed/v1/directions?key=${API_KEY}' .
-		'&mode=driving&zoom=11&origin=${FDLOCATION}' .
-		'&destination=${DESTINATION}"></iframe>' . PHP_EOL .
-		'</div>' . PHP_EOL);
-// ====================================================================================================
-// ====================================================================================================
-// ====================================================================================================
-// This callout details
-
-define( 'CALLOUT_DETAIL_ROW',
-		'<div id="callContent${ROW_NUMBER}">' . PHP_EOL .
-		'<span class="ci_header_time">Page Time: ${CALLOUT_TIME}</span><br />' . PHP_EOL .
-		'<span class="ci_header_type">Call Type: ${CALLOUT_TYPE_TEXT}</span><br />' . PHP_EOL .
-		'<span class="ci_header_address">Call Address: ${CALLOUT_ADDRESS}</span><br />' . PHP_EOL.
-		'<span class="ci_header_units">Responding Units: ${CALLOUT_UNITS}</span><br />' . PHP_EOL.
-		'<span class="ci_header_status">Call Status: ${CALLOUT_STATUS}</span>' . PHP_EOL.
-		'</div>' . PHP_EOL);
-
-// callout responders that are attending the call
-define( 'CALLOUT_RESPONDERS_HEADER',
-		'<div id="callResponseContent${ROW_NUMBER}">' . PHP_EOL.
-		'<span class="ci_responders_header">Responders:' . PHP_EOL);
-
-define( 'CALLOUT_RESPONDERS_DETAIL',
-		'<a target="_blank" href="http://maps.google.com/maps?saddr='.
-		'${ORIGIN}&daddr=${DESTINATION} (${DESTINATION})"' .
-		' class="ci_responders_user_link">${USER_ID}</a>');
-
-define( 'CALLOUT_RESPONDERS_FOOTER',
-		'</span><br />' . PHP_EOL .
-		'<a target="_blank" href="ct/fhid=${FHID}' .
-		'&cid=${CID}' .
-		'&ta=mr' .
-		'&ckid=${CKID}"' .
-		' class="ci_responders_map_link">Show Responders Map</a>' . PHP_EOL .
-		'</div>' . PHP_EOL);
-
-// This is the UI for members that have not responded yet
-define( 'CALLOUT_RESPOND_NOW_HEADER',
-		'<br /><br />' . PHP_EOL .
-		'<div id="callNoResponseContent${ROW_NUMBER}">' . PHP_EOL);
-
-define( 'CALLOUT_RESPOND_NOW_TRIGGER',
-		'<INPUT TYPE="submit" VALUE="RESPONDING - ${USER_ID}' .
-		'" class="ci_respondnow" />'. PHP_EOL);
-
-define( 'CALLOUT_RESPOND_NOW_TRIGGER_CONFIRM',
-		'Confirm that ${USER_ID} is responding?');
-
-define( 'CALLOUT_RESPOND_NOW_FOOTER',
-		'</div>' . PHP_EOL);
-
-// These tags are for Complete and Cancel callout tags
-define( 'CALLOUT_FINISH_NOW_HEADER',
-		'<div id="callYesResponseContent${ROW_NUMBER}">' . PHP_EOL);
-
-define( 'CALLOUT_COMPLETE_NOW_TRIGGER',
-        '<INPUT TYPE="submit" VALUE="COMPLETE' .
-		'" class="ci_completenow" />'. PHP_EOL);
-		
-define( 'CALLOUT_COMPLETE_NOW_TRIGGER_CONFIRM',
-'COMPLETE this call?\nConfirm that the call should be set to COMPLETE?');
-
-define( 'CALLOUT_CANCEL_NOW_TRIGGER',
-        '<INPUT TYPE="submit" VALUE="CANCEL' .
-		'" class="ci_cancelnow" />'. PHP_EOL);
-		
-define( 'CALLOUT_CANCEL_NOW_TRIGGER_CONFIRM',
-		'CANCEL this call?\nConfirm that the call should be CANCELLED?');
-
-define( 'CALLOUT_FINISH_NOW_FOOTER',
-		'</div>' . PHP_EOL);
 
 // ----------------------------------------------------------------------
 // Max hours old to trigger a live callout page
@@ -390,6 +289,5 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'EMAIL_PARSING_UNITS_PATTERN', 		'/Units Responding: (.*?)$/m' );
 	
 	// ------------------------------------------------------------------------
-	define( 'MAP_AUTO_REFRESH_SECONDS', '120');
 	
 ?>
