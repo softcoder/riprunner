@@ -425,7 +425,7 @@ function validateTwilioHost($FIREHALLS_LIST) {
 			}
 
 			$sms_user = isset($_REQUEST['From']) ? $_REQUEST['From'] : '';
-			$log->error("Validate twilio host failed for sms user [$sms_user], returned [$validate_result] url [$url] vars [" . implode(', ', $vars) . "] sig [$signature] auth [$authToken[1]]");
+			$log->error("Validate twilio host failed for client [" . getClientIPInfo() ."] sms user [$sms_user], returned [$validate_result] url [$url] vars [" . implode(', ', $vars) . "] sig [$signature] auth [$authToken[1]]");
 		}
 	}
 	return false;

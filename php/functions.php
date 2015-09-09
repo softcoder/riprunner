@@ -214,12 +214,31 @@ function sec_session_start_ext($skip_regeneration) {
 		}
 	}
 }
-	
+
+function getClientIPInfo() {
+	$ip = '';
+	if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+		$ip .= 'HTTP_CLIENT_IP: ' . $_SERVER['HTTP_CLIENT_IP'];
+	} 
+	if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		if (!empty($ip)) {
+			$ip .= ' ';
+		}
+		$ip .= 'HTTP_X_FORWARDED_FOR: ' . $_SERVER['HTTP_X_FORWARDED_FOR'];
+	} 
+	if (!empty($_SERVER['REMOTE_ADDR'])) {
+		if (!empty($ip)) {
+			$ip .= ' ';
+		}
+		$ip .= 'REMOTE_ADDR: ' . $_SERVER['REMOTE_ADDR'];
+	}
+	return $ip;
+}
 function login($FIREHALL,$user_id, $password, $db_connection) {
 	$debug_functions = false;
 	
 	global $log;
-	$log->trace("Login attempt for user [$user_id] fhid [" . $FIREHALL->FIREHALL_ID . "]");
+	$log->trace("Login attempt for user [$user_id] fhid [" . $FIREHALL->FIREHALL_ID . "] client [" . getClientIPInfo() . "]");
 	
 	if($FIREHALL->LDAP->ENABLED) {
 		return login_ldap($FIREHALL, $user_id, $password);
@@ -275,7 +294,7 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
         		else {
         			// Password is not correct
         			// We record this attempt in the database
-        			$log->error("Login attempt for user [$user_id] FAILED pwd check!");
+        			$log->error("Login attempt for user [$user_id] FAILED pwd check for client [" . getClientIPInfo() . "]");
         			
         			//$now = time();
         			$db_connection->query("INSERT INTO login_attempts(useracctid, time)
@@ -288,7 +307,7 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
         } 
         else {
         	// No user exists.
-        	$log->warn("Login attempt for user [$user_id] FAILED uid check!");
+        	$log->warn("Login attempt for user [$user_id] FAILED uid check for client [" . getClientIPInfo() . "]");
         	
         	if($debug_functions) echo "LOGIN-F3" . PHP_EOL;
         	return false;
@@ -312,7 +331,7 @@ function checkbrute($user_id, $db_connection) {
 
 		// If there have been more than 3 failed logins
 		if ($stmt->num_rows > 3) {
-			$log->warn("Login attempt for user [$user_id] was blocked, brute force count [" . $stmt->num_rows . "]");
+			$log->warn("Login attempt for user [$user_id] was blocked, client [" . getClientIPInfo() . "] brute force count [" . $stmt->num_rows . "]");
 			return true;
 		} 
 		else {
@@ -320,7 +339,7 @@ function checkbrute($user_id, $db_connection) {
 		}
 	}
 	else {
-		$log->error("Login attempt for user [$user_id] was unknown bf error!");
+		$log->error("Login attempt for user [$user_id] for client [" . getClientIPInfo() . "] was unknown bf error!");
 	}
 	return false;
 }
@@ -369,7 +388,7 @@ function login_check($db_connection) {
 				} 
 				else {
 					// Not logged in
-					$log->error("Login check for user [$user_id] failed hash check!");
+					$log->error("Login check for user [$user_id] for client [" . getClientIPInfo() . "] failed hash check!");
 					
 					if($debug_functions) echo "LOGINCHECK F1" . PHP_EOL;
 					return false;
@@ -377,14 +396,14 @@ function login_check($db_connection) {
 			} 
 			else {
 				// Not logged in
-				$log->error("Login check for user [$user_id] failed uid check!");
+				$log->error("Login check for user [$user_id] for client [" . getClientIPInfo() . "] failed uid check!");
 				if($debug_functions) echo "LOGINCHECK F2" . PHP_EOL;
 				return false;
 			}
 		} 
 		else {
 			// Not logged in
-			$log->error("Login check for user [$user_id] UNKNOWN SQL error!");
+			$log->error("Login check for user [$user_id] for client [" . getClientIPInfo() . "] UNKNOWN SQL error!");
 			
 			if($debug_functions) echo "LOGINCHECK F3" . PHP_EOL;
 			return false;
@@ -392,7 +411,8 @@ function login_check($db_connection) {
 	} 
 	else {
 		// Not logged in
-		$log->debug("Login check has no valid session! db userid: " . @$_SESSION['user_db_id'] .
+		$log->debug("Login check has no valid session! client [" . getClientIPInfo() . "] db userid: " . 
+				@$_SESSION['user_db_id'] .
 			" userid: " . @$_SESSION['user_id'] . " login_String: " . @$_SESSION['login_string'] .
 			" DB obj: " . (isset($db_connection) ? "yes" : "no"));
 		
