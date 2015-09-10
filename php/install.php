@@ -61,11 +61,11 @@ function install($FIREHALL, &$db_connection) {
 	
 	if($db_exist == false) {
 		$sql = 'CREATE DATABASE ' . $FIREHALL->MYSQL->MYSQL_DATABASE . ';';
-		$sql_result = $db_connection->query( $sql );
-		if($sql_result == false) {
-			printf("Error: %s\n", mysqli_error($db_connection));
-			throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-		}
+		$db_connection->query( $sql );
+// 		if($sql_result == false) {
+// 			printf("Error: %s\n", mysqli_error($db_connection));
+// 			throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 		}
 		echo '<b>Successfully created database [' . $FIREHALL->MYSQL->MYSQL_DATABASE . ']</b><br />' . PHP_EOL;
 	}
 	
@@ -81,12 +81,17 @@ function install($FIREHALL, &$db_connection) {
 
 		$random_password = uniqid('', true);
 		$new_pwd = encryptPassword($random_password);
-		$sql = "INSERT INTO `user_accounts` (firehall_id,user_id,user_pwd,access) VALUES(".$FIREHALL->FIREHALL_ID.",'admin','$new_pwd',1)";
-		$sql_result = $db_connection->query( $sql );
-		if($sql_result == false) {
-			printf("Error: %s\n", mysqli_error($db_connection));
-			throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-		}
+		$sql = "INSERT INTO `user_accounts` (firehall_id,user_id,user_pwd,access) " .
+		       " VALUES(:fhid,'admin',:pwd,1)";
+// 		$sql_result = $db_connection->query( $sql );
+// 		if($sql_result == false) {
+// 			printf("Error: %s\n", mysqli_error($db_connection));
+// 			throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 		}
+		$qry_bind = $db_connection->prepare($sql);
+		$qry_bind->bindParam(':fhid',$FIREHALL->FIREHALL_ID);
+		$qry_bind->bindParam(':pwd',$new_pwd);
+		$qry_bind->execute();
 		
 		echo '<b>A default admin account has been created, with the following information:<br />Firehall Id: <font color="red">' . $FIREHALL->FIREHALL_ID . '</font><br />User id: <font color="red">admin</font><br />Password: <font color="red">' . $random_password . '</font></b><br />' . PHP_EOL;
 		echo '<b><a href="login">Login Page</a></b>' . PHP_EOL;
@@ -97,27 +102,34 @@ function db_exists($db_connection,$dbname, $dbtable) {
 	$exists = false;
 	
 	if(isset($dbtable)) {
-		$sql = "SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '$dbname' AND table_name = '$dbtable';";
+		$sql = "SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = :dbname AND table_name = :dbtable;";
 	}
 	else {
-		$sql = "SELECT count(SCHEMA_NAME) as count FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$dbname';";
+		$sql = "SELECT count(SCHEMA_NAME) as count FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = :dbname;";
 	}
-	$sql_result = $db_connection->query( $sql );
+	
+// 	$sql_result = $db_connection->query( $sql );
+// 	if($sql_result == false) {
+// 		printf("Error: %s\n", mysqli_error($db_connection));
+// 		throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 	}
 
-	if($sql_result == false) {
-		printf("Error: %s\n", mysqli_error($db_connection));
-		throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+	$qry_bind = $db_connection->prepare($sql);
+	$qry_bind->bindParam(':dbname',$dbname);
+	if(isset($dbtable)) {
+		$qry_bind->bindParam(':dbtable',$dbtable);
 	}
-
+	$qry_bind->execute();
+		
 	//echo 'DB: ' . $dbname . ' sql: ' . $sql  . ' results: ' . $sql_result->num_rows . PHP_EOL;
 	
 	//echo "db check #1" . PHP_EOL;
-	$result = $sql_result->fetch_object();
+	$result = $qry_bind->fetch(\PDO::FETCH_OBJ);
 	if($result->count > 0) {
 		//echo "db check #2" . PHP_EOL;
 		$exists = true;
 	}
-	$sql_result->close();
+	$qry_bind->closeCursor();
 	return $exists;
 }
 

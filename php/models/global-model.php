@@ -103,8 +103,8 @@ class GlobalViewModel {
 			$firehall_id = get_query_param('fhid');
 		}
 		if(isset($firehall_id)) {
-			$fh = findFireHallConfigById($firehall_id, $this->firehalls);
-			return $fh;	
+			$fire_hall = findFireHallConfigById($firehall_id, $this->firehalls);
+			return $fire_hall;	
 		}
 		return null;
 	}
@@ -117,15 +117,16 @@ class GlobalViewModel {
 	}
 	
 	private function getDBConnection() {
-		$fh = $this->getFireHall();
-		if(isset($fh)) {
+		$fire_hall = $this->getFireHall();
+		if(isset($fire_hall)) {
 			if(isset($this->db_connection) == false) {
-				$this->db_connection = db_connect_firehall($fh);
+				$this->db_connection = db_connect_firehall($fire_hall);
 			}
 			return $this->db_connection;
 		}
 		return null;
 	}
+	
 	private function closeDBConnection() {
 		if(isset($this->db_connection)) {
 			db_disconnect($this->db_connection);

@@ -165,17 +165,21 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			
 			// Get the callout info
 			$sql = 'SELECT status, latitude, longitude, address ' .
-					' FROM callouts ' .
-					' WHERE id = ' . 
-					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) . 
-					';';
+					' FROM callouts WHERE id = :cid;';
 			
-			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-			if($sql_result == false) {
-				$log->error("Call Tracking callouts SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-			}
-			
+// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 			if($sql_result == false) {
+// 				$log->error("Call Tracking callouts SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 			}
+			$cid = $this->getCalloutId();
+			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+			$qry_bind->bindParam(':cid',$cid);
+			$qry_bind->execute();
+
+			$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+			$qry_bind->closeCursor();
+				
 			$this->responding_people = '';
 			$this->responding_people_icons = '';
 			
@@ -192,7 +196,8 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			$callout_lat = null;
 			$callout_long = null;
 			
-			if($row = $sql_result->fetch_object()) {
+			if(!empty($rows)) {
+				$row = $rows[0];
 				$this->callout_status = $row->status;
 				$callout_address = $row->address;
 				$callout_lat = $row->latitude;
@@ -219,24 +224,33 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			
 						$this->responding_people_icons .= "iconURLPrefix + 'red-dot.png'";
 			}
-			$sql_result->close();
+			//$sql_result->close();
 			
 			// Get the latest GEO coordinates for each responding member
 			$sql = 'SELECT a.useracctid, a.calloutid, a.latitude,a.longitude, b.user_id ' .
 					' FROM callouts_geo_tracking a ' .
 					' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-					' WHERE firehall_id = \'' .
-					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . '\'' .
-					' AND a.calloutid = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
-					' AND a.trackingtime = (SELECT MAX(a1.trackingtime) FROM callouts_geo_tracking a1 WHERE a.calloutid = a1.calloutid AND a.useracctid = a1.useracctid)' .
+					' WHERE firehall_id = :fhid AND a.calloutid = :cid AND ' .
+					'       a.trackingtime = (SELECT MAX(a1.trackingtime) FROM callouts_geo_tracking a1 WHERE a.calloutid = a1.calloutid AND a.useracctid = a1.useracctid)' .
 					' ORDER BY a.useracctid,a.trackingtime DESC;';
-			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-			if($sql_result == false) {
-				$log->error("Call Tracking callouts geo tracking SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-			}
 			
-			while($row = $sql_result->fetch_object()) {
+// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 			if($sql_result == false) {
+// 				$log->error("Call Tracking callouts geo tracking SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 			}
+
+			$fhid = $this->getFirehallId();
+			$cid = $this->getCalloutId();
+			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+			$qry_bind->bindParam(':fhid',$fhid);
+			$qry_bind->bindParam(':cid',$cid);
+			$qry_bind->execute();
+			
+			$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+			$qry_bind->closeCursor();
+			
+			foreach($rows as $row) {
 				if($this->responding_people != '') {
 					$this->responding_people .= ',' . PHP_EOL;
 				}
@@ -247,7 +261,7 @@ class CalloutTrackingViewModel extends BaseViewModel {
 				}
 				$this->responding_people_icons .= "iconURLPrefix + 'green-dot.png'";
 			}
-			$sql_result->close();
+			//$sql_result->close();
 		}
 
 		return $this->responding_people;
@@ -255,82 +269,109 @@ class CalloutTrackingViewModel extends BaseViewModel {
 
 	private function checkAuth() {
 		if(isset($this->user_authenticated) == false) {
-			global $log;
+			//global $log;
 			
 			// Authenticate the user
-			$sql = 'SELECT id,user_pwd FROM user_accounts WHERE firehall_id = \'' .
-					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . '\'' .
-					' AND user_id = \'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() ) . '\';';
-			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-			if($sql_result == false) {
-				$log->error("Call Tracking callouts user_id check tracking SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-			}
+			$sql = 'SELECT id,user_pwd FROM user_accounts WHERE firehall_id = :fhid AND user_id = :user_id;';
 			
+// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 			if($sql_result == false) {
+// 				$log->error("Call Tracking callouts user_id check tracking SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 			}
+
+			$fhid = $this->getFirehallId();
+			$uid = $this->getUserId();
+			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+			$qry_bind->bindParam(':fhid',$fhid);
+			$qry_bind->bindParam(':user_id',$uid);
+			$qry_bind->execute();
+
+			$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+			$qry_bind->closeCursor();
+
 			$this->useracctid = null;
 			$this->user_authenticated = false;
 			$this->callout_status = null;
 			
-			if($row = $sql_result->fetch_object()) {
+			if(!empty($rows)) {
+				$row = $rows[0];
 				// Validate the the callkey is legit
-				$sql_callkey = 'SELECT status FROM callouts WHERE id = ' .
-						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
-						' AND call_key = \'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutKeyId() ) . '\';';
-				$sql_callkey_result = $this->getGvm()->RR_DB_CONN->query( $sql_callkey );
-				if($sql_callkey_result == false) {
-					$log->error("Call Tracking callouts status tracking SQL error for sql [$sql_callkey] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_callkey . "]");
-				}
+				$sql = 'SELECT status FROM callouts WHERE id = :cid AND call_key =:ckid;';
+				
+// 				$sql_callkey_result = $this->getGvm()->RR_DB_CONN->query( $sql_callkey );
+// 				if($sql_callkey_result == false) {
+// 					$log->error("Call Tracking callouts status tracking SQL error for sql [$sql_callkey] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_callkey . "]");
+// 				}
+
+				$cid = $this->getCalloutId();
+				$ckid = $this->getCalloutKeyId();
+				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+				$qry_bind->bindParam(':cid',$cid);
+				$qry_bind->bindParam(':ckid',$ckid);
+				$qry_bind->execute();
+				
+				if( $qry_bind->rowCount() > 0) {
 			
-				if( $sql_callkey_result->num_rows > 0) {
-			
+					$rows_callout = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+					$qry_bind->closeCursor();
+						
 					if($this->getUserPassword() == null && $this->getCalloutKeyId() != null) {
 			
 						$this->user_authenticated = true;
 						$this->useracctid = $row->id;
 					}
-					if($row_callout = $sql_callkey_result->fetch_object()) {
+					//if($row_callout = $sql_callkey_result->fetch_object()) {
+					if(!isempty($rows_callout)) {
+						$row_callout = $rows_callout[0];
 						$this->callout_status = $row_callout->status;
 					}
 				}
-				$sql_callkey_result->close();
+				//$sql_callkey_result->close();
 			
 				if($this->getUserPassword() == null && $this->getCalloutKeyId() != null) {
 			
 				}
 				else {
 					// Validate the users password
-					if (crypt($this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserPassword() ), $row->user_pwd) === $row->user_pwd ) {
+					if (crypt( $this->getUserPassword(), $row->user_pwd) === $row->user_pwd ) {
 			
 						$this->user_authenticated = true;
 						$this->useracctid = $row->id;
 					}
 				}
 			}
-			$sql_result->close();
+			//$sql_result->close();
 		}
 		return $this->user_authenticated;
 	}
 	
 	private function trackGeo() {
-		global $log;
+		//global $log;
 		
 		// INSERT tracking information
 		$sql = 'INSERT INTO callouts_geo_tracking (calloutid,useracctid,latitude,longitude) ' .
-				' values(' .
-				'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() )  . ', ' .
-				'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid )  . ', ' .
-				'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserLat() )    . ', ' .
-				'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserLong() )   . ');';
+				' values(:cid, :uid, :lat, :long);';
 		
-		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-		
-		if($sql_result == false) {
-			$log->error("Call Tracking callouts insert tracking SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-		}
-		
-		$this->callout_tracking_id = $this->getGvm()->RR_DB_CONN->insert_id;
+// 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 		if($sql_result == false) {
+// 			$log->error("Call Tracking callouts insert tracking SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 		}
+
+		$cid = $this->getCalloutId();
+		$uid = $this->useracctid;
+		$lat = $this->getUserLat();
+		$long = $this->getUserLong();
+		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+		$qry_bind->bindParam(':cid',$cid);
+		$qry_bind->bindParam(':uid',$uid);
+		$qry_bind->bindParam(':lat',$lat);
+		$qry_bind->bindParam(':long',$long);
+		$qry_bind->execute();
+
+		$this->callout_tracking_id = $this->getGvm()->RR_DB_CONN->lastInsertId();
 	}
 	
 	private function getRespondingPeopleGeoList() {
@@ -341,25 +382,34 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			$sql = 'SELECT a.useracctid, a.calloutid, a.latitude,a.longitude, b.user_id ' .
 					' FROM callouts_geo_tracking a ' .
 					' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-					' WHERE firehall_id = \'' .
-					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . '\'' .
-					' AND a.calloutid = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
+					' WHERE firehall_id = :fhid AND a.calloutid = :cid ' .
 					' AND a.trackingtime = (SELECT MAX(a1.trackingtime) FROM callouts_geo_tracking a1 WHERE a.calloutid = a1.calloutid AND a.useracctid = a1.useracctid)' .
 					' ORDER BY a.useracctid,a.trackingtime DESC;';
-			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-			if($sql_result == false) {
-				$log->error("Call Tracking callouts get geo members tracking SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-			}
 			
+// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 			if($sql_result == false) {
+// 				$log->error("Call Tracking callouts get geo members tracking SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 			}
+
+			$fhid = $this->getFirehallId();
+			$cid = $this->getCalloutId();
+			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+			$qry_bind->bindParam(':cid',$cid);
+			$qry_bind->bindParam(':fhid',$fhid);
+			$qry_bind->execute();
+
+			$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+			$qry_bind->closeCursor();
+				
 			$this->responding_people_geo_list = '';
-			while($row = $sql_result->fetch_object()) {
+			foreach($rows as $row){
 				if($this->responding_people_geo_list != '') {
 					$this->responding_people_geo_list .= '^' . PHP_EOL;
 				}
 				$this->responding_people_geo_list .=  $row->user_id ."', ". $row->latitude .", ". $row->longitude;
 			}
-			$sql_result->close();
+			//$sql_result->close();
 			
 			$response_result = "OK=" . $this->callout_tracking_id . "|" . $this->responding_people_geo_list . "|";
 

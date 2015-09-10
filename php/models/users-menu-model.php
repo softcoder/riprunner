@@ -48,7 +48,8 @@ class UsersMenuViewModel extends BaseViewModel {
 		
 		$self_edit = $this->getIsSelfEditMode();
 		if($self_edit) {
-			$sql_where_clause = 'WHERE id=' . $_SESSION['user_db_id'];
+			//$sql_where_clause = 'WHERE id=' . $_SESSION['user_db_id'];
+			$sql_where_clause = ' WHERE id=:id';
 		}
 		
 		if($this->getGvm()->firehall->LDAP->ENABLED) {
@@ -62,24 +63,32 @@ class UsersMenuViewModel extends BaseViewModel {
 					$sql_where_clause . 
 					';';
 		}
-		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-		if($sql_result == false) {
-			printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
-			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 		if($sql_result == false) {
+// 			printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
+// 			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 		}
+
+		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+		if($self_edit) {
+			$qry_bind->bindParam(':id',$_SESSION['user_db_id']);
 		}
+		$qry_bind->execute();
 		
-		$log->trace("About to display user list for sql [$sql] result count: " . $sql_result->num_rows);
+		$log->trace("About to display user list for sql [$sql] result count: " . $qry_bind->rowCount());
+		
+		$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+		$qry_bind->closeCursor();
 		
 		$resultArray = array();
-		while ($row = $sql_result->fetch_assoc()) {
+		foreach($rows as $row){
 			// Add any custom fields with values here
 			$row['access_admin'] = userHasAcessValueDB($row['access'],USER_ACCESS_ADMIN);
 			$row['access_sms'] = userHasAcessValueDB($row['access'],USER_ACCESS_SIGNAL_SMS);
 			
 			$resultArray[] = $row;
 		}		
-		$sql_result->close();
-		
+				
 		return $resultArray;
 	}	
 }

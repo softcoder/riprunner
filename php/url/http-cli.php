@@ -41,7 +41,7 @@ class HTTPCli {
 		global $log;
 
 		// Open connection
-		$ch = curl_init();
+		$curl_connect = curl_init();
 		
 		$result = "";
 		try {
@@ -50,30 +50,30 @@ class HTTPCli {
 			}
 							
 			// Set the url, number of POST vars, POST data
-			curl_setopt( $ch, CURLOPT_URL, $this->url );
+			curl_setopt( $curl_connect, CURLOPT_URL, $this->url );
 			
-			curl_setopt( $ch, CURLOPT_POST, true );
+			curl_setopt( $curl_connect, CURLOPT_POST, true );
 			//curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers);
-			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+			curl_setopt( $curl_connect, CURLOPT_RETURNTRANSFER, true );
 			
 			//curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $fields ) );
 			
 			// Avoids problem with https certificate
-			curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, false);
-			curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt( $curl_connect, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt( $curl_connect, CURLOPT_SSL_VERIFYPEER, false);
 			
 			// Execute post
-			$result = curl_exec($ch);
+			$result = curl_exec($curl_connect);
 			if ($result === FALSE) {
-				$this->error("HTTPCli exec result [" . curl_error($ch) ."]");
+				$this->error("HTTPCli exec result [" . curl_error($curl_connect) ."]");
 			}
 		}
 		catch(Exception $ex) {
-			curl_close($ch);
+			curl_close($curl_connect);
 			$this->error("HTTPCli SEND ERROR ocurred!","HTTPCli SEND ERROR [" . $ex->getMessage() . "]");
 		}
 		// Close connection
-		curl_close($ch);
+		curl_close($curl_connect);
 
 		$log->trace("Send HTTPCli success response [" . $result ."]");
 		return $result;

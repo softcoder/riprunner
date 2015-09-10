@@ -13,17 +13,6 @@ if ( !defined('INCLUSION_PERMITTED') ||
 
 	if(defined('__RIPRUNNER_ROOT__') == false) define('__RIPRUNNER_ROOT__', dirname(__FILE__));
 
-	//$domain = (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '');
-	//$docRoot = (isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : '');
-	//$dirRoot = dirname(__FILE__);
-	//$protocol = isset($_SERVER["HTTPS"]) ? 'https://' : 'http://';
-	//$urlDir = str_replace($docRoot, '', $dirRoot);
-	//$site_path = $protocol . $domain . $urlDir . '/';
-	//$site_path = $protocol . $domain . dirname($_SERVER['REQUEST_URI']) .'/';
-	//$site_path = $protocol . $domain . dirname($_SERVER['PHP_SELF']) .'/';
- 	//$site_path = $protocol . $domain . '/' . $rel_path;
- 	// 	define ('RR_BASE_URL', $site_path);
-	
 // ==============================================================
 
 	define( 'PRODUCT_NAME', 		'RipRunner' );

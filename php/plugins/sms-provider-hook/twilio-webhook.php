@@ -167,24 +167,31 @@ function find_sms_match($sms_user, $recipient_list_array) {
 function getLiveCalloutModelList($db_connection) {
 	global $log;
 	// Check if there is an active callout (within last 48 hours) and if so send the details
-	$sql = 'SELECT * FROM callouts' .
+	$sql = 'SELECT * FROM callouts ' .
 			' WHERE status NOT IN (3,10) AND ' .
 			' TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' .
 			DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
 			' ORDER BY id DESC LIMIT 5;';
 	
-	$sql_result = $db_connection->query( $sql );
-	if($sql_result == false) {
-		$log->error("Call checkForLiveCalloutModelList SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-		throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-	}
-	$log->trace("Call checkForLiveCalloutModelList SQL success for sql [$sql] row count: " . $sql_result->num_rows);
+// 	$sql_result = $db_connection->query( $sql );
+// 	if($sql_result == false) {
+// 		$log->error("Call checkForLiveCalloutModelList SQL error for sql [$sql] error: " . mysqli_error($db_connection));
+// 		throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 	}
 
+	$qry_bind = $db_connection->prepare($sql);
+	$qry_bind->execute();
+	
+	$log->trace("Call checkForLiveCalloutModelList SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
+
+	$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+	$qry_bind->closeCursor();
+	
 	$callout_list = array();
-	while($row = $sql_result->fetch_assoc()) {
+	foreach($rows as $row){
 		$callout_list[] = $row;
 	}
-	$sql_result->close();
+	//$sql_result->close();
 	return $callout_list;
 }
 
@@ -230,30 +237,35 @@ function find_matching_mobile_user($FIREHALL, $db_connection, $matching_sms_user
 	// Find matching user for mobile #
 	if($FIREHALL->LDAP->ENABLED) {
 		create_temp_users_table_for_ldap($FIREHALL, $db_connection);
-		$sql = "SELECT id,user_id FROM ldap_user_accounts WHERE firehall_id = '" .
-				$db_connection->real_escape_string( $FIREHALL->FIREHALL_ID ) . "'" .
-				" AND mobile_phone = '" . $db_connection->real_escape_string( $matching_sms_user ) . "';";
+		$sql = "SELECT id,user_id FROM ldap_user_accounts WHERE firehall_id = :fhid AND mobile_phone = :mobile_phone;";
 	}
 	else {
-		$sql = "SELECT id,user_id FROM user_accounts WHERE firehall_id = '" .
-				$db_connection->real_escape_string( $FIREHALL->FIREHALL_ID ) . "'" .
-				" AND mobile_phone = '" . $db_connection->real_escape_string( $matching_sms_user ) . "';";
+		$sql = "SELECT id,user_id FROM user_accounts WHERE firehall_id = :fhid AND mobile_phone = :mobile_phone;";
+	}
 	
-	}
-	$sql_result = $db_connection->query( $sql );
-	if($sql_result == false) {
-		$log->error("Twilio userlist SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-		throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-	}
+// 	$sql_result = $db_connection->query( $sql );
+// 	if($sql_result == false) {
+// 		$log->error("Twilio userlist SQL error for sql [$sql] error: " . mysqli_error($db_connection));
+// 		throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 	}
+
+	$qry_bind = $db_connection->prepare($sql);
+	$qry_bind->bindParam(':fhid',$FIREHALL->FIREHALL_ID);
+	$qry_bind->bindParam(':mobile_phone',$matching_sms_user);
+	
+	$qry_bind->execute();
 	
 	//echo "Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $sql_result->num_rows;
-	$log->trace("Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $sql_result->num_rows);
+	$log->trace("Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $qry_bind->rowCount());
 		
-	if($row = $sql_result->fetch_object()) {
+	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+	$qry_bind->closeCursor();
+	
+	foreach($rows as $row){
 		$result->setUserAccountId($row->id);
 		$result->setUserId($row->user_id);
 	}
-	$sql_result->close();
+	//$sql_result->close();
 }
 
 function handle_sms_command($FIREHALLS_LIST) {

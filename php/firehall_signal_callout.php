@@ -20,84 +20,82 @@ function signalFireHallCallout($callout) {
 	$db_connection = db_connect_firehall($callout->getFirehall());
 	
 	// update database info about this callout
-	$callOutDateTimeString = $callout->getDateTimeAsString();
+	$callout_dt_str = $callout->getDateTimeAsString();
 	
 	// See if this is a duplicate callout?
 	$sql = "SELECT id,call_key,status " .
-			"FROM callouts WHERE calltime = '" . 
-			$db_connection->real_escape_string( $callOutDateTimeString ) . 
-			"'" .
-			" AND calltype = '" . 
-			$db_connection->real_escape_string( $callout->getCode() ) . 
-			"'" .
-			" AND (address = '" . 
-			$db_connection->real_escape_string( $callout->getAddress() ) . 
-			"'" .
-			" OR (latitude = " . 
-			$db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat())) ) . 
-	        "     AND longitude = " . 
-	        $db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong())) ). 
-	        "));";
+			"FROM callouts WHERE calltime = :ctime AND calltype = :ctype AND " .
+			" (address = :caddress OR (latitude = :lat AND longitude = :long));";
 	
-	$sql_result = $db_connection->query( $sql );
-	if($sql_result == false) {
-		printf("Error: %s\n", mysqli_error($db_connection));
-		throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-	}
+// 	$sql_result = $db_connection->query( $sql );
+// 	if($sql_result == false) {
+// 		printf("Error: %s\n", mysqli_error($db_connection));
+// 		throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 	}
+
+	$ctype = $callout->getCode();
+	$caddress = $callout->getAddress();
+	$lat = floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat()));
+	$long = floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong()));
+	$qry_bind = $db_connection->prepare($sql);
+	$qry_bind->bindParam(':ctime',$callout_dt_str);
+	$qry_bind->bindParam(':ctype',$ctype);
+	$qry_bind->bindParam(':caddress',$caddress);
+	$qry_bind->bindParam(':lat',$lat);
+	$qry_bind->bindParam(':long',$long);
+	$qry_bind->execute();
 	
-	if($row = $sql_result->fetch_object()) {
+	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+	$qry_bind->closeCursor();
+	
+	
+	//if($row = $sql_result->fetch_object()) {
+	if(!empty($rows)) {
+		$row = $rows[0];
 		$callout->setId($row->id);
 		$callout->setKeyId($row->call_key);
 		$callout->setStatus($row->status);
 	}
-	$sql_result->close();
+	//$sql_result->close();
 	
 	// Found duplicate callout so update some fields on original callout
 	if($callout->getId() != null) {
 		// Insert the new callout
 		$sql = 'UPDATE callouts' .
-				' SET address = \'' . 
-				$db_connection->real_escape_string( $callout->getAddress() )           . 
-				'\', ' .
-				' latitude = ' . 
-				$db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat())) )  . 
-				', ' .
-				' longitude = ' . 
-				$db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong())) ) . 
-				', ' .
-				' units = \'' . 
-				$db_connection->real_escape_string( $callout->getUnitsResponding() ) . 
-				'\'' .
-				' WHERE id = ' . $callout->getId() . 
-				' AND (address <> \'' . 
-				$db_connection->real_escape_string( $callout->getAddress() )           . 
-				'\'' . 
-				' OR latitude <> ' . 
-				$db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat())) )  .
-				' OR longitude <> ' . 
-				$db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong())) ) .
-				' OR units <> \'' . 
-				$db_connection->real_escape_string( $callout->getUnitsResponding() ) . 
-				'\');';
+				' SET address = :caddress, latitude = :lat, longitude = :long, ' .
+				' units = :units' .
+				' WHERE id = :id AND (address <> :caddress OR latitude <> :lat OR longitude <> :long OR units <> :units);';
 		
-		$sql_result = $db_connection->query( $sql );
+// 		$sql_result = $db_connection->query( $sql );
+// 		if($sql_result == false) {
+// 			printf("Error: %s\n", mysqli_error($db_connection));
+// 			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 		}
+
+		$caddress = $callout->getAddress();
+		$lat = floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat()));
+		$long = floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong()));
+		$units = $callout->getUnitsResponding();
+		$cid = $callout->getId();
+		$qry_bind = $db_connection->prepare($sql);
+		$qry_bind->bindParam(':caddress',$caddress);
+		$qry_bind->bindParam(':lat',$lat);
+		$qry_bind->bindParam(':long',$long);
+		$qry_bind->bindParam(':units',$units);
+		$qry_bind->bindParam(':id',$cid);
+		$qry_bind->execute();
 		
-		if($sql_result == false) {
-			printf("Error: %s\n", mysqli_error($db_connection));
-			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-		}
-		
-		$affected_rows = $db_connection->affected_rows;
+		$affected_rows = $qry_bind->rowCount();
 		
 		if($affected_rows > 0) {
-			$update_callout_prefix_msg = "*UPDATED* ";
+			$update_prefix_msg = "*UPDATED* ";
 			
-			signalCalloutToSMSPlugin($callout, $update_callout_prefix_msg);
+			signalCalloutToSMSPlugin($callout, $update_prefix_msg);
 			
 			$gcmMsg = getGCMCalloutMessage($callout);
 			
 			signalCallOutRecipientsUsingGCM($callout,null,
-					$update_callout_prefix_msg . $gcmMsg, $db_connection);
+					$update_prefix_msg . $gcmMsg, $db_connection);
 		}
 	}
 	else {
@@ -105,23 +103,32 @@ function signalFireHallCallout($callout) {
 		$callout->setKeyId(uniqid('', true));
 		
 		$sql = 'INSERT INTO callouts (calltime,calltype,address,latitude,longitude,units,call_key) ' .
-				' values(' .
-				'\'' . $db_connection->real_escape_string( $callout->getDateTimeAsString() ) . '\', ' .
-				'\'' . $db_connection->real_escape_string( $callout->getCode() )              . '\', ' .
-				'\'' . $db_connection->real_escape_string( $callout->getAddress() )           . '\', ' .
-				$db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat())) )  . ', ' .
-				$db_connection->real_escape_string( floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong())) ) . ', ' .
-				'\'' . $db_connection->real_escape_string( $callout->getUnitsResponding() ) . '\', ' .   
-				'\'' . $db_connection->real_escape_string($callout->getKeyId()) . '\');';
+				' values(:cdatetime, :ctype, :caddress, :lat, :long, :units, :ckid);';
 		
-		$sql_result = $db_connection->query( $sql );
+// 		$sql_result = $db_connection->query( $sql );
+// 		if($sql_result == false) {
+// 			printf("Error: %s\n", mysqli_error($db_connection));
+// 			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 		}
+
+		$cdatetime = $callout->getDateTimeAsString();
+		$ctype = $callout->getCode();
+		$caddress = $callout->getAddress();
+		$lat = floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat()));
+		$long = floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong()));
+		$units = $callout->getUnitsResponding();
+		$ckid = $callout->getKeyId();
+		$qry_bind = $db_connection->prepare($sql);
+		$qry_bind->bindParam(':cdatetime',$cdatetime);
+		$qry_bind->bindParam(':ctype',$ctype);
+		$qry_bind->bindParam(':caddress',$caddress);
+		$qry_bind->bindParam(':lat',$lat);
+		$qry_bind->bindParam(':long',$long);
+		$qry_bind->bindParam(':units',$units);
+		$qry_bind->bindParam(':ckid',$ckid);
+		$qry_bind->execute();
 		
-		if($sql_result == false) {
-			printf("Error: %s\n", mysqli_error($db_connection));
-			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-		}
-		
-		$callout->setId($db_connection->insert_id);
+		$callout->setId($db_connection->lastInsertId());
 		$callout->setStatus(CalloutStatusType::Paged);
 		
 		signalCalloutToSMSPlugin($callout,null);
@@ -131,18 +138,19 @@ function signalFireHallCallout($callout) {
 		signalCallOutRecipientsUsingGCM($callout,null,$gcmMsg,$db_connection);
 
 		// Only update status if not cancelled or completed already
-		$sql_update = 'UPDATE callouts SET status=' . 
-					  CalloutStatusType::Notified . 
-					  ' WHERE id = ' .
-					  $db_connection->real_escape_string( $callout->getId() ) . 
-					  ' AND status NOT in(3,10);';
+		$sql_update = 'UPDATE callouts SET status = :status WHERE id = :id AND status NOT in(3,10);';
 			
-		$sql_result = $db_connection->query( $sql_update );
-		
-		if($sql_result == false) {
-			printf("SQL #2 Error: %s\n", mysqli_error($db_connection));
-			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql_update . "]");
-		}
+// 		$sql_result = $db_connection->query( $sql_update );
+// 		if($sql_result == false) {
+// 			printf("SQL #2 Error: %s\n", mysqli_error($db_connection));
+// 			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql_update . "]");
+// 		}
+		$cid = $callout->getId();
+		$status_notified = CalloutStatusType::Notified;
+		$qry_bind = $db_connection->prepare($sql_update);
+		$qry_bind->bindParam(':status',$status_notified);
+		$qry_bind->bindParam(':id',$cid);
+		$qry_bind->execute();
 	}
 	
 	if($db_connection != null) {

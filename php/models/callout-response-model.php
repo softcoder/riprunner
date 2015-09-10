@@ -130,58 +130,67 @@ class CalloutResponseViewModel extends BaseViewModel {
 			if($this->getGvm()->firehall->LDAP->ENABLED) {
 				create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
 				$sql = "SELECT id,user_pwd FROM ldap_user_accounts " .
-						" WHERE firehall_id = '" . 
-						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . 
-						"'" .
-						" AND user_id = '" . 
-						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() ) . 
-						"';";
+						" WHERE firehall_id = :fhid AND user_id = :uid;";
 			}
 			else {
 				$sql = "SELECT id,user_pwd FROM user_accounts " .
-						" WHERE firehall_id = '" . 
-						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getFirehallId() ) . 
-						"'" .
-						" AND user_id = '" . 
-						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserId() ) . 
-						"';";
+						" WHERE firehall_id = :fhid AND user_id = :uid;";
 			}
-			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-			if($sql_result == false) {
-				$log->error("Call Response userlist SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 			if($sql_result == false) {
+// 				$log->error("Call Response userlist SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
 			
-				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-			}
+// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 			}
+
+			$fhid = $this->getFirehallId();
+			$user_id = $this->getUserId();
+			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+			$qry_bind->bindParam(':fhid',$fhid);
+			$qry_bind->bindParam(':uid',$user_id);
+			$qry_bind->execute();
 			
-			$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . $sql_result->num_rows);
-			
+			$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . $qry_bind->rowCount());
+
+			$row = $qry_bind->fetch(\PDO::FETCH_OBJ);
+			$qry_bind->closeCursor();
+
 			$this->useracctid = null;
 			$this->user_authenticated = false;
 			
-			if($row = $sql_result->fetch_object()) {
+			//if($row = $sql_result->fetch_object()) {
+			if($row != null) {
 				
 				$this->callout = new \riprunner\CalloutDetails();
 				$this->callout->setFirehall($this->getGvm()->firehall);
 				
 				// Validate the the callkey is legit
 				$sql_callkey = "SELECT * FROM callouts " .
-						" WHERE id = " . 
-						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
-						" AND call_key = '" . 
-						$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutKeyId() ) . 
-						"';";
+						" WHERE id = :cid AND call_key = :ckid;";
 				
-				$sql_callkey_result = $this->getGvm()->RR_DB_CONN->query( $sql_callkey );
-				if($sql_callkey_result == false) {
-					$log->error("Call Response callout validation SQL error for sql [". $sql_callkey ."] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 				$sql_callkey_result = $this->getGvm()->RR_DB_CONN->query( $sql_callkey );
+// 				if($sql_callkey_result == false) {
+// 					$log->error("Call Response callout validation SQL error for sql [". $sql_callkey ."] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
 						
-					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $this->getCalloutKeyId() . "]");
-				}
-					
-				$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation count: " . $sql_callkey_result->num_rows);
-				if( $sql_callkey_result->num_rows > 0) {
+// 					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $this->getCalloutKeyId() . "]");
+// 				}
 
-					if($row_ci = $sql_callkey_result->fetch_object()) {
+				$cid = $this->getCalloutId();
+				$ckid = $this->getCalloutKeyId();
+				$qry_bind2 = $this->getGvm()->RR_DB_CONN->prepare($sql_callkey);
+				$qry_bind2->bindParam(':cid',$cid);
+				$qry_bind2->bindParam(':ckid',$ckid);
+				$qry_bind2->execute();
+
+				$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation count: " . $qry_bind2->rowCount());
+
+				$result_count = $qry_bind2->rowCount();
+				$row_ci = $qry_bind2->fetch(\PDO::FETCH_OBJ);
+				$qry_bind2->closeCursor();
+				
+				if( $qry_bind2->rowCount() > 0) {
+
+					if($row_ci != null) {
 						$this->callout->setDateTime($row_ci->calltime);
 						$this->callout->setCode($row_ci->calltype);
 						$this->callout->setAddress($row_ci->address);
@@ -203,9 +212,9 @@ class CalloutResponseViewModel extends BaseViewModel {
 					}
 				}
 				else {
-					$log->error("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got unexpected callout validation count: " . $sql_callkey_result->num_rows);
+					$log->error("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got unexpected callout validation count: " . $result_count);
 				}
-				$sql_callkey_result->close();
+				//$sql_callkey_result->close();
 				
 				if($this->getUserPassword() != null) {
 					$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] no pwd check, ldap = " . $this->getGvm()->firehall->LDAP->ENABLED);
@@ -226,7 +235,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 						}
 					}
 					else {
-						if (crypt($this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserPassword() ), $row->user_pwd) === $row->user_pwd ) {
+						if (crypt( $this->getUserPassword() , $row->user_pwd) === $row->user_pwd ) {
 							$this->user_authenticated = true;
 							$this->useracctid = $row->id;
 			
@@ -245,7 +254,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 			else {
 				$log->error("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] BUT NOT FOUND in databse!");
 			}
-			$sql_result->close();
+			//$sql_result->close();
 			
 			$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] user_authenticated [".$this->user_authenticated."]");
 		}
@@ -256,62 +265,69 @@ class CalloutResponseViewModel extends BaseViewModel {
 	private function updateCallResponse() {
 		global $log;
 		$log->trace("Call Response START --> updateCallResponse");
-		
+
 		// Check if there is already a response record for this user and call
 		$sql = 'SELECT COUNT(*) total_count FROM callouts_response ' .
-				' WHERE calloutid = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
-				' AND useracctid = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid ) . 
-				' AND status = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) .
-				';';
-		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-		if($sql_result == false) {
-			$log->error("Call Response count check SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+				' WHERE calloutid = :cid AND useracctid = :uid AND status = :status;';
+// 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 		if($sql_result == false) {
+// 			$log->error("Call Response count check SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
 		
-			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 		}
+
+		$cid = $this->getCalloutId();
+		$uid = $this->getUserStatus();
+		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+		$qry_bind->bindParam(':cid',$cid);
+		$qry_bind->bindParam(':uid',$this->useracctid);
+		$qry_bind->bindParam(':status',$uid);
+		$qry_bind->execute();
+
+		$response_duplicates = 0;
+		if($row = $qry_bind->fetch(\PDO::FETCH_OBJ)) {
+			$response_duplicates = $row->total_count;
 		}
-		
-		$response_duplicate_count = 0;
-		if($row = $sql_result->fetch_object()) {
-			$response_duplicate_count = $row->total_count;
-		}
-		$sql_result->close();
-		$log->trace("Call Response count check got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . $response_duplicate_count);
+		$qry_bind->closeCursor();
+		$log->trace("Call Response count check got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . $response_duplicates);
 		
 		// Update the response table
 		if($this->getUserPassword() == null && $this->getUserLat() == null && 
 				$this->getCalloutKeyId() != null) {
-			$sql = 'UPDATE callouts_response SET status = ' . 
-					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) . 
-					',' .
-					'        updatetime = CURRENT_TIMESTAMP() ' .
-					' WHERE calloutid = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
-					' AND useracctid = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid ) . 
-					';';
+			$sql = 'UPDATE callouts_response SET status = :status, updatetime = CURRENT_TIMESTAMP() ' .
+					' WHERE calloutid = :cid AND useracctid = :uid;';
 		}
 		else {
-			$sql = 'UPDATE callouts_response SET latitude = ' . 
-					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserLat() ) . 
-					',' .
-					'        longitude = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserLong() ) . 
-					',' .
-					'        status = ' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) . 
-					',' .
-					'        updatetime = CURRENT_TIMESTAMP() ' .
-					' WHERE calloutid = ' .  $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
-					' AND useracctid = ' .   $this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid ) . 
-					';';
+			$sql = 'UPDATE callouts_response SET status = :status, updatetime = CURRENT_TIMESTAMP() ' .
+					' ,latitude = :lat, longitude = :long ' .
+					' WHERE calloutid = :cid AND useracctid = :uid;';
 		}
 		
-		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 		
-		if($sql_result == false) {
-			$log->error("Call Response callout response update SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 		if($sql_result == false) {
+// 			$log->error("Call Response callout response update SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
 		
-			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 		}
+
+		$status = $this->getUserStatus();
+		$cid = $this->getCalloutId();
+		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+		$qry_bind->bindParam(':status',$status);
+		$qry_bind->bindParam(':cid',$cid);
+		$qry_bind->bindParam(':uid',$this->useracctid);
+		if(!($this->getUserPassword() == null && $this->getUserLat() == null && 
+			$this->getCalloutKeyId() != null)) {
+			$lat = $this->getUserLat();
+			$long = $this->getUserLong();
+			$qry_bind->bindParam(':lat',$lat);
+			$qry_bind->bindParam(':long',$long);
 		}
-		
+		$qry_bind->execute();
+				
 		$this->startTrackingResponder = false;
-		$this->affected_response_rows = $this->getGvm()->RR_DB_CONN->affected_rows;
+		$this->affected_response_rows = $qry_bind->rowCount();
 		
 		$log->trace("Call Response callout response update SQL success for sql [$sql] affected rows: " . $this->affected_response_rows);
 		
@@ -319,36 +335,41 @@ class CalloutResponseViewModel extends BaseViewModel {
 		if($this->affected_response_rows <= 0) {
 			if($this->getUserPassword() == null && $this->getUserLat() == null && $this->getCalloutKeyId() != null) {
 				$sql = 'INSERT INTO callouts_response (calloutid,useracctid,responsetime,status) ' .
-						' values(' .
-						'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() )  . ', ' .
-						'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid )  . ', ' .
-						' CURRENT_TIMESTAMP(), ' .
-						'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) . ');';
+						' values(:cid, :uid, CURRENT_TIMESTAMP(), :status);';
 			}
 			else {
-				$sql = 'INSERT INTO callouts_response (calloutid,useracctid,responsetime,latitude,longitude,status) ' .
-						' values(' .
-						'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() )  . ', ' .
-						'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->useracctid )  . ', ' .
-						' CURRENT_TIMESTAMP(), ' .
-						'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserLat() )    . ', ' .
-						'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserLong() )   . ', ' .
-						'' . $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() ) . ');';
+				$sql = 'INSERT INTO callouts_response (calloutid,useracctid,responsetime,status,latitude,longitude) ' .
+						' values(:cid, :uid, CURRENT_TIMESTAMP(), :status, :lat, :long);';
 			}
 		
-			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 		
-			if($sql_result == false) {
-				$log->error("Call Response callout response insert SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 			if($sql_result == false) {
+// 				$log->error("Call Response callout response insert SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
 		
-				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 			}
+
+			$status = $this->getUserStatus();
+			$cid = $this->getCalloutId();
+			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+			$qry_bind->bindParam(':cid',$cid);
+			$qry_bind->bindParam(':uid',$this->useracctid);
+			$qry_bind->bindParam(':status',$status);
+			if(!($this->getUserPassword() == null && $this->getUserLat() == null && 
+ 				 $this->getCalloutKeyId() != null)) {
+				$lat = $this->getUserLat();
+				$long = $this->getUserLong();
+				$qry_bind->bindParam(':lat',$lat);
+				$qry_bind->bindParam(':long',$long);
 			}
-		
-			$this->callout_respond_id = $this->getGvm()->RR_DB_CONN->insert_id;
+			$qry_bind->execute();
+			
+			$this->callout_respond_id = $this->getGvm()->RR_DB_CONN->lastInsertId();
 			$this->startTrackingResponder = true;
 		}
 		$log->trace("Call Response END --> updateCallResponse");
-		return $response_duplicate_count;
+		return $response_duplicates;
 	}
 	
 	private function getRespondResult() {
@@ -356,26 +377,28 @@ class CalloutResponseViewModel extends BaseViewModel {
 			global $log;
 			$log->trace("Call Response START --> getRespondResult");
 			
-			$response_duplicate_count = $this->updateCallResponse();
-			
-			$newStatus = $this->getGvm()->RR_DB_CONN->real_escape_string( $this->getUserStatus() );
+			$response_duplicates = $this->updateCallResponse();
 			
 			// Update the main callout status Unless its already set to cancelled or completed
-			$sql = 'UPDATE callouts SET status = ' . $newStatus . 
-					', updatetime = CURRENT_TIMESTAMP() ' .
-					' WHERE id = ' . 
-					$this->getGvm()->RR_DB_CONN->real_escape_string( $this->getCalloutId() ) .
-					' AND status NOT IN (3,10);';
+			$sql = 'UPDATE callouts SET status = :status, updatetime = CURRENT_TIMESTAMP() ' .
+					' WHERE id = :cid AND status NOT IN (3,10);';
 			
-			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 			
-			if($sql_result == false) {
-				$log->error("Call Response callout update SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 			if($sql_result == false) {
+// 				$log->error("Call Response callout update SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
 			
-				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-			}
+// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 			}
+
+			$status = $this->getUserStatus();
+			$cid = $this->getCalloutId();
+			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+			$qry_bind->bindParam(':cid',$cid);
+			$qry_bind->bindParam(':status',$status);
+			$qry_bind->execute();
 			
-			$affected_update_rows = $this->getGvm()->RR_DB_CONN->affected_rows;
+			$affected_update_rows = $qry_bind->rowCount();
 			$log->trace("Call Response callout update SQL success for sql [$sql] affected rows: " . $affected_update_rows);
 			
 			// Output the response update result
@@ -390,7 +413,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$log->trace("Call Response end result [". $this->respond_result ."] affected rows: " . $this->affected_response_rows);
 			
 			// Signal everyone with the status update if required
-			if($affected_update_rows > 0 && $response_duplicate_count == 0) {
+			if($affected_update_rows > 0 && $response_duplicates == 0) {
 				
 				$this->respond_result .= signalFireHallResponse($this->callout, 
 										$this->getUserId(), 

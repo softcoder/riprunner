@@ -123,35 +123,35 @@ class GCM {
 				json_encode($headers) ."] fields [" . json_encode($fields) ."]");
 		
 		// Open connection
-		$ch = curl_init();
+		$curl_connect = curl_init();
 		
 		$result = "";
 		try {
 			// Set the url, number of POST vars, POST data
-			curl_setopt( $ch, CURLOPT_URL, $this->url );
+			curl_setopt( $curl_connect, CURLOPT_URL, $this->url );
 			
-			curl_setopt( $ch, CURLOPT_POST, true );
-			curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers);
-			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+			curl_setopt( $curl_connect, CURLOPT_POST, true );
+			curl_setopt( $curl_connect, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt( $curl_connect, CURLOPT_RETURNTRANSFER, true );
 			
-			curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $fields ) );
+			curl_setopt( $curl_connect, CURLOPT_POSTFIELDS, json_encode( $fields ) );
 			
 			// Avoids problem with https certificate
-			curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, false);
-			curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt( $curl_connect, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt( $curl_connect, CURLOPT_SSL_VERIFYPEER, false);
 			
 			// Execute post
-			$result = curl_exec($ch);
+			$result = curl_exec($curl_connect);
 			if ($result === FALSE) {
-				$this->error("GCM exec result [" . curl_error($ch) ."]");
+				$this->error("GCM exec result [" . curl_error($curl_connect) ."]");
 			}
 		}
 		catch(Exception $ex) {
-			curl_close($ch);
+			curl_close($curl_connect);
 			$this->error("GCM SEND ERROR ocurred!","GCM SEND ERROR [" . $ex->getMessage() . "]");
 		}		
 		// Close connection
-		curl_close($ch);
+		curl_close($curl_connect);
 
 		$gcm_err = $this->checkGCMResultError(null, $result);
 		if(isset($gcm_err)) {
@@ -207,19 +207,23 @@ class GCM {
 		global $log;
 	
 		if(isset($this->db_connection)) {
-			$sql = 'DELETE FROM devicereg WHERE registration_id = \'' .
-					$this->db_connection->real_escape_string($device_id) . '\';';
+			$sql = 'DELETE FROM devicereg WHERE registration_id = :reg_id;';
 				
-			$sql_result = $this->db_connection->query( $sql );
-			if($sql_result == false) {
-				$this->error("Remove GCM device SQL error for sql [$sql] error: " .
-						mysqli_error($this->db_connection),
-						"Remove GCM device SQL error for sql [$sql] error: " .
-						mysqli_error($this->db_connection));
-			}
-	
-			$affected_response_rows = $this->db_connection->affected_rows;
-			$log->trace("Remove gcm device from DB for device [$device_id] returned count: $affected_response_rows");
+// 			$sql_result = $this->db_connection->query( $sql );
+// 			if($sql_result == false) {
+// 				$this->error("Remove GCM device SQL error for sql [$sql] error: " .
+// 						mysqli_error($this->db_connection),
+// 						"Remove GCM device SQL error for sql [$sql] error: " .
+// 						mysqli_error($this->db_connection));
+// 			}
+
+			$qry_bind = $this->db_connection->prepare($sql);
+			$qry_bind->bindParam(':reg_id',$device_id);
+			$qry_bind->execute();
+				
+			
+			$affected_rows = $qry_bind->rowCount();
+			$log->trace("Remove gcm device from DB for device [$device_id] returned count: $affected_rows");
 		}
 	}
 	
@@ -228,20 +232,25 @@ class GCM {
 	
 		$registration_ids = array();
 		if(isset($device_id) == false) {
-			$sql = 'SELECT registration_id FROM devicereg WHERE firehall_id = \'' .
-					$this->db_connection->real_escape_string($this->firehall_id) . '\';';
-			$sql_result = $this->db_connection->query( $sql );
-			if($sql_result == false) {
-				$this->error("Send GCM SQL error for sql [$sql] error: " . mysqli_error($this->db_connection),
-						"Send GCM SQL error for sql [$sql] error: " . mysqli_error($this->db_connection));
-			}
-	
+			$sql = 'SELECT registration_id FROM devicereg WHERE firehall_id = :fhid;';
+// 			$sql_result = $this->db_connection->query( $sql );
+// 			if($sql_result == false) {
+// 				$this->error("Send GCM SQL error for sql [$sql] error: " . mysqli_error($this->db_connection),
+// 						"Send GCM SQL error for sql [$sql] error: " . mysqli_error($this->db_connection));
+// 			}
+
+			$qry_bind = $this->db_connection->prepare($sql);
+			$qry_bind->bindParam(':fhid',$this->firehall_id);
+			$qry_bind->execute();
+				
+			$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+			$qry_bind->closeCursor();
+				
 			$row_number = 0;
-			while($row = $sql_result->fetch_object()) {
+			foreach($rows as $row){
 				array_push($registration_ids, $row->registration_id);
 				$row_number++;
 			}
-			$sql_result->close();
 	
 			$log->trace("Send GCM Found devices: $row_number");
 		}
