@@ -107,7 +107,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 			}
 			else {
 				// Read from the database info about this callout
-				$sql = "SELECT user_pwd,id FROM user_accounts WHERE  firehall_id = :fhid AND user_id = :uid';";
+				$sql = "SELECT user_pwd,id FROM user_accounts WHERE  firehall_id = :fhid AND user_id = :uid;";
 				
 // 				$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 // 				if($sql_result == false) {
@@ -151,7 +151,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 			//global $log;
 			
 			$sql = "UPDATE devicereg SET user_id = :uid, updatetime = CURRENT_TIMESTAMP() " .
-					" WHERE registration_id = :regid AND firehall_id = :fhid';";
+					" WHERE registration_id = :regid AND firehall_id = :fhid;";
 			
 // 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 // 			if($sql_result == false) {
