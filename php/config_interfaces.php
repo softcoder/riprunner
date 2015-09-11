@@ -108,6 +108,9 @@ class FireHallMySQL
 	public function setDatabseName($database) {
 		$this->MYSQL_DATABASE = $database;
 	}
+	public function setDatabaseName($database) {
+		$this->MYSQL_DATABASE = $database;
+	}
 	public function setUserName($username) {
 		$this->MYSQL_USER = $username;
 	}

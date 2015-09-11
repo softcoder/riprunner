@@ -15,6 +15,8 @@ require_once( 'config_interfaces.php' );
 require_once( 'config_constants.php' );
 if(file_exists('config-jsmap-extras.php')) require_once('config-jsmap-extras.php');
 
+// This true / false variable defines whether or not users can update callouts
+// even after their status is set to cancelled or completed
 define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
 
 // ====================================================================================================
@@ -113,12 +115,12 @@ $CALLOUT_CODES_LOOKUP = array(
 
 // ----------------------------------------------------------------------
 
-// Google maps street name substitution list
+// Google maps street name substitution list: Original name -> Google map name
 $GOOGLE_MAP_STREET_LOOKUP = array(
 		"EAGLE VIEW RD," => "EAGLEVIEW RD,"
 );
 
-// Google maps city name substitution list
+// Google maps city name substitution list: Original name -> Google map name
 define( 'GOOGLE_MAP_CITY_DEFAULT', 'PRINCE GEORGE,' );
 
 // This is a list of common areas around your city.  this tables substitues each for the city you have chosen
@@ -181,22 +183,22 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 // =============================================================================================
 
 
-	// Email Settings
+	// Email Settings: blank allows emails from anyone. example value: vfd@gmail.com
 	define( 'DEFAULT_EMAIL_FROM_TRIGGER', '');
 	
 	$LOCAL_DEBUG_EMAIL = new FireHallEmailAccount();
 	$LOCAL_DEBUG_EMAIL->setHostEnabled(true);
 	$LOCAL_DEBUG_EMAIL->setFromTrigger(DEFAULT_EMAIL_FROM_TRIGGER);
-	$LOCAL_DEBUG_EMAIL->setConnectionString('{MTA_HOSTNAME:MTA_PORT/imap/novalidate-cert}INBOX');
+	$LOCAL_DEBUG_EMAIL->setConnectionString('{MTA_HOSTNAME:MTA_PORT/imap/novalidate-cert}INBOX'); // ie: {pop.secureserver.net:995/pop3/ssl/novalidate-cert}INBOX
 	$LOCAL_DEBUG_EMAIL->setUserName('IMAP/POP3 USERNAME');
 	$LOCAL_DEBUG_EMAIL->setPassword('IMAP/POP3 PASSWORD');
-	$LOCAL_DEBUG_EMAIL->setDeleteOnProcessed(false);
+	$LOCAL_DEBUG_EMAIL->setDeleteOnProcessed(true);        // Delete processed emails after they trigger a callout
 	
 	// ----------------------------------------------------------------------
 	// MySQL Database Settings
 	$LOCAL_DEBUG_MYSQL = new FireHallMySQL();
 	$LOCAL_DEBUG_MYSQL->setHostName('localhost');
-	$LOCAL_DEBUG_MYSQL->setDatabseName('riprunner');
+	$LOCAL_DEBUG_MYSQL->setDatabaseName('riprunner');
 	$LOCAL_DEBUG_MYSQL->setUserName('riprunner');
 	$LOCAL_DEBUG_MYSQL->setPassword('password');
 	
@@ -240,17 +242,17 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY','X' );
 
 	$LOCAL_DEBUG_WEBSITE = new FireHallWebsite();
-	$LOCAL_DEBUG_WEBSITE->setFirehallName('FIREHALL_NAME');
-	$LOCAL_DEBUG_WEBSITE->setFirehallAddress('FIREHALL ADDRESS');
-	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLatitude(YOUR FIREHALL LATTATUDE);
-	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLongitude(YOU FIREHALL LONGITUDE);
+	$LOCAL_DEBUG_WEBSITE->setFirehallName('FIREHALL_NAME');                // ie: Salmon Valley Volunteer Fire Department
+	$LOCAL_DEBUG_WEBSITE->setFirehallAddress('FIREHALL ADDRESS');          // ie: 5155 Salmon Valley Road, Prince George, BC
+	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLatitude(YOUR FIREHALL LATITUDE);  // ie: 54.0916667
+	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLongitude(YOU FIREHALL LONGITUDE); // ie: -122.6537361
 	$LOCAL_DEBUG_WEBSITE->setGoogleMap_ApiKey(DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY);
 	$LOCAL_DEBUG_WEBSITE->setCityNameSubs($GOOGLE_MAP_CITY_LOOKUP);
 	$LOCAL_DEBUG_WEBSITE->setStreetNameSubs($GOOGLE_MAP_STREET_LOOKUP);
-	$LOCAL_DEBUG_WEBSITE->setRootURL('http://www.example.com/');	
+	$LOCAL_DEBUG_WEBSITE->setRootURL('http://www.example.com/');	       // ie: http://firehall/riprunner/
 	
 	// ----------------------------------------------------------------------
-	// LDAP Settings
+	// LDAP Settings (optional for sites wanting to use LDAP user authentication
 	$LOCAL_DEBUG_LDAP = new FireHall_LDAP();
 	$LOCAL_DEBUG_LDAP->setEnabled(true);
 	$LOCAL_DEBUG_LDAP->setHostName('ldap://LDAPHOSTNAME:LDAPPORT');
@@ -268,7 +270,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// Main Firehall Configuration Container Settings
 	$LOCAL_DEBUG_FIREHALL = new FireHallConfig();
 	$LOCAL_DEBUG_FIREHALL->setEnabled(true);
-	$LOCAL_DEBUG_FIREHALL->setFirehallId(XXXXX);     //  I USE THE MAIN HALL PHONE NUMBER
+	$LOCAL_DEBUG_FIREHALL->setFirehallId(XXXXX);     				//  I USE THE MAIN HALL PHONE NUMBER
 	$LOCAL_DEBUG_FIREHALL->setMySQLSettings($LOCAL_DEBUG_MYSQL);
 	$LOCAL_DEBUG_FIREHALL->setEmailSettings($LOCAL_DEBUG_EMAIL);
 	$LOCAL_DEBUG_FIREHALL->setSMS_Settings($LOCAL_DEBUG_SMS);
@@ -281,6 +283,15 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 
 	// ----------------------------------------------------------------------
 	// Email parser lookup patterns for email triggers
+	// The patterns below work for emails with the following format:
+	//
+	// 	Date: 2015-09-06 13:57:11
+	// 	Type: MED
+	// 	Address: 9115 SALMON VALLEY RD, SALMON VALLEY, BC
+	// 	Latitude: 54.0873847
+	// 	Longitude: -122.5898009
+	// 	Units Responding: SALGRP1
+	//
 	define( 'EMAIL_PARSING_DATETIME_PATTERN', 	'/Date: (.*?)$/m' );
 	define( 'EMAIL_PARSING_CALLCODE_PATTERN', 	'/Type: (.*?)$/m' );
 	define( 'EMAIL_PARSING_ADDRESS_PATTERN', 	'/Address: (.*?)$/m' );
