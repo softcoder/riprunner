@@ -25,9 +25,6 @@ define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
 // === VALID CHOICES ARE "javascript" OR "iframe". JAVASCRIPT MAPS HAVE MANY MORE CONFIGURABLE      ===
 // === OPTIONS SUCH AS OVERLAYS: EG. MUTAUAL AID BOUNDARIES, OR MARKERS TO IDENTIFY LANDMARKS       ===
 // === SUCH AS WATER SOURCES OR HYDRANT LOCATIONS.                                                  ===
-// ===                                                                                              ===
-// === IF JAVASCRIPT, RENAME "config-jsmap-extras-DEFAULT.php" TO: "config-jsmap-extras.php"        ===
-// === AND EDIT OPTIONS TO ENABLE ADVANCED FEATRUES SUCH AS OVERLAY AND MARKERS                     ===
 // ====================================================================================================
 
 define( 'GOOGLE_MAP_TYPE', 'javascript');
