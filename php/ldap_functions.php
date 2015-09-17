@@ -411,7 +411,7 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 
 			$userAccess = ldap_user_access($FIREHALL, $ldap, $username[0], $userDn);
 
-			$sql = "INSERT IGNORE INTO ldap_user_accounts ('id','firehall_id','user_id','mobile_phone','access') " .
+			$sql = "INSERT IGNORE INTO ldap_user_accounts (id,firehall_id,user_id,mobile_phone,access) " .
 				   " values(:uid,:fhid,:user_id,:mobile_phone,:access);";
 
 // 			$sql_result = $db_connection->query( $sql );
@@ -476,7 +476,7 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 					
 						$userAccess = ldap_user_access($FIREHALL, $ldap, $username[0], $userDn);
 					
-						$sql = "INSERT IGNORE INTO ldap_user_accounts ('id','firehall_id','user_id','mobile_phone','access') " .
+						$sql = "INSERT IGNORE INTO ldap_user_accounts (id,firehall_id,user_id,mobile_phone,access) " .
 							   " values(:uid,:fhid,:user_id,:mobile_phone,:access);";
 					
 // 						$sql_result = $db_connection->query( $sql );
