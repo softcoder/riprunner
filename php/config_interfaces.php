@@ -258,10 +258,14 @@ class FireHallMobile
 	public $GCM_API_KEY;
 	// The Project Id (aka sender id) for the Google Cloud Messaging Service
 	public $GCM_PROJECTID;
-
+	// The Application id
+	public $GCM_APP_ID;
+	// The Service Account Name
+	public $GCM_SAM;
+	
 	public function __construct($mobile_enabled=false, $mobile_tracking_enabled=false, 
 			$gcm_enabled=false, $gcm_send_url=null, $gcm_api_key=null, 
-			$gcm_projectid=null) {
+			$gcm_projectid=null, $gcm_appid=null, $gcm_sam=null) {
 		
 		$this->MOBILE_SIGNAL_ENABLED = $mobile_enabled;
 		$this->MOBILE_TRACKING_ENABLED = $mobile_tracking_enabled;
@@ -269,6 +273,8 @@ class FireHallMobile
 		$this->GCM_SEND_URL = $gcm_send_url;
 		$this->GCM_API_KEY = $gcm_api_key;
 		$this->GCM_PROJECTID = $gcm_projectid;
+		$this->GCM_APP_ID = $gcm_appid;
+		$this->GCM_SAM = $gcm_sam;
 	}
 
 	public function toString() {
@@ -278,7 +284,9 @@ class FireHallMobile
 				"\ngcm signal enabled: " . $this->GCM_SIGNAL_ENABLED .
 				"\nGCM send url: " . $this->GCM_SEND_URL .
 				"\nGCM API Key: " . $this->GCM_API_KEY .
-				"\nGCM Project Number: " . $this->GCM_PROJECTID;
+				"\nGCM Project Number: " . $this->GCM_PROJECTID .
+				"\nGCM Application ID: " . $this->GCM_APP_ID .
+				"\nGCM Service Account Name: " . $this->GCM_SAM;
 		return $result;
 	}
 	
@@ -299,6 +307,12 @@ class FireHallMobile
 	}
 	public function setGCM_ProjectNumber($gcm_projectid) {
 		$this->GCM_PROJECTID = $gcm_projectid;
+	}
+	public function setGCM_APP_ID($gcm_appid) {
+		$this->GCM_APP_ID = $gcm_appid;
+	}
+	public function setGCM_SAM($gcm_sam) {
+		$this->GCM_SAM = $gcm_sam;
 	}
 }
 

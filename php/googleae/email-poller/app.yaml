@@ -1,6 +1,7 @@
 application: svvfd-callout
 version: 1
-runtime: php
+module: webcron
+runtime: php55
 api_version: 1
 
 handlers:
@@ -10,4 +11,5 @@ handlers:
 
 - url: /.*
   script: riprunner-trigger.php
+  login: admin
     

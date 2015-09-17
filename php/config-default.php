@@ -223,8 +223,12 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'DEFAULT_GCM_API_KEY', 	'X');
 	// This is the Google 'Key for browser applications' API key from your google project:
 	// https://console.developers.google.com/project/<your proj name>/apiui/credential
-	// The google Project Number
+	// The Google Project Number
 	define( 'DEFAULT_GCM_PROJECTID','X');
+	// The Google Project Id
+	define( 'DEFAULT_GCM_APPLICATIONID','X');
+	// The Google Service Account Name
+	define( 'DEFAULT_GCM_SAM','applicationid@appspot.gserviceaccount.com');
 	
 	$LOCAL_DEBUG_MOBILE = new FireHallMobile();
 	$LOCAL_DEBUG_MOBILE->setSignalEnabled(true);
@@ -233,6 +237,8 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_MOBILE->setSignalGCM_URL(DEFAULT_GCM_SEND_URL);
 	$LOCAL_DEBUG_MOBILE->setGCM_ApiKey(DEFAULT_GCM_API_KEY);
 	$LOCAL_DEBUG_MOBILE->setGCM_ProjectNumber(DEFAULT_GCM_PROJECTID);
+	$LOCAL_DEBUG_MOBILE->setGCM_APP_ID(DEFAULT_GCM_APPLICATIONID);
+	$LOCAL_DEBUG_MOBILE->setGCM_SAM(DEFAULT_GCM_SAM);
 	
 	// ----------------------------------------------------------------------
 	// Website and Location Settings
@@ -296,6 +302,14 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'EMAIL_PARSING_LONGITUDE_PATTERN', 	'/Longitude: (.*?)$/m' );
 	define( 'EMAIL_PARSING_UNITS_PATTERN', 		'/Units Responding: (.*?)$/m' );
 	
+	// Email parser lookup patterns for email triggers via Google App Engine webhook
+	define( 'EMAIL_PARSING_DATETIME_PATTERN_GENERIC', 	'/Date:(.*?)Type:/m' );
+	define( 'EMAIL_PARSING_CALLCODE_PATTERN_GENERIC', 	'/Type:(.*?)Address:/m' );
+	define( 'EMAIL_PARSING_ADDRESS_PATTERN_GENERIC', 	'/Address:(.*?)Latitude:/m' );
+	define( 'EMAIL_PARSING_LATITUDE_PATTERN_GENERIC', 	'/Latitude:(.*?)Longitude:/m' );
+	define( 'EMAIL_PARSING_LONGITUDE_PATTERN_GENERIC', 	'/Longitude:(.*?)Units/m' );
+	define( 'EMAIL_PARSING_UNITS_PATTERN_GENERIC', 		'/Responding:(.*?)$/m' );
+		
 	// ------------------------------------------------------------------------
 	
 ?>

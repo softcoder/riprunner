@@ -1,0 +1,14 @@
+application: svvfd-callout
+version: 1
+module: default
+runtime: python27
+api_version: 1
+threadsafe: false
+
+handlers:
+- url: /_ah/mail/.+ 
+  script: incoming-email-webhook.py
+  login: admin
+  
+inbound_services:
+- mail
