@@ -17,7 +17,7 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/html2text/Html2Text.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 	// Set this to true to NOT triggers live callouts but only log the parsed values to logfile
-	$DEBUG_LIVE_EMAIL_TRIGGER = true;
+	$DEBUG_LIVE_EMAIL_TRIGGER = false;
 	global $log;
 	$log->warn("START ==> Google App Engine email trigger for client [" . getClientIPInfo() ."]");
 	
