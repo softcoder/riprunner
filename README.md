@@ -11,7 +11,7 @@ This application suite was designed by volunteer fire fighters to enhance the ex
 
 Key Features:
 -------------
-- Email polling to check for an emergency 911 callout (or page) received from your FOCC (Fire Operations Command Center). Easily adaptable to other callout trigger mechanisms.
+- Real-time Email trigger (using Google App Engine) or polling to check for an emergency 911 callout (or page) received from your FOCC (Fire Operations Command Center). Easily adaptable to other callout trigger mechanisms.
 - Pluggable support for SMS gateway providers to send SMS information to fire fighters. 
   Current SMS providers implemented include (all offer free acounts with limited SMS / month):
   - Twilio (twilio.com) <-- recommended (paid account charges approx $0.0075 per SMS -> https://www.twilio.com/sms/pricing)
@@ -37,13 +37,13 @@ Key Android App Features:
 - Acquires your GPS co-ordinates to display a map from your location to the firehall which other members can view during a callout.
 - Displays a map from the Firehall to the Incident scene
 - Allows responders to indicate that they are responding to the call with the click of 1 button. (other responders are notified of each responder)
-- Allows responders to indicate that the call is completed or cancelled with the click of 1 button. (other responders are notified)
+- Allows responders to indicate that the call is coempleted or cancelled with the click of 1 button. (other responders are notified)
 - If you login during a live callout, you will receive the pager tones and live call information.
 
 System Requirements:
 --------------------
 - An email account that recieves Callout information during a 911 page (other trigger mechanisms can be easily supported, please contact using the details at the bottom of this page)
-- A service that periodically triggers the email polling (like cron) if your dispatch system is based off emails. One free option (included in the source tree) is to use a google app engine (GAE) account to do the polling for you (see the googleae folder contents)
+- A Google App Engine account with one of our GAE apps published OR a service that periodically triggers the email polling (like cron) if your dispatch system is based off of emails. One free option (included in the source tree) is to use a google app engine (GAE) account to do the polling for you (see the googleae folder contents)
 - A webserver that can run PHP 5.x (such as Apache, IIS or NGinx)
 - A MySQL database to install the Rip Runner Schema and store the data
 - A Registered Account on an SMS Gateway Provider (Twilio (recommended),Sendhub,EzTexting,TextBelt)
@@ -101,11 +101,10 @@ Installation:
   you configured in config.php (we support more than 1 firehall if desired). Select the firehall and click install.
 - If successful the installation will display the admin user's password. Click the link to login using it.
 - Add firehall members to the user accounts page. Users given admin access can modify user accounts. You may also choose to use an LDAP server to manage accounts in which case you should specify LDAP values in config.php.
-- You will need something that will trigger the email trigger checker. If your server offers a 'cron' or 
-  scheduler process, configure it to visit http://www.yourwebserver.com/uploadlocation/email_trigger_check.php
+- You will need something that will trigger the email trigger checker. Please check the Readme in the googleae folder for details. If your server offers a 'cron' or scheduler process, configure it to visit http://www.yourwebserver.com/uploadlocation/email_trigger_check.php
   every minute. If your server does not have cron or limits the frequency, you can use Google App Engine's 
   cron service to call your email trigger every minute. (see files in [php/googleae](php/googleae) folder as a reference)
-- Send a test email to the trigger email address in order to see if you get notified of a callout (if using a 'from' filter make sure you send the email from the 'from' address that you specified).
+- Send a test email to the trigger email address in order to see if you get notified of a callout (if using a 'from' filter make sure you send the e from the 'from' address that you specified).
 - To allow use of the Android app, either copy the prebuilt apk located in 
   android/RipRunnerApp/bin/RipRunnerApp.apk to apk/ or compile the Android app in Eclipse and copy to apk/
   This will allow users to select the Android app from the Mobile menu item for download and installation 
@@ -206,6 +205,10 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	define( 'DEFAULT_GCM_API_KEY', 	'X');
 	// Below is the Google Cloud Messaging Project Number (aka sender id)
 	define( 'DEFAULT_GCM_PROJECTID','X');
+	// The Google Project Id
+	define( 'DEFAULT_GCM_APPLICATIONID','X');
+	// The Google Service Account Name
+	define( 'DEFAULT_GCM_SAM','applicationid@appspot.gserviceaccount.com');
 
 	// Below we create a Mobile structure for our firehall.
 	// See the class FireHallMobile in config_interfaces.php
@@ -216,7 +219,9 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	    true,
 	    DEFAULT_GCM_SEND_URL,
 	    DEFAULT_GCM_API_KEY,
-	    DEFAULT_GCM_PROJECTID);
+	    DEFAULT_GCM_PROJECTID,
+	    DEFAULT_GCM_APPLICATIONID,
+	    DEFAULT_GCM_SAM);
 	
 	// ----------------------------------------------------------------------
 	// Website and Location Settings
