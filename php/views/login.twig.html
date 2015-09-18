@@ -17,12 +17,11 @@
     
     	<div class="container_center">
     	{% if gvm.isMobile %} 
-        <b>Mobile Device Detected!</b> 
-        ?>
+        <b>Mobile Device Detected</b> 
     	{% elseif gvm.isTablet %} 
-        <b>Tablet Device Detected!</b> 
+        <b>Tablet Device Detected</b> 
         {% else %} 
-        <b>Computer Device Detected!</b> 
+        <b>Desktop Device Detected</b> 
         {% endif %}
     	
         {% if loginvm.hasError %}
@@ -61,7 +60,9 @@
 			</section>
 			</div>
 	
-	        <p>If you are done, please <a href="{{ gvm.RR_DOC_ROOT }}logout.php">log out</a>.</p>
+	        {% if gvm.auth.isAuth %}
+	        <p>If you are done browsing, please <a href="{{ gvm.RR_DOC_ROOT }}logout.php">log out</a>.</p>
+	        {% endif %}
 	        <p>You are currently logged {{ gvm.auth.isAuth ? 'in' : 'out' }}.</p>
         {% endif %}
         </div>

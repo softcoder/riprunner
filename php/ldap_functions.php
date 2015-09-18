@@ -411,18 +411,24 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 
 			$userAccess = ldap_user_access($FIREHALL, $ldap, $username[0], $userDn);
 
-			$sql = "INSERT IGNORE INTO `ldap_user_accounts`
-				(`id`,`firehall_id`,`user_id`,`mobile_phone`,`access`)
-				values($user_id_number[0],$FIREHALL->FIREHALL_ID,'$username[0]','$sms_value[0]',$userAccess);";
+			$sql = "INSERT IGNORE INTO ldap_user_accounts (id,firehall_id,user_id,mobile_phone,access) " .
+				   " values(:uid,:fhid,:user_id,:mobile_phone,:access);";
 
-			$sql_result = $db_connection->query( $sql );
-
-			if($sql_result == false) {
-				$log->error("populateLDAPUsers #1 insert SQL error for sql [$sql] error: " .mysqli_error($db_connection));
-				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-			}
-
-			if($debug_functions) echo "INSERT LDAP [$sql] affectedrows: $db_connection->affected_rows" . PHP_EOL;
+// 			$sql_result = $db_connection->query( $sql );
+// 			if($sql_result == false) {
+// 				$log->error("populateLDAPUsers #1 insert SQL error for sql [$sql] error: " .mysqli_error($db_connection));
+// 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 			}
+			
+			$qry_bind = $db_connection->prepare($sql);
+			$qry_bind->bindParam(':uid',$user_id_number[0]);
+			$qry_bind->bindParam(':fhid',$FIREHALL->FIREHALL_ID);
+			$qry_bind->bindParam(':user_id',$username[0]);
+			$qry_bind->bindParam(':mobile_phone',$sms_value[0]);
+			$qry_bind->bindParam(':access',$userAccess);
+			$qry_bind->execute();
+			
+			if($debug_functions) echo "INSERT LDAP [$sql] affectedrows: " . $qry_bind->rowCount() . PHP_EOL;
 		}
 		else if(isset($info[$i]) &&
 			isset($info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME])) {
@@ -470,18 +476,25 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 					
 						$userAccess = ldap_user_access($FIREHALL, $ldap, $username[0], $userDn);
 					
-						$sql = "INSERT IGNORE INTO `ldap_user_accounts`
-							(`id`,`firehall_id`,`user_id`,`mobile_phone`,`access`)
-							values($user_id_number[0],$FIREHALL->FIREHALL_ID,'$username[0]','$sms_value[0]',$userAccess);";
+						$sql = "INSERT IGNORE INTO ldap_user_accounts (id,firehall_id,user_id,mobile_phone,access) " .
+							   " values(:uid,:fhid,:user_id,:mobile_phone,:access);";
 					
-						$sql_result = $db_connection->query( $sql );
+// 						$sql_result = $db_connection->query( $sql );
 					
-						if($sql_result == false) {
-							$log->error("populateLDAPUsers #2 insert SQL error for sql [$sql] error: " .mysqli_error($db_connection));
-							throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-						}
-					
-						if($debug_functions) echo "INSERT LDAP [$sql] affectedrows: $db_connection->affected_rows" . PHP_EOL;
+// 						if($sql_result == false) {
+// 							$log->error("populateLDAPUsers #2 insert SQL error for sql [$sql] error: " .mysqli_error($db_connection));
+// 							throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 						}
+
+						$qry_bind = $db_connection->prepare($sql);
+						$qry_bind->bindParam(':uid',$user_id_number[0]);
+						$qry_bind->bindParam(':fhid',$FIREHALL->FIREHALL_ID);
+						$qry_bind->bindParam(':user_id',$username[0]);
+						$qry_bind->bindParam(':mobile_phone',$sms_value[0]);
+						$qry_bind->bindParam(':access',$userAccess);
+						$qry_bind->execute();
+						
+						if($debug_functions) echo "INSERT LDAP [$sql] affectedrows: " . $qry_bind->rowCount() . PHP_EOL;
 					}
 				}
 			}
@@ -493,29 +506,37 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 	$debug_functions = false;
 	
 	// Create a temp table of users from LDAP
-	$sql = "CREATE TEMPORARY TABLE IF NOT EXISTS `ldap_user_accounts` (
-			`id` INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			`firehall_id` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
-			`user_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-			`user_pwd` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-			`mobile_phone` varchar(25) COLLATE utf8_unicode_ci NOT NULL,
-			`access` INT( 11 ) NOT NULL DEFAULT 0,
-			`updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+	$sql = "CREATE TEMPORARY TABLE IF NOT EXISTS ldap_user_accounts (
+			id INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			firehall_id varchar(80) COLLATE utf8_unicode_ci NOT NULL,
+			user_id varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+			user_pwd varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+			mobile_phone varchar(25) COLLATE utf8_unicode_ci NOT NULL,
+			access INT( 11 ) NOT NULL DEFAULT 0,
+			updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 			) ENGINE = INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
 	
-	$sql_result = $db_connection->query( $sql );
-	if($sql_result == false) {
-		$log->error("create_temp_users_table_for_ldap #1 create SQL error for sql [$sql] error: " .mysqli_error($db_connection));
-		throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-	}
-		
+// 	$sql_result = $db_connection->query( $sql );
+// 	if($sql_result == false) {
+// 		$log->error("create_temp_users_table_for_ldap #1 create SQL error for sql [$sql] error: " .mysqli_error($db_connection));
+// 		throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 	}
+
+	$qry_bind = $db_connection->prepare($sql);
+	$qry_bind->execute();
+	
 	$sql = "SELECT count(*) as usercount from ldap_user_accounts;";
-	$sql_result = $db_connection->query( $sql );
-	if($sql_result == false) {
-		$log->error("create_temp_users_table_for_ldap select SQL error for sql [$sql] error: " .mysqli_error($db_connection));
-		throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-	}
-	$count_response = $sql_result->fetch_object();
+// 	$sql_result = $db_connection->query( $sql );
+// 	if($sql_result == false) {
+// 		$log->error("create_temp_users_table_for_ldap select SQL error for sql [$sql] error: " .mysqli_error($db_connection));
+// 		throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 	}
+
+	$qry_bind = $db_connection->prepare($sql);
+	$qry_bind->execute();
+	
+	//$count_response = $sql_result->fetch_object();
+	$count_response = $qry_bind->fetch(\PDO::FETCH_OBJ);
 	
 	// Check if the table has been populated yet
 	if($count_response->usercount <= 0) {

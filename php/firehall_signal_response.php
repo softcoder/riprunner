@@ -38,8 +38,7 @@ function signalFireHallResponse($callout, $userId, $userGPSLat, $userGPSLong,
 function signalResponseToSMSPlugin($callout, $userId, $userGPSLat, $userGPSLong, 
 	                				$userStatus) {
 
-	$smsPlugin = \riprunner\PluginsLoader::findPlugin(
-			'riprunner\ISMSPlugin', 
+	$smsPlugin = \riprunner\PluginsLoader::findPlugin('riprunner\ISMSPlugin', 
 			$callout->getFirehall()->SMS->SMS_GATEWAY_TYPE);
 	if($smsPlugin == null) {
 		throw new Exception("Invalid SMS Plugin type: [" . $callout->getFirehall()->SMS->SMS_GATEWAY_TYPE . "]");
@@ -77,7 +76,6 @@ function signalResponseToSMSPlugin($callout, $userId, $userGPSLat, $userGPSLong,
 }
 
 function getSMSCalloutResponseMessage($callout, $userId, $userStatus, $maxLength) {
-	global $log;
 	global $twig;
 	
 	$view_template_vars = array();

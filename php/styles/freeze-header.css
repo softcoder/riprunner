@@ -33,6 +33,8 @@ table.head-no-pad {
 }
 
 .inner_table {
-	width: 100%;
+	#width: 100%;
+    height: 600px;
+    overflow-y: auto;
     margin: 0 auto;
 }       

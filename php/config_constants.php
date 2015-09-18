@@ -13,21 +13,6 @@ if ( !defined('INCLUSION_PERMITTED') ||
 
 	if(defined('__RIPRUNNER_ROOT__') == false) define('__RIPRUNNER_ROOT__', dirname(__FILE__));
 
-	//$domain = (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '');
-	//$docRoot = (isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : '');
-	//$dirRoot = dirname(__FILE__);
-	//$protocol = isset($_SERVER["HTTPS"]) ? 'https://' : 'http://';
-	//$urlDir = str_replace($docRoot, '', $dirRoot);
-	//$site_path = $protocol . $domain . $urlDir . '/';
-	//$site_path = $protocol . $domain . dirname($_SERVER['REQUEST_URI']) .'/';
-	//$site_path = $protocol . $domain . dirname($_SERVER['PHP_SELF']) .'/';
- 	//$site_path = $protocol . $domain . '/' . $rel_path;
- 	// 	define ('RR_BASE_URL', $site_path);
-	
-	define ('NEWEST_SITE_VERSION', 'MVC_V1');
-	define ('DEFAULT_SITE_VERSION', 'MVC_V1');
-	//define ('DEFAULT_SITE_VERSION', 'LEGACY_V1');
-
 // ==============================================================
 
 	define( 'PRODUCT_NAME', 		'RipRunner' );
@@ -62,7 +47,7 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	define( 'DEFAULT_GOOGLE_MAPS_API_URL',	'http://maps.googleapis.com/maps/api/geocode/');
 	
 	// The current versions of the Rip Runner Android app
-	define( 'CURRENT_ANDROID_VERSIONCODE',	8);
-	define( 'CURRENT_ANDROID_VERSIONNAME',	'1.7');
+	define( 'CURRENT_ANDROID_VERSIONCODE',	9);
+	define( 'CURRENT_ANDROID_VERSIONNAME',	'1.8');
 	
 ?>

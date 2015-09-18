@@ -49,19 +49,22 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 				' TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . 
 				DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
 				' ORDER BY id DESC LIMIT 1;';
-		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-		if($sql_result == false) {
-			$log->error("Call checkForLiveCallout SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-			throw new Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-		}
+// 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 		if($sql_result == false) {
+// 			$log->error("Call checkForLiveCallout SQL error for sql [$sql] error: " . $this->getGvm()->RR_DB_CONN->errorInfo());
+// 			throw new \Exception( $this->getGvm()->RR_DB_CONN->errorInfo() . "[ " . $sql . "]");
+// 		}
+
+		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+		$qry_bind->execute();
 		
-		$log->trace("Call checkForLiveCallout SQL success for sql [$sql] row count: " . $sql_result->num_rows);
+		$log->trace("Call checkForLiveCallout SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
 		
-		if($row = $sql_result->fetch_object()) {
+		if($row = $qry_bind->fetch(\PDO::FETCH_OBJ)) {
 			$this->getCalloutModel()->id = $row->id;
 			$this->getCalloutModel()->callkey = $row->call_key;
 		}
-		$sql_result->close();
+		$qry_bind->closeCursor();
 		
 		return $this->getCalloutModel();
 	}

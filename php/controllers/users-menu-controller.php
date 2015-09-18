@@ -144,10 +144,10 @@ class UsersMenuController {
 		global $log;
 				
 		// UPDATE
-		$sql_pwd = '';
-		if(isset($new_pwd)) {
-			$sql_pwd = ', user_pwd = \'' . $db_connection->real_escape_string($new_pwd) . '\'';
-		}
+		//$sql_pwd = '';
+		//if(isset($new_pwd)) {
+		//	$sql_pwd = ', user_pwd = ' . $db_connection->quote($new_pwd);
+		//}
 
 		if($self_edit) {
 			//$edit_user_id = $_SESSION['user_db_id'];
@@ -182,22 +182,32 @@ class UsersMenuController {
 		}
 
 		$sql = 'UPDATE user_accounts'
-				. ' SET firehall_id = ' . $db_connection->real_escape_string( $edit_firehall_id )
-				. ', user_id = \'' . $db_connection->real_escape_string( $edit_user_id_name ) . '\''
-				. $sql_pwd
-				. ', mobile_phone = \'' . $db_connection->real_escape_string( $edit_mobile_phone ) . '\''
+				. ' SET firehall_id = :fhid '
+				. ', user_id = :user_name '
+				. (isset($new_pwd) ? ', user_pwd = :user_pwd ' : '') 
+				. ', mobile_phone = :mobile_phone '
 				. $sql_user_access
-				. ', updatetime = CURRENT_TIMESTAMP()'
-				. ' WHERE id = ' . $db_connection->real_escape_string($edit_user_id) . ';';
+				. ', updatetime = CURRENT_TIMESTAMP() '
+				. ' WHERE id = :user_id;';
 
 		$log->trace("About to UPDATE user account for sql [$sql]");
 
-		$sql_update_result = $db_connection->query( $sql );
-			
-		if($sql_update_result == false) {
-			$log->error("Call usermenu update SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+		$qry_bind = $db_connection->prepare($sql);
+		$qry_bind->bindParam(':fhid',$edit_firehall_id);
+		$qry_bind->bindParam(':user_name',$edit_user_id_name);
+		if(isset($new_pwd)) {
+			$qry_bind->bindParam(':user_pwd',$new_pwd);
 		}
+		$qry_bind->bindParam(':mobile_phone',$edit_mobile_phone);
+		$qry_bind->bindParam(':user_id',$edit_user_id);
+		
+		//$sql_update_result = $db_connection->query( $sql );
+		$qry_bind->execute();
+			
+// 		if($sql_update_result == false) {
+// 			$log->error("Call usermenu update SQL error for sql [$sql] error: " . mysqli_error($db_connection));
+// 			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 		}
 		$edit_user_id = null;
 	}
 
@@ -238,21 +248,25 @@ class UsersMenuController {
 
 		$sql = 'INSERT INTO user_accounts'
 				. ' (firehall_id, user_id, mobile_phone, user_pwd, access)'
-				. ' VALUES('
-				. $db_connection->real_escape_string( $edit_firehall_id )
-				. ', \'' . $db_connection->real_escape_string( $edit_user_id_name ) . '\''
-				. ', \'' . $db_connection->real_escape_string( $edit_mobile_phone ) . '\''
-				. ', \'' . $db_connection->real_escape_string($new_pwd_value)       . '\''
-				. ', '   . $new_user_access . ');';
+				. ' VALUES(:fhid, :user_name, :mobile_phone, :user_pwd, :access);';
 
 		$log->trace("About to INSERT user account for sql [$sql]");
 
-		$sql_insert_result = $db_connection->query( $sql );
+		$qry_bind = $db_connection->prepare($sql);
+		$qry_bind->bindParam(':fhid',$edit_firehall_id);
+		$qry_bind->bindParam(':user_name',$edit_user_id_name);
+		$qry_bind->bindParam(':mobile_phone',$edit_mobile_phone);
+		$qry_bind->bindParam(':user_pwd',$new_pwd_value);
+		$qry_bind->bindParam(':access',$new_user_access);
 
-		if($sql_insert_result == false) {
-			$log->error("Call usermenu insert SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-		}
+		$qry_bind->execute();
+		
+		//$sql_insert_result = $db_connection->query( $sql );
+
+// 		if($sql_insert_result == false) {
+// 			$log->error("Call usermenu insert SQL error for sql [$sql] error: " . mysqli_error($db_connection));
+// 			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 		}
 		$edit_user_id = null;
 	}
 	
@@ -299,17 +313,22 @@ class UsersMenuController {
 			if(isset($edit_user_id)) {
 				// UPDATE
 				if($edit_user_id >= 0) {
-					$sql = 'DELETE FROM user_accounts WHERE id = ' .
-							$db_connection->real_escape_string($edit_user_id) . ';';
+					
+					$sql = 'DELETE FROM user_accounts WHERE id = :id;';
 
 					$log->trace("About to DELETE user account for sql [$sql]");
 					
-					$sql_update_result = $db_connection->query( $sql );
+					//$sql_update_result = $db_connection->query( $sql );
 	
-					if($sql_update_result == false) {
-						$log->error("Call usermenu delete SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-						throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-					}
+					$qry_bind = $db_connection->prepare($sql);
+					$qry_bind->bindParam(':id',$edit_user_id);
+					
+					$qry_bind->execute();
+						
+// 					if($sql_update_result == false) {
+// 						$log->error("Call usermenu delete SQL error for sql [$sql] error: " . mysqli_error($db_connection));
+// 						throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
+// 					}
 					$edit_user_id = null;
 				}
 			}

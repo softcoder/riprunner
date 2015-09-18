@@ -15,7 +15,7 @@ require_once( 'logging.php' );
 # This function cleans out special characters
 function clean_str( $text )	{  
 	$code_entities_match   = array('$','%','^','&','_','+','{','}','|','"','<','>','?','[',']','\\',';',"'",'/','+','~','`','=');
-	$code_entities_replace = array('','','','','','','','','','','','','');
+	$code_entities_replace = array('', '', '', '', '', '', '', '', '', '', '', '', '');
        
 	$text = str_replace( $code_entities_match, $code_entities_replace, $text );
 	return $text;
@@ -58,24 +58,41 @@ function db_connect_firehall($FIREHALL) {
 	
 function db_connect($host, $user, $password, $database) {
 	global $log;
-	$linkid = mysqli_connect( $host, $user, $password, $database );
-
-	if (mysqli_connect_errno()) {
-		$log->error("DB Connect failed: ". mysqli_connect_errno() ." : ". mysqli_connect_error());
-		die("Connect failed: ".mysqli_connect_errno()." : ". mysqli_connect_error());
-	}
-	if(!$linkid) {
-		$log->error("DB Connect error: ". mysqli_error($linkid));
-		die("Connect Error #1: " . mysqli_error($linkid));
-	}
 	
-	return $linkid;
+	try {
+		//$log->error("About to DB Connect for: host [$host] db [$database] user [$user]");
+		//$link = mysqli_connect( $host, $user, $password, $database );
+		$link = new \PDO("mysql:host=$host;dbname=$database", $user, $password);
+		$link->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
+		
+		//$log->error("DB Connected for: host [$host] db [$database] user [$user] link [" . mysqli_get_host_info($link) . "]");
+		
+// 		if (mysqli_connect_errno()) {
+// 			$log->error("DB Connect failed: ". mysqli_connect_errno() ." : ". mysqli_connect_error());
+// 			die("Connect failed: ".mysqli_connect_errno()." : ". mysqli_connect_error());
+// 		}
+// 		if(!$link) {
+// 			$log->error("DB Connect error: ". mysqli_error($link));
+// 			die("Connect Error #1: " . mysqli_error($link));
+// 		}
+	
+	} 
+	catch (\PDOException $e) {
+		//echo 'Connection failed: ' . $e->getMessage();
+		$log->error("DB Connected for: host [$host] db [$database] user [$user] error [" . $e->getMessage() . "]");
+		throw $e;
+	}
+		
+	return $link;
 }	                		
 
-function db_disconnect( $linkid ) {
+function db_disconnect( $link ) {
+	//global $log;
 	// note that mysql_close() only closes non-persistent connections
-	if($linkid != null) {
-		$linkid->close();
+	if($link != null) {
+		//$log->error("About to DB DisConnect for: [" .  mysqli_get_host_info($link) . "]");
+		//$link->close();
+		$link = null;
 	}
 }
 
@@ -154,9 +171,9 @@ function getGEOCoordinatesFromAddress($FIREHALL,$address) {
 	return $result_geo_coords;
 }
 	
-function findFireHallConfigById($id, $list) {
+function findFireHallConfigById($fhid, $list) {
 	foreach ($list as &$firehall) {
-		if($firehall->FIREHALL_ID == $id) {
+		if($firehall->FIREHALL_ID == $fhid) {
 			return $firehall;
 		}
 	}
@@ -210,12 +227,31 @@ function sec_session_start_ext($skip_regeneration) {
 		}
 	}
 }
-	
+
+function getClientIPInfo() {
+	$ip_address = '';
+	if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+		$ip_address .= 'HTTP_CLIENT_IP: ' . $_SERVER['HTTP_CLIENT_IP'];
+	} 
+	if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		if (!empty($ip_address)) {
+			$ip_address .= ' ';
+		}
+		$ip_address .= 'HTTP_X_FORWARDED_FOR: ' . $_SERVER['HTTP_X_FORWARDED_FOR'];
+	} 
+	if (!empty($_SERVER['REMOTE_ADDR'])) {
+		if (!empty($ip_address)) {
+			$ip_address .= ' ';
+		}
+		$ip_address .= 'REMOTE_ADDR: ' . $_SERVER['REMOTE_ADDR'];
+	}
+	return $ip_address;
+}
 function login($FIREHALL,$user_id, $password, $db_connection) {
 	$debug_functions = false;
 	
 	global $log;
-	$log->trace("Login attempt for user [$user_id] fhid [" . $FIREHALL->FIREHALL_ID . "]");
+	$log->trace("Login attempt for user [$user_id] fhid [" . $FIREHALL->FIREHALL_ID . "] client [" . getClientIPInfo() . "]");
 	
 	if($FIREHALL->LDAP->ENABLED) {
 		return login_ldap($FIREHALL, $user_id, $password);
@@ -224,19 +260,26 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
 	// Using prepared statements means that SQL injection is not possible.
 	if ($stmt = $db_connection->prepare("SELECT id, firehall_id, user_id, user_pwd, access
         FROM user_accounts
-       	WHERE user_id = ?
+       	WHERE user_id = :id
         LIMIT 1")) {
-        $stmt->bind_param('s', $user_id);  // Bind "$user_id" to parameter.
+        $stmt->bindParam(':id', $user_id);  // Bind "$user_id" to parameter.
         $stmt->execute();    // Execute the prepared query.
-        $stmt->store_result();
+        //$stmt->store_result();
 
         // get variables from result.
-        $stmt->bind_result($dbId, $FirehallId, $userId, $userPwd, $userAccess);
-        $stmt->fetch();
+        //$stmt->bind_result($dbId, $FirehallId, $userId, $userPwd, $userAccess);
+        $row = $stmt->fetch(\PDO::FETCH_OBJ);
+        if($row != null) {
+	        $dbId = $row->id;
+	        $FirehallId = $row->firehall_id;
+	        $userId = $row->user_id;
+	        $userPwd = $row->user_pwd;
+	        $userAccess = $row->access;
+        }
 
         // hash the password with the unique salt.
         //$password = hash('sha512', $password . $salt);
-        if ($stmt->num_rows == 1) {
+        if ($stmt->rowCount() == 1) {
         	// If the user exists we check if the account is locked
         	// from too many login attempts
 
@@ -251,7 +294,8 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
         		// the password the user submitted.
         		//$password = hash('sha512', $password);
         		
-        		if (crypt($db_connection->real_escape_string( $password ), $userPwd) === $userPwd ) {
+        		//if (crypt($db_connection->real_escape_string( $password ), $userPwd) === $userPwd ) {
+        		if (crypt($password, $userPwd) === $userPwd ) {
         			// Password is correct!
         			// Get the user-agent string of the user.
         			$user_browser = $_SERVER['HTTP_USER_AGENT'];
@@ -271,12 +315,16 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
         		else {
         			// Password is not correct
         			// We record this attempt in the database
-        			$log->error("Login attempt for user [$user_id] FAILED pwd check!");
+        			$log->error("Login attempt for user [$user_id] FAILED pwd check for client [" . getClientIPInfo() . "]");
         			
         			//$now = time();
-        			$db_connection->query("INSERT INTO login_attempts(useracctid, time)
-        					VALUES ($dbId, CURRENT_TIMESTAMP())");
+        			$sql = "INSERT INTO login_attempts(useracctid, time) " .
+        				   " VALUES (:uid, CURRENT_TIMESTAMP())";
         			
+        			$qry_bind = $db_connection->prepare($sql);
+        			$qry_bind->bindParam(':uid', $dbId);  // Bind "$user_id" to parameter.
+        			$qry_bind->execute();
+        			 
         			if($debug_functions) echo "LOGIN-F2" . PHP_EOL;
         			return false;
         		}
@@ -284,7 +332,7 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
         } 
         else {
         	// No user exists.
-        	$log->warn("Login attempt for user [$user_id] FAILED uid check!");
+        	$log->warn("Login attempt for user [$user_id] FAILED uid check for client [" . getClientIPInfo() . "]");
         	
         	if($debug_functions) echo "LOGIN-F3" . PHP_EOL;
         	return false;
@@ -298,17 +346,17 @@ function checkbrute($user_id, $db_connection) {
 	// All login attempts are counted from the past 2 hours.
 	if ($stmt = $db_connection->prepare("SELECT time
 			FROM login_attempts
-			WHERE useracctid = ? " .
+			WHERE useracctid = :id " .
 			" AND time > NOW() - INTERVAL 2 HOUR")) {
-		$stmt->bind_param('i', $user_id);
+		$stmt->bindParam(':id', $user_id);
 
 		// Execute the prepared query.
 		$stmt->execute();
-		$stmt->store_result();
+		//$stmt->store_result();
 
 		// If there have been more than 3 failed logins
-		if ($stmt->num_rows > 3) {
-			$log->warn("Login attempt for user [$user_id] was blocked, brute force count [" . $stmt->num_rows . "]");
+		if ($stmt->rowCount() > 3) {
+			$log->warn("Login attempt for user [$user_id] was blocked, client [" . getClientIPInfo() . "] brute force count [" . $stmt->rowCount() . "]");
 			return true;
 		} 
 		else {
@@ -316,7 +364,7 @@ function checkbrute($user_id, $db_connection) {
 		}
 	}
 	else {
-		$log->error("Login attempt for user [$user_id] was unknown bf error!");
+		$log->error("Login attempt for user [$user_id] for client [" . getClientIPInfo() . "] was unknown bf error!");
 	}
 	return false;
 }
@@ -347,16 +395,17 @@ function login_check($db_connection) {
 			
 		if ($stmt = $db_connection->prepare("SELECT user_pwd
                                      FROM user_accounts
-                                     WHERE id = ? LIMIT 1")) {
+                                     WHERE id = :id LIMIT 1")) {
                                       // Bind "$user_id" to parameter.
-			$stmt->bind_param('i', $user_id);
+			$stmt->bindParam(':id', $user_id);
 			$stmt->execute();   // Execute the prepared query.
-			$stmt->store_result();
+			//$stmt->store_result();
 		
-			if ($stmt->num_rows == 1) {
+			if ($stmt->rowCount() == 1) {
 				// If the user exists get variables from result.
-				$stmt->bind_result($password);
-				$stmt->fetch();
+				//$stmt->bind_result($password);
+				$row = $stmt->fetch(\PDO::FETCH_OBJ);
+				$password = $row->user_pwd;
 				$login_check = hash('sha512', $password . $user_browser);
 		
 				if ($login_check == $login_string) {
@@ -365,7 +414,7 @@ function login_check($db_connection) {
 				} 
 				else {
 					// Not logged in
-					$log->error("Login check for user [$user_id] failed hash check!");
+					$log->error("Login check for user [$user_id] for client [" . getClientIPInfo() . "] failed hash check!");
 					
 					if($debug_functions) echo "LOGINCHECK F1" . PHP_EOL;
 					return false;
@@ -373,14 +422,14 @@ function login_check($db_connection) {
 			} 
 			else {
 				// Not logged in
-				$log->error("Login check for user [$user_id] failed uid check!");
+				$log->error("Login check for user [$user_id] for client [" . getClientIPInfo() . "] failed uid check!");
 				if($debug_functions) echo "LOGINCHECK F2" . PHP_EOL;
 				return false;
 			}
 		} 
 		else {
 			// Not logged in
-			$log->error("Login check for user [$user_id] UNKNOWN SQL error!");
+			$log->error("Login check for user [$user_id] for client [" . getClientIPInfo() . "] UNKNOWN SQL error!");
 			
 			if($debug_functions) echo "LOGINCHECK F3" . PHP_EOL;
 			return false;
@@ -388,7 +437,8 @@ function login_check($db_connection) {
 	} 
 	else {
 		// Not logged in
-		$log->debug("Login check has no valid session! db userid: " . @$_SESSION['user_db_id'] .
+		$log->debug("Login check has no valid session! client [" . getClientIPInfo() . "] db userid: " . 
+				@$_SESSION['user_db_id'] .
 			" userid: " . @$_SESSION['user_id'] . " login_String: " . @$_SESSION['login_string'] .
 			" DB obj: " . (isset($db_connection) ? "yes" : "no"));
 		
@@ -439,19 +489,25 @@ function getMobilePhoneListFromDB($FIREHALL,$db_connection) {
 	}
 	$sql = "SELECT distinct(mobile_phone) FROM user_accounts WHERE mobile_phone <> '' " .
 	       " AND access & ". USER_ACCESS_SIGNAL_SMS . " = ". USER_ACCESS_SIGNAL_SMS . ";";
-	$sql_result = $db_connection->query( $sql );
-	if($sql_result == false) {
-		$log->error("Call getMobilePhoneListFromDB SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-		throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-	}
+// 	$sql_result = $db_connection->query( $sql );
+// 	if($sql_result == false) {
+// 		$log->error("Call getMobilePhoneListFromDB SQL error for sql [$sql] error: " . $db_connection->errorInfo());
+// 		throw new Exception($db_connection->errorInfo() . "[ " . $sql . "]");
+// 	}
+
+	$qry_bind = $db_connection->prepare($sql);
+	$qry_bind->execute();
 	
-	$log->trace("Call getMobilePhoneListFromDB SQL success for sql [$sql] row count: " . $sql_result->num_rows);
+	$log->trace("Call getMobilePhoneListFromDB SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
+
+	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+	$qry_bind->closeCursor();
 	
 	$result = array();
-	while($row = $sql_result->fetch_object()) {
+	foreach($rows as $row) {
 		array_push($result,$row->mobile_phone);
 	}
-	$sql_result->close();
+	//$sql_result->closeCursor();
 	
 	if($must_close_db == true) {
 		db_disconnect( $db_connection );
@@ -507,18 +563,25 @@ function isCalloutInProgress($callout_status) {
 function checkForLiveCallout($FIREHALL,$db_connection) {
 	global $log;
 	// Check if there is an active callout (within last 48 hours) and if so send the details
-	$sql = 'SELECT * FROM callouts' .
-			' WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
-			' ORDER BY id DESC LIMIT 1;';
-	$sql_result = $db_connection->query( $sql );
-	if($sql_result == false) {
-		$log->error("Call checkForLiveCallout SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-		throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-	}
-	
-	$log->trace("Call checkForLiveCallout SQL success for sql [$sql] row count: " . $sql_result->num_rows);
+	$sql = "SELECT * FROM callouts " .
+			" WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,calltime,CURRENT_TIMESTAMP()) <= " . DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
+			" ORDER BY id DESC LIMIT 1;";
+// 	$sql_result = $db_connection->query( $sql );
+// 	if($sql_result == false) {
+// 		$log->error("Call checkForLiveCallout SQL error for sql [$sql] error: " . $db_connection->errorInfo());
+// 		throw new Exception($db_connection->errorInfo() . "[ " . $sql . "]");
+// 	}
 
-	if($row = $sql_result->fetch_object()) {
+	$qry_bind = $db_connection->prepare($sql);
+	$qry_bind->execute();
+	
+	$log->trace("Call checkForLiveCallout SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
+
+	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+	$qry_bind->closeCursor();
+	
+	if(!empty($rows)) {
+		$row = $rows[0];
 		$callout_id = $row->id;
 		$callkey_id = $row->call_key;
 
@@ -531,7 +594,7 @@ function checkForLiveCallout($FIREHALL,$db_connection) {
 		$current_callout = '<a target="_blank" href="http://' . $redirect_host . $redirect_uri.'/'.$redirect_extra.'" class="alert">A Callout is in progress, CLICK HERE for details</a>';
 		echo $current_callout;
 	}
-	$sql_result->close();
+	//$sql_result->closeCursor();
 }
 
 function make_comparer() {
@@ -641,8 +704,8 @@ function checkApplicationUpdates() {
 }
 
 function validateDate($date, $format = 'Y-m-d H:i:s') {
-	$d = DateTime::createFromFormat($format, $date);
-	return $d && $d->format($format) == $date;
+	$date_format = DateTime::createFromFormat($format, $date);
+	return $date_format && $date_format->format($format) == $date;
 }
 
 function getFirehallRootURLFromRequest($request_url,$firehalls) {
@@ -667,18 +730,21 @@ function getFirehallRootURLFromRequest($request_url,$firehalls) {
 		
 		$url_parts = explode('/',$request_url);
 		if(isset($url_parts) && count($url_parts) > 0) {
+			$url_parts_count = count($url_parts);
+			
 			foreach ($firehalls as &$firehall) {
 				$log->trace("#3 Looking for website root URL req [$request_url] firehall root [" . $firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
 				
 				$fh_parts = explode('/',$firehall->WEBSITE->WEBSITE_ROOT_URL);
 				if(isset($fh_parts) && count($fh_parts) > 0) {
+					$fh_parts_count = count($fh_parts);
 					
-					for($index_fh = 0; $index_fh < count($fh_parts);$index_fh++) {
-						for($index = 0; $index < count($url_parts);$index++) {
+					for($index_fh = 0; $index_fh < $fh_parts_count;$index_fh++) {
+						for($index = 0; $index < $url_parts_count;$index++) {
 							$log->trace("#3 fhpart [" .  $fh_parts[$index_fh] . "] url part [" . $url_parts[$index] . "]");
 							
 							if($fh_parts[$index_fh] != '' && $url_parts[$index] != '' &&
-									$fh_parts[$index_fh] === $url_parts[$index]) {
+								$fh_parts[$index_fh] === $url_parts[$index]) {
 
 								$log->trace("#3 website matched!");
 								return $firehall->WEBSITE->WEBSITE_ROOT_URL;

@@ -29,12 +29,7 @@ if (isset($_POST['firehall_id'], $_POST['user_id'], $_POST['p'])) {
 		    if (login($FIREHALL,$user_id, $password, $db_connection) == true) {
 		        // Login success 
 		        //echo $_SESSION['LOGIN_REFERRER'];
-		    	if($_SESSION['LOGIN_REFERRER'] == 'login.php') {
-		    		header('Location: admin_index.php');
-		    	}
-		    	else {
-			    	header('Location: controllers/main-menu-controller.php');
-		    	}
+		    	header('Location: controllers/main-menu-controller.php');
 		    } 
 		    else {
 		        // Login failed 

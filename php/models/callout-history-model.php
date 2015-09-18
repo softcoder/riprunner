@@ -48,16 +48,22 @@ class CalloutHistoryViewModel extends BaseViewModel {
 					' FROM callouts_response b ' .
 					' WHERE a.id = b.calloutid) AS responders ' .
 					' FROM callouts a ORDER BY calltime DESC;';
-			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-			if($sql_result == false) {
-				printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
-				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-			}
+// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 			if($sql_result == false) {
+// 				printf("Error: %s\n", $this->getGvm()->RR_DB_CONN->errorInfo());
+// 				throw new \Exception($this->getGvm()->RR_DB_CONN->errorInfo() . "[ " . $sql . "]");
+// 			}
+
+			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+			$qry_bind->execute();
+								
+			$log->trace("About to display callout list for sql [$sql] result count: " . $qry_bind->rowCount());
 			
-			$log->trace("About to display callout list for sql [$sql] result count: " . $sql_result->num_rows);
-			
+			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+			$qry_bind->closeCursor();
+
 			$this->callout_list = array();
-			while($row = $sql_result->fetch_assoc()) {
+			foreach($rows as $row) {
 				// Add any custom fields with values here
 				$row['callout_type_desc'] = convertCallOutTypeToText($row['calltype']);
 				$row['callout_address_origin'] = urlencode($this->getGvm()->firehall->WEBSITE->FIREHALL_HOME_ADDRESS);
@@ -66,7 +72,7 @@ class CalloutHistoryViewModel extends BaseViewModel {
 				
 				$this->callout_list[] = $row;
 			}
-			$sql_result->close();
+			//$sql_result->closeCursor();
 		}
 		return $this->callout_list;
 	}

@@ -80,6 +80,61 @@
 	   	
 	   	return $callout;
 	}
+
+	function processFireHallTextTrigger($msgText) {
+		
+		$callout = new \riprunner\CalloutDetails();
+	
+		$msgText = str_replace(array("\n", "\r"), '', $msgText);
+		
+		$callDateTime = extractDelimitedValueFromString($msgText, EMAIL_PARSING_DATETIME_PATTERN_GENERIC, 1);
+		$callDateTime = trim($callDateTime);
+		print("DateTime : [" . $callDateTime . "]\n");
+		if($callDateTime != null) {
+			$callout->setDateTime($callDateTime);
+		}
+	
+		$callCode =  extractDelimitedValueFromString($msgText, EMAIL_PARSING_CALLCODE_PATTERN_GENERIC, 1);
+		$callCode = trim($callCode);
+		print("Code : [" . $callCode . "]\n");
+		if($callCode != null) {
+			$callout->setCode($callCode);
+		}
+			
+		$callType = convertCallOutTypeToText($callCode);
+		print("Incident Description : [" . $callType . "]\n");
+	
+		$callAddress = extractDelimitedValueFromString($msgText, EMAIL_PARSING_ADDRESS_PATTERN_GENERIC, 1);
+		$callAddress = trim($callAddress);
+		print("Incident Address : [" . $callAddress . "]\n");
+		if($callAddress != null) {
+			$callout->setAddress($callAddress);
+		}
+	
+		$callGPSLat = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LATITUDE_PATTERN_GENERIC, 1);
+		$callGPSLat = trim($callGPSLat);
+		print("Incident GPS Lat : [" . $callGPSLat . "]\n");
+		if($callGPSLat != null) {
+			$callout->setGPSLat($callGPSLat);
+		}
+	
+		$callGPSLong = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LONGITUDE_PATTERN_GENERIC, 1);
+		$callGPSLong = trim($callGPSLong);
+		print("Incident GPS Long : [" . $callGPSLong . "]\n");
+		if($callGPSLong != null) {
+			$callout->setGPSLong($callGPSLong);
+		}
+	
+		$callUnitsResponding = extractDelimitedValueFromString($msgText, EMAIL_PARSING_UNITS_PATTERN_GENERIC, 1);
+		$callUnitsResponding = trim($callUnitsResponding);
+		print("Incident Units Responding : [" . $callUnitsResponding . "]\n");
+		if($callUnitsResponding != null) {
+			$callout->setUnitsResponding($callUnitsResponding);
+		}
+		 
+		return $callout;
+	}
+	
 	
 	function convertCallOutTypeToText($type) {
 		global $CALLOUT_CODES_LOOKUP;

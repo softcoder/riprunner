@@ -136,18 +136,18 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			$user_id = get_query_param('member_id');
 			$callout_id = get_query_param('cid');
 			
-			$sql_where_clause = "";
+//			$sql_where_clause = "";
 			
 			if(isset($callout_id) && $callout_id != null) {
 				$callout_id = (int) $callout_id;
-				$sql_where_clause = " WHERE id = " . 
-						$this->getGvm()->RR_DB_CONN->real_escape_string($callout_id);
+// 				$sql_where_clause = " WHERE id = " . 
+// 						$this->getGvm()->RR_DB_CONN->real_escape_string($callout_id);
 			
-				if(isset($callkey_id) && $callkey_id != null) {
-					$sql_where_clause .= " AND call_key = '" . 
-							$this->getGvm()->RR_DB_CONN->real_escape_string($callkey_id) . 
-										 "'";
-				}
+// 				if(isset($callkey_id) && $callkey_id != null) {
+// 					$sql_where_clause .= " AND call_key = '" . 
+// 							$this->getGvm()->RR_DB_CONN->real_escape_string($callkey_id) . 
+// 										 "'";
+// 				}
 			}
 			else {
 				//$callout_id = 2;
@@ -160,18 +160,38 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			
 			if($callout_id != -1 && isset($callkey_id)) {
 				// Read from the database info about this callout
-				$sql = "SELECT * FROM callouts $sql_where_clause ;";
+				//$sql = "SELECT * FROM callouts $sql_where_clause ;";
 				
-				$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-				if($sql_result == false) {
-					$log->error("Call Info callouts SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+				$sql = "SELECT * FROM callouts ";
+				if(isset($callout_id) && $callout_id != null) {
+					$sql .= " WHERE id = :cid";
+					if(isset($callkey_id) && $callkey_id != null) {
+						$sql .= " AND call_key = :ckid";
+					}
 				}
-			
-				$log->trace("Call Info callouts SQL success for sql [$sql] row count: " . $sql_result->num_rows);
+				
+// 				$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
+// 				if($sql_result == false) {
+// 					$log->error("Call Info callouts SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
+// 				}
+
+				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+				if(isset($callout_id) && $callout_id != null) {
+					$qry_bind->bindParam(':cid',$callout_id);
+					if(isset($callkey_id) && $callkey_id != null) {
+						$qry_bind->bindParam(':ckid',$callkey_id);
+					}
+				}
+				$qry_bind->execute();
+				
+				$log->trace("Call Info callouts SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
+				
+				$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+				$qry_bind->closeCursor();
 				
 				$results = array();
-				while($row = $sql_result->fetch_assoc()) {
+				foreach($rows as $row){
 					// Add any custom fields with values here
 	 				$row['callout_type_desc'] = convertCallOutTypeToText($row['calltype']);
 	 				$row['callout_status_desc'] = getCallStatusDisplayText($row['status']);
@@ -188,7 +208,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	 				
 					$results[] = $row;
 				}
-				$sql_result->close();
+
 				$this->callout_details_list = $results;
 			}
 		}
@@ -209,32 +229,38 @@ class CalloutDetailsViewModel extends BaseViewModel {
 					$sql_response = 'SELECT a.*, b.user_id ' .
 									' FROM callouts_response a ' .
 									' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
-									' WHERE calloutid = ' . $row['id'] . ';';
+									' WHERE calloutid = :cid;';
 				}
 				else {
 					$sql_response = 'SELECT a.*, b.user_id ' .
 									' FROM callouts_response a ' .
 									' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-									' WHERE calloutid = ' . $row['id'] . ';';
+									' WHERE calloutid = :cid;';
 				}
 				
-				$sql_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_response );
-				if($sql_response_result == false) {
-					$log->error("Call Info callouts responders SQL error for sql [$sql_response] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_response . "]");
-				}
-				
-				$log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . $sql_response_result->num_rows);
+// 				$sql_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_response );
+// 				if($sql_response_result == false) {
+// 					$log->error("Call Info callouts responders SQL error for sql [$sql_response] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_response . "]");
+// 				}
 
+				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_response);
+				$qry_bind->bindParam(':cid',$row['id']);
+				$qry_bind->execute();
+				
+				$log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . $qry_bind->rowCount());
+
+				$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+				$qry_bind->closeCursor();
+				
 				$results = array();
-				while($row_r = $sql_response_result->fetch_assoc()) {
+				foreach($rows as $row_r){
 					// Add any custom fields with values here
 					$row_r['responder_location'] = urlencode($row_r['latitude']) . ',' . urlencode($row_r['longitude']);
 					$row_r['firehall_location'] = urlencode($this->getGvm()->firehall->WEBSITE->FIREHALL_HOME_ADDRESS);
 
 					$results[] = $row_r;
 				}
-				$sql_response_result->close();
 				$this->callout_details_responding_list = $results;
 			}
 		}
@@ -250,30 +276,35 @@ class CalloutDetailsViewModel extends BaseViewModel {
 				create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 				$sql_no_response = 'SELECT id, user_id FROM ldap_user_accounts ' .
 								   ' WHERE id NOT IN (SELECT useracctid ' .
-								   ' FROM callouts_response WHERE calloutid = ' .  
-								   $this->getCalloutId() . ');';
+								   ' FROM callouts_response WHERE calloutid = :cid);';
 			}
 			else {
 				$sql_no_response = 'SELECT id, user_id FROM user_accounts ' .
 								   ' WHERE id NOT IN (SELECT useracctid ' .
-								   ' FROM callouts_response WHERE calloutid = ' .  
-								   $this->getCalloutId() . ');';
+								   ' FROM callouts_response WHERE calloutid = :cid);';
 			}
 			
-			$sql_no_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_no_response );
-			if($sql_no_response_result == false) {
-				$log->error("Call Info callouts no responses SQL error for sql [$sql_no_response] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_no_response . "]");
-			}
-			
-			$log->trace("Call Info callouts no responses SQL success for sql [$sql_no_response] row count: " . $sql_no_response_result->num_rows);
-			
+// 			$sql_no_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_no_response );
+// 			if($sql_no_response_result == false) {
+// 				$log->error("Call Info callouts no responses SQL error for sql [$sql_no_response] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_no_response . "]");
+// 			}
+
+			$cid = $this->getCalloutId();
+			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_no_response);
+			$qry_bind->bindParam(':cid',$cid);
+			$qry_bind->execute();
+				
+			$log->trace("Call Info callouts no responses SQL success for sql [$sql_no_response] row count: " . $qry_bind->rowCount());
+
+			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+			$qry_bind->closeCursor();
+				
 			$results = array();
-			while($row = $sql_no_response_result->fetch_assoc()) {
+			foreach($rows as $row){
 				// Add any custom fields with values here
 				$results[] = $row;
 			}
-			$sql_no_response_result->close();
 			
 			$this->callout_details_not_responding_list = $results;
 		}
@@ -289,30 +320,35 @@ class CalloutDetailsViewModel extends BaseViewModel {
 				create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 				$sql_yes_response = 'SELECT id,user_id FROM ldap_user_accounts ' .
 									' WHERE id IN (SELECT useracctid ' .
-									' FROM callouts_response WHERE calloutid = ' .  
-									$this->getCalloutId() . ');';
+									' FROM callouts_response WHERE calloutid = :cid);';
 			}
 			else {
 				$sql_yes_response = 'SELECT id,user_id FROM user_accounts ' .
 									' WHERE id IN (SELECT useracctid ' .
-									' FROM callouts_response WHERE calloutid = ' .  
-									$this->getCalloutId() . ');';
+									' FROM callouts_response WHERE calloutid = :cid);';
 			}
 			
-			$sql_yes_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_yes_response );
-			if($sql_yes_response_result == false) {
-				$log->error("Call Info callouts yes responses SQL error for sql [$sql_yes_response] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_yes_response . "]");
-			}
+// 			$sql_yes_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_yes_response );
+// 			if($sql_yes_response_result == false) {
+// 				$log->error("Call Info callouts yes responses SQL error for sql [$sql_yes_response] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
+// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_yes_response . "]");
+// 			}
+
+			$cid = $this->getCalloutId();
+			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_yes_response);
+			$qry_bind->bindParam(':cid',$cid);
+			$qry_bind->execute();
+				
+			$log->trace("Call Info callouts yes responses SQL success for sql [$sql_yes_response] row count: " . $qry_bind->rowCount());
 			
-			$log->trace("Call Info callouts yes responses SQL success for sql [$sql_yes_response] row count: " . $sql_yes_response_result->num_rows);
-			
+			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+			$qry_bind->closeCursor();
+				
 			$results = array();
-			while($row = $sql_yes_response_result->fetch_assoc()) {
-				// Add any custom fields with values here
+			foreach($rows as $row){
+							// Add any custom fields with values here
 				$results[] = $row;
 			}
-			$sql_yes_response_result->close();
 			
 			$this->callout_details_end_responding_list = $results;
 		}

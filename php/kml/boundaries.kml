@@ -572,6 +572,184 @@
         </Polygon>
       </MultiGeometry>
     </Placemark>
+    <Placemark id="ID_00006a">
+      <name>LHE101</name>
+      <Snippet></Snippet>
+      <description><![CDATA[<html xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+
+<head>
+
+<META http-equiv="Content-Type" content="text/html">
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+</head>
+
+<body style="margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;">
+
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px">
+
+<tr style="text-align:center;font-weight:bold;background:#9CBCE2">
+
+<td>LHE101</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+<table style="font-family:Arial,Verdana,Times;font-size:12px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px">
+
+<tr>
+
+<td>FID</td>
+
+<td>0</td>
+
+</tr>
+
+<tr bgcolor="#D4E4F3">
+
+<td>NAME</td>
+
+<td>LHE101</td>
+
+</tr>
+
+<tr>
+
+<td>ANNOFLAG</td>
+
+<td>1</td>
+
+</tr>
+
+<tr bgcolor="#D4E4F3">
+
+<td>CUSTODIAN</td>
+
+<td>REGIONAL DISTRICT OF FRASER FORT GEORGE</td>
+
+</tr>
+
+<tr>
+
+<td>IMPORT_DAT</td>
+
+<td>04/23/2015</td>
+
+</tr>
+
+<tr bgcolor="#D4E4F3">
+
+<td>FDMID</td>
+
+<td>606</td>
+
+</tr>
+
+<tr>
+
+<td>EDIT_DATE</td>
+
+<td>04/22/2015</td>
+
+</tr>
+
+<tr bgcolor="#D4E4F3">
+
+<td>EDIT_CMNTS</td>
+
+<td>NEW zone for Lheidli T'enneh contract</td>
+
+</tr>
+
+<tr>
+
+<td>DEPARTMENT</td>
+
+<td>SHELL-GLEN FIRE/RESCUE</td>
+
+</tr>
+
+<tr bgcolor="#D4E4F3">
+
+<td>FIRST_RESP</td>
+
+<td>SHELL-GLEN VOLUNTEER FIRE/RESCUE DEPARTMENT</td>
+
+</tr>
+
+<tr>
+
+<td>FR_Respons</td>
+
+<td>YES</td>
+
+</tr>
+
+<tr bgcolor="#D4E4F3">
+
+<td>FIRE</td>
+
+<td>Shell-Glen Volunteer Fire/Rescue Department</td>
+
+</tr>
+
+<tr>
+
+<td>RESCUE</td>
+
+<td>Shell-Glen Volunteer Fire/Rescue Department</td>
+
+</tr>
+
+<tr bgcolor="#D4E4F3">
+
+<td>JURISDICTI</td>
+
+<td>RDFFG</td>
+
+</tr>
+
+<tr>
+
+<td>SHAPE_STAr</td>
+
+<td>92155.032235</td>
+
+</tr>
+
+<tr bgcolor="#D4E4F3">
+
+<td>SHAPE_STLe</td>
+
+<td>1825.844288</td>
+
+</tr>
+
+</table>
+
+</td>
+
+</tr>
+
+</table>
+
+</body>
+
+</html>
+
+]]></description>
+      <styleUrl>#PolyStyle01</styleUrl>
+      <MultiGeometry>
+        <Polygon>
+          <extrude>0</extrude>          <altitudeMode>clampedToGround</altitudeMode>
+          <outerBoundaryIs><LinearRing><coordinates> -122.6152969888945,54.00576253655974,0 -122.6151416269462,54.00576261823106,0 -122.6153138778333,54.00588899931823,0 -122.6159319266095,54.0061634251739,0 -122.6161978110053,54.0063932355051,0 -122.6162901603568,54.00656954072667,0 -122.616199347062,54.00681020092922,0 -122.6160628976388,54.00702873518201,0 -122.6157111790618,54.00726903007664,0 -122.6140635544674,54.00841801474277,0 -122.6124487778086,54.00901895289583,0 -122.6110523519323,54.01014020423648,0 -122.6110325079509,54.01038285204462,0 -122.6116466487473,54.01065432767998,0 -122.6155740604959,54.00870029714719,0 -122.6187417958016,54.00750149536142,0 -122.6197705806834,54.00576012003222,0 -122.6152969888945,54.00576253655974,0</coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </MultiGeometry>
+    </Placemark>
     <Placemark id="ID_00007">
       <name>BEAR LAKE VFD</name>
       <Snippet></Snippet>

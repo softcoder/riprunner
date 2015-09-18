@@ -76,7 +76,7 @@ if(isset($server_mode) && $server_mode === 'true') {
 		}
 
 		$time_elapsed = (time() - $startedAt);
-		$log->error("callout-monitor time elapsed: " . $time_elapsed . " mod 5: " . $time_elapsed % 5);
+		$log->trace("callout-monitor time elapsed: " . $time_elapsed . " mod 5: " . $time_elapsed % 5);
 		
 		if($time_elapsed <= 1 || $time_elapsed == 20 || $time_elapsed == 40) {
 			$live_callout_info = new LiveCalloutWarningViewModel($global_vm,$view_template_vars);

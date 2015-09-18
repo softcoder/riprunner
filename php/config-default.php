@@ -25,25 +25,25 @@ define ('MENU_TYPE', 'horizontal');
 // SET true, TO ALLOW ANY USER TO RESPOND TO A CALL AFTER IT HAS BEEN MARKED AS COMPLETED
 define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', false);
 
-// SET true, TO ALLOW ANY OFFICER/ADMIN TO RESPOND ON BEHALF OF MEMBER AFTER CALL IS COMPLETED
+// SET true, TO ALLOW ANY OFFICER/ADMIN TO RESPOND FOR ANY MEMBER AFTER CALL IS COMPLETED
 define( 'ALLOW_OFFICER_CALLOUT_UPDATES_AFTER_FINISHED', true);   // still under development
 
-
 // ====================================================================================================
-// ===                           CUSTOMZIABLE TEXT AND HTML TAGS                                    ===
+// === 							CUSTOMZIABLE TEXT AND HTML TAGS										===
 // ====================================================================================================
-// === TO PRESERVE CUSTOM STYLES ACROSS UPGRADES, UNCOMMENT THE CUSTOM LINES AND EDIT THE FILES     ===
-// === STYLES DEFINED IN CALLOUT-MAIN.CSS AND CALLOUT-MOBILE.CSS CAN BE COPIED TO THE CUSTOM FILE   ===
-// === AND THEY WILL OVERRIDE ANYTHING PREVIOUSLY DEFINED                                           ===
+// ===         TO PRESERVE CUSTOM STYLES ACROSS UPGRADES, UNCOMMENT CUSTOM LINES AS NEEDED.			===
+// ===																								===
+// === STYLES DEFINED IN CALLOUT-MAIN.CSS, CALLOUT-MOBILE.CSS, MAIN.CSS OR MOBILE.CSS CAN BE COPIED	===
+// === TO THE CUSTOM FILES, THEY WILL OVERRIDE ANYTHING PREVIOUSLY DEFINED							===
 // ====================================================================================================
 
 //define( 'CUSTOM_MAIN_CSS','styles/custom-main.css');
 //define( 'CUSTOM_MOBILE_CSS','styles/custom-mobile.css');
 
-define( 'CALLOUT_MAIN_CSS', 'styles/callout-main.css');  //preserved for legacy UI
+define( 'CALLOUT_MAIN_CSS', 'styles/callout-main.css');
 //define( 'CUSTOM_CALLOUT_MAIN_CSS','styles/custom-callout-main.css');
 
-define( 'CALLOUT_MOBILE_CSS', 'styles/callout-mobile.css');  //preserved for legacy UI
+define( 'CALLOUT_MOBILE_CSS', 'styles/callout-mobile.css');
 //define( 'CUSTOM_CALLOUT_MOBILE_CSS','styles/custom-callout-mobile.css');
 
 // Call Information page header
@@ -54,10 +54,10 @@ define( 'CALLOUT_HEADER', '<span class="ci_header">Call Details  </span>');
 // ====================================================================================================
 // === VALID CHOICES ARE "javascript" OR "iframe". JAVASCRIPT MAPS HAVE MANY MORE CONFIGURABLE      ===
 // === OPTIONS SUCH AS OVERLAYS: EG. MUTAUAL AID BOUNDARIES, OR MARKERS TO IDENTIFY LANDMARKS       ===
-// === SUCH AS WATER SOURCES OR HYDRANT LOCATIONS.                                                  ===
+// === SUCH AS WATER SOURCES OR HYDRANT LOCATIONS. 						 		                    ===
 // ===                                                                                              ===
 // === IF JAVASCRIPT, RENAME "config-jsmap-extras-DEFAULT.php" TO: "config-jsmap-extras.php"        ===
-// === AND EDIT OPTIONS TO ENABLE ADVANCED FEATRUES SUCH AS OVERLAY AND MARKERS                     ===
+// === AND EDIT OPTIONS TO ENABLE ADVANCED FEATRUES SUCH AS OVERLAY AND MARKERS				        ===
 // ====================================================================================================
 
 $google_map_type = "javascript";
@@ -80,7 +80,7 @@ define( 'GOOGLE_MAP_INLINE_TAG',
 		'<div class="google-maps">' . PHP_EOL .
 		'<iframe frameborder="1" style="border:1" ' .
 		'src="https://www.google.com/maps/embed/v1/directions?key=${API_KEY}' .
-		'&mode=driving&zoom=11&origin=${FDLOCATION}' .
+		'&mode=driving&zoom=13&origin=${FDLOCATION}' .
 		'&destination=${DESTINATION}"></iframe>' . PHP_EOL .
 		'</div>' . PHP_EOL);
 // ====================================================================================================
@@ -90,17 +90,17 @@ define( 'GOOGLE_MAP_INLINE_TAG',
 
 define( 'CALLOUT_DETAIL_ROW',
 		'<div id="callContent${ROW_NUMBER}">' . PHP_EOL .
-		'<span class="ci_header_time">Page Time: ${CALLOUT_TIME}</span><br />' . PHP_EOL .
-		'<span class="ci_header_type">Call Type: ${CALLOUT_TYPE_TEXT}</span><br />' . PHP_EOL .
-		'<span class="ci_header_address">Call Address: ${CALLOUT_ADDRESS}</span><br />' . PHP_EOL.
-		'<span class="ci_header_units">Responding Units: ${CALLOUT_UNITS}</span><br />' . PHP_EOL.
-		'<span class="ci_header_status">Call Status: ${CALLOUT_STATUS}</span>' . PHP_EOL.
+		'<span class="ci_header_time">PAGE TIME: ${CALLOUT_TIME}</span><br />' . PHP_EOL .
+		'<span class="ci_header_type">CALL TYPE: ${CALLOUT_TYPE_TEXT}</span><br />' . PHP_EOL .
+		'<span class="ci_header_address">CALL ADDRESS: ${CALLOUT_ADDRESS}</span><br />' . PHP_EOL .
+		'<span class="ci_header_units">RESPONDING UNITS: ${CALLOUT_UNITS}</span><br />' . PHP_EOL .
+		'<span class="ci_header_status">CALL STATUS: ${CALLOUT_STATUS}</span>' . PHP_EOL .
 		'</div>' . PHP_EOL);
 
 // callout responders that are attending the call
 define( 'CALLOUT_RESPONDERS_HEADER',
-		'<div id="callResponseContent${ROW_NUMBER}">' . PHP_EOL.
-		'<span class="ci_responders_header">Responders:' . PHP_EOL);
+		'<div id="callResponseContent${ROW_NUMBER}">' . PHP_EOL .
+		'<span class="ci_responders_header">RESPONDERS:' . PHP_EOL);
 
 define( 'CALLOUT_RESPONDERS_DETAIL',
 		'<a target="_blank" href="http://maps.google.com/maps?saddr='.
@@ -113,7 +113,7 @@ define( 'CALLOUT_RESPONDERS_FOOTER',
 		'&cid=${CID}' .
 		'&ta=mr' .
 		'&ckid=${CKID}"' .
-		' class="ci_responders_map_link">Show Responders Map</a>' . PHP_EOL .
+		' class="ci_responders_map_link">SHOW RESPONDERS MAP</a>' . PHP_EOL .
 		'</div>' . PHP_EOL);
 
 // This is the UI for members that have not responded yet
@@ -140,7 +140,7 @@ define( 'CALLOUT_COMPLETE_NOW_TRIGGER',
 		'" class="ci_completenow" />'. PHP_EOL);
 		
 define( 'CALLOUT_COMPLETE_NOW_TRIGGER_CONFIRM',
-'COMPLETE this call?\nConfirm that the call should be set to COMPLETE?');
+		'COMPLETE this call?\nConfirm that the call should be set to COMPLETE?');
 
 define( 'CALLOUT_CANCEL_NOW_TRIGGER',
         '<INPUT TYPE="submit" VALUE="CANCEL' .
@@ -195,10 +195,10 @@ $CALLOUT_CODES_LOOKUP = array(
 		"LIFT" => "Lift Assist",
 		"MED" => "Medical Aid",
 		"MFIRE" => "Medical Fire",
-		"MVI1" => "MVI1- Motor Vehicle Incident",
-		"MVI2" => "MVI2 - Multiple Vehicles/Patients",
-		"MVI3" => "MVI3 - Entrapment; Motor Vehicle Incident",
-		"MVI4" => "MVI4 - Entrapment; Multiple Vehicles/Patients",
+		"MVI1" => "Motor Vehicle Incident",
+		"MVI2" => "Multiple Vehicles/Patients",
+		"MVI3" => "Entrapment; Motor Vehicle Incident",
+		"MVI4" => "Entrapment; Multiple Vehicles/Patients",
 		"ODOUU" => "Odour Unknown",
 		"OPEN" => "Open Air Fire",
 		"PEDSTK" => "Pedestrian Struck",
@@ -230,12 +230,12 @@ $CALLOUT_CODES_LOOKUP = array(
 
 // ----------------------------------------------------------------------
 
-// Google maps street name substitution list
+// Google maps street name substitution list: Original name -> Google map name
 $GOOGLE_MAP_STREET_LOOKUP = array(
-		"WRONG EXAMPLE RD," => "RIGHTEXAMPLE RD,"
+		"EAGLE VIEW RD," => "EAGLEVIEW RD,"
 );
 
-// Google maps city name substitution list
+// Google maps city name substitution list: Original name -> Google map name
 define( 'GOOGLE_MAP_CITY_DEFAULT', 'PRINCE GEORGE,' );
 
 // This is a list of common areas around your city.  this tables substitues each for the city you have chosen
@@ -299,22 +299,22 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 // =============================================================================================
 
 
-	// Email Settings
-	define( 'DEFAULT_EMAIL_FROM_TRIGGER', 'FOCC-FROM@DOMAIN.COM');
+	// Email Settings: blank allows emails from anyone. example value: vfd@gmail.com
+	define( 'DEFAULT_EMAIL_FROM_TRIGGER', '');
 	
 	$LOCAL_DEBUG_EMAIL = new FireHallEmailAccount();
 	$LOCAL_DEBUG_EMAIL->setHostEnabled(true);
 	$LOCAL_DEBUG_EMAIL->setFromTrigger(DEFAULT_EMAIL_FROM_TRIGGER);
-	$LOCAL_DEBUG_EMAIL->setConnectionString('{MTA_HOSTNAME:MTA_PORT/imap/novalidate-cert}INBOX');
+	$LOCAL_DEBUG_EMAIL->setConnectionString('{MTA_HOSTNAME:MTA_PORT/imap/novalidate-cert}INBOX'); // ie: {pop.secureserver.net:995/pop3/ssl/novalidate-cert}INBOX
 	$LOCAL_DEBUG_EMAIL->setUserName('IMAP/POP3 USERNAME');
 	$LOCAL_DEBUG_EMAIL->setPassword('IMAP/POP3 PASSWORD');
-	$LOCAL_DEBUG_EMAIL->setDeleteOnProcessed(false);
+	$LOCAL_DEBUG_EMAIL->setDeleteOnProcessed(true);        // Delete processed emails after they trigger a callout
 	
 	// ----------------------------------------------------------------------
 	// MySQL Database Settings
 	$LOCAL_DEBUG_MYSQL = new FireHallMySQL();
 	$LOCAL_DEBUG_MYSQL->setHostName('localhost');
-	$LOCAL_DEBUG_MYSQL->setDatabseName('riprunner');
+	$LOCAL_DEBUG_MYSQL->setDatabaseName('riprunner');
 	$LOCAL_DEBUG_MYSQL->setUserName('riprunner');
 	$LOCAL_DEBUG_MYSQL->setPassword('password');
 	
@@ -342,8 +342,12 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'DEFAULT_GCM_API_KEY', 	'X');
 	// This is the Google 'Key for browser applications' API key from your google project:
 	// https://console.developers.google.com/project/<your proj name>/apiui/credential
-	// The google Project Number
+	// The Google Project Number
 	define( 'DEFAULT_GCM_PROJECTID','X');
+	// The Google Project Id
+	define( 'DEFAULT_GCM_APPLICATIONID','X');
+	// The Google Service Account Name
+	define( 'DEFAULT_GCM_SAM','applicationid@appspot.gserviceaccount.com');
 	
 	$LOCAL_DEBUG_MOBILE = new FireHallMobile();
 	$LOCAL_DEBUG_MOBILE->setSignalEnabled(true);
@@ -352,23 +356,25 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_MOBILE->setSignalGCM_URL(DEFAULT_GCM_SEND_URL);
 	$LOCAL_DEBUG_MOBILE->setGCM_ApiKey(DEFAULT_GCM_API_KEY);
 	$LOCAL_DEBUG_MOBILE->setGCM_ProjectNumber(DEFAULT_GCM_PROJECTID);
+	$LOCAL_DEBUG_MOBILE->setGCM_APP_ID(DEFAULT_GCM_APPLICATIONID);
+	$LOCAL_DEBUG_MOBILE->setGCM_SAM(DEFAULT_GCM_SAM);
 	
 	// ----------------------------------------------------------------------
 	// Website and Location Settings
 	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY','X' );
 
 	$LOCAL_DEBUG_WEBSITE = new FireHallWebsite();
-	$LOCAL_DEBUG_WEBSITE->setFirehallName('FIREHALL_NAME');
-	$LOCAL_DEBUG_WEBSITE->setFirehallAddress('FIREHALL ADDRESS');
-	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLatitude(YOUR FIREHALL LATTATUDE);
-	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLongitude(YOU FIREHALL LONGITUDE);
+	$LOCAL_DEBUG_WEBSITE->setFirehallName('FIREHALL_NAME');                // ie: Salmon Valley Volunteer Fire Department
+	$LOCAL_DEBUG_WEBSITE->setFirehallAddress('FIREHALL ADDRESS');          // ie: 5155 Salmon Valley Road, Prince George, BC
+	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLatitude(YOUR FIREHALL LATITUDE);  // ie: 54.0916667
+	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLongitude(YOU FIREHALL LONGITUDE); // ie: -122.6537361
 	$LOCAL_DEBUG_WEBSITE->setGoogleMap_ApiKey(DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY);
 	$LOCAL_DEBUG_WEBSITE->setCityNameSubs($GOOGLE_MAP_CITY_LOOKUP);
 	$LOCAL_DEBUG_WEBSITE->setStreetNameSubs($GOOGLE_MAP_STREET_LOOKUP);
-	$LOCAL_DEBUG_WEBSITE->setRootURL('http://www.example.com/');	
+	$LOCAL_DEBUG_WEBSITE->setRootURL('http://www.example.com/');	       // ie: http://firehall/riprunner/
 	
 	// ----------------------------------------------------------------------
-	// LDAP Settings
+	// LDAP Settings (optional for sites wanting to use LDAP user authentication
 	$LOCAL_DEBUG_LDAP = new FireHall_LDAP();
 	$LOCAL_DEBUG_LDAP->setEnabled(true);
 	$LOCAL_DEBUG_LDAP->setHostName('ldap://LDAPHOSTNAME:LDAPPORT');
@@ -386,7 +392,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// Main Firehall Configuration Container Settings
 	$LOCAL_DEBUG_FIREHALL = new FireHallConfig();
 	$LOCAL_DEBUG_FIREHALL->setEnabled(true);
-	$LOCAL_DEBUG_FIREHALL->setFirehallId(XXXXX);     //  I USE THE MAIN HALL PHONE NUMBER
+	$LOCAL_DEBUG_FIREHALL->setFirehallId(XXXXX);     				//  I USE THE MAIN HALL PHONE NUMBER
 	$LOCAL_DEBUG_FIREHALL->setMySQLSettings($LOCAL_DEBUG_MYSQL);
 	$LOCAL_DEBUG_FIREHALL->setEmailSettings($LOCAL_DEBUG_EMAIL);
 	$LOCAL_DEBUG_FIREHALL->setSMS_Settings($LOCAL_DEBUG_SMS);
@@ -399,6 +405,15 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 
 	// ----------------------------------------------------------------------
 	// Email parser lookup patterns for email triggers
+	// The patterns below work for emails with the following format:
+	//
+	// 	Date: 2015-09-06 13:57:11
+	// 	Type: MED
+	// 	Address: 9115 SALMON VALLEY RD, SALMON VALLEY, BC
+	// 	Latitude: 54.0873847
+	// 	Longitude: -122.5898009
+	// 	Units Responding: SALGRP1
+	//
 	define( 'EMAIL_PARSING_DATETIME_PATTERN', 	'/Date: (.*?)$/m' );
 	define( 'EMAIL_PARSING_CALLCODE_PATTERN', 	'/Type: (.*?)$/m' );
 	define( 'EMAIL_PARSING_ADDRESS_PATTERN', 	'/Address: (.*?)$/m' );
@@ -406,7 +421,15 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'EMAIL_PARSING_LONGITUDE_PATTERN', 	'/Longitude: (.*?)$/m' );
 	define( 'EMAIL_PARSING_UNITS_PATTERN', 		'/Units Responding: (.*?)$/m' );
 	
+	// Email parser lookup patterns for email triggers via Google App Engine webhook
+	define( 'EMAIL_PARSING_DATETIME_PATTERN_GENERIC', 	'/Date:(.*?)Type:/m' );
+	define( 'EMAIL_PARSING_CALLCODE_PATTERN_GENERIC', 	'/Type:(.*?)Address:/m' );
+	define( 'EMAIL_PARSING_ADDRESS_PATTERN_GENERIC', 	'/Address:(.*?)Latitude:/m' );
+	define( 'EMAIL_PARSING_LATITUDE_PATTERN_GENERIC', 	'/Latitude:(.*?)Longitude:/m' );
+	define( 'EMAIL_PARSING_LONGITUDE_PATTERN_GENERIC', 	'/Longitude:(.*?)Units/m' );
+	define( 'EMAIL_PARSING_UNITS_PATTERN_GENERIC', 		'/Responding:(.*?)$/m' );
+		
 	// ------------------------------------------------------------------------
-	define( 'MAP_AUTO_REFRESH_SECONDS', '120');
+	define( 'MAP_AUTO_REFRESH_SECONDS', '60');
 	
 ?>
