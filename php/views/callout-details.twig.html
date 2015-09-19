@@ -5,7 +5,8 @@
 	{% else %}
 	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/callout-main.css" />
 	{% endif %}
-    <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
+	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
+	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
 	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
 </head>
 
@@ -178,9 +179,7 @@
                     
                                 {% block callout_yes_response_complete %}
 	                            <tr>
-	                            <td class="ci_align_cell">
-                                    <span class='inset-button'>{{ row_yes.user_id }}</span>
-                                </td>
+
                                 <td class="ci_align_cell">
                                     <INPUT TYPE="button" VALUE="COMPLETE" 
                                        class="ci_completenow" 
@@ -248,8 +247,6 @@
 {% endif %}
 
 <script type="text/javascript">
-$( document ).ready(function() {
-	
 	// Handle any responder tracking
 	{% if callout_details_vm.firehall is defined and
 	      callout_details_vm.firehall is not null and
@@ -270,30 +267,27 @@ $( document ).ready(function() {
         {% endif %}
 	
     {% endif %}
-
-    {% if callout_pending is defined and callout_pending %}
-        // Handle refresh of the page
-        {% block callout_refresh_script %}
-        
-        var MAP_AUTO_REFRESH_SECONDS = 60;
-        // This reloads the page
-        setTimeout(function () { 
-               location.reload(true); 
-            }, MAP_AUTO_REFRESH_SECONDS * 1000);
-        // This counts down to 0
-        setInterval(function () { 
-            var ui_refresh = document.getElementById('reload_timer_ui');
-            if(typeof ui_refresh != 'undefined') {
-                MAP_AUTO_REFRESH_SECONDS--;
-                ui_refresh.textContent = MAP_AUTO_REFRESH_SECONDS + ' seconds until auto refresh';
-            }
-         }, 1000);
-        
-        {% endblock %}
-    {% endif %}
-    
-});     
+);     
 </script>
-
+<!-- // Handle refresh of the page -->
+{% if callout_pending is defined and callout_pending %}
+{% block callout_refresh_script %}
+	<script type="text/javascript">
+	var MAP_AUTO_REFRESH_SECONDS = 60;
+		// This reloads the page
+		setTimeout(function () { 
+		       location.reload(true); 
+		    }, MAP_AUTO_REFRESH_SECONDS * 1000);
+		// This counts down to 0
+		setInterval(function () { 
+		    var ui_refresh = document.getElementById('reload_timer_ui');
+		    if(typeof ui_refresh != 'undefined') {
+		        MAP_AUTO_REFRESH_SECONDS--;
+		        ui_refresh.textContent = MAP_AUTO_REFRESH_SECONDS + ' seconds until auto refresh';
+		    }
+		 }, 1000);
+	</script>
+{% endblock %}
+{% endif %}
 </body>
 </html>

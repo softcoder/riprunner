@@ -23,7 +23,6 @@
 }
 
 .inset-button {
-	
     border-radius: 6px;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
@@ -39,12 +38,10 @@
     box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 5px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 6px 0px rgba(0, 0, 0, 0.58);
     -moz-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 5px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 6px 0px rgba(0, 0, 0, 0.58);
     -webkit-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 5px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 6px 0px rgba(0, 0, 0, 0.58);
-    
     color:white;
     background-color:blue;
     font-size:30px;
     font-weight: bold;
-    
     @include vertical-align;
 }
 
@@ -71,43 +68,43 @@
 
 .ci_header {
     color:white;
-    font-size:35px;
+    font-size:18px;
     font-weight: bold;
 }
 
 .ci_header_time {
     color:white;
-    font-size:30px;
+    font-size:18px;
     font-weight: bold;
 }
 
 .ci_header_type {
     color:yellow;
-    font-size:30px;
+    font-size:18px;
     font-weight: bold;
 }
 
 .ci_header_address {
     color:cyan;
-    font-size:30px;
+    font-size:18px;
     font-weight: bold;
 }
 
 .ci_header_units {
     color:lime;
-    font-size:30px;
+    font-size:18px;
     font-weight: bold;
 }
 
 .ci_header_status {
     color:yellow;
-    font-size:30px;
+    font-size:18px;
     font-weight: bold;
 }
 
 .ci_responders_header {
     color:white;
-    font-size:30px;
+    font-size:18px;
     font-weight: bold;
 }
 
@@ -121,7 +118,7 @@
 }
 
 .ci_respondnow {
-  padding: 25px;
+  padding: 18px;
   background-color:yellow;
   font-size:50px; 
   color: red;
@@ -149,7 +146,7 @@
 }
 
 .ci_completenow {
-  padding: 25px;
+  padding: 18px;
   background-color:green;
   font-size:50px; 
   color: white;
@@ -170,7 +167,7 @@
 }
 
 .ci_cancelnow {
-  padding: 25px;
+  padding: 18px;
   background-color:red;
   font-size:50px; 
   color: white;
@@ -212,7 +209,7 @@
     }
 
 .ci_reload_timer {
-  font-size:40px;
+  font-size:15px;
   font-weight: bold;
   color: white;
 }
