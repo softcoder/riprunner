@@ -15,9 +15,39 @@ require_once( 'config_interfaces.php' );
 require_once( 'config_constants.php' );
 if(file_exists('config-jsmap-extras.php')) require_once('config-jsmap-extras.php');
 
-// This true / false variable defines whether or not users can update callouts
-// even after their status is set to cancelled or completed
-define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
+
+// ====================================================================================================
+// === DEFINE THE MENU STYLE FOR THE SITE, VALID OPTIONS ARE horizontal OR vertical                 ===
+// ====================================================================================================
+define ('MENU_TYPE', 'horizontal');
+
+// ====================================================================================================
+// SET true, TO ALLOW ANY USER TO RESPOND TO A CALL AFTER IT HAS BEEN MARKED AS COMPLETED
+define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', false);
+
+// SET true, TO ALLOW ANY OFFICER/ADMIN TO RESPOND FOR ANY MEMBER AFTER CALL IS COMPLETED
+define( 'ALLOW_OFFICER_CALLOUT_UPDATES_AFTER_FINISHED', true);   // still under development
+
+// ====================================================================================================
+// === 							CUSTOMZIABLE TEXT AND HTML TAGS										===
+// ====================================================================================================
+// ===         TO PRESERVE CUSTOM STYLES ACROSS UPGRADES, UNCOMMENT CUSTOM LINES AS NEEDED.         ===
+// ===                                                                                              ===
+// === STYLES DEFINED IN CALLOUT-MAIN.CSS, CALLOUT-MOBILE.CSS, MAIN.CSS OR MOBILE.CSS CAN BE COPIED ===
+// === TO THE CUSTOM FILES, THEY WILL OVERRIDE ANYTHING PREVIOUSLY DEFINED                          ===
+// ====================================================================================================
+
+//define( 'CUSTOM_MAIN_CSS','styles/custom-main.css');
+//define( 'CUSTOM_MOBILE_CSS','styles/custom-mobile.css');
+
+define( 'CALLOUT_MAIN_CSS', 'styles/callout-main.css');
+//define( 'CUSTOM_CALLOUT_MAIN_CSS','styles/custom-callout-main.css');
+
+define( 'CALLOUT_MOBILE_CSS', 'styles/callout-mobile.css');
+//define( 'CUSTOM_CALLOUT_MOBILE_CSS','styles/custom-callout-mobile.css');
+
+// Call Information page header
+define( 'CALLOUT_HEADER', '<span class="ci_header">Call Details  </span>');
 
 // ====================================================================================================
 // ===                     ENABLE JAVASCRIPT OR IFRAME MAPPING STYLES                               ===
@@ -25,15 +55,102 @@ define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
 // === VALID CHOICES ARE "javascript" OR "iframe". JAVASCRIPT MAPS HAVE MANY MORE CONFIGURABLE      ===
 // === OPTIONS SUCH AS OVERLAYS: EG. MUTAUAL AID BOUNDARIES, OR MARKERS TO IDENTIFY LANDMARKS       ===
 // === SUCH AS WATER SOURCES OR HYDRANT LOCATIONS.                                                  ===
+// ===                                                                                              ===
+// === IF JAVASCRIPT, RENAME "config-jsmap-extras-DEFAULT.php" TO: "config-jsmap-extras.php"        ===
+// === AND EDIT OPTIONS TO ENABLE ADVANCED FEATRUES SUCH AS OVERLAY AND MARKERS                     ===
 // ====================================================================================================
 
-define( 'GOOGLE_MAP_TYPE', 'javascript');
-//define( 'GOOGLE_MAP_TYPE', 'iframe');
+$google_map_type = "javascript";
 
 // ====================================================================================================
 // ===--------------EDIT BLOCKS BELOW ONLY IF YOU KNOW WHAT YOUR DOING------------------------------===
 // ===--------------MORE USER OPTIONS ARE FURTHER DOWN ---------------------------------------------===
 // ====================================================================================================
+
+define( 'GOOGLE_MAP_JAVASCRIPT_HEAD',
+		'<script type="text/javascript"' . PHP_EOL .
+		'src="https://maps.googleapis.com/maps/api/js?key=${API_KEY}">' . PHP_EOL .
+		'</script>' . PHP_EOL
+);
+
+define('GOOGLE_MAP_JAVASCRIPT_BODY', file_get_contents(__RIPRUNNER_ROOT__ . '/js/js-map.js'));
+
+
+define( 'GOOGLE_MAP_INLINE_TAG',
+		'<div class="google-maps">' . PHP_EOL .
+		'<iframe frameborder="1" style="border:1" ' .
+		'src="https://www.google.com/maps/embed/v1/directions?key=${API_KEY}' .
+		'&mode=driving&zoom=13&origin=${FDLOCATION}' .
+		'&destination=${DESTINATION}"></iframe>' . PHP_EOL .
+		'</div>' . PHP_EOL);
+// ====================================================================================================
+// ====================================================================================================
+// ====================================================================================================
+// This callout details for SMS messages
+
+define( 'CALLOUT_DETAIL_ROW',
+		'<div id="callContent${ROW_NUMBER}">' . PHP_EOL .
+		'<span class="ci_header_time">PAGE TIME: ${CALLOUT_TIME}</span><br />' . PHP_EOL .
+		'<span class="ci_header_type">CALL TYPE: ${CALLOUT_TYPE_TEXT}</span><br />' . PHP_EOL .
+		'<span class="ci_header_address">CALL ADDRESS: ${CALLOUT_ADDRESS}</span><br />' . PHP_EOL .
+		'<span class="ci_header_units">RESPONDING UNITS: ${CALLOUT_UNITS}</span><br />' . PHP_EOL .
+		'<span class="ci_header_status">CALL STATUS: ${CALLOUT_STATUS}</span>' . PHP_EOL .
+		'</div>' . PHP_EOL);
+
+// callout responders that are attending the call
+define( 'CALLOUT_RESPONDERS_HEADER',
+		'<div id="callResponseContent${ROW_NUMBER}">' . PHP_EOL .
+		'<span class="ci_responders_header">RESPONDERS:' . PHP_EOL);
+
+define( 'CALLOUT_RESPONDERS_DETAIL',
+		'<a target="_blank" href="http://maps.google.com/maps?saddr='.
+		'${ORIGIN}&daddr=${DESTINATION} (${DESTINATION})"' .
+		' class="ci_responders_user_link">${USER_ID}</a>');
+
+define( 'CALLOUT_RESPONDERS_FOOTER',
+		'</span><br />' . PHP_EOL .
+		'<a target="_blank" href="ct/fhid=${FHID}' .
+		'&cid=${CID}' .
+		'&ta=mr' .
+		'&ckid=${CKID}"' .
+		' class="ci_responders_map_link">SHOW RESPONDERS MAP</a>' . PHP_EOL .
+		'</div>' . PHP_EOL);
+
+// This is the UI for members that have not responded yet
+define( 'CALLOUT_RESPOND_NOW_HEADER',
+		'<br /><br />' . PHP_EOL .
+		'<div id="callNoResponseContent${ROW_NUMBER}">' . PHP_EOL);
+
+define( 'CALLOUT_RESPOND_NOW_TRIGGER',
+		'<INPUT TYPE="submit" VALUE="RESPONDING - ${USER_ID}' .
+		'" class="ci_respondnow" />'. PHP_EOL);
+
+define( 'CALLOUT_RESPOND_NOW_TRIGGER_CONFIRM',
+		'Confirm that ${USER_ID} is responding?');
+
+define( 'CALLOUT_RESPOND_NOW_FOOTER',
+		'</div>' . PHP_EOL);
+
+// These tags are for Complete and Cancel callout tags
+define( 'CALLOUT_FINISH_NOW_HEADER',
+		'<div id="callYesResponseContent${ROW_NUMBER}">' . PHP_EOL);
+
+define( 'CALLOUT_COMPLETE_NOW_TRIGGER',
+        '<INPUT TYPE="submit" VALUE="COMPLETE' .
+		'" class="ci_completenow" />'. PHP_EOL);
+		
+define( 'CALLOUT_COMPLETE_NOW_TRIGGER_CONFIRM',
+		'COMPLETE this call?\nConfirm that the call should be set to COMPLETE?');
+
+define( 'CALLOUT_CANCEL_NOW_TRIGGER',
+        '<INPUT TYPE="submit" VALUE="CANCEL' .
+		'" class="ci_cancelnow" />'. PHP_EOL);
+		
+define( 'CALLOUT_CANCEL_NOW_TRIGGER_CONFIRM',
+		'CANCEL this call?\nConfirm that the call should be CANCELLED?');
+
+define( 'CALLOUT_FINISH_NOW_FOOTER',
+		'</div>' . PHP_EOL);
 
 // ----------------------------------------------------------------------
 // Max hours old to trigger a live callout page
@@ -78,10 +195,10 @@ $CALLOUT_CODES_LOOKUP = array(
 		"LIFT" => "Lift Assist",
 		"MED" => "Medical Aid",
 		"MFIRE" => "Medical Fire",
-		"MVI1" => "MVI1- Motor Vehicle Incident",
-		"MVI2" => "MVI2 - Multiple Vehicles/Patients",
-		"MVI3" => "MVI3 - Entrapment; Motor Vehicle Incident",
-		"MVI4" => "MVI4 - Entrapment; Multiple Vehicles/Patients",
+		"MVI1" => "Motor Vehicle Incident",
+		"MVI2" => "Multiple Vehicles/Patients",
+		"MVI3" => "Entrapment; Motor Vehicle Incident",
+		"MVI4" => "Entrapment; Multiple Vehicles/Patients",
 		"ODOUU" => "Odour Unknown",
 		"OPEN" => "Open Air Fire",
 		"PEDSTK" => "Pedestrian Struck",
@@ -107,7 +224,8 @@ $CALLOUT_CODES_LOOKUP = array(
 		"WILD2" => "Wildland - Large",
 		"WILD3" => "Wildland - Interface",
 		"WIRES" => "Hydro Lines Down",
-		"TESTONLY" => "TEST ONLY"
+		"TESTONLY" => "TEST ONLY",
+		"TRAINING" => "TRAINING NIGHT"
 		);
 
 // ----------------------------------------------------------------------
@@ -156,6 +274,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 		//"PARSNIP," => "PARSNIP,",
 		"PINE PASS," => GOOGLE_MAP_CITY_DEFAULT,
 		"PINEVIEW FFG," => GOOGLE_MAP_CITY_DEFAULT,
+		"PINEVIEW," => GOOGLE_MAP_CITY_DEFAULT,
 		//"PRINCE GEORGE," => "PRINCE GEORGE,",
 		"PURDEN," => GOOGLE_MAP_CITY_DEFAULT,
 		"RED ROCK," => GOOGLE_MAP_CITY_DEFAULT,
