@@ -112,11 +112,11 @@ function signalFireHallCallout($callout) {
 // 		}
 
 		$cdatetime = $callout->getDateTimeAsString();
-		$ctype =  (isset($callout->getCode()) && $callout->getCode() != null ? $callout->getCode() : "");
-		$caddress = (isset($callout->getAddress()) && $callout->getAddress() != null ? $callout->getAddress() : "");
+		$ctype =  ($callout->getCode() != null ? $callout->getCode() : "");
+		$caddress = ($callout->getAddress() != null ? $callout->getAddress() : "");
 		$lat = floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat()));
 		$long = floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong()));
-		$units = (isset($callout->getUnitsResponding()) && $callout->getUnitsResponding() != null ? $callout->getUnitsResponding() : "");
+		$units = ($callout->getUnitsResponding() != null ? $callout->getUnitsResponding() : "");
 		$ckid = $callout->getKeyId();
 		
 		$qry_bind = $db_connection->prepare($sql);
