@@ -186,7 +186,7 @@ class ReportsChartsViewModel extends BaseViewModel {
 				' UNION (SELECT calltype as datalabel ' .
 				' FROM callouts WHERE calltime BETWEEN :start AND :end ' .
 				' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-				' GROUP BY datalabel) ORDER BY datalabel;';
+				' GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
 		
 // 		$sql_titles_result = $this->getGvm()->RR_DB_CONN->query( $sql_titles );
 // 		if($sql_titles_result == false) {
@@ -226,7 +226,7 @@ class ReportsChartsViewModel extends BaseViewModel {
                 'UNION (SELECT MONTH(calltime) AS month, calltype AS datalabel, count(*) AS count ' .
                 ' FROM callouts WHERE calltime BETWEEN :start AND :end ' .
 				' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                ' GROUP BY datalabel, month ORDER BY month) ORDER BY month, datalabel;';
+                ' GROUP BY datalabel, month ORDER BY month) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
 		
 // 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
 // 		if($sql_result == false) {
@@ -332,7 +332,7 @@ class ReportsChartsViewModel extends BaseViewModel {
                 		  '        LEFT JOIN callouts c ON a.calloutid = c.id ' .
                 		  '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
 						  '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                		  '        GROUP BY datalabel) ORDER BY datalabel;';
+                		  '        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
         }
         else {
         	$sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
@@ -342,7 +342,7 @@ class ReportsChartsViewModel extends BaseViewModel {
 		           		'        LEFT JOIN callouts c ON a.calloutid = c.id ' .
 	                    '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
 						  '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-	       				'        GROUP BY datalabel) ORDER BY datalabel;';
+	       				'        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
         }
         
 //         $sql_titles_result = $this->getGvm()->RR_DB_CONN->query( $sql_titles );
@@ -385,7 +385,7 @@ class ReportsChartsViewModel extends BaseViewModel {
                     ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
                     ' WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
 					' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                    ' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
+                    ' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
         }
         else {
            	$sql =	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, count(*) AS count ' .
@@ -398,7 +398,7 @@ class ReportsChartsViewModel extends BaseViewModel {
 					' LEFT JOIN callouts c ON a.calloutid = c.id ' .
 					' WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
 					' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-					' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, datalabel;';
+					' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
        }
        
 //        $sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
