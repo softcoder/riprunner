@@ -166,16 +166,6 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $num) {
 		
 		$fullEmailBodyText .= $realdata;
 	
-		# If it's a .jpg image, save it (more types to add later)
-		// 			                if ($mimetype == "Image/Jpeg") {
- 		// 			                        $picture++;
-		// 			                        $fho = fopen("imx/mp$picture.jpg","w");
-		// 			                        fputs($fho,$realdata);
-		// 			                        fclose($fho);
-		// 			                        # And put the image in the report, limited in size
-		// 			                        $html .= "<img src=/demo/imx/mp$picture.jpg width=150><br />";
-		// 			                }
-		
 		# Add the start of the text to the message
 		$shorttext = substr($text,0,800);
 		if (strlen($text) > 800) { 
@@ -221,7 +211,6 @@ function poll_email_callouts($FIREHALLS_LIST) {
 			$html .= ', email = ' . var_export($FIREHALL->EMAIL->EMAIL_HOST_ENABLED,true) .'<br />';
 			continue;
 		}
-		//$pictures = 0;
 
 		$log->trace("Email trigger checking firehall: " . 
 				$FIREHALL->WEBSITE->FIREHALL_NAME . 

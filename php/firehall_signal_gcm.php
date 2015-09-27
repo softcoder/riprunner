@@ -141,7 +141,6 @@ function signalResponseRecipientsUsingGCM($callout, $userId, $userStatus,
 			);
 
 			$resultGCM .= $gcmInstance->send($message);
-			//echo $resultGCM;
 		}
 
 		if($adhoc_db_connection == true && $db_connection != null) {

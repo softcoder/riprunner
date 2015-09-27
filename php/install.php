@@ -34,7 +34,6 @@ function import_sql_file($location, $db_connection) {
 	$total = $success = 0;
 	foreach($commands as $command){
 		if(trim($command)){
-			//$success += (@mysql_query($command)==false ? 0 : 1);
 			$success += ($db_connection->query( $command )==false ? 0 : 1);
 			$total += 1;
 		}
@@ -62,10 +61,6 @@ function install($FIREHALL, &$db_connection) {
 	if($db_exist == false) {
 		$sql = 'CREATE DATABASE ' . $FIREHALL->MYSQL->MYSQL_DATABASE . ';';
 		$db_connection->query( $sql );
-// 		if($sql_result == false) {
-// 			printf("Error: %s\n", mysqli_error($db_connection));
-// 			throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 		}
 		echo '<b>Successfully created database [' . $FIREHALL->MYSQL->MYSQL_DATABASE . ']</b><br />' . PHP_EOL;
 	}
 	
@@ -83,11 +78,6 @@ function install($FIREHALL, &$db_connection) {
 		$new_pwd = encryptPassword($random_password);
 		$sql = "INSERT INTO `user_accounts` (firehall_id,user_id,user_pwd,access) " .
 		       " VALUES(:fhid,'admin',:pwd,1)";
-// 		$sql_result = $db_connection->query( $sql );
-// 		if($sql_result == false) {
-// 			printf("Error: %s\n", mysqli_error($db_connection));
-// 			throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 		}
 		$qry_bind = $db_connection->prepare($sql);
 		$qry_bind->bindParam(':fhid',$FIREHALL->FIREHALL_ID);
 		$qry_bind->bindParam(':pwd',$new_pwd);
@@ -107,12 +97,6 @@ function db_exists($db_connection,$dbname, $dbtable) {
 	else {
 		$sql = "SELECT count(SCHEMA_NAME) as count FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = :dbname;";
 	}
-	
-// 	$sql_result = $db_connection->query( $sql );
-// 	if($sql_result == false) {
-// 		printf("Error: %s\n", mysqli_error($db_connection));
-// 		throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 	}
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->bindParam(':dbname',$dbname);
@@ -149,7 +133,6 @@ function db_exists($db_connection,$dbname, $dbtable) {
         $db_connection = null;
         if (isset($firehall_id)) {
 			$form_action = get_query_param('form_action');
-			//echo "Action: $form_action" .PHP_EOL;
 			
         	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
         	if($FIREHALL != null) {
@@ -178,23 +161,18 @@ function db_exists($db_connection,$dbname, $dbtable) {
             
             <?php
             if($form_action == "install") {
-				//echo 'DB: ' . $FIREHALL->MYSQL->MYSQL_DATABASE . PHP_EOL;
 				$db_exist = db_exists($db_connection,$FIREHALL->MYSQL->MYSQL_DATABASE,"user_accounts");
-				//echo "A" .PHP_EOL;
 				
 				if($db_exist) {
-					//echo "B" .PHP_EOL;
 					echo '<p>The Firehall already exists.</p><br />' . PHP_EOL;
 					echo '<b><a href="login">Login Page</a></b><br />' . PHP_EOL;
 				}
 				else {
-					//echo "C" .PHP_EOL;
 					echo '<p>The Firehall DOES NOT exist, starting installation...</p>' . PHP_EOL;
 					
 					install($FIREHALL,$db_connection);
 				}
 			}
-			//echo "D" .PHP_EOL;
             ?>
 			</div>
         <?php else : ?>

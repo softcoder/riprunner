@@ -51,7 +51,6 @@ class SendMessageController {
 		
 		$sendMsgResult = sendSMSPlugin_Message($this->global_vm->firehall, $smsMsg);
 		$sendMsgResultStatus = "SMS Message sent to applicable recipients.";
-		//echo "SMS send result [$sms_result]" . PHP_EOL;
 		
 		$this->view_template_vars["sendmsg_ctl_result"] = $sendMsgResult;
 		$this->view_template_vars["sendmsg_ctl_result_status"] = $sendMsgResultStatus;
@@ -66,7 +65,6 @@ class SendMessageController {
         else {
             $sendMsgResultStatus = "Android Message sent to applicable recipients.";
         }
-        //echo "GCM send result [$sendMsgResult]" . PHP_EOL;
         
         $this->view_template_vars["sendmsg_ctl_result"] = $sendMsgResult;
         $this->view_template_vars["sendmsg_ctl_result_status"] = $sendMsgResultStatus;

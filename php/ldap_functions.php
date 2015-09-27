@@ -16,7 +16,6 @@ require_once 'cache/cache-proxy.php';
 require_once 'logging.php';
 
 function extractDelimitedValueFromString($rawValue, $regularExpression, $groupResultIndex) {
-	//$cleanRawValue = preg_replace( '/[^[:print:]]/', '',$rawValue);
 	$cleanRawValue = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/u', '',$rawValue);
 	preg_match($regularExpression, $cleanRawValue, $result);
 	if(isset($result[$groupResultIndex])) {
@@ -296,8 +295,6 @@ function get_sms_recipients_ldap($FIREHALL, $str_group_filter) {
 	for ($i=0; $i<$info["count"]; $i++) {
     	if($debug_functions) var_dump($info[$i]);
     	
-    	//$user_found_in_group = false;
-    	
     	// Find by group member of attribute
     	if(isset($info[$i]) && 
     		isset($info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME])) {
@@ -413,12 +410,6 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 
 			$sql = "INSERT IGNORE INTO ldap_user_accounts (id,firehall_id,user_id,mobile_phone,access) " .
 				   " values(:uid,:fhid,:user_id,:mobile_phone,:access);";
-
-// 			$sql_result = $db_connection->query( $sql );
-// 			if($sql_result == false) {
-// 				$log->error("populateLDAPUsers #1 insert SQL error for sql [$sql] error: " .mysqli_error($db_connection));
-// 				throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 			}
 			
 			$qry_bind = $db_connection->prepare($sql);
 			$qry_bind->bindParam(':uid',$user_id_number[0]);
@@ -478,13 +469,6 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 					
 						$sql = "INSERT IGNORE INTO ldap_user_accounts (id,firehall_id,user_id,mobile_phone,access) " .
 							   " values(:uid,:fhid,:user_id,:mobile_phone,:access);";
-					
-// 						$sql_result = $db_connection->query( $sql );
-					
-// 						if($sql_result == false) {
-// 							$log->error("populateLDAPUsers #2 insert SQL error for sql [$sql] error: " .mysqli_error($db_connection));
-// 							throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 						}
 
 						$qry_bind = $db_connection->prepare($sql);
 						$qry_bind->bindParam(':uid',$user_id_number[0]);
@@ -515,27 +499,15 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 			access INT( 11 ) NOT NULL DEFAULT 0,
 			updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 			) ENGINE = INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-	
-// 	$sql_result = $db_connection->query( $sql );
-// 	if($sql_result == false) {
-// 		$log->error("create_temp_users_table_for_ldap #1 create SQL error for sql [$sql] error: " .mysqli_error($db_connection));
-// 		throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 	}
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();
 	
 	$sql = "SELECT count(*) as usercount from ldap_user_accounts;";
-// 	$sql_result = $db_connection->query( $sql );
-// 	if($sql_result == false) {
-// 		$log->error("create_temp_users_table_for_ldap select SQL error for sql [$sql] error: " .mysqli_error($db_connection));
-// 		throw new Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 	}
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();
 	
-	//$count_response = $sql_result->fetch_object();
 	$count_response = $qry_bind->fetch(\PDO::FETCH_OBJ);
 	
 	// Check if the table has been populated yet
@@ -551,4 +523,3 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 		//die("FORCE EXIT!");
 	}
 }
-

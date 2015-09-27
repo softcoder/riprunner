@@ -14,7 +14,8 @@ require_once( 'functions.php' );
 require_once( 'logging.php' );
 
 sec_session_start(); // Our custom secure way of starting a PHP session.
- 
+
+global $log; 
 if (isset($_POST['firehall_id'], $_POST['user_id'], $_POST['p'])) {
 	$firehall_id = $_POST['firehall_id'];
     $user_id = $_POST['user_id'];
@@ -28,7 +29,6 @@ if (isset($_POST['firehall_id'], $_POST['user_id'], $_POST['p'])) {
 	    if(isset($db_connection)) {
 		    if (login($FIREHALL,$user_id, $password, $db_connection) == true) {
 		        // Login success 
-		        //echo $_SESSION['LOGIN_REFERRER'];
 		    	header('Location: controllers/main-menu-controller.php');
 		    } 
 		    else {

@@ -49,11 +49,6 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 				' TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . 
 				DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
 				' ORDER BY id DESC LIMIT 1;';
-// 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 		if($sql_result == false) {
-// 			$log->error("Call checkForLiveCallout SQL error for sql [$sql] error: " . $this->getGvm()->RR_DB_CONN->errorInfo());
-// 			throw new \Exception( $this->getGvm()->RR_DB_CONN->errorInfo() . "[ " . $sql . "]");
-// 		}
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->execute();

@@ -144,19 +144,12 @@ class UsersMenuController {
 		global $log;
 				
 		// UPDATE
-		//$sql_pwd = '';
-		//if(isset($new_pwd)) {
-		//	$sql_pwd = ', user_pwd = ' . $db_connection->quote($new_pwd);
-		//}
-
 		if($self_edit) {
-			//$edit_user_id = $_SESSION['user_db_id'];
 			$edit_firehall_id = $_SESSION['firehall_id'];
 			$edit_admin_access = userHasAcess(USER_ACCESS_ADMIN);
 			$edit_sms_access = userHasAcess(USER_ACCESS_SIGNAL_SMS);
 		}
 		else {
-			//$edit_user_id = get_query_param('edit_user_id');
 			$edit_firehall_id = get_query_param('edit_firehall_id');
 			$edit_admin_access = get_query_param('edit_admin_access');
 			$edit_sms_access = get_query_param('edit_sms_access');
@@ -200,14 +193,8 @@ class UsersMenuController {
 		}
 		$qry_bind->bindParam(':mobile_phone',$edit_mobile_phone);
 		$qry_bind->bindParam(':user_id',$edit_user_id);
-		
-		//$sql_update_result = $db_connection->query( $sql );
 		$qry_bind->execute();
 			
-// 		if($sql_update_result == false) {
-// 			$log->error("Call usermenu update SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-// 			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 		}
 		$edit_user_id = null;
 	}
 
@@ -260,13 +247,7 @@ class UsersMenuController {
 		$qry_bind->bindParam(':access',$new_user_access);
 
 		$qry_bind->execute();
-		
-		//$sql_insert_result = $db_connection->query( $sql );
 
-// 		if($sql_insert_result == false) {
-// 			$log->error("Call usermenu insert SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-// 			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 		}
 		$edit_user_id = null;
 	}
 	
@@ -317,18 +298,12 @@ class UsersMenuController {
 					$sql = 'DELETE FROM user_accounts WHERE id = :id;';
 
 					$log->trace("About to DELETE user account for sql [$sql]");
-					
-					//$sql_update_result = $db_connection->query( $sql );
 	
 					$qry_bind = $db_connection->prepare($sql);
 					$qry_bind->bindParam(':id',$edit_user_id);
 					
 					$qry_bind->execute();
 						
-// 					if($sql_update_result == false) {
-// 						$log->error("Call usermenu delete SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-// 						throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 					}
 					$edit_user_id = null;
 				}
 			}

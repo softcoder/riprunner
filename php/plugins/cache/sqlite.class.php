@@ -75,8 +75,6 @@ class SqliteCachePlugin implements ICachePlugin {
 			));
 			$row = $stm->fetch(\PDO::FETCH_ASSOC);
 			
-			//echo "SQLITE get #1 " .PHP_EOL;
-			//print_r($row);
 		} 
 		catch(\PDOException $e) {
 			$stm = $this->db($keyword,true)->prepare("SELECT * FROM `caching` WHERE `keyword`=:keyword LIMIT 1");
@@ -84,21 +82,15 @@ class SqliteCachePlugin implements ICachePlugin {
 					":keyword"  =>  $keyword
 			));
 			$row = $stm->fetch(\PDO::FETCH_ASSOC);
-			
-			//echo "SQLITE get #1 " .PHP_EOL;
-			//print_r($row);
 		}
 		if($this->isExpired($row)) {
-			//echo "SQLITE get #3 " .PHP_EOL;
 			$this->deleteRow($row);
 			return null;
 		}
 		if(isset($row['id'])) {
-			//echo "SQLITE get #4 " .PHP_EOL;
 			$data = $this->decode($row['object']);
 			return $data;
 		}
-		//echo "SQLITE get #5 " .PHP_EOL;
 		return null;
 	}
 

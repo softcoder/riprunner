@@ -48,7 +48,6 @@ class UsersMenuViewModel extends BaseViewModel {
 		
 		$self_edit = $this->getIsSelfEditMode();
 		if($self_edit) {
-			//$sql_where_clause = 'WHERE id=' . $_SESSION['user_db_id'];
 			$sql_where_clause = ' WHERE id=:id';
 		}
 		
@@ -63,11 +62,6 @@ class UsersMenuViewModel extends BaseViewModel {
 					$sql_where_clause . 
 					';';
 		}
-// 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 		if($sql_result == false) {
-// 			printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
-// 			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-// 		}
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		if($self_edit) {

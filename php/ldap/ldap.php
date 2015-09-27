@@ -76,12 +76,6 @@ class LDAP {
 			}
 			
 			$entries = ldap_get_entries($this->connection, $result);
-// 			if($log->isTraceEnabled()) {
-// 				for ($i=0; $i<$entries["count"]; $i++) {
-// 					$ldap_results = serialize($entries[$i]);
-// 					$log->trace("LDAP search results:\n{$ldap_results}");
-// 				}
-// 			}
 
 			$this->cache->setItem($cache_key_lookup,$entries);
 			
@@ -93,9 +87,6 @@ class LDAP {
 		global $log;
 		if(isset($this->connection) == false) {
 			$log->trace("LDAP connecting to [" . $this->ad_server . "]");
-			
-			//ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 0);
-			//if($debug_functions) ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
 			
 			$this->connection = ldap_connect($this->ad_server);
 			if($this->connection == false) {
@@ -118,7 +109,6 @@ class LDAP {
 		
 		if(isset($this->connection) == false) {
 			throwExceptionAndLogError("LDAP Cannot bind before connecting!","connection not set.");
-			//die("Cannot bind before connecting!");
 		}
 		// Bind to the LDAP server using rdn and password
 		$log->trace("LDAP binding to rdn [" . $binddn . "] pwd [" . $password . "]");

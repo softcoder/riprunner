@@ -33,7 +33,6 @@ class ViewLogsController {
 
 	private function processActions() {
 		global $log;
-		//$log->error("test");
 
 		$appender = $log->getRootLogger()->getAppender('myAppender');
 		$relative_log_path = str_replace(__RIPRUNNER_ROOT__ . '/', "", $appender->getFile());

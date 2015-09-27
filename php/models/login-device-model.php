@@ -108,12 +108,6 @@ class LoginDeviceViewModel extends BaseViewModel {
 			else {
 				// Read from the database info about this callout
 				$sql = "SELECT user_pwd,id FROM user_accounts WHERE  firehall_id = :fhid AND user_id = :uid;";
-				
-// 				$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 				if($sql_result == false) {
-// 					$log->error("device register sql error for sql [$sql] message [" . mysqli_error( $this->getGvm()->RR_DB_CONN ) . "]");
-// 					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-// 				}
 
 				$fhid = $this->getFirehallId();
 				$uid = $this->getUserId();
@@ -139,7 +133,6 @@ class LoginDeviceViewModel extends BaseViewModel {
 				else {
 					$log->error("device register invalid user_id [". $this->getUserId() ."]");
 				}
-				//$sql_result->close();
 			}
 		}
 		
@@ -152,12 +145,6 @@ class LoginDeviceViewModel extends BaseViewModel {
 			
 			$sql = "UPDATE devicereg SET user_id = :uid, updatetime = CURRENT_TIMESTAMP() " .
 					" WHERE registration_id = :regid AND firehall_id = :fhid;";
-			
-// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 			if($sql_result == false) {
-// 				$log->error("device register register sql error for sql [$sql] message [" . mysqli_error( $this->getGvm()->RR_DB_CONN ) . "]");
-// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-// 			}
 
 			$uid = $this->getUserId();
 			$regid = $this->getRegistrationId();
@@ -172,12 +159,6 @@ class LoginDeviceViewModel extends BaseViewModel {
 			if($qry_bind->rowCount() <= 0) {
 				$sql = "INSERT INTO devicereg (registration_id,firehall_id,user_id) " .
 						" values(:regid, :fhid, :uid);";
-			
-// 				$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 				if($sql_result == false) {
-// 					$log->error("device register register sql error for sql [$sql] message [" . mysqli_error( $this->getGvm()->RR_DB_CONN ) . "]");
-// 					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-// 				}
 
 				$uid = $this->getUserId();
 				$regid = $this->getRegistrationId();
@@ -207,12 +188,6 @@ class LoginDeviceViewModel extends BaseViewModel {
 					' WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . 
 					DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
 					' ORDER BY id DESC LIMIT 1;';
-			
-// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 			if($sql_result == false) {
-// 				$log->error("device register callout sql error for sql [$sql] message [" . mysqli_error( $this->getGvm()->RR_DB_CONN ) . "]");
-// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-// 			}
 
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 			$qry_bind->execute();
@@ -228,29 +203,23 @@ class LoginDeviceViewModel extends BaseViewModel {
 				$row['calltype_desc'] = convertCallOutTypeToText($row['calltype']);
 				$this->live_callout[] = $row;
 			}
-			//$sql_result->close();
 		}
 		return $this->live_callout;
 	}
 	
 	private function getSignalCallout() {
-		//global $log;
-		
 		$result = "";
 		
 		if(isset($this->live_callout) == false) {
 			throw new \Exception("Invalid null live callout list!");
 		}
 
-		//$log->trace("Signal callout for = [". $this->live_callout[0]['calltime'] . "] [" . $this->live_callout[0]['address'] . "]");
-		
 		$callDateTimeNative = $this->live_callout[0]['calltime'];
 		$callCode = $this->live_callout[0]['calltype'];
 		$callAddress = $this->live_callout[0]['address'];
 		$callGPSLat = $this->live_callout[0]['latitude'];
 		$callGPSLong = $this->live_callout[0]['longitude'];
 		$callUnitsResponding = $this->live_callout[0]['units'];
-		//$callType = convertCallOutTypeToText($callCode);
 		$callout_id = $this->live_callout[0]['id'];
 		$callKey = $this->live_callout[0]['call_key'];
 		$callStatus = $this->live_callout[0]['status'];
@@ -289,14 +258,6 @@ class LoginDeviceViewModel extends BaseViewModel {
 								' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
 								' WHERE calloutid = :cid AND b.user_id = :uid;';
 			}
-		
-// 			$sql_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_response );
-// 			if($sql_response_result == false) {
-// 				//printf("Error: %s\n", mysqli_error($db_connection));
-// 				$log->error("device register callout responders sql error for sql [$sql_response] message [" . mysqli_error( $this->getGvm()->RR_DB_CONN ) . "]");
-		
-// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_response . "]");
-// 			}
 			
 			$uid = $this->getUserId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_response);
@@ -310,7 +271,6 @@ class LoginDeviceViewModel extends BaseViewModel {
 			if(!empty($rows)) {
 				$row = $rows[0];
 				$userStatus = $row->status;
-				//$sql_response_result->close();
 		
 				$gcmResponseMsg = getSMSCalloutResponseMessage($callout,
 										$this->getUserId(), $userStatus, 0);
@@ -321,9 +281,6 @@ class LoginDeviceViewModel extends BaseViewModel {
 										$this->getRegistrationId(),
 										$this->getGvm()->RR_DB_CONN);
 			}
-			//else {
-			//	$sql_response_result->close();
-			//}
 		}
 		return $result;
 	}
@@ -335,4 +292,3 @@ class LoginDeviceViewModel extends BaseViewModel {
 			$loginMsg,$this->getGvm()->RR_DB_CONN);
 	}
 }
-

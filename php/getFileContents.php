@@ -17,6 +17,7 @@ require_once 'logging.php';
 
 sec_session_start();
 
+global $log;
 $db_connection = null;
 if (isset($_SESSION['firehall_id'])) {
 	$firehall_id = $_SESSION['firehall_id'];
@@ -29,7 +30,6 @@ if (login_check($db_connection) == true) {
 	if(isset($file_path) && empty($file_path) == false) {
 		$path_parts = pathinfo($file_path);
 		$file_name  = $path_parts['basename'];
-		//$file_ext   = $path_parts['extension'];
 		$file_path  = './' . $file_name;
 		
 		// allow a file to be streamed instead of sent as an attachment
@@ -48,12 +48,10 @@ if (login_check($db_connection) == true) {
 						//multiple ranges could be specified at the same time, but for simplicity only serve the first range
 						//http://tools.ietf.org/id/draft-ietf-http-range-retrieval-00.txt
 						if(strpos($range_orig,',')) {
-							//list($range, $extra_ranges) = explode(',', $range_orig, 2);
 							$range = explode(',', $range_orig, 2);
 						}
 						else {
 							$range = $range_orig;
-							//$extra_ranges = "";
 						}
 					}
 					else {

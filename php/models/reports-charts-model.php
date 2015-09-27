@@ -114,12 +114,6 @@ class ReportsChartsViewModel extends BaseViewModel {
 			   " WHERE calltime BETWEEN :start AND :end " .
 			   " AND calltype NOT IN ('TRAINING','TESTONLY') " .
 			   " GROUP BY calltype ORDER BY calltype;";
-		
-// 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 		if($sql_result == false) {
-// 			printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
-// 			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-// 		}
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->bindParam(':start',$startDate);
@@ -138,7 +132,6 @@ class ReportsChartsViewModel extends BaseViewModel {
 			$row_result[$callTypeDesc] = $row->count + 0;
 			array_push($data_results,$row_result);
 		}
-		//$sql_result->close();
 	
 		return $data_results;
 	}
@@ -146,12 +139,6 @@ class ReportsChartsViewModel extends BaseViewModel {
 		$sql = " SELECT calltype, COUNT(*) count FROM callouts " .
 			   " WHERE calltype NOT IN ('TRAINING','TESTONLY') "			   .
 			   " GROUP BY calltype ORDER BY count DESC;";
-		
-// 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 		if($sql_result == false) {
-// 			printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
-// 			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-// 		}
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->execute();
@@ -166,7 +153,6 @@ class ReportsChartsViewModel extends BaseViewModel {
 			$row_result[$callTypeDesc] = $row->count + 0;
 			array_push($data_results,$row_result);
 		}
-		//$sql_result->close();
 		return $data_results;
 	}
 	
@@ -175,24 +161,11 @@ class ReportsChartsViewModel extends BaseViewModel {
 	
 		$MAX_MONTHLY_LABEL = "*MONTH TOTAL";
 	
-		/*
-		 (SELECT "ALL" as datalabel)
-		 UNION
-		 (SELECT calltype as datalabel
-		 FROM callouts WHERE calltime BETWEEN '2014-01-01' AND '2014-12-31'
-		 GROUP BY datalabel) ORDER BY datalabel;
-		 */
 		$sql_titles = '(SELECT "' .$MAX_MONTHLY_LABEL . '" as datalabel)' .
 				' UNION (SELECT calltype as datalabel ' .
 				' FROM callouts WHERE calltime BETWEEN :start AND :end ' .
 				' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
 				' GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
-		
-// 		$sql_titles_result = $this->getGvm()->RR_DB_CONN->query( $sql_titles );
-// 		if($sql_titles_result == false) {
-// 			printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
-// 			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_titles . "]");
-// 		}
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_titles);
 		$qry_bind->bindParam(':start',$startDate);
@@ -204,7 +177,6 @@ class ReportsChartsViewModel extends BaseViewModel {
 		
 		// Build the data array
 		$titles_results = array();
-		//while($row_titles = $sql_titles_result->fetch_object()) {
 		foreach($rows as $row_titles) {
 			$callTypeDesc = $row_titles->datalabel;
 			if($callTypeDesc != $MAX_MONTHLY_LABEL) {
@@ -213,7 +185,6 @@ class ReportsChartsViewModel extends BaseViewModel {
 			array_push($titles_results,$callTypeDesc);
 			array_push($dynamicColumnTitles,$callTypeDesc);
 		}
-		//$sql_titles_result->close();
 	
 		// Read from the database
 		// This routine counts the number of calls in a given month. it will be displayed on the graphs page
@@ -227,12 +198,6 @@ class ReportsChartsViewModel extends BaseViewModel {
                 ' FROM callouts WHERE calltime BETWEEN :start AND :end ' .
 				' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
                 ' GROUP BY datalabel, month ORDER BY month) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
-		
-// 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 		if($sql_result == false) {
-// 			printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
-// 			throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-// 		}
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->bindParam(':start',$startDate);
@@ -253,7 +218,6 @@ class ReportsChartsViewModel extends BaseViewModel {
 	   		$row_result = array($row->month,$callTypeDesc,$row->count + 0);
 	   		array_push($data_results,$row_result);
 	   }
-	   //$sql_result->close();
 	
 	   // Ensure every month of the year exists in the results for each calltype
 	   for($index=1;$index <= 12; $index++) {
@@ -344,12 +308,6 @@ class ReportsChartsViewModel extends BaseViewModel {
 						  '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
 	       				'        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
         }
-        
-//         $sql_titles_result = $this->getGvm()->RR_DB_CONN->query( $sql_titles );
-// 	    if($sql_titles_result == false) {
-// 	      	printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
-// 	        throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_titles . "]");
-// 	    }
 
         $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_titles);
         $qry_bind->bindParam(':start',$startDate);
@@ -363,12 +321,10 @@ class ReportsChartsViewModel extends BaseViewModel {
 	    
         // Build the data array
         $titles_results = array();
-        //while($row_titles = $sql_titles_result->fetch_object()) {
         foreach($rows as $row_titles) {
         	array_push($titles_results,$row_titles->datalabel);
             array_push($dynamicColumnTitles,$row_titles->datalabel);
         }
-        //$sql_titles_result->close();
 	
         if($this->getGvm()->firehall->LDAP->ENABLED) {
         	create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
@@ -400,12 +356,6 @@ class ReportsChartsViewModel extends BaseViewModel {
 					' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
 					' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
        }
-       
-//        $sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-//        if($sql_result == false) {
-//        		printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
-//             throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-//        }
 
        $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
        $qry_bind->bindParam(':start',$startDate);
@@ -419,12 +369,10 @@ class ReportsChartsViewModel extends BaseViewModel {
        
        // Build the data array
        $data_results = array();
-       //while($row = $sql_result->fetch_object()) {
        foreach($rows as $row){
        		$row_result = array($row->month,$row->datalabel,$row->count + 0);
          	array_push($data_results,$row_result);
        }
-       //$sql_result->close();
 
        // Ensure every month of the year exists in the results for each calltype
        for($index=1;$index <= 12; $index++) {

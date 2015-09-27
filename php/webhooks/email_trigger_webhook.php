@@ -17,7 +17,7 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/html2text/Html2Text.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 	// Set this to true to NOT triggers live callouts but only log the parsed values to logfile
-	$DEBUG_LIVE_EMAIL_TRIGGER = false;
+	$DEBUG_LIVE_EMAIL_TRIGGER = true;
 	global $log;
 	$log->warn("START ==> Google App Engine email trigger for client [" . getClientIPInfo() ."]");
 	
@@ -34,7 +34,6 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 			$realdata = $html_email->getText();
 			
 			$log->warn("Email trigger dump contents... [$realdata]");
-			//$callout = processFireHallText($realdata);
 			$callout = processFireHallTextTrigger($realdata);
 			$log->warn("Email trigger processing contents signal result: " . var_export($callout->isValid(),true));
 			
@@ -135,12 +134,10 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 					
 				// Match on exact email address if @ in trigger text
 				if(strpos($FIREHALL->EMAIL->EMAIL_FROM_TRIGGER, '@') !== FALSE) {
-					//$fromaddr = $header->from[0]->mailbox . "@" . $header->from[0]->host;
 					$fromaddr = $from;
 				}
 				// Match on all email addresses from the same domain
 				else {
-					//$fromaddr = $header->from[0]->host;
 					$fromaddr = explode('@', $from);
 					$fromaddr = $fromaddr[1];
 				}

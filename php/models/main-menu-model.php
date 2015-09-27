@@ -47,4 +47,3 @@ class MainMenuViewModel extends BaseViewModel {
 		return parent::__isset($name);
 	}
 }
-

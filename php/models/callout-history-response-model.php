@@ -63,11 +63,6 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 				       ' LEFT JOIN callouts c on a.calloutid = c.id ' .
 				       ' WHERE calloutid = :cid;';
 			}
-// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 			if($sql_result == false) {
-// 				printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
-// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-// 			}
 
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 			$qry_bind->bindParam(':cid',$callout_id);
@@ -101,4 +96,3 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 		return $this->response_cols;
 	}
 }
-

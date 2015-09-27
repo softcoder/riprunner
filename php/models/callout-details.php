@@ -68,7 +68,6 @@ class CalloutDetails {
 	}
 
 	public function getDateTimeAsString() {
-		//echo 's1: ' . $this->dateTime . ' type: ' . gettype($this->dateTime) .PHP_EOL;
 		if(isset($this->dateTime)) {
 			if($this->dateTime instanceof DateTime) {
 				return $this->dateTime->format('Y-m-d H:i:s');
@@ -78,7 +77,6 @@ class CalloutDetails {
 		return '';
 	}
 	public function getDateTimeAsNative() {
-		//echo 'n1: ' . $this->dateTime . ' type: ' . gettype($this->dateTime) .PHP_EOL;
 		if(isset($this->dateTime)) {
 			if($this->dateTime instanceof DateTime) {
 				return $this->dateTime;

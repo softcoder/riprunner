@@ -82,4 +82,3 @@ class CalloutViewModel extends BaseViewModel {
 		return parent::__isset($name);
 	}
 }
-

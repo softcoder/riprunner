@@ -55,8 +55,6 @@ if(isset($server_mode) && $server_mode === 'true') {
 		else {
 			echo "id: -1" . PHP_EOL;
 			echo "data: {\n";
-			//echo "data: \"keyid\": \"54d3030395cba8.52691984\", \n";
-			//echo "data: \"id\": 171\n";
 			echo "data: \"keyid\": \"\", \n";
 			echo "data: \"id\": -1\n";
 				

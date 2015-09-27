@@ -48,11 +48,6 @@ class CalloutHistoryViewModel extends BaseViewModel {
 					' FROM callouts_response b ' .
 					' WHERE a.id = b.calloutid) AS responders ' .
 					' FROM callouts a ORDER BY calltime DESC;';
-// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 			if($sql_result == false) {
-// 				printf("Error: %s\n", $this->getGvm()->RR_DB_CONN->errorInfo());
-// 				throw new \Exception($this->getGvm()->RR_DB_CONN->errorInfo() . "[ " . $sql . "]");
-// 			}
 
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 			$qry_bind->execute();
@@ -72,7 +67,6 @@ class CalloutHistoryViewModel extends BaseViewModel {
 				
 				$this->callout_list[] = $row;
 			}
-			//$sql_result->closeCursor();
 		}
 		return $this->callout_list;
 	}
@@ -87,4 +81,3 @@ class CalloutHistoryViewModel extends BaseViewModel {
 		return $this->callout_cols;
 	}
 }
-

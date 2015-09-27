@@ -131,32 +131,17 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			$user_id = get_query_param('member_id');
 			$callout_id = get_query_param('cid');
 			
-//			$sql_where_clause = "";
-			
 			if(isset($callout_id) && $callout_id != null) {
 				$callout_id = (int) $callout_id;
-// 				$sql_where_clause = " WHERE id = " . 
-// 						$this->getGvm()->RR_DB_CONN->real_escape_string($callout_id);
-			
-// 				if(isset($callkey_id) && $callkey_id != null) {
-// 					$sql_where_clause .= " AND call_key = '" . 
-// 							$this->getGvm()->RR_DB_CONN->real_escape_string($callkey_id) . 
-// 										 "'";
-// 				}
 			}
 			else {
-				//$callout_id = 2;
-				//$sql_where_clause = ' WHERE id = ' . $callout_id . ' ORDER BY updatetime ASC LIMIT 5';
 				$callout_id = -1;
-				//$sql_where_clause = ' ORDER BY updatetime DESC LIMIT 1';
 			}
 			
 			$log->trace("Call Info for firehall_id [$firehall_id] callout_id [$callout_id] callkey_id [$callkey_id] member_id [". (isset($user_id) ? $user_id : "null") ."]");
 			
 			if($callout_id != -1 && isset($callkey_id)) {
 				// Read from the database info about this callout
-				//$sql = "SELECT * FROM callouts $sql_where_clause ;";
-				
 				$sql = "SELECT * FROM callouts ";
 				if(isset($callout_id) && $callout_id != null) {
 					$sql .= " WHERE id = :cid";
@@ -164,12 +149,6 @@ class CalloutDetailsViewModel extends BaseViewModel {
 						$sql .= " AND call_key = :ckid";
 					}
 				}
-				
-// 				$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 				if($sql_result == false) {
-// 					$log->error("Call Info callouts SQL error for sql [$sql] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-// 					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-// 				}
 
 				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 				if(isset($callout_id) && $callout_id != null) {
@@ -215,9 +194,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			global $log;
 			
 			$callouts = $this->getCalloutDetailsList();
-			//foreach($callouts as $key => $value) {
 			foreach($callouts as $row) {
-			
 				if($this->getFirehall()->LDAP->ENABLED) {
 					create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 					$sql_response = 'SELECT a.*, b.user_id ' .
@@ -231,12 +208,6 @@ class CalloutDetailsViewModel extends BaseViewModel {
 									' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
 									' WHERE calloutid = :cid;';
 				}
-				
-// 				$sql_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_response );
-// 				if($sql_response_result == false) {
-// 					$log->error("Call Info callouts responders SQL error for sql [$sql_response] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-// 					throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_response . "]");
-// 				}
 
 				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_response);
 				$qry_bind->bindParam(':cid',$row['id']);
@@ -277,12 +248,6 @@ class CalloutDetailsViewModel extends BaseViewModel {
 								   ' WHERE id NOT IN (SELECT useracctid ' .
 								   ' FROM callouts_response WHERE calloutid = :cid);';
 			}
-			
-// 			$sql_no_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_no_response );
-// 			if($sql_no_response_result == false) {
-// 				$log->error("Call Info callouts no responses SQL error for sql [$sql_no_response] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_no_response . "]");
-// 			}
 
 			$cid = $this->getCalloutId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_no_response);
@@ -322,12 +287,6 @@ class CalloutDetailsViewModel extends BaseViewModel {
 									' FROM callouts_response WHERE calloutid = :cid);';
 			}
 			
-// 			$sql_yes_response_result = $this->getGvm()->RR_DB_CONN->query( $sql_yes_response );
-// 			if($sql_yes_response_result == false) {
-// 				$log->error("Call Info callouts yes responses SQL error for sql [$sql_yes_response] error: " . mysqli_error($this->getGvm()->RR_DB_CONN));
-// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql_yes_response . "]");
-// 			}
-
 			$cid = $this->getCalloutId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_yes_response);
 			$qry_bind->bindParam(':cid',$cid);
@@ -340,7 +299,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 				
 			$results = array();
 			foreach($rows as $row){
-							// Add any custom fields with values here
+				// Add any custom fields with values here
 				$results[] = $row;
 			}
 			

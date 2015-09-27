@@ -89,11 +89,6 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		// Output our template
 		$smsMsg = $template->render($view_template_vars);
 		
-		//if(isset($maxLength) && $maxLength > 0) {
-		//	$smsMsg = array($msgSummary,
-		//			$details_link);
-		//}
-		
 		$log->trace("Sending SMS Callout msg [$smsMsg]");
 		
 		return $smsMsg;

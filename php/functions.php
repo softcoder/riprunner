@@ -60,25 +60,10 @@ function db_connect($host, $user, $password, $database) {
 	global $log;
 	
 	try {
-		//$log->error("About to DB Connect for: host [$host] db [$database] user [$user]");
-		//$link = mysqli_connect( $host, $user, $password, $database );
 		$link = new \PDO("mysql:host=$host;dbname=$database", $user, $password);
 		$link->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
-		
-		//$log->error("DB Connected for: host [$host] db [$database] user [$user] link [" . mysqli_get_host_info($link) . "]");
-		
-// 		if (mysqli_connect_errno()) {
-// 			$log->error("DB Connect failed: ". mysqli_connect_errno() ." : ". mysqli_connect_error());
-// 			die("Connect failed: ".mysqli_connect_errno()." : ". mysqli_connect_error());
-// 		}
-// 		if(!$link) {
-// 			$log->error("DB Connect error: ". mysqli_error($link));
-// 			die("Connect Error #1: " . mysqli_error($link));
-// 		}
-	
 	} 
 	catch (\PDOException $e) {
-		//echo 'Connection failed: ' . $e->getMessage();
 		$log->error("DB Connected for: host [$host] db [$database] user [$user] error [" . $e->getMessage() . "]");
 		throw $e;
 	}
@@ -87,11 +72,8 @@ function db_connect($host, $user, $password, $database) {
 }	                		
 
 function db_disconnect( $link ) {
-	//global $log;
 	// note that mysql_close() only closes non-persistent connections
 	if($link != null) {
-		//$log->error("About to DB DisConnect for: [" .  mysqli_get_host_info($link) . "]");
-		//$link->close();
 		$link = null;
 	}
 }
@@ -141,9 +123,7 @@ function getGEOCoordinatesFromAddress($FIREHALL,$address) {
 	$result = curl_exec($curl_handle);
 	
 	if(!curl_errno($curl_handle)) {
-		//$info = curl_getinfo($curl_handle);
 		curl_close($curl_handle);
-		//echo 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
 			
 		$geoloc = json_decode($result, true);
 			
@@ -158,13 +138,11 @@ function getGEOCoordinatesFromAddress($FIREHALL,$address) {
 										$geoloc['results'][0]['geometry']['location']['lng']);
 		}
 		else {
-			//echo 'JSON response error google geo api: ' . $result . PHP_EOL;
 			$log->warn("GEO MAP JSON response error google geo api url [$url] result [$result]");
 		}
 	}
 	else {
 		$log->error("GEO MAP JSON exec error google geo api url [$url] response: " . curl_error($curl_handle));
-		//echo 'Curl error: ' . curl_error($curl_handle) . PHP_EOL;
 		curl_close($curl_handle);
 	}
 		
@@ -197,9 +175,6 @@ function sec_session_start_ext($skip_regeneration) {
 	global $log;
 	
 	$ses_already_started = isset($_SESSION);
-	//if ( function_exists( 'session_start' )) {
-		//$ses_already_started = (session_status() != PHP_SESSION_NONE);
-	//}
 	if ($ses_already_started == false) {
 		$session_name = 'sec_session_id';   // Set a custom session name
 		$secure = SECURE;
@@ -247,6 +222,7 @@ function getClientIPInfo() {
 	}
 	return $ip_address;
 }
+
 function login($FIREHALL,$user_id, $password, $db_connection) {
 	$debug_functions = false;
 	
@@ -264,10 +240,8 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
         LIMIT 1")) {
         $stmt->bindParam(':id', $user_id);  // Bind "$user_id" to parameter.
         $stmt->execute();    // Execute the prepared query.
-        //$stmt->store_result();
 
         // get variables from result.
-        //$stmt->bind_result($dbId, $FirehallId, $userId, $userPwd, $userAccess);
         $row = $stmt->fetch(\PDO::FETCH_OBJ);
         if($row != null) {
 	        $dbId = $row->id;
@@ -282,7 +256,6 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
         if ($stmt->rowCount() == 1) {
         	// If the user exists we check if the account is locked
         	// from too many login attempts
-
         	if (checkbrute($dbId, $db_connection) == true) {
         		// Account is locked
         		// Send an email to user saying their account is locked
@@ -352,7 +325,6 @@ function checkbrute($user_id, $db_connection) {
 
 		// Execute the prepared query.
 		$stmt->execute();
-		//$stmt->store_result();
 
 		// If there have been more than 3 failed logins
 		if ($stmt->rowCount() > 3) {
@@ -399,17 +371,14 @@ function login_check($db_connection) {
                                       // Bind "$user_id" to parameter.
 			$stmt->bindParam(':id', $user_id);
 			$stmt->execute();   // Execute the prepared query.
-			//$stmt->store_result();
 		
 			if ($stmt->rowCount() == 1) {
 				// If the user exists get variables from result.
-				//$stmt->bind_result($password);
 				$row = $stmt->fetch(\PDO::FETCH_OBJ);
 				$password = $row->user_pwd;
 				$login_check = hash('sha512', $password . $user_browser);
 		
 				if ($login_check == $login_string) {
-					// Logged In!!!!
 					return true;
 				} 
 				else {
@@ -489,11 +458,6 @@ function getMobilePhoneListFromDB($FIREHALL,$db_connection) {
 	}
 	$sql = "SELECT distinct(mobile_phone) FROM user_accounts WHERE mobile_phone <> '' " .
 	       " AND access & ". USER_ACCESS_SIGNAL_SMS . " = ". USER_ACCESS_SIGNAL_SMS . ";";
-// 	$sql_result = $db_connection->query( $sql );
-// 	if($sql_result == false) {
-// 		$log->error("Call getMobilePhoneListFromDB SQL error for sql [$sql] error: " . $db_connection->errorInfo());
-// 		throw new Exception($db_connection->errorInfo() . "[ " . $sql . "]");
-// 	}
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();
@@ -507,7 +471,6 @@ function getMobilePhoneListFromDB($FIREHALL,$db_connection) {
 	foreach($rows as $row) {
 		array_push($result,$row->mobile_phone);
 	}
-	//$sql_result->closeCursor();
 	
 	if($must_close_db == true) {
 		db_disconnect( $db_connection );
@@ -518,9 +481,11 @@ function getMobilePhoneListFromDB($FIREHALL,$db_connection) {
 function userHasAcess($access_flag) {
 	return (isset($_SESSION['user_access']) && ($_SESSION['user_access'] & $access_flag));
 }
+
 function userHasAcessValueDB($value,$access_flag) {
 	return (isset($value) && ($value & $access_flag));
 }
+
 function encryptPassword($password) {
 	$cost = 10;
 	$salt = strtr(base64_encode(mcrypt_create_iv(16, MCRYPT_DEV_URANDOM)), '+', '.');
@@ -529,6 +494,7 @@ function encryptPassword($password) {
 	
 	return $new_pwd;
 }
+
 function getCallStatusDisplayText($dbStatus) {
 	$result = 'unknown [' . (isset($dbStatus) ? $dbStatus : 'null') . ']';
 	switch($dbStatus) {
@@ -566,11 +532,6 @@ function checkForLiveCallout($FIREHALL,$db_connection) {
 	$sql = "SELECT * FROM callouts " .
 			" WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,calltime,CURRENT_TIMESTAMP()) <= " . DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
 			" ORDER BY id DESC LIMIT 1;";
-// 	$sql_result = $db_connection->query( $sql );
-// 	if($sql_result == false) {
-// 		$log->error("Call checkForLiveCallout SQL error for sql [$sql] error: " . $db_connection->errorInfo());
-// 		throw new Exception($db_connection->errorInfo() . "[ " . $sql . "]");
-// 	}
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();
@@ -594,7 +555,6 @@ function checkForLiveCallout($FIREHALL,$db_connection) {
 		$current_callout = '<a target="_blank" href="http://' . $redirect_host . $redirect_uri.'/'.$redirect_extra.'" class="alert">A Callout is in progress, CLICK HERE for details</a>';
 		echo $current_callout;
 	}
-	//$sql_result->closeCursor();
 }
 
 function make_comparer() {
@@ -661,7 +621,6 @@ function getApplicationUpdateSettings() {
  */
 function checkApplicationUpdatesAvailable() {
 	# Configuration array
-	//$ini = array('local_path' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . '.version',
 	$ini = getApplicationUpdateSettings();
 
 	# Checking if file was modified for less than $ini['time_between_check'] ago

@@ -150,17 +150,13 @@ function find_sms_match($sms_user, $recipient_list_array) {
 	if (in_array($sms_user, $recipient_list_array)) {
 		return $sms_user;
 	}
-//	echo "NOT found [$sms_user]";
 	if (in_array($SPECIAL_MOBILE_PREFIX . $sms_user, $recipient_list_array)) {
 		return $SPECIAL_MOBILE_PREFIX . $sms_user;
 	}
-//	echo "NOT found [$SPECIAL_MOBILE_PREFIX$sms_user]";
 	if( startsWith($sms_user,$SPECIAL_MOBILE_PREFIX) &&
 		in_array(substr($sms_user,strlen($SPECIAL_MOBILE_PREFIX)), $recipient_list_array)){
 		return substr($sms_user,strlen($SPECIAL_MOBILE_PREFIX));
 	}
-//	echo "NOT found [" . substr($sms_user,strlen($SPECIAL_MOBILE_PREFIX)) ."]";
-//	echo "Starts with: " . startsWith($sms_user,$SPECIAL_MOBILE_PREFIX) . " [" . $SPECIAL_MOBILE_PREFIX . "]";
 	return null;
 }
 
@@ -172,12 +168,6 @@ function getLiveCalloutModelList($db_connection) {
 			' TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' .
 			DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
 			' ORDER BY id DESC LIMIT 5;';
-	
-// 	$sql_result = $db_connection->query( $sql );
-// 	if($sql_result == false) {
-// 		$log->error("Call checkForLiveCalloutModelList SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-// 		throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 	}
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();
@@ -191,7 +181,6 @@ function getLiveCalloutModelList($db_connection) {
 	foreach($rows as $row){
 		$callout_list[] = $row;
 	}
-	//$sql_result->close();
 	return $callout_list;
 }
 
@@ -242,12 +231,6 @@ function find_matching_mobile_user($FIREHALL, $db_connection, $matching_sms_user
 	else {
 		$sql = "SELECT id,user_id FROM user_accounts WHERE firehall_id = :fhid AND mobile_phone = :mobile_phone;";
 	}
-	
-// 	$sql_result = $db_connection->query( $sql );
-// 	if($sql_result == false) {
-// 		$log->error("Twilio userlist SQL error for sql [$sql] error: " . mysqli_error($db_connection));
-// 		throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 	}
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->bindParam(':fhid',$FIREHALL->FIREHALL_ID);
@@ -255,7 +238,6 @@ function find_matching_mobile_user($FIREHALL, $db_connection, $matching_sms_user
 	
 	$qry_bind->execute();
 	
-	//echo "Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $sql_result->num_rows;
 	$log->trace("Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $qry_bind->rowCount());
 		
 	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
@@ -265,7 +247,6 @@ function find_matching_mobile_user($FIREHALL, $db_connection, $matching_sms_user
 		$result->setUserAccountId($row->id);
 		$result->setUserId($row->user_id);
 	}
-	//$sql_result->close();
 }
 
 function handle_sms_command($FIREHALLS_LIST) {
@@ -281,11 +262,9 @@ function handle_sms_command($FIREHALLS_LIST) {
 		$sms_user = clean_mobile_number($_REQUEST['From']);
 		$result->setSmsCaller($sms_user);
 
-		//echo 'Loop count: ' . sizeof($FIREHALLS_LIST) .PHP_EOL;
 		# Loop through all Firehalls
 		foreach ($FIREHALLS_LIST as &$FIREHALL) {
 			if($FIREHALL->ENABLED && $FIREHALL->SMS->SMS_SIGNAL_ENABLED) {
-				//echo "Twilio trigger checking firehall: [" . $FIREHALL->WEBSITE->FIREHALL_NAME . "] looking for $sms_user";
 				$log->trace("Twilio trigger checking firehall: [" . $FIREHALL->WEBSITE->FIREHALL_NAME . "]");
 
 				$db_connection = null;
@@ -297,17 +276,14 @@ function handle_sms_command($FIREHALLS_LIST) {
 						$result->setSmsCaller($matching_sms_user);
 						$result->setSmsRecipients($recipient_list_array);
 						
-						//echo "Twilio trigger FOUND MATCH for [$matching_sms_user]";
 						$result->setFirehall($FIREHALL);
 						find_matching_mobile_user($FIREHALL, $db_connection, $matching_sms_user, $result);
 						
-						//echo 'GOT HERE 1 ' . $result->getUserId();
 						// Account is valid
 						if($result->getUserId() != null) {
 							// Now check which command the user wants to process
 							$sms_cmd = isset($_REQUEST['Body']) ? $_REQUEST['Body'] : '';
 							$result->setCmd($sms_cmd);
-							//echo 'GOT HERE 2 ' . $result->getUserId() . $sms_cmd;
 							
 							if( in_array(strtoupper($sms_cmd),$SMS_AUTO_CMD_RESPONDING)) {
 								$live_callout_list = getLiveCalloutModelList($db_connection);
@@ -322,7 +298,6 @@ function handle_sms_command($FIREHALLS_LIST) {
 									    "&ckid=" . urlencode($most_current_callout['call_key']);
 									
 									$log->error("Calling URL for twilio Call Response [$URL]");
-									//$cmd_result = file_get_contents($URL);
 									$httpclient = new \riprunner\HTTPCli($URL);
 									$cmd_result = $httpclient->execute();
 									$log->error("Called URL returned [$cmd_result]");
@@ -344,7 +319,6 @@ function handle_sms_command($FIREHALLS_LIST) {
 											"&status=" . urlencode(\CalloutStatusType::Complete);
 									
 									$log->error("Calling URL for twilio Call Response [$URL]");
-									//$cmd_result = file_get_contents($URL);
 									$httpclient = new \riprunner\HTTPCli($URL);
 									$cmd_result = $httpclient->execute();
 									$log->error("Called URL returned [$cmd_result]");
@@ -366,7 +340,6 @@ function handle_sms_command($FIREHALLS_LIST) {
 									"&status=" . urlencode(\CalloutStatusType::Cancelled);
 										
 									$log->error("Calling URL for twilio Call Response [$URL]");
-									//$cmd_result = file_get_contents($URL);
 									$httpclient = new \riprunner\HTTPCli($URL);
 									$cmd_result = $httpclient->execute();
 									$log->error("Called URL returned [$cmd_result]");
@@ -420,8 +393,6 @@ function validateTwilioHost($FIREHALLS_LIST) {
 			$authToken = explode(":",$FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 			// You'll need to make sure the Twilio library is included
 			$validator = new \Services_Twilio_RequestValidator($authToken[1]);
-			//$url = $_SERVER["SCRIPT_URI"];
-			//$site_root = getFirehallRootURLFromRequest(null,$FIREHALLS_LIST);
 			$site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 			$url = $site_root . "plugins/sms-provider-hook/twilio-webhook.php";
 				

@@ -172,13 +172,6 @@ class GCM {
 		return $resultGCM;
 	}
 	
-// 	private function isGCMError($result) {
-// 		if(isset($result) && strpos($result,"|GCM_ERROR:")) {
-// 			return true;
-// 		}
-// 		return false;
-// 	}
-	
 	private function isRegisterDeviceRequired($gcm_err) {
 		if(isset($gcm_err) && 
 			($gcm_err == 'NotRegistered' || $gcm_err == 'MismatchSenderId')) {
@@ -208,14 +201,6 @@ class GCM {
 	
 		if(isset($this->db_connection)) {
 			$sql = 'DELETE FROM devicereg WHERE registration_id = :reg_id;';
-				
-// 			$sql_result = $this->db_connection->query( $sql );
-// 			if($sql_result == false) {
-// 				$this->error("Remove GCM device SQL error for sql [$sql] error: " .
-// 						mysqli_error($this->db_connection),
-// 						"Remove GCM device SQL error for sql [$sql] error: " .
-// 						mysqli_error($this->db_connection));
-// 			}
 
 			$qry_bind = $this->db_connection->prepare($sql);
 			$qry_bind->bindParam(':reg_id',$device_id);
@@ -233,11 +218,6 @@ class GCM {
 		$registration_ids = array();
 		if(isset($device_id) == false) {
 			$sql = 'SELECT registration_id FROM devicereg WHERE firehall_id = :fhid;';
-// 			$sql_result = $this->db_connection->query( $sql );
-// 			if($sql_result == false) {
-// 				$this->error("Send GCM SQL error for sql [$sql] error: " . mysqli_error($this->db_connection),
-// 						"Send GCM SQL error for sql [$sql] error: " . mysqli_error($this->db_connection));
-// 			}
 
 			$qry_bind = $this->db_connection->prepare($sql);
 			$qry_bind->bindParam(':fhid',$this->firehall_id);
@@ -264,4 +244,3 @@ class GCM {
 		throwExceptionAndLogError($ui_msg,$log_msg);
 	}
 }
-

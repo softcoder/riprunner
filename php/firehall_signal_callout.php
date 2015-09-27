@@ -26,12 +26,6 @@ function signalFireHallCallout($callout) {
 	$sql = "SELECT id,call_key,status " .
 			"FROM callouts WHERE calltime = :ctime AND calltype = :ctype AND " .
 			" (address = :caddress OR (latitude = :lat AND longitude = :long));";
-	
-// 	$sql_result = $db_connection->query( $sql );
-// 	if($sql_result == false) {
-// 		printf("Error: %s\n", mysqli_error($db_connection));
-// 		throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 	}
 
 	$ctype = $callout->getCode();
 	$caddress = $callout->getAddress();
@@ -48,15 +42,12 @@ function signalFireHallCallout($callout) {
 	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
 	$qry_bind->closeCursor();
 	
-	
-	//if($row = $sql_result->fetch_object()) {
 	if(!empty($rows)) {
 		$row = $rows[0];
 		$callout->setId($row->id);
 		$callout->setKeyId($row->call_key);
 		$callout->setStatus($row->status);
 	}
-	//$sql_result->close();
 	
 	// Found duplicate callout so update some fields on original callout
 	if($callout->getId() != null) {
@@ -65,12 +56,6 @@ function signalFireHallCallout($callout) {
 				' SET address = :caddress, latitude = :lat, longitude = :long, ' .
 				' units = :units' .
 				' WHERE id = :id AND (address <> :caddress OR latitude <> :lat OR longitude <> :long OR units <> :units);';
-		
-// 		$sql_result = $db_connection->query( $sql );
-// 		if($sql_result == false) {
-// 			printf("Error: %s\n", mysqli_error($db_connection));
-// 			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 		}
 
 		$caddress = $callout->getAddress();
 		$lat = floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat()));
@@ -104,12 +89,6 @@ function signalFireHallCallout($callout) {
 		
 		$sql = 'INSERT INTO callouts (calltime,calltype,address,latitude,longitude,units,call_key) ' .
 				' values(:cdatetime, :ctype, :caddress, :lat, :long, :units, :ckid);';
-		
-// 		$sql_result = $db_connection->query( $sql );
-// 		if($sql_result == false) {
-// 			printf("Error: %s\n", mysqli_error($db_connection));
-// 			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql . "]");
-// 		}
 
 		$cdatetime = $callout->getDateTimeAsString();
 		$ctype =  ($callout->getCode() != null ? $callout->getCode() : "");
@@ -141,11 +120,6 @@ function signalFireHallCallout($callout) {
 		// Only update status if not cancelled or completed already
 		$sql_update = 'UPDATE callouts SET status = :status WHERE id = :id AND status NOT in(3,10);';
 			
-// 		$sql_result = $db_connection->query( $sql_update );
-// 		if($sql_result == false) {
-// 			printf("SQL #2 Error: %s\n", mysqli_error($db_connection));
-// 			throw new \Exception(mysqli_error( $db_connection ) . "[ " . $sql_update . "]");
-// 		}
 		$cid = $callout->getId();
 		$status_notified = CalloutStatusType::Notified;
 		$qry_bind = $db_connection->prepare($sql_update);
