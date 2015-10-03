@@ -296,7 +296,7 @@ class CalloutTrackingViewModel extends BaseViewModel {
 						$this->user_authenticated = true;
 						$this->useracctid = $row->id;
 					}
-					if(!isempty($rows_callout)) {
+					if(!empty($rows_callout)) {
 						$row_callout = $rows_callout[0];
 						$this->callout_status = $row_callout->status;
 					}
