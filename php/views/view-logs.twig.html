@@ -38,6 +38,8 @@
             <a href="{{ gvm.RR_DOC_ROOT }}controllers/view-logs-controller.php?noreverse">Bottom</a>.
             <br />
             Refresh in <span id="counter">x</span> seconds. <a id="pause" href='#'>Pause</a>.
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href='{{ gvm.RR_DOC_ROOT }}getFileContents.php?file={{ viewlogs_ctl_logfile }}'>Download logfile</a>.
             <br />
             <div id="data_header" style="height: 600px; overflow: auto;border: 2px solid #555;">
                 <pre id="data" style="">Loading...</pre>

@@ -10,18 +10,17 @@ var scrollelems = ["html", "body"];
 
 //var url = "riprunner.log";
 //alert(url);
+
 var fix_rn = true;
-var load = 30 * 1024; /* 30KB */
+var load = 300 * 1024; /* 300KB */
 var poll = 15000; /* 15s */
-var count = poll / 1000;
-var counter = null;
 
 var kill = false;
 var loading = false;
 var pause = false;
 var reverse = true;
 var log_data = "";
-var log_size = 0;
+var log_file_size = 0;
 
 function start_timer() {
 	count = poll / 1000;
@@ -38,62 +37,79 @@ function update_timer() {
 	}
 }
 
+/* :-( https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt */
+function parseInt2(value) {
+    if(!(/^[0-9]+$/.test(value))) throw "Invalid integer " + value;
+    var v = Number(value);
+    if (isNaN(v))                 throw "Invalid integer " + value;
+    return v;
+}
+
 function get_log() {
     if (kill | loading | pause) return;
     loading = true;
 
     var range;
-    if (log_size === 0)
+    var first_load;
+    var must_get_206;
+    if (log_file_size === 0) {
         /* Get the last 'load' bytes */
         range = "-" + load.toString();
-    else
-        /* Get the (log_size - 1)th byte, onwards. */
-        range = (log_size - 1).toString() + "-";
+        first_load = true;
+        must_get_206 = false;
+    } 
+    else {
+        /* Get the (log_file_size - 1)th byte, onwards. */
+        range = (log_file_size - 1).toString() + "-";
+        first_load = false;
+        must_get_206 = log_file_size > 1;
+    }
 
-    /* The "log_size - 1" deliberately reloads the last byte, which we already
+    if(typeof url == 'undefined') {
+    	debugger;
+    	error('URL is not defined, cannot view log.');
+    	return;
+    }
+    
+    /* The "log_file_size - 1" deliberately reloads the last byte, which we already
      * have. This is to prevent a 416 "Range unsatisfiable" error: a response
      * of length 1 tells us that the file hasn't changed yet. A 416 shows that
      * the file has been trucnated */
 
-    if(typeof url == 'undefined') {
-    	error('URL is not defined, cannot view log.');
-    	return;
-    }
     $.ajax(url, {
         dataType: "text",
         cache: false,
         headers: {Range: "bytes=" + range},
         success: function (data, s, xhr) {
-        	
-        	//debugger;
             loading = false;
 
-            var size;
+            var content_size;
 
             if (xhr.status === 206) {
-                if (data.length > load+1)
-                    throw "Expected 206 Partial Content (data.length > load) : " + data.length + " : " + load;
-
                 var c_r = xhr.getResponseHeader("Content-Range");
                 if (!c_r)
                     throw "Server did not respond with a Content-Range";
 
-                size = parseInt(c_r.split("/")[1]);
-                if (isNaN(size))
-                    throw "Invalid Content-Range size";
-            } 
-            else if (xhr.status === 200) {
-                if (log_size > 1)
-                    throw "Expected 206 Partial Content (log_size > 1) : " + log_size;
+                log_file_size = parseInt2(c_r.split("/")[1]);
+                content_size = parseInt2(xhr.getResponseHeader("Content-Length"));
+            } else if (xhr.status === 200) {
+                if (must_get_206)
+                    throw "Expected 206 Partial Content";
 
-                size = data.length;
+                content_size = log_file_size =
+                        parseInt2(xhr.getResponseHeader("Content-Length"));
+            } else {
+                throw "Unexpected status " + xhr.status;
             }
+
+            if (first_load && data.length > load)
+                throw "Server's response was too long";
 
             var added = false;
 
-            if (log_size === 0) {
+            if (first_load) {
                 /* Clip leading part-line if not the whole file */
-                if (data.length < size) {
+                if (content_size < log_file_size) {
                     var start = data.indexOf("\n");
                     log_data = data.substring(start + 1);
                 } else {
@@ -101,8 +117,7 @@ function get_log() {
                 }
 
                 added = true;
-            } 
-            else {
+            } else {
                 /* Drop the first byte (see above) */
                 log_data += data.substring(1);
 
@@ -115,45 +130,25 @@ function get_log() {
                     added = true;
             }
 
-            log_size = size;
             if (added)
                 show_log(added);
             setTimeout(get_log, poll);
             start_timer();
-            
         },
         error: function (xhr, s, t) {
-            
-        	//debugger;
-        	loading = false;
+            loading = false;
 
-        	//alert(xhr.status);
-            if (xhr.status == 404) {
+            if (xhr.status === 416 || xhr.status == 404) {
                 /* 416: Requested range not satisfiable: log was truncated. */
                 /* 404: Retry soon, I guess */
 
-                log_size = 0;
+                log_file_size = 0;
                 log_data = "";
-                show_log('Logfile not found!');
-
-                //setTimeout(get_log, poll);
-            } 
-            else if (xhr.status === 416) {
-                /* 416: Requested range not satisfiable: log was truncated. */
-                /* 404: Retry soon, I guess */
-
-                log_size = 0;
-                log_data = "";
-                show_log('Logfile not found!');
+                show_log();
 
                 setTimeout(get_log, poll);
-                start_timer();
-            } 
-            else {
-                if (s == "error")
-                    error(xhr.statusText);
-                else
-                    error("AJAX Error: " + s);
+            } else {
+                throw "Unknown AJAX Error (status " + xhr.status + ")";
             }
         }
     });
@@ -193,20 +188,20 @@ function show_log() {
 function error(what) {
     kill = true;
 
-    $(dataelem).text("An error occured.\r\n" +
-                     "Please try reloading the page.\r\n" +
-                     "Message: " +
-                     what);
+    $(dataelem).text("An error occured :-(.\r\n" +
+                     "Reloading may help; no promises.\r\n" + 
+                     what + "\r\n" +
+                     " url [" + url + "]");
     scroll(0);
+
+    return false;
 }
 
 $(document).ready(function () {
-    $(window).error(error);
+    window.onerror = error;
 
     /* If URL is /logtail/?noreverse display in chronological order */
     var hash = location.search.replace(/^\?/, "");
-    
-    //alert(hash);
     if (hash == "noreverse")
         reverse = false;
 
@@ -214,17 +209,6 @@ $(document).ready(function () {
     $(pausetoggle).click(function (e) {
         pause = !pause;
         $(pausetoggle).text(pause ? "Unpause" : "Pause");
-        if(pause) {
-        	fix_rn = true;
-        	load = 30 * 1024; /* 30KB */
-
-        	kill = false;
-        	loading = false;
-        	log_size = 0;
-        }
-        else {
-        	get_log();
-        }
         show_log();
         e.preventDefault();
     });
