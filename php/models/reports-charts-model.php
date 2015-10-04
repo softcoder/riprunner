@@ -108,6 +108,22 @@ class ReportsChartsViewModel extends BaseViewModel {
 		}
 	}
 	
+/*
+ * 
+The SQL below gets a rough estimate of hours spent per person on calls
+
+select a.id,b.useracctid,time_to_sec(timediff(max(a.updatetime), LEAST(a.calltime,a.updatetime) )) / 3600 as hours_spent 
+from callouts a left join callouts_response b on a.id = b.calloutid 
+where a.status in (3,10)  
+group by a.id,b.useracctid order by a.id,b.useracctid,hours_spent;
+
+Total Hours spent on all callouts for the year:
+
+select sum(time_to_sec(timediff(updatetime, LEAST(calltime,updatetime) )) / 3600) as hours_spent 
+from callouts 
+where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,10)  
+
+ */	
 	private function getCallTypeStatsForDateRange($startDate,$endDate) {
 		// Read from the database
 		$sql = "SELECT calltype, COUNT(*) count FROM callouts " .

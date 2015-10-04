@@ -5,10 +5,15 @@
         <title>Secure Login: Protected Page</title>
         {% if gvm.isMobile %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
+        
         {% else %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
 		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/custom-main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
         {% endif %}
+
+        <!--   --><link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" /> -->
         
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/d3.min.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
@@ -287,6 +292,57 @@
 					<td><div id="chart_year_response_volume_div"></div></td>
 				</tr>
             </table>
+
+            <div class="inner_table">
+            <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
+                {% if reportscharts_vm.callresponsevol_currentyear is defined %}
+                <thead>
+                    <tr>
+                    <th scope="col">Month</th>
+                    {% for col_name in reportscharts_vm.callresponsevol_currentyear_cols %}
+                    <th scope="col">{{ col_name }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+
+                {% set summary_row = [0] %}
+                {% for col_value in reportscharts_vm.callresponsevol_currentyear_cols %}
+                    {% set summary_row = summary_row|merge({ (loop.index0): 0}) %}
+                {% endfor %}
+                
+                {% for row in reportscharts_vm.callresponsevol_currentyear %}
+                <tr>
+	                {% for col_value in row %}
+	                   {% if loop.first == false %}
+		                   {% set new_summary_row = [] %}
+			               {% for col_value_x in summary_row %}
+				               {% if loop.index0 == loop.parent.loop.index0 %}
+				                    {% set new_summary_value = col_value_x + col_value %}
+				                    {% set new_summary_row = new_summary_row|merge( { (loop.index0): new_summary_value }) %}
+				               {% else %}
+				                    {% set new_summary_row = new_summary_row|merge( { (loop.index0): col_value_x }) %}
+				               {% endif %}
+			               {% endfor %}
+			               {% set summary_row = new_summary_row %}
+	                   {% endif %}
+	                <td>{{ col_value }}</td>
+	                {% endfor %}            
+                </tr>
+                {% endfor %}
+
+                <tr>
+                {% for sum_value in summary_row %}
+                    {% if loop.first == false %}
+                    <td>{{ sum_value }}</td>
+                    {% else %}
+                    <td>Totals</td>
+                    {% endif %}
+                {% endfor %}            
+                </tr>
+                
+                {% endif %}
+            </table>
+            </div>
     
         {% else %}
             {% include 'access-denied.twig.html' %}

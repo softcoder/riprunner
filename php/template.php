@@ -22,3 +22,4 @@ $twig = new \Twig_Environment($twig_template_loader, array(
 	'debug' => true,
 	'strict_variables' => true
 ));
+$twig->addExtension(new \Twig_Extension_Debug());
