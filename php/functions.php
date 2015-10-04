@@ -65,7 +65,7 @@ function db_connect_firehall($FIREHALL) {
 		    $offset = sprintf('%+d:%02d', $hrs*$sgn, $mins);
 		    	
 		    $db_connection->exec("SET time_zone='$offset';");
-		    echo "SET time_zone='$offset';" . PHP_EOL;
+		    //echo "SET time_zone='$offset';" . PHP_EOL;
 		}
 		
 	}
