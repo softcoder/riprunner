@@ -18,7 +18,11 @@ class ReportsChartsViewModel extends BaseViewModel {
 
 	private $callresponsevol_currentyear;
 	private $callresponsevol_currentyear_cols;
+
+	private $callresponse_hours_currentyear;
+	private $callresponse_hours_currentyear_cols;
 	
+		
 	protected function getVarContainerName() { 
 		return "reportscharts_vm";
 	}
@@ -60,6 +64,16 @@ class ReportsChartsViewModel extends BaseViewModel {
 			$this->getCallResponseVolCurrentyear();
 			return $this->callresponsevol_currentyear_cols;
 		}
+
+		if('callresponse_hours_currentyear' == $name) {
+		    $this->getCallResponseHoursCurrentyear();
+		    return $this->callresponse_hours_currentyear;
+		}
+		if('callresponse_hours_currentyear_cols' == $name) {
+		    $this->getCallResponseHoursCurrentyear();
+		    return $this->callresponse_hours_currentyear_cols;
+		}
+
 		
 		return parent::__get($name);
 	}
@@ -68,7 +82,8 @@ class ReportsChartsViewModel extends BaseViewModel {
 		if(in_array($name,
 			array('calltypes_currentmonth','calltypes_currentyear','calltypes_allyears',
   				  'callvoltypes_currentyear', 'callvoltypes_currentyear_cols',
-				  'callresponsevol_currentyear', 'callresponsevol_currentyear_cols'
+				  'callresponsevol_currentyear', 'callresponsevol_currentyear_cols',
+				  'callresponse_hours_currentyear', 'callresponse_hours_currentyear_cols'
 			))) {
 			return true;
 		}
@@ -92,6 +107,25 @@ class ReportsChartsViewModel extends BaseViewModel {
 	
 	}
 	
+	
+	private function getCallResponseHoursCurrentyear() {
+	    if(isset($this->callresponse_hours_currentyear) == false) {
+	        $year_start = strtotime('first day of January', time());
+	        $year_end = strtotime('last day of December', time());
+	
+	        $current_year_start = date('Y-m-d',$year_start);
+	        $current_year_end = date('Y-m-d',$year_end);
+	        $this->callresponse_hours_currentyear_cols = array();
+	
+	        $this->callresponse_hours_currentyear =
+	        $this->getCallResponseHoursStatsForDateRange(
+	                $current_year_start,$current_year_end,
+	                $this->callresponse_hours_currentyear_cols);
+	    }
+	
+	}
+	
+	
 	private function getCallVolTypesCurrentyear() {
 		if(isset($this->callvoltypes_currentyear) == false) {
 			$year_start = strtotime('first day of January', time());
@@ -112,10 +146,10 @@ class ReportsChartsViewModel extends BaseViewModel {
  * 
 The SQL below gets a rough estimate of hours spent per person on calls
 
-select a.id,b.useracctid,time_to_sec(timediff(max(a.updatetime), LEAST(a.calltime,a.updatetime) )) / 3600 as hours_spent 
+select a.id,MONTH(calltime) AS month,b.useracctid,time_to_sec(timediff(max(a.updatetime), LEAST(a.calltime,a.updatetime) )) / 3600 as hours_spent 
 from callouts a left join callouts_response b on a.id = b.calloutid 
 where a.status in (3,10)  
-group by a.id,b.useracctid order by a.id,b.useracctid,hours_spent;
+group by a.id,month,b.useracctid order by a.id,b.useracctid,hours_spent;
 
 Total Hours spent on all callouts for the year:
 
@@ -448,4 +482,162 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 	    
 	    return $formatted_data;
 	}
+
+    private function getCallResponseHoursStatsForDateRange($startDate,$endDate,
+            &$dynamicColumnTitles) {
+    
+        global $log;
+        $log->trace("Call getCallResponseHoursStatsForDateRange START");
+    
+        $MAX_MONTHLY_LABEL = "*MONTHLY TOTAL";
+    
+        if($this->getGvm()->firehall->LDAP->ENABLED) {
+            create_temp_users_table_for_ldap($this->getGvm()->firehall,
+            $this->getGvm()->RR_DB_CONN);
+            // Search the database
+            // Find all occourences of calls that are completed(10) or canceled(3).
+            // TRAINING and TESTONLY records are excluded
+            $sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
+                    ' UNION (SELECT b.user_id AS datalabel ' .
+                    '        FROM callouts_response a' .
+                    '        LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
+                    '        LEFT JOIN callouts c ON a.calloutid = c.id ' .
+                    '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
+                    '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+                    '        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+        }
+        else {
+            $sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
+              				  ' UNION (SELECT b.user_id AS datalabel ' .
+              				  '        FROM callouts_response a' .
+              				  '        LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
+              				  '        LEFT JOIN callouts c ON a.calloutid = c.id ' .
+              				  '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
+              				  '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+              				  '        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+        }
+    
+        $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_titles);
+        $qry_bind->bindParam(':start',$startDate);
+        $qry_bind->bindParam(':end',$endDate);
+        $qry_bind->execute();
+    
+        $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+        $qry_bind->closeCursor();
+    
+        $log->trace("Calling getCallResponseHoursStatsForDateRange sql_titles [" . $sql_titles . "]");
+         
+        // Build the data array
+        $titles_results = array();
+        foreach($rows as $row_titles) {
+            array_push($titles_results,$row_titles->datalabel);
+            array_push($dynamicColumnTitles,$row_titles->datalabel);
+        }
+    
+        if($this->getGvm()->firehall->LDAP->ENABLED) {
+            create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
+    
+            // Find all occourences of calls that are completed(10) or canceled(3).
+            // TRAINING and TESTONLY records are excluded
+            $sql = 	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, (time_to_sec(timediff(updatetime, LEAST(calltime,updatetime) )) / 3600) as hours_spent ' .
+                    ' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN :start AND :end ' .
+                    ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+                    ' GROUP BY month ORDER BY month)' .
+                    ' UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, (time_to_sec(timediff(a.updatetime, LEAST(c.calltime,c.updatetime) )) / 3600) as hours_spent ' .
+                    ' FROM callouts_response a ' .
+                    ' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id' .
+                    ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
+                    ' WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
+                    ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+                    ' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+        }
+        else {
+            $sql =	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, (time_to_sec(timediff(updatetime, LEAST(calltime,updatetime) )) / 3600) as hours_spent ' .
+                    ' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN :start AND :end ' .
+                    ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+                    ' GROUP BY month ORDER BY month)' .
+                    'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, (time_to_sec(timediff(a.updatetime, LEAST(c.calltime,c.updatetime) )) / 3600) as hours_spent ' .
+                    ' FROM callouts_response a ' .
+                    ' LEFT JOIN user_accounts b ON a.useracctid = b.id' .
+                    ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
+                    ' WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
+                    ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+                    ' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+        }
+    
+        $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+        $qry_bind->bindParam(':start',$startDate);
+        $qry_bind->bindParam(':end',$endDate);
+        $qry_bind->execute();
+         
+        $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+        $qry_bind->closeCursor();
+    
+        $log->trace("Calling getCallResponseHoursStatsForDateRange sql [" . $sql . "]");
+         
+        // Build the data array
+        $data_results = array();
+        foreach($rows as $row) {
+            $row_result = array($row->month,$row->datalabel,$row->hours_spent + 0.0);
+            array_push($data_results,$row_result);
+        }
+    
+        // Ensure every month of the year exists in the results for each calltype
+        for($index=1;$index <= 12; $index++) {
+            foreach($titles_results as $title) {
+                $found_index = false;
+                foreach($data_results as $data) {
+                    $monthNumber = $data[0];
+                    $labelName = $data[1];
+                    if($index == $monthNumber && $title == $labelName) {
+                        $found_index = true;
+                        break;
+                    }
+                }
+                if($found_index == false) {
+                    $row_result = array($index,$title,0);
+                    array_push($data_results,$row_result);
+                }
+            }
+        }
+    
+        // Sort by month # then by calltype
+        usort($data_results, make_comparer(0,1));
+    
+        // Replace month # with month name and build array for each unique calltype
+        $formatted_data = array();
+    
+        $current_month_number = -1;
+        $current_month_array = null;
+    
+        foreach ($data_results as $key => $row) {
+            $monthNumber = $row[0];
+            $monthName = date("F", mktime(0, 0, 0, $monthNumber, 10));
+    
+            $monthCount = $row[2];
+    
+            if($current_month_number != $monthNumber) {
+                if(isset($current_month_array)) {
+                    array_push($formatted_data,$current_month_array);
+                }
+    
+                $current_month_array = array();
+                array_push($current_month_array,$monthName);
+                array_push($current_month_array,$monthCount);
+    
+                $current_month_number = $monthNumber;
+            }
+            else {
+                array_push($current_month_array,$monthCount);
+            }
+        }
+    
+        if(isset($current_month_array)) {
+            array_push($formatted_data,$current_month_array);
+        }
+    
+        $log->trace("Call getCallResponseHoursStatsForDateRange END");
+         
+        return $formatted_data;
+    }
 }

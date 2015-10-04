@@ -293,6 +293,7 @@
 				</tr>
             </table>
 
+            <span>Total Call Response Volume by Person (Completed/Cancelled Calls) - Current Year by Month</span>
             <div class="inner_table">
             <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
                 {% if reportscharts_vm.callresponsevol_currentyear is defined %}
@@ -343,6 +344,60 @@
                 {% endif %}
             </table>
             </div>
+
+
+            <span>Total Call Response Hours by Person (Completed/Cancelled Calls) - Current Year by Month</span>
+            <div class="inner_table">
+            <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
+                {% if reportscharts_vm.callresponse_hours_currentyear is defined %}
+                <thead>
+                    <tr>
+                    <th scope="col">Month</th>
+                    {% for col_name in reportscharts_vm.callresponse_hours_currentyear_cols %}
+                    <th scope="col">{{ col_name }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+
+                {% set summary_row = [0] %}
+                {% for col_value in reportscharts_vm.callresponse_hours_currentyear_cols %}
+                    {% set summary_row = summary_row|merge({ (loop.index0): 0}) %}
+                {% endfor %}
+                
+                {% for row in reportscharts_vm.callresponse_hours_currentyear %}
+                <tr>
+                    {% for col_value in row %}
+                       {% if loop.first == false %}
+                           {% set new_summary_row = [] %}
+                           {% for col_value_x in summary_row %}
+                               {% if loop.index0 == loop.parent.loop.index0 %}
+                                    {% set new_summary_value = col_value_x + col_value %}
+                                    {% set new_summary_row = new_summary_row|merge( { (loop.index0): new_summary_value }) %}
+                               {% else %}
+                                    {% set new_summary_row = new_summary_row|merge( { (loop.index0): col_value_x }) %}
+                               {% endif %}
+                           {% endfor %}
+                           {% set summary_row = new_summary_row %}
+                       {% endif %}
+                    <td>{{ col_value }}</td>
+                    {% endfor %}            
+                </tr>
+                {% endfor %}
+
+                <tr>
+                {% for sum_value in summary_row %}
+                    {% if loop.first == false %}
+                    <td>{{ sum_value }}</td>
+                    {% else %}
+                    <td>Totals</td>
+                    {% endif %}
+                {% endfor %}            
+                </tr>
+                
+                {% endif %}
+            </table>
+            </div>
+
     
         {% else %}
             {% include 'access-denied.twig.html' %}

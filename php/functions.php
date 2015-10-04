@@ -51,6 +51,23 @@ function db_connect_firehall($FIREHALL) {
 				$FIREHALL->MYSQL->MYSQL_USER,
 				$FIREHALL->MYSQL->MYSQL_PASSWORD,
 				$FIREHALL->MYSQL->MYSQL_DATABASE);
+		
+		if(isset($FIREHALL->WEBSITE->FIREHALL_TIMEZONE) && $FIREHALL->WEBSITE->FIREHALL_TIMEZONE != null) {
+		    date_default_timezone_set($FIREHALL->WEBSITE->FIREHALL_TIMEZONE);
+		    	
+		    //SET time_zone='offset';
+		    $now = new DateTime();
+		    $mins = $now->getOffset() / 60;
+		    $sgn = ($mins < 0 ? -1 : 1);
+		    $mins = abs($mins);
+		    $hrs = floor($mins / 60);
+		    $mins -= $hrs * 60;
+		    $offset = sprintf('%+d:%02d', $hrs*$sgn, $mins);
+		    	
+		    $db_connection->exec("SET time_zone='$offset';");
+		    echo "SET time_zone='$offset';" . PHP_EOL;
+		}
+		
 	}
 	
 	return $db_connection;

@@ -326,6 +326,8 @@ class FireHallWebsite
 	// The GEO coordinates of the Firehall
 	public $FIREHALL_GEO_COORD_LATITUDE;
 	public $FIREHALL_GEO_COORD_LONGITUDE;
+	// The timezone where the firehall is located
+	public $FIREHALL_TIMEZONE;
 	// The Base URL where you installed rip runner example: http://mywebsite.com/riprunner/
 	public $WEBSITE_ROOT_URL;
 	// The Google Map API Key
@@ -338,7 +340,7 @@ class FireHallWebsite
 		
 	public function __construct($name=null,$home_address=null,$home_geo_coord_lat=null,
 			$home_geo_coord_long=null,$root_url=null, 
-			$google_map_api_key=null,$city_name_substition=null) {
+			$google_map_api_key=null,$city_name_substition=null, $tz=null) {
 		
 		$this->FIREHALL_NAME = $name;
 		$this->FIREHALL_HOME_ADDRESS = $home_address;
@@ -347,12 +349,14 @@ class FireHallWebsite
 		$this->WEBSITE_ROOT_URL = $root_url;
 		$this->WEBSITE_GOOGLE_MAP_API_KEY = $google_map_api_key;
 		$this->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION = $city_name_substition;
+		$this->FIREHALL_TIMEZONE = $tz;
 	}
 
 	public function toString() {
 		$result = "Website Settings:" .
 				"\nFirehall name: " . $this->FIREHALL_NAME .
 				"\nFirehall address: " . $this->FIREHALL_HOME_ADDRESS .
+				"\nFirehall timezone: " . $this->FIREHALL_TIMEZONE .
 				"\nFirehall GEO coords: " . $this->FIREHALL_GEO_COORD_LATITUDE . "," . $this->FIREHALL_GEO_COORD_LONGITUDE .
 				"\nBase URL: " . $this->WEBSITE_ROOT_URL .
 				"\nGoogle Map API Key: " . $this->WEBSITE_GOOGLE_MAP_API_KEY;
@@ -364,6 +368,9 @@ class FireHallWebsite
 	}
 	public function setFirehallAddress($home_address) {
 		$this->FIREHALL_HOME_ADDRESS = $home_address;
+	}
+	public function setFirehallTimezone($tz) {
+		$this->FIREHALL_TIMEZONE = $tz;
 	}
 	public function setFirehallGeoLatitude($home_geo_coord_lat) {
 		$this->FIREHALL_GEO_COORD_LATITUDE = $home_geo_coord_lat;
