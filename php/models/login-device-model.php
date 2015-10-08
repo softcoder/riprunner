@@ -25,35 +25,35 @@ class LoginDeviceViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		if('firehall_id' == $name) {
+		if('firehall_id' === $name) {
 			return $this->getFirehallId();
 		}
-		if('reg_id' == $name) {
+		if('reg_id' === $name) {
 			return $this->getRegistrationId();
 		}
-		if('user_id' == $name) {
+		if('user_id' === $name) {
 			return $this->getUserId();
 		}
-		if('has_user_password' == $name) {
+		if('has_user_password' === $name) {
 			return ($this->getUserPassword() != null);
 		}
-		if('firehall' == $name) {
+		if('firehall' === $name) {
 			return $this->getFirehall();
 		}
-		if('user_authenticated' == $name) {
+		if('user_authenticated' === $name) {
 			$this->checkAuth();
 			return $this->user_authenticated;
 		}
-		if('register_result' == $name) {
+		if('register_result' === $name) {
 			return $this->getRegisterResult();
 		}
-		if('live_callout' == $name) {
+		if('live_callout' === $name) {
 			return $this->getLiveCallout();
 		}
-		if('signal_callout' == $name) {
+		if('signal_callout' === $name) {
 			return $this->getSignalCallout();
 		}
-		if('signal_login' == $name) {
+		if('signal_login' === $name) {
 			return $this->getSignalLogin();
 		}
 		
@@ -65,7 +65,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 			array('firehall_id','reg_id','user_id','has_user_password',
 				  'firehall', 'user_authenticated', 'register_result',
 				  'live_callout', 'signal_callout', 'signal_login'
-			 ))) {
+			 )) === true) {
 			return true;
 		}
 		return parent::__isset($name);
@@ -89,20 +89,20 @@ class LoginDeviceViewModel extends BaseViewModel {
 	}
 	private function getFirehall() {
 		$firehall = null;
-		if($this->getFirehallId() != null) {
+		if($this->getFirehallId() !== null) {
 			$firehall = findFireHallConfigById($this->getFirehallId(), $this->getGvm()->firehall_list);
 		}
 		return $firehall;
 	}
 	
 	private function checkAuth() {
-		if(isset($this->user_authenticated) == false) {
+		if(isset($this->user_authenticated) === false) {
 			global $log;
 			
 			$log->trace("device register registration_id = [". $this->getRegistrationId() ."] firehall_id = [". $this->getFirehallId() ."] user_id = [". $this->getUserId() ."] user_pwd = [". $this->getUserPassword() . "]");
 			
 			$this->user_account_id = null;
-			if($this->getFirehall()->LDAP->ENABLED) {
+			if($this->getFirehall()->LDAP->ENABLED === true) {
 				$this->user_authenticated = login_ldap($this->getFirehall(), $this->getUserId(), $this->getUserPassword());
 			}
 			else {
@@ -112,17 +112,17 @@ class LoginDeviceViewModel extends BaseViewModel {
 				$fhid = $this->getFirehallId();
 				$uid = $this->getUserId();
 				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-				$qry_bind->bindParam(':fhid',$fhid);
-				$qry_bind->bindParam(':uid',$uid);
+				$qry_bind->bindParam(':fhid', $fhid);
+				$qry_bind->bindParam(':uid', $uid);
 				$qry_bind->execute();
 
 				$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
 				$qry_bind->closeCursor();
 				
 				$this->user_authenticated = false;
-				if(!empty($rows)) {
+				if(empty($rows) === false) {
 					$row = $rows[0];
-					if (crypt( $this->getUserPassword() , $row->user_pwd) === $row->user_pwd ) {
+					if (crypt( $this->getUserPassword(), $row->user_pwd) === $row->user_pwd ) {
 						$this->user_account_id = $row->id;
 						$this->user_authenticated = true;
 					}
@@ -140,8 +140,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 	}
 
 	private function getRegisterResult() {
-		if(isset($this->register_result) == false) {
-			//global $log;
+		if(isset($this->register_result) === false) {
 			
 			$sql = "UPDATE devicereg SET user_id = :uid, updatetime = CURRENT_TIMESTAMP() " .
 					" WHERE registration_id = :regid AND firehall_id = :fhid;";
@@ -150,9 +149,9 @@ class LoginDeviceViewModel extends BaseViewModel {
 			$regid = $this->getRegistrationId();
 			$fhid = $this->getFirehallId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-			$qry_bind->bindParam(':uid',$uid);
-			$qry_bind->bindParam(':regid',$regid);
-			$qry_bind->bindParam(':fhid',$fhid);
+			$qry_bind->bindParam(':uid', $uid);
+			$qry_bind->bindParam(':regid', $regid);
+			$qry_bind->bindParam(':fhid', $fhid);
 			$qry_bind->execute();
 			
 			$this->register_result = '';
@@ -164,9 +163,9 @@ class LoginDeviceViewModel extends BaseViewModel {
 				$regid = $this->getRegistrationId();
 				$fhid = $this->getFirehallId();
 				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-				$qry_bind->bindParam(':uid',$uid);
-				$qry_bind->bindParam(':regid',$regid);
-				$qry_bind->bindParam(':fhid',$fhid);
+				$qry_bind->bindParam(':uid', $uid);
+				$qry_bind->bindParam(':regid', $regid);
+				$qry_bind->bindParam(':fhid', $fhid);
 				$qry_bind->execute();
 								
 				$device_reg_id = $this->getGvm()->RR_DB_CONN->lastInsertId();
@@ -180,7 +179,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 	}
 	
 	private function getLiveCallout() {
-		if(isset($this->live_callout) == false) {
+		if(isset($this->live_callout) === false) {
 			global $log;
 			
 			// Check if there is an active callout (within last 48 hours) and if so send the details
@@ -210,7 +209,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 	private function getSignalCallout() {
 		$result = "";
 		
-		if(isset($this->live_callout) == false) {
+		if(isset($this->live_callout) === false) {
 			throw new \Exception("Invalid null live callout list!");
 		}
 
@@ -244,8 +243,8 @@ class LoginDeviceViewModel extends BaseViewModel {
 												$gcmMsg,
 												$this->getGvm()->RR_DB_CONN);
 		
-		if(isset($this->user_account_id)) {
-			if($this->getFirehall()->LDAP->ENABLED) {
+		if(isset($this->user_account_id) === true) {
+			if($this->getFirehall()->LDAP->ENABLED === true) {
 				create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 				// START: responders
 				$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a ' .
@@ -261,14 +260,14 @@ class LoginDeviceViewModel extends BaseViewModel {
 			
 			$uid = $this->getUserId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_response);
-			$qry_bind->bindParam(':cid',$callout_id);
-			$qry_bind->bindParam(':uid',$uid);
+			$qry_bind->bindParam(':cid', $callout_id);
+			$qry_bind->bindParam(':uid', $uid);
 			$qry_bind->execute();
 				
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
 			$qry_bind->closeCursor();
 
-			if(!empty($rows)) {
+			if(empty($rows) === false) {
 				$row = $rows[0];
 				$userStatus = $row->status;
 		
@@ -289,6 +288,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 		$loginMsg = 'GCM_LOGINOK';
 		
 		signalLoginStatusUsingGCM($this->getFirehall(), $this->getRegistrationId(),
-			$loginMsg,$this->getGvm()->RR_DB_CONN);
+			$loginMsg, $this->getGvm()->RR_DB_CONN);
 	}
 }
+?>

@@ -83,16 +83,22 @@
                 {% if callout_details_vm.google_map_type == 'javascript' %}
 
 		          {% block callout_js_inline_map %}
+
+                  {% include ['@custom/google-map-js-api-custom.twig.html', 'google-map-js-api.twig.html'] with 
+                     { 'CALLORIGIN' : row.callout_geo_dest, 
+                       'DESTINATION' : row.callout_address_dest,
+                       'FDLOCATION' : callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE ~ 
+                                      ',' ~ 
+                                      callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE,
+                       'WEB_ROOT' : callout_details_vm.firehall.WEBSITE.WEBSITE_ROOT_URL }
+                  %}
+
+                  <!--  
+                  <iframe frameborder="1" style="border:1"  
+                      src="{{ gvm.RR_DOC_ROOT }}controllers/callout-details-controller.php?enable_map_view=true&fhid={{ callout_details_vm.firehall_id|url_encode }}&map_callout_geo_dest={{ row.callout_geo_dest|url_encode }}&map_callout_address_dest={{ row.callout_address_dest|url_encode }}&map_fh_geo_lat={{ callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE|url_encode }}&map_fh_geo_long={{ callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE|url_encode }}&map_webroot={{ callout_details_vm.firehall.WEBSITE.WEBSITE_ROOT_URL|url_encode }}">
+                  </iframe>
+                  -->
 		          
-		          {% include ['@custom/google-map-js-api-custom.twig.html', 'google-map-js-api.twig.html'] with 
-		             { 'CALLORIGIN' : row.callout_geo_dest, 
-		               'DESTINATION' : row.callout_address_dest,
-		               'FDLOCATION' : callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE ~ 
-		                              ',' ~ 
-		                              callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE,
-		               'WEB_ROOT' : callout_details_vm.firehall.WEBSITE.WEBSITE_ROOT_URL }
-		          %}
-		           
 		          {% endblock %}
 		        
 		        {% else %}

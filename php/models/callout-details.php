@@ -24,22 +24,22 @@ class CalloutDetails {
 
 	public function isValid() {
 		$validItemCount = 0;
-		if(isset($this->dateTime)) {
+		if(isset($this->dateTime) === true) {
 			$validItemCount++;
 		}
-		if(isset($this->code)) {
+		if(isset($this->code) === true) {
 			$validItemCount++;
 		}
-		if(isset($this->address)) {
+		if(isset($this->address) === true) {
 			$validItemCount++;
 		}
-		if(isset($this->GPSLat)) {
+		if(isset($this->GPSLat) === true) {
 			$validItemCount++;
 		}
-		if(isset($this->GPSLong)) {
+		if(isset($this->GPSLong) === true) {
 			$validItemCount++;
 		}
-		if(isset($this->unitsResponding)) {
+		if(isset($this->unitsResponding) === true) {
 			$validItemCount++;
 		}
 		
@@ -68,7 +68,7 @@ class CalloutDetails {
 	}
 
 	public function getDateTimeAsString() {
-		if(isset($this->dateTime)) {
+		if(isset($this->dateTime) === true) {
 			if($this->dateTime instanceof DateTime) {
 				return $this->dateTime->format('Y-m-d H:i:s');
 			}
@@ -77,7 +77,7 @@ class CalloutDetails {
 		return '';
 	}
 	public function getDateTimeAsNative() {
-		if(isset($this->dateTime)) {
+		if(isset($this->dateTime) === true) {
 			if($this->dateTime instanceof DateTime) {
 				return $this->dateTime;
 			}
@@ -91,13 +91,13 @@ class CalloutDetails {
 	}
 
 	public function getCode() {
-		if(isset($this->code)) {
+		if(isset($this->code) === true) {
 			return $this->code;
 		}
 		return '';
 	}
 	public function getCodeDescription() {
-		if(isset($this->code)) {
+		if(isset($this->code) === true) {
 			return $this->convertCallOutCodeToText($this->code);
 		}
 		return '';
@@ -110,8 +110,8 @@ class CalloutDetails {
 		return $this->address;
 	}
 	public function getAddressForMap() {
-		if(isset($this->address)) {
-			return getAddressForMapping($this->firehall,$this->address);
+		if(isset($this->address) === true) {
+			return getAddressForMapping($this->firehall, $this->address);
 		}
 		return '';
 	}
@@ -150,10 +150,11 @@ class CalloutDetails {
 	
 	private function convertCallOutCodeToText($code) {
 		global $CALLOUT_CODES_LOOKUP;
-		$codeText = "UNKNOWN [" + $code + "]";
-		if (array_key_exists($code, $CALLOUT_CODES_LOOKUP)) {
+		$codeText = 'UNKNOWN ['.$code.']';
+		if (array_key_exists($code, $CALLOUT_CODES_LOOKUP) === true) {
 			$codeText = $CALLOUT_CODES_LOOKUP[$code];
 		}
 		return $codeText;
 	}
 }
+?>

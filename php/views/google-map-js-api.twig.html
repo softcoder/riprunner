@@ -1,10 +1,9 @@
-<script type="text/javascript"
-    src="https://maps.googleapis.com/maps/api/js?key={{ callout_details_vm.firehall.WEBSITE.WEBSITE_GOOGLE_MAP_API_KEY }}&alternatives=true">
-</script>
    <div style="width: 600px;">
      <div class="google-maps" id="map"></div> 
    </div>
-   <script type="text/javascript"> 
+   <script type="text/javascript">
+function map_initialize() {
+    //debugger;
 	var directionsService = new google.maps.DirectionsService();
 	var directionsDisplay = new google.maps.DirectionsRenderer();
 	
@@ -27,7 +26,7 @@
 		zoomControl: true,
 		zoomControlOptions: {
 			position: google.maps.ControlPosition.LEFT_TOP
-			}
+		}
     });
 
 	directionsDisplay.setMap(map);
@@ -78,20 +77,34 @@
 			directionsDisplay.setDirections(response);
 		}
 		
-	{% block map_boundaries %}
-	//
-	// Set map bounds here
-	//
-	//var boundaryLayer = new google.maps.KmlLayer({
-	//	url: '{{ WEB_ROOT }}kml/boundaries.kml',
-	//	preserveViewport: true,
-	//	supressInfoWindows: true
-	//});
-	//boundaryLayer.setMap(map);
-	{% endblock %}
+		{% block map_boundaries %}
+		//
+		// Set map bounds here
+		//
+		//var boundaryLayer = new google.maps.KmlLayer({
+		//	url: '{{ WEB_ROOT }}kml/boundaries.kml',
+		//	preserveViewport: true,
+		//	supressInfoWindows: true
+		//});
+		//boundaryLayer.setMap(map);
+		{% endblock %}
 
-    if(marker != null) {
-        marker.setMap(map);
-    }
+	    if(marker != null) {
+	        marker.setMap(map);
+	    }
 	});
+}
+   
+   function loadScript(src,callback) {
+	   var script = document.createElement("script");
+	   script.type = "text/javascript";
+	   if(callback) {
+		    script.onload = callback;
+	   }
+	   document.getElementsByTagName("head")[0].appendChild(script);
+	   script.src = src;
+   }
+   $( document ).ready(function() {
+      loadScript('https://maps.googleapis.com/maps/api/js?v=3.exp&key={{ callout_details_vm.firehall.WEBSITE.WEBSITE_GOOGLE_MAP_API_KEY }}&alternatives=true&callback=map_initialize' );
+   });
 </script>

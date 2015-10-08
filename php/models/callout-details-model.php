@@ -23,47 +23,63 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		if('firehall_id' == $name) {
+		if('firehall_id' === $name) {
 			return $this->getFirehallId();
 		}
-		if('firehall' == $name) {
+		if('firehall' === $name) {
 			return $this->getFirehall();
 		}
-		if('callout_id' == $name) {
+		if('callout_id' === $name) {
 			return $this->getCalloutId();
 		}
-		if('calloutkey_id' == $name) {
+		if('calloutkey_id' === $name) {
 			return $this->getCalloutKeyId();
 		}
-		if('member_id' == $name) {
+		if('member_id' === $name) {
 			return $this->getMemberId();
 		}
-		if('callout_responding_user_id' == $name) {
+		if('callout_responding_user_id' === $name) {
 			return $this->getCalloutRespondingId();
 		}
-		if('callout_status_complete' == $name) {
+		if('callout_status_complete' === $name) {
 			return \CalloutStatusType::Complete;
 		}
-		if('callout_status_cancel' == $name) {
+		if('callout_status_cancel' === $name) {
 			return \CalloutStatusType::Cancelled;
 		}
-		if('callout_details_list' == $name) {
+		if('callout_details_list' === $name) {
 			return $this->getCalloutDetailsList();
 		}
-		if('callout_details_responding_list' == $name) {
+		if('callout_details_responding_list' === $name) {
 			return $this->getCalloutDetailsRespondingList();
 		}
-		if('callout_details_not_responding_list' == $name) {
+		if('callout_details_not_responding_list' === $name) {
 			return $this->getCalloutDetailsNotRespondingList();
 		}
-		if('callout_details_end_responding_list' == $name) {
+		if('callout_details_end_responding_list' === $name) {
 			return $this->getCalloutDetailsEndRespondingList();
 		}
-		if('google_map_type' == $name) {
+		if('google_map_type' === $name) {
 			return GOOGLE_MAP_TYPE;
 		}
-		if('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED' == $name) {
+		if('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED' === $name) {
 			return ALLOW_CALLOUT_UPDATES_AFTER_FINISHED;
+		}
+		
+		if('map_callout_geo_dest' === $name) {
+		    return get_query_param('map_callout_geo_dest');
+		}
+		if('map_callout_address_dest' === $name) {
+		    return get_query_param('map_callout_address_dest');
+		}
+		if('map_fh_geo_lat' === $name) {
+		    return get_query_param('map_fh_geo_lat');
+		}
+		if('map_fh_geo_long' === $name) {
+		    return get_query_param('map_fh_geo_long');
+		}
+		if('map_webroot' === $name) {
+		    return get_query_param('map_webroot');
 		}
 		
 		return parent::__get($name);
@@ -75,8 +91,10 @@ class CalloutDetailsViewModel extends BaseViewModel {
 				  'callout_responding_user_id', 'callout_status_complete', 'callout_status_cancel',
 			      'callout_details_list','callout_details_responding_list',
 				  'callout_details_not_responding_list', 'callout_details_end_responding_list',
-				  'google_map_type', 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED'
-			))) {
+				  'google_map_type', 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED',
+	 	          'map_callout_geo_dest', 'map_callout_address_dest', 'map_fh_geo_lat',
+		          'map_fh_geo_long', 'map_webroot'
+			)) === true) {
 			return true;
 		}
 		return parent::__isset($name);
@@ -89,7 +107,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	
 	private function getFirehall() {
 		$firehall = null;
-		if($this->getFirehallId() != null) {
+		if($this->getFirehallId() !== null) {
 			$firehall = findFireHallConfigById($this->getFirehallId(), 
 											$this->getGvm()->firehall_list);
 		}
@@ -98,8 +116,8 @@ class CalloutDetailsViewModel extends BaseViewModel {
 
 	private function getCalloutId() {
 		$callout_id = get_query_param('cid');
-		if ( isset($callout_id) && $callout_id != null ) {
-			$callout_id = (int) $callout_id;
+		if ( isset($callout_id) === true && $callout_id !== null ) {
+			$callout_id = (int)$callout_id;
 		}
 		else {
 			$callout_id = -1;
@@ -123,7 +141,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	}
 	
 	private function getCalloutDetailsList() {
-		if(isset($this->callout_details_list) == false) {
+		if(isset($this->callout_details_list) === false) {
 			global $log;
 			
 			$firehall_id = get_query_param('fhid');
@@ -131,30 +149,30 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			$user_id = get_query_param('member_id');
 			$callout_id = get_query_param('cid');
 			
-			if(isset($callout_id) && $callout_id != null) {
-				$callout_id = (int) $callout_id;
+			if(isset($callout_id) === true && $callout_id !== null) {
+				$callout_id = (int)$callout_id;
 			}
 			else {
 				$callout_id = -1;
 			}
 			
-			$log->trace("Call Info for firehall_id [$firehall_id] callout_id [$callout_id] callkey_id [$callkey_id] member_id [". (isset($user_id) ? $user_id : "null") ."]");
+			$log->trace("Call Info for firehall_id [$firehall_id] callout_id [$callout_id] callkey_id [$callkey_id] member_id [". ((isset($user_id) === true) ? $user_id : "null") ."]");
 			
-			if($callout_id != -1 && isset($callkey_id)) {
+			if($callout_id !== -1 && isset($callkey_id) === true) {
 				// Read from the database info about this callout
 				$sql = "SELECT * FROM callouts ";
-				if(isset($callout_id) && $callout_id != null) {
+				if(isset($callout_id) === true && $callout_id !== null) {
 					$sql .= " WHERE id = :cid";
-					if(isset($callkey_id) && $callkey_id != null) {
+					if(isset($callkey_id) === true && $callkey_id !== null) {
 						$sql .= " AND call_key = :ckid";
 					}
 				}
 
 				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-				if(isset($callout_id) && $callout_id != null) {
-					$qry_bind->bindParam(':cid',$callout_id);
-					if(isset($callkey_id) && $callkey_id != null) {
-						$qry_bind->bindParam(':ckid',$callkey_id);
+				if(isset($callout_id) ===true && $callout_id !== null) {
+					$qry_bind->bindParam(':cid', $callout_id);
+					if(isset($callkey_id) === true && $callkey_id !== null) {
+						$qry_bind->bindParam(':ckid', $callkey_id);
 					}
 				}
 				$qry_bind->execute();
@@ -169,14 +187,14 @@ class CalloutDetailsViewModel extends BaseViewModel {
 					// Add any custom fields with values here
 	 				$row['callout_type_desc'] = convertCallOutTypeToText($row['calltype']);
 	 				$row['callout_status_desc'] = getCallStatusDisplayText($row['status']);
-	 				$row['callout_status_completed'] = ($row['status'] == \CalloutStatusType::Complete);
-	 				$row['callout_status_cancelled'] = ($row['status'] == \CalloutStatusType::Cancelled);
+	 				$row['callout_status_completed'] = ($row['status'] === \CalloutStatusType::Complete);
+	 				$row['callout_status_cancelled'] = ($row['status'] === \CalloutStatusType::Cancelled);
 	 				
-	 				if(isset($row['address']) == false || $row['address'] == '') {
+	 				if(isset($row['address']) === false || $row['address'] === '') {
 	 					$row['callout_address_dest'] = $row['latitude'] . ',' . $row['longitude'];
 	 				}
 	 				else {
-	 					$row['callout_address_dest'] = getAddressForMapping($this->getFirehall(),$row['address']);
+	 					$row['callout_address_dest'] = getAddressForMapping($this->getFirehall(), $row['address']);
 	 				}
 	 				$row['callout_geo_dest'] = $row['latitude'] . ',' . $row['longitude'];
 	 				
@@ -190,12 +208,12 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	}
 	
 	private function getCalloutDetailsRespondingList() {
-		if(isset($this->callout_details_responding_list) == false) {
+		if(isset($this->callout_details_responding_list) === false) {
 			global $log;
 			
 			$callouts = $this->getCalloutDetailsList();
 			foreach($callouts as $row) {
-				if($this->getFirehall()->LDAP->ENABLED) {
+				if($this->getFirehall()->LDAP->ENABLED === true) {
 					create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 					$sql_response = 'SELECT a.*, b.user_id ' .
 									' FROM callouts_response a ' .
@@ -210,7 +228,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 				}
 
 				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_response);
-				$qry_bind->bindParam(':cid',$row['id']);
+				$qry_bind->bindParam(':cid', $row['id']);
 				$qry_bind->execute();
 				
 				$log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . $qry_bind->rowCount());
@@ -233,11 +251,11 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	}
 
 	private function getCalloutDetailsNotRespondingList() {
-		if(isset($this->callout_details_not_responding_list) == false) {
+		if(isset($this->callout_details_not_responding_list) === false) {
 			global $log;
 			
 			// Select all user accounts for the firehall that did not yet respond
-			if($this->getFirehall()->LDAP->ENABLED) {
+			if($this->getFirehall()->LDAP->ENABLED === true) {
 				create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 				$sql_no_response = 'SELECT id, user_id FROM ldap_user_accounts ' .
 								   ' WHERE id NOT IN (SELECT useracctid ' .
@@ -251,7 +269,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 
 			$cid = $this->getCalloutId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_no_response);
-			$qry_bind->bindParam(':cid',$cid);
+			$qry_bind->bindParam(':cid', $cid);
 			$qry_bind->execute();
 				
 			$log->trace("Call Info callouts no responses SQL success for sql [$sql_no_response] row count: " . $qry_bind->rowCount());
@@ -271,11 +289,11 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	}
 	
 	private function getCalloutDetailsEndRespondingList() {
-		if(isset($this->callout_details_end_responding_list) == false) {
+		if(isset($this->callout_details_end_responding_list) === false) {
 			global $log;
 			
 			// Select all user accounts for the firehall that did respond to the call
-			if($this->getFirehall()->LDAP->ENABLED) {
+			if($this->getFirehall()->LDAP->ENABLED === true) {
 				create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 				$sql_yes_response = 'SELECT id,user_id FROM ldap_user_accounts ' .
 									' WHERE id IN (SELECT useracctid ' .
@@ -289,7 +307,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			
 			$cid = $this->getCalloutId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_yes_response);
-			$qry_bind->bindParam(':cid',$cid);
+			$qry_bind->bindParam(':cid', $cid);
 			$qry_bind->execute();
 				
 			$log->trace("Call Info callouts yes responses SQL success for sql [$sql_yes_response] row count: " . $qry_bind->rowCount());
@@ -308,3 +326,4 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		return $this->callout_details_end_responding_list;
 	}
 }
+?>

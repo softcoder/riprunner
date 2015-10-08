@@ -17,7 +17,7 @@ class MobileAppInfoViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		if('info_list' == $name) {
+		if('info_list' === $name) {
 			return $this->getInfoList();
 		}
 		
@@ -26,7 +26,7 @@ class MobileAppInfoViewModel extends BaseViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('info_list'))) {
+			array('info_list')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
@@ -42,13 +42,13 @@ class MobileAppInfoViewModel extends BaseViewModel {
 		$result = null;
 		
 		$firehall = $this->getGvm()->firehall;
-		if($this->getFirehallId() != null) {
+		if($this->getFirehallId() !== null) {
 			$firehall = findFireHallConfigById($this->getFirehallId(), $this->getGvm()->firehall_list);
 		}
-		if(isset($firehall) == false || $firehall == null) {
+		if(isset($firehall) === false || $firehall === null) {
 			$firehall = getFirstActiveFireHallConfig($this->getGvm()->firehall_list);
 		}
-		if(isset($firehall) && $firehall != null) {
+		if(isset($firehall) === true && $firehall !== null) {
 			$log->trace("Mobile app info fhid [" . $firehall->FIREHALL_ID . "]");
 	
 			$result = array(
@@ -72,3 +72,4 @@ class MobileAppInfoViewModel extends BaseViewModel {
 		return $result;
 	}
 }
+?>

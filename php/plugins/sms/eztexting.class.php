@@ -5,12 +5,12 @@
 // ==============================================================
 namespace riprunner;
 
-if ( !defined('INCLUSION_PERMITTED') ||
-( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
+if ( defined('INCLUSION_PERMITTED') === false ||
+    (defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false ) ) {
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once( 'plugin_interfaces.php' );
+require_once 'plugin_interfaces.php';
 
 class SMSEzTextingPlugin implements ISMSPlugin {
 
@@ -23,14 +23,14 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 	public function signalRecipients($SMSConfig, $recipient_list, $recipient_list_type, $smsText) {
 		$resultSMS = "START Send SMS using EzTexting." . PHP_EOL;
 
-		if($recipient_list_type == RecipientListType::GroupList) {
+		if($recipient_list_type === RecipientListType::GroupList) {
 			$recipients_group = $recipient_list;
 		}
 		else {
 			$recipient_list_numbers = $recipient_list;
 		}
 			
-		if($recipient_list_type == RecipientListType::GroupList) {
+		if($recipient_list_type === RecipientListType::GroupList) {
 			$resultSMS .= 'About to send SMS to: [' . implode(",", $recipients_group) . ']' . PHP_EOL;
 		}
 		else {
@@ -42,12 +42,12 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 	
 		$url = $SMSConfig->SMS_PROVIDER_EZTEXTING_BASE_URL;
 
-		if(is_array($smsText) == false) {
+		if(is_array($smsText) === false) {
 			$smsText = array($smsText);
 		}
 		
 		foreach($smsText as $smsMsg) {
-			if($SMSConfig->SMS_RECIPIENTS_ARE_GROUP) {
+			if($SMSConfig->SMS_RECIPIENTS_ARE_GROUP === true) {
 				$data = array(
 				    'User'          => $SMSConfig->SMS_PROVIDER_EZTEXTING_USERNAME,
 				    'Password'      => $SMSConfig->SMS_PROVIDER_EZTEXTING_PASSWORD,
@@ -74,7 +74,7 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 			// on your own server, try uncommenting the line below
 			// curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 			$response = curl_exec($curl);
-			if(!curl_errno($curl)) {
+			if(curl_errno($curl) === 0) {
 				$info = curl_getinfo($curl);
 				$resultSMS .= 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
 			}
@@ -85,34 +85,34 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 			curl_close($curl);
 			
 			$xml = new \SimpleXMLElement($response);
-			if ( 'Failure' == $xml->Status ) {
+			if ( 'Failure' === $xml->Status ) {
 				$errors = array();
-				foreach( $xml->Errors->children() as $error ) {
-					$errors[] = (string) $error;
+				foreach($xml->Errors->children() as $error){
+					$errors[] = (string)$error;
 				}
 			
 				$resultSMS .= 'Status: ' . $xml->Status . "\n" .
-							  'Errors: ' . implode(', ' , $errors) . "\n";
+							  'Errors: ' . implode(', ', $errors) . "\n";
 			} 
 			else {
 				$phoneNumbers = array();
-				foreach( $xml->Entry->PhoneNumbers->children() as $phoneNumber ) {
-					$phoneNumbers[] = (string) $phoneNumber;
+				foreach($xml->Entry->PhoneNumbers->children() as $phoneNumber){
+					$phoneNumbers[] = (string)$phoneNumber;
 				}
 			
 				$localOptOuts = array();
-				foreach( $xml->Entry->LocalOptOuts->children() as $phoneNumber ) {
-					$localOptOuts[] = (string) $phoneNumber;
+				foreach($xml->Entry->LocalOptOuts->children() as $phoneNumber){
+					$localOptOuts[] = (string)$phoneNumber;
 				}
 			
 				$globalOptOuts = array();
-				foreach( $xml->Entry->GlobalOptOuts->children() as $phoneNumber ) {
-					$globalOptOuts[] = (string) $phoneNumber;
+				foreach($xml->Entry->GlobalOptOuts->children() as $phoneNumber){
+					$globalOptOuts[] = (string)$phoneNumber;
 				}
 			
 				$groups = array();
-				foreach( $xml->Entry->Groups->children() as $group ) {
-					$groups[] = (string) $group;
+				foreach($xml->Entry->Groups->children() as $group){
+					$groups[] = (string)$group;
 				}
 			
 				$resultSMS .= 'Status: ' . $xml->Status . "\n" .
@@ -123,13 +123,14 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 						'Total Recipients: ' . $xml->Entry->RecipientsCount . "\n" .
 						'Credits Charged: ' . $xml->Entry->Credits . "\n" .
 						'Time To Send: ' . $xml->Entry->StampToSend . "\n" .
-						'Phone Numbers: ' . implode(', ' , $phoneNumbers) . "\n" .
-						'Groups: ' . implode(', ' , $groups) . "\n" .
-						'Locally Opted Out Numbers: ' . implode(', ' , $localOptOuts) . "\n" .
-						'Globally Opted Out Numbers: ' . implode(', ' , $globalOptOuts) . "\n";
+						'Phone Numbers: ' . implode(', ', $phoneNumbers) . "\n" .
+						'Groups: ' . implode(', ', $groups) . "\n" .
+						'Locally Opted Out Numbers: ' . implode(', ', $localOptOuts) . "\n" .
+						'Globally Opted Out Numbers: ' . implode(', ', $globalOptOuts) . "\n";
 			}
 		}
 		
 		return $resultSMS;
 	}
 }
+?>

@@ -28,53 +28,52 @@ class ReportsChartsViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		if('calltypes_currentmonth' == $name) {
+		if('calltypes_currentmonth' === $name) {
 			$current_month_start = date('Y-m-01');
 			$current_month_end = date('Y-m-t');
 				
 			return $this->getCallTypeStatsForDateRange(
-					$current_month_start,$current_month_end);
+					$current_month_start, $current_month_end);
 		}
-		if('calltypes_currentyear' == $name) {
+		if('calltypes_currentyear' === $name) {
 			$year_start = strtotime('first day of January', time());
             $year_end = strtotime('last day of December', time());
                                 
-            $current_year_start = date('Y-m-d',$year_start);
-            $current_year_end = date('Y-m-d',$year_end);
+            $current_year_start = date('Y-m-d', $year_start);
+            $current_year_end = date('Y-m-d', $year_end);
 					
 			return $this->getCallTypeStatsForDateRange(
-						$current_year_start,$current_year_end);
+						$current_year_start, $current_year_end);
 		}
-		if('calltypes_allyears' == $name) {
+		if('calltypes_allyears' === $name) {
 			return $this->getCallTypeStatsForAllDates();
 		}
-		if('callvoltypes_currentyear' == $name) {
+		if('callvoltypes_currentyear' === $name) {
 			$this->getCallVolTypesCurrentyear();
 			return $this->callvoltypes_currentyear;
 		}
-		if('callvoltypes_currentyear_cols' == $name) {
+		if('callvoltypes_currentyear_cols' === $name) {
 			$this->getCallVolTypesCurrentyear();
 			return $this->callvoltypes_currentyear_cols;
 		}
-		if('callresponsevol_currentyear' == $name) {
+		if('callresponsevol_currentyear' === $name) {
 			$this->getCallResponseVolCurrentyear();
 			return $this->callresponsevol_currentyear;
 		}
-		if('callresponsevol_currentyear_cols' == $name) {
+		if('callresponsevol_currentyear_cols' === $name) {
 			$this->getCallResponseVolCurrentyear();
 			return $this->callresponsevol_currentyear_cols;
 		}
 
-		if('callresponse_hours_currentyear' == $name) {
+		if('callresponse_hours_currentyear' === $name) {
 		    $this->getCallResponseHoursCurrentyear();
 		    return $this->callresponse_hours_currentyear;
 		}
-		if('callresponse_hours_currentyear_cols' == $name) {
+		if('callresponse_hours_currentyear_cols' === $name) {
 		    $this->getCallResponseHoursCurrentyear();
 		    return $this->callresponse_hours_currentyear_cols;
 		}
 
-		
 		return parent::__get($name);
 	}
 
@@ -84,24 +83,24 @@ class ReportsChartsViewModel extends BaseViewModel {
   				  'callvoltypes_currentyear', 'callvoltypes_currentyear_cols',
 				  'callresponsevol_currentyear', 'callresponsevol_currentyear_cols',
 				  'callresponse_hours_currentyear', 'callresponse_hours_currentyear_cols'
-			))) {
+			)) === true) {
 			return true;
 		}
 		return parent::__isset($name);
 	}
 
 	private function getCallResponseVolCurrentyear() {
-		if(isset($this->callresponsevol_currentyear) == false) {
+		if(isset($this->callresponsevol_currentyear) === false) {
 			$year_start = strtotime('first day of January', time());
 			$year_end = strtotime('last day of December', time());
 	
-			$current_year_start = date('Y-m-d',$year_start);
-			$current_year_end = date('Y-m-d',$year_end);
+			$current_year_start = date('Y-m-d', $year_start);
+			$current_year_end = date('Y-m-d', $year_end);
 			$this->callresponsevol_currentyear_cols = array();
 	
 			$this->callresponsevol_currentyear =
 					$this->getCallResponseVolumeStatsForDateRange(
-							$current_year_start,$current_year_end,
+							$current_year_start, $current_year_end, 
 							$this->callresponsevol_currentyear_cols);
 		}
 	
@@ -109,17 +108,17 @@ class ReportsChartsViewModel extends BaseViewModel {
 	
 	
 	private function getCallResponseHoursCurrentyear() {
-	    if(isset($this->callresponse_hours_currentyear) == false) {
+	    if(isset($this->callresponse_hours_currentyear) === false) {
 	        $year_start = strtotime('first day of January', time());
 	        $year_end = strtotime('last day of December', time());
 	
-	        $current_year_start = date('Y-m-d',$year_start);
-	        $current_year_end = date('Y-m-d',$year_end);
+	        $current_year_start = date('Y-m-d', $year_start);
+	        $current_year_end = date('Y-m-d', $year_end);
 	        $this->callresponse_hours_currentyear_cols = array();
 	
 	        $this->callresponse_hours_currentyear =
 	        $this->getCallResponseHoursStatsForDateRange(
-	                $current_year_start,$current_year_end,
+	                $current_year_start, $current_year_end, 
 	                $this->callresponse_hours_currentyear_cols);
 	    }
 	
@@ -127,17 +126,17 @@ class ReportsChartsViewModel extends BaseViewModel {
 	
 	
 	private function getCallVolTypesCurrentyear() {
-		if(isset($this->callvoltypes_currentyear) == false) {
+		if(isset($this->callvoltypes_currentyear) === false) {
 			$year_start = strtotime('first day of January', time());
 			$year_end = strtotime('last day of December', time());
 			 
-			$current_year_start = date('Y-m-d',$year_start);
-			$current_year_end = date('Y-m-d',$year_end);
+			$current_year_start = date('Y-m-d', $year_start);
+			$current_year_end = date('Y-m-d', $year_end);
 			$this->callvoltypes_currentyear_cols = array();
 		
 			$this->callvoltypes_currentyear =
 			$this->getCallVolumeStatsForDateRange(
-					$current_year_start,$current_year_end,
+					$current_year_start, $current_year_end, 
 					$this->callvoltypes_currentyear_cols);
 		}
 	}
@@ -158,7 +157,7 @@ from callouts
 where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,10)  
 
  */	
-	private function getCallTypeStatsForDateRange($startDate,$endDate) {
+	private function getCallTypeStatsForDateRange($startDate, $endDate) {
 		// Read from the database
 		$sql = "SELECT calltype, COUNT(*) count FROM callouts " .
 			   " WHERE calltime BETWEEN :start AND :end " .
@@ -166,8 +165,8 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 			   " GROUP BY calltype ORDER BY calltype;";
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-		$qry_bind->bindParam(':start',$startDate);
-		$qry_bind->bindParam(':end',$endDate);
+		$qry_bind->bindParam(':start', $startDate);
+		$qry_bind->bindParam(':end', $endDate);
 		$qry_bind->execute();
 		
 		$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
@@ -179,8 +178,8 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 			$row_result = array();
 	
 			$callTypeDesc = convertCallOutTypeToText($row->calltype);
-			$row_result[$callTypeDesc] = $row->count + 0;
-			array_push($data_results,$row_result);
+			$row_result[$callTypeDesc] = ($row->count + 0);
+			array_push($data_results, $row_result);
 		}
 	
 		return $data_results;
@@ -200,13 +199,13 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 		foreach($rows as $row) {
 			$row_result = array();
 			$callTypeDesc = convertCallOutTypeToText($row->calltype);
-			$row_result[$callTypeDesc] = $row->count + 0;
-			array_push($data_results,$row_result);
+			$row_result[$callTypeDesc] = ($row->count + 0);
+			array_push($data_results, $row_result);
 		}
 		return $data_results;
 	}
 	
-	private function getCallVolumeStatsForDateRange($startDate,$endDate,
+	private function getCallVolumeStatsForDateRange($startDate, $endDate, 
 													&$dynamicColumnTitles) {
 	
 		$MAX_MONTHLY_LABEL = "*MONTH TOTAL";
@@ -218,8 +217,8 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 				' GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_titles);
-		$qry_bind->bindParam(':start',$startDate);
-		$qry_bind->bindParam(':end',$endDate);
+		$qry_bind->bindParam(':start', $startDate);
+		$qry_bind->bindParam(':end', $endDate);
 		$qry_bind->execute();
 		
 		$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
@@ -229,11 +228,11 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 		$titles_results = array();
 		foreach($rows as $row_titles) {
 			$callTypeDesc = $row_titles->datalabel;
-			if($callTypeDesc != $MAX_MONTHLY_LABEL) {
+			if($callTypeDesc !== $MAX_MONTHLY_LABEL) {
 				$callTypeDesc = $callTypeDesc . ' - ' . convertCallOutTypeToText($row_titles->datalabel);
 			}
-			array_push($titles_results,$callTypeDesc);
-			array_push($dynamicColumnTitles,$callTypeDesc);
+			array_push($titles_results, $callTypeDesc);
+			array_push($dynamicColumnTitles, $callTypeDesc);
 		}
 	
 		// Read from the database
@@ -250,8 +249,8 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
                 ' GROUP BY datalabel, month ORDER BY month) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-		$qry_bind->bindParam(':start',$startDate);
-		$qry_bind->bindParam(':end',$endDate);
+		$qry_bind->bindParam(':start', $startDate);
+		$qry_bind->bindParam(':end', $endDate);
 		$qry_bind->execute();
 		
 		$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
@@ -261,35 +260,35 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 	   $data_results = array();
 	   foreach($rows as $row) {
 	   		$callTypeDesc = $row->datalabel;
-	   		if($callTypeDesc != $MAX_MONTHLY_LABEL) {
+	   		if($callTypeDesc !== $MAX_MONTHLY_LABEL) {
 	   			$callTypeDesc = $callTypeDesc . ' - ' . convertCallOutTypeToText($row->datalabel);
 	   		}
 	
 	   		$row_result = array($row->month,$callTypeDesc,$row->count + 0);
-	   		array_push($data_results,$row_result);
+	   		array_push($data_results, $row_result);
 	   }
 	
 	   // Ensure every month of the year exists in the results for each calltype
-	   for($index=1;$index <= 12; $index++) {
+	   for($index=1; $index <= 12; $index++) {
 	   		foreach($titles_results as $title) {
 	   			$found_index = false;
 	            foreach($data_results as $data) {
-	            	$monthNumber = $data[0];
+	            	$monthNumber = ($data[0] + 0);
 	                $labelName = $data[1];
-	                if($index == $monthNumber && $title == $labelName) {
+	                if($index === $monthNumber && $title === $labelName) {
 	                	$found_index = true;
 	                	break;
 	                }
 	            }
-	            if($found_index == false) {
+	            if($found_index === false) {
 	            	$row_result = array($index,$title,0);
-	                array_push($data_results,$row_result);
+	                array_push($data_results, $row_result);
 	            }
 	        }
 	   }
 	
 	   // Sort by month # then by calltype
-	   usort($data_results, make_comparer(0,1));
+	   usort($data_results, make_comparer(0, 1));
 	
 	   // Replace month # with month name and build array for each unique calltype
 	   $formatted_data = array();
@@ -298,34 +297,34 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
        $current_month_array = null;
 
        foreach ($data_results as $key => $row) {
-       		$monthNumber = $row[0];
+       		$monthNumber = ($row[0] + 0);
        		$monthName = date("F", mktime(0, 0, 0, $monthNumber, 10));
 
        		$monthCount = $row[2];
 	
-       		if($current_month_number != $monthNumber) {
-       			if(isset($current_month_array)) {
-       				array_push($formatted_data,$current_month_array);
+       		if($current_month_number !== $monthNumber) {
+       			if(isset($current_month_array) === true) {
+       				array_push($formatted_data, $current_month_array);
        			}
 	
 	            $current_month_array = array();
-	            array_push($current_month_array,$monthName);
-	            array_push($current_month_array,$monthCount);
+	            array_push($current_month_array, $monthName);
+	            array_push($current_month_array, $monthCount);
 	
 	            $current_month_number = $monthNumber;
 	        }
 	        else {
-	        	array_push($current_month_array,$monthCount);
+	        	array_push($current_month_array, $monthCount);
 	        }
 	   }
-	   if(isset($current_month_array)) {
-	   		array_push($formatted_data,$current_month_array);
+	   if(isset($current_month_array) === true) {
+	   		array_push($formatted_data, $current_month_array);
 	   }
 	
 	   return $formatted_data;
 	}
 	
-	private function getCallResponseVolumeStatsForDateRange($startDate,$endDate,
+	private function getCallResponseVolumeStatsForDateRange($startDate, $endDate, 
 	                			&$dynamicColumnTitles) {
 	
 		global $log;
@@ -333,7 +332,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 		
 		$MAX_MONTHLY_LABEL = "*MONTHLY TOTAL";
 
-		if($this->getGvm()->firehall->LDAP->ENABLED) {
+		if($this->getGvm()->firehall->LDAP->ENABLED === true) {
 			create_temp_users_table_for_ldap($this->getGvm()->firehall, 
 												$this->getGvm()->RR_DB_CONN);
 			// Search the database
@@ -360,8 +359,8 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         }
 
         $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_titles);
-        $qry_bind->bindParam(':start',$startDate);
-        $qry_bind->bindParam(':end',$endDate);
+        $qry_bind->bindParam(':start', $startDate);
+        $qry_bind->bindParam(':end', $endDate);
         $qry_bind->execute();
         
         $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
@@ -372,11 +371,11 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         // Build the data array
         $titles_results = array();
         foreach($rows as $row_titles) {
-        	array_push($titles_results,$row_titles->datalabel);
-            array_push($dynamicColumnTitles,$row_titles->datalabel);
+        	array_push($titles_results, $row_titles->datalabel);
+            array_push($dynamicColumnTitles, $row_titles->datalabel);
         }
 	
-        if($this->getGvm()->firehall->LDAP->ENABLED) {
+        if($this->getGvm()->firehall->LDAP->ENABLED === true) {
         	create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
 
 			// Find all occourences of calls that are completed(10) or canceled(3).  
@@ -408,43 +407,43 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
        }
 
        $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-       $qry_bind->bindParam(':start',$startDate);
-       $qry_bind->bindParam(':end',$endDate);
+       $qry_bind->bindParam(':start', $startDate);
+       $qry_bind->bindParam(':end', $endDate);
        $qry_bind->execute();
        
        $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
        $qry_bind->closeCursor();
         
-       $log->trace("Calling getCallResponseVolumeStatsForDateRange sql [" . $sql . "]");
+       $log->trace("Calling getCallResponseVolumeStatsForDateRange sql [$sql] for date range: $startDate - $endDate");
        
        // Build the data array
        $data_results = array();
        foreach($rows as $row){
        		$row_result = array($row->month,$row->datalabel,$row->count + 0);
-         	array_push($data_results,$row_result);
+         	array_push($data_results, $row_result);
        }
 
        // Ensure every month of the year exists in the results for each calltype
-       for($index=1;$index <= 12; $index++) {
+       for($index=1; $index <= 12; $index++) {
        		foreach($titles_results as $title) {
        			$found_index = false;
             	foreach($data_results as $data) {
-            		$monthNumber = $data[0];
+            		$monthNumber = ($data[0] + 0);
             		$labelName = $data[1];
-            		if($index == $monthNumber && $title == $labelName) {
+            		if($index === $monthNumber && $title === $labelName) {
             			$found_index = true;
             			break;
             		}
             	}
-            	if($found_index == false) {
+            	if($found_index === false) {
             		$row_result = array($index,$title,0);
-            		array_push($data_results,$row_result);
+            		array_push($data_results, $row_result);
             	}
             }
         }
 	
 	    // Sort by month # then by calltype
-	    usort($data_results, make_comparer(0,1));
+	    usort($data_results, make_comparer(0, 1));
 	
       	// Replace month # with month name and build array for each unique calltype
        	$formatted_data = array();
@@ -453,29 +452,29 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
        	$current_month_array = null;
 	
        	foreach ($data_results as $key => $row) {
-       		$monthNumber = $row[0];
+       		$monthNumber = ($row[0] + 0);
 	        $monthName = date("F", mktime(0, 0, 0, $monthNumber, 10));
 	
             $monthCount = $row[2];
 	
-           if($current_month_number != $monthNumber) {
-           		if(isset($current_month_array)) {
-           			array_push($formatted_data,$current_month_array);
+           if($current_month_number !== $monthNumber) {
+           		if(isset($current_month_array) === true) {
+           			array_push($formatted_data, $current_month_array);
 	            }
 	
 	            $current_month_array = array();
-	            array_push($current_month_array,$monthName);
-	            array_push($current_month_array,$monthCount);
+	            array_push($current_month_array, $monthName);
+	            array_push($current_month_array, $monthCount);
 	
 	            $current_month_number = $monthNumber;
 	       }
 	       else {
-	       		array_push($current_month_array,$monthCount);
+	       		array_push($current_month_array, $monthCount);
 	       }
        	}
 
-       	if(isset($current_month_array)) {
-       		array_push($formatted_data,$current_month_array);
+       	if(isset($current_month_array) === true) {
+       		array_push($formatted_data, $current_month_array);
 	    }
 	
 	    $log->trace("Call getCallResponseVolumeStatsForDateRange END");
@@ -483,7 +482,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 	    return $formatted_data;
 	}
 
-    private function getCallResponseHoursStatsForDateRange($startDate,$endDate,
+    private function getCallResponseHoursStatsForDateRange($startDate, $endDate, 
             &$dynamicColumnTitles) {
     
         global $log;
@@ -491,7 +490,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
     
         $MAX_MONTHLY_LABEL = "*MONTHLY TOTAL";
     
-        if($this->getGvm()->firehall->LDAP->ENABLED) {
+        if($this->getGvm()->firehall->LDAP->ENABLED === true) {
             create_temp_users_table_for_ldap($this->getGvm()->firehall,
             $this->getGvm()->RR_DB_CONN);
             // Search the database
@@ -518,8 +517,8 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         }
     
         $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_titles);
-        $qry_bind->bindParam(':start',$startDate);
-        $qry_bind->bindParam(':end',$endDate);
+        $qry_bind->bindParam(':start', $startDate);
+        $qry_bind->bindParam(':end', $endDate);
         $qry_bind->execute();
     
         $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
@@ -530,11 +529,11 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         // Build the data array
         $titles_results = array();
         foreach($rows as $row_titles) {
-            array_push($titles_results,$row_titles->datalabel);
-            array_push($dynamicColumnTitles,$row_titles->datalabel);
+            array_push($titles_results, $row_titles->datalabel);
+            array_push($dynamicColumnTitles, $row_titles->datalabel);
         }
     
-        if($this->getGvm()->firehall->LDAP->ENABLED) {
+        if($this->getGvm()->firehall->LDAP->ENABLED === true) {
             create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
     
             // Find all occourences of calls that are completed(10) or canceled(3).
@@ -566,8 +565,8 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         }
     
         $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-        $qry_bind->bindParam(':start',$startDate);
-        $qry_bind->bindParam(':end',$endDate);
+        $qry_bind->bindParam(':start', $startDate);
+        $qry_bind->bindParam(':end', $endDate);
         $qry_bind->execute();
          
         $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
@@ -579,30 +578,30 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         $data_results = array();
         foreach($rows as $row) {
             $row_result = array($row->month,$row->datalabel,$row->hours_spent + 0.0);
-            array_push($data_results,$row_result);
+            array_push($data_results, $row_result);
         }
     
         // Ensure every month of the year exists in the results for each calltype
-        for($index=1;$index <= 12; $index++) {
+        for($index=1; $index <= 12; $index++) {
             foreach($titles_results as $title) {
                 $found_index = false;
                 foreach($data_results as $data) {
-                    $monthNumber = $data[0];
+                    $monthNumber = ($data[0] + 0);
                     $labelName = $data[1];
-                    if($index == $monthNumber && $title == $labelName) {
+                    if($index === $monthNumber && $title === $labelName) {
                         $found_index = true;
                         break;
                     }
                 }
-                if($found_index == false) {
+                if($found_index === false) {
                     $row_result = array($index,$title,0);
-                    array_push($data_results,$row_result);
+                    array_push($data_results, $row_result);
                 }
             }
         }
     
         // Sort by month # then by calltype
-        usort($data_results, make_comparer(0,1));
+        usort($data_results, make_comparer(0, 1));
     
         // Replace month # with month name and build array for each unique calltype
         $formatted_data = array();
@@ -611,29 +610,29 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         $current_month_array = null;
     
         foreach ($data_results as $key => $row) {
-            $monthNumber = $row[0];
+            $monthNumber = ($row[0] + 0);
             $monthName = date("F", mktime(0, 0, 0, $monthNumber, 10));
     
             $monthCount = $row[2];
     
-            if($current_month_number != $monthNumber) {
-                if(isset($current_month_array)) {
-                    array_push($formatted_data,$current_month_array);
+            if($current_month_number !== $monthNumber) {
+                if(isset($current_month_array) === true) {
+                    array_push($formatted_data, $current_month_array);
                 }
     
                 $current_month_array = array();
-                array_push($current_month_array,$monthName);
-                array_push($current_month_array,$monthCount);
+                array_push($current_month_array, $monthName);
+                array_push($current_month_array, $monthCount);
     
                 $current_month_number = $monthNumber;
             }
             else {
-                array_push($current_month_array,$monthCount);
+                array_push($current_month_array, $monthCount);
             }
         }
     
-        if(isset($current_month_array)) {
-            array_push($formatted_data,$current_month_array);
+        if(isset($current_month_array) === true) {
+            array_push($formatted_data, $current_month_array);
         }
     
         $log->trace("Call getCallResponseHoursStatsForDateRange END");
@@ -641,3 +640,4 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         return $formatted_data;
     }
 }
+?>

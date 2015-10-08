@@ -21,10 +21,10 @@ class CalloutHistoryViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		if('callout_list' == $name) {
+		if('callout_list' === $name) {
 			return $this->getCalloutList();
 		}
-		if('callout_cols' == $name) {
+		if('callout_cols' === $name) {
 			return $this->getCalloutCols();
 		}
 		
@@ -33,14 +33,14 @@ class CalloutHistoryViewModel extends BaseViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('callout_list','callout_cols'))) {
+			array('callout_list','callout_cols')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
 	}
 	
 	private function getCalloutList() {
-		if(isset($this->callout_list) == false) {
+		if(isset($this->callout_list) === false) {
 			global $log;
 	
 			// Read from the database info about this callout
@@ -62,7 +62,7 @@ class CalloutHistoryViewModel extends BaseViewModel {
 				// Add any custom fields with values here
 				$row['callout_type_desc'] = convertCallOutTypeToText($row['calltype']);
 				$row['callout_address_origin'] = urlencode($this->getGvm()->firehall->WEBSITE->FIREHALL_HOME_ADDRESS);
-				$row['callout_address_dest'] = getAddressForMapping($this->getGvm()->firehall,$row['address']);
+				$row['callout_address_dest'] = getAddressForMapping($this->getGvm()->firehall, $row['address']);
 				$row['callout_status_desc'] = getCallStatusDisplayText($row['status']);
 				
 				$this->callout_list[] = $row;
@@ -71,13 +71,14 @@ class CalloutHistoryViewModel extends BaseViewModel {
 		return $this->callout_list;
 	}
 	private function getCalloutCols() {
-		if(isset($this->callout_cols) == false) {
+		if(isset($this->callout_cols) === false) {
 			$list = $this->getCalloutList();
 			
-			if(sizeof($list) > 0) {
+			if(count($list) > 0) {
 				$this->callout_cols = array_keys(reset($list));
 			}
 		}
 		return $this->callout_cols;
 	}
 }
+?>

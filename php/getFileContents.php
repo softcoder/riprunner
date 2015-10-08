@@ -19,35 +19,35 @@ sec_session_start();
 
 global $log;
 $db_connection = null;
-if (isset($_SESSION['firehall_id'])) {
+if (isset($_SESSION['firehall_id']) === true) {
 	$firehall_id = $_SESSION['firehall_id'];
 	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
 	$db_connection = db_connect_firehall($FIREHALL);
 }
 
-if (login_check($db_connection) == true) {
+if (login_check($db_connection) === true) {
 	$file_path = get_query_param('file');
-	if(isset($file_path) && empty($file_path) == false) {
+	if(isset($file_path) === true && empty($file_path) === false) {
 		$path_parts = pathinfo($file_path);
 		$file_name  = $path_parts['basename'];
 		$file_path  = './' . $file_name;
 		
 		// allow a file to be streamed instead of sent as an attachment
-		$is_attachment = isset($_REQUEST['stream']) ? false : true;
+		$is_attachment = ((isset($_REQUEST['stream']) === true) ? false : true);
 		
 		// make sure the file exists
-		if (is_file($file_path)) {
+		if (is_file($file_path) === true) {
 			$file_size  = filesize($file_path);
-			$file = @fopen($file_path,"rb");
-			if ($file) {
+			$file = @fopen($file_path, "rb");
+			if ($file !== false) {
 				
 				//check if http_range is sent by browser (or download manager)
-				if(isset($_SERVER['HTTP_RANGE'])) {
+				if(isset($_SERVER['HTTP_RANGE']) === true) {
 					list($size_unit, $range_orig) = explode('=', $_SERVER['HTTP_RANGE'], 2);
-					if ($size_unit == 'bytes') {
+					if ($size_unit === 'bytes') {
 						//multiple ranges could be specified at the same time, but for simplicity only serve the first range
 						//http://tools.ietf.org/id/draft-ietf-http-range-retrieval-00.txt
-						if(strpos($range_orig,',')) {
+						if(strpos($range_orig, ',') !== false) {
 							$range = explode(',', $range_orig, 2);
 						}
 						else {
@@ -70,10 +70,12 @@ if (login_check($db_connection) == true) {
 				header("Cache-Control: public, must-revalidate, post-check=0, pre-check=0");
 								
 				// set appropriate headers for attachment or streamed file
-				if ($is_attachment)
+				if ($is_attachment === true) {
 					header("Content-Disposition: attachment; filename=\"$file_name\"");
-				else
+				}
+				else {
 					header('Content-Disposition: inline;');
+				}
 				
 				// set the mime type based on extension, add yours if needed.
 				// 			$ctype_default = "application/octet-stream";
@@ -93,7 +95,7 @@ if (login_check($db_connection) == true) {
 				header("Content-Type: " . $ctype);
 					
 				//figure out download piece from range (if set)
-				if(isset($range) && strlen($range) > 0) {
+				if(isset($range) === true && strlen($range) > 0) {
 					list($seek_start, $seek_end) = explode('-', $range, 2);
 				}
 				else {
@@ -103,8 +105,8 @@ if (login_check($db_connection) == true) {
 		
 				//set start and end based on range (if set), else set defaults
 				//also check for invalid ranges.
-				$seek_end   = (empty($seek_end)) ? ($file_size - 1) : min(abs(intval($seek_end)),($file_size - 1));
-				$seek_start = (empty($seek_start) || $seek_end < abs(intval($seek_start))) ? 0 : max(abs(intval($seek_start)),0);
+				$seek_end   = (empty($seek_end) === true) ? ($file_size - 1) : min(abs(intval($seek_end)), ($file_size - 1));
+				$seek_start = (empty($seek_start) === true || $seek_end < abs(intval($seek_start))) ? 0 : max(abs(intval($seek_start)), 0);
 		
 				//Only send partial content header if downloading a piece of the file (IE workaround)
 				if ($seek_start > 0 || $seek_end < ($file_size - 1)) {
@@ -112,8 +114,9 @@ if (login_check($db_connection) == true) {
 					header('Content-Range: bytes '.$seek_start.'-'.$seek_end.'/'.$file_size);
 					header('Content-Length: '.($seek_end - $seek_start + 1));
 				}
-				else
+				else {
 					header("Content-Length: $file_size");
+				}
 		
 				header('Accept-Ranges: bytes');
 				
@@ -128,10 +131,10 @@ if (login_check($db_connection) == true) {
 		
 				ob_start();
 				while(!feof($file)) {
-					print(@fread($file, 1024*8));
+					echo @fread($file, (1024*8));
 					ob_flush();
 					flush();
-					if (connection_status() != 0) {
+					if (connection_status() !== 0) {
 						@fclose($file);
 						exit;
 					}
@@ -167,3 +170,4 @@ else {
 	echo "</p>" . PHP_EOL;
 	echo "</body>" . PHP_EOL;
 }
+?>

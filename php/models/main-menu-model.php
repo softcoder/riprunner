@@ -17,20 +17,20 @@ class MainMenuViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		if('hasApplicationUpdates' == $name) {
+		if('hasApplicationUpdates' === $name) {
 			return checkApplicationUpdatesAvailable();
 		}
-		if('hasApplicationUpdates' == $name) {
+		if('hasApplicationUpdates' === $name) {
 			return checkApplicationUpdatesAvailable();
 		}
-		if('LOCAL_VERSION' == $name) {
+		if('LOCAL_VERSION' === $name) {
 			return CURRENT_VERSION;
 		}
-		if('REMOTE_VERSION' == $name) {
+		if('REMOTE_VERSION' === $name) {
 			$ini = getApplicationUpdateSettings();
 			return file_get_contents($ini['local_path']);
 		}
-		if('REMOTE_VERSION_NOTES' == $name) {
+		if('REMOTE_VERSION_NOTES' === $name) {
 			$ini = getApplicationUpdateSettings();
 			return $ini["distant_path_notes"];
 		}
@@ -41,9 +41,10 @@ class MainMenuViewModel extends BaseViewModel {
 	public function __isset($name) {
 		if(in_array($name,
 			array('hasApplicationUpdates','LOCAL_VERSION',
-				  'REMOTE_VERSION','REMOTE_VERSION_NOTES'))) {
+				  'REMOTE_VERSION','REMOTE_VERSION_NOTES')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
 	}
 }
+?>

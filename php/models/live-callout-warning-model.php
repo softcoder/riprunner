@@ -20,7 +20,7 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		if('callout' == $name) {
+		if('callout' === $name) {
 			return $this->getLiveCalloutModel();
 		}
 		
@@ -28,14 +28,14 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 	}
 
 	public function __isset($name) {
-		if(in_array($name,array('callout'))) {
+		if(in_array($name, array('callout')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
 	}
 	
 	private function getCalloutModel() {
-		if(isset($this->calloutModel) == false) {
+		if(isset($this->calloutModel) === false) {
 			$this->calloutModel = new CalloutViewModel();
 		}
 		return $this->calloutModel;
@@ -54,8 +54,8 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 		$qry_bind->execute();
 		
 		$log->trace("Call checkForLiveCallout SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
-		
-		if($row = $qry_bind->fetch(\PDO::FETCH_OBJ)) {
+		$row = $qry_bind->fetch(\PDO::FETCH_OBJ);
+		if($row !== false) {
 			$this->getCalloutModel()->id = $row->id;
 			$this->getCalloutModel()->callkey = $row->call_key;
 		}
@@ -64,3 +64,4 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 		return $this->getCalloutModel();
 	}
 }
+?>

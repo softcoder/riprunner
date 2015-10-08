@@ -19,16 +19,16 @@ class AuthViewModel extends BaseViewModel {
 	
 	public function __get($name) {
 		
-		if('isAuth' == $name) {
+		if('isAuth' === $name) {
 			return $this->getIsAuth();
 		}
-		if('username' == $name) {
-			if(isset($_SESSION['user_id'])) {
+		if('username' === $name) {
+			if(isset($_SESSION['user_id']) === true) {
 				return $_SESSION['user_id'];
 			}
 			return null;
 		}
-		if('isAdmin' == $name) {
+		if('isAdmin' === $name) {
 			return $this->userHasAcess(USER_ACCESS_ADMIN);
 		}
 		
@@ -36,18 +36,18 @@ class AuthViewModel extends BaseViewModel {
 	}
 
 	public function __isset($name) {
-		if(in_array($name,
-			array('isAuth','username','isAdmin'))) {
+		if(in_array($name, 
+			array('isAuth','username','isAdmin')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
 	}
 	
 	private function getIsAuth() {
-		if($this->getGvm() == null) {
+		if($this->getGvm() === null) {
 			throw new \Exception("Invalid null gvm var reference.");
 		}
-		if(isset($this->getGvm()->RR_DB_CONN)) {
+		if(isset($this->getGvm()->RR_DB_CONN) === true) {
 			return login_check($this->getGvm()->RR_DB_CONN);
 		}
 		return false;
@@ -58,3 +58,4 @@ class AuthViewModel extends BaseViewModel {
 				($_SESSION['user_access'] & $access_flag));
 	}
 }
+?>

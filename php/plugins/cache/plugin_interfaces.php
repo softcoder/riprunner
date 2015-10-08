@@ -18,3 +18,4 @@ interface ICachePlugin {
 	// The implementation for removing something from the cache
 	public function deleteItem($key);
 }
+?>

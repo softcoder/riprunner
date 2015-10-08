@@ -13,3 +13,4 @@ interface ISMSCalloutPlugin {
 	// The implementation for sending an SMS callout message to recipients
 	public function signalRecipients($callout, $msgPrefix);
 }
+?>

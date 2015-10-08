@@ -4,16 +4,16 @@
 //	Under GNU GPL v3.0
 // ==============================================================
 
-if ( !defined('INCLUSION_PERMITTED') || 
-( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) { 
+if ( defined('INCLUSION_PERMITTED') === false ||
+    (defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false)) { 
 	die( 'This file must not be invoked directly.' ); 
 }
 
-require_once( 'ldap_functions.php' );
-require_once( 'logging.php' );
+require_once 'ldap_functions.php';
+require_once 'logging.php';
 
 # This function cleans out special characters
-function clean_str( $text )	{  
+function clean_str($text) {
 	$code_entities_match   = array('$','%','^','&','_','+','{','}','|','"','<','>','?','[',']','\\',';',"'",'/','+','~','`','=');
 	$code_entities_replace = array('', '', '', '', '', '', '', '', '', '', '', '', '');
        
@@ -23,10 +23,10 @@ function clean_str( $text )	{
 
 function get_query_param($param_name) {
 	$result = null;
-	if(isset( $_GET[$param_name] )) {
+	if(isset($_GET[$param_name]) === true) {
 		$result = $_GET[$param_name];
 	}
-	else if(isset( $_POST[$param_name] )) {
+	else if(isset($_POST[$param_name]) === true) {
 		$result = $_POST[$param_name];
 	}
 	return $result;
@@ -34,7 +34,7 @@ function get_query_param($param_name) {
 
 function db_connect_firehall_master($FIREHALL) {
 	$db_connection = null;
-	if($FIREHALL != null) {
+	if($FIREHALL !== null) {
 		$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
 				$FIREHALL->MYSQL->MYSQL_USER,
 				$FIREHALL->MYSQL->MYSQL_PASSWORD,
@@ -46,23 +46,23 @@ function db_connect_firehall_master($FIREHALL) {
 
 function db_connect_firehall($FIREHALL) {
 	$db_connection = null;
-	if($FIREHALL != null) {
+	if($FIREHALL !== null) {
 		$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
 				$FIREHALL->MYSQL->MYSQL_USER,
 				$FIREHALL->MYSQL->MYSQL_PASSWORD,
 				$FIREHALL->MYSQL->MYSQL_DATABASE);
 		
-		if(isset($FIREHALL->WEBSITE->FIREHALL_TIMEZONE) && $FIREHALL->WEBSITE->FIREHALL_TIMEZONE != null) {
+		if(isset($FIREHALL->WEBSITE->FIREHALL_TIMEZONE) === true && $FIREHALL->WEBSITE->FIREHALL_TIMEZONE !== null) {
 		    date_default_timezone_set($FIREHALL->WEBSITE->FIREHALL_TIMEZONE);
 		    	
 		    //SET time_zone='offset';
 		    $now = new DateTime();
-		    $mins = $now->getOffset() / 60;
-		    $sgn = ($mins < 0 ? -1 : 1);
+		    $mins = ($now->getOffset() / 60);
+		    $sgn = (($mins < 0) ? -1 : 1);
 		    $mins = abs($mins);
 		    $hrs = floor($mins / 60);
-		    $mins -= $hrs * 60;
-		    $offset = sprintf('%+d:%02d', $hrs*$sgn, $mins);
+		    $mins -= ($hrs * 60);
+		    $offset = sprintf('%+d:%02d', ($hrs*$sgn), $mins);
 		    	
 		    $db_connection->exec("SET time_zone='$offset';");
 		    //echo "SET time_zone='$offset';" . PHP_EOL;
@@ -88,21 +88,21 @@ function db_connect($host, $user, $password, $database) {
 	return $link;
 }	                		
 
-function db_disconnect( $link ) {
+function db_disconnect($link) {
 	// note that mysql_close() only closes non-persistent connections
-	if($link != null) {
+	if($link !== null) {
 		$link = null;
 	}
 }
 
-function getAddressForMapping($FIREHALL,$address) {
+function getAddressForMapping($FIREHALL, $address) {
 	global $log;
 	$log->trace("About to find google map address for [$address]");
 	
 	$result_address = $address;
 	
 	$streetSubstList = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_STREET_NAME_SUBSTITUTION;
-	if(isset($streetSubstList) && $streetSubstList != null && count($streetSubstList) > 0) {
+	if(isset($streetSubstList) === true && $streetSubstList !== null && count($streetSubstList) > 0) {
 		foreach($streetSubstList as $sourceStreetName => $destStreetName) {
 			$result_address = str_replace($sourceStreetName, $destStreetName, $result_address);
 		}
@@ -111,7 +111,7 @@ function getAddressForMapping($FIREHALL,$address) {
 	$log->trace("After street subst map address is [$result_address]");
 	
 	$citySubstList = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION;
-	if(isset($citySubstList) && $citySubstList != null && count($citySubstList) > 0) {
+	if(isset($citySubstList) === true && $citySubstList !== null && count($citySubstList) > 0) {
 		foreach($citySubstList as $sourceCityName => $destCityName) {
 			$result_address = str_replace($sourceCityName, $destCityName, $result_address);
 		}
@@ -122,34 +122,34 @@ function getAddressForMapping($FIREHALL,$address) {
 	return $result_address;
 }
 
-function getGEOCoordinatesFromAddress($FIREHALL,$address) {
+function getGEOCoordinatesFromAddress($FIREHALL, $address) {
 	global $log;
-	//http://maps.googleapis.com/maps/api/geocode/xml?address=17760 lacasse road prince george BC canada&sensor=false
+
 		
 	$result_geo_coords = null;
 	$result_address = $address;
 
-	$result_address = getAddressForMapping($FIREHALL,$address);
+	$result_address = getAddressForMapping($FIREHALL, $address);
 		
 	$url = DEFAULT_GOOGLE_MAPS_API_URL . 'json?address=' . urlencode($result_address) . '&sensor=false';
 		
 	$curl_handle = curl_init();
-	curl_setopt($curl_handle,CURLOPT_URL,$url);
+	curl_setopt($curl_handle, CURLOPT_URL, $url);
 	curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, true);
 	
 	$result = curl_exec($curl_handle);
 	
-	if(!curl_errno($curl_handle)) {
+	if(curl_errno($curl_handle) === 0) {
 		curl_close($curl_handle);
 			
 		$geoloc = json_decode($result, true);
 			
-		if ( isset($geoloc['results']) &&
-			 isset($geoloc['results'][0]) &&
-			 isset($geoloc['results'][0]['geometry']) && 
-			 isset($geoloc['results'][0]['geometry']['location']) &&
-			 isset($geoloc['results'][0]['geometry']['location']['lat']) && 
-			 isset($geoloc['results'][0]['geometry']['location']['lng'])) {
+		if ( isset($geoloc['results']) === true &&
+			 isset($geoloc['results'][0]) === true &&
+			 isset($geoloc['results'][0]['geometry']) === true && 
+			 isset($geoloc['results'][0]['geometry']['location']) === true &&
+			 isset($geoloc['results'][0]['geometry']['location']['lat']) === true && 
+			 isset($geoloc['results'][0]['geometry']['location']['lng']) === true) {
 				
 			$result_geo_coords = array( $geoloc['results'][0]['geometry']['location']['lat'],
 										$geoloc['results'][0]['geometry']['location']['lng']);
@@ -167,17 +167,20 @@ function getGEOCoordinatesFromAddress($FIREHALL,$address) {
 }
 	
 function findFireHallConfigById($fhid, $list) {
+    global $log;
 	foreach ($list as &$firehall) {
+	    $log->trace("Scanning for fhid [$fhid] compare with [$firehall->FIREHALL_ID]");
 		if($firehall->FIREHALL_ID == $fhid) {
 			return $firehall;
 		}
 	}
+	$log->error("Scanning for fhid [$fhid] NOT FOUND!");
 	return null;
 }
 
 function getFirstActiveFireHallConfig($list) {
 	foreach ($list as &$firehall) {
-		if($firehall->ENABLED) {
+		if($firehall->ENABLED === true) {
 			return $firehall;
 		}
 	}
@@ -192,13 +195,13 @@ function sec_session_start_ext($skip_regeneration) {
 	global $log;
 	
 	$ses_already_started = isset($_SESSION);
-	if ($ses_already_started == false) {
+	if ($ses_already_started === false) {
 		$session_name = 'sec_session_id';   // Set a custom session name
 		$secure = SECURE;
 		// This stops JavaScript being able to access the session id.
 		$httponly = true;
 		// Forces sessions to only use cookies.
-		if (ini_set('session.use_only_cookies', 1) === FALSE) {
+		if (ini_set('session.use_only_cookies', 1) === false) {
 			$log->error("Location: error.php?err=Could not initiate a safe session (ini_set)");
 			
 			header("Location: error.php?err=Could not initiate a safe session (ini_set)");
@@ -214,7 +217,7 @@ function sec_session_start_ext($skip_regeneration) {
 		// Sets the session name to the one set above.
 		session_name($session_name);
 		session_start();            // Start the PHP session
-		if(isset($skip_regeneration) == false || $skip_regeneration === false) {
+		if(isset($skip_regeneration) === false || $skip_regeneration === false) {
 			session_regenerate_id();    // regenerated the session, delete the old one.
 		}
 	}
@@ -222,17 +225,17 @@ function sec_session_start_ext($skip_regeneration) {
 
 function getClientIPInfo() {
 	$ip_address = '';
-	if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+	if (empty($_SERVER['HTTP_CLIENT_IP']) === false) {
 		$ip_address .= 'HTTP_CLIENT_IP: ' . $_SERVER['HTTP_CLIENT_IP'];
 	} 
-	if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-		if (!empty($ip_address)) {
+	if (empty($_SERVER['HTTP_X_FORWARDED_FOR']) === false) {
+		if (empty($ip_address) === false) {
 			$ip_address .= ' ';
 		}
 		$ip_address .= 'HTTP_X_FORWARDED_FOR: ' . $_SERVER['HTTP_X_FORWARDED_FOR'];
 	} 
-	if (!empty($_SERVER['REMOTE_ADDR'])) {
-		if (!empty($ip_address)) {
+	if (empty($_SERVER['REMOTE_ADDR']) === false) {
+		if (empty($ip_address) === false) {
 			$ip_address .= ' ';
 		}
 		$ip_address .= 'REMOTE_ADDR: ' . $_SERVER['REMOTE_ADDR'];
@@ -240,27 +243,26 @@ function getClientIPInfo() {
 	return $ip_address;
 }
 
-function login($FIREHALL,$user_id, $password, $db_connection) {
-	$debug_functions = false;
-	
+function login($FIREHALL, $user_id, $password, $db_connection) {
 	global $log;
 	$log->trace("Login attempt for user [$user_id] fhid [" . $FIREHALL->FIREHALL_ID . "] client [" . getClientIPInfo() . "]");
 	
-	if($FIREHALL->LDAP->ENABLED) {
+	if($FIREHALL->LDAP->ENABLED === true) {
 		return login_ldap($FIREHALL, $user_id, $password);
 	}
 	
 	// Using prepared statements means that SQL injection is not possible.
-	if ($stmt = $db_connection->prepare("SELECT id, firehall_id, user_id, user_pwd, access
+	$stmt = $db_connection->prepare("SELECT id, firehall_id, user_id, user_pwd, access
         FROM user_accounts
        	WHERE user_id = :id
-        LIMIT 1")) {
+        LIMIT 1");
+	if ($stmt !== false) {
         $stmt->bindParam(':id', $user_id);  // Bind "$user_id" to parameter.
         $stmt->execute();    // Execute the prepared query.
 
         // get variables from result.
         $row = $stmt->fetch(\PDO::FETCH_OBJ);
-        if($row != null) {
+        if($row !== null) {
 	        $dbId = $row->id;
 	        $FirehallId = $row->firehall_id;
 	        $userId = $row->user_id;
@@ -270,13 +272,13 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
 
         // hash the password with the unique salt.
         //$password = hash('sha512', $password . $salt);
-        if ($stmt->rowCount() == 1) {
+        if ($stmt->rowCount() === 1) {
         	// If the user exists we check if the account is locked
         	// from too many login attempts
-        	if (checkbrute($dbId, $db_connection) == true) {
+        	if (checkbrute($dbId, $db_connection) === true) {
         		// Account is locked
         		// Send an email to user saying their account is locked
-        		if($debug_functions) echo "LOGIN-F1" . PHP_EOL;
+        		$log->error("LOGIN-F1");
         		return false;
         	} 
         	else {
@@ -315,7 +317,7 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
         			$qry_bind->bindParam(':uid', $dbId);  // Bind "$user_id" to parameter.
         			$qry_bind->execute();
         			 
-        			if($debug_functions) echo "LOGIN-F2" . PHP_EOL;
+        			$log->trace("LOGIN-F2");
         			return false;
         		}
         	}
@@ -324,7 +326,7 @@ function login($FIREHALL,$user_id, $password, $db_connection) {
         	// No user exists.
         	$log->warn("Login attempt for user [$user_id] FAILED uid check for client [" . getClientIPInfo() . "]");
         	
-        	if($debug_functions) echo "LOGIN-F3" . PHP_EOL;
+        	$log->trace("LOGIN-F3");
         	return false;
         }
 	}
@@ -334,13 +336,12 @@ function checkbrute($user_id, $db_connection) {
 	global $log;
 	
 	// All login attempts are counted from the past 2 hours.
-	if ($stmt = $db_connection->prepare("SELECT time
+	$stmt = $db_connection->prepare("SELECT time
 			FROM login_attempts
 			WHERE useracctid = :id " .
-			" AND time > NOW() - INTERVAL 2 HOUR")) {
+	        " AND time > NOW() - INTERVAL 2 HOUR");
+	if ($stmt !== false) {
 		$stmt->bindParam(':id', $user_id);
-
-		// Execute the prepared query.
 		$stmt->execute();
 
 		// If there have been more than 3 failed logins
@@ -360,13 +361,12 @@ function checkbrute($user_id, $db_connection) {
 	
 function login_check($db_connection) {
 	global $log;
-	$debug_functions = false;
 		
 	// Check if all session variables are set
 	if (isset($_SESSION['user_db_id'],
 			$_SESSION['user_id'],
 			$_SESSION['login_string'],
-			$db_connection)) {
+			$db_connection) === true) {
 
 		$user_id = $_SESSION['user_db_id'];
 		$login_string = $_SESSION['login_string'];
@@ -377,72 +377,71 @@ function login_check($db_connection) {
 		// Get the user-agent string of the user.
 		$user_browser = $_SERVER['HTTP_USER_AGENT'];
 
-		if(isset($ldap_enabled) && $ldap_enabled) {
-			if($debug_functions) echo "LOGINCHECK using LDAP..." . PHP_EOL;
+		if(isset($ldap_enabled) === true && $ldap_enabled === true) {
+			$log->trace("LOGINCHECK using LDAP...");
 			return login_check_ldap($db_connection);
 		}
 			
-		if ($stmt = $db_connection->prepare("SELECT user_pwd
+		$stmt = $db_connection->prepare("SELECT user_pwd
                                      FROM user_accounts
-                                     WHERE id = :id LIMIT 1")) {
-                                      // Bind "$user_id" to parameter.
+                                     WHERE id = :id LIMIT 1");
+		if ($stmt !== false) {
 			$stmt->bindParam(':id', $user_id);
-			$stmt->execute();   // Execute the prepared query.
+			$stmt->execute();
 		
-			if ($stmt->rowCount() == 1) {
+			if ($stmt->rowCount() === 1) {
 				// If the user exists get variables from result.
 				$row = $stmt->fetch(\PDO::FETCH_OBJ);
 				$password = $row->user_pwd;
 				$login_check = hash('sha512', $password . $user_browser);
 		
-				if ($login_check == $login_string) {
+				if ($login_check === $login_string) {
 					return true;
 				} 
 				else {
 					// Not logged in
 					$log->error("Login check for user [$user_id] for client [" . getClientIPInfo() . "] failed hash check!");
 					
-					if($debug_functions) echo "LOGINCHECK F1" . PHP_EOL;
+					$log->error("LOGINCHECK F1");
 					return false;
 				}
 			} 
 			else {
 				// Not logged in
 				$log->error("Login check for user [$user_id] for client [" . getClientIPInfo() . "] failed uid check!");
-				if($debug_functions) echo "LOGINCHECK F2" . PHP_EOL;
+				$log->error("LOGINCHECK F2");
 				return false;
 			}
 		} 
 		else {
 			// Not logged in
 			$log->error("Login check for user [$user_id] for client [" . getClientIPInfo() . "] UNKNOWN SQL error!");
-			
-			if($debug_functions) echo "LOGINCHECK F3" . PHP_EOL;
+			$log->error("LOGINCHECK F3");
 			return false;
 		}
 	} 
 	else {
 		// Not logged in
-		$log->debug("Login check has no valid session! client [" . getClientIPInfo() . "] db userid: " . 
+		$log->error("Login check has no valid session! client [" . getClientIPInfo() . "] db userid: " . 
 				@$_SESSION['user_db_id'] .
 			" userid: " . @$_SESSION['user_id'] . " login_String: " . @$_SESSION['login_string'] .
-			" DB obj: " . (isset($db_connection) ? "yes" : "no"));
+			" DB obj: " . ((isset($db_connection) === true) ? "yes" : "no"));
 		
-		if($debug_functions) echo "LOGINCHECK F4" . PHP_EOL;
+		$log->error("LOGINCHECK F4");
 		return false;
 	}
 }
 	
 function esc_url($url) {
 
-	if ('' == $url) {
+	if ('' === $url) {
 		return $url;
 	}
 
 	$url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%@$\|*\'()\\x80-\\xff]|i', '', $url);
 
 	$strip = array('%0d', '%0a', '%0D', '%0A');
-	$url = (string) $url;
+	$url = (string)$url;
 
 	$count = 1;
 	while ($count) {
@@ -465,11 +464,11 @@ function esc_url($url) {
 	}
 }
 	
-function getMobilePhoneListFromDB($FIREHALL,$db_connection) {
+function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
 	global $log;
 
 	$must_close_db = false;
-	if(isset($db_connection) == false) {
+	if(isset($db_connection) === false) {
 		$db_connection = db_connect_firehall($FIREHALL);
 		$must_close_db = true;
 	}
@@ -486,10 +485,10 @@ function getMobilePhoneListFromDB($FIREHALL,$db_connection) {
 	
 	$result = array();
 	foreach($rows as $row) {
-		array_push($result,$row->mobile_phone);
+		array_push($result, $row->mobile_phone);
 	}
 	
-	if($must_close_db == true) {
+	if($must_close_db === true) {
 		db_disconnect( $db_connection );
 	}
 	return $result;
@@ -499,7 +498,7 @@ function userHasAcess($access_flag) {
 	return (isset($_SESSION['user_access']) && ($_SESSION['user_access'] & $access_flag));
 }
 
-function userHasAcessValueDB($value,$access_flag) {
+function userHasAcessValueDB($value, $access_flag) {
 	return (isset($value) && ($value & $access_flag));
 }
 
@@ -513,7 +512,7 @@ function encryptPassword($password) {
 }
 
 function getCallStatusDisplayText($dbStatus) {
-	$result = 'unknown [' . (isset($dbStatus) ? $dbStatus : 'null') . ']';
+	$result = 'unknown [' . ((isset($dbStatus) === true) ? $dbStatus : 'null') . ']';
 	switch($dbStatus) {
 		case CalloutStatusType::Paged:
 			$result = 'paged';
@@ -535,15 +534,15 @@ function getCallStatusDisplayText($dbStatus) {
 }
 
 function isCalloutInProgress($callout_status) {
-	if(isset($callout_status) && 
-		($callout_status == CalloutStatusType::Cancelled || 
-		 $callout_status == CalloutStatusType::Complete)) {
+	if(isset($callout_status) === true && 
+		($callout_status === CalloutStatusType::Cancelled || 
+		 $callout_status === CalloutStatusType::Complete)) {
 		return false;
 	}
 	return true;
 }
 
-function checkForLiveCallout($FIREHALL,$db_connection) {
+function checkForLiveCallout($FIREHALL, $db_connection) {
 	global $log;
 	// Check if there is an active callout (within last 48 hours) and if so send the details
 	$sql = "SELECT * FROM callouts " .
@@ -558,7 +557,7 @@ function checkForLiveCallout($FIREHALL,$db_connection) {
 	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
 	$qry_bind->closeCursor();
 	
-	if(!empty($rows)) {
+	if(empty($rows) === false) {
 		$row = $rows[0];
 		$callout_id = $row->id;
 		$callkey_id = $row->call_key;
@@ -578,16 +577,16 @@ function make_comparer() {
 	// Normalize criteria up front so that the comparer finds everything tidy
 	$criteria = func_get_args();
 	foreach ($criteria as $index => $criterion) {
-		$criteria[$index] = is_array($criterion)
+		$criteria[$index] = ((is_array($criterion) === true)
 		? array_pad($criterion, 3, null)
-		: array($criterion, SORT_ASC, null);
+		: array($criterion, SORT_ASC, null));
 	}
 
 	return function($first, $second) use (&$criteria) {
 		foreach ($criteria as $criterion) {
 			// How will we compare this round?
 			list($column, $sortOrder, $projection) = $criterion;
-			$sortOrder = $sortOrder === SORT_DESC ? -1 : 1;
+			$sortOrder = (($sortOrder === SORT_DESC) ? -1 : 1);
 
 			// If a projection was defined project the values now
 			if ($projection) {
@@ -601,10 +600,10 @@ function make_comparer() {
 
 			// Do the actual comparison; do not return if equal
 			if ($lhs < $rhs) {
-				return -1 * $sortOrder;
+				return (-1 * $sortOrder);
 			}
 			else if ($lhs > $rhs) {
-				return 1 * $sortOrder;
+				return (1 * $sortOrder);
 			}
 		}
 
@@ -641,14 +640,16 @@ function checkApplicationUpdatesAvailable() {
 	$ini = getApplicationUpdateSettings();
 
 	# Checking if file was modified for less than $ini['time_between_check'] ago
-	if((is_array($stats = @stat($ini['local_path']))) && (isset($stats['mtime']))
-			&& ($stats['mtime'] > (time() - $ini['time_between_check']))) {
+	$stats = @stat($ini['local_path']);
+	if(is_array($stats) === true && isset($stats['mtime']) === true && 
+	    ($stats['mtime'] > (time() - $ini['time_between_check']))) {
 		# Opening file and checking for latest version
 		return (version_compare(CURRENT_VERSION, file_get_contents($ini['local_path'])) == -1);
     }
     else {
 		# Getting last version from Google Code
-		if($latest = @file_get_contents($ini['distant_path'])) {
+        $latest = @file_get_contents($ini['distant_path']);
+		if($latest !== null) {
 			# Saving latest version in file
 			file_put_contents($ini['local_path'], $latest);
 
@@ -656,17 +657,17 @@ function checkApplicationUpdatesAvailable() {
 			return (version_compare(CURRENT_VERSION, $latest) == -1);
 		}
 		# Can't connect to Github
-		else {
+		//else {
 			# In case user does not have access to githubusercontent.com !!!
 			# Here it's up to you, you can write nothing in the file to display an alert
 			# leave it to check google every time this function is called
 			# or write again the file to advance it's modification date for the next HTTP call.
-		}
+		//}
 	}
 }
 
 function checkApplicationUpdates() {
-	if(checkApplicationUpdatesAvailable()) {
+	if(checkApplicationUpdatesAvailable() === true) {
 		$ini = getApplicationUpdateSettings();
 		
 		$updates_html = "<br />" . PHP_EOL;
@@ -679,47 +680,47 @@ function checkApplicationUpdates() {
 	}
 }
 
-function validateDate($date, $format = 'Y-m-d H:i:s') {
+function validateDate($date, $format='Y-m-d H:i:s') {
 	$date_format = DateTime::createFromFormat($format, $date);
 	return $date_format && $date_format->format($format) == $date;
 }
 
-function getFirehallRootURLFromRequest($request_url,$firehalls) {
+function getFirehallRootURLFromRequest($request_url, $firehalls) {
 	global $log;
 	
-	if(count($firehalls) == 1) {
+	if(count($firehalls) === 1) {
 		$log->trace("#1 Looking for website root URL req [$request_url] firehall root [" . $firehalls[0]->WEBSITE->WEBSITE_ROOT_URL . "]");
 		return $firehalls[0]->WEBSITE->WEBSITE_ROOT_URL;
 	}
 	else {
-		if(isset($request_url) == false && isset($_SERVER["REQUEST_URI"])) {
+		if(isset($request_url) === false && isset($_SERVER["REQUEST_URI"]) === true) {
 			$request_url = $_SERVER["REQUEST_URI"];
 		}
 		foreach ($firehalls as &$firehall) {
 			$log->trace("#2 Looking for website root URL req [$request_url] firehall root [" . $firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
 			
-			if($firehall->ENABLED && 
-					strpos($request_url,$firehall->WEBSITE->WEBSITE_ROOT_URL) === 0) {
+			if($firehall->ENABLED === true && 
+					strpos($request_url, $firehall->WEBSITE->WEBSITE_ROOT_URL) === 0) {
 				return $firehall->WEBSITE->WEBSITE_ROOT_URL;
 			}
 		}
 		
-		$url_parts = explode('/',$request_url);
-		if(isset($url_parts) && count($url_parts) > 0) {
+		$url_parts = explode('/', $request_url);
+		if(isset($url_parts)  === true && count($url_parts) > 0) {
 			$url_parts_count = count($url_parts);
 			
 			foreach ($firehalls as &$firehall) {
 				$log->trace("#3 Looking for website root URL req [$request_url] firehall root [" . $firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
 				
-				$fh_parts = explode('/',$firehall->WEBSITE->WEBSITE_ROOT_URL);
-				if(isset($fh_parts) && count($fh_parts) > 0) {
+				$fh_parts = explode('/', $firehall->WEBSITE->WEBSITE_ROOT_URL);
+				if(isset($fh_parts)  === true && count($fh_parts) > 0) {
 					$fh_parts_count = count($fh_parts);
 					
-					for($index_fh = 0; $index_fh < $fh_parts_count;$index_fh++) {
-						for($index = 0; $index < $url_parts_count;$index++) {
+					for($index_fh = 0; $index_fh < $fh_parts_count; $index_fh++) {
+						for($index = 0; $index < $url_parts_count; $index++) {
 							$log->trace("#3 fhpart [" .  $fh_parts[$index_fh] . "] url part [" . $url_parts[$index] . "]");
 							
-							if($fh_parts[$index_fh] != '' && $url_parts[$index] != '' &&
+							if($fh_parts[$index_fh] !== '' && $url_parts[$index] !== '' &&
 								$fh_parts[$index_fh] === $url_parts[$index]) {
 
 								$log->trace("#3 website matched!");
@@ -733,3 +734,4 @@ function getFirehallRootURLFromRequest($request_url,$firehalls) {
 	}
 	return '';
 }
+?>

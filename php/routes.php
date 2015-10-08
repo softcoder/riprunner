@@ -11,7 +11,9 @@ error_reporting(E_ALL);
 //
 // This file manages routing of requests
 //
-if(defined('INCLUSION_PERMITTED') == false)  define( 'INCLUSION_PERMITTED', true );
+if(defined('INCLUSION_PERMITTED') === false) {
+    define( 'INCLUSION_PERMITTED', true);
+}
 
 require_once 'config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
@@ -22,10 +24,7 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 	$query = array();
 	parse_str($params, $query);
 
-	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url,$FIREHALLS);
-	//echo "Request [".$request->base."]" . PHP_EOL;
-	
-	//echo "FOUND login1!" . PHP_EOL;
+	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 	\Flight::redirect($root_url .'controllers/login-controller.php?' . $params);
 });
 
@@ -33,9 +32,7 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 	global $FIREHALLS;
 	$query = array();
 	parse_str($params, $query);
-	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url,$FIREHALLS);
-
-	//echo "FOUND login-dev!" . PHP_EOL;
+	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 	\Flight::redirect($root_url .'controllers/login-device-controller.php?' . $params);
 });
 	
@@ -43,7 +40,7 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 	global $FIREHALLS;
 	$query = array();
 	parse_str($params, $query);
-	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url,$FIREHALLS);
+	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 
 	\Flight::redirect($root_url .'controllers/callout-details-controller.php?' . $params);
 });
@@ -52,7 +49,7 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 	global $FIREHALLS;
 	$query = array();
 	parse_str($params, $query);
-	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url,$FIREHALLS);
+	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 
 	\Flight::redirect($root_url .'controllers/callout-response-controller.php?' . $params);
 });
@@ -61,16 +58,14 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 	global $FIREHALLS;
 	$query = array();
 	parse_str($params, $query);
-	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url,$FIREHALLS);
+	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 
 	\Flight::redirect($root_url .'controllers/callout-tracking-controller.php?' . $params);
 });
 
 \Flight::route('GET|POST /android-error/(@params)', function($params) {
-	//global $FIREHALLS;
 	$query = array();
 	parse_str($params, $query);
-	//$root_url = getFirehallRootURLFromRequest(\Flight::request()->url,$FIREHALLS);
 
 	echo "Got android errors\n${params}" . PHP_EOL;
 });
@@ -82,3 +77,4 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 		
 \Flight::set('flight.log_errors', true);	
 \Flight::start();
+?>

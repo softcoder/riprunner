@@ -17,10 +17,10 @@ class UsersMenuViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		if('selfedit_mode' == $name) {
+		if('selfedit_mode' === $name) {
 			return $this->getIsSelfEditMode();
 		}
-		if('user_list' == $name) {
+		if('user_list' === $name) {
 			return $this->getUserList();
 		}
 		
@@ -29,7 +29,7 @@ class UsersMenuViewModel extends BaseViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('selfedit_mode','user_list'))) {
+			array('selfedit_mode','user_list')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
@@ -37,7 +37,7 @@ class UsersMenuViewModel extends BaseViewModel {
 	
 	private function  getIsSelfEditMode() {
 		$self_edit = get_query_param('se');
-		$self_edit = (isset($self_edit) && $self_edit);
+		$self_edit = (isset($self_edit) === true && $self_edit === true);
 		return $self_edit;
 	}
 	
@@ -47,11 +47,11 @@ class UsersMenuViewModel extends BaseViewModel {
 		$sql_where_clause = '';
 		
 		$self_edit = $this->getIsSelfEditMode();
-		if($self_edit) {
+		if($self_edit === true) {
 			$sql_where_clause = ' WHERE id=:id';
 		}
 		
-		if($this->getGvm()->firehall->LDAP->ENABLED) {
+		if($this->getGvm()->firehall->LDAP->ENABLED === true) {
 			create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
 			$sql = 'SELECT * FROM ldap_user_accounts ' . 
 					$sql_where_clause . 
@@ -64,8 +64,8 @@ class UsersMenuViewModel extends BaseViewModel {
 		}
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-		if($self_edit) {
-			$qry_bind->bindParam(':id',$_SESSION['user_db_id']);
+		if($self_edit === true) {
+			$qry_bind->bindParam(':id', $_SESSION['user_db_id']);
 		}
 		$qry_bind->execute();
 		
@@ -77,8 +77,8 @@ class UsersMenuViewModel extends BaseViewModel {
 		$resultArray = array();
 		foreach($rows as $row){
 			// Add any custom fields with values here
-			$row['access_admin'] = userHasAcessValueDB($row['access'],USER_ACCESS_ADMIN);
-			$row['access_sms'] = userHasAcessValueDB($row['access'],USER_ACCESS_SIGNAL_SMS);
+			$row['access_admin'] = userHasAcessValueDB($row['access'], USER_ACCESS_ADMIN);
+			$row['access_sms'] = userHasAcessValueDB($row['access'], USER_ACCESS_SIGNAL_SMS);
 			
 			$resultArray[] = $row;
 		}		
@@ -86,3 +86,4 @@ class UsersMenuViewModel extends BaseViewModel {
 		return $resultArray;
 	}	
 }
+?>

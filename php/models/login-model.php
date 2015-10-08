@@ -17,7 +17,7 @@ class LoginViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		if('hasError' == $name) {
+		if('hasError' === $name) {
 			return isset($_GET['error']);
 		}
 		
@@ -26,9 +26,10 @@ class LoginViewModel extends BaseViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('hasError'))) {
+			array('hasError')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
 	}
 }
+?>

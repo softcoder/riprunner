@@ -6,14 +6,16 @@
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
-if ( !defined('INCLUSION_PERMITTED') || 
-     ( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) { 
+if ( defined('INCLUSION_PERMITTED') === false || 
+     (defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false)) { 
 	die( 'This file must not be invoked directly.' ); 
 }
 
-require_once( 'config_interfaces.php' );
-require_once( 'config_constants.php' );
-if(file_exists('config-jsmap-extras.php')) require_once('config-jsmap-extras.php');
+require_once 'config_interfaces.php';
+require_once 'config_constants.php';
+if(file_exists('config-jsmap-extras.php') === true) {
+    include_once 'config-jsmap-extras.php';
+}
 
 // This true / false variable defines whether or not users can update callouts
 // even after their status is set to cancelled or completed
@@ -224,11 +226,11 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// This is the Google 'Key for browser applications' API key from your google project:
 	// https://console.developers.google.com/project/<your proj name>/apiui/credential
 	// The Google Project Number
-	define( 'DEFAULT_GCM_PROJECTID','X');
+	define( 'DEFAULT_GCM_PROJECTID', 'X');
 	// The Google Project Id
-	define( 'DEFAULT_GCM_APPLICATIONID','X');
+	define( 'DEFAULT_GCM_APPLICATIONID', 'X');
 	// The Google Service Account Name
-	define( 'DEFAULT_GCM_SAM','applicationid@appspot.gserviceaccount.com');
+	define( 'DEFAULT_GCM_SAM', 'applicationid@appspot.gserviceaccount.com');
 	
 	$LOCAL_DEBUG_MOBILE = new FireHallMobile();
 	$LOCAL_DEBUG_MOBILE->setSignalEnabled(true);
@@ -242,7 +244,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	
 	// ----------------------------------------------------------------------
 	// Website and Location Settings
-	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY','X' );
+	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY', 'X' );
 
 	$LOCAL_DEBUG_WEBSITE = new FireHallWebsite();
 	$LOCAL_DEBUG_WEBSITE->setFirehallName('FIREHALL_NAME');                // ie: Salmon Valley Volunteer Fire Department

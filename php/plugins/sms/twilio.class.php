@@ -5,12 +5,12 @@
 // ==============================================================
 namespace riprunner;
 
-if ( !defined('INCLUSION_PERMITTED') ||
-( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
+if ( defined('INCLUSION_PERMITTED') === false ||
+    (defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false ) ) {
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once( 'plugin_interfaces.php' );
+require_once 'plugin_interfaces.php';
 
 class SMSTwilioPlugin implements ISMSPlugin {
 
@@ -24,7 +24,7 @@ class SMSTwilioPlugin implements ISMSPlugin {
 
 		$resultSMS = 'START Send SMS using Twilio.' . PHP_EOL;
 
-		if($recipient_list_type == RecipientListType::GroupList) {
+		if($recipient_list_type === RecipientListType::GroupList) {
 			throw new \Exception("Twilio SMS Plugin does not support groups!");
 		}
 		else {
@@ -41,7 +41,7 @@ class SMSTwilioPlugin implements ISMSPlugin {
 						  "Body" => $smsText);
 		
 			$s = curl_init();
-			curl_setopt($s,CURLOPT_URL,$url);
+			curl_setopt($s, CURLOPT_URL, $url);
 			curl_setopt($s, CURLOPT_CUSTOMREQUEST, "POST");
 			curl_setopt($s, CURLOPT_POSTFIELDS, http_build_query($data));
 			curl_setopt($s, CURLOPT_RETURNTRANSFER, true);
@@ -51,7 +51,7 @@ class SMSTwilioPlugin implements ISMSPlugin {
 		
 			$resultSMS .= 'RESPONSE: ' . $result .PHP_EOL;
 		
-			if(!curl_errno($s)) {
+			if(curl_errno($s) === 0) {
 				$info = curl_getinfo($s);
 				$resultSMS .= 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
 			}
@@ -64,7 +64,7 @@ class SMSTwilioPlugin implements ISMSPlugin {
 			try {
 		 		$xml = new \SimpleXMLElement($result);
 		 		
-		 		if ( isset($xml->RestException) ) {
+		 		if ( isset($xml->RestException)  === true) {
 		 			$resultSMS .= 'TWILIO ERROR RESPONSE!' . PHP_EOL;
 		 		}
 		 		else {
@@ -79,3 +79,4 @@ class SMSTwilioPlugin implements ISMSPlugin {
 		return $resultSMS;
 	}
 }
+?>
