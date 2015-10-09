@@ -170,7 +170,7 @@ function findFireHallConfigById($fhid, $list) {
     global $log;
 	foreach ($list as &$firehall) {
 	    $log->trace("Scanning for fhid [$fhid] compare with [$firehall->FIREHALL_ID]");
-		if($firehall->FIREHALL_ID == $fhid) {
+		if((string)$firehall->FIREHALL_ID === (string)$fhid) {
 			return $firehall;
 		}
 	}
@@ -589,7 +589,7 @@ function make_comparer() {
 			$sortOrder = (($sortOrder === SORT_DESC) ? -1 : 1);
 
 			// If a projection was defined project the values now
-			if ($projection) {
+			if (isset($projection) === true && $projection !== null) {
 				$lhs = call_user_func($projection, $first[$column]);
 				$rhs = call_user_func($projection, $second[$column]);
 			}
