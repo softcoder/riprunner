@@ -686,7 +686,7 @@ function validateDate($date, $format='Y-m-d H:i:s') {
 }
 
 function getFirehallRootURLFromRequest($request_url, $firehalls) {
-	global $log;
+	//global $log;
 	
 	if(count($firehalls) === 1) {
 		//$log->trace("#1 Looking for website root URL req [$request_url] firehall root [" . $firehalls[0]->WEBSITE->WEBSITE_ROOT_URL . "]");

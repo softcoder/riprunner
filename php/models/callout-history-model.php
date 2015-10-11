@@ -44,10 +44,11 @@ class CalloutHistoryViewModel extends BaseViewModel {
 			global $log;
 	
 			// Read from the database info about this callout
-			$sql = 'SELECT a.*, (select count(*) AS responders ' .
-					' FROM callouts_response b ' .
-					' WHERE a.id = b.calloutid) AS responders ' .
-					' FROM callouts a ORDER BY calltime DESC;';
+			$sql = 'SELECT a.*, (select count(*) AS responders FROM callouts_response b ' .
+					'            WHERE a.id = b.calloutid) AS responders, ' .
+					' (time_to_sec(timediff(max(c.updatetime), LEAST(a.calltime,a.updatetime) )) / 3600) as hours_spent ' .
+					' FROM callouts a LEFT JOIN callouts_response c ON a.id = c.calloutid ' .
+					' WHERE c.status IN (3,10) GROUP BY c.calloutid ORDER BY a.calltime DESC;';
 
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 			$qry_bind->execute();

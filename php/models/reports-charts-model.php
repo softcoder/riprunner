@@ -538,30 +538,30 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
     
             // Find all occourences of calls that are completed(10) or canceled(3).
             // TRAINING and TESTONLY records are excluded
-            $sql = 	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, (time_to_sec(timediff(updatetime, LEAST(calltime,updatetime) )) / 3600) as hours_spent ' .
+            $sql = 	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, (time_to_sec(timediff(updatetime, LEAST(calltime,updatetime) )) / 3600) as hours_spent, id as cid ' .
                     ' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN :start AND :end ' .
                     ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                    ' GROUP BY month ORDER BY month)' .
-                    ' UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, (time_to_sec(timediff(a.updatetime, LEAST(c.calltime,c.updatetime) )) / 3600) as hours_spent ' .
+                    ' GROUP BY id, month ORDER BY month, id)' .
+                    ' UNION (SELECT MONTH(c.calltime) AS month, b.user_id AS datalabel, (time_to_sec(timediff(c.updatetime, LEAST(c.calltime,c.updatetime) )) / 3600) as hours_spent, c.id as cid ' .
                     ' FROM callouts_response a ' .
                     ' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id' .
                     ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
-                    ' WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
+                    ' WHERE c.status IN (3,10) AND c.calltime BETWEEN :start AND :end ' .
                     ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                    ' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+                    ' GROUP BY c.id, month, datalabel ORDER BY month, datalabel, cid) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel, cid;';
         }
         else {
-            $sql =	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, (time_to_sec(timediff(updatetime, LEAST(calltime,updatetime) )) / 3600) as hours_spent ' .
+            $sql =	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, (time_to_sec(timediff(updatetime, LEAST(calltime,updatetime) )) / 3600) as hours_spent, id as cid ' .
                     ' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN :start AND :end ' .
                     ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                    ' GROUP BY month ORDER BY month)' .
-                    'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, (time_to_sec(timediff(a.updatetime, LEAST(c.calltime,c.updatetime) )) / 3600) as hours_spent ' .
+                    ' GROUP BY id, month ORDER BY month, id)' .
+                    'UNION (SELECT MONTH(c.calltime) AS month, b.user_id AS datalabel, (time_to_sec(timediff(c.updatetime, LEAST(c.calltime,c.updatetime) )) / 3600) as hours_spent, c.id as cid ' .
                     ' FROM callouts_response a ' .
                     ' LEFT JOIN user_accounts b ON a.useracctid = b.id' .
                     ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
-                    ' WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
+                    ' WHERE c.status IN (3,10) AND c.calltime BETWEEN :start AND :end ' .
                     ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                    ' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+                    ' GROUP BY c.id, month, datalabel ORDER BY month, datalabel, c.id) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel, cid;';
         }
     
         $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
@@ -572,6 +572,9 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
         $qry_bind->closeCursor();
     
+        //print_r ($rows);
+        //var_dump ($rows, true);
+        
         $log->trace("Calling getCallResponseHoursStatsForDateRange sql [" . $sql . "]");
          
         // Build the data array
@@ -580,7 +583,67 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
             $row_result = array($row->month,$row->datalabel,$row->hours_spent + 0.0);
             array_push($data_results, $row_result);
         }
-    
+
+        // Sum the values
+        $sumArray = array();
+        foreach ($data_results as $k=>$subArray) {
+            $month_key = null;
+            $user_key = null;
+            foreach ($subArray as $id=>$value) {
+                //$sumArray[$id]+=$value;
+                //echo "id [$id] value [$value]" . PHP_EOL;
+                
+                if($id === 0) {
+                    $month_key = $value + 0;
+                }
+                if($id === 1) {
+                    $user_key = $value;
+                }
+                if($id === 2) {
+                    if(array_key_exists($month_key,$sumArray) === false) {
+                        //echo "#1 month_key [$month_key] user_key [$user_key] value [$value]<BR>" . PHP_EOL;
+                        
+                        $row = array();
+                        $row[$user_key] = ($value + 0.0);
+                        $sumArray[$month_key] = $row;
+                        
+                        //echo "#1.1 month_key [$month_key] user_key [$user_key] cur [" .$sumArray[$month_key][$user_key]."] value [$value]<BR>" . PHP_EOL;
+                    }
+                    else if(array_key_exists($user_key,$sumArray[$month_key]) === false) {
+                        //echo "#2 month_key [$month_key] user_key [$user_key] value [$value]<BR>" . PHP_EOL;
+
+                        $sumArray[$month_key][$user_key] = ($value + 0.0);
+                        
+                        //echo "#2.1 month_key [$month_key] user_key [$user_key] cur [" .$sumArray[$month_key][$user_key]."] value [$value]<BR>" . PHP_EOL;
+                    }
+                    else {
+                        //echo "#3 month_key [$month_key] user_key [$user_key] cur [" .$sumArray[$month_key][$user_key]."] value [$value]<BR>" . PHP_EOL;
+                        
+                        $sumArray[$month_key][$user_key] += ($value + 0.0);
+                        
+                        //echo "#3.1 month_key [$month_key] user_key [$user_key] cur [" .$sumArray[$month_key][$user_key]."] value [$value]<BR>" . PHP_EOL;
+                    }
+                }
+            }
+        }
+        //echo "DUMP ARRAY<BR>" . PHP_EOL;
+        //var_dump ($sumArray, true);
+        
+        $newArray = array();
+        foreach ($sumArray as $month_key=>$subArray) {
+            foreach ($subArray as $user_key=>$value) {
+                
+                //echo "MERGING [$month_key] [$user_key] [$value]<BR>" . PHP_EOL;
+                
+                $row_result = array($month_key,$user_key,$value);
+                array_push($newArray, $row_result);
+            }
+        }
+        //echo "DUMP ARRAY #2<BR>" . PHP_EOL;
+        //var_dump ($newArray, true);
+        
+        $data_results = $newArray;
+        
         // Ensure every month of the year exists in the results for each calltype
         for($index=1; $index <= 12; $index++) {
             foreach($titles_results as $title) {
