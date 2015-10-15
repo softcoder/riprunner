@@ -56,7 +56,7 @@ class LDAP {
 		$this->bind();
 
 		$cache_key_lookup = "RIPRUNNER_LDAP_SEARCH_" . $base_dn . ((isset($filter) === true) ? $filter : "") . ((isset($sort_by) === true) ? $sort_by : "");
-		if ($this->cache->getItem($cache_key_lookup) !== null) {
+		if ($this->cache->getItem($cache_key_lookup) != null) {
 			$log->trace("LDAP search found in CACHE.");
 			return $this->cache->getItem($cache_key_lookup);
 		}
@@ -111,10 +111,11 @@ class LDAP {
 			throwExceptionAndLogError('LDAP Cannot bind before connecting!', 'connection not set.');
 		}
 		// Bind to the LDAP server using rdn and password
-		$log->trace("LDAP binding to rdn [" . $binddn . "] pwd [" . $password . "]");
+		$log->trace("LDAP (rdn) binding to rdn [" . $binddn . "] pwd [" . $password . "]");
 		$this->bind = @ldap_bind($this->connection, $binddn, $password);
 			
 		if ($this->bind === false) {
+		    $log->trace("LDAP (rdn) binding to rdn [" . $binddn . "] pwd [" . $password . "] FAILED!");
 			$log->error($this->handleBindFailed($binddn, $password));
 			return false;
 		}
@@ -130,7 +131,7 @@ class LDAP {
 			}
 			// Bind to the LDAP server using rdn and password
 			if(isset($this->bind_rdn) === true) {
-				$log->trace("LDAP binding to rdn [" . $this->bind_rdn . "] pwd [" . $this->bind_password . "]");
+				$log->trace("LDAP (bind) binding to rdn [" . $this->bind_rdn . "] pwd [" . $this->bind_password . "]");
 				$this->bind = @ldap_bind($this->connection, $this->bind_rdn, $this->bind_password);
 			}
 			// Bind anonymously to the LDAP server
