@@ -29,6 +29,7 @@ function login_ldap($FIREHALL, $user_id, $password) {
     global $log;
     
 	$ldap = \riprunner\LDAP_Factory::create('ldap', $FIREHALL->LDAP->LDAP_SERVERNAME);
+	$ldap->setEnableCache($FIREHALL->LDAP->ENABLED_CACHE);
 	$ldap->setBindRdn($FIREHALL->LDAP->LDAP_BIND_RDN, $FIREHALL->LDAP->LDAP_BIND_PASSWORD);
 	
 	$filter = str_replace('${login}', $user_id, $FIREHALL->LDAP->LDAP_LOGIN_FILTER );
@@ -275,6 +276,7 @@ function get_sms_recipients_ldap($FIREHALL, $str_group_filter) {
 	//$debug_functions = false;
 	
 	$ldap = \riprunner\LDAP_Factory::create('ldap', $FIREHALL->LDAP->LDAP_SERVERNAME);
+	$ldap->setEnableCache($FIREHALL->LDAP->ENABLED_CACHE);
 	$ldap->setBindRdn($FIREHALL->LDAP->LDAP_BIND_RDN, $FIREHALL->LDAP->LDAP_BIND_PASSWORD);
 	
 	$basedn = $FIREHALL->LDAP->LDAP_BASE_USERDN;
@@ -510,6 +512,7 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 	if($count_response->usercount <= 0) {
 		// Insert Users into temp table
 		$ldap = \riprunner\LDAP_Factory::create('ldap', $FIREHALL->LDAP->LDAP_SERVERNAME);
+		$ldap->setEnableCache($FIREHALL->LDAP->ENABLED_CACHE);
 		$ldap->setBindRdn($FIREHALL->LDAP->LDAP_BIND_RDN, $FIREHALL->LDAP->LDAP_BIND_PASSWORD);
 	
 		// Find all users

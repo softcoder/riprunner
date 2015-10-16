@@ -397,6 +397,8 @@ class FireHall_LDAP
 {
 	// Indicates whether LDAP should be used for the firehall
 	public $ENABLED;
+	// Indicates whether LDAP CACHING should be used for the firehall
+	public $ENABLED_CACHE;
 	// The ldap connect url
 	public $LDAP_SERVERNAME;
 	// The ldap bind root dn (or null if anonymous binds allowed) 
@@ -451,6 +453,7 @@ class FireHall_LDAP
 		$this->LDAP_USER_SMS_ATTR_NAME = $user_sms_attr;
 		$this->LDAP_USER_ID_ATTR_NAME = $user_id_attr;
 		$this->LDAP_USER_NAME_ATTR_NAME = $user_name_attr;
+		$this->ENABLED_CACHE = true;
 	}
 
 	public function toString() {
@@ -470,7 +473,8 @@ class FireHall_LDAP
 				"\nGroup memberof attr: " . $this->LDAP_GROUP_MEMBER_OF_ATTR_NAME .
 				"\nUser SMS attr: " . $this->LDAP_USER_SMS_ATTR_NAME .
 				"\nUserId attr: " . $this->LDAP_USER_ID_ATTR_NAME .
-				"\nUserName attr: " . $this->LDAP_USER_NAME_ATTR_NAME;
+				"\nUserName attr: " . $this->LDAP_USER_NAME_ATTR_NAME .
+				"\nCaching enabled: " . $this->ENABLED_CACHE;
 		return $result;
 	}
 	
@@ -521,6 +525,9 @@ class FireHall_LDAP
 	}
 	public function setUserName_Attribute($user_name_attr) {
 		$this->LDAP_USER_NAME_ATTR_NAME = $user_name_attr;
+	}
+	public function setEnableCache($caching) {
+	    $this->ENABLED_CACHE = $caching;
 	}
 }
 

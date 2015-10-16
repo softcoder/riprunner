@@ -26,6 +26,7 @@ class LDAP {
 	private $connection = null;
 	private $bind = null;
 	
+	private $enable_cache = false;
 	private $cache = null;
 	
 	public function __construct($adServer) {
@@ -33,7 +34,6 @@ class LDAP {
 		if(isset($this->ad_server) === false || $this->ad_server === '') {
 			throwExceptionAndLogError('Invalid LDAP server configuration.', 'Invalid LDAP server specified ['.$this->ad_server.']');
 		}
-		$this->cache = new CacheProxy();
 	}
 	
 	public function __destruct() {
@@ -41,7 +41,17 @@ class LDAP {
 		$log->trace("LDAP disconnecting from [" . $this->ad_server . "]");
 		$this->disconnect();
 	}
-		
+
+	private function getCache() {
+	    if($this->cache == null) {
+	        $this->cache = new CacheProxy();	    
+	    }
+	    return $this->cache;
+	}
+	public function setEnableCache($caching) {
+	    $this->enable_cache = $caching;
+	}
+	
 	public function setBindRdn($bind_rdn, $bind_password) {
 		$this->bind_rdn = $bind_rdn;
 		$this->bind_password = $bind_password;
@@ -55,13 +65,18 @@ class LDAP {
 		$this->connect();
 		$this->bind();
 
-		$cache_key_lookup = "RIPRUNNER_LDAP_SEARCH_" . $base_dn . ((isset($filter) === true) ? $filter : "") . ((isset($sort_by) === true) ? $sort_by : "");
-		if ($this->cache->getItem($cache_key_lookup) != null) {
-			$log->trace("LDAP search found in CACHE.");
-			return $this->cache->getItem($cache_key_lookup);
+		if($this->enable_cache === true) {
+    		$cache_key_lookup = "RIPRUNNER_LDAP_SEARCH_" . $base_dn . ((isset($filter) === true) ? $filter : "") . ((isset($sort_by) === true) ? $sort_by : "");
+    		if ($this->getCache()->getItem($cache_key_lookup) != null) {
+    			$log->trace("LDAP search found in CACHE.");
+    			return $this->getCache()->getItem($cache_key_lookup);
+    		}
+    		else {
+    			$log->trace("LDAP search NOT in CACHE.");
+    		}
 		}
 		else {
-			$log->trace("LDAP search NOT in CACHE.");
+		    $log->trace("LDAP CACHE disabled.");
 		}
 		
 		$result = ldap_search($this->connection, $base_dn, $filter);
@@ -77,7 +92,9 @@ class LDAP {
 			
 			$entries = ldap_get_entries($this->connection, $result);
 
-			$this->cache->setItem($cache_key_lookup, $entries);
+			if($this->enable_cache === true) {
+			    $this->getCache()->setItem($cache_key_lookup, $entries);
+			}
 			
 			return $entries;
 		}
