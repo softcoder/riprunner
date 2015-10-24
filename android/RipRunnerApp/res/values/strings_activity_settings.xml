@@ -16,6 +16,8 @@
 
     <string name="pref_title_tracking_enabled">Enable GEO Tracking</string>
     
+    <string name="pref_regid">Device Id</string>
+    
     <string name="pref_defaults_get">Get settings from server</string>
     
 </resources>

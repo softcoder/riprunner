@@ -25,6 +25,16 @@
           android:title="@string/pref_title_tracking_enabled"
           android:defaultValue="true"
           android:key="tracking_enabled" />
+
+
+    <EditTextPreference
+        android:defaultValue="@string/pref_default_sender_id"
+        android:key="registration_id"
+        android:maxLines="1"
+        android:textSize="10dp"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_regid" />
     
     <Preference android:title="@string/pref_defaults_get"
                 android:key="button_get_defaults"

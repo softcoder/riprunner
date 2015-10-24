@@ -145,6 +145,18 @@ public class SettingsActivity extends PreferenceActivity implements
 		Preference appVersion = (Preference)findPreference(AppConstants.PROPERTY_APP_VERSION);
 		appVersion.setTitle(getResources().getString(R.string.pref_appversion) +  " " + appVersionName);
 		
+		EditTextPreference regID = (EditTextPreference)findPreference(AppConstants.PROPERTY_REG_ID);
+
+		final Context context = getBaseContext();
+		if(context != null) {
+			final SharedPreferences prefs = getGcmPreferences(context);
+			if(prefs != null) {
+				String regid =  prefs.getString(AppConstants.PROPERTY_REG_ID,"");
+				//regID.setTitle(regid);
+				regID.setText(regid);
+			}
+		}
+		
 		// Bind the summaries of EditText/List/Dialog/Ringtone preferences to
 		// their values. When their values change, their summaries are updated
 		// to reflect the new value, per the Android Design guidelines.
@@ -615,4 +627,10 @@ public class SettingsActivity extends PreferenceActivity implements
 			//bindPreferenceSummaryToValue(findPreference("sync_frequency"));
 		}
 	}
+	
+    private SharedPreferences getGcmPreferences(Context context) {
+        return getSharedPreferences(AppMainActivity.class.getSimpleName(),
+                Context.MODE_PRIVATE);
+    }
+	
 }
