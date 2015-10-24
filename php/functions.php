@@ -291,6 +291,10 @@ function login($FIREHALL, $user_id, $password, $db_connection) {
         			// Password is correct!
         			// Get the user-agent string of the user.
         			$user_browser = $_SERVER['HTTP_USER_AGENT'];
+        			
+        			if(ENABLE_AUDITING) {
+        				$log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . getClientIPInfo() . "]");
+        			}
         			// XSS protection as we might print this value
         			//$user_id = preg_replace("/[^0-9]+/", "", $user_id);
         			$_SESSION['user_db_id'] = $dbId;
