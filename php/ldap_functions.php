@@ -514,7 +514,7 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 	$count_response = $qry_bind->fetch(\PDO::FETCH_OBJ);
 	
 	// Check if the table has been populated yet
-	if($count_response->usercount <= 0) {
+	if((int)($count_response->usercount) <= 0) {
 		// Insert Users into temp table
 		$ldap = \riprunner\LDAP_Factory::create('ldap', $FIREHALL->LDAP->LDAP_SERVERNAME);
 		$ldap->setEnableCache($FIREHALL->LDAP->ENABLED_CACHE);

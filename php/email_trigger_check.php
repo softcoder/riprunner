@@ -203,11 +203,11 @@ function poll_email_callouts($FIREHALLS_LIST) {
     		continue;
     	}
     
-    	$log->trace(
-         'Email trigger checking firehall: '.
-         $FIREHALL->WEBSITE->FIREHALL_NAME.
-         ' connection string ['.$FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING.']'
-    	 );
+//     	$log->trace(
+//          'Email trigger checking firehall: '.
+//          $FIREHALL->WEBSITE->FIREHALL_NAME.
+//          ' connection string ['.$FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING.']'
+//     	 );
 
     	$html.= '<h2>Checking for: '.$FIREHALL->WEBSITE->FIREHALL_NAME.'</h2>';
     	$html.= 'config enabled = '.var_export($FIREHALL->ENABLED, true); 

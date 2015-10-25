@@ -97,7 +97,7 @@ function db_disconnect($link) {
 
 function getAddressForMapping($FIREHALL, $address) {
 	global $log;
-	$log->trace("About to find google map address for [$address]");
+	//$log->trace("About to find google map address for [$address]");
 	
 	$result_address = $address;
 	
@@ -108,7 +108,7 @@ function getAddressForMapping($FIREHALL, $address) {
 		}
 	}
 	
-	$log->trace("After street subst map address is [$result_address]");
+	//$log->trace("After street subst map address is [$result_address]");
 	
 	$citySubstList = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION;
 	if(isset($citySubstList) === true && $citySubstList !== null && count($citySubstList) > 0) {
@@ -117,7 +117,7 @@ function getAddressForMapping($FIREHALL, $address) {
 		}
 	}
 	
-	$log->trace("After city subst map address is [$result_address]");
+	//$log->trace("After city subst map address is [$result_address]");
 	
 	return $result_address;
 }
@@ -169,7 +169,7 @@ function getGEOCoordinatesFromAddress($FIREHALL, $address) {
 function findFireHallConfigById($fhid, $list) {
     global $log;
 	foreach ($list as &$firehall) {
-	    $log->trace("Scanning for fhid [$fhid] compare with [$firehall->FIREHALL_ID]");
+	    //$log->trace("Scanning for fhid [$fhid] compare with [$firehall->FIREHALL_ID]");
 		if((string)$firehall->FIREHALL_ID === (string)$fhid) {
 			return $firehall;
 		}

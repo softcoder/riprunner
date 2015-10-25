@@ -15,7 +15,9 @@ require_once 'firehall_signal_sms.php';
 require_once 'firehall_signal_gcm.php';
 
 function signalFireHallCallout($callout) {
-
+	global $log;
+	$log->trace('Callout signalled for: '. $callout->getAddress());
+	
 	// Connect to the database
 	$db_connection = db_connect_firehall($callout->getFirehall());
 	
@@ -47,6 +49,8 @@ function signalFireHallCallout($callout) {
 		$callout->setId($row->id);
 		$callout->setKeyId($row->call_key);
 		$callout->setStatus($row->status);
+		
+		$log->trace('Callout signal found EXISTING row for: '. $callout->getAddress().' id: '.$row->id);
 	}
 	
 	// Found duplicate callout so update some fields on original callout
@@ -71,6 +75,8 @@ function signalFireHallCallout($callout) {
 		$qry_bind->execute();
 		
 		$affected_rows = $qry_bind->rowCount();
+	
+		$log->trace('Callout signal update affected rows: '. $affected_rows);
 		
 		if($affected_rows > 0) {
 			$update_prefix_msg = "*UPDATED* ";
@@ -81,6 +87,9 @@ function signalFireHallCallout($callout) {
 			
 			signalCallOutRecipientsUsingGCM($callout, null,
 					$update_prefix_msg . $gcmMsg, $db_connection);
+		}
+		else {
+			$log->trace('Callout signal SKIPPED because nothing changed for: '. $callout->getAddress().' id: '.$row->id);
 		}
 	}
 	else {
@@ -110,6 +119,8 @@ function signalFireHallCallout($callout) {
 		
 		$callout->setId($db_connection->lastInsertId());
 		$callout->setStatus(CalloutStatusType::Paged);
+		
+		$log->trace('Callout signalling members for NEW call.');
 		
 		signalCalloutToSMSPlugin($callout, null);
 	

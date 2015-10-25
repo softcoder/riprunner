@@ -158,8 +158,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 				$this->callout->setFirehall($this->getGvm()->firehall);
 				
 				// Validate the the callkey is legit
-				$sql_callkey = "SELECT * FROM callouts " .
-						" WHERE id = :cid AND call_key = :ckid;";
+				$sql_callkey = "SELECT * FROM callouts WHERE id = :cid AND call_key = :ckid;";
 				
 				$cid = $this->getCalloutId();
 				$ckid = $this->getCalloutKeyId();
@@ -265,7 +264,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 		$response_duplicates = 0;
 		$row = $qry_bind->fetch(\PDO::FETCH_OBJ);
 		if($row !== false) {
-			$response_duplicates = $row->total_count;
+			$response_duplicates = (int)$row->total_count;
 		}
 		$qry_bind->closeCursor();
 		$log->trace("Call Response count check got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . $response_duplicates);
@@ -338,7 +337,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 	private function getRespondResult() {
 		if(isset($this->respond_result) === false) {
 			global $log;
-			$log->trace("Call Response START --> getRespondResult");
+			$log->trace("Call Response START --> getRespondResult for cid: ".$this->getCalloutId());
 			
 			$response_duplicates = $this->updateCallResponse();
 			
@@ -364,11 +363,12 @@ class CalloutResponseViewModel extends BaseViewModel {
 			else {
 				$this->respond_result .= "OK=?" . "|" . $affected_update_rows . "|";
 			}
-			
-			$log->trace("Call Response end result [". $this->respond_result ."] affected rows: " . $this->affected_response_rows);
+			$log->trace("Call Response end result [". $this->respond_result ."] affected rows: " . 
+					$affected_update_rows . " response_duplicates: " . $response_duplicates);
 			
 			// Signal everyone with the status update if required
 			if($affected_update_rows > 0 && $response_duplicates === 0) {
+				$log->trace("Call Response signalling members for responder [".$this->getUserId()."]"); 
 				
 				$this->respond_result .= signalFireHallResponse($this->callout, 
 										$this->getUserId(), 

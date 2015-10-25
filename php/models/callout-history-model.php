@@ -48,7 +48,8 @@ class CalloutHistoryViewModel extends BaseViewModel {
 					'            WHERE a.id = b.calloutid) AS responders, ' .
 					' (time_to_sec(timediff(max(c.updatetime), LEAST(a.calltime,a.updatetime) )) / 3600) as hours_spent ' .
 					' FROM callouts a LEFT JOIN callouts_response c ON a.id = c.calloutid ' .
-					' WHERE c.status IN (3,10) GROUP BY c.calloutid ORDER BY a.calltime DESC;';
+					//' WHERE c.status IN (3,10) GROUP BY c.calloutid ORDER BY a.calltime DESC;';
+ 			        ' GROUP BY c.calloutid ORDER BY a.calltime DESC;';
 
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 			$qry_bind->execute();
