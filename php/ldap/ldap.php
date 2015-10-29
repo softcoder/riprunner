@@ -67,7 +67,7 @@ class LDAP {
 
 		if($this->enable_cache === true) {
     		$cache_key_lookup = "RIPRUNNER_LDAP_SEARCH_" . $base_dn . ((isset($filter) === true) ? $filter : "") . ((isset($sort_by) === true) ? $sort_by : "");
-    		if ($this->getCache()->getItem($cache_key_lookup) != null) {
+    		if ($this->getCache()->hasItem($cache_key_lookup) === true) {
     			$log->trace("LDAP search found in CACHE.");
     			return $this->getCache()->getItem($cache_key_lookup);
     		}

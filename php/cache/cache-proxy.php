@@ -74,5 +74,17 @@ class CacheProxy {
 			$this->getCacheProvider()->deleteItem($key);
 		}
 	}
+	public function hasItem($key) {
+		if($this->getCacheProvider() === null) {
+			return null;
+		}
+		return $this->getCacheProvider()->hasItem($key);
+	}
+	public function clear() {
+		if($this->getCacheProvider() === null) {
+			return null;
+		}
+		return $this->getCacheProvider()->clear();
+	}
 }
 ?>

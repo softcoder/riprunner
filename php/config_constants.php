@@ -21,7 +21,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	define( 'PRODUCT_URL',  		'http://soft-haus.com' );
 	define( 'DEBUG_MODE', 			false);
 	define( 'ENABLE_AUDITING',		true);
-	define( "SECURE", 				false);    // FOR DEVELOPMENT ONLY!!!!
+	define( "SECURE", 			false);    // FOR DEVELOPMENT ONLY!!!!
 	define( "ENABLE_ASYNCH_MODE", 	true);
 
 	define('USER_ACCESS_ADMIN', 	 0x1);

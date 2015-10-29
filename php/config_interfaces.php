@@ -474,7 +474,7 @@ class FireHall_LDAP
 				"\nUser SMS attr: " . $this->LDAP_USER_SMS_ATTR_NAME .
 				"\nUserId attr: " . $this->LDAP_USER_ID_ATTR_NAME .
 				"\nUserName attr: " . $this->LDAP_USER_NAME_ATTR_NAME .
-				"\nCaching enabled: " . $this->ENABLED_CACHE;
+				"\nCaching enabled: " . var_export($this->ENABLED_CACHE, true);
 		return $result;
 	}
 	

@@ -27,7 +27,7 @@ class MemCachePlugin implements ICachePlugin {
 				$this->memcache = new \Memcache();
 				@$this->memcache->connect("127.0.0.1", 11211);  // connect memcahe server
 	
-				$log->trace("Cache plugin init SUCCESS for memcached on this host!");
+				$log->trace("Cache plugin init SUCCESS for memcached on this host using version: ".$this->memcache->getVersion());
 			}
 			else {
 				$log->trace("Cache plugin init FAILED cannot use memcached on this host!");
@@ -67,6 +67,30 @@ class MemCachePlugin implements ICachePlugin {
 	public function deleteItem($key) {
 		if(isset($this->memcache) === true) {
 			$this->memcache->delete($key);
+		}
+	}
+	public function hasItem($key) {
+		if(isset($this->memcache) === false) {
+			return false;
+		}
+		return $this->memcache->get($key) !== false;
+	}
+	
+	public function clear() {
+		global $log;
+		try {
+			if($this->isInstalled() === true) {
+				$this->memcache->flush();
+				$log->trace("Cache plugin re-init SUCCESS for memcached on this host!");
+			}
+			else {
+				$log->trace("Cache plugin re-init FAILED cannot use memcached on this host!");
+			}
+		}
+		catch(Exception $ex) {
+			$this->memcache = null;
+		
+			$log->error("Cache proxy re-init error [" . $ex->getMessage() . "]");
 		}
 	}
 }

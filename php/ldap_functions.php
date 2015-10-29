@@ -99,16 +99,16 @@ function login_ldap($FIREHALL, $user_id, $password) {
 function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 	global $log;
 
-	$cache_key_lookup = "RIPRUNNER_LDAP_USER_ACCESS_" . $FIREHALL->FIREHALL_ID . ((isset($user_id) === true) ? $user_id : "") . ((isset($userDn) === true) ? $userDn : "");
-	$cache = new \riprunner\CacheProxy();
-	if ($cache->getItem($cache_key_lookup) !== null) {
-		$log->trace("LDAP user access found in CACHE.");
-		return $cache->getItem($cache_key_lookup);
+	if($FIREHALL->LDAP->ENABLED_CACHE) {
+		$cache_key_lookup = "RIPRUNNER_LDAP_USER_ACCESS_" . $FIREHALL->FIREHALL_ID . ((isset($user_id) === true) ? $user_id : "") . ((isset($userDn) === true) ? $userDn : "");
+		$cache = new \riprunner\CacheProxy();
+		if ($cache->hasItem($cache_key_lookup) === true) {
+			$log->trace("LDAP user access found in CACHE.");
+			return $cache->getItem($cache_key_lookup);
+		}
 	}
-	else {
-		$log->trace("LDAP user access NOT in CACHE.");
-	}
-
+	$log->trace("LDAP user access NOT in CACHE.");
+	
 	$log->trace("=-=-=-=-=-=-=> USER ACCESS lookup for user [$user_id] [$userDn]");
 
 	// Default user access to 0
@@ -244,7 +244,9 @@ function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 		}
 	}
 
-	$cache->setItem($cache_key_lookup, $userAccess);
+	if($FIREHALL->LDAP->ENABLED_CACHE) {
+		$cache->setItem($cache_key_lookup, $userAccess);
+	}
 	
 	return $userAccess;
 }
@@ -376,7 +378,7 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 	//$debug_functions = false;
 	global $log;
 	
-	$log->trace("looking for LDAP users using filter [$filter]");
+	$log->trace("populateLDAPUsers looking for LDAP users using filter [$filter]");
 	
 	// Find all users
 	$result = $ldap->search($FIREHALL->LDAP->LDAP_BASE_USERDN, $filter, $FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
@@ -385,8 +387,10 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 	
 	//if($debug_functions) echo "Search results:" . PHP_EOL;
 	//if($debug_functions) var_dump($result);
-		
-	for ($i = 0; $i < $info["count"]; $i++) {
+	$userCount = $info["count"];
+	$log->trace("populateLDAPUsers about to iterate over: $userCount users");
+	
+	for ($i = 0; $i < (int)$userCount; $i++) {
 		$log->trace("Sorted result #:" . $i);
 		//if($debug_functions) var_dump($info[$i]);
 		
@@ -436,10 +440,10 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 				
 				$original_member = $member;
 				$member = extractDelimitedValueFromString($original_member, "/uid=(.*?),/m", 1);
-				if($member === '') {
+				if($member == '') {
 					$member = extractDelimitedValueFromString($original_member, "/uid=(.*?)$/m", 1);
 				}
-				if($member === '') {
+				if($member == '') {
 					$member = $original_member;
 				}
 				
@@ -485,13 +489,16 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 						$log->trace("INSERT LDAP [$sql] affectedrows: " . $qry_bind->rowCount());
 					}
 				}
+				else {
+					$log->trace("Group search has no results.");
+				}
 			}
 		}
 	}
 }
 
 function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
-	
+	global $log;
 	// Create a temp table of users from LDAP
 	$sql = "CREATE TEMPORARY TABLE IF NOT EXISTS ldap_user_accounts (
 			id INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -512,6 +519,8 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 	$qry_bind->execute();
 	
 	$count_response = $qry_bind->fetch(\PDO::FETCH_OBJ);
+	
+	//$log->trace('Calling create_temp_users_table_for_ldap, got count_response->usercount: ' . $count_response->usercount);
 	
 	// Check if the table has been populated yet
 	if((int)($count_response->usercount) <= 0) {

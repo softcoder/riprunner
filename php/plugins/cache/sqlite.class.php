@@ -130,7 +130,79 @@ class SqliteCachePlugin implements ICachePlugin {
 				":U"    =>  @date("U"),
 		));		
 	}
+	public function hasItem($keyword) {
+		// return null if no caching
+		// return value if in caching
+		try {
+			$stm = $this->db($keyword)->prepare("SELECT * FROM `caching` WHERE `keyword`=:keyword LIMIT 1");
+			$stm->execute(array(
+					":keyword"  =>  $keyword
+			));
+			$row = $stm->fetch(\PDO::FETCH_ASSOC);
+			
+		} 
+		catch(\PDOException $e) {
+			$stm = $this->db($keyword, true)->prepare("SELECT * FROM `caching` WHERE `keyword`=:keyword LIMIT 1");
+			$stm->execute(array(
+					":keyword"  =>  $keyword
+			));
+			$row = $stm->fetch(\PDO::FETCH_ASSOC);
+		}
+		if($this->isExpired($row) === true) {
+			$this->deleteRow($row);
+			return false;
+		}
+		if(isset($row['id']) === true) {
+			return true;
+		}
+		return false;
+	}
 	
+	public function clear() {
+		global $log;
+		try {
+			if($this->isInstalled() === true) {
+		
+				if(file_exists($this->getCachePath()."/sqlite") === true) {
+					$log->trace("Cache plugin re-init using sqlite on this host deleting existing cached data");
+					deleteDir($this->getCachePath()."/sqlite");
+				}
+				if(file_exists($this->getCachePath()."/sqlite") === false) {
+					if(@mkdir($this->getCachePath()."/sqlite", 0777) === false) {
+						throw new \Exception("Sqlite cache re-init cannot create temp folder: " . $this->getCachePath()."/sqlite");
+					}
+				}
+				
+				$this->path = $this->getCachePath() . "/sqlite";
+		
+				$log->trace("Cache plugin re-init SUCCESS using sqlite on this host!");
+			}
+			else {
+				$log->trace("Cache plugin re-init FAILED cannot use sqlite on this host!");
+			}
+		}
+		catch(Exception $ex) {
+			$log->error("Cache proxy re-init error [" . $ex->getMessage() . "]");
+		}
+	}
+	
+	public static function deleteDir($dirPath) {
+		if (! is_dir($dirPath)) {
+			throw new InvalidArgumentException("$dirPath must be a directory");
+		}
+		if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+			$dirPath .= '/';
+		}
+		$files = glob($dirPath . '*', GLOB_MARK);
+		foreach ($files as $file) {
+			if (is_dir($file)) {
+				self::deleteDir($file);
+			} else {
+				unlink($file);
+			}
+		}
+		rmdir($dirPath);
+	}
 	
 	private function db($keyword, $reset=false) {
 		/*
