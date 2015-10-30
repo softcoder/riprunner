@@ -46,12 +46,19 @@ function login_ldap($FIREHALL, $user_id, $password) {
 		$log->trace("LDAP bind successful...");
 		$info = $entries;
 
-		for ($i=0; $i<$info["count"]; $i++) {
-			$log->trace("User: ". $info[$i]["cn"][0]);
-			$log->trace("Mobile: ". $info[$i]["mobile"][0]);
+		$userCount = $info['count'];
+		for ($i=0; $i < $userCount; $i++) {
+			if(isset($info[$i]['cn'])) {
+				$log->trace("User: ". $info[$i]['cn'][0]);
+			}
+			if(isset($info[$i]['mobile'])) {
+				$log->trace("Mobile: ". $info[$i]['mobile'][0]);
+			}
 
 			//if($debug_functions) var_dump($info);
-			$log->trace("You are accessing ". $info[$i]["sn"][0] .", " . $info[$i]["givenname"][0]);
+			if(isset($info[$i]['sn'])) {
+				$log->trace("You are accessing ". $info[$i]['sn'][0] .", " . $info[$i]['givenname'][0]);
+			}
 				
 			$userDn = $info[$i][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
 			$FirehallId = $FIREHALL->FIREHALL_ID;
@@ -387,8 +394,8 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 	
 	//if($debug_functions) echo "Search results:" . PHP_EOL;
 	//if($debug_functions) var_dump($result);
-	$userCount = $info["count"];
-	$log->trace("populateLDAPUsers about to iterate over: $userCount users");
+	$userCount = $info['count'];
+	$log->trace('populateLDAPUsers about to iterate over: '.$userCount.' users');
 	
 	for ($i = 0; $i < (int)$userCount; $i++) {
 		$log->trace("Sorted result #:" . $i);
@@ -500,7 +507,7 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 	global $log;
 	// Create a temp table of users from LDAP
-	$sql = "CREATE TEMPORARY TABLE IF NOT EXISTS ldap_user_accounts (
+	$sql = 'CREATE TEMPORARY TABLE IF NOT EXISTS ldap_user_accounts (
 			id INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			firehall_id varchar(80) COLLATE utf8_unicode_ci NOT NULL,
 			user_id varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -508,12 +515,12 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 			mobile_phone varchar(25) COLLATE utf8_unicode_ci NOT NULL,
 			access INT( 11 ) NOT NULL DEFAULT 0,
 			updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-			) ENGINE = INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+			) ENGINE = INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();
 	
-	$sql = "SELECT count(*) as usercount from ldap_user_accounts;";
+	$sql = 'SELECT count(*) as usercount from ldap_user_accounts;';
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();
