@@ -539,8 +539,8 @@ function getCallStatusDisplayText($dbStatus) {
 
 function isCalloutInProgress($callout_status) {
 	if(isset($callout_status) === true && 
-		($callout_status === CalloutStatusType::Cancelled || 
-		 $callout_status === CalloutStatusType::Complete)) {
+		((int)$callout_status === CalloutStatusType::Cancelled || 
+		 (int)$callout_status === CalloutStatusType::Complete)) {
 		return false;
 	}
 	return true;

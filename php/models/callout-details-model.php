@@ -187,8 +187,8 @@ class CalloutDetailsViewModel extends BaseViewModel {
 					// Add any custom fields with values here
 	 				$row['callout_type_desc'] = convertCallOutTypeToText($row['calltype']);
 	 				$row['callout_status_desc'] = getCallStatusDisplayText($row['status']);
-	 				$row['callout_status_completed'] = ($row['status'] === \CalloutStatusType::Complete);
-	 				$row['callout_status_cancelled'] = ($row['status'] === \CalloutStatusType::Cancelled);
+	 				$row['callout_status_completed'] = ((int)$row['status'] === \CalloutStatusType::Complete);
+	 				$row['callout_status_cancelled'] = ((int)$row['status'] === \CalloutStatusType::Cancelled);
 	 				
 	 				if(isset($row['address']) === false || $row['address'] === '') {
 	 					$row['callout_address_dest'] = $row['latitude'] . ',' . $row['longitude'];
