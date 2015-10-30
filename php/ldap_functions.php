@@ -37,69 +37,71 @@ function login_ldap($FIREHALL, $user_id, $password) {
 	$log->trace('filter ['.$filter.']');
 
 	$entries = $ldap->search($FIREHALL->LDAP->LDAP_BASE_USERDN, $filter, $FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
-	$binddn = $entries[0][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
-
-	// Bind again using the DN retrieved. If this bind is successful,
-	// then the user has managed to authenticate.
-	$bind = $ldap->bind_rdn($binddn, $password);
-	if ($bind === true) {
-		$log->trace("LDAP bind successful...");
-		$info = $entries;
-
-		$userCount = $info['count'];
-		for ($i=0; $i < $userCount; $i++) {
-			if(isset($info[$i]['cn'])) {
-				$log->trace("User: ". $info[$i]['cn'][0]);
+	if(isset($entries) && $entries !== null && empty($entries) === false && isset($entries[0])) {
+		//var_dump($entries);
+		$binddn = $entries[0][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
+	
+		// Bind again using the DN retrieved. If this bind is successful,
+		// then the user has managed to authenticate.
+		$bind = $ldap->bind_rdn($binddn, $password);
+		if ($bind === true) {
+			$log->trace("LDAP bind successful...");
+			$info = $entries;
+	
+			$userCount = $info['count'];
+			for ($i=0; $i < $userCount; $i++) {
+				if(isset($info[$i]['cn'])) {
+					$log->trace("User: ". $info[$i]['cn'][0]);
+				}
+				if(isset($info[$i]['mobile'])) {
+					$log->trace("Mobile: ". $info[$i]['mobile'][0]);
+				}
+	
+				//if($debug_functions) var_dump($info);
+				if(isset($info[$i]['sn'])) {
+					$log->trace("You are accessing ". $info[$i]['sn'][0] .", " . $info[$i]['givenname'][0]);
+				}
+					
+				$userDn = $info[$i][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
+				$FirehallId = $FIREHALL->FIREHALL_ID;
+					
+				$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
+				unset($user_id_number['count']);
+	
+				$log->trace("Distinguised name [$userDn]");
 			}
-			if(isset($info[$i]['mobile'])) {
-				$log->trace("Mobile: ". $info[$i]['mobile'][0]);
-			}
-
-			//if($debug_functions) var_dump($info);
-			if(isset($info[$i]['sn'])) {
-				$log->trace("You are accessing ". $info[$i]['sn'][0] .", " . $info[$i]['givenname'][0]);
-			}
-				
-			$userDn = $info[$i][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
-			$FirehallId = $FIREHALL->FIREHALL_ID;
-				
-			$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
-			unset($user_id_number['count']);
-
-			$log->trace("Distinguised name [$userDn]");
-		}
-
-		$userAccess = ldap_user_access($FIREHALL, $ldap, $user_id, $userDn);
-
-		// Password is correct!
-		// Get the user-agent string of the user.
-		$user_browser = $_SERVER['HTTP_USER_AGENT'];
-		
-		if(ENABLE_AUDITING) {
-			$log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . getClientIPInfo() . "]");
-		}
-		
-		// XSS protection as we might print this value
-		//$user_id = preg_replace("/[^0-9]+/", "", $user_id);
-		$_SESSION['user_db_id'] = $user_id_number[0];
-		// XSS protection as we might print this value
-		//$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
-		$_SESSION['user_id'] = $user_id;
-		$_SESSION['login_string'] = hash('sha512', $password . $user_browser);
-		$_SESSION['firehall_id'] = $FirehallId;
-		$_SESSION['ldap_enabled'] = true;
-		$_SESSION['user_access'] = $userAccess;
-	  
-		$log->trace("LDAP user access: $userAccess");
-	  
-		// Login successful.
-		$log->trace("LDAP LOGIN OK");
+	
+			$userAccess = ldap_user_access($FIREHALL, $ldap, $user_id, $userDn);
+	
+			// Password is correct!
+			// Get the user-agent string of the user.
+			$user_browser = $_SERVER['HTTP_USER_AGENT'];
 			
-		// Enable for DEBUGGING
-		//die("FORCE EXIT!");
-		return true;
+			if(ENABLE_AUDITING) {
+				$log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . getClientIPInfo() . "]");
+			}
+			
+			// XSS protection as we might print this value
+			//$user_id = preg_replace("/[^0-9]+/", "", $user_id);
+			$_SESSION['user_db_id'] = $user_id_number[0];
+			// XSS protection as we might print this value
+			//$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
+			$_SESSION['user_id'] = $user_id;
+			$_SESSION['login_string'] = hash('sha512', $password . $user_browser);
+			$_SESSION['firehall_id'] = $FirehallId;
+			$_SESSION['ldap_enabled'] = true;
+			$_SESSION['user_access'] = $userAccess;
+		  
+			$log->trace("LDAP user access: $userAccess");
+		  
+			// Login successful.
+			$log->trace("LDAP LOGIN OK");
+				
+			// Enable for DEBUGGING
+			//die("FORCE EXIT!");
+			return true;
+		}
 	}
-
 	return false;
 }
 
