@@ -53,7 +53,7 @@ class UsersMenuViewModel extends BaseViewModel {
 		
 		if($this->getGvm()->firehall->LDAP->ENABLED === true) {
 			create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
-			$sql = 'SELECT * FROM ldap_user_accounts ' . 
+			$sql = 'SELECT * FROM ldap_user_accounts order by access DESC, user_id ASC ' . 
 					$sql_where_clause . 
 					';';
 		}

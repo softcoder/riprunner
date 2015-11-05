@@ -337,10 +337,12 @@ class FireHallWebsite
 	public $WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION;
 	// An array of source = destination street names of original_street_name = new_street_name street names to swap for google maps
 	public $WEBSITE_CALLOUT_DETAIL_STREET_NAME_SUBSTITUTION;
-		
+	// Maximum number of invalid login attempts before user is locked out
+	public $MAX_INVALID_LOGIN_ATTEMPTS;
+	
 	public function __construct($name=null, $home_address=null, $home_geo_coord_lat=null,
 			$home_geo_coord_long=null, $root_url=null, 
-			$google_map_api_key=null, $city_name_substition=null, $tz=null) {
+			$google_map_api_key=null, $city_name_substition=null, $tz=null,$max_logins=3) {
 		
 		$this->FIREHALL_NAME = $name;
 		$this->FIREHALL_HOME_ADDRESS = $home_address;
@@ -350,6 +352,7 @@ class FireHallWebsite
 		$this->WEBSITE_GOOGLE_MAP_API_KEY = $google_map_api_key;
 		$this->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION = $city_name_substition;
 		$this->FIREHALL_TIMEZONE = $tz;
+		$this->MAX_INVALID_LOGIN_ATTEMPTS = $max_logins;
 	}
 
 	public function toString() {
@@ -359,7 +362,8 @@ class FireHallWebsite
 				"\nFirehall timezone: " . $this->FIREHALL_TIMEZONE .
 				"\nFirehall GEO coords: " . $this->FIREHALL_GEO_COORD_LATITUDE . "," . $this->FIREHALL_GEO_COORD_LONGITUDE .
 				"\nBase URL: " . $this->WEBSITE_ROOT_URL .
-				"\nGoogle Map API Key: " . $this->WEBSITE_GOOGLE_MAP_API_KEY;
+				"\nGoogle Map API Key: " . $this->WEBSITE_GOOGLE_MAP_API_KEY .
+		        "\nMaximum login attempts: " . $this->MAX_INVALID_LOGIN_ATTEMPTS;
 		return $result;
 	}
 	
@@ -389,6 +393,9 @@ class FireHallWebsite
 	}
 	public function setStreetNameSubs($street_name_substition) {
 		$this->WEBSITE_CALLOUT_DETAIL_STREET_NAME_SUBSTITUTION = $street_name_substition;
+	}
+	public function setMaxLoginAttempts($max_logins) {
+	    $this->MAX_INVALID_LOGIN_ATTEMPTS = $max_logins;
 	}
 }
 
