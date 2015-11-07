@@ -21,7 +21,9 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 // Register our view and variables for the template
 sec_session_start();
 new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
-$view_template_vars["riprunner_config"] = $global_vm->firehall->toString();
+if(isset($global_vm->firehall) === true && $global_vm->firehall !== null) {
+    $view_template_vars["riprunner_config"] = $global_vm->firehall->toString();
+}
 
 $clearCache = get_query_param('clearCache');
 if(isset($clearCache) === true && $clearCache === 'true') {

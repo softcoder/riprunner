@@ -17,6 +17,14 @@ function map_initialize() {
     ];
 	{% endblock %}
 	
+	{% block map_firehalls %}
+	// Set other RDFFG Firehall locations here
+	var fireHalls = [
+	   //["PILOT MTN FIRE DEPARTMENT", 54.011258, -122.854466, 5],
+	   //["SALMON VALLEY FIRE DEPARTMENT", 54.091680, -122.653749, 7]
+	];
+	{% endblock %}
+	
     var map = new google.maps.Map(document.getElementById('map'), {
 		zoom: 13,
 		center: new google.maps.LatLng({{ CALLORIGIN }}),
@@ -72,6 +80,28 @@ function map_initialize() {
       })(marker, i));
 	}
 	
+    var infowindow = new google.maps.InfoWindow();
+    var marker, i;
+    for (i = 0; i < fireHalls.length; i++) { 
+        marker = new google.maps.Marker({
+            position: new google.maps.LatLng(fireHalls[i][1], fireHalls[i][2]),
+        	icon: {
+				path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+				scale: 5,
+				fillColor: "red",
+				fillOpacity: 0.5,
+				strokeWeight: 0.9
+			},
+			map: map
+	    });
+		google.maps.event.addListener(marker, 'click', (function(marker, i) {
+			  return function() {
+				  infowindow.setContent(fireHalls[i][0]);
+		          infowindow.open(map, marker);
+		      }
+		})(marker, i));
+	}
+    
 	directionsService.route(request, function(response, status) {
 		if (status == google.maps.DirectionsStatus.OK) {
 			directionsDisplay.setDirections(response);
