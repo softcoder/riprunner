@@ -231,7 +231,7 @@ function poll_email_callouts($FIREHALLS_LIST) {
   	        $headers = imap_headers($mail);
     		$headers_count = count($headers);
     		
-    		$log->trace('Found email count # ['.$headers_count.']');
+    		//$log->trace('Found email count # ['.$headers_count.']');
     		
     		$trigger_hash_list = getTriggerHashList(1, $FIREHALL);
     		
