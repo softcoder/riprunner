@@ -36,14 +36,14 @@
 		$callDateTime = extractDelimitedValueFromString($msgText, EMAIL_PARSING_DATETIME_PATTERN, 1);
 		$callDateTime = trim($callDateTime);
 		echo "DateTime : [" . $callDateTime . "]\n";
-		if($callDateTime !== null) {
+		if($callDateTime !== null && $callDateTime !== '') {
 			$callout->setDateTime($callDateTime);
 		}
 		
 		$callCode =  extractDelimitedValueFromString($msgText, EMAIL_PARSING_CALLCODE_PATTERN, 1);
 		$callCode = trim($callCode);
 		echo "Code : [" . $callCode . "]\n";
-		if($callCode !== null) {
+		if($callCode !== null && $callCode !== '') {
 			$callout->setCode($callCode);
 		}
 		 
@@ -53,28 +53,28 @@
 		$callAddress = extractDelimitedValueFromString($msgText, EMAIL_PARSING_ADDRESS_PATTERN, 1);
 		$callAddress = trim($callAddress);
 		echo "Incident Address : [" . $callAddress . "]\n";
-		if($callAddress !== null) {
+		if($callAddress !== null && $callAddress !== '') {
 			$callout->setAddress($callAddress);
 		}
 		
 		$callGPSLat = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LATITUDE_PATTERN, 1);
 		$callGPSLat = trim($callGPSLat);
 		echo "Incident GPS Lat : [" . $callGPSLat . "]\n";
-		if($callGPSLat !== null) {
+		if($callGPSLat !== null && $callGPSLat !== '') {
 			$callout->setGPSLat($callGPSLat);
 		}
 		
 	   	$callGPSLong = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LONGITUDE_PATTERN, 1);
 	   	$callGPSLong = trim($callGPSLong);
 		echo "Incident GPS Long : [" . $callGPSLong . "]\n";
-		if($callGPSLong !== null) {
+		if($callGPSLong !== null && $callGPSLong !== '') {
 			$callout->setGPSLong($callGPSLong);
 		}
 		
 	   	$callUnitsResponding = extractDelimitedValueFromString($msgText, EMAIL_PARSING_UNITS_PATTERN, 1);
 	   	$callUnitsResponding = trim($callUnitsResponding);
 	   	echo "Incident Units Responding : [" . $callUnitsResponding . "]\n";
-	   	if($callUnitsResponding !== null) {
+	   	if($callUnitsResponding !== null && $callUnitsResponding !== '') {
 	   		$callout->setUnitsResponding($callUnitsResponding);
 	   	}
 	   	

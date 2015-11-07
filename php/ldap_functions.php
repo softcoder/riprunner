@@ -265,9 +265,7 @@ function login_check_ldap($db_connection) {
 	global $log;
 
 	// Check if all session variables are set
-	if (isset($_SESSION['user_db_id'],
-			$_SESSION['user_id'],
-			$_SESSION['login_string'],
+	if (isset($_SESSION['user_db_id'], $_SESSION['user_id'], $_SESSION['login_string'],
 			$db_connection) === true) {
 
 		//$user_id = $_SESSION['user_db_id'];

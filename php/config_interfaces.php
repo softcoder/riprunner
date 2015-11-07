@@ -33,16 +33,19 @@ class FireHallEmailAccount
 	public $EMAIL_HOST_PASSWORD;
 	// Email should be deleted after it is received and processed.
 	public $EMAIL_DELETE_PROCESSED;
-
+	// Only examine unread emails
+	public $PROCESS_UNREAD_ONLY;
+	
 	public function __construct($host_enabled=false, $from_trigger=null, 
 			$host_conn_str=null, $host_username=null, $host_password=null, 
-			$host_delete_processed=true) {
+			$host_delete_processed=true,$unread_only=true) {
 		$this->EMAIL_HOST_ENABLED = $host_enabled;
 		$this->EMAIL_FROM_TRIGGER = $from_trigger;
 		$this->EMAIL_HOST_CONNECTION_STRING = $host_conn_str;
 		$this->EMAIL_HOST_USERNAME = $host_username;
 		$this->EMAIL_HOST_PASSWORD = $host_password;
 		$this->EMAIL_DELETE_PROCESSED = $host_delete_processed;
+		$this->PROCESS_UNREAD_ONLY = $unread_only;
 	}
 
 	public function toString() {
@@ -51,7 +54,8 @@ class FireHallEmailAccount
 				  "\nfrom trigger: " . $this->EMAIL_FROM_TRIGGER .
 				  "\nconnection string: " . $this->EMAIL_HOST_CONNECTION_STRING .
 				  "\nusername: " . $this->EMAIL_HOST_USERNAME .
-				  "\ndelete processed emails: " . var_export($this->EMAIL_DELETE_PROCESSED, true);
+				  "\ndelete processed emails: " . var_export($this->EMAIL_DELETE_PROCESSED, true) .
+				  "\nonly examine unread emails: " . var_export($this->PROCESS_UNREAD_ONLY, true);
 		return $result;
 	}
 	public function setHostEnabled($host_enabled) {
@@ -72,6 +76,11 @@ class FireHallEmailAccount
 	public function setDeleteOnProcessed($host_delete_processed) {
 		$this->EMAIL_DELETE_PROCESSED = $host_delete_processed;
 	}
+	public function setProcessUnreadOnly($unread_only) {
+	    $this->PROCESS_UNREAD_ONLY = $unread_only;
+	}
+	
+	
 }
 			
 // ----------------------------------------------------------------------

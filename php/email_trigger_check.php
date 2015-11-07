@@ -29,7 +29,7 @@ header('Pragma: no-cache');
 // Trigger the email polling check
 $html = poll_email_callouts($FIREHALLS);
 
-function validate_email_sender($FIREHALL, &$html, &$mail, $num) {
+function validate_email_sender($FIREHALL, &$html, $header) {
     global $log;
     
     $valid_email_trigger = true;
@@ -43,8 +43,6 @@ function validate_email_sender($FIREHALL, &$html, &$mail, $num) {
         $valid_email_trigger = false;
          
         $html.= '<h3>Looking for email from trigger ['.$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER.']</h3><br />'.PHP_EOL;
-
-        $header = imap_header($mail, $num);
          
         if (isset($header) === true && $header !== null) {
         	if (isset($header->from) === true && $header->from !== null) {
@@ -63,8 +61,8 @@ function validate_email_sender($FIREHALL, &$html, &$mail, $num) {
         		
         		$log->trace('Email trigger check from field result: '.$valid_email_trigger.'for value ['.$fromaddr.']');
 
-                $html.= '<h3>Found email from ['.$header->from[0]->mailbox.'@'.$header->from[0]->host.'] result: '.
-                (($valid_email_trigger === true) ? 'true' : 'false').'</h3><br />'.PHP_EOL;
+                $html.= 'Found email from ['.$header->from[0]->mailbox.'@'.$header->from[0]->host.'] result: '.
+                (($valid_email_trigger === true) ? 'true' : 'false').'<br />'.PHP_EOL;
         	}
         	else {
         		$log->warn('Email trigger check from field Error, Header->from is not set!');
@@ -79,7 +77,7 @@ function validate_email_sender($FIREHALL, &$html, &$mail, $num) {
     return $valid_email_trigger;
 }
 
-function process_email_trigger($FIREHALL, &$html, &$mail, $num) {
+function process_email_trigger($FIREHALL, &$html, &$mail, $num,$mail_hash) {
     global $log;
     
     # Following are number to names mappings
@@ -172,9 +170,11 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $num) {
         $log->trace('Email trigger processing contents signal result: '.var_export($callout->isValid(), true));
 
         if ($callout->isValid() === true) {
+            $html    .='Signalling callout<br />';
+            
     		$callout->setFirehall($FIREHALL);
     		signalFireHallCallout($callout);
-
+    		
     	    # Delete processed email message
     	    if ($FIREHALL->EMAIL->EMAIL_DELETE_PROCESSED === true) {
     	        $log->trace('Email trigger processing Delete email message#: '.$num);
@@ -228,15 +228,67 @@ function poll_email_callouts($FIREHALLS_LIST) {
     		$log->error('Email trigger checking imap_open response ['.$err_text.']');
     	}
     	else {
-    		$headers       = imap_headers($mail);
+  	        $headers = imap_headers($mail);
     		$headers_count = count($headers);
+    		
+    		$log->trace('Found email count # ['.$headers_count.']');
+    		
+    		$trigger_hash_list = getTriggerHashList(1, $FIREHALL);
+    		
     		# loop through each email header
-    		for ($n=1; $n <= $headers_count; $n++) {
-    			$html.= '<h3>'.$headers[($n-1)].'</h3><br />'.PHP_EOL;
+    		for ($num=1; $num <= $headers_count; $num++) {
+    			$html.= 'Msg Header ['.$headers[($num-1)].']<br />'.PHP_EOL;
 
-    		    $valid_email_trigger = validate_email_sender($FIREHALL, $html, $mail, $n);
+    			$header = imap_headerinfo($mail, $num);
+    			
+    			$hash_text = 'RIPHASH-';
+    			if(isset($header->date)) {
+    			    $hash_text.=$header->date.'-';
+    			}
+    			if(isset($header->senderaddress)) {
+    			    $hash_text.=$header->senderaddress.'-';
+    			}
+    			if(isset($header->toaddress)) {
+    			    $hash_text.=$header->toaddress.'-';
+    			}
+    			if(isset($header->toaddress)) {
+    			    $hash_text.=$header->toaddress.'-';
+    			}
+    			if(isset($header->subject)) {
+    			    $hash_text.=$header->subject.'-';
+    			}
+    			if(isset($header->message_id)) {
+    			    $hash_text.=$header->message_id.'-';
+    			}
+    			if(isset($header->Size)) {
+    			    $hash_text.=$header->Size.'-';
+    			}
+        			 
+       			$mail_hash = hash('md5', $hash_text);
+       			$log->trace('Checking email hash ['.$mail_hash.'] if already triggered...');
+       			
+       			if($FIREHALL->EMAIL->PROCESS_UNREAD_ONLY === true) {
+       			    $trigger_hash_string = print_r($trigger_hash_list, true);
+       			    $log->trace('Looking for hash ['.$mail_hash.'] in ['.$trigger_hash_string.']');
+       			    $html.= 'Looking for hash ['.$mail_hash.'] in ['.$trigger_hash_string.']<br />';
+       			    
+        			if(array_search($mail_hash, $trigger_hash_list) !== false) {
+        			    $log->trace('Skipping Read email # ['.$num.'] subject: '.$header->subject);
+        			    $html.= 'Skipping Read email # ['.$num.'] subject: '.$header->subject.'<br /><br />';
+        			    continue;
+        			}
+    			}
+    		    $valid_email_trigger = validate_email_sender($FIREHALL, $html, $header);
     		    if($valid_email_trigger === true) {
-    		    	process_email_trigger($FIREHALL, $html, $mail, $n);
+    		        $log->trace('Using email # ['.$num.'] for processing..');
+    		        $html.= 'Using email # ['.$num.'] for processing..<br />';
+    		        
+    		    	process_email_trigger($FIREHALL, $html, $mail, $num, $mail_hash);
+    		    }
+    		    if($FIREHALL->EMAIL->PROCESS_UNREAD_ONLY === true) {
+        		    addTriggerHash(1, $FIREHALL, $mail_hash);
+        		    $log->trace('Adding email hash ['.$mail_hash.']');
+        		    $html.= '<h2>Adding email hash ['.$mail_hash.']</h2>';
     		    }
     		}
     		imap_expunge($mail);

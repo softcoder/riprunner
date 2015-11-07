@@ -380,6 +380,7 @@ function login_check($db_connection) {
 		$user_id = $_SESSION['user_db_id'];
 		$login_string = $_SESSION['login_string'];
 		//$username = $_SESSION['user_id'];
+		$firehall_id = $_SESSION['firehall_id'];
 			
 		$ldap_enabled = $_SESSION['ldap_enabled'];
 	
@@ -393,9 +394,11 @@ function login_check($db_connection) {
 			
 		$stmt = $db_connection->prepare("SELECT user_pwd
                                      FROM user_accounts
-                                     WHERE id = :id LIMIT 1");
+                                     WHERE id = :id AND firehall_id = :fhid
+		                             LIMIT 1");
 		if ($stmt !== false) {
 			$stmt->bindParam(':id', $user_id);
+			$stmt->bindParam(':fhid', $firehall_id);
 			$stmt->execute();
 		
 			if ($stmt->rowCount() === 1) {
@@ -409,7 +412,7 @@ function login_check($db_connection) {
 				} 
 				else {
 					// Not logged in
-					if($log) $log->error("Login check for user [$user_id] for client [" . getClientIPInfo() . "] failed hash check!");
+					if($log) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . getClientIPInfo() . "] failed hash check!");
 					
 					if($log) $log->error("LOGINCHECK F1");
 					return false;
@@ -417,21 +420,21 @@ function login_check($db_connection) {
 			} 
 			else {
 				// Not logged in
-				if($log) $log->error("Login check for user [$user_id] for client [" . getClientIPInfo() . "] failed uid check!");
+				if($log) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . getClientIPInfo() . "] failed uid check!");
 				if($log) $log->error("LOGINCHECK F2");
 				return false;
 			}
 		} 
 		else {
 			// Not logged in
-			if($log) $log->error("Login check for user [$user_id] for client [" . getClientIPInfo() . "] UNKNOWN SQL error!");
+			if($log) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . getClientIPInfo() . "] UNKNOWN SQL error!");
 			if($log) $log->error("LOGINCHECK F3");
 			return false;
 		}
 	} 
 	else {
 		// Not logged in
-		if($log) $log->error("Login check has no valid session! client [" . getClientIPInfo() . "] db userid: " . 
+		if($log) $log->warn("Login check has no valid session! client [" . getClientIPInfo() . "] db userid: " . 
 				@$_SESSION['user_db_id'] .
 			" userid: " . @$_SESSION['user_id'] . " login_String: " . @$_SESSION['login_string'] .
 			" DB obj: " . ((isset($db_connection) === true) ? "yes" : "no"));
@@ -743,4 +746,48 @@ function getFirehallRootURLFromRequest($request_url, $firehalls) {
 	}
 	return '';
 }
+
+function getTriggerHashList($type, $FIREHALL) {
+
+    $db_connection = db_connect_firehall($FIREHALL);
+    $firehall_id = $FIREHALL->FIREHALL_ID;
+    
+    $result = array();
+    $qry_bind = $db_connection->prepare('SELECT hash_data
+                                     FROM trigger_history
+                                     WHERE type = :type AND firehall_id = :fhid');
+    if ($qry_bind !== false) {
+        $qry_bind->bindParam(':type', $type);
+        $qry_bind->bindParam(':fhid', $firehall_id);
+        $qry_bind->execute();
+    
+    	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+    	$qry_bind->closeCursor();
+    	    	
+    	foreach($rows as $row) {
+    		array_push($result, $row->hash_data);
+    	}
+    }
+    
+    db_disconnect($db_connection);
+    
+    return $result;
+}
+function addTriggerHash($type, $FIREHALL, $hash_data) {
+    
+    $db_connection = db_connect_firehall($FIREHALL);
+    $firehall_id = $FIREHALL->FIREHALL_ID;
+    
+    $sql = 'INSERT INTO trigger_history (triggertime, type, firehall_id, hash_data) 
+            SELECT CURRENT_TIMESTAMP(), :type, :fhid, :hash_data FROM dual
+            WHERE NOT EXISTS (SELECT * FROM trigger_history WHERE type=:type AND firehall_id=:fhid AND hash_data=:hash_data) 
+            LIMIT 1';
+     
+    $qry_bind = $db_connection->prepare($sql);
+    $qry_bind->bindParam(':type', $type);
+    $qry_bind->bindParam(':fhid', $firehall_id);
+    $qry_bind->bindParam(':hash_data', $hash_data);
+    $qry_bind->execute();
+}
+
 ?>
