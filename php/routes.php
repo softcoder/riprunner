@@ -35,7 +35,12 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 	\Flight::redirect($root_url .'controllers/login-device-controller.php?' . $params);
 });
-	
+
+\Flight::route('GET|POST /test/(@params)', function($params) {
+    global $log;
+    $log->trace("Route got TEST message: ".$params);
+});
+    
 \Flight::route('GET|POST /ci/(@params)', function($params) {
 	global $FIREHALLS;
 	$query = array();
@@ -47,10 +52,14 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 
 \Flight::route('GET|POST /cr/(@params)', function($params) {
 	global $FIREHALLS;
+	global $log;
+	$log->warn("Route got CR message: ".$params);
+	
 	$query = array();
 	parse_str($params, $query);
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 
+	$log->warn("Route got CR about to redirect to: ".$root_url .'controllers/callout-response-controller.php?' . $params);
 	\Flight::redirect($root_url .'controllers/callout-response-controller.php?' . $params);
 });
 

@@ -25,6 +25,7 @@ $SMS_AUTO_CMD_BULK = 'ALL:';
 $SMS_AUTO_CMD_RESPONDING = array('RE','RP','RESPOND');
 $SMS_AUTO_CMD_COMPLETED = array('FI','CO','COMPLETE');
 $SMS_AUTO_CMD_CANCELLED = array('X','Q','CANCEL');
+$SMS_AUTO_CMD_TEST = array('TEST');
 $SMS_AUTO_CMD_HELP = array('?','H', 'LIST');
 
 $SPECIAL_MOBILE_PREFIX = '+1';
@@ -256,6 +257,7 @@ function handle_sms_command($FIREHALLS_LIST) {
 	global $SMS_AUTO_CMD_RESPONDING;
 	global $SMS_AUTO_CMD_COMPLETED;
 	global $SMS_AUTO_CMD_CANCELLED;
+	global $SMS_AUTO_CMD_TEST;
 
 	$result = new \riprunner\SmSCommandResult();
 	$result->setIsProcessed(false);
@@ -287,7 +289,19 @@ function handle_sms_command($FIREHALLS_LIST) {
 							$sms_cmd = ((isset($_REQUEST['Body']) === true) ? $_REQUEST['Body'] : '');
 							$result->setCmd($sms_cmd);
 							
-							if( in_array(strtoupper($sms_cmd), $SMS_AUTO_CMD_RESPONDING) === true) {
+							if( in_array(strtoupper($sms_cmd), $SMS_AUTO_CMD_TEST) === true) {
+						        $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
+						        $URL = $site_root . "test/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
+						        "&uid=" . urlencode($result->getUserId());
+						        	
+						        $log->warn("Calling URL for twilio TESTING [$URL]");
+						        $httpclient = new \riprunner\HTTPCli($URL);
+						        $cmd_result = $httpclient->execute();
+						        $log->warn("Called URL returned [$cmd_result]");
+						    
+						        $result->setIsProcessed(true);
+							}
+							else if( in_array(strtoupper($sms_cmd), $SMS_AUTO_CMD_RESPONDING) === true) {
 								$live_callout_list = getLiveCalloutModelList($db_connection);
 								$result->setLiveCallouts($live_callout_list);
 								
@@ -299,10 +313,10 @@ function handle_sms_command($FIREHALLS_LIST) {
 									    "&uid=" . urlencode($result->getUserId()) . 
 									    "&ckid=" . urlencode($most_current_callout['call_key']);
 									
-									$log->error("Calling URL for twilio Call Response [$URL]");
+									$log->warn("Calling URL for twilio Call Responding Response [$URL]");
 									$httpclient = new \riprunner\HTTPCli($URL);
 									$cmd_result = $httpclient->execute();
-									$log->error("Called URL returned [$cmd_result]");
+									$log->warn("Called URL returned [$cmd_result]");
 										
 									$result->setIsProcessed(true);
 								}
@@ -320,10 +334,10 @@ function handle_sms_command($FIREHALLS_LIST) {
 											"&ckid=" . urlencode($most_current_callout['call_key']) .
 											"&status=" . urlencode(\CalloutStatusType::Complete);
 									
-									$log->error("Calling URL for twilio Call Response [$URL]");
+									$log->warn("Calling URL for twilio Call Completed Response [$URL]");
 									$httpclient = new \riprunner\HTTPCli($URL);
 									$cmd_result = $httpclient->execute();
-									$log->error("Called URL returned [$cmd_result]");
+									$log->warn("Called URL returned [$cmd_result]");
 												
 									$result->setIsProcessed(true);
 								}
@@ -341,10 +355,10 @@ function handle_sms_command($FIREHALLS_LIST) {
 									"&ckid=" . urlencode($most_current_callout['call_key']) .
 									"&status=" . urlencode(\CalloutStatusType::Cancelled);
 										
-									$log->error("Calling URL for twilio Call Response [$URL]");
+									$log->warn("Calling URL for twilio Call Cancel Response [$URL]");
 									$httpclient = new \riprunner\HTTPCli($URL);
 									$cmd_result = $httpclient->execute();
-									$log->error("Called URL returned [$cmd_result]");
+									$log->warn("Called URL returned [$cmd_result]");
 									
 									$result->setIsProcessed(true);
 								}

@@ -51,7 +51,9 @@ class HTTPCli {
 							
 			// Set the url, number of POST vars, POST data
 			curl_setopt( $curl_connect, CURLOPT_URL, $this->url );
+			curl_setopt( $curl_connect, CURLOPT_HEADER, 0);
 			curl_setopt( $curl_connect, CURLOPT_POST, 0 );
+			curl_setopt( $curl_connect, CURLOPT_FOLLOWLOCATION, 1);
 			//curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers);
 			curl_setopt( $curl_connect, CURLOPT_RETURNTRANSFER, true );
 			
