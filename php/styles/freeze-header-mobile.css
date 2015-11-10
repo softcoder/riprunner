@@ -1,0 +1,62 @@
+.wrap {
+    #width: 100%;
+}
+
+.wrap table {
+    #width: 100%;
+    table-layout: fixed;
+    margin: 0 auto;
+}
+
+table tr td {
+    padding: 5px;
+    border: 0px;
+    #width: 100%;
+    word-wrap: break-word;
+}
+
+# table.head tr td {
+#     background: #eee;
+# }
+
+table.head {
+    padding-right: 15px;
+    margin: 0 auto;
+}
+
+table.head-no-pad {
+}
+
+.column_wrap {
+	font-size: 35px;
+}
+.column_nowrap {
+	white-space: nowrap;
+	font-size: 35px;
+}
+.column_nowrap a{
+	white-space: nowrap;
+	font-size: 35px;
+}
+
+.column_nowrap_left {
+	white-space: nowrap;
+	text-align: left;
+	font-size: 35px;
+}
+.column_nowrap_center {
+	white-space: nowrap;
+	text-align: center;
+	font-size: 35px;
+}
+.column_nowrap_right {
+	white-space: nowrap;
+	text-align: right;
+	font-size: 35px;
+}
+.inner_table {
+	width: 90%;
+	#height: 600px;
+	#overflow-y: auto;
+	margin: 0 auto;
+}       
