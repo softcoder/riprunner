@@ -1,26 +1,27 @@
 {% if gvm.isMobile %}
+<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header-mobile.css" />
 <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
-	{% if gvm.CUSTOM_MOBILE_CSS != '' %}
-	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}{{gvm.CUSTOM_MOBILE_CSS}}" />
-	{% endif %}
 <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
-	{% if gvm.MENU_TYPE == 'horizontal' %}
-	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/h_cssmenu-mobile.css" />
-	{% endif %}
-{% else %}
-<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
-	{% if gvm.CUSTOM_MAIN_CSS != '' %}
-	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}{{gvm.CUSTOM_MAIN_CSS}}" />
-	{% endif %}
-<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-main.css" />
-	{% if gvm.MENU_TYPE == 'horizontal' %}
-	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/h_cssmenu-main.css" />
-	{% endif %}
+{% if gvm.CUSTOM_MOBILE_CSS != '' %}
+<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}{{gvm.CUSTOM_MOBILE_CSS}}" />
 {% endif %}
+{% if gvm.MENU_TYPE == 'horizontal' %}
+<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/h_cssmenu-mobile.css" />
+{% endif %}
+{% else %}
 <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
+<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
+<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-main.css" />
+{% if gvm.CUSTOM_MAIN_CSS != '' %}
+<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}{{gvm.CUSTOM_MAIN_CSS}}" />
+{% endif %}        
+{% if gvm.MENU_TYPE == 'horizontal' %}
+<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/h_cssmenu-main.css" />
+{% endif %}
+{% endif %}
 <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/freeze-header.js"></script>
 <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
-	{% if gvm.MENU_TYPE == 'horizontal' %}
-	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/h_cssmenu.js"></script>
-	{% endif %}
+{% if gvm.MENU_TYPE == 'horizontal' %}
+<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/h_cssmenu.js"></script>
+{% endif %}
 <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>

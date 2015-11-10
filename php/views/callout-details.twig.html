@@ -1,13 +1,13 @@
 <html>
 <head>
+    <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
+    <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
+	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
 	{% if gvm.isMobile %}
 	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/callout-mobile.css" />
 	{% else %}
 	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/callout-main.css" />
 	{% endif %}
-	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
-	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
-	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
 </head>
 
 {% if callout_details_vm.firehall_id is defined %}
@@ -15,52 +15,50 @@
         {% if callout_details_vm.callout_id != -1 and callout_details_vm.calloutkey_id is defined %}
     <body class="ci_body">
         {% block callout_header_title %}
-        <span class="ci_header">CALL INFORMATION:</span>
+        <span class="ci_header">DETAILS:</span>
         {% endblock %}
         
             {% set callkey_validated = false %}
             {% set callout_pending = false %}
-            
+          
             {% for row in callout_details_vm.callout_details_list %}
-            
+
                 {% block callout_header %}
 		        <div id="callContent{{ loop.index }}">
-		          <span class="ci_header_time">PAGE TIME: {{ row.calltime }}</span><br />
-		          <span class="ci_header_type">CALL TYPE: {{ row.callout_type_desc }}</span><br />
-		          <span class="ci_header_address">CALL ADDRESS: {{ row.address }}</span><br />
-		          <span class="ci_header_units">RESPONDING UNITS: {{ row.units }}</span><br />
-		          <span class="ci_header_status">CALL STATUS: {{ row.callout_status_desc }}</span>
+		          <span class="ci_header_time">TIME: {{ row.calltime }}</span><br />
+		          <span class="ci_header_type">TYPE: {{ row.callout_type_desc }}</span><br />
+		          <span class="ci_header_address">{{ row.address }}</span><br />
+		          <span class="ci_header_units">UNITS: {{ row.units }}</span><br />
+		          <span class="ci_header_status">STATUS: {{ row.callout_status_desc }}</span>
 		        </div>
                 {% endblock %}
-            
+
                 {% set callout_pending = 
                         row.callout_status_completed == false and 
                         row.callout_status_cancelled == false %}
-                
-                
-		        {% block callout_refresh_display %}
-                <span id='reload_timer_ui' class='ci_reload_timer'></span>
-		        {% endblock %}
-                
 		        <div id="callResponseContent{{ loop.index }}">
-		        
-		        {% block callout_responding_header %}
+		
+		{% if callout_pending %}		
+			{% block callout_refresh_display %}
+	                <span id='reload_timer_ui' class='ci_reload_timer'></span><br>
+			{% endblock %}
+		{% endif %}
+
+		{% block callout_responding_header %}
 		        <span class="ci_responders_header">RESPONDERS:
-                {% endblock %}
+		{% endblock %}
             
                 {% for row_responding in callout_details_vm.callout_details_responding_list %}
                 
                     {% block callout_responding_details %}
-                    {% if loop.index > 1 %}
-					|
-					{% endif %}
+                    {% if loop.index > 1 %}|{% endif %}
                     {% if row_responding.latitude is defined and 
                        row_responding.latitude != 0.0 and
                        row_responding.longitude is defined and 
                        row_responding.longitude != 0.0 %}
                     
-				        <a target="_blank" href="http://maps.google.com/maps?saddr={{ row_responding.responder_location }}&daddr={{ row_responding.firehall_location }} ({{ row_responding.firehall_location }})"
-				           class="ci_responders_user_link">{{ row_responding.user_id }}</a>
+			<a target="_blank" href="http://maps.google.com/maps?saddr={{ row_responding.responder_location }}&daddr={{ row_responding.firehall_location }} ({{ row_responding.firehall_location }})"
+			class="ci_responders_user_link">{{ row_responding.user_id }}</a>
 
                     {% else %}
                     [{{ row_responding.user_id }}]
@@ -81,29 +79,26 @@
             
                 {% if callout_details_vm.google_map_type == 'javascript' %}
 
-		          {% block callout_js_inline_map %}
-		          
-		          {% include ['@custom/google-map-js-api-custom.twig.html', 'google-map-js-api.twig.html'] with 
-		             { 'CALLORIGIN' : row.callout_geo_dest, 
-		               'DESTINATION' : row.callout_address_dest,
-		               'FDLOCATION' : callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE ~ 
-		                              ',' ~ 
-		                              callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE,
-		               'WEB_ROOT' : callout_details_vm.firehall.WEBSITE.WEBSITE_ROOT_URL }
-		          %}
-		           
-		          {% endblock %}
+	          {% block callout_js_inline_map %}
+                  {% include ['@custom/google-map-js-api-custom.twig.html', 'google-map-js-api.twig.html'] with 
+                     { 'CALLORIGIN' : row.callout_geo_dest, 
+                       'DESTINATION' : row.callout_address_dest,
+                       'FDLOCATION' : callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE ~ 
+                                      ',' ~ 
+                                      callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE,
+                       'WEB_ROOT' : callout_details_vm.firehall.WEBSITE.WEBSITE_ROOT_URL }
+                  %}
+	          {% endblock %}
 		        
-		        {% else %}
-                <div class="google-maps">
+	        {% elseif callout_details_vm.google_map_type == 'iframe' %}
                   {% block callout_inline_map %} 
+                <div class="google-maps">
                   <iframe frameborder="1" style="border:1"  
                       src="https://www.google.com/maps/embed/v1/directions?key={{ callout_details_vm.firehall.WEBSITE.WEBSITE_GOOGLE_MAP_API_KEY }}&mode=driving&zoom=11&origin={{ callout_details_vm.firehall.WEBSITE.FIREHALL_HOME_ADDRESS }}&destination={{ row.callout_address_dest }}">
                   </iframe>
-                  {% endblock %}
                 </div>
-		        
-		        {% endif %}
+                  {% endblock %}
+	        {% endif %}
                 
                 {% if callout_details_vm.calloutkey_id is defined and 
                       callout_details_vm.calloutkey_id != null and 
@@ -134,12 +129,11 @@
                            callout_details_vm.member_id == row_no.user_id %}
                 
                             {% block callout_no_response %}
-                            {% if callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED or callout_pending %}
+                            {% if callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED == 'yes' or callout_pending %}
                             <tr>
                             <td class="ci_align_cell" colspan="2">
-                                <INPUT TYPE="button" VALUE="Responding - {{ row_no.user_id|upper }}" 
-                                       class="ci_respondnow" 
-                                       onclick="if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
+                                <INPUT TYPE="button" VALUE="Responding - {{ row_no.user_id|upper }}" class="ci_respondnow" 
+				onclick="if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
 
                                 <form id="call_no_response_{{ row_no.id }}" 
                                   action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}" 
@@ -148,21 +142,20 @@
                                 </form>
                             </td>
                             </tr>
-							{% elseif callout_details_vm.ALLOW_OFFICER_CALLOUT_UPDATES_AFTER_FINISHED and gvm.auth.isAdmin and not callout_pending %}
+                           {% elseif callout_details_vm.ALLOW_OFFICER_CALLOUT_UPDATES_AFTER_FINISHED == 'yes' and gvm.auth.isAdmin and not callout_pending %}
                             <tr>
                             <td class="ci_align_cell" colspan="2">
                                 <INPUT TYPE="button" VALUE="Responding - {{ row_no.user_id|upper }}" 
                                        class="ci_respondnow" 
-                                       onclick="if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
+                                       onclick="if(confirmAppendGeoCoordinates('',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
 
                                 <form id="call_no_response_{{ row_no.id }}" 
                                   action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}" 
                                   method="POST" 
-                                  onsubmit="return confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',document.getElementById('call_no_response_{{ row_no.id }}'));">
+                                  onsubmit="return confirmAppendGeoCoordinates('',document.getElementById('call_no_response_{{ row_no.id }}'));">
                                 </form>
                             </td>
                             </tr>
-
                             {% endif %}
                             {% endblock %}
                             
@@ -247,6 +240,8 @@
 {% endif %}
 
 <script type="text/javascript">
+$( document ).ready(function() {
+	
 	// Handle any responder tracking
 	{% if callout_details_vm.firehall is defined and
 	      callout_details_vm.firehall is not null and
@@ -273,7 +268,7 @@
 {% if callout_pending is defined and callout_pending %}
 {% block callout_refresh_script %}
 	<script type="text/javascript">
-	var MAP_AUTO_REFRESH_SECONDS = 60;
+        var MAP_AUTO_REFRESH_SECONDS = {{ callout_details_vm.MAP_AUTO_REFRESH_TIMER }};
 		// This reloads the page
 		setTimeout(function () { 
 		       location.reload(true); 
@@ -282,8 +277,8 @@
 		setInterval(function () { 
 		    var ui_refresh = document.getElementById('reload_timer_ui');
 		    if(typeof ui_refresh != 'undefined') {
-		        MAP_AUTO_REFRESH_SECONDS--;
-		        ui_refresh.textContent = MAP_AUTO_REFRESH_SECONDS + ' seconds until auto refresh';
+			MAP_AUTO_REFRESH_SECONDS--;
+		        ui_refresh.textContent = 'REFRESH IN ' + MAP_AUTO_REFRESH_SECONDS ;
 		    }
 		 }, 1000);
 	</script>

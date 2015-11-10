@@ -4,9 +4,8 @@
 //	Under GNU GPL v3.0
 // ==============================================================
 
-$error = filter_input(INPUT_GET, 'err', $filter = FILTER_SANITIZE_STRING);
- 
-if (! $error) {
+$error = filter_input(INPUT_GET, 'err', FILTER_SANITIZE_STRING);
+if ($error === false) {
     $error = 'Oops! An unknown error happened.';
 }
 ?>

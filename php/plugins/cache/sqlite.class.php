@@ -11,8 +11,8 @@
 // ==============================================================
 namespace riprunner;
 
-if ( !defined('INCLUSION_PERMITTED') ||
-( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
+if ( defined('INCLUSION_PERMITTED') === false ||
+    (defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false ) ) {
 	die( 'This file must not be invoked directly.' );
 }
 
@@ -21,7 +21,7 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class SqliteCachePlugin implements ICachePlugin {
 
-	private $indexing = NULL;
+	private $indexing = null;
 	private $path = null;
 	private $max_size = 50; // 50 mb
 	private $instant = array();
@@ -30,13 +30,13 @@ class SqliteCachePlugin implements ICachePlugin {
 	/*
 	 Constructor
 	 */
-	function __construct() {
+	public function __construct() {
 		global $log;
 		try {
-			if($this->isInstalled()) {
+			if($this->isInstalled() === true) {
 
-				if(!file_exists($this->getCachePath()."/sqlite")) {
-					if(!@mkdir($this->getCachePath()."/sqlite",0777)) {
+				if(file_exists($this->getCachePath()."/sqlite") === false) {
+					if(@mkdir($this->getCachePath()."/sqlite", 0777) === false) {
 						throw new \Exception("Sqlite cache cannot create temp folder: " . $this->getCachePath()."/sqlite");
 					}
 				}
@@ -75,37 +75,29 @@ class SqliteCachePlugin implements ICachePlugin {
 			));
 			$row = $stm->fetch(\PDO::FETCH_ASSOC);
 			
-			//echo "SQLITE get #1 " .PHP_EOL;
-			//print_r($row);
 		} 
 		catch(\PDOException $e) {
-			$stm = $this->db($keyword,true)->prepare("SELECT * FROM `caching` WHERE `keyword`=:keyword LIMIT 1");
+			$stm = $this->db($keyword, true)->prepare("SELECT * FROM `caching` WHERE `keyword`=:keyword LIMIT 1");
 			$stm->execute(array(
 					":keyword"  =>  $keyword
 			));
 			$row = $stm->fetch(\PDO::FETCH_ASSOC);
-			
-			//echo "SQLITE get #1 " .PHP_EOL;
-			//print_r($row);
 		}
-		if($this->isExpired($row)) {
-			//echo "SQLITE get #3 " .PHP_EOL;
+		if($this->isExpired($row) === true) {
 			$this->deleteRow($row);
 			return null;
 		}
-		if(isset($row['id'])) {
-			//echo "SQLITE get #4 " .PHP_EOL;
+		if(isset($row['id']) === true) {
 			$data = $this->decode($row['object']);
 			return $data;
 		}
-		//echo "SQLITE get #5 " .PHP_EOL;
 		return null;
 	}
 
 	public function setItem($keyword, $value, $cache_seconds=null) {
 
-		if(isset($cache_seconds) == FALSE) {
-			$cache_seconds = 60 * 10;
+		if(isset($cache_seconds) === false) {
+			$cache_seconds = (60 * 10);
 		}
 		
 		try {
@@ -122,7 +114,7 @@ class SqliteCachePlugin implements ICachePlugin {
 		catch(\PDOException $e) {
 			echo "SQLITE set #3 " .PHP_EOL;
 			
-			$stm = $this->db($keyword,true)->prepare("INSERT OR REPLACE INTO `caching` (`keyword`,`object`,`exp`) values(:keyword,:object,:exp)");
+			$stm = $this->db($keyword, true)->prepare("INSERT OR REPLACE INTO `caching` (`keyword`,`object`,`exp`) values(:keyword,:object,:exp)");
 			$stm->execute(array(
 					":keyword"  => $keyword,
 					":object"   =>  $this->encode($value),
@@ -138,9 +130,81 @@ class SqliteCachePlugin implements ICachePlugin {
 				":U"    =>  @date("U"),
 		));		
 	}
+	public function hasItem($keyword) {
+		// return null if no caching
+		// return value if in caching
+		try {
+			$stm = $this->db($keyword)->prepare("SELECT * FROM `caching` WHERE `keyword`=:keyword LIMIT 1");
+			$stm->execute(array(
+					":keyword"  =>  $keyword
+			));
+			$row = $stm->fetch(\PDO::FETCH_ASSOC);
+			
+		} 
+		catch(\PDOException $e) {
+			$stm = $this->db($keyword, true)->prepare("SELECT * FROM `caching` WHERE `keyword`=:keyword LIMIT 1");
+			$stm->execute(array(
+					":keyword"  =>  $keyword
+			));
+			$row = $stm->fetch(\PDO::FETCH_ASSOC);
+		}
+		if($this->isExpired($row) === true) {
+			$this->deleteRow($row);
+			return false;
+		}
+		if(isset($row['id']) === true) {
+			return true;
+		}
+		return false;
+	}
 	
+	public function clear() {
+		global $log;
+		try {
+			if($this->isInstalled() === true) {
+		
+				if(file_exists($this->getCachePath()."/sqlite") === true) {
+					$log->trace("Cache plugin re-init using sqlite on this host deleting existing cached data");
+					deleteDir($this->getCachePath()."/sqlite");
+				}
+				if(file_exists($this->getCachePath()."/sqlite") === false) {
+					if(@mkdir($this->getCachePath()."/sqlite", 0777) === false) {
+						throw new \Exception("Sqlite cache re-init cannot create temp folder: " . $this->getCachePath()."/sqlite");
+					}
+				}
+				
+				$this->path = $this->getCachePath() . "/sqlite";
+		
+				$log->trace("Cache plugin re-init SUCCESS using sqlite on this host!");
+			}
+			else {
+				$log->trace("Cache plugin re-init FAILED cannot use sqlite on this host!");
+			}
+		}
+		catch(Exception $ex) {
+			$log->error("Cache proxy re-init error [" . $ex->getMessage() . "]");
+		}
+	}
 	
-	private function db($keyword, $reset = false) {
+	public static function deleteDir($dirPath) {
+		if (! is_dir($dirPath)) {
+			throw new InvalidArgumentException("$dirPath must be a directory");
+		}
+		if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+			$dirPath .= '/';
+		}
+		$files = glob($dirPath . '*', GLOB_MARK);
+		foreach ($files as $file) {
+			if (is_dir($file)) {
+				self::deleteDir($file);
+			} else {
+				unlink($file);
+			}
+		}
+		rmdir($dirPath);
+	}
+	
+	private function db($keyword, $reset=false) {
 		/*
 		 * Default is fastcache
 		 */
@@ -148,16 +212,16 @@ class SqliteCachePlugin implements ICachePlugin {
 		/*
 		 * init instant
 		*/
-		if(!isset($this->instant[$instant])) {
+		if(isset($this->instant[$instant]) === false) {
 			// check DB Files ready or not
 			$createTable = false;
-			if(!file_exists($this->path."/db".$instant) || $reset == true) {
+			if(file_exists($this->path."/db".$instant) === false || $reset === true) {
 				$createTable = true;
 			}
 			$PDO = new \PDO("sqlite:".$this->path."/db".$instant);
 			$PDO->setAttribute(\PDO::ATTR_ERRMODE,
 					\PDO::ERRMODE_EXCEPTION);
-			if($createTable == true) {
+			if($createTable === true) {
 				$this->initDB($PDO);
 			}
 			$this->instant[$instant] = $PDO;
@@ -170,16 +234,16 @@ class SqliteCachePlugin implements ICachePlugin {
 	 * INIT Instant DB
 	 * Return Database of Keyword
 	 */
-	private function indexing($keyword) {
-		if($this->indexing == NULL) {
+	private function indexing() {
+		if($this->indexing === null) {
 			$createTable = false;
-			if(!file_exists($this->path."/indexing")) {
+			if(file_exists($this->path."/indexing") === false) {
 				$createTable = true;
 			}
 			$PDO = new \PDO("sqlite:".$this->path."/indexing");
 			$PDO->setAttribute(\PDO::ATTR_ERRMODE,
 					\PDO::ERRMODE_EXCEPTION);
-			if($createTable == true) {
+			if($createTable === true) {
 				$this->initIndexing($PDO);
 			}
 			$this->indexing = $PDO;
@@ -187,18 +251,18 @@ class SqliteCachePlugin implements ICachePlugin {
 			$stm = $this->indexing->prepare("SELECT MAX(`db`) as `db` FROM `balancing`");
 			$stm->execute();
 			$row = $stm->fetch(\PDO::FETCH_ASSOC);
-			if(!isset($row['db'])) {
+			if(isset($row['db']) === false) {
 				$db = 1;
-			} elseif($row['db'] <=1 ) {
+			} else if($row['db'] <= 1) {
 				$db = 1;
 			} else {
 				$db = $row['db'];
 			}
 			// check file size
-			$size = file_exists($this->path."/db".$db) ? filesize($this->path."/db".$db) : 1;
-			$size = round($size / 1024 / 1024,1);
+			$size = ((file_exists($this->path."/db".$db) === true) ? filesize($this->path."/db".$db) : 1);
+			$size = round(($size / 1024 / 1024), 1);
 			if($size > $this->max_size) {
-				$db = $db + 1;
+				$db++;
 			}
 			$this->currentDB = $db;
 		}	
@@ -221,7 +285,7 @@ class SqliteCachePlugin implements ICachePlugin {
 		// delete everything before reset indexing
 		$dir = opendir($this->path);
 		while($file = readdir($dir)) {
-			if($file != "." && $file!=".." && $file != "indexing" && $file!="dbfastcache") {
+			if($file !== "." && $file !== ".." && $file !== "indexing" && $file !== "dbfastcache") {
 				@unlink($this->path."/".$file);
 			}
 		}
@@ -232,7 +296,7 @@ class SqliteCachePlugin implements ICachePlugin {
 	}	
 	
 	private function isExpired($row) {
-		if(isset($row['exp']) && @date("U") >= $row['exp']) {
+		if(isset($row['exp']) === true && @date("U") >= $row['exp']) {
 			return true;
 		}
 		return false;
@@ -253,7 +317,7 @@ class SqliteCachePlugin implements ICachePlugin {
 	}
 	private function decode($value) {
 		$x = @unserialize($value);
-		if($x == false) {
+		if($x === false) {
 			return $value;
 		} 
 		else {
@@ -261,3 +325,4 @@ class SqliteCachePlugin implements ICachePlugin {
 		}
 	}	
 }
+?>

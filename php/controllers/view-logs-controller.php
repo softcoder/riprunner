@@ -7,7 +7,9 @@ namespace riprunner;
  
 define( 'INCLUSION_PERMITTED', true );
 
-if(defined('__RIPRUNNER_ROOT__') == false) define('__RIPRUNNER_ROOT__', dirname(dirname(__FILE__)));
+if(defined('__RIPRUNNER_ROOT__') === false) {
+    define('__RIPRUNNER_ROOT__', dirname(dirname(__FILE__)));
+}
 
 require_once __RIPRUNNER_ROOT__ . '/template.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
@@ -16,15 +18,15 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 // Register our view and variables for the template
 sec_session_start();
-new LiveCalloutWarningViewModel($global_vm,$view_template_vars);
-new ViewLogsController($global_vm,$view_template_vars);
+new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
+new ViewLogsController($global_vm, $view_template_vars);
 
 // The model class handling variable requests dynamically
 class ViewLogsController {
 	private $global_vm;
 	private $view_template_vars;
 
-	function __construct($global_vm,&$view_template_vars) {
+	public function __construct($global_vm, &$view_template_vars) {
 		$this->global_vm = $global_vm;
 		$this->view_template_vars = &$view_template_vars;
 
@@ -33,7 +35,6 @@ class ViewLogsController {
 
 	private function processActions() {
 		global $log;
-		//$log->error("test");
 
 		$appender = $log->getRootLogger()->getAppender('myAppender');
 		$relative_log_path = str_replace(__RIPRUNNER_ROOT__ . '/', "", $appender->getFile());
@@ -51,3 +52,4 @@ $template = $twig->resolveTemplate(
 
 // Output our template
 echo $template->render($view_template_vars);
+?>

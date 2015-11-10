@@ -428,3 +428,51 @@ removed styles
 
 
 ###########################table-styles-mobile.css
+
+
+###########################callout-mobile.css
+.ci_triangle-right {
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-left: 50px solid red;
+    border-bottom: 10px solid transparent;
+    
+    @include vertical-align;
+} 
+.inset-button {
+    border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-transition: 0.1s linear all;
+    -moz-transition: 0.1s linear all;
+    -ms-transition: 0.1s linear all;
+    -o-transition: 0.1s linear all;
+    transition: 0.1s linear all;
+}
+
+.inset-button {
+    background: rgba(0, 0, 0, 0.16);
+    box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 5px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 6px 0px rgba(0, 0, 0, 0.58);
+    -moz-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 5px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 6px 0px rgba(0, 0, 0, 0.58);
+    -webkit-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 5px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 6px 0px rgba(0, 0, 0, 0.58);
+    color:white;
+    background-color:blue;
+    font-size:30px;
+    font-weight: bold;
+    @include vertical-align;
+}
+
+.inset-button:hover {
+    box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 7px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 7px 0px rgba(0, 0, 0, 0.58);
+    -moz-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 7px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 7px 0px rgba(0, 0, 0, 0.58);
+    -webkit-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 7px 0px rgba(255, 255, 255, 0.14), inset 0px 0px 7px 0px rgba(0, 0, 0, 0.58);
+}
+
+.inset-button:active {
+    box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 10px 0px rgba(255, 255, 255, 0.16), inset 0px 0px 10px 0px rgba(0, 0, 0, 0.68);
+    -moz-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 10px 0px rgba(255, 255, 255, 0.16), inset 0px 0px 10px 0px rgba(0, 0, 0, 0.68);
+    -webkit-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 10px 0px rgba(255, 255, 255, 0.16), inset 0px 0px 10px 0px rgba(0, 0, 0, 0.68);
+}
+
+

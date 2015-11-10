@@ -3,47 +3,49 @@
     <head>
         <meta charset="UTF-8">
         <title>Secure Login: Protected Page</title>
-		{% include 'global-css-js.twig.html' %}
+	{% include 'global-css-js.twig.html' %}
     </head>
     <body>
+
     <div class="container_center">
         {% if gvm.auth.isAuth %}
             {% include 'user-welcome.twig.html' %}
             {% include 'live-callout-warning.twig.html' %}
-
+        
 			{% if gvm.MENU_TYPE == 'horizontal' %}
 				{% include 'global-horizontal-menu.twig.html' %}
 			{% elseif gvm.MENU_TYPE == 'vertical' %}
-				<div class="menudiv_wrapper">
-				  <nav class="vertical">
-					<ul>
-					  <li>
-						<label for="main_page">Return to ..</label>
-						<input type="radio" name="verticalMenu" id="main_page" />
-						<div>
-						  <ul>
-							<li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
-						  </ul>
-						</div>
-					  </li>
-					  <li>
-						<label for="logout">Exit</label>
-						<input type="radio" name="verticalMenu" id="logout" />
-						<div>
-						  <ul>
-							<li><a href="{{ gvm.RR_DOC_ROOT }}logout.php">Logout</a></li>
-						  </ul>
-						</div>
-					  </li>
-					</ul>
-				  </nav>
-				</div>
+		<div class="menudiv_wrapper">
+          <nav class="vertical">
+            <ul>
+              <li>
+                <label for="main_page">Return to ..</label>
+                <input type="radio" name="verticalMenu" id="main_page" />
+                <div>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <label for="logout">Exit</label>
+                <input type="radio" name="verticalMenu" id="logout" />
+                <div>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}logout.php">Logout</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </nav>
+        </div>
 			{% else %}
 				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
 			{% endif %}
-		{% if callout_history_vm.callout_list is empty %}
+        {% if callout_history_vm.callout_list is empty %}
         <b>NO Data.</b>
         {% endif %}
+        
         <div class="inner_table">
 	        <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left;">
 	        {% if callout_history_vm.callout_cols is defined %}
@@ -54,53 +56,56 @@
 		                  col_name != 'callout_address_origin' and 
 		                  col_name != 'callout_address_dest' and
 		                  col_name != 'callout_status_desc' %}
-							{% if col_name == 'updatetime' %}
-							<th scope="col" class="column_nowrap"><input id="{{ col_name }}" type="checkbox" name='showhide' /><label for="{{ col_name }}"></label>&nbsp;{{ col_name}}</th>
-							{% elseif col_name == 'calltime' %}
-							<th scope="col">Time</th>
-							{% elseif col_name == 'calltype' %}
-							<th scope="col">Type</th>
-							{% elseif col_name == 'call_key' %}
-							<th scope="col" class="column_nowrap"><input id="{{ col_name }}" type="checkbox" name='showhide' /><label for="{{ col_name }}"></label>&nbsp;Key</th>
-							{% elseif col_name == 'responders' %}
-							<th colspan=2 scope="col">&nbsp;Responders</th>
-							{% else %}
-							<th scope="col" class="column_nowrap">{{ col_name }}</th>
-							{% endif %}
-		            {% endfor %}
+				{% if col_name == 'updatetime' %}
+				<th scope="col" class="column_nowrap"><input id="{{ col_name }}" type="checkbox" name='showhide' /><label for="{{ col_name }}"></label>&nbsp;U/D TIME</th>
+	            {% elseif col_name == 'calltime' %}
+	            <th scope="col" class="column_nowrap">DISPATCH TIME</th>
+				{% elseif col_name == 'call_key' %}
+				<th scope="col" width=50 class="column_nowrap"><input id="{{ col_name }}" type="checkbox" name='showhide' /><label for="{{ col_name }}"></label>&nbsp;KEY</th>
+	            {% elseif col_name == 'calltype' %}
+				<th scope="col">TYPE</th>
+	            {% elseif col_name == 'hours_spent' %}
+				<th scope="col">HOURS</th>
+				{% elseif col_name == 'responders' %}
+				<th scope="col" class="column_nowrap_center">ATTENDED</th>
+		        {% else  %}
+				<th scope="col" class="column_nowrap">{{ col_name|upper }}</th>
+		        {% endif %}
+		        {% endfor %}
+	            <th scope="col" class="column_nowrap_center">DETAILS</th>
 	            </tr>
 	            </thead>
 	            
 	            {% for row in callout_history_vm.callout_list %}
 	                <tr>
+	                
 	                {% for col_name in callout_history_vm.callout_cols 
                        if col_name != 'callout_type_desc' and 
                           col_name != 'callout_address_origin' and 
                           col_name != 'callout_address_dest' and
                           col_name != 'callout_status_desc' %}
-	                    {% if col_name == 'calltype' %}
-	                        <td title='{{ row.callout_type_desc }}'><p>{{ row[col_name] }}</p></td>
-	                    {% elseif col_name == 'address' %}
-	                        <td class="column_nowrap">
-	                            <a target="_blank" href="http://maps.google.com/maps?saddr={{ row.callout_address_origin }}&daddr={{ row.callout_address_dest }} ({{ row[col_name] }})&dirflg=d"><p>{{ row[col_name] }}</p></a>
-	                        </td>
-	                    {% elseif col_name == 'status' %}
-	                        <td><p>{{ row.callout_status_desc }}</p></td>
-						{% elseif col_name == 'units' %}
-							<td><p>{{ row[col_name] }}</p></td>
-	                    {% elseif col_name == 'responders' %}
-	                        <td class="column_nowrap"><p><a class=button-link href="{{ gvm.RR_DOC_ROOT }}controllers/callout-history-response-controller.php?cid={{ row.id }}">{{ row[col_name] }}</a></p></td>
-	                    {% else %}
-	                        <td class="column_nowrap"><p>{{ row[col_name] }}</p></td>
+	                    {% if col_name == 'calltype' %}<td class="column_nowrap" title='{{ row.callout_type_desc }}'><p>{{ row[col_name] }}</p></td>
+	                    {% elseif col_name == 'calltime' %}<td class="column_nowrap">{{ row[col_name] }}</td>
+	                    {% elseif col_name == 'address' %}<td class="column_nowrap"><a target="_blank" href="http://maps.google.com/maps?saddr={{ row.callout_address_origin }}&daddr={{ row.callout_address_dest }} ({{ row[col_name] }})&dirflg=d">{{ row[col_name] }}</a></td>
+	                    {% elseif col_name == 'updatetime' %}<td class="column_nowrap"><p>{{ row[col_name] }}</p></td>
+	                    {% elseif col_name == 'status' %}<td class="column_nowrap">{{ row.callout_status_desc }}</td>
+			            {% elseif col_name == 'units' %}<td class="column_wrap">{{ row[col_name] }}</td>
+	                    {% elseif col_name == 'hours_spent' %}<td class="column_nowrap">{{ row.hours_spent|number_format(3, '.', ',') }} Hours</td>
+	                    {% elseif col_name == 'responders' %}<td class="column_nowrap_center"><p><a class=button-link href="{{ gvm.RR_DOC_ROOT }}controllers/callout-history-response-controller.php?cid={{ row.id }}">{{ row[col_name] }}</a></p></td>
+	                    {% else %}<td class="column_nowrap"><p>{{ row[col_name] }}</p></td>
 	                    {% endif %}
 	                {% endfor %}
-							<td class="column_nowrap"><p><a class=button-link href="{{ gvm.firehall.WEBSITE.WEBSITE_ROOT_URL }}ci/cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}" target="_blank">details</a></p> 
-	                </td>
+			{% if gvm.auth.isAdmin %}
+				<td class="column_nowrap"><p><a class=button-link href="{{ gvm.firehall.WEBSITE.WEBSITE_ROOT_URL }}ci/cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}" target="_blank">DETAILS</a></p></td>
+			{% else %}
+				<td class="column_nowrap"><p><a class=button-link href="{{ gvm.firehall.WEBSITE.WEBSITE_ROOT_URL }}ci/cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}&member_id={{ gvm.auth.username }}" target="_blank">DETAILS</a></p></td>
+			{% endif %}
 	                </tr>
 	            {% endfor %}
 	        {% endif %}
 	        </table>
         </div>
+        
         {% else %}
             {% include 'access-denied.twig.html' %}
         {% endif %}

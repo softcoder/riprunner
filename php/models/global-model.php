@@ -11,8 +11,10 @@ require_once __RIPRUNNER_ROOT__ . '/object_factory.php';
 require_once __RIPRUNNER_ROOT__ . '/models/auth-model.php';
 
 // Model array of variables to be used for view
-if(isset($view_template_vars) == false) $view_template_vars = array();
-if(isset($global_vm) == false) {
+if(isset($view_template_vars) === false) {
+    $view_template_vars = array();
+}
+if(isset($global_vm) === false) {
 	$global_vm = new GlobalViewModel($FIREHALLS);
 	$view_template_vars["gvm"] = $global_vm;
 }
@@ -25,45 +27,45 @@ class GlobalViewModel {
 	private $authModel;
 	private $firehalls;
 	
-	function __construct($firehalls) { 
+	public function __construct($firehalls) { 
 		$this->firehalls = $firehalls;
 	}
 	
-	function __destruct() { 
+	public function __destruct() { 
 		$this->closeDBConnection();
 	}
 	
 	public function __get($name) {
 		
-		if('isMobile' == $name) {
+		if('isMobile' === $name) {
 			return $this->getDetectBrowser()->isMobile();
 		}
-		if('isTablet' == $name) {
+		if('isTablet' === $name) {
 			return $this->getDetectBrowser()->isTablet();
 		}
-		if('RR_DOC_ROOT' == $name) {
+		if('RR_DOC_ROOT' === $name) {
 			return getFirehallRootURLFromRequest(
-					null,$this->firehalls);
+					null, $this->firehalls);
 		}
-		if('RR_DB_CONN' == $name) {
+		if('RR_DB_CONN' === $name) {
 			return $this->getDBConnection();
 		}
-		if(AuthViewModel::getAuthVarContainerName() == $name) {
+		if(AuthViewModel::getAuthVarContainerName() === $name) {
 			return $this->getAuthModel();
 		}
-		if('firehall' == $name) {
+		if('firehall' === $name) {
 			return $this->getFireHall();
 		}
-		if('firehall_list' == $name) {
+		if('firehall_list' === $name) {
 			return $this->firehalls;
 		}
-		if('user_firehallid' == $name) {
+		if('user_firehallid' === $name) {
 			return $this->getUserFirehallId();
 		}
-		if('enabled_asynch_mode' == $name) {
+		if('enabled_asynch_mode' === $name) {
 			return ENABLE_ASYNCH_MODE;
 		}
-		if('phpinfo' == $name) {
+		if('phpinfo' === $name) {
 			return $this->getPhpInfo();
 		}
 		if('MENU_TYPE' == $name) {
@@ -83,7 +85,7 @@ class GlobalViewModel {
 			}
 			return '';
 		}
-		
+
 		// throw some kind of error
 		throw new \Exception("Invalid var reference [$name].");
 	}
@@ -94,7 +96,7 @@ class GlobalViewModel {
 					AuthViewModel::getAuthVarContainerName(),'firehall',
 					'firehall_list','user_firehallid','enabled_asynch_mode',
 					'phpinfo','MENU_TYPE','CUSTOM_MAIN_CSS','CUSTOM_MOBILE_CSS'
-			))) {
+			)) === true) {
 			return true;
 		}
 		return false;
@@ -108,18 +110,18 @@ class GlobalViewModel {
 	
 	// Lazy init as much as possible
 	private function getDetectBrowser() {
-		if(isset($this->detect_browser) == false) {
-			$this->detect_browser = \riprunner\MobileDetect_Factory::create('browser_type');
+		if(isset($this->detect_browser) === false) {
+			$this->detect_browser = MobileDetect_Factory::create('browser_type');
 		}
 		return $this->detect_browser;
 	}
 	
 	private function getFireHall() {
 		$firehall_id = $this->getUserFirehallId();
-		if(isset($firehall_id) == false) {
+		if(isset($firehall_id) === false) {
 			$firehall_id = get_query_param('fhid');
 		}
-		if(isset($firehall_id)) {
+		if(isset($firehall_id) === true) {
 			$fire_hall = findFireHallConfigById($firehall_id, $this->firehalls);
 			return $fire_hall;	
 		}
@@ -127,7 +129,7 @@ class GlobalViewModel {
 	}
 
 	private function getUserFirehallId() {
-		if (isset($_SESSION['firehall_id'])) {
+		if (isset($_SESSION['firehall_id']) === true) {
 			return $_SESSION['firehall_id'];
 		}
 		return null;
@@ -135,8 +137,8 @@ class GlobalViewModel {
 	
 	private function getDBConnection() {
 		$fire_hall = $this->getFireHall();
-		if(isset($fire_hall)) {
-			if(isset($this->db_connection) == false) {
+		if(isset($fire_hall) === true) {
+			if(isset($this->db_connection) === false) {
 				$this->db_connection = db_connect_firehall($fire_hall);
 			}
 			return $this->db_connection;
@@ -145,16 +147,17 @@ class GlobalViewModel {
 	}
 	
 	private function closeDBConnection() {
-		if(isset($this->db_connection)) {
+		if(isset($this->db_connection) === true) {
 			db_disconnect($this->db_connection);
 			$this->db_connection = null;
 		}
 	}
 	
 	private function getAuthModel() {
-		if(isset($this->authModel) == false) {
+		if(isset($this->authModel) === false) {
 			$this->authModel = new AuthViewModel($this);
 		}
 		return $this->authModel;
 	}
 }
+?>

@@ -34,24 +34,28 @@ class FireHallEmailAccount
 	// Email should be deleted after it is received and processed.
 	public $EMAIL_DELETE_PROCESSED;
 
+	public $PROCESS_UNREAD_ONLY;
+	
 	public function __construct($host_enabled=false, $from_trigger=null, 
-			$host_conn_str=null,$host_username=null, $host_password=null, 
-			$host_delete_processed=true) {
+			$host_conn_str=null, $host_username=null, $host_password=null, 
+			$host_delete_processed=true,$unread_only=true) {
 		$this->EMAIL_HOST_ENABLED = $host_enabled;
 		$this->EMAIL_FROM_TRIGGER = $from_trigger;
 		$this->EMAIL_HOST_CONNECTION_STRING = $host_conn_str;
 		$this->EMAIL_HOST_USERNAME = $host_username;
 		$this->EMAIL_HOST_PASSWORD = $host_password;
 		$this->EMAIL_DELETE_PROCESSED = $host_delete_processed;
+		$this->PROCESS_UNREAD_ONLY = $unread_only;
 	}
 
 	public function toString() {
 		$result = "Email Settings:" .
-				  "\nhost enabled: " . var_export($this->EMAIL_HOST_ENABLED,true) .
+				  "\nhost enabled: " . var_export($this->EMAIL_HOST_ENABLED, true) .
 				  "\nfrom trigger: " . $this->EMAIL_FROM_TRIGGER .
 				  "\nconnection string: " . $this->EMAIL_HOST_CONNECTION_STRING .
 				  "\nusername: " . $this->EMAIL_HOST_USERNAME .
-				  "\ndelete processed emails: " . var_export($this->EMAIL_DELETE_PROCESSED,true);
+				  "\ndelete processed emails: " . var_export($this->EMAIL_DELETE_PROCESSED, true) .
+				  "\nonly examine unread emails: " . var_export($this->PROCESS_UNREAD_ONLY, true);
 		return $result;
 	}
 	public function setHostEnabled($host_enabled) {
@@ -72,6 +76,11 @@ class FireHallEmailAccount
 	public function setDeleteOnProcessed($host_delete_processed) {
 		$this->EMAIL_DELETE_PROCESSED = $host_delete_processed;
 	}
+	public function setProcessUnreadOnly($unread_only) {
+	    $this->PROCESS_UNREAD_ONLY = $unread_only;
+	}
+	
+	
 }
 			
 // ----------------------------------------------------------------------
@@ -159,11 +168,11 @@ class FireHallSMS
 	public $SMS_PROVIDER_TWILIO_FROM;
 	
 	public function __construct($sms_enabled=false, $gateway_type=null, 
-			$callout_type=null,$recipients=null, $recipients_are_group=false, 
-			$recipients_from_db=true,$sendhub_base_url=null, 
+			$callout_type=null, $recipients=null, $recipients_are_group=false, 
+			$recipients_from_db=true, $sendhub_base_url=null, 
 			$textbelt_base_url=null, $eztexting_base_url=null,
 			$eztexting_username=null, $eztexting_password=null, 
-			$twilio_base_url=null,$twilio_auth_token=null, $twilio_from=null) {
+			$twilio_base_url=null, $twilio_auth_token=null, $twilio_from=null) {
 
 		$this->SMS_SIGNAL_ENABLED = $sms_enabled;
 		$this->SMS_GATEWAY_TYPE = $gateway_type;
@@ -183,12 +192,12 @@ class FireHallSMS
 	
 	public function toString() {
 		$result = "SMS Settings:" .
-				"\nenabled: " . var_export($this->SMS_SIGNAL_ENABLED,true) .
+				"\nenabled: " . var_export($this->SMS_SIGNAL_ENABLED, true) .
 				"\ngateway type: " . $this->SMS_GATEWAY_TYPE .
 				"\ncallout provider type: " . $this->SMS_CALLOUT_PROVIDER_TYPE .
 				"\nrecipients list: " . $this->SMS_RECIPIENTS .
-				"\nrecipients are a group name: " . var_export($this->SMS_RECIPIENTS_ARE_GROUP,true) .
-				"\nGet recipients from DB: " . var_export($this->SMS_RECIPIENTS_FROM_DB,true) .
+				"\nrecipients are a group name: " . var_export($this->SMS_RECIPIENTS_ARE_GROUP, true) .
+				"\nGet recipients from DB: " . var_export($this->SMS_RECIPIENTS_FROM_DB, true) .
 				"\nSendhub url: " . $this->SMS_PROVIDER_SENDHUB_BASE_URL .
 				"\nTextbelt url: " . $this->SMS_PROVIDER_TEXTBELT_BASE_URL .
 				"\nEzTexting url: " . $this->SMS_PROVIDER_EZTEXTING_BASE_URL .
@@ -279,8 +288,8 @@ class FireHallMobile
 
 	public function toString() {
 		$result = "Mobile Settings:" .
-				"\nsms signal enabled: " . var_export($this->MOBILE_SIGNAL_ENABLED,true) .
-				"\ntracking enabled: " . var_export($this->MOBILE_TRACKING_ENABLED,true) .
+				"\nsms signal enabled: " . var_export($this->MOBILE_SIGNAL_ENABLED, true) .
+				"\ntracking enabled: " . var_export($this->MOBILE_TRACKING_ENABLED, true) .
 				"\ngcm signal enabled: " . $this->GCM_SIGNAL_ENABLED .
 				"\nGCM send url: " . $this->GCM_SEND_URL .
 				"\nGCM API Key: " . $this->GCM_API_KEY .
@@ -326,6 +335,8 @@ class FireHallWebsite
 	// The GEO coordinates of the Firehall
 	public $FIREHALL_GEO_COORD_LATITUDE;
 	public $FIREHALL_GEO_COORD_LONGITUDE;
+	// The timezone where the firehall is located
+	public $FIREHALL_TIMEZONE;
 	// The Base URL where you installed rip runner example: http://mywebsite.com/riprunner/
 	public $WEBSITE_ROOT_URL;
 	// The Google Map API Key
@@ -335,10 +346,12 @@ class FireHallWebsite
 	public $WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION;
 	// An array of source = destination street names of original_street_name = new_street_name street names to swap for google maps
 	public $WEBSITE_CALLOUT_DETAIL_STREET_NAME_SUBSTITUTION;
+    // Maximum number of invalid login attempts before user is locked out
+    public $MAX_INVALID_LOGIN_ATTEMPTS;
 		
-	public function __construct($name=null,$home_address=null,$home_geo_coord_lat=null,
-			$home_geo_coord_long=null,$root_url=null, 
-			$google_map_api_key=null,$city_name_substition=null) {
+	public function __construct($name=null, $home_address=null, $home_geo_coord_lat=null,
+			$home_geo_coord_long=null, $root_url=null, 
+			$google_map_api_key=null, $city_name_substition=null, $tz=null,$max_logins=3) {
 		
 		$this->FIREHALL_NAME = $name;
 		$this->FIREHALL_HOME_ADDRESS = $home_address;
@@ -347,15 +360,19 @@ class FireHallWebsite
 		$this->WEBSITE_ROOT_URL = $root_url;
 		$this->WEBSITE_GOOGLE_MAP_API_KEY = $google_map_api_key;
 		$this->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION = $city_name_substition;
+		$this->FIREHALL_TIMEZONE = $tz;
+		$this->MAX_INVALID_LOGIN_ATTEMPTS = $max_logins;
 	}
 
 	public function toString() {
 		$result = "Website Settings:" .
 				"\nFirehall name: " . $this->FIREHALL_NAME .
 				"\nFirehall address: " . $this->FIREHALL_HOME_ADDRESS .
+				"\nFirehall timezone: " . $this->FIREHALL_TIMEZONE .
 				"\nFirehall GEO coords: " . $this->FIREHALL_GEO_COORD_LATITUDE . "," . $this->FIREHALL_GEO_COORD_LONGITUDE .
 				"\nBase URL: " . $this->WEBSITE_ROOT_URL .
-				"\nGoogle Map API Key: " . $this->WEBSITE_GOOGLE_MAP_API_KEY;
+				"\nGoogle Map API Key: " . $this->WEBSITE_GOOGLE_MAP_API_KEY .
+				"\nMaximum login attempts: " . $this->MAX_INVALID_LOGIN_ATTEMPTS;
 		return $result;
 	}
 	
@@ -364,6 +381,9 @@ class FireHallWebsite
 	}
 	public function setFirehallAddress($home_address) {
 		$this->FIREHALL_HOME_ADDRESS = $home_address;
+	}
+	public function setFirehallTimezone($tz) {
+		$this->FIREHALL_TIMEZONE = $tz;
 	}
 	public function setFirehallGeoLatitude($home_geo_coord_lat) {
 		$this->FIREHALL_GEO_COORD_LATITUDE = $home_geo_coord_lat;
@@ -383,6 +403,9 @@ class FireHallWebsite
 	public function setStreetNameSubs($street_name_substition) {
 		$this->WEBSITE_CALLOUT_DETAIL_STREET_NAME_SUBSTITUTION = $street_name_substition;
 	}
+	public function setMaxLoginAttempts($max_logins) {
+	    $this->MAX_INVALID_LOGIN_ATTEMPTS = $max_logins;
+	}
 }
 
 // ----------------------------------------------------------------------
@@ -390,6 +413,8 @@ class FireHall_LDAP
 {
 	// Indicates whether LDAP should be used for the firehall
 	public $ENABLED;
+	// Indicates whether LDAP CACHING should be used for the firehall
+	public $ENABLED_CACHE;
 	// The ldap connect url
 	public $LDAP_SERVERNAME;
 	// The ldap bind root dn (or null if anonymous binds allowed) 
@@ -421,10 +446,10 @@ class FireHall_LDAP
 	// The ldap user name attribute name
 	public $LDAP_USER_NAME_ATTR_NAME;
 			
-	public function __construct($enabled=false,$name=null,$bind_rdn=null,
-			$bind_password=null,$dn=null,$user_dn=null,$login_filter=null, 
+	public function __construct($enabled=false, $name=null, $bind_rdn=null,
+			$bind_password=null, $dn=null, $user_dn=null, $login_filter=null, 
 			$user_dn_attr='dn', $user_sort_attr='sn',
-			$user_all_users_filter_attr=null,$user_admin_group_filter_attr=null,
+			$user_all_users_filter_attr=null, $user_admin_group_filter_attr=null,
 			$user_sms_group_filter_attr=null, $group_member_of_attr=null,
 			$user_sms_attr='mobile', $user_id_attr='uidnumber', $user_name_attr='uid') {
 		
@@ -444,11 +469,12 @@ class FireHall_LDAP
 		$this->LDAP_USER_SMS_ATTR_NAME = $user_sms_attr;
 		$this->LDAP_USER_ID_ATTR_NAME = $user_id_attr;
 		$this->LDAP_USER_NAME_ATTR_NAME = $user_name_attr;
+		$this->ENABLED_CACHE = true;
 	}
 
 	public function toString() {
 		$result = "LDAP Settings:" .
-				"\nenabled: " . var_export($this->ENABLED,true) .
+				"\nenabled: " . var_export($this->ENABLED, true) .
 				"\nhostname: " . $this->LDAP_SERVERNAME .
 				"\nBIND_RDN: " . $this->LDAP_BIND_RDN .
 				"\nBASEDN: " . $this->LDAP_BASEDN .
@@ -463,7 +489,8 @@ class FireHall_LDAP
 				"\nGroup memberof attr: " . $this->LDAP_GROUP_MEMBER_OF_ATTR_NAME .
 				"\nUser SMS attr: " . $this->LDAP_USER_SMS_ATTR_NAME .
 				"\nUserId attr: " . $this->LDAP_USER_ID_ATTR_NAME .
-				"\nUserName attr: " . $this->LDAP_USER_NAME_ATTR_NAME;
+				"\nUserName attr: " . $this->LDAP_USER_NAME_ATTR_NAME .
+				"\nCaching enabled: " . var_export($this->ENABLED_CACHE, true);
 		return $result;
 	}
 	
@@ -515,6 +542,9 @@ class FireHall_LDAP
 	public function setUserName_Attribute($user_name_attr) {
 		$this->LDAP_USER_NAME_ATTR_NAME = $user_name_attr;
 	}
+	public function setEnableCache($caching) {
+	    $this->ENABLED_CACHE = $caching;
+	}
 }
 
 // ----------------------------------------------------------------------
@@ -537,8 +567,8 @@ class FireHallConfig
 	// The LDAP configuration for the firehall
 	public $LDAP;
 		
-	public function __construct($enabled=false, $id=null,$mysql=null, 
-			$email=null, $sms=null,$website=null,$mobile=null,$ldapcfg=null) {
+	public function __construct($enabled=false, $id=null, $mysql=null, 
+			$email=null, $sms=null, $website=null, $mobile=null, $ldapcfg=null) {
 		
 		$this->ENABLED = $enabled;
 		$this->FIREHALL_ID = $id;
@@ -552,7 +582,7 @@ class FireHallConfig
 
 	public function toString() {
 		$result = "Firehall Settings:" .
-				"\nenabled: " . var_export($this->ENABLED,true) .
+				"\nenabled: " . var_export($this->ENABLED, true) .
 				"\nFirehall ID: " . $this->FIREHALL_ID .
 				"\n" . $this->EMAIL->toString() .
 				"\n" . $this->MYSQL->toString() .
@@ -588,3 +618,4 @@ class FireHallConfig
 		$this->LDAP = $ldapcfg;
 	}
 }
+?>

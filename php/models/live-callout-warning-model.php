@@ -20,7 +20,7 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		if('callout' == $name) {
+		if('callout' === $name) {
 			return $this->getLiveCalloutModel();
 		}
 		
@@ -28,14 +28,14 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 	}
 
 	public function __isset($name) {
-		if(in_array($name,array('callout'))) {
+		if(in_array($name, array('callout')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
 	}
 	
 	private function getCalloutModel() {
-		if(isset($this->calloutModel) == false) {
+		if(isset($this->calloutModel) === false) {
 			$this->calloutModel = new CalloutViewModel();
 		}
 		return $this->calloutModel;
@@ -49,18 +49,13 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 				' TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . 
 				DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
 				' ORDER BY id DESC LIMIT 1;';
-// 		$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 		if($sql_result == false) {
-// 			$log->error("Call checkForLiveCallout SQL error for sql [$sql] error: " . $this->getGvm()->RR_DB_CONN->errorInfo());
-// 			throw new \Exception( $this->getGvm()->RR_DB_CONN->errorInfo() . "[ " . $sql . "]");
-// 		}
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->execute();
 		
 		$log->trace("Call checkForLiveCallout SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
-		
-		if($row = $qry_bind->fetch(\PDO::FETCH_OBJ)) {
+		$row = $qry_bind->fetch(\PDO::FETCH_OBJ);
+		if($row !== false) {
 			$this->getCalloutModel()->id = $row->id;
 			$this->getCalloutModel()->callkey = $row->call_key;
 		}
@@ -69,3 +64,4 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 		return $this->getCalloutModel();
 	}
 }
+?>

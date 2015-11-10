@@ -129,34 +129,34 @@
 			{% if gvm.MENU_TYPE == 'horizontal' %}
 				{% include 'global-horizontal-menu.twig.html' %}
 			{% elseif gvm.MENU_TYPE == 'vertical' %}
-			<div class="menudiv_wrapper">
-			  <nav class="vertical">
-				<ul>
-				  <li>
-					<label for="main_page">Return to ..</label>
-					<input type="radio" name="verticalMenu" id="main_page" />
-					<div>
-					  <ul>
-						<li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php" onclick="javascript:closeConnection(); return true;">Main Menu</a></li>
-					  </ul>
-					</div>
-				  </li>
-				  <li>
-					<label for="logout">Exit</label>
-					<input type="radio" name="verticalMenu" id="logout" />
-					<div>
-					  <ul>
-						<li><a href="{{ gvm.RR_DOC_ROOT }}logout.php" onclick="javascript:closeConnection(); return true;">Logout</a></li>
-					  </ul>
-					</div>
-				  </li>
-				</ul>
-			  </nav>
-			</div>
+        <div class="menudiv_wrapper">
+          <nav class="vertical">
+            <ul>
+              <li>
+                <label for="main_page">Return to ..</label>
+                <input type="radio" name="verticalMenu" id="main_page" />
+                <div>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php" onclick="javascript:closeConnection(); return true;">Main Menu</a></li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <label for="logout">Exit</label>
+                <input type="radio" name="verticalMenu" id="logout" />
+                <div>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}logout.php" onclick="javascript:closeConnection(); return true;">Logout</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </nav>
+        </div>
 			{% else %}
 				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
 			{% endif %}
-			<p>
+    <p>
       <button onclick="logger.clear()">Clear log</button>
       <button onclick="closeConnection()">Stop reconnections</button>
       <span id="connection">Connecting...<div></div></span>

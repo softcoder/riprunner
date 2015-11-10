@@ -5,12 +5,12 @@
 // ==============================================================
 namespace riprunner;
 
-if ( !defined('INCLUSION_PERMITTED') ||
-( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
+if ( defined('INCLUSION_PERMITTED') === false ||
+   (defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false ) ) {
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once( 'plugin_interfaces.php' );
+require_once 'plugin_interfaces.php';
 
 class SMSTextBeltPlugin implements ISMSPlugin {
 
@@ -23,7 +23,7 @@ class SMSTextBeltPlugin implements ISMSPlugin {
 	public function signalRecipients($SMSConfig, $recipient_list, $recipient_list_type, $smsText) {
 		$resultSMS = 'START Send SMS using TextBelt.' . PHP_EOL;
 		
-		if($recipient_list_type == RecipientListType::GroupList) {
+		if($recipient_list_type === RecipientListType::GroupList) {
 			throw new \Exception("TextBelt SMS Plugin does not support groups!");
 		}
 		else {
@@ -34,7 +34,7 @@ class SMSTextBeltPlugin implements ISMSPlugin {
 		
 		$url = $SMSConfig->SMS_PROVIDER_TEXTBELT_BASE_URL;
 		
-		if(is_array($smsText) == false) {
+		if(is_array($smsText) === false) {
 			$smsText = array($smsText);
 		}
 		
@@ -50,18 +50,18 @@ class SMSTextBeltPlugin implements ISMSPlugin {
 				);
 				//url-ify the data for the POST
 				$fields_string = '';
-				foreach($fields as $key=>$value) {
+				foreach($fields as $key => $value) {
 					$fields_string .= $key.'='.$value.'&';
 				}
 				rtrim($fields_string, '&');
 		
-				curl_setopt($s,CURLOPT_URL,$url);
-				curl_setopt($s,CURLOPT_POST, count($fields));
-				curl_setopt($s,CURLOPT_POSTFIELDS, $fields_string);
+				curl_setopt($s, CURLOPT_URL, $url);
+				curl_setopt($s, CURLOPT_POST, count($fields));
+				curl_setopt($s, CURLOPT_POSTFIELDS, $fields_string);
 		
 				$result = curl_exec($s);
 		
-				if(!curl_errno($s)) {
+				if(curl_errno($s) === 0) {
 					$info = curl_getinfo($s);
 					$resultSMS .= 'Took ' . $info['total_time'] . 
 						' seconds to send a request to ' . $info['url'] . 
@@ -77,3 +77,4 @@ class SMSTextBeltPlugin implements ISMSPlugin {
 		return $resultSMS;
 	}
 }
+?>

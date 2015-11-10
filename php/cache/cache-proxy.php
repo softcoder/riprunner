@@ -10,8 +10,8 @@
 */
 namespace riprunner;
 
-if ( !defined('INCLUSION_PERMITTED') ||
-( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
+if ( defined('INCLUSION_PERMITTED') === false ||
+    (defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false)) {
 	die( 'This file must not be invoked directly.' );
 }
 
@@ -27,13 +27,13 @@ class CacheProxy {
 	/*
 		Constructor
 	*/
-	function __construct($cacheProviderType=null) {
+	public function __construct($cacheProviderType=null) {
 		global $log;
 		
-		if(isset($cacheProviderType)) {
+		if(isset($cacheProviderType) === true) {
 			$this->cacheProviderType = $cacheProviderType;
 		}
-		if($this->getCacheProvider() == null && 
+		if($this->getCacheProvider() === null && 
 				$this->cacheProviderType !== $this->cacheProviderTypeFallback) {
 			$this->cacheProviderType = $this->cacheProviderTypeFallback;
 		}
@@ -43,10 +43,10 @@ class CacheProxy {
 
 	private function getCacheProvider() {
 		global $log;
-		if(isset($this->cacheProvider) == false) {
-			$this->cacheProvider = \riprunner\PluginsLoader::findPlugin(
+		if(isset($this->cacheProvider) === false) {
+			$this->cacheProvider = PluginsLoader::findPlugin(
 					'riprunner\ICachePlugin', $this->cacheProviderType);
-			if($this->cacheProvider == null) {
+			if($this->cacheProvider === null) {
 				$log->error("Invalid Cache Plugin type: [" . $this->cacheProviderType . "]");
 				throw new \Exception("Invalid Cache Plugin type: [" . $this->cacheProviderType . "]");
 			}
@@ -56,23 +56,35 @@ class CacheProxy {
 	}
 	
 	public function getItem($key) {
-		if($this->getCacheProvider() == null) {
+		if($this->getCacheProvider() === null) {
 			return null;
 		}
 		return $this->getCacheProvider()->getItem($key);
 	}
 	public function setItem($key, $value, $cache_seconds=null) {
-		if($this->getCacheProvider() != null) {
-			if(isset($cache_seconds) == FALSE) {
-				$cache_seconds = 60 * 10;
+		if($this->getCacheProvider() !== null) {
+			if(isset($cache_seconds) === false) {
+				$cache_seconds = (60 * 10);
 			}
-			$this->getCacheProvider()->setItem($key,$value,$cache_seconds);
+			$this->getCacheProvider()->setItem($key, $value, $cache_seconds);
 		}
 	}
 	public function deleteItem($key) {
-		if($this->getCacheProvider() != null) {
+		if($this->getCacheProvider() !== null) {
 			$this->getCacheProvider()->deleteItem($key);
 		}
 	}
+	public function hasItem($key) {
+		if($this->getCacheProvider() === null) {
+			return null;
+		}
+		return $this->getCacheProvider()->hasItem($key);
+	}
+	public function clear() {
+		if($this->getCacheProvider() === null) {
+			return null;
+		}
+		return $this->getCacheProvider()->clear();
+	}
 }
-
+?>

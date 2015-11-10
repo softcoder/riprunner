@@ -6,19 +6,22 @@
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
-if ( !defined('INCLUSION_PERMITTED') || 
-     ( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) { 
+if ( defined('INCLUSION_PERMITTED') === false ||
+     ( defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false ) ) { 
 	die( 'This file must not be invoked directly.' ); 
 }
 
-	if(defined('__RIPRUNNER_ROOT__') == false) define('__RIPRUNNER_ROOT__', dirname(__FILE__));
+	if(defined('__RIPRUNNER_ROOT__') === false) {
+	    define('__RIPRUNNER_ROOT__', dirname(__FILE__));
+	}
 
 // ==============================================================
 
 	define( 'PRODUCT_NAME', 		'RipRunner' );
 	define( 'PRODUCT_URL',  		'http://soft-haus.com' );
 	define( 'DEBUG_MODE', 			false);
-	define( "SECURE", 				FALSE);    // FOR DEVELOPMENT ONLY!!!!
+	define( 'ENABLE_AUDITING',		true);
+	define( "SECURE", 			false);    // FOR DEVELOPMENT ONLY!!!!
 	define( "ENABLE_ASYNCH_MODE", 	true);
 
 	define('USER_ACCESS_ADMIN', 	 0x1);
@@ -35,7 +38,6 @@ if ( !defined('INCLUSION_PERMITTED') ||
 	define( 'SMS_GATEWAY_SENDHUB', 						'SENDHUB');
 	define( 'SMS_GATEWAY_EZTEXTING', 					'EZTEXTING');
 	define( 'SMS_GATEWAY_TWILIO', 						'TWILIO');
-	
 	define( 'SMS_CALLOUT_PROVIDER_DEFAULT', 			'DEFAULT');
 
 	// ----------------------------------------------------------------------

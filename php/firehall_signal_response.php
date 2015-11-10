@@ -3,8 +3,8 @@
 //	Copyright (C) 2014 Mark Vejvoda
 //	Under GNU GPL v3.0
 // ==============================================================
-if ( !defined('INCLUSION_PERMITTED') ||
-( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
+if ( defined('INCLUSION_PERMITTED') === false ||
+    (defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false)) {
 	die( 'This file must not be invoked directly.' );
 }
 
@@ -19,15 +19,15 @@ function signalFireHallResponse($callout, $userId, $userGPSLat, $userGPSLong,
 								$userStatus) {
 	
 	$result = "";
-	if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED) {
+	if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
 		$result .= signalResponseToSMSPlugin($callout, $userId,
 				$userGPSLat, $userGPSLong, $userStatus);
 	}
 
-	if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED && 
-		$callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED) {
+	if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED === true && 
+		$callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED === true) {
 	
-		$gcmMsg = getSMSCalloutResponseMessage($callout,$userId,$userStatus, 0);
+		$gcmMsg = getSMSCalloutResponseMessage($callout, $userId, $userStatus, 0);
 		
 		$result .= signalResponseRecipientsUsingGCM($callout, $userId, 
 	                		$userStatus, $gcmMsg, null, null);
@@ -40,32 +40,32 @@ function signalResponseToSMSPlugin($callout, $userId, $userGPSLat, $userGPSLong,
 
 	$smsPlugin = \riprunner\PluginsLoader::findPlugin('riprunner\ISMSPlugin', 
 			$callout->getFirehall()->SMS->SMS_GATEWAY_TYPE);
-	if($smsPlugin == null) {
+	if($smsPlugin === null) {
 		throw new Exception("Invalid SMS Plugin type: [" . $callout->getFirehall()->SMS->SMS_GATEWAY_TYPE . "]");
 	}
 
 	$recipient_list_type = \riprunner\RecipientListType::MobileList;
-	if($callout->getFirehall()->LDAP->ENABLED) {
-		$recipients = get_sms_recipients_ldap($callout->getFirehall(),null);
+	if($callout->getFirehall()->LDAP->ENABLED === true) {
+		$recipients = get_sms_recipients_ldap($callout->getFirehall(), null);
 		$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients);
 		
-		$recipient_list = explode(';',$recipients);
+		$recipient_list = explode(';', $recipients);
 		$recipient_list_array = $recipient_list;
 	}
 	else {
-		$recipient_list_type = ($callout->getFirehall()->SMS->SMS_RECIPIENTS_ARE_GROUP ?
+		$recipient_list_type = (($callout->getFirehall()->SMS->SMS_RECIPIENTS_ARE_GROUP === true) ?
 				\riprunner\RecipientListType::GroupList : \riprunner\RecipientListType::MobileList);
-		if($recipient_list_type == \riprunner\RecipientListType::GroupList) {
+		if($recipient_list_type === \riprunner\RecipientListType::GroupList) {
 			$recipients_group = $callout->getFirehall()->SMS->SMS_RECIPIENTS;
-			$recipient_list_array = explode(';',$recipients_group);
+			$recipient_list_array = explode(';', $recipients_group);
 		}
-		else if($callout->getFirehall()->SMS->SMS_RECIPIENTS_FROM_DB) {
-			$recipient_list = getMobilePhoneListFromDB($callout->getFirehall(),null);
+		else if($callout->getFirehall()->SMS->SMS_RECIPIENTS_FROM_DB === true) {
+			$recipient_list = getMobilePhoneListFromDB($callout->getFirehall(), null);
 			$recipient_list_array = $recipient_list;
 		}
 		else {
 			$recipients = $callout->getFirehall()->SMS->SMS_RECIPIENTS;
-			$recipient_list = explode(';',$recipients);
+			$recipient_list = explode(';', $recipients);
 			$recipient_list_array = $recipient_list;
 		}
 	}
@@ -96,5 +96,4 @@ function getSMSCalloutResponseMessage($callout, $userId, $userStatus, $maxLength
 		
 	return $smsMsg;
 }
-
 ?>

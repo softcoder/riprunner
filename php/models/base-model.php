@@ -15,7 +15,7 @@ abstract class BaseViewModel {
 	private $gvm;
 	private $view_template_vars;
 	
-	function __construct($gvm=null,&$view_template_vars=null) { 
+	public function __construct($gvm=null, &$view_template_vars=null) { 
 		$this->gvm = $gvm;
 		
 		$this->registerVars($view_template_vars);
@@ -29,7 +29,9 @@ abstract class BaseViewModel {
 	
 	public function registerVars(&$view_template_vars) {
 		// Model array of variables to be used for view
-		if(isset($view_template_vars) == false) $view_template_vars = array();
+		if(isset($view_template_vars) === false) {
+		    $view_template_vars = array();
+        }
 		$view_template_vars[$this->getVarContainerName()] = $this;
 	}
 	
@@ -47,3 +49,4 @@ abstract class BaseViewModel {
 	
 	abstract protected function getVarContainerName();
 }
+?>

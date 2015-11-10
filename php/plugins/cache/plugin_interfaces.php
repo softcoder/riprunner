@@ -17,4 +17,9 @@ interface ICachePlugin {
 	public function setItem($key, $value, $cache_seconds=null);
 	// The implementation for removing something from the cache
 	public function deleteItem($key);
+	// The implementation for checking for existance in the cache
+	public function hasItem($key);
+	// The implementation for clearing the cache
+	public function clear();
 }
+?>

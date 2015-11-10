@@ -1,5 +1,8 @@
-
+.h_cssmenu {
+     display: table;
+ }
 .h_cssmenu ul{
+    text-align: center;
 	float: left;
 	display: inline-block;
 	margin: 0 auto;

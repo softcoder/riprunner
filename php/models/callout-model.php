@@ -22,7 +22,7 @@ class CalloutViewModel extends BaseViewModel {
 	private $status;
 	private $callkey;
 	
-	function __construct($id=null) {
+	public function __construct($id=null) {
 		$this->id = $id;
 	}
 	protected function getVarContainerName() { 
@@ -30,34 +30,34 @@ class CalloutViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		if('id' == $name) {
+		if('id' === $name) {
 			return $this->id;
 		}
-		if('time' == $name) {
+		if('time' === $name) {
 			return $this->time;
 		}
-		if('type' == $name) {
+		if('type' === $name) {
 			return $this->type;
 		}
-		if('address' == $name) {
+		if('address' === $name) {
 			return $this->address;
 		}
-		if('lat' == $name) {
+		if('lat' === $name) {
 			return $this->lat;
 		}
-		if('long' == $name) {
+		if('long' === $name) {
 			return $this->long;
 		}
-		if('units' == $name) {
+		if('units' === $name) {
 			return $this->units;
 		}
-		if('lastupdated' == $name) {
+		if('lastupdated' === $name) {
 			return $this->units;
 		}
-		if('status' == $name) {
+		if('status' === $name) {
 			return $this->status;
 		}
-		if('callkey' == $name) {
+		if('callkey' === $name) {
 			return $this->callkey;
 		}
 		
@@ -65,7 +65,7 @@ class CalloutViewModel extends BaseViewModel {
 	}
 
 	public function __set($name, $value) {
-		if (property_exists($this, $name)) {
+		if (property_exists($this, $name) === true) {
             $this->$name = $value;
         }
         else {
@@ -76,10 +76,10 @@ class CalloutViewModel extends BaseViewModel {
 	public function __isset($name) {
 		if(in_array($name,
 			array('id','time','type','address','lat','long','units',
-				  'lastupdate','status','callkey'))) {
+				  'lastupdate','status','callkey')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
 	}
 }
-
+?>

@@ -5,7 +5,9 @@
 // ==============================================================
 
 define( 'INCLUSION_PERMITTED', true );
-if(defined('__RIPRUNNER_ROOT__') == false) define('__RIPRUNNER_ROOT__', dirname(dirname(__FILE__)));
+if(defined('__RIPRUNNER_ROOT__') === false) {
+    define('__RIPRUNNER_ROOT__', dirname(dirname(__FILE__)));
+}
 
 require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
@@ -17,36 +19,35 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/html2text/Html2Text.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 	// Set this to true to NOT triggers live callouts but only log the parsed values to logfile
-	$DEBUG_LIVE_EMAIL_TRIGGER = true;
+	$DEBUG_LIVE_EMAIL_TRIGGER = false;
 	global $log;
 	$log->warn("START ==> Google App Engine email trigger for client [" . getClientIPInfo() ."]");
 	
-	$auth_appid = isset($_SERVER["HTTP_X_RIPRUNNER_AUTH_APPID"]) ? $_SERVER["HTTP_X_RIPRUNNER_AUTH_APPID"] : null;
-	$auth_accountname = isset($_SERVER["HTTP_X_RIPRUNNER_AUTH_ACCOUNTNAME"]) ? $_SERVER["HTTP_X_RIPRUNNER_AUTH_ACCOUNTNAME"] : null;
+	$auth_appid = ((isset($_SERVER["HTTP_X_RIPRUNNER_AUTH_APPID"]) === true) ? $_SERVER["HTTP_X_RIPRUNNER_AUTH_APPID"] : null);
+	$auth_accountname = ((isset($_SERVER["HTTP_X_RIPRUNNER_AUTH_ACCOUNTNAME"]) === true) ? $_SERVER["HTTP_X_RIPRUNNER_AUTH_ACCOUNTNAME"] : null);
 	
 	$log->warn("Email trigger auth appid [$auth_appid] account name [$auth_accountname]");
 	
-	if(isset($auth_appid) && $auth_appid != null && 
-			isset($auth_accountname) && $auth_accountname != null) {
-		if(isset($_REQUEST['body']) && isset($_REQUEST['sender'])) {
+	if(isset($auth_appid) === true && $auth_appid !== null && 
+			isset($auth_accountname) === true && $auth_accountname !== null) {
+		if(isset($_REQUEST['body']) === true && isset($_REQUEST['sender']) === true) {
 			$realdata = $_REQUEST['body'];
 			$html_email = new \Html2Text\Html2Text($realdata);
 			$realdata = $html_email->getText();
 			
 			$log->warn("Email trigger dump contents... [$realdata]");
-			//$callout = processFireHallText($realdata);
 			$callout = processFireHallTextTrigger($realdata);
-			$log->warn("Email trigger processing contents signal result: " . var_export($callout->isValid(),true));
+			$log->warn("Email trigger processing contents signal result: " . var_export($callout->isValid(), true));
 			
-			if($callout->isValid()) {
+			if($callout->isValid() === true) {
 				$mail = $_REQUEST['sender'];
 				
 				# Loop through all Firehall email triggers
-				foreach ($FIREHALLS as &$FIREHALL) {
-					if($FIREHALL->ENABLED == true && isset($FIREHALL->MOBILE->GCM_APP_ID) &&
-							$FIREHALL->MOBILE->GCM_APP_ID == $auth_appid &&
-							isset($FIREHALL->MOBILE->GCM_SAM) &&
-							$FIREHALL->MOBILE->GCM_SAM == $auth_accountname) {
+				foreach ($FIREHALLS as &$FIREHALL){
+					if($FIREHALL->ENABLED === true && isset($FIREHALL->MOBILE->GCM_APP_ID) === true &&
+							$FIREHALL->MOBILE->GCM_APP_ID === $auth_appid &&
+							isset($FIREHALL->MOBILE->GCM_SAM) === true &&
+							$FIREHALL->MOBILE->GCM_SAM === $auth_accountname) {
 						
 						$log->warn("Email trigger checking firehall: " .
 								$FIREHALL->WEBSITE->FIREHALL_NAME .
@@ -60,12 +61,13 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 						$log->warn("Email trigger checking #2 from [$mail]");
 						
 						$valid_email_trigger = validate_email_sender($FIREHALL, $mail);
-						if($valid_email_trigger == true) {
-							$log->error("Valid sender trigger matched firehall sending signal to: " . $FIREHALL->WEBSITE->FIREHALL_NAME);
+						if($valid_email_trigger === true) {
+							$log->warn("Valid sender trigger matched firehall sending signal to: " . $FIREHALL->WEBSITE->FIREHALL_NAME);
 							
 							$callout->setFirehall($FIREHALL);
 							
-							if($DEBUG_LIVE_EMAIL_TRIGGER == false) {
+							if($DEBUG_LIVE_EMAIL_TRIGGER === false) {
+							    $log->warn("About to trigger callout...");
 								signalFireHallCallout($callout);
 								$log->warn("Callout triggered.");
 							}
@@ -74,8 +76,8 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 								$cdatetime = $callout->getDateTimeAsString();
 								$ctype = $callout->getCode();
 								$caddress = $callout->getAddress();
-								$lat = floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLat()));
-								$long = floatval(preg_replace("/[^-0-9\.]/","",$callout->getGPSLong()));
+								$lat = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLat()));
+								$long = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLong()));
 								$units = $callout->getUnitsResponding();
 								$ckid = $callout->getKeyId();
 								$log->error("Access trigger processing parsed: [$cdatetime] [$ctype] [$caddress] [$lat] [$long] [$units] [$ckid]");
@@ -83,12 +85,12 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 							break;
 						}
 						else {
-							$log->error("FAILED trigger parsing!");
+							$log->error('FAILED trigger parsing!');
 							dumpRequestLog();
 						}
 					}
-					else if($FIREHALL->ENABLED == true && isset($FIREHALL->MOBILE->GCM_APP_ID) &&
-							isset($FIREHALL->MOBILE->GCM_SAM)) {
+					else if($FIREHALL->ENABLED === true && isset($FIREHALL->MOBILE->GCM_APP_ID) === true &&
+							isset($FIREHALL->MOBILE->GCM_SAM) === true) {
 						$log->warn("Auth did not match firehall app id[" . 
 								$FIREHALL->MOBILE->GCM_APP_ID . "] sam [" . 
 								$FIREHALL->MOBILE->GCM_SAM . "]");
@@ -113,7 +115,7 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 	function dumpRequestLog() {
 		global $log;
 		$log->error("Request Headers:");
-		foreach ($_SERVER as $name => $value) {
+		foreach ($_SERVER as $name => $value){
 			$log->error("Name [$name] Value [$value]");
 		}
 	}
@@ -123,29 +125,27 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 	
 		$valid_email_trigger = true;
 	
-		if(isset($FIREHALL->EMAIL->EMAIL_FROM_TRIGGER) &&
-				$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER != null &&
-				$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER != '') {
+		if(isset($FIREHALL->EMAIL->EMAIL_FROM_TRIGGER) === true &&
+				$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER !== null &&
+				$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER !== '') {
 	
 			$log->warn("Email trigger check from field for [" . $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER . "]");
 	
 			$valid_email_trigger = false;
 				
-			if(isset($from) && $from != null) {
+			if(isset($from) === true && $from !== null) {
 					
 				// Match on exact email address if @ in trigger text
-				if(strpos($FIREHALL->EMAIL->EMAIL_FROM_TRIGGER, '@') !== FALSE) {
-					//$fromaddr = $header->from[0]->mailbox . "@" . $header->from[0]->host;
+				if(strpos($FIREHALL->EMAIL->EMAIL_FROM_TRIGGER, '@') !== false) {
 					$fromaddr = $from;
 				}
 				// Match on all email addresses from the same domain
 				else {
-					//$fromaddr = $header->from[0]->host;
 					$fromaddr = explode('@', $from);
 					$fromaddr = $fromaddr[1];
 				}
 	
-				if($fromaddr == $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER) {
+				if($fromaddr === $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER) {
 					$valid_email_trigger = true;
 				}
 				// START: Debugging
@@ -155,7 +155,7 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 // 				}
 				// END: Debugging
 	
-				$log->warn("Email trigger check from field result: " . (($valid_email_trigger) ? "true" : "false") . " for value [$fromaddr]");
+				$log->warn("Email trigger check from field result: " . (($valid_email_trigger === true) ? "true" : "false") . " for value [$fromaddr]");
 			}
 			else {
 				$log->warn("Email trigger check from field Error not set!");

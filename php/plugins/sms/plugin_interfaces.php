@@ -19,3 +19,4 @@ interface ISMSPlugin {
 	// The implementation for sending an SMS message to recipients
 	public function signalRecipients($SMSConfig, $recipient_list, $recipient_list_type, $smsText);
 }
+?>

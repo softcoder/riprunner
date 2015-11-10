@@ -600,6 +600,8 @@ form:after {
 }
 .button-link {
     padding: 5px 10px;
+    display: inline-block;
+    width: 90%;
     background: #4479BA;
     color: #FFF;
 	font-size: 36pt;
@@ -659,9 +661,9 @@ background: green;
 .container_center {
     margin: 0 auto;
     text-align: center;
-	border: 2px solid;
-    border-radius: 25px;
-	width:90%;
+	#border: 2px solid;
+    #border-radius: 25px;
+	width:100%;
 }
 
 table.center {

@@ -21,10 +21,10 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		if('response_list' == $name) {
+		if('response_list' === $name) {
 			return $this->getResponseList();
 		}
-		if('response_cols' == $name) {
+		if('response_cols' === $name) {
 			return $this->getResponseCols();
 		}
 		
@@ -33,20 +33,20 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('response_list','response_cols'))) {
+			array('response_list','response_cols')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
 	}
 	
 	private function getResponseList() {
-		if(isset($this->response_list) == false) {
+		if(isset($this->response_list) === false) {
 			global $log;
 			
 			// Read from the database info about this callout
 			$callout_id = get_query_param('cid');
 			
-			if($this->getGvm()->firehall->LDAP->ENABLED) {
+			if($this->getGvm()->firehall->LDAP->ENABLED === true) {
 				create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
 				$sql = 'SELECT b.user_id,a.responsetime,a.latitude,a.longitude,' .
 				       'a.status,a.updatetime,c.address ' .
@@ -63,14 +63,9 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 				       ' LEFT JOIN callouts c on a.calloutid = c.id ' .
 				       ' WHERE calloutid = :cid;';
 			}
-// 			$sql_result = $this->getGvm()->RR_DB_CONN->query( $sql );
-// 			if($sql_result == false) {
-// 				printf("Error: %s\n", mysqli_error($this->getGvm()->RR_DB_CONN));
-// 				throw new \Exception(mysqli_error( $this->getGvm()->RR_DB_CONN ) . "[ " . $sql . "]");
-// 			}
 
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-			$qry_bind->bindParam(':cid',$callout_id);
+			$qry_bind->bindParam(':cid', $callout_id);
 			$qry_bind->execute();
 				
 			$log->trace("About to display callout response list for sql [$sql] result count: " . $qry_bind->rowCount());
@@ -82,7 +77,7 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 			foreach($rows as $row) {
 				// Add any custom fields with values here
 				$row['responder_origin'] = urlencode($row["latitude"]) . ',' . urlencode($row["longitude"]);
-				$row['callout_address_dest'] = getAddressForMapping($this->getGvm()->firehall,$row['address']);
+				$row['callout_address_dest'] = getAddressForMapping($this->getGvm()->firehall, $row['address']);
 				$row['callout_status_desc'] = getCallStatusDisplayText($row['status']);
 				
 				$this->response_list[] = $row;
@@ -91,14 +86,14 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 		return $this->response_list;
 	}
 	private function getResponseCols() {
-		if(isset($this->response_cols) == false) {
+		if(isset($this->response_cols) === false) {
 			$list = $this->getResponseList();
 			
-			if(sizeof($list) > 0) {
+			if(count($list) > 0) {
 				$this->response_cols = array_keys(reset($list));
 			}
 		}
 		return $this->response_cols;
 	}
 }
-
+?>

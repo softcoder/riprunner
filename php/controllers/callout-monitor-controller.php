@@ -7,7 +7,9 @@ namespace riprunner;
  
 define( 'INCLUSION_PERMITTED', true );
 
-if(defined('__RIPRUNNER_ROOT__') == false) define('__RIPRUNNER_ROOT__', dirname(dirname(__FILE__)));
+if(defined('__RIPRUNNER_ROOT__') === false) {
+    define('__RIPRUNNER_ROOT__', dirname(dirname(__FILE__)));
+}
 
 require_once __RIPRUNNER_ROOT__ . '/template.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
@@ -16,16 +18,16 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 // Register our view and variables for the template
 $server_mode = get_query_param('server_mode');
-if(isset($server_mode) && $server_mode === 'true') {
+if(isset($server_mode) === true && $server_mode === 'true') {
 	sec_session_start_ext(true);
 }
 else {
 	sec_session_start();
 }
-$live_callout_info = new LiveCalloutWarningViewModel($global_vm,$view_template_vars);
+$live_callout_info = new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 
-if(isset($server_mode) && $server_mode === 'true') {
-	if($global_vm->auth->isAuth == false) {
+if(isset($server_mode) === true && $server_mode === 'true') {
+	if($global_vm->auth->isAuth === false) {
 		echo 'Access Denied!';
 		ob_flush();
 		flush();
@@ -42,7 +44,7 @@ if(isset($server_mode) && $server_mode === 'true') {
 	 * @param string $msg Line of text that should be transmitted.
 	*/
 	function sendMsg($live_callout_info) {
-		if(isset($live_callout_info)) {
+		if(isset($live_callout_info) === true) {
 			echo "id: " . $live_callout_info->callout->id . PHP_EOL;
 			echo "data: {\n";
 			echo "data: \"keyid\": \"". $live_callout_info->callout->callkey ."\", \n";
@@ -55,8 +57,6 @@ if(isset($server_mode) && $server_mode === 'true') {
 		else {
 			echo "id: -1" . PHP_EOL;
 			echo "data: {\n";
-			//echo "data: \"keyid\": \"54d3030395cba8.52691984\", \n";
-			//echo "data: \"id\": 171\n";
 			echo "data: \"keyid\": \"\", \n";
 			echo "data: \"id\": -1\n";
 				
@@ -76,12 +76,12 @@ if(isset($server_mode) && $server_mode === 'true') {
 		}
 
 		$time_elapsed = (time() - $startedAt);
-		$log->trace("callout-monitor time elapsed: " . $time_elapsed . " mod 5: " . $time_elapsed % 5);
+		$log->trace("callout-monitor time elapsed: " . $time_elapsed . " mod 5: " . ($time_elapsed % 5));
 		
-		if($time_elapsed <= 1 || $time_elapsed == 20 || $time_elapsed == 40) {
-			$live_callout_info = new LiveCalloutWarningViewModel($global_vm,$view_template_vars);
-			if(isset($live_callout_info) && isset($live_callout_info->callout->id) &&
-					$live_callout_info->callout->id != '') {
+		if($time_elapsed <= 1 || $time_elapsed === 20 || $time_elapsed === 40) {
+			$live_callout_info = new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
+			if(isset($live_callout_info) === true && isset($live_callout_info->callout->id) === true &&
+					$live_callout_info->callout->id !== '') {
 				sendMsg($live_callout_info);
 				die();
 			}
@@ -89,7 +89,7 @@ if(isset($server_mode) && $server_mode === 'true') {
 				sendMsg(null);
 			}
 		}
-		else if($time_elapsed % 5 == 0) {
+		else if(($time_elapsed % 5) === 0) {
 			sendMsg(null);
 		}
 		sleep(1);
@@ -110,3 +110,4 @@ else {
 	// Output our template
 	echo $template->render($view_template_vars);
 }
+?>

@@ -15,38 +15,37 @@
 			{% if gvm.MENU_TYPE == 'horizontal' %}
 				{% include 'global-horizontal-menu.twig.html' %}
 			{% elseif gvm.MENU_TYPE == 'vertical' %}
-			<div class="menudiv_wrapper">
-			  <nav class="vertical">
-				<ul>
-				  <li>
-					<label for="main_page">Return to ..</label>
-					<input type="radio" name="verticalMenu" id="main_page" />
-					<div>
-					  <ul>
-						<li><a href="{{ gvm.RR_DOC_ROOT }}controllers/callout-history-controller.php">Callouts</a></li>
-					  </ul>
-					  <ul>
-						<li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
-					  </ul>
-					</div>
-				  </li>
-				  <li>
-					<label for="logout">Exit</label>
-					<input type="radio" name="verticalMenu" id="logout" />
-					<div>
-					  <ul>
-						<li><a href="{{ gvm.RR_DOC_ROOT }}logout.php">Logout</a></li>
-					  </ul>
-					</div>
-				  </li>
-				</ul>
-			  </nav>
-			</div>
+        <div class="menudiv_wrapper">
+          <nav class="vertical">
+            <ul>
+              <li>
+                <label for="main_page">Return to ..</label>
+                <input type="radio" name="verticalMenu" id="main_page" />
+                <div>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/callout-history-controller.php">Callouts</a></li>
+                  </ul>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <label for="logout">Exit</label>
+                <input type="radio" name="verticalMenu" id="logout" />
+                <div>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}logout.php">Logout</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </nav>
+        </div>
 			{% else %}
 				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
 			{% endif %}
-
-			{% if response_history_vm.response_list is empty %}
+        {% if response_history_vm.response_list is empty %}
         <b>NO Data.</b>
         {% endif %}
                     
@@ -78,7 +77,7 @@
 	                        <td class="column_nowrap">{{ row[col_name] }}</td>
 	                    {% elseif col_name == 'latitude' or col_name == 'longitude' %}
 	                        {% if row.latitude != 0.0 and row.longitude != 0.0 %}
-	                        <td class="column_nowrap">
+	                        <td class=column_nowrap>
 	                            <a target="_blank" 
 	                                href="http://maps.google.com/maps?saddr={{ row.responder_origin }}&daddr={{ row.callout_address_dest }} ({{ row.callout_address_dest }})">
 	                                {{ row[col_name] }}
@@ -92,7 +91,7 @@
 	                    {% elseif col_name == 'updatetime' %}
 	                        <td class="column_nowrap">{{ row[col_name] }}</td>
 	                    {% else %}
-	                        <td>{{ row[col_name] }}</td>
+	                        <td class=column_nowrap>{{ row[col_name] }}</td>
 	                    {% endif %}
 	                {% endfor %}
 	                </tr>

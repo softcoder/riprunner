@@ -4,8 +4,8 @@
 //	Under GNU GPL v3.0
 // ==============================================================
 define( 'INCLUSION_PERMITTED', true );
-require_once( 'config.php' );
-require_once( 'functions.php' );
+require_once 'config.php';
+require_once 'functions.php';
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
@@ -18,7 +18,7 @@ $params = session_get_cookie_params();
  
 // Delete the actual cookie. 
 setcookie(session_name(),
-        '', time() - 42000, 
+        '', (time() - 42000), 
         $params["path"], 
         $params["domain"], 
         $params["secure"], 
@@ -28,3 +28,4 @@ setcookie(session_name(),
 session_destroy();
 
 header('Location: controllers/login-controller.php');
+?>

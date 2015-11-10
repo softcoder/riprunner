@@ -23,11 +23,16 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
-                        {% if ui_type == 'LEGACY_V1' %}
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}admin_index.php">Main Menu</a></li>
-                        {% else %}
                         <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
-                        {% endif %}
+                      </ul>
+                    </div>
+                  </li>
+                  <li>
+                    <label for="tools_page">Tools</label>
+                    <input type="radio" name="verticalMenu" id="tools_page" />
+                    <div>
+                      <ul>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/system-info-controller.php?clearCache=true">Clear Cache</a></li>
                       </ul>
                     </div>
                   </li>

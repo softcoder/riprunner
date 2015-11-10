@@ -13,7 +13,7 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/Twig/Autoloader.php';
 $twig_template_loader = new \Twig_Loader_Filesystem(
 		__RIPRUNNER_ROOT__ . '/views');
 // This allows customized views to be placed in the folder below
-if(file_exists(__RIPRUNNER_ROOT__ . '/views-custom')) {
+if(file_exists(__RIPRUNNER_ROOT__ . '/views-custom') === true) {
 	$twig_template_loader->addPath(__RIPRUNNER_ROOT__ . '/views-custom', 'custom');
 }
 
@@ -22,30 +22,5 @@ $twig = new \Twig_Environment($twig_template_loader, array(
 	'debug' => true,
 	'strict_variables' => true
 ));
-
-/*
-class Template { 
-	private $vars = array();
-	 
-	public function __get($name) { 
-		return $this->vars[$name]; 
-	}
-	 
-	public function __set($name, $value) { 
-		if($name == 'view_template_file') { 
-			throw new Exception("Cannot bind variable named 'view_template_file'"); 
-		} 
-		$this->vars[$name] = $value; 
-	}
-	 
-	public function render($view_template_file) { 
-		if(array_key_exists('view_template_file', $this->vars)) { 
-			throw new Exception("Cannot bind variable called 'view_template_file'"); 
-		} 
-		extract($this->vars); 
-		ob_start(); 
-		include($view_template_file); 
-		return ob_get_clean(); 
-	} 
-}
-*/
+//$twig->addExtension(new \Twig_Extension_Debug());
+?>

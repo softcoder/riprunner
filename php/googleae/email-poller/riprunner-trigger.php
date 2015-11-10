@@ -6,3 +6,4 @@ $result = file_get_contents('http://soft-haus.com/svvfd/riprunner/email_trigger_
 
 echo 'Got Results:' . PHP_EOL;
 echo $result;
+?>

@@ -4,8 +4,8 @@
 //	Under GNU GPL v3.0
 // ==============================================================
 
-if ( !defined('INCLUSION_PERMITTED') ||
-( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
+if ( defined('INCLUSION_PERMITTED') === false ||
+    (defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false)) {
 	die( 'This file must not be invoked directly.' );
 }
 
@@ -16,24 +16,24 @@ require_once 'object_factory.php';
 require_once 'template.php';
 require_once 'logging.php';
 
-function signalCallOutRecipientsUsingGCM($callout, $device_id,$smsMsg,$db_connection) {
+function signalCallOutRecipientsUsingGCM($callout, $device_id, $smsMsg, $db_connection) {
 	global $log;
-	$resultGCM = "";
+	$resultGCM = '';
 	
 	$log->trace("Check GCM callout signal for MOBILE Enabled [" . 
-			var_export($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED,true) . "] GCM [" . 
-			var_export($callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED,true) . "]");
+			var_export($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED, true) . "] GCM [" . 
+			var_export($callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED, true) . "]");
 	
-	if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED &&
-		$callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED) {
+	if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED === true &&
+		$callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED === true) {
 
 		$adhoc_db_connection = false;
-		if(isset($db_connection) == false) {
+		if(isset($db_connection) === false) {
 			$db_connection = db_connect_firehall($callout->getFirehall());
 			$adhoc_db_connection = true;
 		}
 
-		$gcmInstance = \riprunner\GCM_Factory::create('gcm',$callout->getFirehall()->MOBILE->GCM_API_KEY);
+		$gcmInstance = \riprunner\GCM_Factory::create('gcm', $callout->getFirehall()->MOBILE->GCM_API_KEY);
 		$gcmInstance->setURL($callout->getFirehall()->MOBILE->GCM_SEND_URL);
 		$gcmInstance->setDBConnection($db_connection);
 		$gcmInstance->setFirehallId($callout->getFirehall()->FIREHALL_ID);
@@ -42,16 +42,16 @@ function signalCallOutRecipientsUsingGCM($callout, $device_id,$smsMsg,$db_connec
 		$log->trace("Send GCM callout check device count: " . $gcmInstance->getDeviceCount());
 		if($gcmInstance->getDeviceCount() > 0) {
 			$callGPSLat = $callout->getGPSLat();
-			if(isset($callGPSLat) == false) {
+			if(isset($callGPSLat) === false) {
 				$callGPSLat = '0';
 			}
 			$callGPSLong = $callout->getGPSLong();
-			if(isset($callGPSLong) == false) {
+			if(isset($callGPSLong) === false) {
 				$callGPSLong = '0';
 			}
 			
 			$callAddress = $callout->getAddress();
-			if(isset($callAddress) == false || $callAddress == '') {
+			if(isset($callAddress) === false || $callAddress === '') {
 				$callAddress = '?';
 				$callMapAddress = '?';
 			}
@@ -60,13 +60,12 @@ function signalCallOutRecipientsUsingGCM($callout, $device_id,$smsMsg,$db_connec
 			}
 			
 			$callUnitsResponding = $callout->getUnitsResponding();
-			if(isset($callUnitsResponding) == false || 
-					$callUnitsResponding == '') {
+			if(isset($callUnitsResponding) === false || $callUnitsResponding === '') {
 				$callUnitsResponding = '?';
 			}
 				
 			$callKey = $callout->getKeyId();
-			if(isset($callKey) == false || $callKey == '') {
+			if(isset($callKey) === false || $callKey === '') {
 				$callKey = '?';
 			}
 			
@@ -86,31 +85,31 @@ function signalCallOutRecipientsUsingGCM($callout, $device_id,$smsMsg,$db_connec
 			echo $resultGCM;
 		}
 
-		if($adhoc_db_connection == true && $db_connection != null) {
+		if($adhoc_db_connection === true && $db_connection !== null) {
 			db_disconnect( $db_connection );
 		}
 	}
 }
 
 function signalResponseRecipientsUsingGCM($callout, $userId, $userStatus, 
-											$smsMsg,$device_id,$db_connection) {
+											$smsMsg, $device_id, $db_connection) {
 	global $log;
 	$resultGCM = "";
 	
 	$log->trace("Check GCM response signal for MOBILE Enabled [" .
-			var_export($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED,true) . "] GCM [" . 
-			var_export($callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED,true) . "]");
+			var_export($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED, true) . "] GCM [" . 
+			var_export($callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED, true) . "]");
 	
-	if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED &&
-		$callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED) {
+	if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED === true &&
+		$callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED === true) {
 	
 		$adhoc_db_connection = false;
-		if(isset($db_connection) == false) {
+		if(isset($db_connection) === false) {
 			$db_connection = db_connect_firehall($callout->getFirehall());
 			$adhoc_db_connection = true;
 		}
 
-		$gcmInstance = \riprunner\GCM_Factory::create('gcm',$callout->getFirehall()->MOBILE->GCM_API_KEY);
+		$gcmInstance = \riprunner\GCM_Factory::create('gcm', $callout->getFirehall()->MOBILE->GCM_API_KEY);
 		$gcmInstance->setURL($callout->getFirehall()->MOBILE->GCM_SEND_URL);
 		$gcmInstance->setDBConnection($db_connection);
 		$gcmInstance->setFirehallId($callout->getFirehall()->FIREHALL_ID);
@@ -119,15 +118,15 @@ function signalResponseRecipientsUsingGCM($callout, $userId, $userStatus,
 		$log->trace("Send GCM response check device count: " . $gcmInstance->getDeviceCount());
 		if($gcmInstance->getDeviceCount() > 0) {
 			$callGPSLat = $callout->getGPSLat();
-			if(isset($callGPSLat) == false || $callGPSLat == "") {
+			if(isset($callGPSLat) === false || $callGPSLat === '') {
 				$callGPSLat = 0;
 			}
 			$callGPSLong = $callout->getGPSLong();
-			if(isset($callGPSLong) == false || $callGPSLong == "") {
+			if(isset($callGPSLong) === false || $callGPSLong === '') {
 				$callGPSLong = 0;
 			}
 			$callkey_id = $callout->getKeyId();
-			if(isset($callkey_id) == false || $callkey_id == '') {
+			if(isset($callkey_id) === false || $callkey_id === '') {
 				$callkey_id = '?';
 			}
 				
@@ -141,28 +140,27 @@ function signalResponseRecipientsUsingGCM($callout, $userId, $userStatus,
 			);
 
 			$resultGCM .= $gcmInstance->send($message);
-			//echo $resultGCM;
 		}
 
-		if($adhoc_db_connection == true && $db_connection != null) {
+		if($adhoc_db_connection === true && $db_connection !== null) {
 			db_disconnect( $db_connection );
 		}
 	}
 	return $resultGCM;
 }
 
-function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connection) {
+function signalLoginStatusUsingGCM($FIREHALL, $device_id, $loginMsg, $db_connection) {
 	global $log;
-	$resultGCM = "";
+	$resultGCM = '';
 	
 	$log->trace("Check GCM login signal for MOBILE Enabled [" .
-			var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED,true) . "] GCM [" . 
-			var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED,true) . "]");
+			var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED, true) . "] GCM [" . 
+			var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED, true) . "]");
 	
-	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
-		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
+	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED === true &&
+		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED === true) {
 
-		$gcmInstance = \riprunner\GCM_Factory::create('gcm',$FIREHALL->MOBILE->GCM_API_KEY);
+		$gcmInstance = \riprunner\GCM_Factory::create('gcm', $FIREHALL->MOBILE->GCM_API_KEY);
 		$gcmInstance->setURL($FIREHALL->MOBILE->GCM_SEND_URL);
 		$gcmInstance->setDevices($device_id);
 		$gcmInstance->setDBConnection($db_connection);
@@ -178,26 +176,26 @@ function signalLoginStatusUsingGCM($FIREHALL, $device_id,$loginMsg,$db_connectio
 	}
 }
 
-function sendGCM_Message($FIREHALL,$msg,$db_connection) {
+function sendGCM_Message($FIREHALL, $msg, $db_connection) {
 	global $log;
 	$log->trace("Check GCM send_msg signal for MOBILE Enabled [" .
 			var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED, true) . "] GCM [" . 
-			var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED,true) . "]");
+			var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED, true) . "]");
 	
-	$resultGCM = "";
+	$resultGCM = '';
 	
-	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED &&
-		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED) {
+	if($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED === true &&
+		$FIREHALL->MOBILE->GCM_SIGNAL_ENABLED === true) {
 
 		$resultGCM .= 'START Send message using GCM.' . PHP_EOL;
 
 		$adhoc_db_connection = false;
-		if(isset($db_connection) == false) {
+		if(isset($db_connection) === false) {
 			$db_connection = db_connect_firehall($FIREHALL);
 			$adhoc_db_connection = true;
 		}
 
-		$gcmInstance = \riprunner\GCM_Factory::create('gcm',$FIREHALL->MOBILE->GCM_API_KEY);
+		$gcmInstance = \riprunner\GCM_Factory::create('gcm', $FIREHALL->MOBILE->GCM_API_KEY);
 		$gcmInstance->setURL($FIREHALL->MOBILE->GCM_SEND_URL);
 		$gcmInstance->setDBConnection($db_connection);
 		$gcmInstance->setFirehallId($FIREHALL->FIREHALL_ID);
@@ -210,7 +208,7 @@ function sendGCM_Message($FIREHALL,$msg,$db_connection) {
 			$resultGCM .= $gcmInstance->send($message);
 		}
 
-		if($adhoc_db_connection == true && $db_connection != null) {
+		if($adhoc_db_connection === true && $db_connection !== null) {
 			db_disconnect( $db_connection );
 		}
 	}
@@ -235,3 +233,4 @@ function getGCMCalloutMessage($callout) {
 	
 	return $msgSummary;
 }
+?>
