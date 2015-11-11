@@ -40,10 +40,17 @@ Key Android App Features:
 - Allows responders to indicate that the call is coempleted or cancelled with the click of 1 button. (other responders are notified)
 - If you login during a live callout, you will receive the pager tones and live call information.
 
-OVerview:
+Overview:
 
 ![Overview](/screenshots/riprunner-diagram.png?raw=true "Overview")
 
+The diagram above shows all of the possible features enabled and the communication paths involved. This may be simplified depending on your needs and how you configure Rip Runner. You may or may not require the following:
+- An archaic FOCC that uses a CAD system that only notifies via email requires one of two methods to trigger the callout process. If your FOCC can directly call the rip runner website calling a rip runner URL containing callout details then the trigger system can be greatly simplified.
+- A Cron or polling mechaism to check for archaic email notifications from FOCC (we reccomend using the google app engine email gateway solution).
+- An SMS provider to integrate text messages via cell carriers (we recommend using twilio as the best service provider tested).
+- An LDAP server to manage user accounts.
+- Map services via google maps.
+- Android communication using google app engine.
 
 System Requirements:
 --------------------
