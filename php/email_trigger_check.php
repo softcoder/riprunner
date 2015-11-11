@@ -41,37 +41,44 @@ function validate_email_sender($FIREHALL, &$html, $header) {
         $log->trace('Email trigger check from field for ['.$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER.']');
 
         $valid_email_trigger = false;
-         
-        $html.= '<h3>Looking for email from trigger ['.$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER.']</h3><br />'.PHP_EOL;
-         
-        if (isset($header) === true && $header !== null) {
-        	if (isset($header->from) === true && $header->from !== null) {
-        		// Match on exact email address if @ in trigger text
-        		if (strpos($FIREHALL->EMAIL->EMAIL_FROM_TRIGGER, '@') !== false) {
-        			$fromaddr = $header->from[0]->mailbox.'@'.$header->from[0]->host;
-        		}
-                // Match on all email addresses from the same domain
-                else {
-                    $fromaddr = $header->from[0]->host;
-                }
 
-                if ($fromaddr === $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER) {
-                    $valid_email_trigger = true;
-                }
-        		
-        		$log->trace('Email trigger check from field result: '.$valid_email_trigger.'for value ['.$fromaddr.']');
-
-                $html.= 'Found email from ['.$header->from[0]->mailbox.'@'.$header->from[0]->host.'] result: '.
-                (($valid_email_trigger === true) ? 'true' : 'false').'<br />'.PHP_EOL;
-        	}
-        	else {
-        		$log->warn('Email trigger check from field Error, Header->from is not set!');
-        		$html .='<h3>Error, Header->from is not set</h3><br />'.PHP_EOL;
-        	}
-        }
-        else {
-        	$log->warn('Email trigger check from field Error, Header is not set!');
-        	$html .='<h3>Error, Header is not set</h3><br />'.PHP_EOL;
+        $valid_email_from_triggers = explode(';', $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER);
+        foreach($valid_email_from_triggers as $valid_email_from_trigger) {
+            $html.= '<h3>Looking for email from trigger ['.$valid_email_from_trigger.']</h3><br />'.PHP_EOL;
+             
+            if (isset($header) === true && $header !== null) {
+            	if (isset($header->from) === true && $header->from !== null) {
+            		// Match on exact email address if @ in trigger text
+            		if (strpos($valid_email_from_trigger, '@') !== false) {
+            			$fromaddr = $header->from[0]->mailbox.'@'.$header->from[0]->host;
+            		}
+                    // Match on all email addresses from the same domain
+                    else {
+                        $fromaddr = $header->from[0]->host;
+                    }
+    
+                    if ($fromaddr === $valid_email_from_trigger) {
+                        $valid_email_trigger = true;
+                    }
+            		
+            		$log->trace('Email trigger check from field result: '.$valid_email_trigger.'for value ['.$fromaddr.']');
+    
+                    $html.= 'Found email from ['.$header->from[0]->mailbox.'@'.$header->from[0]->host.'] result: '.
+                    (($valid_email_trigger === true) ? 'true' : 'false').'<br />'.PHP_EOL;
+            	}
+            	else {
+            		$log->warn('Email trigger check from field Error, Header->from is not set!');
+            		$html .='<h3>Error, Header->from is not set</h3><br />'.PHP_EOL;
+            	}
+            }
+            else {
+            	$log->warn('Email trigger check from field Error, Header is not set!');
+            	$html .='<h3>Error, Header is not set</h3><br />'.PHP_EOL;
+            }
+            
+            if($valid_email_trigger) {
+                break;
+            }
         }
     }
     return $valid_email_trigger;

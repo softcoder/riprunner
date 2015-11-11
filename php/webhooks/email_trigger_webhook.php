@@ -129,37 +129,45 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 				$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER !== null &&
 				$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER !== '') {
 	
-			$log->warn("Email trigger check from field for [" . $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER . "]");
-	
-			$valid_email_trigger = false;
-				
-			if(isset($from) === true && $from !== null) {
-					
-				// Match on exact email address if @ in trigger text
-				if(strpos($FIREHALL->EMAIL->EMAIL_FROM_TRIGGER, '@') !== false) {
-					$fromaddr = $from;
-				}
-				// Match on all email addresses from the same domain
-				else {
-					$fromaddr = explode('@', $from);
-					$fromaddr = $fromaddr[1];
-				}
-	
-				if($fromaddr === $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER) {
-					$valid_email_trigger = true;
-				}
-				// START: Debugging
-// 				else if($fromaddr == "mark_vejvoda@hotmail.com" ||
-// 						$fromaddr == "markvejvoda@gmail.com") {
-// 					$valid_email_trigger = true;
-// 				}
-				// END: Debugging
-	
-				$log->warn("Email trigger check from field result: " . (($valid_email_trigger === true) ? "true" : "false") . " for value [$fromaddr]");
-			}
-			else {
-				$log->warn("Email trigger check from field Error not set!");
-			}
+		    $log->warn('Email webhook trigger check from field for ['.$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER.']');
+		    
+		    $valid_email_trigger = false;
+		    $valid_email_from_triggers = explode(';', $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER);
+		    foreach($valid_email_from_triggers as $valid_email_from_trigger) {
+		    
+    			$log->warn('Email webhook trigger check from field for ['.$valid_email_from_trigger.']');
+    				
+    			if(isset($from) === true && $from !== null) {
+    				// Match on exact email address if @ in trigger text
+    				if(strpos($valid_email_from_trigger, '@') !== false) {
+    					$fromaddr = $from;
+    				}
+    				// Match on all email addresses from the same domain
+    				else {
+    					$fromaddr = explode('@', $from);
+    					$fromaddr = $fromaddr[1];
+    				}
+    	
+    				if($fromaddr === $valid_email_from_trigger) {
+    					$valid_email_trigger = true;
+    				}
+    				// START: Debugging
+    // 				else if($fromaddr == "mark_vejvoda@hotmail.com" ||
+    // 						$fromaddr == "markvejvoda@gmail.com") {
+    // 					$valid_email_trigger = true;
+    // 				}
+    				// END: Debugging
+    	
+    				$log->warn("Email webhook trigger check from field result: " . (($valid_email_trigger === true) ? "true" : "false") . " for value [$fromaddr]");
+    			}
+    			else {
+    				$log->warn("Email webhook trigger check from field Error not set!");
+    			}
+    			
+    			if($valid_email_trigger) {
+    			    break;
+    			}
+		    }
 		}
 		return $valid_email_trigger;
 	}
