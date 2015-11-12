@@ -41,6 +41,7 @@ Key Android App Features:
 - If you login during a live callout, you will receive the pager tones and live call information.
 
 Overview:
+-------------------------
 
 ![Overview](/screenshots/riprunner-diagram.png?raw=true "Overview")
 
