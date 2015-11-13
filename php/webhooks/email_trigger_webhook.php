@@ -41,6 +41,12 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 			
 			if($callout->isValid() === true) {
 				$mail = $_REQUEST['sender'];
+
+				$log->warn("Email trigger checking #1 from [$mail]");
+				
+				$mail = extractDelimitedValueFromString($mail, '~\<(.*?)\>~i', 1);
+				
+				$log->warn("Email trigger checking #2 from [$mail]");
 				
 				# Loop through all Firehall email triggers
 				foreach ($FIREHALLS as &$FIREHALL){
@@ -54,11 +60,6 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 								" google app id [" . $FIREHALL->MOBILE->GCM_APP_ID . "] sam [" . 
 								$FIREHALL->MOBILE->GCM_SAM . "]");
 						
-						$log->warn("Email trigger checking #1 from [$mail]");
-						
-						$mail = extractDelimitedValueFromString($mail, '~\<(.*?)\>~i', 1);
-						
-						$log->warn("Email trigger checking #2 from [$mail]");
 						
 						$valid_email_trigger = validate_email_sender($FIREHALL, $mail);
 						if($valid_email_trigger === true) {
