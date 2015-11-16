@@ -166,19 +166,19 @@ function find_sms_match($sms_user, $recipient_list_array) {
 function getLiveCalloutModelList($db_connection) {
 	global $log;
 	// Check if there is an active callout (within last 48 hours) and if so send the details
-	$sql = 'SELECT * FROM callouts ' .
-			' WHERE status NOT IN (3,10) AND ' .
-			' TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' .
-			DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
-			' ORDER BY id DESC LIMIT 5;';
-
-	$qry_bind = $db_connection->prepare($sql);
-	$qry_bind->execute();
 	
-	$log->trace("Call checkForLiveCalloutModelList SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
+	$sql_statement = new \riprunner\SqlStatement($db_connection);
+	$sql = $sql_statement->getSqlStatement('check_live_callouts_max');
+	
+	$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
+	$qry_bind = $db_connection->prepare($sql);
+	$qry_bind->bindParam(':max_age', $max_hours_old);
+	$qry_bind->execute();
 
 	$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 	$qry_bind->closeCursor();
+	
+	$log->trace("Call checkForLiveCalloutModelList SQL success for sql [$sql] row count: " . count($rows));
 	
 	$callout_list = array();
 	foreach($rows as $row){
@@ -227,12 +227,15 @@ function find_matching_mobile_user($FIREHALL, $db_connection, $matching_sms_user
 	global $log;
 	
 	// Find matching user for mobile #
+	$sql_statement = new \riprunner\SqlStatement($db_connection);
+	
 	if($FIREHALL->LDAP->ENABLED === true) {
 		create_temp_users_table_for_ldap($FIREHALL, $db_connection);
-		$sql = "SELECT id,user_id FROM ldap_user_accounts WHERE firehall_id = :fhid AND mobile_phone = :mobile_phone;";
+		
+		$sql = $sql_statement->getSqlStatement('ldap_user_accounts_select_by_mobile');
 	}
 	else {
-		$sql = "SELECT id,user_id FROM user_accounts WHERE firehall_id = :fhid AND mobile_phone = :mobile_phone;";
+	    $sql = $sql_statement->getSqlStatement('user_accounts_select_by_mobile');
 	}
 
 	$qry_bind = $db_connection->prepare($sql);
@@ -240,11 +243,11 @@ function find_matching_mobile_user($FIREHALL, $db_connection, $matching_sms_user
 	$qry_bind->bindParam(':mobile_phone', $matching_sms_user);
 	
 	$qry_bind->execute();
-	
-	$log->trace("Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . $qry_bind->rowCount());
 		
 	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
 	$qry_bind->closeCursor();
+	
+	$log->trace("Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . count($rows));
 	
 	foreach($rows as $row){
 		$result->setUserAccountId($row->id);
@@ -273,7 +276,9 @@ function handle_sms_command($FIREHALLS_LIST) {
 
 				$db_connection = null;
 				try {
-					$db_connection = db_connect_firehall($FIREHALL);
+				    $db = new \riprunner\DbConnection($FIREHALL);
+				    $db_connection = $db->getConnection();
+				    
 					$recipient_list_array = get_recipients_list($FIREHALL, $db_connection);
 					$matching_sms_user = find_sms_match($sms_user, $recipient_list_array);
 					if ($matching_sms_user !== null) {
@@ -374,11 +379,11 @@ function handle_sms_command($FIREHALLS_LIST) {
 					}
 				} 
 				catch (Exception $ex) {
-					db_disconnect( $db_connection );
+					\riprunner\DbConnection::disconnect_db( $db_connection );
 					$db_connection = null;
 					throw($ex);
 				}
-				db_disconnect( $db_connection );
+				\riprunner\DbConnection::disconnect_db( $db_connection );
 			}
 		}
 	}

@@ -27,16 +27,16 @@ class MemCachePlugin implements ICachePlugin {
 				$this->memcache = new \Memcache();
 				@$this->memcache->connect("127.0.0.1", 11211);  // connect memcahe server
 	
-				$log->trace("Cache plugin init SUCCESS for memcached on this host using version: ".$this->memcache->getVersion());
+				if($log) $log->trace("Cache plugin init SUCCESS for memcached on this host using version: ".$this->memcache->getVersion());
 			}
 			else {
-				$log->trace("Cache plugin init FAILED cannot use memcached on this host!");
+				if($log) $log->trace("Cache plugin init FAILED cannot use memcached on this host!");
 			}
 		}
 		catch(Exception $ex) {
 			$this->memcache = null;
 				
-			$log->error("Cache proxy init error [" . $ex->getMessage() . "]");
+			if($log) $log->error("Cache proxy init error [" . $ex->getMessage() . "]");
 		}
 	}
 	
@@ -81,16 +81,16 @@ class MemCachePlugin implements ICachePlugin {
 		try {
 			if($this->isInstalled() === true) {
 				$this->memcache->flush();
-				$log->trace("Cache plugin re-init SUCCESS for memcached on this host!");
+				if($log) $log->trace("Cache plugin re-init SUCCESS for memcached on this host!");
 			}
 			else {
-				$log->trace("Cache plugin re-init FAILED cannot use memcached on this host!");
+				if($log) $log->trace("Cache plugin re-init FAILED cannot use memcached on this host!");
 			}
 		}
 		catch(Exception $ex) {
 			$this->memcache = null;
 		
-			$log->error("Cache proxy re-init error [" . $ex->getMessage() . "]");
+			if($log) $log->error("Cache proxy re-init error [" . $ex->getMessage() . "]");
 		}
 	}
 }

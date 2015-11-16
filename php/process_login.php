@@ -24,8 +24,9 @@ if (isset($_POST['firehall_id'], $_POST['user_id'], $_POST['p']) === true) {
     $db_connection = null;
     $FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
     if(isset($FIREHALL) === true) {
-	    $db_connection = db_connect_firehall($FIREHALL);
-
+        $db = new \riprunner\DbConnection($FIREHALL);
+        $db_connection = $db->getConnection();
+        
 	    if(isset($db_connection) === true) {
 		    if (login($FIREHALL, $user_id, $password, $db_connection) === true) {
 		        // Login success 
@@ -37,7 +38,7 @@ if (isset($_POST['firehall_id'], $_POST['user_id'], $_POST['p']) === true) {
 		    }
 	    }
 	    else {
-	    	$log->error("process_login error, no db connection found for firhall id: $firehall_id");
+	    	$log->error("process_login error, no db connection found for firehall id: $firehall_id");
 	    	echo 'Invalid fhdb Request';
 	    }
     }

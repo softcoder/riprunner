@@ -29,7 +29,10 @@ function signalCallOutRecipientsUsingGCM($callout, $device_id, $smsMsg, $db_conn
 
 		$adhoc_db_connection = false;
 		if(isset($db_connection) === false) {
-			$db_connection = db_connect_firehall($callout->getFirehall());
+			//$db_connection = db_connect_firehall($callout->getFirehall());
+		    $db = new \riprunner\DbConnection($callout->getFirehall());
+		    $db_connection = $db->getConnection();
+		    
 			$adhoc_db_connection = true;
 		}
 
@@ -86,7 +89,7 @@ function signalCallOutRecipientsUsingGCM($callout, $device_id, $smsMsg, $db_conn
 		}
 
 		if($adhoc_db_connection === true && $db_connection !== null) {
-			db_disconnect( $db_connection );
+			\riprunner\DbConnection::disconnect_db( $db_connection );
 		}
 	}
 }
@@ -105,7 +108,10 @@ function signalResponseRecipientsUsingGCM($callout, $userId, $userStatus,
 	
 		$adhoc_db_connection = false;
 		if(isset($db_connection) === false) {
-			$db_connection = db_connect_firehall($callout->getFirehall());
+			//$db_connection = db_connect_firehall($callout->getFirehall());
+		    $db = new \riprunner\DbConnection($callout->getFirehall());
+		    $db_connection = $db->getConnection();
+		    
 			$adhoc_db_connection = true;
 		}
 
@@ -143,7 +149,7 @@ function signalResponseRecipientsUsingGCM($callout, $userId, $userStatus,
 		}
 
 		if($adhoc_db_connection === true && $db_connection !== null) {
-			db_disconnect( $db_connection );
+			\riprunner\DbConnection::disconnect_db( $db_connection );
 		}
 	}
 	return $resultGCM;
@@ -191,7 +197,10 @@ function sendGCM_Message($FIREHALL, $msg, $db_connection) {
 
 		$adhoc_db_connection = false;
 		if(isset($db_connection) === false) {
-			$db_connection = db_connect_firehall($FIREHALL);
+			//$db_connection = db_connect_firehall($FIREHALL);
+		    $db = new \riprunner\DbConnection($FIREHALL);
+		    $db_connection = $db->getConnection();
+		    
 			$adhoc_db_connection = true;
 		}
 
@@ -209,7 +218,7 @@ function sendGCM_Message($FIREHALL, $msg, $db_connection) {
 		}
 
 		if($adhoc_db_connection === true && $db_connection !== null) {
-			db_disconnect( $db_connection );
+			\riprunner\DbConnection::disconnect_db( $db_connection );
 		}
 	}
 	return $resultGCM;

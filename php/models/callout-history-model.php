@@ -44,21 +44,17 @@ class CalloutHistoryViewModel extends BaseViewModel {
 			global $log;
 	
 			// Read from the database info about this callout
-			$sql = 'SELECT a.*, (select count(*) AS responders FROM callouts_response b ' .
-					'            WHERE a.id = b.calloutid) AS responders, ' .
-					' (time_to_sec(timediff(max(c.updatetime), LEAST(a.calltime,a.updatetime) )) / 3600) as hours_spent ' .
-					' FROM callouts a LEFT JOIN callouts_response c ON a.id = c.calloutid ' .
-					//' WHERE a.status IN (3,10) GROUP BY a.id ORDER BY a.calltime DESC;';
- 			        ' GROUP BY a.id ORDER BY a.calltime DESC;';
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			$sql = $sql_statement->getSqlStatement('callout_history_select');
 
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 			$qry_bind->execute();
-								
-			$log->trace("About to display callout list for sql [$sql] result count: " . $qry_bind->rowCount());
 			
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 			$qry_bind->closeCursor();
 
+			$log->trace("About to display callout list for sql [$sql] result count: " . count($rows));
+			
 			$this->callout_list = array();
 			foreach($rows as $row) {
 				// Add any custom fields with values here

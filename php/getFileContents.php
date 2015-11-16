@@ -22,7 +22,9 @@ $db_connection = null;
 if (isset($_SESSION['firehall_id']) === true) {
 	$firehall_id = $_SESSION['firehall_id'];
 	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
-	$db_connection = db_connect_firehall($FIREHALL);
+	//$db_connection = db_connect_firehall($FIREHALL);
+	$db = new \riprunner\DbConnection($FIREHALL);
+	$db_connection = $db->getConnection();
 }
 
 if (login_check($db_connection) === true) {

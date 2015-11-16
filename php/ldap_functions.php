@@ -87,7 +87,7 @@ function login_ldap($FIREHALL, $user_id, $password) {
 			// XSS protection as we might print this value
 			//$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
 			$_SESSION['user_id'] = $user_id;
-			$_SESSION['login_string'] = hash('sha512', $password . $user_browser);
+			$_SESSION['login_string'] = hash(USER_PASSWORD_HASH_ALGORITHM, $password . $user_browser);
 			$_SESSION['firehall_id'] = $FirehallId;
 			$_SESSION['ldap_enabled'] = true;
 			$_SESSION['user_access'] = $userAccess;
@@ -397,6 +397,9 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 	$userCount = $info['count'];
 	$log->trace('populateLDAPUsers about to iterate over: '.$userCount.' users');
 	
+	$sql_statement = new \riprunner\SqlStatement($db_connection);
+	$sql = $sql_statement->getSqlStatement('ldap_user_accounts_insert');
+	
 	for ($i = 0; $i < (int)$userCount; $i++) {
 		$log->trace("Sorted result #:" . $i);
 		//if($debug_functions) var_dump($info[$i]);
@@ -422,9 +425,6 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 			}
 
 			$userAccess = ldap_user_access($FIREHALL, $ldap, $username[0], $userDn);
-
-			$sql = "INSERT IGNORE INTO ldap_user_accounts (id,firehall_id,user_id,mobile_phone,access) " .
-				   " values(:uid,:fhid,:user_id,:mobile_phone,:access);";
 			
 			$qry_bind = $db_connection->prepare($sql);
 			$qry_bind->bindParam(':uid', $user_id_number[0]);
@@ -481,9 +481,6 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 						}
 					
 						$userAccess = ldap_user_access($FIREHALL, $ldap, $username[0], $userDn);
-					
-						$sql = "INSERT IGNORE INTO ldap_user_accounts (id,firehall_id,user_id,mobile_phone,access) " .
-							   " values(:uid,:fhid,:user_id,:mobile_phone,:access);";
 
 						$qry_bind = $db_connection->prepare($sql);
 						$qry_bind->bindParam(':uid', $user_id_number[0]);
@@ -507,20 +504,14 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 	global $log;
 	// Create a temp table of users from LDAP
-	$sql = 'CREATE TEMPORARY TABLE IF NOT EXISTS ldap_user_accounts (
-			id INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			firehall_id varchar(80) COLLATE utf8_unicode_ci NOT NULL,
-			user_id varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-			user_pwd varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-			mobile_phone varchar(25) COLLATE utf8_unicode_ci NOT NULL,
-			access INT( 11 ) NOT NULL DEFAULT 0,
-			updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-			) ENGINE = INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
+	
+	$sql_statement = new \riprunner\SqlStatement($db_connection);
+	$sql = $sql_statement->getSqlStatement('ldap_user_accounts_create');
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();
 	
-	$sql = 'SELECT count(*) as usercount from ldap_user_accounts;';
+	$sql = $sql_statement->getSqlStatement('ldap_user_accounts_count');
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();

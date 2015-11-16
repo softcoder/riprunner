@@ -159,6 +159,8 @@ class UsersMenuController {
 		$edit_user_id_name = get_query_param('edit_user_id_name');
 		$edit_mobile_phone = get_query_param('edit_mobile_phone');
 		
+		$sql_pwd = ((isset($new_pwd) === true) ? ', user_pwd = :user_pwd ' : '');
+		
 		$sql_user_access = '';
 		if($self_edit === false) {
 			if(isset($edit_admin_access) === true && $edit_admin_access === 'on') {
@@ -175,16 +177,12 @@ class UsersMenuController {
 				$sql_user_access .= ', access = access & ~' . USER_ACCESS_SIGNAL_SMS;
 			}
 		}
-
-		$sql = 'UPDATE user_accounts'
-				. ' SET firehall_id = :fhid '
-				. ', user_id = :user_name '
-				. ((isset($new_pwd) === true) ? ', user_pwd = :user_pwd ' : '') 
-				. ', mobile_phone = :mobile_phone '
-				. $sql_user_access
-				. ', updatetime = CURRENT_TIMESTAMP() '
-				. ' WHERE id = :user_id;';
-
+		
+		$sql_statement = new \riprunner\SqlStatement($db_connection);
+		$sql = $sql_statement->getSqlStatement('user_accounts_update');
+		$sql = preg_replace_callback('(:sql_pwd)', function ($m) use ($sql_pwd) { return $sql_pwd; }, $sql);
+		$sql = preg_replace_callback('(:sql_user_access)', function ($m) use ($sql_user_access) { return $sql_user_access; }, $sql);
+		
 		$log->trace("About to UPDATE user account for sql [$sql]");
 
 		$qry_bind = $db_connection->prepare($sql);
@@ -235,9 +233,8 @@ class UsersMenuController {
 			$new_user_access |= USER_ACCESS_SIGNAL_SMS;
 		}
 
-		$sql = 'INSERT INTO user_accounts'
-				. ' (firehall_id, user_id, mobile_phone, user_pwd, access)'
-				. ' VALUES(:fhid, :user_name, :mobile_phone, :user_pwd, :access);';
+		$sql_statement = new \riprunner\SqlStatement($db_connection);
+		$sql = $sql_statement->getSqlStatement('user_accounts_insert');
 
 		$log->trace("About to INSERT user account for sql [$sql]");
 
@@ -297,7 +294,8 @@ class UsersMenuController {
 				// UPDATE
 				if($edit_user_id >= 0) {
 					
-					$sql = 'DELETE FROM user_accounts WHERE id = :id;';
+				    $sql_statement = new \riprunner\SqlStatement($db_connection);
+				    $sql = $sql_statement->getSqlStatement('user_accounts_delete');
 
 					$log->trace("About to DELETE user account for sql [$sql]");
 	

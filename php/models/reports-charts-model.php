@@ -159,10 +159,13 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
  */	
 	private function getCallTypeStatsForDateRange($startDate, $endDate) {
 		// Read from the database
-		$sql = "SELECT calltype, COUNT(*) count FROM callouts " .
-			   " WHERE calltime BETWEEN :start AND :end " .
-			   " AND calltype NOT IN ('TRAINING','TESTONLY') " .
-			   " GROUP BY calltype ORDER BY calltype;";
+	    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+	    $sql = $sql_statement->getSqlStatement('reports_calltype_by_daterange');
+	    
+// 		$sql = "SELECT calltype, COUNT(*) count FROM callouts " .
+// 			   " WHERE calltime BETWEEN :start AND :end " .
+// 			   " AND calltype NOT IN ('TRAINING','TESTONLY') " .
+// 			   " GROUP BY calltype ORDER BY calltype;";
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->bindParam(':start', $startDate);
@@ -185,9 +188,13 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 		return $data_results;
 	}
 	private function getCallTypeStatsForAllDates() {
-		$sql = " SELECT calltype, COUNT(*) count FROM callouts " .
-			   " WHERE calltype NOT IN ('TRAINING','TESTONLY') "			   .
-			   " GROUP BY calltype ORDER BY count DESC;";
+	    
+	    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+	    $sql = $sql_statement->getSqlStatement('reports_calltype_all');
+	     
+// 		$sql = " SELECT calltype, COUNT(*) count FROM callouts " .
+// 			   " WHERE calltype NOT IN ('TRAINING','TESTONLY') "			   .
+// 			   " GROUP BY calltype ORDER BY count DESC;";
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->execute();
@@ -210,11 +217,15 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 	
 		$MAX_MONTHLY_LABEL = "*MONTH TOTAL";
 	
-		$sql_titles = '(SELECT "' .$MAX_MONTHLY_LABEL . '" as datalabel)' .
-				' UNION (SELECT calltype as datalabel ' .
-				' FROM callouts WHERE calltime BETWEEN :start AND :end ' .
-				' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-				' GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+		$sql_titles = $sql_statement->getSqlStatement('reports_callvolume_titles_by_daterange');
+		$sql_titles = preg_replace_callback('(:max_monthly_label)', function ($m) use ($MAX_MONTHLY_LABEL) { return $MAX_MONTHLY_LABEL; }, $sql_titles);
+		
+// 		$sql_titles = '(SELECT "' .$MAX_MONTHLY_LABEL . '" as datalabel)' .
+// 				' UNION (SELECT calltype as datalabel ' .
+// 				' FROM callouts WHERE calltime BETWEEN :start AND :end ' .
+// 				' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+// 				' GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_titles);
 		$qry_bind->bindParam(':start', $startDate);
@@ -239,14 +250,18 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 		// This routine counts the number of calls in a given month. it will be displayed on the graphs page
 		// 'Total Call Volume by Type (All Calls) - Current Year by Month'
 		// TRAINING and TESTONLY records are filtered out
-		$sql = '(SELECT MONTH(calltime) AS month, "' . $MAX_MONTHLY_LABEL . '" AS datalabel, count(*) AS count ' .
-				' FROM callouts WHERE calltime BETWEEN :start AND :end ' .
-				' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                ' GROUP BY month ORDER BY month)' .
-                'UNION (SELECT MONTH(calltime) AS month, calltype AS datalabel, count(*) AS count ' .
-                ' FROM callouts WHERE calltime BETWEEN :start AND :end ' .
-				' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                ' GROUP BY datalabel, month ORDER BY month) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+		
+		$sql = $sql_statement->getSqlStatement('reports_callvolume_by_daterange');
+		$sql = preg_replace_callback('(:max_monthly_label)', function ($m) use ($MAX_MONTHLY_LABEL) { return $MAX_MONTHLY_LABEL; }, $sql);
+		
+// 		$sql = '(SELECT MONTH(calltime) AS month, "' . $MAX_MONTHLY_LABEL . '" AS datalabel, count(*) AS count ' .
+// 				' FROM callouts WHERE calltime BETWEEN :start AND :end ' .
+// 				' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+//                 ' GROUP BY month ORDER BY month)' .
+//                 'UNION (SELECT MONTH(calltime) AS month, calltype AS datalabel, count(*) AS count ' .
+//                 ' FROM callouts WHERE calltime BETWEEN :start AND :end ' .
+// 				' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+//                 ' GROUP BY datalabel, month ORDER BY month) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->bindParam(':start', $startDate);
@@ -332,30 +347,38 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 		
 		$MAX_MONTHLY_LABEL = "*MONTHLY TOTAL";
 
+		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+		
 		if($this->getGvm()->firehall->LDAP->ENABLED === true) {
 			create_temp_users_table_for_ldap($this->getGvm()->firehall, 
 												$this->getGvm()->RR_DB_CONN);
 			// Search the database
 			// Find all occourences of calls that are completed(10) or canceled(3).  
 			// TRAINING and TESTONLY records are excluded
-			$sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
-            			  ' UNION (SELECT b.user_id AS datalabel ' .
-                		  '        FROM callouts_response a' .
-                		  '        LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
-                		  '        LEFT JOIN callouts c ON a.calloutid = c.id ' .
-                		  '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
-						  '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                		  '        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+			$sql_titles = $sql_statement->getSqlStatement('ldap_reports_callresponse_volume_titles_by_daterange');
+			$sql_titles = preg_replace_callback('(:max_monthly_label)', function ($m) use ($MAX_MONTHLY_LABEL) { return $MAX_MONTHLY_LABEL; }, $sql_titles);
+				
+// 			$sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
+//             			  ' UNION (SELECT b.user_id AS datalabel ' .
+//                 		  '        FROM callouts_response a' .
+//                 		  '        LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
+//                 		  '        LEFT JOIN callouts c ON a.calloutid = c.id ' .
+//                 		  '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
+// 						  '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+//                 		  '        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
         }
         else {
-        	$sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
-          				  ' UNION (SELECT b.user_id AS datalabel ' .
-		                '        FROM callouts_response a' .
-		           		'        LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-		           		'        LEFT JOIN callouts c ON a.calloutid = c.id ' .
-	                    '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
-						  '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-	       				'        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+            $sql_titles = $sql_statement->getSqlStatement('reports_callresponse_volume_titles_by_daterange');
+            $sql_titles = preg_replace_callback('(:max_monthly_label)', function ($m) use ($MAX_MONTHLY_LABEL) { return $MAX_MONTHLY_LABEL; }, $sql_titles);
+            
+//         	$sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
+//           				  ' UNION (SELECT b.user_id AS datalabel ' .
+// 		                '        FROM callouts_response a' .
+// 		           		'        LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
+// 		           		'        LEFT JOIN callouts c ON a.calloutid = c.id ' .
+// 	                    '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
+// 						  '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+// 	       				'        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
         }
 
         $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_titles);
@@ -380,30 +403,36 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 
 			// Find all occourences of calls that are completed(10) or canceled(3).  
 			// TRAINING and TESTONLY records are excluded
-            $sql = 	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, count(*) AS count ' .
- 	            	' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN :start AND :end ' .
-					' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                	' GROUP BY month ORDER BY month)' .
-                	' UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
-                    ' FROM callouts_response a ' .
-                    ' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id' .
-                    ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
-                    ' WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
-					' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                    ' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+        	$sql = $sql_statement->getSqlStatement('ldap_reports_callresponse_volume_by_daterange');
+        	$sql = preg_replace_callback('(:max_monthly_label)', function ($m) use ($MAX_MONTHLY_LABEL) { return $MAX_MONTHLY_LABEL; }, $sql);
+        	 
+//             $sql = 	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, count(*) AS count ' .
+//  	            	' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN :start AND :end ' .
+// 					' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+//                 	' GROUP BY month ORDER BY month)' .
+//                 	' UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
+//                     ' FROM callouts_response a ' .
+//                     ' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id' .
+//                     ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
+//                     ' WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
+// 					' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+//                     ' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
         }
         else {
-           	$sql =	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, count(*) AS count ' .
-					' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN :start AND :end ' .
-					' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-					' GROUP BY month ORDER BY month)' .
-					'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
-					' FROM callouts_response a ' .
-					' LEFT JOIN user_accounts b ON a.useracctid = b.id' .
-					' LEFT JOIN callouts c ON a.calloutid = c.id ' .
-					' WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
-					' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-					' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+            $sql = $sql_statement->getSqlStatement('reports_callresponse_volume_by_daterange');
+            $sql = preg_replace_callback('(:max_monthly_label)', function ($m) use ($MAX_MONTHLY_LABEL) { return $MAX_MONTHLY_LABEL; }, $sql);
+            
+//            	$sql =	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, count(*) AS count ' .
+// 					' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN :start AND :end ' .
+// 					' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+// 					' GROUP BY month ORDER BY month)' .
+// 					'UNION (SELECT MONTH(responsetime) AS month, b.user_id AS datalabel, count(*) AS count ' .
+// 					' FROM callouts_response a ' .
+// 					' LEFT JOIN user_accounts b ON a.useracctid = b.id' .
+// 					' LEFT JOIN callouts c ON a.calloutid = c.id ' .
+// 					' WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
+// 					' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+// 					' GROUP BY month, datalabel ORDER BY month, datalabel) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
        }
 
        $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
@@ -490,30 +519,37 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
     
         $MAX_MONTHLY_LABEL = "*MONTHLY TOTAL";
     
+        $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
         if($this->getGvm()->firehall->LDAP->ENABLED === true) {
             create_temp_users_table_for_ldap($this->getGvm()->firehall,
             $this->getGvm()->RR_DB_CONN);
             // Search the database
             // Find all occourences of calls that are completed(10) or canceled(3).
             // TRAINING and TESTONLY records are excluded
-            $sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
-                    ' UNION (SELECT b.user_id AS datalabel ' .
-                    '        FROM callouts_response a' .
-                    '        LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
-                    '        LEFT JOIN callouts c ON a.calloutid = c.id ' .
-                    '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
-                    '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                    '        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+            $sql_titles = $sql_statement->getSqlStatement('ldap_reports_callresponse_hours_titles_by_daterange');
+            $sql_titles = preg_replace_callback('(:max_monthly_label)', function ($m) use ($MAX_MONTHLY_LABEL) { return $MAX_MONTHLY_LABEL; }, $sql_titles);
+            
+//             $sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
+//                     ' UNION (SELECT b.user_id AS datalabel ' .
+//                     '        FROM callouts_response a' .
+//                     '        LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
+//                     '        LEFT JOIN callouts c ON a.calloutid = c.id ' .
+//                     '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
+//                     '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+//                     '        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
         }
         else {
-            $sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
-              				  ' UNION (SELECT b.user_id AS datalabel ' .
-              				  '        FROM callouts_response a' .
-              				  '        LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-              				  '        LEFT JOIN callouts c ON a.calloutid = c.id ' .
-              				  '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
-              				  '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-              				  '        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
+            $sql_titles = $sql_statement->getSqlStatement('reports_callresponse_hours_titles_by_daterange');
+            $sql_titles = preg_replace_callback('(:max_monthly_label)', function ($m) use ($MAX_MONTHLY_LABEL) { return $MAX_MONTHLY_LABEL; }, $sql_titles);
+            
+//             $sql_titles = '(SELECT "'. $MAX_MONTHLY_LABEL .'" as datalabel)' .
+//               				  ' UNION (SELECT b.user_id AS datalabel ' .
+//               				  '        FROM callouts_response a' .
+//               				  '        LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
+//               				  '        LEFT JOIN callouts c ON a.calloutid = c.id ' .
+//               				  '        WHERE c.status IN (3,10) AND a.responsetime BETWEEN :start AND :end ' .
+//               				  '     AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+//               				  '        GROUP BY datalabel) ORDER BY (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel;';
         }
     
         $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_titles);
@@ -538,30 +574,36 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
     
             // Find all occourences of calls that are completed(10) or canceled(3).
             // TRAINING and TESTONLY records are excluded
-            $sql = 	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, (time_to_sec(timediff(updatetime, LEAST(calltime,updatetime) )) / 3600) as hours_spent, id as cid ' .
-                    ' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN :start AND :end ' .
-                    ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                    ' GROUP BY id, month ORDER BY month, id)' .
-                    ' UNION (SELECT MONTH(c.calltime) AS month, b.user_id AS datalabel, (time_to_sec(timediff(c.updatetime, LEAST(c.calltime,c.updatetime) )) / 3600) as hours_spent, c.id as cid ' .
-                    ' FROM callouts_response a ' .
-                    ' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id' .
-                    ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
-                    ' WHERE c.status IN (3,10) AND c.calltime BETWEEN :start AND :end ' .
-                    ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                    ' GROUP BY c.id, month, datalabel ORDER BY month, datalabel, cid) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel, cid;';
+            $sql = $sql_statement->getSqlStatement('ldap_reports_callresponse_hours_by_daterange');
+            $sql = preg_replace_callback('(:max_monthly_label)', function ($m) use ($MAX_MONTHLY_LABEL) { return $MAX_MONTHLY_LABEL; }, $sql);
+            
+//             $sql = 	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, (time_to_sec(timediff(updatetime, LEAST(calltime,updatetime) )) / 3600) as hours_spent, id as cid ' .
+//                     ' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN :start AND :end ' .
+//                     ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+//                     ' GROUP BY id, month ORDER BY month, id)' .
+//                     ' UNION (SELECT MONTH(c.calltime) AS month, b.user_id AS datalabel, (time_to_sec(timediff(c.updatetime, LEAST(c.calltime,c.updatetime) )) / 3600) as hours_spent, c.id as cid ' .
+//                     ' FROM callouts_response a ' .
+//                     ' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id' .
+//                     ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
+//                     ' WHERE c.status IN (3,10) AND c.calltime BETWEEN :start AND :end ' .
+//                     ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+//                     ' GROUP BY c.id, month, datalabel ORDER BY month, datalabel, cid) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel, cid;';
         }
         else {
-            $sql =	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, (time_to_sec(timediff(updatetime, LEAST(calltime,updatetime) )) / 3600) as hours_spent, id as cid ' .
-                    ' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN :start AND :end ' .
-                    ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                    ' GROUP BY id, month ORDER BY month, id)' .
-                    'UNION (SELECT MONTH(c.calltime) AS month, b.user_id AS datalabel, (time_to_sec(timediff(c.updatetime, LEAST(c.calltime,c.updatetime) )) / 3600) as hours_spent, c.id as cid ' .
-                    ' FROM callouts_response a ' .
-                    ' LEFT JOIN user_accounts b ON a.useracctid = b.id' .
-                    ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
-                    ' WHERE c.status IN (3,10) AND c.calltime BETWEEN :start AND :end ' .
-                    ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
-                    ' GROUP BY c.id, month, datalabel ORDER BY month, datalabel, c.id) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel, cid;';
+            $sql = $sql_statement->getSqlStatement('reports_callresponse_hours_by_daterange');
+            $sql = preg_replace_callback('(:max_monthly_label)', function ($m) use ($MAX_MONTHLY_LABEL) { return $MAX_MONTHLY_LABEL; }, $sql);
+            
+//             $sql =	'(SELECT MONTH(calltime) AS month, "'. $MAX_MONTHLY_LABEL .'" AS datalabel, (time_to_sec(timediff(updatetime, LEAST(calltime,updatetime) )) / 3600) as hours_spent, id as cid ' .
+//                     ' FROM callouts WHERE status IN (3,10) AND calltime BETWEEN :start AND :end ' .
+//                     ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+//                     ' GROUP BY id, month ORDER BY month, id)' .
+//                     'UNION (SELECT MONTH(c.calltime) AS month, b.user_id AS datalabel, (time_to_sec(timediff(c.updatetime, LEAST(c.calltime,c.updatetime) )) / 3600) as hours_spent, c.id as cid ' .
+//                     ' FROM callouts_response a ' .
+//                     ' LEFT JOIN user_accounts b ON a.useracctid = b.id' .
+//                     ' LEFT JOIN callouts c ON a.calloutid = c.id ' .
+//                     ' WHERE c.status IN (3,10) AND c.calltime BETWEEN :start AND :end ' .
+//                     ' AND calltype NOT IN ("TRAINING","TESTONLY") ' .
+//                     ' GROUP BY c.id, month, datalabel ORDER BY month, datalabel, c.id) ORDER BY month, (datalabel="'. $MAX_MONTHLY_LABEL .'") DESC,datalabel, cid;';
         }
     
         $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);

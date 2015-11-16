@@ -127,14 +127,14 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$log->trace("Call Response firehall_id [". $this->getFirehallId() ."] cid [". $this->getCalloutId() ."] user_id [". $this->getUserId() ."] ckid [". $this->getCalloutKeyId() ."]");
 			
 			// Authenticate the user
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			
 			if($this->getGvm()->firehall->LDAP->ENABLED === true) {
 				create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
-				$sql = "SELECT id,user_pwd FROM ldap_user_accounts " .
-						" WHERE firehall_id = :fhid AND user_id = :uid;";
+				$sql = $sql_statement->getSqlStatement('ldap_callout_authenticate_by_fhid_and_userid');
 			}
 			else {
-				$sql = "SELECT id,user_pwd FROM user_accounts " .
-						" WHERE firehall_id = :fhid AND user_id = :uid;";
+			    $sql = $sql_statement->getSqlStatement('callout_authenticate_by_fhid_and_userid');
 			}
 
 			$fhid = $this->getFirehallId();
@@ -143,11 +143,11 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$qry_bind->bindParam(':fhid', $fhid);
 			$qry_bind->bindParam(':uid', $user_id);
 			$qry_bind->execute();
-			
-			$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . $qry_bind->rowCount());
 
 			$row = $qry_bind->fetch(\PDO::FETCH_OBJ);
 			$qry_bind->closeCursor();
+			
+			$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . count($row));
 
 			$this->useracctid = null;
 			$this->user_authenticated = false;
@@ -158,7 +158,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 				$this->callout->setFirehall($this->getGvm()->firehall);
 				
 				// Validate the the callkey is legit
-				$sql_callkey = "SELECT * FROM callouts WHERE id = :cid AND call_key = :ckid;";
+				$sql_callkey = $sql_statement->getSqlStatement('callout_authenticate_by_id_and_key');
 				
 				$cid = $this->getCalloutId();
 				$ckid = $this->getCalloutKeyId();
@@ -167,13 +167,14 @@ class CalloutResponseViewModel extends BaseViewModel {
 				$qry_bind2->bindParam(':ckid', $ckid);
 				$qry_bind2->execute();
 
-				$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation count: " . $qry_bind2->rowCount());
-
-				$result_count = $qry_bind2->rowCount();
 				$row_ci = $qry_bind2->fetch(\PDO::FETCH_OBJ);
 				$qry_bind2->closeCursor();
 				
-				if( $qry_bind2->rowCount() > 0) {
+				$result_count = count($row_ci);
+
+				$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation count: " . $result_count);
+				
+				if( $result_count > 0) {
 
 					if($row_ci !== null) {
 						$this->callout->setDateTime($row_ci->calltime);
@@ -250,8 +251,8 @@ class CalloutResponseViewModel extends BaseViewModel {
 		$log->trace("Call Response START --> updateCallResponse");
 
 		// Check if there is already a response record for this user and call
-		$sql = 'SELECT COUNT(*) total_count FROM callouts_response ' .
-				' WHERE calloutid = :cid AND useracctid = :uid AND status = :status;';
+		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+		$sql = $sql_statement->getSqlStatement('callout_total_count_by_id_and_user_and_status');
 
 		$cid = $this->getCalloutId();
 		$uid = $this->getUserStatus();
@@ -272,13 +273,10 @@ class CalloutResponseViewModel extends BaseViewModel {
 		// Update the response table
 		if($this->getUserPassword() === null && $this->getUserLat() === null && 
 				$this->getCalloutKeyId() !== null) {
-			$sql = 'UPDATE callouts_response SET status = :status, updatetime = CURRENT_TIMESTAMP() ' .
-					' WHERE calloutid = :cid AND useracctid = :uid;';
+  	        $sql = $sql_statement->getSqlStatement('callout_response_status_update');
 		}
 		else {
-			$sql = 'UPDATE callouts_response SET status = :status, updatetime = CURRENT_TIMESTAMP() ' .
-					' ,latitude = :lat, longitude = :long ' .
-					' WHERE calloutid = :cid AND useracctid = :uid;';
+		    $sql = $sql_statement->getSqlStatement('callout_response_status_and_geo_update');
 		}
 
 		$status = $this->getUserStatus();
@@ -304,12 +302,10 @@ class CalloutResponseViewModel extends BaseViewModel {
 		// If update failed, the responder did not responded yet so INSERT
 		if($this->affected_response_rows <= 0) {
 			if($this->getUserPassword() === null && $this->getUserLat() === null && $this->getCalloutKeyId() !== null) {
-				$sql = 'INSERT INTO callouts_response (calloutid,useracctid,responsetime,status) ' .
-						' values(:cid, :uid, CURRENT_TIMESTAMP(), :status);';
+			    $sql = $sql_statement->getSqlStatement('callout_response_insert');
 			}
 			else {
-				$sql = 'INSERT INTO callouts_response (calloutid,useracctid,responsetime,status,latitude,longitude) ' .
-						' values(:cid, :uid, CURRENT_TIMESTAMP(), :status, :lat, :long);';
+			    $sql = $sql_statement->getSqlStatement('callout_response_geo_insert');
 			}
 
 			$status = $this->getUserStatus();
@@ -342,8 +338,8 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$response_duplicates = $this->updateCallResponse();
 			
 			// Update the main callout status Unless its already set to cancelled or completed
-			$sql = 'UPDATE callouts SET status = :status, updatetime = CURRENT_TIMESTAMP() ' .
-					' WHERE id = :cid AND status NOT IN (3,10);';
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			$sql = $sql_statement->getSqlStatement('callout_status_and_timestamp_update');
 
 			$status = $this->getUserStatus();
 			$cid = $this->getCalloutId();

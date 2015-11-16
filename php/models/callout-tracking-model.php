@@ -164,8 +164,10 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			$log->trace("Call Tracking firehall_id [". $this->getFirehallId() ."] cid [". $this->getCalloutId() ."] user_id [". $this->getUserId() ."] ckid [" .$this->getCalloutKeyId(). "]");
 			
 			// Get the callout info
-			$sql = 'SELECT status, latitude, longitude, address ' .
-					' FROM callouts WHERE id = :cid;';
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			$sql = $sql_statement->getSqlStatement('check_callout_status_and_location');
+// 			$sql = 'SELECT status, latitude, longitude, address ' .
+// 					' FROM callouts WHERE id = :cid;';
 			
 			$cid = $this->getCalloutId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
@@ -221,13 +223,20 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			}
 			
 			// Get the latest GEO coordinates for each responding member
-			$sql = 'SELECT a.useracctid, a.calloutid, a.latitude,a.longitude, b.user_id ' .
-					' FROM callouts_geo_tracking a ' .
-					' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-					' WHERE firehall_id = :fhid AND a.calloutid = :cid AND ' .
-					'       a.trackingtime = (SELECT MAX(a1.trackingtime) FROM callouts_geo_tracking a1 WHERE a.calloutid = a1.calloutid AND a.useracctid = a1.useracctid)' .
-					' ORDER BY a.useracctid,a.trackingtime DESC;';
 
+			if($this->getFirehall()->LDAP->ENABLED === true) {
+			    $sql = $sql_statement->getSqlStatement('ldap_check_callout_tracking_responders');
+			}
+			else {
+    			$sql = $sql_statement->getSqlStatement('check_callout_tracking_responders');
+    				
+//     			$sql = 'SELECT a.useracctid, a.calloutid, a.latitude,a.longitude, b.user_id ' .
+//     					' FROM callouts_geo_tracking a ' .
+//     					' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
+//     					' WHERE firehall_id = :fhid AND a.calloutid = :cid AND ' .
+//     					'       a.trackingtime = (SELECT MAX(a1.trackingtime) FROM callouts_geo_tracking a1 WHERE a.calloutid = a1.calloutid AND a.useracctid = a1.useracctid)' .
+//     					' ORDER BY a.useracctid,a.trackingtime DESC;';
+			}
 			$fhid = $this->getFirehallId();
 			$cid = $this->getCalloutId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
@@ -258,8 +267,16 @@ class CalloutTrackingViewModel extends BaseViewModel {
 		if(isset($this->user_authenticated) === false) {
 			
 			// Authenticate the user
-			$sql = 'SELECT id,user_pwd FROM user_accounts WHERE firehall_id = :fhid AND user_id = :user_id;';
-
+		    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			if($this->getFirehall()->LDAP->ENABLED === true) {
+			    $sql = $sql_statement->getSqlStatement('ldap_callout_authenticate_by_fhid_and_userid');
+			}
+			else {
+    			$sql = $sql_statement->getSqlStatement('callout_authenticate_by_fhid_and_userid');
+		    
+    			//$sql = 'SELECT id,user_pwd FROM user_accounts WHERE firehall_id = :fhid AND user_id = :user_id;';
+			}
+			
 			$fhid = $this->getFirehallId();
 			$uid = $this->getUserId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
@@ -277,7 +294,8 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			if(empty($rows) === false) {
 				$row = $rows[0];
 				// Validate the the callkey is legit
-				$sql = 'SELECT status FROM callouts WHERE id = :cid AND call_key =:ckid;';
+				$sql = $sql_statement->getSqlStatement('callout_status_select_by_id_and_key');
+				//$sql = 'SELECT status FROM callouts WHERE id = :cid AND call_key =:ckid;';
 
 				$cid = $this->getCalloutId();
 				$ckid = $this->getCalloutKeyId();
@@ -286,11 +304,12 @@ class CalloutTrackingViewModel extends BaseViewModel {
 				$qry_bind->bindParam(':ckid', $ckid);
 				$qry_bind->execute();
 				
-				if( $qry_bind->rowCount() > 0) {
-			
-					$rows_callout = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
-					$qry_bind->closeCursor();
-						
+				$rows_callout = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+				$qry_bind->closeCursor();
+				
+				$rows_count = count($rows_callout);
+				
+				if( $rows_count > 0) {
 					if($this->getUserPassword() === null && $this->getCalloutKeyId() !== null) {
 			
 						$this->user_authenticated = true;
@@ -318,8 +337,10 @@ class CalloutTrackingViewModel extends BaseViewModel {
 	private function trackGeo() {
 		
 		// INSERT tracking information
-		$sql = 'INSERT INTO callouts_geo_tracking (calloutid,useracctid,latitude,longitude) ' .
-				' values(:cid, :uid, :lat, :long);';
+	    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+	    $sql = $sql_statement->getSqlStatement('callout_tracking_insert');
+// 		$sql = 'INSERT INTO callouts_geo_tracking (calloutid,useracctid,latitude,longitude) ' .
+// 				' values(:cid, :uid, :lat, :long);';
 
 		$cid = $this->getCalloutId();
 		$uid = $this->useracctid;
@@ -340,13 +361,21 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			global $log;
 			
 			// Get the latest GEO coordinates for each responding member
-			$sql = 'SELECT a.useracctid, a.calloutid, a.latitude,a.longitude, b.user_id ' .
-					' FROM callouts_geo_tracking a ' .
-					' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-					' WHERE firehall_id = :fhid AND a.calloutid = :cid ' .
-					' AND a.trackingtime = (SELECT MAX(a1.trackingtime) FROM callouts_geo_tracking a1 WHERE a.calloutid = a1.calloutid AND a.useracctid = a1.useracctid)' .
-					' ORDER BY a.useracctid,a.trackingtime DESC;';
-
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			if($this->getFirehall()->LDAP->ENABLED === true) {
+			    $sql = $sql_statement->getSqlStatement('ldap_check_callout_tracking_responders');
+			}
+			else {
+    			$sql = $sql_statement->getSqlStatement('check_callout_tracking_responders');
+			
+// 			$sql = 'SELECT a.useracctid, a.calloutid, a.latitude,a.longitude, b.user_id ' .
+// 					' FROM callouts_geo_tracking a ' .
+// 					' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
+// 					' WHERE firehall_id = :fhid AND a.calloutid = :cid ' .
+// 					' AND a.trackingtime = (SELECT MAX(a1.trackingtime) FROM callouts_geo_tracking a1 WHERE a.calloutid = a1.calloutid AND a.useracctid = a1.useracctid)' .
+// 					' ORDER BY a.useracctid,a.trackingtime DESC;';
+			}
+			
 			$fhid = $this->getFirehallId();
 			$cid = $this->getCalloutId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);

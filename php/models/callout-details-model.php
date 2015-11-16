@@ -160,27 +160,32 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			
 			if($callout_id !== -1 && isset($callkey_id) === true) {
 				// Read from the database info about this callout
-				$sql = "SELECT * FROM callouts ";
-				if(isset($callout_id) === true && $callout_id !== null) {
-					$sql .= " WHERE id = :cid";
-					if(isset($callkey_id) === true && $callkey_id !== null) {
-						$sql .= " AND call_key = :ckid";
-					}
-				}
+
+			    $sql_cid = '';
+			    $sql_ckid = '';
+			    if(isset($callout_id) === true && $callout_id !== null) {
+			        $sql_cid = ' WHERE id = :cid';
+			        if(isset($callkey_id) === true && $callkey_id !== null) {
+			            $sql_ckid = ' AND call_key = :ckid';
+			        }
+			    }
+			    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			    $sql = $sql_statement->getSqlStatement('check_callouts_by_id_and_keyid');
+			    $sql = preg_replace_callback('(:sql_cid)', function ($m) use ($sql_cid) { return $sql_cid; }, $sql);
+			    $sql = preg_replace_callback('(:sql_ckid)', function ($m) use ($sql_ckid) { return $sql_ckid; }, $sql);
 
 				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-				if(isset($callout_id) ===true && $callout_id !== null) {
+				if(isset($callout_id) === true && $callout_id !== null) {
 					$qry_bind->bindParam(':cid', $callout_id);
 					if(isset($callkey_id) === true && $callkey_id !== null) {
 						$qry_bind->bindParam(':ckid', $callkey_id);
 					}
 				}
 				$qry_bind->execute();
-				
-				$log->trace("Call Info callouts SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
-				
 				$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 				$qry_bind->closeCursor();
+
+				$log->trace("Call Info callouts SQL success for sql [$sql] row count: " . count($rows));
 				
 				$results = array();
 				foreach($rows as $row){
@@ -211,30 +216,28 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		if(isset($this->callout_details_responding_list) === false) {
 			global $log;
 			
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			if($this->getFirehall()->LDAP->ENABLED === true) {
+			    $sql_response = $sql_statement->getSqlStatement('ldap_check_callouts_responding');
+			}
+			else {
+			    $sql_response = $sql_statement->getSqlStatement('check_callouts_responding');
+			}
+				
 			$callouts = $this->getCalloutDetailsList();
 			foreach($callouts as $row) {
 				if($this->getFirehall()->LDAP->ENABLED === true) {
 					create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
-					$sql_response = 'SELECT a.*, b.user_id ' .
-									' FROM callouts_response a ' .
-									' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
-									' WHERE calloutid = :cid;';
-				}
-				else {
-					$sql_response = 'SELECT a.*, b.user_id ' .
-									' FROM callouts_response a ' .
-									' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-									' WHERE calloutid = :cid;';
 				}
 
 				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_response);
 				$qry_bind->bindParam(':cid', $row['id']);
 				$qry_bind->execute();
-				
-				$log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . $qry_bind->rowCount());
 
 				$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 				$qry_bind->closeCursor();
+
+				$log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . count($rows));
 				
 				$results = array();
 				foreach($rows as $row_r){
@@ -255,28 +258,26 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			global $log;
 			
 			// Select all user accounts for the firehall that did not yet respond
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+							
 			if($this->getFirehall()->LDAP->ENABLED === true) {
 				create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
-				$sql_no_response = 'SELECT id, user_id FROM ldap_user_accounts ' .
-								   ' WHERE id NOT IN (SELECT useracctid ' .
-								   ' FROM callouts_response WHERE calloutid = :cid);';
+				$sql_no_response = $sql_statement->getSqlStatement('ldap_check_callouts_not_responding');
 			}
 			else {
-				$sql_no_response = 'SELECT id, user_id FROM user_accounts ' .
-								   ' WHERE id NOT IN (SELECT useracctid ' .
-								   ' FROM callouts_response WHERE calloutid = :cid);';
+			    $sql_no_response = $sql_statement->getSqlStatement('check_callouts_not_responding');
 			}
 
 			$cid = $this->getCalloutId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_no_response);
 			$qry_bind->bindParam(':cid', $cid);
 			$qry_bind->execute();
-				
-			$log->trace("Call Info callouts no responses SQL success for sql [$sql_no_response] row count: " . $qry_bind->rowCount());
 
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 			$qry_bind->closeCursor();
-				
+
+			$log->trace("Call Info callouts no responses SQL success for sql [$sql_no_response] row count: " . count($rows));
+			
 			$results = array();
 			foreach($rows as $row){
 				// Add any custom fields with values here
@@ -293,28 +294,26 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			global $log;
 			
 			// Select all user accounts for the firehall that did respond to the call
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			
 			if($this->getFirehall()->LDAP->ENABLED === true) {
 				create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
-				$sql_yes_response = 'SELECT id,user_id FROM ldap_user_accounts ' .
-									' WHERE id IN (SELECT useracctid ' .
-									' FROM callouts_response WHERE calloutid = :cid);';
+				$sql_yes_response = $sql_statement->getSqlStatement('ldap_check_callouts_yes_responding');
 			}
 			else {
-				$sql_yes_response = 'SELECT id,user_id FROM user_accounts ' .
-									' WHERE id IN (SELECT useracctid ' .
-									' FROM callouts_response WHERE calloutid = :cid);';
+			    $sql_yes_response = $sql_statement->getSqlStatement('check_callouts_yes_responding');
 			}
 			
 			$cid = $this->getCalloutId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_yes_response);
 			$qry_bind->bindParam(':cid', $cid);
 			$qry_bind->execute();
-				
-			$log->trace("Call Info callouts yes responses SQL success for sql [$sql_yes_response] row count: " . $qry_bind->rowCount());
 			
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 			$qry_bind->closeCursor();
-				
+
+			$log->trace("Call Info callouts yes responses SQL success for sql [$sql_yes_response] row count: " . count($rows));
+			
 			$results = array();
 			foreach($rows as $row){
 				// Add any custom fields with values here

@@ -194,12 +194,11 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_EMAIL->setDeleteOnProcessed(true);        // Delete processed emails after they trigger a callout
 	
 	// ----------------------------------------------------------------------
-	// MySQL Database Settings
-	$LOCAL_DEBUG_MYSQL = new FireHallMySQL();
-	$LOCAL_DEBUG_MYSQL->setHostName('localhost');
-	$LOCAL_DEBUG_MYSQL->setDatabaseName('riprunner');
-	$LOCAL_DEBUG_MYSQL->setUserName('riprunner');
-	$LOCAL_DEBUG_MYSQL->setPassword('password');
+	// Database Settings
+	$LOCAL_DEBUG_DB = new FireHallDatabase();
+	$LOCAL_DEBUG_DB->setDsn('mysql:host=localhost;dbname=riprunner');
+	$LOCAL_DEBUG_DB->setUserName('riprunner');
+	$LOCAL_DEBUG_DB->setPassword('password');
 	
 	// ----------------------------------------------------------------------
 	// SMS Provider Settings
@@ -277,7 +276,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_FIREHALL = new FireHallConfig();
 	$LOCAL_DEBUG_FIREHALL->setEnabled(true);
 	$LOCAL_DEBUG_FIREHALL->setFirehallId(XXXXX);     				//  I USE THE MAIN HALL PHONE NUMBER
-	$LOCAL_DEBUG_FIREHALL->setMySQLSettings($LOCAL_DEBUG_MYSQL);
+	$LOCAL_DEBUG_FIREHALL->setDBSettings($LOCAL_DEBUG_DB);
 	$LOCAL_DEBUG_FIREHALL->setEmailSettings($LOCAL_DEBUG_EMAIL);
 	$LOCAL_DEBUG_FIREHALL->setSMS_Settings($LOCAL_DEBUG_SMS);
 	$LOCAL_DEBUG_FIREHALL->setWebsiteSettings($LOCAL_DEBUG_WEBSITE);

@@ -84,48 +84,145 @@ class FireHallEmailAccount
 }
 			
 // ----------------------------------------------------------------------
-class FireHallMySQL
+class FireHallDatabase
 {
-	// The name of the MySQL database Host
-	public $MYSQL_HOST;
-	// The name of the MySQL database
-	public $MYSQL_DATABASE;
-	// The username to authenticate to the MySQL database
-	public $MYSQL_USER;
-	// The user password to authenticate to the MySQL database
-	public $MYSQL_PASSWORD;
-
-	public function __construct($host=null, $database=null, $username=null, 
-								$password=null) {
-		$this->MYSQL_HOST = $host;
-		$this->MYSQL_DATABASE = $database;
-		$this->MYSQL_USER = $username;
-		$this->MYSQL_PASSWORD = $password;
+    // The database engine specific DSN
+    public $DSN;
+	// The username to authenticate to the  database
+	public $USER;
+	// The user password to authenticate to the database
+	public $PASSWORD;
+	// The name of the  database
+	public $DATABASE;
+	
+	public function __construct($dsn=null, $username=null, $password=null,$db=null) {
+		$this->DSN = $dsn;
+		$this->USER = $username;
+		$this->PASSWORD = $password;
+		$this->DATABASE = $db;
 	}
 
 	public function toString() {
-		$result = "MySQL Settings:" .
- 				  "\nhostname: " . $this->MYSQL_HOST .
-				  "\ndb: " . $this->MYSQL_DATABASE .
-				  "\nusername: " . $this->MYSQL_USER;
+		$result = "Database Settings:" .
+	      		  "\ndsn: " . ($this->DSN !== null ? $this->DSN : '').
+				  "\nusername: " . ($this->USER !== null ? $this->USER : '').
+				  "\ndatabase: " . ($this->DATABASE !== null ? $this->DATABASE : '');
 		return $result;
 	}
-	
-	public function setHostName($host) {
-		$this->MYSQL_HOST = $host;
+
+	public function setDsn($dsn) {
+	    $this->DSN = $dsn;
 	}
-	public function setDatabseName($database) {
-		$this->MYSQL_DATABASE = $database;
-	}
-	public function setDatabaseName($database) {
-		$this->MYSQL_DATABASE = $database;
+	public function setDatabaseName($db) {
+	    $this->DATABASE = $db;
 	}
 	public function setUserName($username) {
-		$this->MYSQL_USER = $username;
+		$this->USER = $username;
 	}
 	public function setPassword($password) {
-		$this->MYSQL_PASSWORD = $password;
+		$this->PASSWORD = $password;
 	}
+}
+
+class FireHallMySQL extends FireHallDatabase {
+    // The name of the MySQL database Host
+    public $MYSQL_HOST;
+    
+    public function __construct($host=null, $database=null, $username=null,
+            $password=null) {
+        $this->MYSQL_HOST = $host;
+        $this->MYSQL_DATABASE = $database;
+        
+        $this->USER = $username;
+        $this->PASSWORD = $password;
+        
+        $this->setupDsn();
+    }
+ 
+    public function __get($name) {
+        if('MYSQL_USER' === $name) {
+            return $this->USER;
+        }
+        if('MYSQL_PASSWORD' === $name) {
+            return $this->PASSWORD;
+        }
+        if('MYSQL_DATABASE' === $name) {
+            return $this->DATABASE;
+        }
+        if (property_exists($this, $name)) {
+            return $this->$name;
+        }        
+    }
+    public function __isset($name) {
+        if('MYSQL_USER' === $name) {
+            return parent::__isset('USER');
+        }
+        if('MYSQL_PASSWORD' === $name) {
+            return parent::__isset($this->PASSWORD);
+        }
+        if('MYSQL_DATABASE' === $name) {
+            return parent::__isset($this->$this->DATABASE);
+        }
+        return isset($this->$name);
+    }
+    public function __set($name, $value) {
+        if('MYSQL_USER' === $name) {
+            $this->USER = $value;
+        }
+        else if('MYSQL_PASSWORD' === $name) {
+            $this->PASSWORD = $value;
+        }
+        else if('MYSQL_DATABASE' === $name) {
+            $this->DATABASE = $value;
+        }
+        else {
+            if (property_exists($this, $name)) {
+                $this->$name = $value;
+            }
+        }
+    }
+    
+    public function toString() {
+        $result = "MySQL Settings:" .
+                "\nhostname: " . ($this->MYSQL_HOST !== null ? $this->MYSQL_HOST : '') .
+                "\ndb: " . ($this->DATABASE !== null ? $this->DATABASE : '') .
+                "\nusername: " . ($this->MYSQL_USER !== null ? $this->MYSQL_USER : '');
+        return $result;
+    }
+
+    private function setupDsn() {
+        if($this->MYSQL_HOST !== null && $this->DATABASE !== null) {
+            $this->DSN = 'mysql:host='.$this->MYSQL_HOST.';dbname='.$this->DATABASE;
+            //echo "#1 DSN [$this->DSN]" . PHP_EOL;
+        }
+        else if($this->MYSQL_HOST !== null) {
+            $this->DSN = 'mysql:host='.$this->MYSQL_HOST;
+            //echo "#2 DSN [$this->DSN]" . PHP_EOL;
+        }
+        else {
+            $this->DSN = '';
+            //echo "#3 DSN [$this->DSN]" . PHP_EOL;
+        }
+    }
+    
+    public function setHostName($host) {
+        $this->MYSQL_HOST = $host;
+        $this->setupDsn();
+    }
+    public function setDatabseName($database) {
+        $this->MYSQL_DATABASE = $database;
+        $this->setupDsn();
+    }
+    public function setDatabaseName($database) {
+        $this->MYSQL_DATABASE = $database;
+        $this->setupDsn();
+    }
+    public function setUserName($username) {
+        $this->MYSQL_USER = $username;
+    }
+    public function setPassword($password) {
+        $this->MYSQL_PASSWORD = $password;
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -554,8 +651,8 @@ class FireHallConfig
 	public $ENABLED;
 	// A unique ID to differentiate multipel firehalls
 	public $FIREHALL_ID;
-	// The Mysql configuration for the Firehall
-	public $MYSQL;
+	// The Database configuration for the Firehall
+	public $DB;
 	// The Email configuration for the Firehall
 	public $EMAIL;
 	// The SMS configuration for the Firehall
@@ -567,12 +664,12 @@ class FireHallConfig
 	// The LDAP configuration for the firehall
 	public $LDAP;
 		
-	public function __construct($enabled=false, $id=null, $mysql=null, 
+	public function __construct($enabled=false, $id=null, $db=null, 
 			$email=null, $sms=null, $website=null, $mobile=null, $ldapcfg=null) {
 		
 		$this->ENABLED = $enabled;
 		$this->FIREHALL_ID = $id;
-		$this->MYSQL = $mysql;
+		$this->DB = $db;
 		$this->EMAIL = $email;
 		$this->SMS = $sms;
 		$this->WEBSITE = $website;
@@ -585,12 +682,37 @@ class FireHallConfig
 				"\nenabled: " . var_export($this->ENABLED, true) .
 				"\nFirehall ID: " . $this->FIREHALL_ID .
 				"\n" . $this->EMAIL->toString() .
-				"\n" . $this->MYSQL->toString() .
+				"\n" . $this->DB->toString() .
 				"\n" . $this->SMS->toString() .
 				"\n" . $this->WEBSITE->toString() .
 				"\n" . $this->MOBILE->toString() .
 				"\n" . $this->LDAP->toString();
 		return $result;
+	}
+	
+	public function __get($name) {
+	    if('MYSQL' === $name) {
+	        return $this->DB;
+	    }
+	    if (property_exists($this, $name)) {
+	        return $this->$name;
+	    }
+	}
+	public function __isset($name) {
+	    if('MYSQL' === $name) {
+	        return parent::__isset($this->DB);
+	    }
+	    return isset($this->$name);
+	}
+	public function __set($name, $value) {
+	    if('MYSQL' === $name) {
+	        $this->DB = $value;
+	    }
+	    else {
+	        if (property_exists($this, $name)) {
+	            $this->$name = $value;
+	        }
+	    }
 	}
 	
 	public function setEnabled($enabled) {
@@ -599,8 +721,11 @@ class FireHallConfig
 	public function setFirehallId($id) {
 		$this->FIREHALL_ID = $id;
 	}
-	public function setMySQLSettings($mysql) {
-		$this->MYSQL = $mysql;
+	public function setDBSettings($db) {
+	    $this->DB = $db;
+	}
+	public function setMySQLSettings($db) {
+		$this->DB = $db;
 	}
 	public function setEmailSettings($email) {
 		$this->EMAIL = $email;

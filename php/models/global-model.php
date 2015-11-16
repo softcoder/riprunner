@@ -122,7 +122,9 @@ class GlobalViewModel {
 		$fire_hall = $this->getFireHall();
 		if(isset($fire_hall) === true) {
 			if(isset($this->db_connection) === false) {
-				$this->db_connection = db_connect_firehall($fire_hall);
+				//$this->db_connection = db_connect_firehall($fire_hall);
+			    $db = new \riprunner\DbConnection($fire_hall);
+			    $this->db_connection = $db->getConnection();
 			}
 			return $this->db_connection;
 		}
@@ -131,7 +133,7 @@ class GlobalViewModel {
 	
 	private function closeDBConnection() {
 		if(isset($this->db_connection) === true) {
-			db_disconnect($this->db_connection);
+			\riprunner\DbConnection::disconnect_db($this->db_connection);
 			$this->db_connection = null;
 		}
 	}

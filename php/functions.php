@@ -9,6 +9,8 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	die( 'This file must not be invoked directly.' ); 
 }
 
+require_once 'db/db_connection.php';
+require_once 'db/sql_statement.php';
 require_once 'ldap_functions.php';
 require_once 'logging.php';
 
@@ -31,69 +33,6 @@ function get_query_param($param_name) {
 	}
 	return $result;
 }	
-
-function db_connect_firehall_master($FIREHALL) {
-	$db_connection = null;
-	if($FIREHALL !== null) {
-		$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-				$FIREHALL->MYSQL->MYSQL_USER,
-				$FIREHALL->MYSQL->MYSQL_PASSWORD,
-				"");
-	}
-
-	return $db_connection;
-}
-
-function db_connect_firehall($FIREHALL) {
-	$db_connection = null;
-	if($FIREHALL !== null) {
-		$db_connection = db_connect($FIREHALL->MYSQL->MYSQL_HOST,
-				$FIREHALL->MYSQL->MYSQL_USER,
-				$FIREHALL->MYSQL->MYSQL_PASSWORD,
-				$FIREHALL->MYSQL->MYSQL_DATABASE);
-		
-		if(isset($FIREHALL->WEBSITE->FIREHALL_TIMEZONE) === true && $FIREHALL->WEBSITE->FIREHALL_TIMEZONE !== null) {
-		    date_default_timezone_set($FIREHALL->WEBSITE->FIREHALL_TIMEZONE);
-		    	
-		    //SET time_zone='offset';
-		    $now = new DateTime();
-		    $mins = ($now->getOffset() / 60);
-		    $sgn = (($mins < 0) ? -1 : 1);
-		    $mins = abs($mins);
-		    $hrs = floor($mins / 60);
-		    $mins -= ($hrs * 60);
-		    $offset = sprintf('%+d:%02d', ($hrs*$sgn), $mins);
-		    	
-		    $db_connection->exec("SET time_zone='$offset';");
-		    //echo "SET time_zone='$offset';" . PHP_EOL;
-		}
-		
-	}
-	
-	return $db_connection;
-}
-	
-function db_connect($host, $user, $password, $database) {
-	global $log;
-	
-	try {
-		$link = new \PDO("mysql:host=$host;dbname=$database", $user, $password);
-		$link->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
-	} 
-	catch (\PDOException $e) {
-		if($log) $log->error("DB Connected for: host [$host] db [$database] user [$user] error [" . $e->getMessage() . "]");
-		throw $e;
-	}
-		
-	return $link;
-}	                		
-
-function db_disconnect($link) {
-	// note that mysql_close() only closes non-persistent connections
-	if($link !== null) {
-		$link = null;
-	}
-}
 
 function getAddressForMapping($FIREHALL, $address) {
 	global $log;
@@ -252,10 +191,11 @@ function login($FIREHALL, $user_id, $password, $db_connection) {
 	}
 	
 	// Using prepared statements means that SQL injection is not possible.
-	$stmt = $db_connection->prepare("SELECT id, firehall_id, user_id, user_pwd, access
-        FROM user_accounts
-       	WHERE user_id = :id AND firehall_id = :fhid
-        LIMIT 1");
+	
+	$sql_statement = new \riprunner\SqlStatement($db_connection);
+	$sql = $sql_statement->getSqlStatement('login_user_check');
+	
+	$stmt = $db_connection->prepare($sql);
 	if ($stmt !== false) {
         $stmt->bindParam(':id', $user_id);  // Bind "$user_id" to parameter.
         $stmt->bindParam(':fhid', $FIREHALL->FIREHALL_ID);  // Bind "$user_id" to parameter.
@@ -263,17 +203,18 @@ function login($FIREHALL, $user_id, $password, $db_connection) {
 
         // get variables from result.
         $row = $stmt->fetch(\PDO::FETCH_OBJ);
-        if($row !== null && $stmt->rowCount() > 0) {
+        $stmt->closeCursor();
+        
+        if($row !== null && $row !== false) {
 	        $dbId = $row->id;
 	        $FirehallId = $row->firehall_id;
 	        $userId = $row->user_id;
 	        $userPwd = $row->user_pwd;
 	        $userAccess = $row->access;
-        }
 
-        // hash the password with the unique salt.
-        //$password = hash('sha512', $password . $salt);
-        if ($stmt->rowCount() === 1) {
+	        // hash the password with the unique salt.
+	        //$password = hash('sha512', $password . $salt);
+	        	    
         	// If the user exists we check if the account is locked
         	// from too many login attempts
         	if (checkbrute($dbId, $db_connection, $FIREHALL->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS) === true) {
@@ -287,7 +228,6 @@ function login($FIREHALL, $user_id, $password, $db_connection) {
         		// the password the user submitted.
         		//$password = hash('sha512', $password);
         		
-        		//if (crypt($db_connection->real_escape_string( $password ), $userPwd) === $userPwd ) {
         		if (crypt($password, $userPwd) === $userPwd ) {
         			// Password is correct!
         			// Get the user-agent string of the user.
@@ -307,7 +247,7 @@ function login($FIREHALL, $user_id, $password, $db_connection) {
         			// XSS protection as we might print this value
         			//$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
         			$_SESSION['user_id'] = $userId;
-        			$_SESSION['login_string'] = hash('sha512', $userPwd . $user_browser);
+        			$_SESSION['login_string'] = hash(USER_PASSWORD_HASH_ALGORITHM, $userPwd . $user_browser);
         			$_SESSION['firehall_id'] = $FirehallId;
         			$_SESSION['ldap_enabled'] = false;
         			$_SESSION['user_access'] = $userAccess;
@@ -319,9 +259,7 @@ function login($FIREHALL, $user_id, $password, $db_connection) {
         			// We record this attempt in the database
         			if($log) $log->error("Login attempt for user [$user_id] FAILED pwd check for client [" . getClientIPInfo() . "]");
         			
-        			//$now = time();
-        			$sql = "INSERT INTO login_attempts(useracctid, time) " .
-        				   " VALUES (:uid, CURRENT_TIMESTAMP())";
+        			$sql = $sql_statement->getSqlStatement('login_brute_force_insert');
         			
         			$qry_bind = $db_connection->prepare($sql);
         			$qry_bind->bindParam(':uid', $dbId);  // Bind "$user_id" to parameter.
@@ -347,17 +285,21 @@ function checkbrute($user_id, $db_connection, $max_logins) {
 	global $log;
 	
 	// All login attempts are counted from the past 2 hours.
-	$stmt = $db_connection->prepare("SELECT time
-			FROM login_attempts
-			WHERE useracctid = :id " .
-	        " AND time > NOW() - INTERVAL 2 HOUR");
+	$sql_statement = new \riprunner\SqlStatement($db_connection);
+	$sql = $sql_statement->getSqlStatement('login_brute_force_check');
+	$stmt = $db_connection->prepare($sql);
 	if ($stmt !== false) {
 		$stmt->bindParam(':id', $user_id);
 		$stmt->execute();
 
+		$rows = $stmt->fetchAll(\PDO::FETCH_OBJ);
+		$stmt->closeCursor();
+		
+		$row_count = count($rows);
+		
 		// If there have been more than x failed logins
-		if ($stmt->rowCount() > $max_logins) {
-			if($log) $log->warn("Login attempt for user [$user_id] was blocked, client [" . getClientIPInfo() . "] brute force count [" . $stmt->rowCount() . "]");
+		if ($row_count > $max_logins) {
+			if($log) $log->warn("Login attempt for user [$user_id] was blocked, client [" . getClientIPInfo() . "] brute force count [" . $row_count . "]");
 			return true;
 		} 
 		else {
@@ -391,21 +333,23 @@ function login_check($db_connection) {
 			if($log) $log->trace("LOGINCHECK using LDAP...");
 			return login_check_ldap($db_connection);
 		}
-			
-		$stmt = $db_connection->prepare("SELECT user_pwd
-                                     FROM user_accounts
-                                     WHERE id = :id AND firehall_id = :fhid
-		                             LIMIT 1");
+		
+		$sql_statement = new \riprunner\SqlStatement($db_connection);
+		$sql = $sql_statement->getSqlStatement('login_user_password_check');
+		
+		$stmt = $db_connection->prepare($sql);
 		if ($stmt !== false) {
 			$stmt->bindParam(':id', $user_id);
 			$stmt->bindParam(':fhid', $firehall_id);
 			$stmt->execute();
-		
-			if ($stmt->rowCount() === 1) {
+
+			$row = $stmt->fetch(\PDO::FETCH_OBJ);
+			$stmt->closeCursor();
+			
+			if ($row !== false) {
 				// If the user exists get variables from result.
-				$row = $stmt->fetch(\PDO::FETCH_OBJ);
 				$password = $row->user_pwd;
-				$login_check = hash('sha512', $password . $user_browser);
+				$login_check = hash(USER_PASSWORD_HASH_ALGORITHM, $password . $user_browser);
 		
 				if ($login_check === $login_string) {
 					return true;
@@ -481,19 +425,24 @@ function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
 
 	$must_close_db = false;
 	if(isset($db_connection) === false) {
-		$db_connection = db_connect_firehall($FIREHALL);
+	    $db = new \riprunner\DbConnection($FIREHALL);
+	    $db_connection = $db->getConnection();
+	     
 		$must_close_db = true;
 	}
-	$sql = "SELECT distinct(mobile_phone) FROM user_accounts WHERE mobile_phone <> '' " .
-	       " AND access & ". USER_ACCESS_SIGNAL_SMS . " = ". USER_ACCESS_SIGNAL_SMS . ";";
+	
+	$sql_sms_access = USER_ACCESS_SIGNAL_SMS . " = ". USER_ACCESS_SIGNAL_SMS;
+	$sql_statement = new \riprunner\SqlStatement($db_connection);
+	$sql = $sql_statement->getSqlStatement('users_mobile_access_list');
+	$sql = preg_replace_callback('(:sms_access)', function ($m) use ($sql_sms_access) { return $sql_sms_access; }, $sql);
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();
 	
-	if($log) $log->trace("Call getMobilePhoneListFromDB SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
-
 	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
 	$qry_bind->closeCursor();
+	
+	if($log) $log->trace("Call getMobilePhoneListFromDB SQL success for sql [$sql] row count: " . count($rows));
 	
 	$result = array();
 	foreach($rows as $row) {
@@ -501,7 +450,7 @@ function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
 	}
 	
 	if($must_close_db === true) {
-		db_disconnect( $db_connection );
+		\riprunner\DbConnection::disconnect_db( $db_connection );
 	}
 	return $result;
 }
@@ -557,32 +506,46 @@ function isCalloutInProgress($callout_status) {
 function checkForLiveCallout($FIREHALL, $db_connection) {
 	global $log;
 	// Check if there is an active callout (within last 48 hours) and if so send the details
-	$sql = "SELECT * FROM callouts " .
-			" WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,calltime,CURRENT_TIMESTAMP()) <= " . DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
-			" ORDER BY id DESC LIMIT 1;";
-
-	$qry_bind = $db_connection->prepare($sql);
-	$qry_bind->execute();
 	
-	if($log) $log->trace("Call checkForLiveCallout SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
+	$sql_statement = new \riprunner\SqlStatement($db_connection);
+	$sql = $sql_statement->getSqlStatement('check_live_callouts');
+
+	$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
+	$qry_bind = $db_connection->prepare($sql);
+	$qry_bind->bindParam(':max_age', $max_hours_old);
+	$qry_bind->execute();
 
 	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
 	$qry_bind->closeCursor();
+	
+	if($log) $log->trace("Call checkForLiveCallout SQL success for sql [$sql] row count: " . count($rows));
 	
 	if(empty($rows) === false) {
 		$row = $rows[0];
 		$callout_id = $row->id;
 		$callkey_id = $row->call_key;
 
-		$redirect_host  = $_SERVER['HTTP_HOST'];
-		$redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+		if(isset($_SERVER['HTTP_HOST']) === true) {
+		    $redirect_host  = $_SERVER['HTTP_HOST'];
+		}
+		else {
+		    $redirect_host  = '';
+		}
+		if(isset($_SERVER['PHP_SELF']) === true) {
+		    $redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+		}
+		else {
+		    $redirect_uri   = '';
+		}
 		$redirect_extra = 'ci/fhid=' . urlencode($FIREHALL->FIREHALL_ID) .
 							'&cid=' . urlencode($callout_id) .
 							'&ckid=' . urlencode($callkey_id);
 
 		$current_callout = '<a target="_blank" href="http://' . $redirect_host . $redirect_uri.'/'.$redirect_extra.'" class="alert">A Callout is in progress, CLICK HERE for details</a>';
 		echo $current_callout;
+		return $current_callout;
 	}
+	return '';
 }
 
 function make_comparer() {
@@ -747,15 +710,23 @@ function getFirehallRootURLFromRequest($request_url, $firehalls) {
 	return '';
 }
 
-function getTriggerHashList($type, $FIREHALL) {
+function getTriggerHashList($type, $FIREHALL, $db_connection) {
 
-    $db_connection = db_connect_firehall($FIREHALL);
+    $adhoc_db = false;
+    if($db_connection === null) {
+        $db = new \riprunner\DbConnection($FIREHALL);
+        $db_connection = $db->getConnection();
+        $adhoc_db = true;
+    }
+    
     $firehall_id = $FIREHALL->FIREHALL_ID;
     
     $result = array();
-    $qry_bind = $db_connection->prepare('SELECT hash_data
-                                     FROM trigger_history
-                                     WHERE type = :type AND firehall_id = :fhid');
+    
+    $sql_statement = new \riprunner\SqlStatement($db_connection);
+    $sql = $sql_statement->getSqlStatement('check_trigger_history_by_type');
+    
+    $qry_bind = $db_connection->prepare($sql);
     if ($qry_bind !== false) {
         $qry_bind->bindParam(':type', $type);
         $qry_bind->bindParam(':fhid', $firehall_id);
@@ -769,25 +740,37 @@ function getTriggerHashList($type, $FIREHALL) {
     	}
     }
     
-    db_disconnect($db_connection);
-    
+    if($adhoc_db === true) {
+        \riprunner\DbConnection::disconnect_db($db_connection);
+    }
     return $result;
 }
-function addTriggerHash($type, $FIREHALL, $hash_data) {
+function addTriggerHash($type, $FIREHALL, $hash_data, $db_connection) {
     
-    $db_connection = db_connect_firehall($FIREHALL);
+    $adhoc_db = false;
+    if($db_connection === null) {
+        $db = new \riprunner\DbConnection($FIREHALL);
+        $db_connection = $db->getConnection();
+        $adhoc_db = true;
+    }
+    
     $firehall_id = $FIREHALL->FIREHALL_ID;
-    
-    $sql = 'INSERT INTO trigger_history (triggertime, type, firehall_id, hash_data) 
-            SELECT CURRENT_TIMESTAMP(), :type, :fhid, :hash_data FROM dual
-            WHERE NOT EXISTS (SELECT * FROM trigger_history WHERE type=:type AND firehall_id=:fhid AND hash_data=:hash_data) 
-            LIMIT 1';
+
+    $sql_statement = new \riprunner\SqlStatement($db_connection);
+    $sql = $sql_statement->getSqlStatement('trigger_history_insert');
      
     $qry_bind = $db_connection->prepare($sql);
     $qry_bind->bindParam(':type', $type);
     $qry_bind->bindParam(':fhid', $firehall_id);
     $qry_bind->bindParam(':hash_data', $hash_data);
     $qry_bind->execute();
+    
+    $result = $qry_bind->rowCount();
+    
+    if($adhoc_db === true) {
+        \riprunner\DbConnection::disconnect_db($db_connection);        
+    }
+    return $result;
 }
 
 ?>

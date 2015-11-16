@@ -240,7 +240,9 @@ function poll_email_callouts($FIREHALLS_LIST) {
     		
     		//$log->trace('Found email count # ['.$headers_count.']');
     		
-    		$trigger_hash_list = getTriggerHashList(1, $FIREHALL);
+    		$db = new \riprunner\DbConnection($FIREHALL);
+    		$db_connection = $db->getConnection();
+    		$trigger_hash_list = getTriggerHashList(1, $FIREHALL, $db_connection);
     		
     		# loop through each email header
     		for ($num=1; $num <= $headers_count; $num++) {
@@ -293,7 +295,7 @@ function poll_email_callouts($FIREHALLS_LIST) {
     		    	process_email_trigger($FIREHALL, $html, $mail, $num, $mail_hash);
     		    }
     		    if($FIREHALL->EMAIL->PROCESS_UNREAD_ONLY === true) {
-        		    addTriggerHash(1, $FIREHALL, $mail_hash);
+        		    addTriggerHash(1, $FIREHALL, $mail_hash, $db_connection);
         		    $log->trace('Adding email hash ['.$mail_hash.']');
         		    $html.= '<h2>Adding email hash ['.$mail_hash.']</h2>';
     		    }
