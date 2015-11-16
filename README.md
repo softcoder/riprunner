@@ -7,7 +7,7 @@ A Firehall dispatching communication suite.
 
 Description:
 
-This application suite was designed by volunteer fire fighters to enhance the experience of First Responders during an emergency 911 callout. The main goal of this application is to provide a completely free suite of applications which help fire fighters receive timely information and communicate activities with one another as incidents progress. This software is currently in use by firehalls in the Prince George, BC Canada, Regional District. For contact information see the contact section at the bottom of this page.
+This application suite was designed by volunteer fire fighters to enhance the experience of First Responders during an emergency 911 callout. The main goal of this application is to provide a completely free suite of applications which help fire fighters receive timely information and communicate activities with one another as incidents progress. This software is currently in use by some firehalls in the Prince George, BC Canada, Regional District. For contact information see the contact section at the bottom of this page.
 
 Key Features:
 -------------
@@ -52,6 +52,14 @@ The diagram above shows all of the possible features enabled and the communicati
 - An LDAP server to manage user accounts.
 - Map services via google maps.
 - Android communication using google app engine.
+
+Why is Rip Runner a good choice for me?:
+--------------------
+- It's written by firefighters for firefighters.
+- It's free!
+- It's Open Source meaning anyone with programming skills in PHP can easily make changes to suit your needs
+- It's very flexible. You are able to change many aspects of the behaviour and display of this application. You can select from various backend database engines (Mysql, MS SQL, Postgres, Oracle, etc). You can customize the user interface by making small overrides via the 'twig' framework or completely repalce the user interface with your own. You can easily add on trigger mechanisms, support additional SMS providers all with relative ease.
+- It's secure. We have adopted industry 'best practises' to ensure the security of this application. Security experts have evaluated the software to look for weaknesses and this continual process is ongoing.
 
 System Requirements:
 --------------------
