@@ -109,8 +109,6 @@ class LoginDeviceViewModel extends BaseViewModel {
 				// Read from the database info about this callout
 			    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 			    $sql = $sql_statement->getSqlStatement('callout_authenticate_by_fhid_and_userid');
-			     
-				//$sql = "SELECT user_pwd,id FROM user_accounts WHERE  firehall_id = :fhid AND user_id = :uid;";
 
 				$fhid = $this->getFirehallId();
 				$uid = $this->getUserId();
@@ -193,18 +191,13 @@ class LoginDeviceViewModel extends BaseViewModel {
 			// Check if there is an active callout (within last 48 hours) and if so send the details
 			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 			$sql = $sql_statement->getSqlStatement('check_live_callouts');
-				
-// 			$sql = 'SELECT * FROM callouts' .
-// 					' WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . 
-// 					DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
-// 					' ORDER BY id DESC LIMIT 1;';
 
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+			$qry_bind->bindParam(':max_age', $max_hours_old);
 			$qry_bind->execute();
 			
 			$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
-			$qry_bind->bindParam(':max_age', $max_hours_old);
 			$qry_bind->closeCursor();
 			
 			$log->trace("About to collect live callout for sql [$sql] result count: " . count($rows));

@@ -273,15 +273,13 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			}
 			else {
     			$sql = $sql_statement->getSqlStatement('callout_authenticate_by_fhid_and_userid');
-		    
-    			//$sql = 'SELECT id,user_pwd FROM user_accounts WHERE firehall_id = :fhid AND user_id = :user_id;';
 			}
 			
 			$fhid = $this->getFirehallId();
 			$uid = $this->getUserId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 			$qry_bind->bindParam(':fhid', $fhid);
-			$qry_bind->bindParam(':user_id', $uid);
+			$qry_bind->bindParam(':uid', $uid);
 			$qry_bind->execute();
 
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
