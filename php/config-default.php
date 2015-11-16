@@ -199,6 +199,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_DB->setDsn('mysql:host=localhost;dbname=riprunner');
 	$LOCAL_DEBUG_DB->setUserName('riprunner');
 	$LOCAL_DEBUG_DB->setPassword('password');
+	$LOCAL_DEBUG_DB->setDatabaseName('riprunner');
 	
 	// ----------------------------------------------------------------------
 	// SMS Provider Settings
