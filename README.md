@@ -58,7 +58,7 @@ Why is Rip Runner a good choice for me?:
 - It's written by firefighters for firefighters.
 - It's free!
 - It's Open Source meaning anyone with programming skills in PHP can easily make changes to suit your needs
-- It's very flexible. You are able to change many aspects of the behaviour and display of this application. You can select from various backend database engines (Mysql, MS SQL, Postgres, Oracle, etc). You can customize the user interface by making small overrides via the 'twig' framework or completely repalce the user interface with your own. You can easily add on trigger mechanisms, support addiitional SMS providers all with relative ease.
+- It's very flexible. You are able to change many aspects of the behaviour and display of this application. You can select from various backend database engines (Mysql, MS SQL, Postgres, Oracle, etc). You can customize the user interface by making small overrides via the 'twig' framework or completely repalce the user interface with your own. You can easily add on trigger mechanisms, support additional SMS providers all with relative ease.
 - It's secure. We have adopted industry 'best practises' to ensure the security of this application. Security experts have evaluated the software to look for weaknesses and this continual process is ongoing.
 
 System Requirements:
