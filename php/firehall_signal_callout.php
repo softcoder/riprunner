@@ -127,7 +127,7 @@ function signalFireHallCallout($callout) {
 		signalCallOutRecipientsUsingGCM($callout, null, $gcmMsg, $db_connection);
 
 		// Only update status if not cancelled or completed already
-		$sql_updatel = $sql_statement->getSqlStatement('callout_status_update');
+		$sql_update = $sql_statement->getSqlStatement('callout_status_update');
 			
 		$cid = $callout->getId();
 		$status_notified = CalloutStatusType::Notified;
