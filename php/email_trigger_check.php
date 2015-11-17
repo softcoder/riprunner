@@ -84,7 +84,7 @@ function validate_email_sender($FIREHALL, &$html, $header) {
     return $valid_email_trigger;
 }
 
-function process_email_trigger($FIREHALL, &$html, &$mail, $num,$mail_hash) {
+function process_email_trigger($FIREHALL, &$html, &$mail, $num) {
     global $log;
     
     # Following are number to names mappings
@@ -292,7 +292,7 @@ function poll_email_callouts($FIREHALLS_LIST) {
     		        $log->trace('Using email # ['.$num.'] for processing..');
     		        $html.= 'Using email # ['.$num.'] for processing..<br />';
     		        
-    		    	process_email_trigger($FIREHALL, $html, $mail, $num, $mail_hash);
+    		    	process_email_trigger($FIREHALL, $html, $mail, $num);
     		    }
     		    if($FIREHALL->EMAIL->PROCESS_UNREAD_ONLY === true) {
         		    addTriggerHash(1, $FIREHALL, $mail_hash, $db_connection);

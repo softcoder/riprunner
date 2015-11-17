@@ -151,7 +151,7 @@ class CalloutDetails {
 	private function convertCallOutCodeToText($code) {
 		global $CALLOUT_CODES_LOOKUP;
 		$codeText = 'UNKNOWN ['.$code.']';
-		if (array_key_exists($code, $CALLOUT_CODES_LOOKUP) === true) {
+		if (isset($CALLOUT_CODES_LOOKUP) && array_key_exists($code, $CALLOUT_CODES_LOOKUP) === true) {
 			$codeText = $CALLOUT_CODES_LOOKUP[$code];
 		}
 		return $codeText;

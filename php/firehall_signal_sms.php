@@ -13,6 +13,7 @@ require_once 'functions.php';
 require_once 'plugins_loader.php';
 require_once 'logging.php';
 
+/*
 function signalCalloutToSMSPlugin($callout, $msgPrefix) {
 	
 	global $log;
@@ -92,4 +93,4 @@ function sendSMSPlugin_Message($FIREHALL, $msg) {
 
 	return $resultSMS;
 }
-?>
+*/

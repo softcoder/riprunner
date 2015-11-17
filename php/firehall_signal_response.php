@@ -11,30 +11,41 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 require_once 'config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/plugins_loader.php';
-require_once __RIPRUNNER_ROOT__ . '/firehall_signal_gcm.php';
+//require_once __RIPRUNNER_ROOT__ . '/firehall_signal_gcm.php';
 require_once __RIPRUNNER_ROOT__ . '/template.php';
+require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 function signalFireHallResponse($callout, $userId, $userGPSLat, $userGPSLong, 
 								$userStatus) {
 	
-	$result = "";
+	$result = '';
+	
+	$signalManager = new \riprunner\SignalManager();
 	if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
-		$result .= signalResponseToSMSPlugin($callout, $userId,
+	    $result .= $signalManager->signalResponseToSMSPlugin($callout, $userId,
 				$userGPSLat, $userGPSLong, $userStatus);
+		//$result .= signalResponseToSMSPlugin($callout, $userId,
+		//		$userGPSLat, $userGPSLong, $userStatus);
 	}
 
 	if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED === true && 
 		$callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED === true) {
 	
-		$gcmMsg = getSMSCalloutResponseMessage($callout, $userId, $userStatus, 0);
+		$gcmMsg = $signalManager->getSMSCalloutResponseMessage($callout, $userId, $userStatus);
+		//$gcmMsg = getSMSCalloutResponseMessage($callout, $userId, $userStatus, 0);
 		
-		$result .= signalResponseRecipientsUsingGCM($callout, $userId, 
+		
+		//$result .= signalResponseRecipientsUsingGCM($callout, $userId, 
+	    //            		$userStatus, $gcmMsg, null, null);
+		
+		$result .= $signalManager->signalResponseRecipientsUsingGCM($callout, $userId, 
 	                		$userStatus, $gcmMsg, null, null);
 	}
 	return $result;
 }
 
+/*
 function signalResponseToSMSPlugin($callout, $userId, $userGPSLat, $userGPSLong, 
 	                				$userStatus) {
 
@@ -96,4 +107,5 @@ function getSMSCalloutResponseMessage($callout, $userId, $userStatus, $maxLength
 		
 	return $smsMsg;
 }
-?>
+*/
+	

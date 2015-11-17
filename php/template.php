@@ -10,17 +10,35 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/Twig/Autoloader.php';
 
 \Twig_Autoloader::register();
 
-$twig_template_loader = new \Twig_Loader_Filesystem(
-		__RIPRUNNER_ROOT__ . '/views');
-// This allows customized views to be placed in the folder below
-if(file_exists(__RIPRUNNER_ROOT__ . '/views-custom') === true) {
-	$twig_template_loader->addPath(__RIPRUNNER_ROOT__ . '/views-custom', 'custom');
+class RiprunnerTwig {
+    
+    private $twig_template_loader = null;
+    private $twig = null;
+    
+    public function getLoader() {
+        if($this->twig_template_loader === null) {
+            $this->twig_template_loader = new \Twig_Loader_Filesystem(
+                    __RIPRUNNER_ROOT__ . '/views');
+            // This allows customized views to be placed in the folder below
+            if(file_exists(__RIPRUNNER_ROOT__ . '/views-custom') === true) {
+                $this->twig_template_loader->addPath(__RIPRUNNER_ROOT__ . '/views-custom', 'custom');
+            }
+            return $this->twig_template_loader;
+        }
+    }
+    public function getEnvironment() {
+        if($this->twig === null) {
+            $this->twig = new \Twig_Environment($this->getLoader(), array(
+            	'cache' => __RIPRUNNER_ROOT__ . '/temp/twig',
+            	'debug' => true,
+            	'strict_variables' => true
+            ));
+        }
+        return $this->twig;
+    }
 }
 
-$twig = new \Twig_Environment($twig_template_loader, array(
-	'cache' => __RIPRUNNER_ROOT__ . '/temp/twig',
-	'debug' => true,
-	'strict_variables' => true
-));
+$riprunner_twig = new \riprunner\RiprunnerTwig();
+$twig = $riprunner_twig->getEnvironment();
 //$twig->addExtension(new \Twig_Extension_Debug());
 ?>

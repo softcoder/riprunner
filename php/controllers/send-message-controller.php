@@ -18,7 +18,8 @@ require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/send-message-model.php';
 
 require_once __RIPRUNNER_ROOT__ . '/firehall_signal_callout.php';
-require_once __RIPRUNNER_ROOT__ . '/firehall_signal_gcm.php';
+//require_once __RIPRUNNER_ROOT__ . '/firehall_signal_gcm.php';
+require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 
 sec_session_start();
 // Register our view and variables for the template
@@ -53,7 +54,10 @@ class SendMessageController {
 	private function sendSMS_Message() {
 		$smsMsg = get_query_param('txtMsg');
 		
-		$sendMsgResult = sendSMSPlugin_Message($this->global_vm->firehall, $smsMsg);
+		$signalManager = new \riprunner\SignalManager();
+		//$sendMsgResult = sendSMSPlugin_Message($this->global_vm->firehall, $smsMsg);
+		$sendMsgResult = $signalManager->sendSMSPlugin_Message($this->global_vm->firehall, $smsMsg);
+		
 		$sendMsgResultStatus = "SMS Message sent to applicable recipients.";
 		
 		$this->view_template_vars["sendmsg_ctl_result"] = $sendMsgResult;
@@ -61,8 +65,12 @@ class SendMessageController {
 	}
 	private function sendGCM_Message() {
 		$gcmMsg = get_query_param('txtMsg');
-        $sendMsgResult = sendGCM_Message($this->global_vm->firehall, $gcmMsg, $this->global_vm->RR_DB_CONN);
-                
+		
+		$signalManager = new \riprunner\SignalManager();
+        //$sendMsgResult = sendGCM_Message($this->global_vm->firehall, $gcmMsg, $this->global_vm->RR_DB_CONN);
+		$sendMsgResult = $signalManager->sendGCM_Message($this->global_vm->firehall, 
+		        $gcmMsg, $this->global_vm->RR_DB_CONN);
+		
         if(strpos($sendMsgResult, "|GCM_ERROR:") !== false) {
             $sendMsgResultStatus = "Error sending Android Message: " . $sendMsgResult;
         }

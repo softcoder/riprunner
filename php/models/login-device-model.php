@@ -11,6 +11,7 @@ require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_signal_callout.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_signal_response.php';
+require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 
 // The model class handling variable requests dynamically
 class LoginDeviceViewModel extends BaseViewModel {
@@ -240,14 +241,20 @@ class LoginDeviceViewModel extends BaseViewModel {
 		$callout->setId($callout_id);
 		$callout->setKeyId($callKey);
 		$callout->setStatus($callStatus);
-		
+
+		$signalManager = new \riprunner\SignalManager();
 		// Send Callout details to logged in user only
-		$gcmMsg = getGCMCalloutMessage($callout);
+		//$gcmMsg = getGCMCalloutMessage($callout);
+		$gcmMsg = $signalManager->getGCMCalloutMessage($callout);
 		
-		$result .= signalCallOutRecipientsUsingGCM($callout,
-												$this->getRegistrationId(),
-												$gcmMsg,
-												$this->getGvm()->RR_DB_CONN);
+		//$result .= signalCallOutRecipientsUsingGCM($callout,
+		//										$this->getRegistrationId(),
+		//										$gcmMsg,
+		//										$this->getGvm()->RR_DB_CONN);
+		$result .= $signalManager->signalCallOutRecipientsUsingGCM($callout,
+		        $this->getRegistrationId(),
+		        $gcmMsg,
+		        $this->getGvm()->RR_DB_CONN);
 		
 		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 				
@@ -256,16 +263,10 @@ class LoginDeviceViewModel extends BaseViewModel {
 				create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 				// START: responders
 				$sql_response = $sql_statement->getSqlStatement('ldap_callout_responders');
-// 				$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a ' .
-// 								' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
-// 								' WHERE calloutid = :cid AND b.user_id = :uid;';
 			}
 			else {
 				// START: responders
 			    $sql_response = $sql_statement->getSqlStatement('callout_responders');
-// 				$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a ' .
-// 								' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-// 								' WHERE calloutid = :cid AND b.user_id = :uid;';
 			}
 			
 			$uid = $this->getUserId();
@@ -280,11 +281,18 @@ class LoginDeviceViewModel extends BaseViewModel {
 			if(empty($rows) === false) {
 				$row = $rows[0];
 				$userStatus = $row->status;
-		
-				$gcmResponseMsg = getSMSCalloutResponseMessage($callout,
-										$this->getUserId(), $userStatus, 0);
-		
-				$result .= signalResponseRecipientsUsingGCM($callout, 
+				
+				//$gcmResponseMsg = getSMSCalloutResponseMessage($callout,
+				//						$this->getUserId(), $userStatus, 0);
+				$gcmResponseMsg = $signalManager->getSMSCalloutResponseMessage($callout,
+				        $this->getUserId(), $userStatus);
+				
+				//$result .= signalResponseRecipientsUsingGCM($callout, 
+				//						$this->getUserId(), $userStatus, 
+				//						$gcmResponseMsg,
+				//						$this->getRegistrationId(),
+				//						$this->getGvm()->RR_DB_CONN);
+				$result .= $signalManager->signalResponseRecipientsUsingGCM($callout, 
 										$this->getUserId(), $userStatus, 
 										$gcmResponseMsg,
 										$this->getRegistrationId(),
@@ -297,8 +305,11 @@ class LoginDeviceViewModel extends BaseViewModel {
 	private function getSignalLogin() {
 		$loginMsg = 'GCM_LOGINOK';
 		
-		signalLoginStatusUsingGCM($this->getFirehall(), $this->getRegistrationId(),
-			$loginMsg, $this->getGvm()->RR_DB_CONN);
+		$signalManager = new \riprunner\SignalManager();
+		//signalLoginStatusUsingGCM($this->getFirehall(), $this->getRegistrationId(),
+		//	$loginMsg, $this->getGvm()->RR_DB_CONN);
+		$signalManager->signalLoginStatusUsingGCM($this->getFirehall(), 
+		        $this->getRegistrationId(), $loginMsg, $this->getGvm()->RR_DB_CONN);
 	}
 }
 ?>

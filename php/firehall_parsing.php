@@ -139,7 +139,7 @@
 	function convertCallOutTypeToText($type) {
 		global $CALLOUT_CODES_LOOKUP;
 		$typeText = 'UNKNOWN ['.$type.']';
-		if (array_key_exists($type, $CALLOUT_CODES_LOOKUP) === true) {
+		if (isset($CALLOUT_CODES_LOOKUP) === true && array_key_exists($type, $CALLOUT_CODES_LOOKUP) === true) {
 			$typeText = $CALLOUT_CODES_LOOKUP[$type];
 		}
 		return $typeText;

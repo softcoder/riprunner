@@ -34,6 +34,9 @@ class GCM_Factory {
 			case 'gcm':
 				return new GCM($param);
 			default:
+			    if($type instanceof GCM) {
+			        return $type;
+			    } 
 				throwExceptionAndLogError('Invalid gcm type specified.', "Invalid gcm type specified [$type] param [$param]!");
 		}
 	}

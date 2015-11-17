@@ -9,10 +9,12 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 }
 
 require_once 'config.php';
-require_once 'models/callout-details.php';
-require_once 'functions.php';
-require_once 'firehall_signal_sms.php';
-require_once 'firehall_signal_gcm.php';
+require_once __RIPRUNNER_ROOT__ . '/models/callout-details.php';
+require_once __RIPRUNNER_ROOT__ . '/functions.php';
+//require_once __RIPRUNNER_ROOT__ . '/firehall_signal_sms.php';
+//require_once __RIPRUNNER_ROOT__ . '/firehall_signal_gcm.php';
+require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
+require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 function signalFireHallCallout($callout) {
 	global $log;
@@ -80,11 +82,16 @@ function signalFireHallCallout($callout) {
 		if($affected_rows > 0) {
 			$update_prefix_msg = "*UPDATED* ";
 			
-			signalCalloutToSMSPlugin($callout, $update_prefix_msg);
+			$signalManager = new \riprunner\SignalManager();
+			//signalCalloutToSMSPlugin($callout, $update_prefix_msg);
+			$signalManager->signalCalloutToSMSPlugin($callout, $update_prefix_msg);
 			
-			$gcmMsg = getGCMCalloutMessage($callout);
+			//$gcmMsg = getGCMCalloutMessage($callout);
+			$gcmMsg = $signalManager->getGCMCalloutMessage($callout);
 			
-			signalCallOutRecipientsUsingGCM($callout, null,
+			//signalCallOutRecipientsUsingGCM($callout, null,
+			//		$update_prefix_msg . $gcmMsg, $db_connection);
+			$signalManager->signalCallOutRecipientsUsingGCM($callout, null,
 					$update_prefix_msg . $gcmMsg, $db_connection);
 		}
 		else {
@@ -120,11 +127,15 @@ function signalFireHallCallout($callout) {
 		
 		$log->trace('Callout signalling members for NEW call.');
 		
-		signalCalloutToSMSPlugin($callout, null);
+		$signalManager = new \riprunner\SignalManager();
+		//signalCalloutToSMSPlugin($callout, null);
+		$signalManager->signalCalloutToSMSPlugin($callout, null);
 	
-		$gcmMsg = getGCMCalloutMessage($callout);
+		//$gcmMsg = getGCMCalloutMessage($callout);
+		$gcmMsg = $signalManager->getGCMCalloutMessage($callout);
 		
-		signalCallOutRecipientsUsingGCM($callout, null, $gcmMsg, $db_connection);
+		//signalCallOutRecipientsUsingGCM($callout, null, $gcmMsg, $db_connection);
+		$signalManager->signalCallOutRecipientsUsingGCM($callout, null, $gcmMsg, $db_connection);
 
 		// Only update status if not cancelled or completed already
 		$sql_update = $sql_statement->getSqlStatement('callout_status_update');

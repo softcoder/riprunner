@@ -16,6 +16,7 @@ require_once 'object_factory.php';
 require_once 'template.php';
 require_once 'logging.php';
 
+/*
 function signalCallOutRecipientsUsingGCM($callout, $device_id, $smsMsg, $db_connection) {
 	global $log;
 	$resultGCM = '';
@@ -93,6 +94,7 @@ function signalCallOutRecipientsUsingGCM($callout, $device_id, $smsMsg, $db_conn
 		}
 	}
 }
+
 
 function signalResponseRecipientsUsingGCM($callout, $userId, $userStatus, 
 											$smsMsg, $device_id, $db_connection) {
@@ -242,4 +244,4 @@ function getGCMCalloutMessage($callout) {
 	
 	return $msgSummary;
 }
-?>
+*/

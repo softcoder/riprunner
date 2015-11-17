@@ -12,6 +12,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 require_once 'db/db_connection.php';
 require_once 'db/sql_statement.php';
 require_once 'ldap_functions.php';
+require_once 'url/http-cli.php';
 require_once 'logging.php';
 
 # This function cleans out special characters
@@ -63,7 +64,6 @@ function getAddressForMapping($FIREHALL, $address) {
 
 function getGEOCoordinatesFromAddress($FIREHALL, $address) {
 	global $log;
-
 		
 	$result_geo_coords = null;
 	$result_address = $address;
@@ -72,36 +72,25 @@ function getGEOCoordinatesFromAddress($FIREHALL, $address) {
 		
 	$url = DEFAULT_GOOGLE_MAPS_API_URL . 'json?address=' . urlencode($result_address) . '&sensor=false';
 		
-	$curl_handle = curl_init();
-	curl_setopt($curl_handle, CURLOPT_URL, $url);
-	curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, true);
+	$httpclient = new \riprunner\HTTPCli($url);
+	$result = $httpclient->execute(true);
 	
-	$result = curl_exec($curl_handle);
-	
-	if(curl_errno($curl_handle) === 0) {
-		curl_close($curl_handle);
+	$geoloc = json_decode($result, true);
+		
+	if ( isset($geoloc['results']) === true &&
+		 isset($geoloc['results'][0]) === true &&
+		 isset($geoloc['results'][0]['geometry']) === true && 
+		 isset($geoloc['results'][0]['geometry']['location']) === true &&
+		 isset($geoloc['results'][0]['geometry']['location']['lat']) === true && 
+		 isset($geoloc['results'][0]['geometry']['location']['lng']) === true) {
 			
-		$geoloc = json_decode($result, true);
-			
-		if ( isset($geoloc['results']) === true &&
-			 isset($geoloc['results'][0]) === true &&
-			 isset($geoloc['results'][0]['geometry']) === true && 
-			 isset($geoloc['results'][0]['geometry']['location']) === true &&
-			 isset($geoloc['results'][0]['geometry']['location']['lat']) === true && 
-			 isset($geoloc['results'][0]['geometry']['location']['lng']) === true) {
-				
-			$result_geo_coords = array( $geoloc['results'][0]['geometry']['location']['lat'],
-										$geoloc['results'][0]['geometry']['location']['lng']);
-		}
-		else {
-			if($log) $log->warn("GEO MAP JSON response error google geo api url [$url] result [$result]");
-		}
+		$result_geo_coords = array( $geoloc['results'][0]['geometry']['location']['lat'],
+									$geoloc['results'][0]['geometry']['location']['lng']);
 	}
 	else {
-		if($log) $log->error("GEO MAP JSON exec error google geo api url [$url] response: " . curl_error($curl_handle));
-		curl_close($curl_handle);
+		if($log) $log->warn("GEO MAP JSON response error google geo api url [$url] result [$result]");
 	}
-		
+
 	return $result_geo_coords;
 }
 	
@@ -385,38 +374,6 @@ function login_check($db_connection) {
 		
 		if($log) $log->error("LOGINCHECK F4");
 		return false;
-	}
-}
-	
-function esc_url($url) {
-
-	if ('' === $url) {
-		return $url;
-	}
-
-	$url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%@$\|*\'()\\x80-\\xff]|i', '', $url);
-
-	$strip = array('%0d', '%0a', '%0D', '%0A');
-	$url = (string)$url;
-
-	$count = 1;
-	while ($count) {
-		$url = str_replace($strip, '', $url, $count);
-	}
-
-	$url = str_replace(';//', '://', $url);
-
-	$url = htmlentities($url);
-
-	$url = str_replace('&amp;', '&#038;', $url);
-	$url = str_replace("'", '&#039;', $url);
-
-	if ($url[0] !== '/') {
-		// We're only interested in relative links from $_SERVER['PHP_SELF']
-		return '';
-	} 
-	else {
-		return $url;
 	}
 }
 	

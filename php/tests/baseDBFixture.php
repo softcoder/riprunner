@@ -20,12 +20,85 @@ require_once __RIPRUNNER_ROOT__ . '/db/sql_statement.php';
 
 //class LoginTest extends PHPUnit_Framework_TestCase {
 abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
-	
+    
     // only instantiate pdo once for test clean-up/fixture load
     static private $pdo = null;
     protected $pdoConn = null;
     protected $FIREHALLS;
     protected $DBCONNECTION;
+
+    protected function getMapSubsForStreets() {
+        // Google maps street name substitution list: Original name -> Google map name
+        $GOOGLE_MAP_STREET_LOOKUP = array(
+                "EAGLE VIEW RD," => "EAGLEVIEW RD,",
+                "WALRATH RD," => "OLD SHELLEY RD S,",
+                "BEAVER FOREST RD /  BEAVER FSR, SHELL-GLEN," => "BEAVER FOREST RD,",
+                "PRINCE GEORGE HIGHWAY 16 E, SHELL-GLEN, BC" => "",
+                "LOOPOL RD," => "LEOPOLD RD,",
+                "6655 SHELLEY RD, " => "6655 SHELLY RD N,"
+        );
+        return $GOOGLE_MAP_STREET_LOOKUP;
+    }
+    protected function getMapSubsForCities() {
+        // Google maps city name substitution list: Original name -> Google map name
+        $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST = 'PRINCE GEORGE,';
+    
+        // This is a list of common areas around your city.  this tables substitues each for the city you have chosen
+        $GOOGLE_MAP_CITY_LOOKUP = array(
+    
+                //"ALBREDA," => "ALBREDA,",
+                //"BEAR LAKE," => "BEAR LAKE,",
+                "BEAVERLEY," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "BEDNESTI NORMAN," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "BLACKWATER NORTH," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "BUCKHORN," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                //"CARP LAKE," => "CARP LAKE,",
+                "CHIEF LAKE," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                //"CRESCENT SPUR," => "CRESCENT SPUR,",
+                //"DOME CREEK," => "DOME CREEK,",
+                //"DUNSTER," => "DUNSTER,",
+                "FERNDALE-TABOR," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "FOREMAN FLATS," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "FORT GEORGE NO 2," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "GISCOME," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                //"HIXON," => "HIXON,",
+                "ISLE PIERRE," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                //"MACKENZIE," => "MACKENZIE,",
+                "MACKENZIE RURAL," => "MACKENZIE RURAL,",
+                //"MCBRIDE," => "MCBRIDE,",
+                "MCBRIDE RURAL," => "MCBRIDE,",
+                //"MCGREGOR," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                //"MCLEOD LAKE," => "MCLEOD LAKE,"
+                "MCLEOD LAKE RESERVE," => "MCLEOD LAKE,",
+                "MIWORTH," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                //"MOSSVALE," => "MOSSVALE,",
+                //"MOUNT ROBSON," => "MOUNT ROBSON,",
+                "MUD RIVER," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "NESS LAKE," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "NORTH KELLY," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                //"PARSNIP," => "PARSNIP,",
+                "PINE PASS," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "PINEVIEW FFG," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "PINEVIEW," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                //"PRINCE GEORGE," => "PRINCE GEORGE,",
+                "PURDEN," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "RED ROCK," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "SALMON VALLEY," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "SHELL-GLEN," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "STONER," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                //"SUMMIT LAKE," => "SUMMIT LAKE,",
+                //"TETE JAUNE," => "TETE JAUNE,",
+                //"UPPER FRASER," => "UPPER FRASER,",
+                //"VALEMOUNT," => "VALEMOUNT,",
+                "VALEMOUNT RURAL," => "VALEMOUNT,",
+                "WEST LAKE," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                //"WILLISTON LAKE," => "WILLISTON LAKE,",
+                "WILLOW RIVER," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                "WILLOW RIVER VALLEY," => "WILLOW RIVER,",
+                "WOODPECKER," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST
+        );
+        return $GOOGLE_MAP_CITY_LOOKUP;
+    }
     
     protected function setUp() {
         
@@ -68,6 +141,8 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
         $LOCAL_DEBUG_WEBSITE->setFirehallGeoLongitude(-122.6537361);
         $LOCAL_DEBUG_WEBSITE->setRootURL('http://192.168.0.150/~softcoder/svvfd1/php/');
         $LOCAL_DEBUG_WEBSITE->setGoogleMap_ApiKey(DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY);
+        $LOCAL_DEBUG_WEBSITE->setCityNameSubs($this->getMapSubsForCities());
+        $LOCAL_DEBUG_WEBSITE->setStreetNameSubs($this->getMapSubsForStreets());
         $LOCAL_DEBUG_WEBSITE->setFirehallTimezone('America/Vancouver');
         
         $LOCAL_DEBUG_LDAP = new FireHall_LDAP();
