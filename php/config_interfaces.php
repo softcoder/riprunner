@@ -700,7 +700,7 @@ class FireHallConfig
 	}
 	public function __isset($name) {
 	    if('MYSQL' === $name) {
-	        return parent::__isset($this->DB);
+	        return isset($this->DB);
 	    }
 	    return isset($this->$name);
 	}
