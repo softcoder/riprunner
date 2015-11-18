@@ -8,14 +8,15 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once 'config.php';
-require_once __RIPRUNNER_ROOT__ . '/models/callout-details.php';
-require_once __RIPRUNNER_ROOT__ . '/functions.php';
+//require_once 'config.php';
+//require_once __RIPRUNNER_ROOT__ . '/models/callout-details.php';
+//require_once __RIPRUNNER_ROOT__ . '/functions.php';
 //require_once __RIPRUNNER_ROOT__ . '/firehall_signal_sms.php';
 //require_once __RIPRUNNER_ROOT__ . '/firehall_signal_gcm.php';
-require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
-require_once __RIPRUNNER_ROOT__ . '/logging.php';
+//require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
+//require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
+/*
 function signalFireHallCallout($callout) {
 	global $log;
 	$log->trace('Callout signalled for: '. $callout->getAddress());
@@ -152,4 +153,4 @@ function signalFireHallCallout($callout) {
 		\riprunner\DbConnection::disconnect_db( $db_connection );
 	}
 }
-?>
+*/

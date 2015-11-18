@@ -120,5 +120,4 @@ class ParsingTest extends BaseDBFixture {
         $this->assertEquals('‐120.77206',$callout->getGPSLong());
         $this->assertEquals('PRGGRP1',$callout->getUnitsResponding());
     }
-    
 }

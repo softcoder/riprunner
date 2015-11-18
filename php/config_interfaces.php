@@ -94,19 +94,24 @@ class FireHallDatabase
 	public $PASSWORD;
 	// The name of the  database
 	public $DATABASE;
+	// The  database connection
+	public $DATABASE_CONNECTION;
 	
-	public function __construct($dsn=null, $username=null, $password=null,$db=null) {
+	public function __construct($dsn=null, $username=null, $password=null,$db=null,
+	        $db_conn=null) {
 		$this->DSN = $dsn;
 		$this->USER = $username;
 		$this->PASSWORD = $password;
 		$this->DATABASE = $db;
+		$this->DATABASE_CONNECTION = $db_conn;
 	}
 
 	public function toString() {
 		$result = "Database Settings:" .
 	      		  "\ndsn: " . ($this->DSN !== null ? $this->DSN : '').
 				  "\nusername: " . ($this->USER !== null ? $this->USER : '').
-				  "\ndatabase: " . ($this->DATABASE !== null ? $this->DATABASE : '');
+				  "\ndatabase: " . ($this->DATABASE !== null ? $this->DATABASE : '').
+				  "\ndb_conn: " . ($this->DATABASE_CONNECTION !== null ? $this->DATABASE_CONNECTION : '');
 		return $result;
 	}
 
@@ -122,7 +127,11 @@ class FireHallDatabase
 	public function setPassword($password) {
 		$this->PASSWORD = $password;
 	}
+	public function setDbConnection($db_conn) {
+	    $this->DATABASE_CONNECTION = $db_conn;
+	}
 }
+	
 
 class FireHallMySQL extends FireHallDatabase {
     // The name of the MySQL database Host

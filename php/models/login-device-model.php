@@ -9,7 +9,7 @@ require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
-require_once __RIPRUNNER_ROOT__ . '/firehall_signal_callout.php';
+//require_once __RIPRUNNER_ROOT__ . '/firehall_signal_callout.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_signal_response.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 

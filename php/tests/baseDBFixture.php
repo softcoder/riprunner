@@ -115,7 +115,7 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
         $LOCAL_DEBUG_DB->setUserName('svvfd');
         $LOCAL_DEBUG_DB->setPassword('svvfd');
         $LOCAL_DEBUG_DB->setDatabaseName('svvfd');
-        
+                
         $LOCAL_DEBUG_SMS = new FireHallSMS();
         $LOCAL_DEBUG_SMS->setSignalEnabled(true);
         $LOCAL_DEBUG_SMS->setGatewayType(SMS_GATEWAY_TWILIO);
@@ -166,6 +166,7 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
         $LOCAL_DEBUG_FIREHALL->setWebsiteSettings($LOCAL_DEBUG_WEBSITE);
         $LOCAL_DEBUG_FIREHALL->setMobileSettings($LOCAL_DEBUG_MOBILE);
         $LOCAL_DEBUG_FIREHALL->setLDAP_Settings($LOCAL_DEBUG_LDAP);
+        $LOCAL_DEBUG_DB->setDbConnection($this->getDBConnection($LOCAL_DEBUG_FIREHALL));
         
         $FIREHALLS = array(	$LOCAL_DEBUG_FIREHALL);
         $this->FIREHALLS = $FIREHALLS;
@@ -189,7 +190,7 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
 
      public function getConnection() {
          if($this->pdoConn === null) {
-             if(self::$pdo == null) {
+             if(self::$pdo === null) {
                  self::$pdo = new PDO('sqlite::memory:');
                  self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 

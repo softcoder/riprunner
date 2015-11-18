@@ -9,7 +9,8 @@ require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
-require_once __RIPRUNNER_ROOT__ . '/firehall_signal_response.php';
+//require_once __RIPRUNNER_ROOT__ . '/firehall_signal_response.php';
+require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 
 // The model class handling variable requests dynamically
 class CalloutResponseViewModel extends BaseViewModel {
@@ -366,11 +367,19 @@ class CalloutResponseViewModel extends BaseViewModel {
 			if($affected_update_rows > 0 && $response_duplicates === 0) {
 				$log->trace("Call Response signalling members for responder [".$this->getUserId()."]"); 
 				
-				$this->respond_result .= signalFireHallResponse($this->callout, 
-										$this->getUserId(), 
-										$this->getUserLat(),
-										$this->getUserLong(),
-										$this->getUserStatus());
+				$signalManager = new \riprunner\SignalManager();
+// 				$this->respond_result .= signalFireHallResponse($this->callout, 
+// 										$this->getUserId(), 
+// 										$this->getUserLat(),
+// 										$this->getUserLong(),
+// 										$this->getUserStatus());
+				
+				$this->respond_result .= $signalManager->signalFireHallResponse(
+				        $this->callout, 
+						$this->getUserId(), 
+						$this->getUserLat(),
+						$this->getUserLong(),
+						$this->getUserStatus());
 			}
 			$log->trace("Call Response END --> getRespondResult");
 		}

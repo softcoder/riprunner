@@ -17,7 +17,8 @@ require_once 'config.php';
 require_once 'models/callout-details.php';
 require_once 'functions.php';
 require_once 'firehall_parsing.php';
-require_once 'firehall_signal_callout.php';
+//require_once 'firehall_signal_callout.php';
+require_once 'signals/signal_manager.php';
 require_once 'third-party/html2text/Html2Text.php';
 require_once 'logging.php';
 
@@ -180,7 +181,10 @@ function process_email_trigger($FIREHALL, &$html, &$mail, $num) {
             $html    .='Signalling callout<br />';
             
     		$callout->setFirehall($FIREHALL);
-    		signalFireHallCallout($callout);
+    		
+    		$signalManager = new \riprunner\SignalManager();
+    		//signalFireHallCallout($callout);
+    		$signalManager->signalFireHallCallout($callout);
     		
     	    # Delete processed email message
     	    if ($FIREHALL->EMAIL->EMAIL_DELETE_PROCESSED === true) {

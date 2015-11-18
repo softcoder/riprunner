@@ -8,14 +8,15 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once 'config.php';
-require_once __RIPRUNNER_ROOT__ . '/functions.php';
-require_once __RIPRUNNER_ROOT__ . '/plugins_loader.php';
+//require_once 'config.php';
+//require_once __RIPRUNNER_ROOT__ . '/functions.php';
+//require_once __RIPRUNNER_ROOT__ . '/plugins_loader.php';
 //require_once __RIPRUNNER_ROOT__ . '/firehall_signal_gcm.php';
-require_once __RIPRUNNER_ROOT__ . '/template.php';
-require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
-require_once __RIPRUNNER_ROOT__ . '/logging.php';
+//require_once __RIPRUNNER_ROOT__ . '/template.php';
+//require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
+//require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
+/*
 function signalFireHallResponse($callout, $userId, $userGPSLat, $userGPSLong, 
 								$userStatus) {
 	
@@ -45,7 +46,7 @@ function signalFireHallResponse($callout, $userId, $userGPSLat, $userGPSLong,
 	return $result;
 }
 
-/*
+
 function signalResponseToSMSPlugin($callout, $userId, $userGPSLat, $userGPSLong, 
 	                				$userStatus) {
 

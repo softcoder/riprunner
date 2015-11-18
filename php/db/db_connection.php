@@ -37,6 +37,12 @@ class DbConnection {
     	}
     	
     	if($this->firehall !== null) {
+    	    // Firehall already has an injected DB Connection
+    	    if($this->firehall->DB->DATABASE_CONNECTION !== null) {
+    	        $this->pdo = $this->firehall->DB->DATABASE_CONNECTION;
+    	        return;
+    	    }
+    	    
     	    // dbname=x
     	    if($masterdb === true) {
     	        // Strip the dbname as it wont exist yet

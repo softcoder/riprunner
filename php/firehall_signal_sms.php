@@ -8,10 +8,10 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once 'config.php';
-require_once 'functions.php';
-require_once 'plugins_loader.php';
-require_once 'logging.php';
+//require_once 'config.php';
+//require_once 'functions.php';
+//require_once 'plugins_loader.php';
+//require_once 'logging.php';
 
 /*
 function signalCalloutToSMSPlugin($callout, $msgPrefix) {

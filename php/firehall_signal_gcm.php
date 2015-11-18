@@ -9,12 +9,12 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once 'config.php';
-require_once 'functions.php';
-require_once 'plugins_loader.php';
-require_once 'object_factory.php';
-require_once 'template.php';
-require_once 'logging.php';
+//require_once 'config.php';
+//require_once 'functions.php';
+//require_once 'plugins_loader.php';
+//require_once 'object_factory.php';
+//require_once 'template.php';
+//require_once 'logging.php';
 
 /*
 function signalCallOutRecipientsUsingGCM($callout, $device_id, $smsMsg, $db_connection) {

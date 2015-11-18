@@ -17,7 +17,7 @@ require_once __RIPRUNNER_ROOT__ . '/template.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/send-message-model.php';
 
-require_once __RIPRUNNER_ROOT__ . '/firehall_signal_callout.php';
+//require_once __RIPRUNNER_ROOT__ . '/firehall_signal_callout.php';
 //require_once __RIPRUNNER_ROOT__ . '/firehall_signal_gcm.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 

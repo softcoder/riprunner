@@ -23,6 +23,7 @@ class SignalManager {
     static private $sms_plugin_name = 'riprunner\ISMSPlugin';
     static private $gcm_type_name = 'gcm';
 
+    private $twig_env = null;
     private $sms_callout_plugin = null;
     private $sms_plugin = null;
     private $gcm_type = null;
@@ -31,7 +32,8 @@ class SignalManager {
 		Constructor
 		@param 
 	*/
-	public function __construct($sms_callout_plugin=null,$sms_plugin=null,$gcm_type=null) {
+	public function __construct($sms_callout_plugin=null,$sms_plugin=null,$gcm_type=null,
+	        $twig_env=null) {
 	    if($sms_callout_plugin !== null) {
 	        $this->sms_callout_plugin = $sms_callout_plugin;
 	    }
@@ -40,6 +42,9 @@ class SignalManager {
 	    }
 	    if($gcm_type !== null) {
 	        $this->gcm_type = $gcm_type;
+	    }
+	    if($twig_env !== null) {
+	        $this->twig_env = $twig_env;
 	    }
 	}
     
@@ -366,18 +371,14 @@ class SignalManager {
         return $resultGCM;
     }
     
-    public function getGCMCalloutMessage($callout,$twig_instance=null) {
+    public function getGCMCalloutMessage($callout) {
         global $log;
-        global $twig;
-        if($twig_instance === null) {
-            $twig_instance = $twig;
-        }
         
         $view_template_vars = array();
         $view_template_vars['callout'] = $callout;
         
         // Load our template
-        $template = $twig_instance->resolveTemplate(
+        $template = $this->getTwigEnv()->resolveTemplate(
             array('@custom/gcm-callout-msg-custom.twig.html',
                     'gcm-callout-msg.twig.html'));
         // Output our template
@@ -390,7 +391,7 @@ class SignalManager {
     
     
     function signalResponseToSMSPlugin($callout, $userId, $userGPSLat, $userGPSLong,
-            $userStatus,$twig_instance=null) {
+            $userStatus) {
 
                 
 /*                
@@ -431,18 +432,11 @@ class SignalManager {
                 $recipient_list_array, $recipient_list_type, $smsText);
 */
 
-        $smsText = $this->getSMSCalloutResponseMessage($callout, $userId, $userStatus,
-                $twig_instance);
+        $smsText = $this->getSMSCalloutResponseMessage($callout, $userId, $userStatus);
         return $this->sendSMSPlugin_Message($callout->getFirehall(), $smsText);
     }
     
-    function getSMSCalloutResponseMessage($callout, $userId, $userStatus, 
-            $twig_instance=null) {
-        global $twig;
-    
-        if($twig_instance === null) {
-            $twig_instance = $twig;
-        }
+    function getSMSCalloutResponseMessage($callout, $userId, $userStatus) {
         
         $view_template_vars = array();
         $view_template_vars['callout'] = $callout;
@@ -454,12 +448,193 @@ class SignalManager {
         $view_template_vars['status_type_cancelled'] = \CalloutStatusType::Cancelled;
     
         // Load our template
-        $template = $twig_instance->resolveTemplate(
+        $template = $this->getTwigEnv()->resolveTemplate(
             array('@custom/sms-callout-response-msg-custom.twig.html',
                     'sms-callout-response-msg.twig.html'));
         // Output our template
         $smsMsg = $template->render($view_template_vars);
         return $smsMsg;
+    }
+
+    public function signalFireHallCallout($callout) {
+    	global $log;
+    	if($log) $log->trace('Callout signalled for: '. $callout->getAddress());
+    	
+    	$signal_result = '';
+    	// Connect to the database
+    	$db = new \riprunner\DbConnection($callout->getFirehall());
+    	$db_connection = $db->getConnection();
+    	
+    	// update database info about this callout
+    	$callout_dt_str = $callout->getDateTimeAsString();
+    	
+    	// See if this is a duplicate callout?
+    	$sql_statement = new \riprunner\SqlStatement($db_connection);
+    	$sql = $sql_statement->getSqlStatement('check_existing_callout');
+    
+    	$ctype = $callout->getCode();
+    	$caddress = $callout->getAddress();
+    	$lat = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLat()));
+    	$long = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLong()));
+    	
+    	$qry_bind = $db_connection->prepare($sql);
+    	$qry_bind->bindParam(':ctime', $callout_dt_str);
+    	$qry_bind->bindParam(':ctype', $ctype);
+    	$qry_bind->bindParam(':caddress', $caddress);
+    	$qry_bind->bindParam(':lat', $lat);
+    	$qry_bind->bindParam(':long', $long);
+    	$qry_bind->execute();
+    	
+    	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+    	$qry_bind->closeCursor();
+    	
+    	if(empty($rows) === false) {
+    		$row = $rows[0];
+    		$callout->setId($row->id);
+    		$callout->setKeyId($row->call_key);
+    		$callout->setStatus($row->status);
+    		
+    		if($log) $log->trace('Callout signal found EXISTING row for: '. $callout->getAddress().' id: '.$row->id);
+    	}
+    	
+    	// Found duplicate callout so update some fields on original callout
+    	if($callout->getId() !== null) {
+    		// Insert the new callout
+    	    $sql = $sql_statement->getSqlStatement('callout_update');
+    
+    		$caddress = $callout->getAddress();
+    		$lat = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLat()));
+    		$long = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLong()));
+    		$units = $callout->getUnitsResponding();
+    		$cid = $callout->getId();
+    		
+    		$qry_bind = $db_connection->prepare($sql);
+    		$qry_bind->bindParam(':caddress', $caddress);
+    		$qry_bind->bindParam(':lat', $lat);
+    		$qry_bind->bindParam(':long', $long);
+    		$qry_bind->bindParam(':units', $units);
+    		$qry_bind->bindParam(':id', $cid);
+    		$qry_bind->execute();
+    		
+    		$affected_rows = $qry_bind->rowCount();
+    		    		
+    		if($log) $log->trace('Callout signal update affected rows: '. $affected_rows);
+    		
+    		if($affected_rows > 0) {
+    		    $signal_result = 'UPDATE_CALLOUT';
+    			$update_prefix_msg = "*UPDATED* ";
+    			
+    			//$signalManager = new \riprunner\SignalManager();
+    			//signalCalloutToSMSPlugin($callout, $update_prefix_msg);
+    			$this->signalCalloutToSMSPlugin($callout, $update_prefix_msg);
+    			
+    			//$gcmMsg = getGCMCalloutMessage($callout);
+    			$gcmMsg = $this->getGCMCalloutMessage($callout);
+    			
+    			//signalCallOutRecipientsUsingGCM($callout, null,
+    			//		$update_prefix_msg . $gcmMsg, $db_connection);
+    			$this->signalCallOutRecipientsUsingGCM($callout, null,
+    					$update_prefix_msg . $gcmMsg, $db_connection);
+    		}
+    		else {
+    		    $signal_result = 'UPDATE_CALLOUT_NO_CHANGE';
+    			if($log) $log->trace('Callout signal SKIPPED because nothing changed for: '. $callout->getAddress().' id: '.$row->id);
+    		}
+    	}
+    	else {
+    		// Insert the new callout
+    	    $signal_result = 'INSERT_CALLOUT';
+    		$callout->setKeyId(uniqid('', true));
+    		
+    		$sql = $sql_statement->getSqlStatement('callout_insert');
+    
+    		$cdatetime = $callout->getDateTimeAsString();
+    		$ctype = (($callout->getCode() !== null) ? $callout->getCode() : "");
+    		$caddress = (($callout->getAddress() !== null) ? $callout->getAddress() : "");
+    		$lat = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLat()));
+    		$long = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLong()));
+    		$units = (($callout->getUnitsResponding() !== null) ? $callout->getUnitsResponding() : "");
+    		$ckid = $callout->getKeyId();
+    		
+    		$qry_bind = $db_connection->prepare($sql);
+    		$qry_bind->bindParam(':cdatetime', $cdatetime);
+    		$qry_bind->bindParam(':ctype', $ctype);
+    		$qry_bind->bindParam(':caddress', $caddress);
+    		$qry_bind->bindParam(':lat', $lat);
+    		$qry_bind->bindParam(':long', $long);
+    		$qry_bind->bindParam(':units', $units);
+    		$qry_bind->bindParam(':ckid', $ckid);
+    		$qry_bind->execute();
+    		
+    		$callout->setId($db_connection->lastInsertId());
+    		$callout->setStatus(\CalloutStatusType::Paged);
+    		
+    		if($log) $log->trace('Callout signalling members for NEW call.');
+    		
+    		//$signalManager = new \riprunner\SignalManager();
+    		//signalCalloutToSMSPlugin($callout, null);
+    		$this->signalCalloutToSMSPlugin($callout, null);
+    	
+    		//$gcmMsg = getGCMCalloutMessage($callout);
+    		$gcmMsg = $this->getGCMCalloutMessage($callout);
+    		
+    		//signalCallOutRecipientsUsingGCM($callout, null, $gcmMsg, $db_connection);
+    		$this->signalCallOutRecipientsUsingGCM($callout, null, $gcmMsg, $db_connection);
+    
+    		// Only update status if not cancelled or completed already
+    		$sql_update = $sql_statement->getSqlStatement('callout_status_update');
+    			
+    		$cid = $callout->getId();
+    		$status_notified = \CalloutStatusType::Notified;
+    		$qry_bind = $db_connection->prepare($sql_update);
+    		$qry_bind->bindParam(':status', $status_notified);
+    		$qry_bind->bindParam(':id', $cid);
+    		$qry_bind->execute();
+    	}
+    	
+    	if($db_connection !== null) {
+    		\riprunner\DbConnection::disconnect_db( $db_connection );
+    	}
+    	return $signal_result;
+    }
+
+    public function signalFireHallResponse($callout, $userId, $userGPSLat, $userGPSLong,
+            $userStatus) {
+    
+        $result = '';
+    
+        if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
+            $result .= $this->signalResponseToSMSPlugin($callout, $userId,
+                    $userGPSLat, $userGPSLong, $userStatus);
+            //$result .= signalResponseToSMSPlugin($callout, $userId,
+            //		$userGPSLat, $userGPSLong, $userStatus);
+        }
+    
+        if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED === true &&
+            $callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED === true) {
+
+            $gcmMsg = $this->getSMSCalloutResponseMessage($callout, $userId, $userStatus);
+            //$gcmMsg = getSMSCalloutResponseMessage($callout, $userId, $userStatus, 0);
+
+
+            //$result .= signalResponseRecipientsUsingGCM($callout, $userId,
+            //            		$userStatus, $gcmMsg, null, null);
+
+            $result .= $this->signalResponseRecipientsUsingGCM($callout, $userId,
+                    $userStatus, $gcmMsg, null, null);
+        }
+        return $result;
+    }
+    
+    private function getTwigEnv() {
+        global $twig;
+        if($this->twig_env === null) {
+            $twig_instance = $twig;
+        }
+        else {
+            $twig_instance = $this->twig_env;
+        }
+        return $twig_instance;
     }
     
 }
