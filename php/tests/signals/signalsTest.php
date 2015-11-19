@@ -245,7 +245,6 @@ class SignalsTest extends BaseDBFixture {
 	    ->with($this->anything());
 	
 	    // Call the test
-	    $device_id = 'ABC123-XXX';
 	    $signalManager = new \riprunner\SignalManager(null,null,$mock_gcm,$this->getTwigEnv());
 	    $result = $signalManager->sendGCM_Message($FIREHALL, 'Test SMS Message.', $this->getDBConnection($FIREHALL));
 	
@@ -341,9 +340,6 @@ class SignalsTest extends BaseDBFixture {
 	    $callout->setUnitsResponding('SALGRP1');
 	    $callout->setFirehall($FIREHALL);
 	
-	    $user_id = 'mark.vejvoda';
-	    $user_status = 'COMPLETED';
-
 	    // Create a stub for the ISMSCalloutPlugin class.
 	    $mock_sms_callout_plugin = $this->getMockBuilder('riprunner\ISMSCalloutPlugin')
 	    ->getMock(array('signalRecipients'));

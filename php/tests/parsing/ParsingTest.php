@@ -88,7 +88,6 @@ class ParsingTest extends BaseDBFixture {
                      Type: MVI1
                      Not enough info here!";
     
-        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
         $callout = processFireHallText($realdata);
         $this->assertEquals(false,$callout->isValid());
     }
@@ -120,4 +119,61 @@ class ParsingTest extends BaseDBFixture {
         $this->assertEquals('‐120.77206',$callout->getGPSLong());
         $this->assertEquals('PRGGRP1',$callout->getUnitsResponding());
     }
+
+    public function testValidate_email_sender_DISABLE_CHECK_Valid() {
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $FIREHALL->EMAIL->setFromTrigger(null);
+    
+        $is_valid = validate_email_sender($FIREHALL,'bob@website.ca');
+        $this->assertEquals(true,$is_valid);
+    }
+    
+    public function testValidate_email_sender_full_from_Valid() {
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $FIREHALL->EMAIL->setFromTrigger('donotreply@princegeorge.ca');
+
+        $is_valid = validate_email_sender($FIREHALL,'donotreply@princegeorge.ca');
+        $this->assertEquals(true,$is_valid);
+    }
+
+    public function testValidate_email_sender_hostA_from_Valid() {
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $FIREHALL->EMAIL->setFromTrigger('@princegeorge.ca');
+    
+        $is_valid = validate_email_sender($FIREHALL,'cad@princegeorge.ca');
+        $this->assertEquals(true,$is_valid);
+    }
+    
+    public function testValidate_email_sender_hostB_from_Valid() {
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $FIREHALL->EMAIL->setFromTrigger('princegeorge.ca');
+    
+        $is_valid = validate_email_sender($FIREHALL,'cad@princegeorge.ca');
+        $this->assertEquals(true,$is_valid);
+    }
+
+    public function testValidate_email_sender_full_from_InValid() {
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $FIREHALL->EMAIL->setFromTrigger('donotreply@princegeorge.ca');
+    
+        $is_valid = validate_email_sender($FIREHALL,'cad@princegeorge.ca');
+        $this->assertEquals(false,$is_valid);
+    }
+
+    public function testValidate_email_sender_hostA_from_InValid() {
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $FIREHALL->EMAIL->setFromTrigger('@princegeorge.ca');
+    
+        $is_valid = validate_email_sender($FIREHALL,'cad@princefrank.ca');
+        $this->assertEquals(false,$is_valid);
+    }
+
+    public function testValidate_email_sender_hostB_from_InValid() {
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $FIREHALL->EMAIL->setFromTrigger('princegeorge.ca');
+    
+        $is_valid = validate_email_sender($FIREHALL,'cad@princefrank.ca');
+        $this->assertEquals(false,$is_valid);
+    }
+    
 }

@@ -56,7 +56,7 @@ class SignalManager {
         if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
             if($this->sms_callout_plugin === null) {
                 $smsCalloutPlugin = \riprunner\PluginsLoader::findPlugin(
-                        $this->sms_callout_plugin_name,
+                        self::$sms_callout_plugin_name,
                         $callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE);
             }
             else {
@@ -89,7 +89,7 @@ class SignalManager {
         
         if($FIREHALL->SMS->SMS_SIGNAL_ENABLED === true) {
             if($this->sms_plugin === null) {
-                $smsPlugin = \riprunner\PluginsLoader::findPlugin($this->sms_plugin_name, 
+                $smsPlugin = \riprunner\PluginsLoader::findPlugin(self::$sms_plugin_name, 
                         $FIREHALL->SMS->SMS_GATEWAY_TYPE);
             }
             else {
@@ -163,7 +163,7 @@ class SignalManager {
             }
 
             if($this->gcm_type === null) {
-                $gcmInstance = \riprunner\GCM_Factory::create($this->gcm_type_name, $callout->getFirehall()->MOBILE->GCM_API_KEY);
+                $gcmInstance = \riprunner\GCM_Factory::create(self::$gcm_type_name, $callout->getFirehall()->MOBILE->GCM_API_KEY);
             }
             else {
                 $gcmInstance = $this->gcm_type;
@@ -246,7 +246,7 @@ class SignalManager {
             }
 
             if($this->gcm_type === null) {
-                $gcmInstance = \riprunner\GCM_Factory::create($this->gcm_type_name, $callout->getFirehall()->MOBILE->GCM_API_KEY);
+                $gcmInstance = \riprunner\GCM_Factory::create(self::$gcm_type_name, $callout->getFirehall()->MOBILE->GCM_API_KEY);
             }
             else {
                 $gcmInstance = $this->gcm_type;
@@ -303,7 +303,7 @@ class SignalManager {
             $FIREHALL->MOBILE->GCM_SIGNAL_ENABLED === true) {
     
             if($this->gcm_type === null) {
-                $gcmInstance = \riprunner\GCM_Factory::create($this->gcm_type_name, $FIREHALL->MOBILE->GCM_API_KEY);
+                $gcmInstance = \riprunner\GCM_Factory::create(self::$gcm_type_name, $FIREHALL->MOBILE->GCM_API_KEY);
             }
             else {
                 $gcmInstance = $this->gcm_type;
@@ -346,7 +346,7 @@ class SignalManager {
             }
 
             if($this->gcm_type === null) {
-                $gcmInstance = \riprunner\GCM_Factory::create($this->gcm_type_name, $FIREHALL->MOBILE->GCM_API_KEY);
+                $gcmInstance = \riprunner\GCM_Factory::create(self::$gcm_type_name, $FIREHALL->MOBILE->GCM_API_KEY);
             }
             else {
                 $gcmInstance = $this->gcm_type;

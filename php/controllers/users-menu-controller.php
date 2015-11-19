@@ -12,6 +12,7 @@ if(defined('__RIPRUNNER_ROOT__') === false) {
 }
 
 require_once __RIPRUNNER_ROOT__ . '/template.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/controllers/send-message-controller.php';
 require_once __RIPRUNNER_ROOT__ . '/models/live-callout-warning-model.php';
@@ -19,7 +20,7 @@ require_once __RIPRUNNER_ROOT__ . '/models/users-menu-model.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 // Register our view and variables for the template
-sec_session_start();
+\riprunner\Authentication::sec_session_start();
 new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 $usersmenu_mv = new UsersMenuViewModel($global_vm, $view_template_vars);
 new UsersMenuController($global_vm, $usersmenu_mv, $view_template_vars);
@@ -148,8 +149,8 @@ class UsersMenuController {
 		// UPDATE
 		if($self_edit === true) {
 			$edit_firehall_id = $_SESSION['firehall_id'];
-			$edit_admin_access = userHasAcess(USER_ACCESS_ADMIN);
-			$edit_sms_access = userHasAcess(USER_ACCESS_SIGNAL_SMS);
+			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
+			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
 		}
 		else {
 			$edit_firehall_id = get_query_param('edit_firehall_id');
@@ -213,8 +214,8 @@ class UsersMenuController {
 
 		if($self_edit === true) {
 			$edit_firehall_id = $_SESSION['firehall_id'];
-			$edit_admin_access = userHasAcess(USER_ACCESS_ADMIN);
-			$edit_sms_access = userHasAcess(USER_ACCESS_SIGNAL_SMS);
+			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
+			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
 		}
 		else {
 			$edit_firehall_id = get_query_param('edit_firehall_id');
@@ -261,7 +262,7 @@ class UsersMenuController {
 				(strlen($edit_pwd1) > 0 || strlen($edit_pwd2) > 0)) {
 	
 			if(strlen($edit_pwd1) >= 5 && $edit_pwd1 === $edit_pwd2) {
-				$new_pwd = encryptPassword($edit_pwd1);
+				$new_pwd = \riprunner\Authentication::encryptPassword($edit_pwd1);
 			}
 			else {
 				$this->action_error = 100;

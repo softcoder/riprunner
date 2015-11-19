@@ -12,11 +12,12 @@ if(defined('__RIPRUNNER_ROOT__') === false) {
 }
 
 require_once __RIPRUNNER_ROOT__ . '/template.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/mobile-app-info-model.php';
 
 // Register our view and variables for the template
-sec_session_start();
+\riprunner\Authentication::sec_session_start();
 new MobileAppInfoViewModel($global_vm, $view_template_vars);
 // Load out template
 $template = $twig->resolveTemplate(

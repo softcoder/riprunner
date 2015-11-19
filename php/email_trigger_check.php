@@ -20,6 +20,7 @@ require_once 'firehall_parsing.php';
 //require_once 'firehall_signal_callout.php';
 require_once 'signals/signal_manager.php';
 require_once 'third-party/html2text/Html2Text.php';
+require_once 'email_polling.php';
 require_once 'logging.php';
 
 // Disable caching to ensure LIVE results.
@@ -27,63 +28,11 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 header('Cache-Control: post-check=0, pre-check=0', false);
 header('Pragma: no-cache');
 
+$trigger_polling = new \riprunner\EmailTriggerPolling();
+$html = $trigger_polling->executeTriggerCheck($FIREHALLS);
+/*
 // Trigger the email polling check
 $html = poll_email_callouts($FIREHALLS);
-
-function validate_email_sender($FIREHALL, &$html, $header) {
-    global $log;
-    
-    $valid_email_trigger = true;
-    
-    if (isset($FIREHALL->EMAIL->EMAIL_FROM_TRIGGER) === true &&
-            $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER !== null &&
-            $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER !== '') {
-    
-        $log->trace('Email trigger check from field for ['.$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER.']');
-
-        $valid_email_trigger = false;
-
-        $valid_email_from_triggers = explode(';', $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER);
-        foreach($valid_email_from_triggers as $valid_email_from_trigger) {
-            $html.= '<h3>Looking for email from trigger ['.$valid_email_from_trigger.']</h3><br />'.PHP_EOL;
-             
-            if (isset($header) === true && $header !== null) {
-            	if (isset($header->from) === true && $header->from !== null) {
-            		// Match on exact email address if @ in trigger text
-            		if (strpos($valid_email_from_trigger, '@') !== false) {
-            			$fromaddr = $header->from[0]->mailbox.'@'.$header->from[0]->host;
-            		}
-                    // Match on all email addresses from the same domain
-                    else {
-                        $fromaddr = $header->from[0]->host;
-                    }
-    
-                    if ($fromaddr === $valid_email_from_trigger) {
-                        $valid_email_trigger = true;
-                    }
-            		
-            		$log->trace('Email trigger check from field result: '.$valid_email_trigger.'for value ['.$fromaddr.']');
-    
-                    $html.= 'Found email from ['.$header->from[0]->mailbox.'@'.$header->from[0]->host.'] result: '.
-                    (($valid_email_trigger === true) ? 'true' : 'false').'<br />'.PHP_EOL;
-            	}
-            	else {
-            		$log->warn('Email trigger check from field Error, Header->from is not set!');
-            		$html .='<h3>Error, Header->from is not set</h3><br />'.PHP_EOL;
-            	}
-            }
-            else {
-            	$log->warn('Email trigger check from field Error, Header is not set!');
-            	$html .='<h3>Error, Header is not set</h3><br />'.PHP_EOL;
-            }
-            
-            if($valid_email_trigger) {
-                break;
-            }
-        }
-    }
-    return $valid_email_trigger;
-}
 
 function process_email_trigger($FIREHALL, &$html, &$mail, $num) {
     global $log;
@@ -291,7 +240,16 @@ function poll_email_callouts($FIREHALLS_LIST) {
         			    continue;
         			}
     			}
-    		    $valid_email_trigger = validate_email_sender($FIREHALL, $html, $header);
+    			
+    		    //$valid_email_trigger = validate_email_sender($FIREHALL, $html, $header);
+    		    if($header !== null && !empty($header->from) && $header->from[0]->mailbox !== null) {
+    		        $from = $header->from[0]->mailbox;
+    		    }
+    		    if($header !== null && !empty($header->from) && $header->from[0]->host !== null) {
+    		        $from .= '@'.$header->from[0]->host;
+    		    }
+    			//$from = $header->from[0]->mailbox.'@'.$header->from[0]->host;
+    			$valid_email_trigger = validate_email_sender($FIREHALL,$from);
     		    if($valid_email_trigger === true) {
     		        $log->trace('Using email # ['.$num.'] for processing..');
     		        $html.= 'Using email # ['.$num.'] for processing..<br />';
@@ -311,6 +269,7 @@ function poll_email_callouts($FIREHALLS_LIST) {
     
     return $html;
 }
+*/
 // report results ...
 ?>
 <html>

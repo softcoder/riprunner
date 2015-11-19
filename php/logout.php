@@ -5,11 +5,13 @@
 // ==============================================================
 define( 'INCLUSION_PERMITTED', true );
 require_once 'config.php';
+require_once 'authentication/authentication.php';
 require_once 'functions.php';
+
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
-sec_session_start();
+\riprunner\Authentication::sec_session_start();
 // Unset all session values 
 $_SESSION = array();
  

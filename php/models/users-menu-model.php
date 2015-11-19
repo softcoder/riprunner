@@ -6,6 +6,7 @@
 namespace riprunner;
 
 require_once __RIPRUNNER_ROOT__ . '/config.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 
@@ -79,8 +80,8 @@ class UsersMenuViewModel extends BaseViewModel {
 		$resultArray = array();
 		foreach($rows as $row){
 			// Add any custom fields with values here
-			$row['access_admin'] = userHasAcessValueDB($row['access'], USER_ACCESS_ADMIN);
-			$row['access_sms'] = userHasAcessValueDB($row['access'], USER_ACCESS_SIGNAL_SMS);
+			$row['access_admin'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_ADMIN);
+			$row['access_sms'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_SIGNAL_SMS);
 			
 			$resultArray[] = $row;
 		}		

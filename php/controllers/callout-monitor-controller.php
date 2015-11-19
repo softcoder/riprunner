@@ -12,6 +12,7 @@ if(defined('__RIPRUNNER_ROOT__') === false) {
 }
 
 require_once __RIPRUNNER_ROOT__ . '/template.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/live-callout-warning-model.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
@@ -19,10 +20,10 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 // Register our view and variables for the template
 $server_mode = get_query_param('server_mode');
 if(isset($server_mode) === true && $server_mode === 'true') {
-	sec_session_start_ext(true);
+    \riprunner\Authentication::sec_session_start_ext(true);
 }
 else {
-	sec_session_start();
+	\riprunner\Authentication::sec_session_start();
 }
 $live_callout_info = new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 

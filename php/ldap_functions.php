@@ -12,6 +12,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 }
 
 require_once 'object_factory.php';
+require_once 'authentication/authentication.php';
 require_once 'cache/cache-proxy.php';
 require_once 'logging.php';
 
@@ -78,7 +79,7 @@ function login_ldap($FIREHALL, $user_id, $password) {
 			$user_browser = $_SERVER['HTTP_USER_AGENT'];
 			
 			if(ENABLE_AUDITING) {
-				$log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . getClientIPInfo() . "]");
+				$log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");
 			}
 			
 			// XSS protection as we might print this value
@@ -502,7 +503,7 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 }
 
 function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
-	global $log;
+	//global $log;
 	// Create a temp table of users from LDAP
 	
 	$sql_statement = new \riprunner\SqlStatement($db_connection);

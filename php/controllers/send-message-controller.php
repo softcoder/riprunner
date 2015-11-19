@@ -14,6 +14,7 @@ if(defined('__RIPRUNNER_ROOT__') === false) {
 }
 
 require_once __RIPRUNNER_ROOT__ . '/template.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/send-message-model.php';
 
@@ -21,7 +22,7 @@ require_once __RIPRUNNER_ROOT__ . '/models/send-message-model.php';
 //require_once __RIPRUNNER_ROOT__ . '/firehall_signal_gcm.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 
-sec_session_start();
+\riprunner\Authentication::sec_session_start();
 // Register our view and variables for the template
 if(isset($sendmsg_mv) === false ) {
 	$sendmsg_mv = new SendMessageViewModel($global_vm, $view_template_vars);

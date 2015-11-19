@@ -15,15 +15,6 @@ require_once 'ldap_functions.php';
 require_once 'url/http-cli.php';
 require_once 'logging.php';
 
-# This function cleans out special characters
-function clean_str($text) {
-	$code_entities_match   = array('$','%','^','&','_','+','{','}','|','"','<','>','?','[',']','\\',';',"'",'/','+','~','`','=');
-	$code_entities_replace = array('', '', '', '', '', '', '', '', '', '', '', '', '');
-       
-	$text = str_replace( $code_entities_match, $code_entities_replace, $text );
-	return $text;
-}
-
 function get_query_param($param_name) {
 	$result = null;
 	if(isset($_GET[$param_name]) === true) {
@@ -115,6 +106,7 @@ function getFirstActiveFireHallConfig($list) {
 	return null;
 }
 
+/*
 function sec_session_start() {
 	sec_session_start_ext(null);
 }
@@ -300,7 +292,7 @@ function checkbrute($user_id, $db_connection, $max_logins) {
 	}
 	return false;
 }
-	
+
 function login_check($db_connection) {
 	global $log;
 		
@@ -376,7 +368,8 @@ function login_check($db_connection) {
 		return false;
 	}
 }
-	
+*/
+
 function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
 	global $log;
 
@@ -411,7 +404,8 @@ function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
 	}
 	return $result;
 }
-	
+
+/*
 function userHasAcess($access_flag) {
 	return (isset($_SESSION['user_access']) && ($_SESSION['user_access'] & $access_flag));
 }
@@ -428,6 +422,7 @@ function encryptPassword($password) {
 	
 	return $new_pwd;
 }
+*/
 
 function getCallStatusDisplayText($dbStatus) {
 	$result = 'unknown [' . ((isset($dbStatus) === true) ? $dbStatus : 'null') . ']';
@@ -728,6 +723,66 @@ function addTriggerHash($type, $FIREHALL, $hash_data, $db_connection) {
         \riprunner\DbConnection::disconnect_db($db_connection);        
     }
     return $result;
+}
+
+function validate_email_sender($FIREHALL, $from) {
+    global $log;
+
+    $valid_email_trigger = true;
+
+    if(isset($FIREHALL->EMAIL->EMAIL_FROM_TRIGGER) === true &&
+        $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER !== null &&
+        $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER !== '') {
+    
+        $valid_email_trigger = false;
+        if(isset($from) === true && $from !== null) {
+            if($log) $log->warn('Email trigger check on From field for ['.$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER.']');
+            
+            $valid_email_from_triggers = explode(';', $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER);
+            foreach($valid_email_from_triggers as $valid_email_from_trigger) {
+    
+                if($log) $log->warn('Email trigger check on From field for ['.$valid_email_from_trigger.']');
+    
+
+                // Match on exact email address if @ in trigger text
+                $valid_email_from_trigger_parts = explode('@', $valid_email_from_trigger);
+                if(strpos($valid_email_from_trigger, '@') !== false && 
+                     count($valid_email_from_trigger_parts) > 1 &&
+                        $valid_email_from_trigger_parts[0] !== '') {
+                    $fromaddr = $from;
+                }
+                // Match on all email addresses from the same domain
+                else {
+                    if(count($valid_email_from_trigger_parts) > 1 &&
+                        $valid_email_from_trigger_parts[0] === '') {
+                        $valid_email_from_trigger = $valid_email_from_trigger_parts[1];
+                    }
+                    
+                    $fromaddr = explode('@', $from);
+                    if(count($fromaddr) > 1) {
+                        $fromaddr = $fromaddr[1];
+                    }
+                }
+                 
+                if($fromaddr === $valid_email_from_trigger) {
+                    $valid_email_trigger = true;
+                }
+                 
+                if($log) $log->warn("Email trigger check on From field result: " . 
+                        (($valid_email_trigger === true) ? "true" : "false") . " for value [$fromaddr]".
+                        " expected [$valid_email_from_trigger]");
+                
+                if($valid_email_trigger) {
+                    break;
+                }
+            }
+        }
+        else {
+            if($log) $log->warn("Email webhook trigger check from field Error not set!");
+        }
+    }
+    
+    return $valid_email_trigger;
 }
 
 ?>

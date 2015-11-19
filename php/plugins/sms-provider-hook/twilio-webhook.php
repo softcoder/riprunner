@@ -13,6 +13,7 @@ if(defined('__RIPRUNNER_ROOT__') === false) {
 }
 
 require_once __RIPRUNNER_ROOT__ . '/config.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/url/http-cli.php';
 require_once __RIPRUNNER_ROOT__ . '/plugins_loader.php';
@@ -429,7 +430,7 @@ function validateTwilioHost($FIREHALLS_LIST) {
 			}
 
 			$sms_user = ((isset($_REQUEST['From']) === true) ? $_REQUEST['From'] : '');
-			$log->error("Validate twilio host failed for client [" . getClientIPInfo() ."] sms user [$sms_user], returned [$validate_result] url [$url] vars [" . implode(', ', $vars) . "] sig [$signature] auth [$authToken[1]]");
+			$log->error("Validate twilio host failed for client [" . \riprunner\Authentication::getClientIPInfo() ."] sms user [$sms_user], returned [$validate_result] url [$url] vars [" . implode(', ', $vars) . "] sig [$signature] auth [$authToken[1]]");
 		}
 	}
 	return false;

@@ -12,6 +12,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 require_once 'config.php';
 require_once 'db/db_connection.php';
 require_once 'db/sql_statement.php';
+require_once 'authentication/authentication.php';
 require_once 'functions.php';
 
 function install($FIREHALL, &$db_connection) {
@@ -42,7 +43,7 @@ function install($FIREHALL, &$db_connection) {
 		echo '<b>SCHEMA Import Information, Success: ' . $schema_results["success"] . ' Total: ' . $schema_results["total"] . '</b><br />' . PHP_EOL;
 
 		$random_password = uniqid('', true);
-		$new_pwd = encryptPassword($random_password);
+		$new_pwd = \riprunner\Authentication::encryptPassword($random_password);
 		
 		$sql = $sql_statement->getSqlStatement('admin_user_create');
 		$qry_bind = $db_connection->prepare($sql);

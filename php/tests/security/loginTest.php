@@ -11,6 +11,7 @@ if(defined('INCLUSION_PERMITTED') === false) {
 }
 
 require_once dirname(dirname(__FILE__)).'/baseDBFixture.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 
 class LoginTest extends BaseDBFixture {
 	
@@ -26,10 +27,12 @@ class LoginTest extends BaseDBFixture {
     
 	public function testNonLDAPLogin_Valid()  {
 		$FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+
 		$user_id = 'mark.vejvoda';
 		$password = 'test123';
-		
-		$login_result = login($FIREHALL, $user_id, $password, $this->getDBConnection($FIREHALL));
+
+		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+		$login_result = $auth->login($user_id, $password);
 		$this->assertEquals(true, $login_result);
 	}
 	public function testNonLDAPLogin_InValid_Username()  {
@@ -37,7 +40,8 @@ class LoginTest extends BaseDBFixture {
 	    $user_id = 'bad.user';
 	    $password = 'bad password';
 	
-	    $login_result = login($FIREHALL, $user_id, $password, $this->getDBConnection($FIREHALL));
+	    $auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+	    $login_result = $auth->login($user_id, $password);
 	    $this->assertEquals(false, $login_result);
 	}
 	
@@ -46,7 +50,9 @@ class LoginTest extends BaseDBFixture {
 	    $user_id = 'mark.vejvoda';
 	    $password = 'bad password';
 	
-	    $login_result = login($FIREHALL, $user_id, $password, $this->getDBConnection($FIREHALL));
+	    $auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+	    $login_result = $auth->login($user_id, $password);
+	    
 	    $this->assertEquals(false, $login_result);
 	}
 }
