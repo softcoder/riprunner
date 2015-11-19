@@ -158,8 +158,8 @@ class EmailTriggerWebHook {
 	
 	public function executeTriggerCheck($FIREHALLS) {
 	    global $log;
-	    if($log) $log->warn("Email trigger auth appid [".$trigger_hook->getRequestAuthAppId().
-	            "] account name [".$trigger_hook->getRequestAuthAppAccountName()."]");
+	    if($log) $log->warn("Email trigger auth appid [".$this->getRequestAuthAppId().
+	            "] account name [".$this->getRequestAuthAppAccountName()."]");
 	    
 	    if($this->isAuthDataValid() === true) {
 	        if($this->isRequestValid() === true) {
