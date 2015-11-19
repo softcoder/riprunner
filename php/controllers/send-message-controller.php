@@ -17,9 +17,6 @@ require_once __RIPRUNNER_ROOT__ . '/template.php';
 require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/send-message-model.php';
-
-//require_once __RIPRUNNER_ROOT__ . '/firehall_signal_callout.php';
-//require_once __RIPRUNNER_ROOT__ . '/firehall_signal_gcm.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 
 \riprunner\Authentication::sec_session_start();
@@ -56,7 +53,6 @@ class SendMessageController {
 		$smsMsg = get_query_param('txtMsg');
 		
 		$signalManager = new \riprunner\SignalManager();
-		//$sendMsgResult = sendSMSPlugin_Message($this->global_vm->firehall, $smsMsg);
 		$sendMsgResult = $signalManager->sendSMSPlugin_Message($this->global_vm->firehall, $smsMsg);
 		
 		$sendMsgResultStatus = "SMS Message sent to applicable recipients.";
@@ -68,7 +64,6 @@ class SendMessageController {
 		$gcmMsg = get_query_param('txtMsg');
 		
 		$signalManager = new \riprunner\SignalManager();
-        //$sendMsgResult = sendGCM_Message($this->global_vm->firehall, $gcmMsg, $this->global_vm->RR_DB_CONN);
 		$sendMsgResult = $signalManager->sendGCM_Message($this->global_vm->firehall, 
 		        $gcmMsg, $this->global_vm->RR_DB_CONN);
 		

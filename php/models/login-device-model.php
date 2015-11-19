@@ -9,8 +9,6 @@ require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
-//require_once __RIPRUNNER_ROOT__ . '/firehall_signal_callout.php';
-require_once __RIPRUNNER_ROOT__ . '/firehall_signal_response.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 
 // The model class handling variable requests dynamically
@@ -244,13 +242,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 
 		$signalManager = new \riprunner\SignalManager();
 		// Send Callout details to logged in user only
-		//$gcmMsg = getGCMCalloutMessage($callout);
 		$gcmMsg = $signalManager->getGCMCalloutMessage($callout);
-		
-		//$result .= signalCallOutRecipientsUsingGCM($callout,
-		//										$this->getRegistrationId(),
-		//										$gcmMsg,
-		//										$this->getGvm()->RR_DB_CONN);
 		$result .= $signalManager->signalCallOutRecipientsUsingGCM($callout,
 		        $this->getRegistrationId(),
 		        $gcmMsg,
@@ -282,16 +274,9 @@ class LoginDeviceViewModel extends BaseViewModel {
 				$row = $rows[0];
 				$userStatus = $row->status;
 				
-				//$gcmResponseMsg = getSMSCalloutResponseMessage($callout,
-				//						$this->getUserId(), $userStatus, 0);
 				$gcmResponseMsg = $signalManager->getSMSCalloutResponseMessage($callout,
 				        $this->getUserId(), $userStatus);
 				
-				//$result .= signalResponseRecipientsUsingGCM($callout, 
-				//						$this->getUserId(), $userStatus, 
-				//						$gcmResponseMsg,
-				//						$this->getRegistrationId(),
-				//						$this->getGvm()->RR_DB_CONN);
 				$result .= $signalManager->signalResponseRecipientsUsingGCM($callout, 
 										$this->getUserId(), $userStatus, 
 										$gcmResponseMsg,
@@ -306,8 +291,6 @@ class LoginDeviceViewModel extends BaseViewModel {
 		$loginMsg = 'GCM_LOGINOK';
 		
 		$signalManager = new \riprunner\SignalManager();
-		//signalLoginStatusUsingGCM($this->getFirehall(), $this->getRegistrationId(),
-		//	$loginMsg, $this->getGvm()->RR_DB_CONN);
 		$signalManager->signalLoginStatusUsingGCM($this->getFirehall(), 
 		        $this->getRegistrationId(), $loginMsg, $this->getGvm()->RR_DB_CONN);
 	}
