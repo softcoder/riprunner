@@ -24,7 +24,7 @@ function install($FIREHALL, &$db_connection) {
 	if($db_exist === false) {
 	    $sql = $sql_statement->getSqlStatement('database_create');
 	    $dbname = $FIREHALL->DB->DATABASE;
-	    $sql = preg_replace_callback('(:db)', function ($m) use ($dbname) { return $dbname; }, $sql);
+	    $sql = preg_replace_callback('(:db)', function ($m) use ($dbname) { $m; return $dbname; }, $sql);
 		$db_connection->query($sql);
 		
 		echo '<b>Successfully created database [' . $FIREHALL->DB->DATABASE . ']</b><br />' . PHP_EOL;

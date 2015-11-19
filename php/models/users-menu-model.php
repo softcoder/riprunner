@@ -63,7 +63,7 @@ class UsersMenuViewModel extends BaseViewModel {
 		if($self_edit === true) {
 		    $sql_where_clause = ' WHERE id=:id';
 		}
-		$sql = preg_replace_callback('(:criteria)', function ($m) use ($sql_where_clause) { return $sql_where_clause; }, $sql);
+		$sql = preg_replace_callback('(:criteria)', function ($m) use ($sql_where_clause) { $m; return $sql_where_clause; }, $sql);
 		//echo "self_edit = $self_edit sql [$sql]" . PHP_EOL;
 		
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);

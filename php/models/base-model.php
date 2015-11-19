@@ -40,6 +40,7 @@ abstract class BaseViewModel {
 	}
 
 	public function __isset($name) {
+	    $name;
 		return false;
 	}
 	

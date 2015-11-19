@@ -35,7 +35,7 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		
 		if($callout->getFirehall()->LDAP->ENABLED === true) {
 			$recipients = get_sms_recipients_ldap($callout->getFirehall(), null);
-			$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients);
+			$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { $m; return ''; }, $recipients);
 			
 			$recipient_list = explode(';', $recipients);
 			$recipient_list_array = $recipient_list;

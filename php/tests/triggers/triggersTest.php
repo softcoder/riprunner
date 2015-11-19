@@ -156,8 +156,6 @@ class TriggersTest extends BaseDBFixture {
 	            'HTTP_X_RIPRUNNER_AUTH_ACCOUNTNAME' => $FIREHALL->MOBILE->GCM_SAM
 	    );
 	
-	    $realdata = "Date: 2015-08-03 15:46:09
-                     This is SPAM email!";
 	    $request_variables = array('sender' => '<donotreply@princegeorge.ca>');
 	
 	    // Call the test
@@ -169,8 +167,6 @@ class TriggersTest extends BaseDBFixture {
 
 	
 	public function testEmailTriggerPolling_Valid()  {
-	    
-	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	    
 	    // Create a fake pop3 server
 	    $mock_pop3 = $this->getMockBuilder('riprunner\IMapProvider')
@@ -240,8 +236,6 @@ class TriggersTest extends BaseDBFixture {
 
 	public function testEmailTriggerPolling_from_email_InValid()  {
 	     
-	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-	     
 	    // Create a fake pop3 server
 	    $mock_pop3 = $this->getMockBuilder('riprunner\IMapProvider')
 	    ->getMock(array('imap_open','imap_headers','imap_headerinfo',
@@ -298,8 +292,6 @@ class TriggersTest extends BaseDBFixture {
 	}
 
 	public function testEmailTriggerPolling_email_content_InValid()  {
-	     
-	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	     
 	    // Create a fake pop3 server
 	    $mock_pop3 = $this->getMockBuilder('riprunner\IMapProvider')

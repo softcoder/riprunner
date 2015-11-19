@@ -27,7 +27,7 @@ function get_query_param($param_name) {
 }	
 
 function getAddressForMapping($FIREHALL, $address) {
-	global $log;
+	//global $log;
 	//$log->trace("About to find google map address for [$address]");
 	
 	$result_address = $address;
@@ -120,7 +120,7 @@ function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
 	$sql_sms_access = USER_ACCESS_SIGNAL_SMS . " = ". USER_ACCESS_SIGNAL_SMS;
 	$sql_statement = new \riprunner\SqlStatement($db_connection);
 	$sql = $sql_statement->getSqlStatement('users_mobile_access_list');
-	$sql = preg_replace_callback('(:sms_access)', function ($m) use ($sql_sms_access) { return $sql_sms_access; }, $sql);
+	$sql = preg_replace_callback('(:sms_access)', function ($m) use ($sql_sms_access) { $m; return $sql_sms_access; }, $sql);
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();

@@ -40,7 +40,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 		//echo "Officers found: [$recipients_officers]" . PHP_EOL;
 		
 		if(isset($recipients_officers) && strlen($recipients_officers) > 0) {
-			$recipients_officers = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients_officers);
+			$recipients_officers = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { $m; return ''; }, $recipients_officers);
 			
 			$recipient_officers_list = explode(';',$recipients_officers);
 			$recipient_officers_list_array = $recipient_officers_list;

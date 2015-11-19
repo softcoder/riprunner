@@ -199,7 +199,7 @@ function clean_mobile_number($text) {
 function get_recipients_list($FIREHALL, $db_connection) {
 	if($FIREHALL->LDAP->ENABLED === true) {
 		$recipients = get_sms_recipients_ldap($FIREHALL, null);
-		$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients);
+		$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { $m; return ''; }, $recipients);
 	
 		$recipient_list = explode(';', $recipients);
 		$recipient_list_array = $recipient_list;

@@ -182,6 +182,7 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
     }
     
     protected function getDBConnection($FIREHALL) {
+        $FIREHALL;
         if($this->DBCONNECTION == null) {
             $this->DBCONNECTION = $this->getConnection()->getConnection();
         }

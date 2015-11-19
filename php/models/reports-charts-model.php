@@ -312,6 +312,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
        $current_month_array = null;
 
        foreach ($data_results as $key => $row) {
+            $key;
        		$monthNumber = ($row[0] + 0);
        		$monthName = date("F", mktime(0, 0, 0, $monthNumber, 10));
 
@@ -481,6 +482,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
        	$current_month_array = null;
 	
        	foreach ($data_results as $key => $row) {
+       	    $key;
        		$monthNumber = ($row[0] + 0);
 	        $monthName = date("F", mktime(0, 0, 0, $monthNumber, 10));
 	
@@ -628,10 +630,11 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 
         // Sum the values
         $sumArray = array();
-        foreach ($data_results as $k=>$subArray) {
+        foreach ($data_results as $k => $subArray) {
+            $k;
             $month_key = null;
             $user_key = null;
-            foreach ($subArray as $id=>$value) {
+            foreach ($subArray as $id => $value) {
                 //$sumArray[$id]+=$value;
                 //echo "id [$id] value [$value]" . PHP_EOL;
                 
@@ -715,6 +718,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         $current_month_array = null;
     
         foreach ($data_results as $key => $row) {
+            $key;
             $monthNumber = ($row[0] + 0);
             $monthName = date("F", mktime(0, 0, 0, $monthNumber, 10));
     

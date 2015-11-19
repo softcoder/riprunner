@@ -46,7 +46,7 @@ class DbConnection {
     	    // dbname=x
     	    if($masterdb === true) {
     	        // Strip the dbname as it wont exist yet
-    	        $masterDsn = preg_replace_callback('(dbname=\w+)', function ($m) { return ''; }, $this->firehall->MYSQL->DSN);
+    	        $masterDsn = preg_replace_callback('(dbname=\w+)', function ($m) { $m; return ''; }, $this->firehall->MYSQL->DSN);
     	        //echo "masterDsn [$masterDsn] orignal [".$this->firehall->MYSQL->DSN."]" . PHP_EOL;
     	        
     	        $this->db_connect(
