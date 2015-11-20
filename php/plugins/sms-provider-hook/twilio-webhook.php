@@ -100,6 +100,7 @@ class SmSCommandResult {
 		$this->callout_list = $value;
 	}
 }
+
 // Check if Twilio is calling us, if not 401
 if(validateTwilioHost($FIREHALLS) === false) {
 	header('HTTP/1.1 401 Unauthorized');
@@ -144,7 +145,6 @@ Cannot cancel the callout, no callouts active!
 <?php endif; ?>    
 </Response>
 <?php 
-
 function startsWith($haystack, $needle) {
 	$length = strlen($needle);
 	return (substr($haystack, 0, $length) === $needle);
@@ -435,4 +435,3 @@ function validateTwilioHost($FIREHALLS_LIST) {
 	}
 	return false;
 }
-?>

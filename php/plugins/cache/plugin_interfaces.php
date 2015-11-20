@@ -22,4 +22,3 @@ interface ICachePlugin {
 	// The implementation for clearing the cache
 	public function clear();
 }
-?>

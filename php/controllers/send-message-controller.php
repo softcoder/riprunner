@@ -78,4 +78,3 @@ class SendMessageController {
         $this->view_template_vars["sendmsg_ctl_result_status"] = $sendMsgResultStatus;
 	}
 }
-?>

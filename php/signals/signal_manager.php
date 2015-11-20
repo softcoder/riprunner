@@ -10,12 +10,12 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once __RIPRUNNER_ROOT__ . '/plugins_loader.php';
-require_once __RIPRUNNER_ROOT__ . '/config_interfaces.php';
-require_once __RIPRUNNER_ROOT__ . '/functions.php';
-require_once __RIPRUNNER_ROOT__ . '/object_factory.php';
-require_once __RIPRUNNER_ROOT__ . '/template.php';
-require_once __RIPRUNNER_ROOT__ . '/logging.php';
+require_once __RIPRUNNER_ROOT__.'/plugins_loader.php';
+require_once __RIPRUNNER_ROOT__.'/config_interfaces.php';
+require_once __RIPRUNNER_ROOT__.'/functions.php';
+require_once __RIPRUNNER_ROOT__.'/object_factory.php';
+require_once __RIPRUNNER_ROOT__.'/template.php';
+require_once __RIPRUNNER_ROOT__.'/logging.php';
 
 class SignalManager {
     
@@ -50,8 +50,8 @@ class SignalManager {
     
     public function signalCalloutToSMSPlugin($callout, $msgPrefix) {
         global $log;
-        if($log) $log->trace("Check SMS callout signal for SMS Enabled [" .
-                var_export($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED, true) . "]");
+        if($log !== null) $log->trace('Check SMS callout signal for SMS Enabled ['.
+                var_export($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED, true).']');
         
         if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
             if($this->sms_callout_plugin === null) {
@@ -63,17 +63,17 @@ class SignalManager {
                 $smsCalloutPlugin = $this->sms_callout_plugin;
             }
             if($smsCalloutPlugin === null) {
-                if($log) $log->error("Invalid SMS Callout Plugin type: [" . $callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
-                throw new Exception("Invalid SMS Callout Plugin type: [" . $callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
+                if($log !== null) $log->error('Invalid SMS Callout Plugin type: ['.$callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE.']');
+                throw new Exception('Invalid SMS Callout Plugin type: ['.$callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE.']');
             }
         
             $result = $smsCalloutPlugin->signalRecipients($callout, $msgPrefix);
         
-            if(strpos($result, "ERROR") !== false) {
-                if($log) $log->error("Error calling SMS callout provider: [" . $callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$result]");
+            if(strpos($result, 'ERROR') !== false) {
+                if($log !== null) $log->error("Error calling SMS callout provider: [" . $callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$result]");
             }
             else {
-                if($log) $log->trace("Called SMS callout provider: [" . $callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$result]");
+                if($log !== null) $log->trace("Called SMS callout provider: [" . $callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$result]");
             }
             return $result;
         }
@@ -82,7 +82,7 @@ class SignalManager {
     
     public function sendSMSPlugin_Message($FIREHALL, $msg) {
         global $log;
-        if($log) $log->trace("Check SMS send message for SMS Enabled [" .
+        if($log !== null) $log->trace("Check SMS send message for SMS Enabled [" .
                 var_export($FIREHALL->SMS->SMS_SIGNAL_ENABLED, true) . "]");
         
         $resultSMS = "";
@@ -96,7 +96,7 @@ class SignalManager {
                 $smsPlugin = $this->sms_plugin;
             }
             if($smsPlugin === null) {
-                if($log) $log->error("Invalid SMS send msg Plugin type: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
+                if($log !== null) $log->error("Invalid SMS send msg Plugin type: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "]");
                 throw new Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
             }
         
@@ -129,10 +129,10 @@ class SignalManager {
                     $recipient_list_type, $msg);
         
             if(strpos($resultSMS, "ERROR") !== false) {
-                if($log) $log->error("Error calling send msg SMS provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$resultSMS]");
+                if($log !== null) $log->error("Error calling send msg SMS provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$resultSMS]");
             }
             else {
-                if($log) $log->trace("Called SMS send msg provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$resultSMS]");
+                if($log !== null) $log->trace("Called SMS send msg provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$resultSMS]");
             }
         }
         
@@ -147,7 +147,7 @@ class SignalManager {
         global $log;
         $resultGCM = '';
         
-        if($log) $log->trace("Check GCM callout signal for MOBILE Enabled [" .
+        if($log !== null) $log->trace("Check GCM callout signal for MOBILE Enabled [" .
                 var_export($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED, true) . "] GCM [" .
                 var_export($callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED, true) . "]");
         
@@ -173,7 +173,7 @@ class SignalManager {
             $gcmInstance->setFirehallId($callout->getFirehall()->FIREHALL_ID);
             $gcmInstance->setGCM_Devices($device_id);
             	
-            if($log) $log->trace("Send GCM callout check device count: " . $gcmInstance->getDeviceCount());
+            if($log !== null) $log->trace("Send GCM callout check device count: " . $gcmInstance->getDeviceCount());
             if($gcmInstance->getDeviceCount() > 0) {
                 $callGPSLat = $callout->getGPSLat();
                 if(isset($callGPSLat) === false) {
@@ -204,15 +204,15 @@ class SignalManager {
                 }
                 	
                 $message = array("CALLOUT_MSG" => urlencode($smsMsg),
-                        "call-id"  => urlencode($callout->getId()),
-                        "call-key-id"  => urlencode($callKey),
-                        "call-type"  => urlencode($callout->getCode() . ' - ' . $callout->getCodeDescription()),
-                        "call-gps-lat"  => urlencode($callGPSLat),
-                        "call-gps-long"  => urlencode($callGPSLong),
-                        "call-address"  => urlencode($callAddress),
-                        "call-map-address"  => urlencode($callMapAddress),
-                        "call-units"  => urlencode($callUnitsResponding),
-                        "call-status"  => urlencode($callout->getStatus())
+                            "call-id"          => urlencode($callout->getId()),
+                            "call-key-id"      => urlencode($callKey),
+                            "call-type"        => urlencode($callout->getCode() . ' - ' . $callout->getCodeDescription()),
+                            "call-gps-lat"     => urlencode($callGPSLat),
+                            "call-gps-long"    => urlencode($callGPSLong),
+                            "call-address"     => urlencode($callAddress),
+                            "call-map-address" => urlencode($callMapAddress),
+                            "call-units"       => urlencode($callUnitsResponding),
+                            "call-status"      => urlencode($callout->getStatus())
                 );
                 	
                 $resultGCM .= $gcmInstance->send($message);
@@ -230,7 +230,7 @@ class SignalManager {
         global $log;
         $resultGCM = "";
         
-        if($log) $log->trace("Check GCM response signal for MOBILE Enabled [" .
+        if($log !== null) $log->trace("Check GCM response signal for MOBILE Enabled [" .
                 var_export($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED, true) . "] GCM [" .
                 var_export($callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED, true) . "]");
         
@@ -257,7 +257,7 @@ class SignalManager {
             $gcmInstance->setFirehallId($callout->getFirehall()->FIREHALL_ID);
             $gcmInstance->setGCM_Devices($device_id);
 
-            if($log) $log->trace("Send GCM response check device count: " . $gcmInstance->getDeviceCount());
+            if($log !== null) $log->trace("Send GCM response check device count: " . $gcmInstance->getDeviceCount());
             if($gcmInstance->getDeviceCount() > 0) {
                 $callGPSLat = $callout->getGPSLat();
                 if(isset($callGPSLat) === false || $callGPSLat === '') {
@@ -273,12 +273,12 @@ class SignalManager {
                 }
 
                 $message = array("CALLOUT_RESPONSE_MSG" => urlencode($smsMsg),
-                        "call-id"  => urlencode($callout->getId()),
-                        "call-key-id" => urlencode($callout->getKeyId()),
-                        "user-id"  => urlencode($userId),
-                        "user-gps-lat"  => urlencode($callGPSLat),
-                        "user-gps-long"  => urlencode($callGPSLong),
-                        "user-status"  => urlencode($userStatus)
+                                    "call-id"           => urlencode($callout->getId()),
+                                    "call-key-id"       => urlencode($callout->getKeyId()),
+                                    "user-id"           => urlencode($userId),
+                                    "user-gps-lat"      => urlencode($callGPSLat),
+                                    "user-gps-long"     => urlencode($callGPSLong),
+                                    "user-status"       => urlencode($userStatus)
                 );
 
                 $resultGCM .= $gcmInstance->send($message);
@@ -295,7 +295,7 @@ class SignalManager {
         global $log;
         $resultGCM = '';
         
-        if($log) $log->trace("Check GCM login signal for MOBILE Enabled [" .
+        if($log !== null) $log->trace("Check GCM login signal for MOBILE Enabled [" .
                 var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED, true) . "] GCM [" .
                 var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED, true) . "]");
         
@@ -314,8 +314,8 @@ class SignalManager {
             $gcmInstance->setDBConnection($db_connection);
 
             if($gcmInstance->getDeviceCount() > 0) {
-                $message = array("DEVICE_MSG" => urlencode($loginMsg),
-                        "device-status"  => urlencode("Login OK")
+                $message = array("DEVICE_MSG"   => urlencode($loginMsg),
+                                "device-status" => urlencode("Login OK")
                 );
 
                 $resultGCM .= $gcmInstance->send($message);
@@ -326,7 +326,7 @@ class SignalManager {
     }
     public function sendGCM_Message($FIREHALL, $msg, $db_connection) {
         global $log;
-        if($log) $log->trace("Check GCM send_msg signal for MOBILE Enabled [" .
+        if($log !== null) $log->trace("Check GCM send_msg signal for MOBILE Enabled [" .
                 var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED, true) . "] GCM [" .
                 var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED, true) . "]");
         
@@ -357,7 +357,7 @@ class SignalManager {
             $gcmInstance->setFirehallId($FIREHALL->FIREHALL_ID);
             $gcmInstance->setGCM_Devices(null);
             	
-            if($log) $log->trace("Send GCM send_msg check device count: " . $gcmInstance->getDeviceCount());
+            if($log !== null) $log->trace("Send GCM send_msg check device count: " . $gcmInstance->getDeviceCount());
             if($gcmInstance->getDeviceCount() > 0) {
                 $message = array("ADMIN_MSG" => urlencode($msg));
 
@@ -380,17 +380,19 @@ class SignalManager {
         // Load our template
         $template = $this->getTwigEnv()->resolveTemplate(
             array('@custom/gcm-callout-msg-custom.twig.html',
-                    'gcm-callout-msg.twig.html'));
+                    'gcm-callout-msg.twig.html'
+                    
+            ));
         // Output our template
         $msgSummary = $template->render($view_template_vars);
 
-        if($log) $log->trace("GCM callout msg [". $msgSummary . "]");
+        if($log !== null) $log->trace("GCM callout msg [". $msgSummary . "]");
 
         return $msgSummary;
     }
     
     
-    function signalResponseToSMSPlugin($callout, $userId, $userGPSLat, $userGPSLong,
+    public function signalResponseToSMSPlugin($callout, $userId, $userGPSLat, $userGPSLong,
             $userStatus) {
         $userGPSLat;
         $userGPSLong;
@@ -400,7 +402,7 @@ class SignalManager {
         return $this->sendSMSPlugin_Message($callout->getFirehall(), $smsText);
     }
     
-    function getSMSCalloutResponseMessage($callout, $userId, $userStatus) {
+    public function getSMSCalloutResponseMessage($callout, $userId, $userStatus) {
         
         $view_template_vars = array();
         $view_template_vars['callout'] = $callout;
@@ -414,7 +416,9 @@ class SignalManager {
         // Load our template
         $template = $this->getTwigEnv()->resolveTemplate(
             array('@custom/sms-callout-response-msg-custom.twig.html',
-                    'sms-callout-response-msg.twig.html'));
+                    'sms-callout-response-msg.twig.html'
+                    
+            ));
         // Output our template
         $smsMsg = $template->render($view_template_vars);
         return $smsMsg;
@@ -422,7 +426,7 @@ class SignalManager {
 
     public function signalFireHallCallout($callout) {
     	global $log;
-    	if($log) $log->trace('Callout signalled for: '. $callout->getAddress());
+    	if($log !== null) $log->trace('Callout signalled for: '. $callout->getAddress());
     	
     	$signal_result = '';
     	// Connect to the database
@@ -458,7 +462,7 @@ class SignalManager {
     		$callout->setKeyId($row->call_key);
     		$callout->setStatus($row->status);
     		
-    		if($log) $log->trace('Callout signal found EXISTING row for: '. $callout->getAddress().' id: '.$row->id);
+    		if($log !== null) $log->trace('Callout signal found EXISTING row for: '. $callout->getAddress().' id: '.$row->id);
     	}
     	
     	// Found duplicate callout so update some fields on original callout
@@ -482,7 +486,7 @@ class SignalManager {
     		
     		$affected_rows = $qry_bind->rowCount();
     		    		
-    		if($log) $log->trace('Callout signal update affected rows: '. $affected_rows);
+    		if($log !== null) $log->trace('Callout signal update affected rows: '. $affected_rows);
     		
     		if($affected_rows > 0) {
     		    $signal_result = 'UPDATE_CALLOUT';
@@ -502,7 +506,7 @@ class SignalManager {
     		}
     		else {
     		    $signal_result = 'UPDATE_CALLOUT_NO_CHANGE';
-    			if($log) $log->trace('Callout signal SKIPPED because nothing changed for: '. $callout->getAddress().' id: '.$row->id);
+    			if($log !== null) $log->trace('Callout signal SKIPPED because nothing changed for: '. $callout->getAddress().' id: '.$row->id);
     		}
     	}
     	else {
@@ -533,7 +537,7 @@ class SignalManager {
     		$callout->setId($db_connection->lastInsertId());
     		$callout->setStatus(\CalloutStatusType::Paged);
     		
-    		if($log) $log->trace('Callout signalling members for NEW call.');
+    		if($log !== null) $log->trace('Callout signalling members for NEW call.');
     		
     		//$signalManager = new \riprunner\SignalManager();
     		//signalCalloutToSMSPlugin($callout, null);

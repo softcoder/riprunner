@@ -56,15 +56,15 @@ class SqlStatement {
             $sql_filename = $this->getRootPath().'/'.$pdo_sql_file;
             if(file_exists($sql_filename) === true) {
                 $sql_array = $this->getFileContents($sql_filename);
-                if($this->getDbEngineSql($key,$sql_array) !== null) {
-                    return $this->getDbEngineSql($key,$sql_array);
+                if($this->getDbEngineSql($key, $sql_array) !== null) {
+                    return $this->getDbEngineSql($key, $sql_array);
                 }
             }
         }
         $sql_filename = $this->getRootPath().'/'.$this->getDefaultSqlFile();
         $sql_array = $this->getFileContents($sql_filename);
-        if($this->getDbEngineSql($key,$sql_array) !== null) {
-            return $this->getDbEngineSql($key,$sql_array);
+        if($this->getDbEngineSql($key, $sql_array) !== null) {
+            return $this->getDbEngineSql($key, $sql_array);
         }
         return null;
     }
@@ -146,7 +146,7 @@ class SqlStatement {
         //return number of successful queries and total number of queries found
         return array(
                 "success" => $success,
-                "total" => $total
+                "total"   => $total
         );
     }
     
@@ -156,7 +156,7 @@ class SqlStatement {
     }
     
     private function getDbEngineSql($key, $sql_array) {
-        if(array_key_exists($key,$sql_array) === false) {
+        if(array_key_exists($key, $sql_array) === false) {
             return null;
         }
         return $sql_array[$key];
@@ -185,14 +185,14 @@ class SqlStatement {
         $cache_key_lookup = "RIPRUNNER_SQL_FILE_" . $filename;
         if($this->enable_cache === true) {
             if ($this->getCache()->hasItem($cache_key_lookup) === true) {
-                if($log) $log->trace("SQL file found in CACHE: ".$filename);
+                if($log !== null) $log->trace("SQL file found in CACHE: ".$filename);
                 return $this->getCache()->getItem($cache_key_lookup);
             }
             else {
-                if($log) $log->trace("SQL file NOT FOUND in CACHE: ".$filename);
+                if($log !== null) $log->trace("SQL file NOT FOUND in CACHE: ".$filename);
             }
         }
-        $sql_array = parse_ini_file($filename,true);
+        $sql_array = parse_ini_file($filename, true);
         if($this->enable_cache === true) {
             $this->getCache()->setItem($cache_key_lookup, $sql_array);
         }

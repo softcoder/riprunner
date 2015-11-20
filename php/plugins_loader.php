@@ -34,7 +34,7 @@ class PluginsLoader {
 	static public function getImplementingClasses($interfaceName) {
 		return array_filter(
 				get_declared_classes(),
-				function($className) use ($interfaceName) {
+				function ($className) use ($interfaceName) {
 					//echo "Looking for intferface [$interfaceName] for class [$className]" .PHP_EOL;
 					return in_array($interfaceName, class_implements($className) );
 				}
@@ -51,4 +51,3 @@ class PluginsLoader {
 		return null;
 	}
 }
-?>

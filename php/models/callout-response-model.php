@@ -379,4 +379,3 @@ class CalloutResponseViewModel extends BaseViewModel {
 		return $this->respond_result;
 	}
 }
-?>

@@ -30,4 +30,3 @@ setcookie(session_name(),
 session_destroy();
 
 header('Location: controllers/login-controller.php');
-?>

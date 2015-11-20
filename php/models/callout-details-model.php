@@ -325,4 +325,3 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		return $this->callout_details_end_responding_list;
 	}
 }
-?>

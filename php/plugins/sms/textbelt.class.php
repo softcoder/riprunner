@@ -77,4 +77,3 @@ class SMSTextBeltPlugin implements ISMSPlugin {
 		return $resultSMS;
 	}
 }
-?>

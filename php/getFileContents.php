@@ -179,4 +179,3 @@ else {
 	echo "</p>" . PHP_EOL;
 	echo "</body>" . PHP_EOL;
 }
-?>

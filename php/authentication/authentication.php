@@ -61,7 +61,7 @@ class Authentication {
             $httponly = true;
             // Forces sessions to only use cookies.
             if (ini_set('session.use_only_cookies', 1) === false) {
-                if($log) $log->error("Location: error.php?err=Could not initiate a safe session (ini_set)");
+                if($log !== null) $log->error("Location: error.php?err=Could not initiate a safe session (ini_set)");
                 	
                 header("Location: error.php?err=Could not initiate a safe session (ini_set)");
                 exit();
@@ -106,7 +106,7 @@ class Authentication {
     
     public function login($user_id, $password) {
         global $log;
-        if($log) $log->trace("Login attempt for user [$user_id] fhid [" . 
+        if($log !== null) $log->trace("Login attempt for user [$user_id] fhid [" . 
                 $this->getFirehall()->FIREHALL_ID . "] client [" . self::getClientIPInfo() . "]");
     
         if($this->getFirehall()->LDAP->ENABLED === true) {
@@ -140,7 +140,7 @@ class Authentication {
                 if ($this->checkbrute($dbId, $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS) === true) {
                     // Account is locked
                     // Send an email to user saying their account is locked
-                    if($log) $log->error("LOGIN-F1");
+                    if($log !== null) $log->error("LOGIN-F1");
                     return false;
                 }
                 else {
@@ -158,8 +158,8 @@ class Authentication {
                             $user_browser = 'UNKNONW user agent.';
                         }
                          
-                        if(ENABLE_AUDITING) {
-                            if($log) $log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . self::getClientIPInfo() . "]");
+                        if(ENABLE_AUDITING === true) {
+                            if($log !== null) $log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . self::getClientIPInfo() . "]");
                         }
                         // XSS protection as we might print this value
                         //$user_id = preg_replace("/[^0-9]+/", "", $user_id);
@@ -177,7 +177,7 @@ class Authentication {
                     else {
                         // Password is not correct
                         // We record this attempt in the database
-                        if($log) $log->error("Login attempt for user [$user_id] FAILED pwd check for client [" . self::getClientIPInfo() . "]");
+                        if($log !== null) $log->error("Login attempt for user [$user_id] FAILED pwd check for client [" . self::getClientIPInfo() . "]");
                          
                         $sql = $this->getSqlStatement('login_brute_force_insert');
                          
@@ -185,16 +185,16 @@ class Authentication {
                         $qry_bind->bindParam(':uid', $dbId);  // Bind "$user_id" to parameter.
                         $qry_bind->execute();
     
-                        if($log) $log->trace("LOGIN-F2");
+                        if($log !== null) $log->trace("LOGIN-F2");
                         return false;
                     }
                 }
             }
             else {
                 // No user exists.
-                if($log) $log->warn("Login attempt for user [$user_id] FAILED uid check for client [" . self::getClientIPInfo() . "]");
+                if($log !== null) $log->warn("Login attempt for user [$user_id] FAILED uid check for client [" . self::getClientIPInfo() . "]");
                  
-                if($log) $log->trace("LOGIN-F3");
+                if($log !== null) $log->trace("LOGIN-F3");
                 return false;
             }
         }
@@ -219,7 +219,7 @@ class Authentication {
             $user_browser = $_SERVER['HTTP_USER_AGENT'];
 
             if(isset($ldap_enabled) === true && $ldap_enabled === true) {
-                if($log) $log->trace("LOGINCHECK using LDAP...");
+                if($log !== null) $log->trace("LOGINCHECK using LDAP...");
                 return login_check_ldap($this->getDbConnection());
             }
 
@@ -243,33 +243,33 @@ class Authentication {
                     }
                     else {
                         // Not logged in
-                        if($log) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . self::getClientIPInfo() . "] failed hash check!");
+                        if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . self::getClientIPInfo() . "] failed hash check!");
                         	
-                        if($log) $log->error("LOGINCHECK F1");
+                        if($log !== null) $log->error("LOGINCHECK F1");
                         return false;
                     }
                 }
                 else {
                     // Not logged in
-                    if($log) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . self::getClientIPInfo() . "] failed uid check!");
-                    if($log) $log->error("LOGINCHECK F2");
+                    if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . self::getClientIPInfo() . "] failed uid check!");
+                    if($log !== null) $log->error("LOGINCHECK F2");
                     return false;
                 }
             }
             else {
                 // Not logged in
-                if($log) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . self::getClientIPInfo() . "] UNKNOWN SQL error!");
-                if($log) $log->error("LOGINCHECK F3");
+                if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . self::getClientIPInfo() . "] UNKNOWN SQL error!");
+                if($log !== null) $log->error("LOGINCHECK F3");
                 return false;
             }
         }
         else {
             // Not logged in
-            if($log) $log->warn("Login check has no valid session! client [" . self::getClientIPInfo() . "] db userid: " .
+            if($log !== null) $log->warn("Login check has no valid session! client [" . self::getClientIPInfo() . "] db userid: " .
                     @$_SESSION['user_db_id'] .
                     " userid: " . @$_SESSION['user_id'] . " login_String: " . @$_SESSION['login_string']);
 
-            if($log) $log->error("LOGINCHECK F4");
+            if($log !== null) $log->error("LOGINCHECK F4");
             return false;
         }
     }
@@ -325,7 +325,7 @@ class Authentication {
     
             // If there have been more than x failed logins
             if ($row_count > $max_logins) {
-                if($log) $log->warn("Login attempt for user [$user_id] was blocked, client [" . self::getClientIPInfo() . "] brute force count [" . $row_count . "]");
+                if($log !== null) $log->warn("Login attempt for user [$user_id] was blocked, client [" . self::getClientIPInfo() . "] brute force count [" . $row_count . "]");
                 return true;
             }
             else {
@@ -333,7 +333,7 @@ class Authentication {
             }
         }
         else {
-            if($log) $log->error("Login attempt for user [$user_id] for client [" . self::getClientIPInfo() . "] was unknown bf error!");
+            if($log !== null) $log->error("Login attempt for user [$user_id] for client [" . self::getClientIPInfo() . "] was unknown bf error!");
         }
         return false;
     }

@@ -72,11 +72,11 @@ class EmailTriggerWebHook {
         global $log;
         
         $from = $this->getRequestVar('sender');
-        if($log) $log->warn("Email trigger checking #1 from [$from]");
+        if($log !== null) $log->warn("Email trigger checking #1 from [$from]");
         
         $from = extractDelimitedValueFromString($from, '~\<(.*?)\>~i', 1);
         
-        if($log) $log->warn("Email trigger checking #2 from [$from]");
+        if($log !== null) $log->warn("Email trigger checking #2 from [$from]");
         return $from;
     }
     private function matchFirehallAuth($FIREHALL) {
@@ -107,20 +107,20 @@ class EmailTriggerWebHook {
     }
     
     private function getServerVar($key) {
-        if($this->server_variables !== null && array_key_exists($key,$this->server_variables) === true) {
+        if($this->server_variables !== null && array_key_exists($key, $this->server_variables) === true) {
            return $this->server_variables[$key]; 
         }
-        if($_SERVER !== null && array_key_exists($key,$_SERVER) === true) {
+        if($_SERVER !== null && array_key_exists($key, $_SERVER) === true) {
             return $_SERVER[$key];
         }
         return null;
     }
 
     private function getRequestVar($key) {
-        if($this->request_variables !== null && array_key_exists($key,$this->request_variables) === true) {
+        if($this->request_variables !== null && array_key_exists($key, $this->request_variables) === true) {
             return $this->request_variables[$key];
         }
-        if($_REQUEST !== null && array_key_exists($key,$_REQUEST) === true) {
+        if($_REQUEST !== null && array_key_exists($key, $_REQUEST) === true) {
             return $_REQUEST[$key];
         }
         return null;
@@ -129,11 +129,11 @@ class EmailTriggerWebHook {
     private function signalCallout($callout) {
         global $log;
         if($this->DEBUG_LIVE_EMAIL_TRIGGER === false) {
-            if($log) $log->warn("About to trigger callout...");
+            if($log !== null) $log->warn("About to trigger callout...");
             
             $this->getSignalManager()->signalFireHallCallout($callout);
             
-            if($log) $log->warn("Callout triggered.");
+            if($log !== null) $log->warn("Callout triggered.");
         }
         else {
             // Debugging code for testing
@@ -145,31 +145,31 @@ class EmailTriggerWebHook {
             $units = $callout->getUnitsResponding();
             $ckid = $callout->getKeyId();
             
-            if($log) $log->warn("Access trigger processing parsed: [$cdatetime] [$ctype] [$caddress] [$lat] [$long] [$units] [$ckid]");
+            if($log !== null) $log->warn("Access trigger processing parsed: [$cdatetime] [$ctype] [$caddress] [$lat] [$long] [$units] [$ckid]");
         }
     }
     private function dumpRequestLog() {
 		global $log;
-		if($log) $log->error("Request Headers:");
+		if($log !== null) $log->error("Request Headers:");
 		foreach ($this->getAllServerVars() as $name => $value){
-			if($log) $log->error("Name [$name] Value [$value]");
+			if($log !== null) $log->error("Name [$name] Value [$value]");
 		}
 	}
 	
 	public function executeTriggerCheck($FIREHALLS) {
 	    global $log;
-	    if($log) $log->warn("Email trigger auth appid [".$this->getRequestAuthAppId().
+	    if($log !== null) $log->warn("Email trigger auth appid [".$this->getRequestAuthAppId().
 	            "] account name [".$this->getRequestAuthAppAccountName()."]");
 	    
 	    if($this->isAuthDataValid() === true) {
 	        if($this->isRequestValid() === true) {
 	            $realdata = $this->getRequestBodyData();
 	             
-	            if($log) $log->warn("Email trigger dump contents... [$realdata]");
+	            if($log !== null) $log->warn("Email trigger dump contents... [$realdata]");
 	    
 	            $callout = processFireHallTextTrigger($realdata);
 	    
-	            if($log) $log->warn("Email trigger processing contents signal result: " . var_export($callout->isValid(), true));
+	            if($log !== null) $log->warn("Email trigger processing contents signal result: " . var_export($callout->isValid(), true));
 	             
 	            if($callout->isValid() === true) {
 	                $from = $this->getRequestSender();
@@ -177,7 +177,7 @@ class EmailTriggerWebHook {
 	                # Loop through all Firehall email triggers
 	                foreach ($FIREHALLS as &$FIREHALL){
 	                    if($this->matchFirehallAuth($FIREHALL) === true) {
-	                        if($log) $log->warn("Email trigger checking firehall: " .
+	                        if($log !== null) $log->warn("Email trigger checking firehall: " .
 	                                $FIREHALL->WEBSITE->FIREHALL_NAME .
 	                                " google app id [" . $FIREHALL->MOBILE->GCM_APP_ID . "] sam [" .
 	                                $FIREHALL->MOBILE->GCM_SAM . "]");
@@ -185,7 +185,7 @@ class EmailTriggerWebHook {
 	    
 	                        $valid_email_trigger = validate_email_sender($FIREHALL, $from);
 	                        if($valid_email_trigger === true) {
-	                            if($log) $log->warn("Valid sender trigger matched firehall sending signal to: " .
+	                            if($log !== null) $log->warn("Valid sender trigger matched firehall sending signal to: " .
 	                                    $FIREHALL->WEBSITE->FIREHALL_NAME);
 	                             
 	                            $callout->setFirehall($FIREHALL);
@@ -193,13 +193,13 @@ class EmailTriggerWebHook {
 	                            return true;
 	                        }
 	                        else {
-	                            if($log) $log->error('FAILED trigger parsing!');
+	                            if($log !== null) $log->error('FAILED trigger parsing!');
 	                            $this->dumpRequestLog();
 	                        }
 	                    }
 	                    else if($FIREHALL->ENABLED === true && isset($FIREHALL->MOBILE->GCM_APP_ID) === true &&
 	                            isset($FIREHALL->MOBILE->GCM_SAM) === true) {
-                            if($log) $log->warn("Auth did not match firehall app id[" .
+                            if($log !== null) $log->warn("Auth did not match firehall app id[" .
                                     $FIREHALL->MOBILE->GCM_APP_ID . "] sam [" .
                                     $FIREHALL->MOBILE->GCM_SAM . "]");
                             $this->dumpRequestLog();
@@ -208,12 +208,12 @@ class EmailTriggerWebHook {
 	            }
 	        }
 	        else {
-	            if($log) $log->error("Email trigger detected NO body!");
+	            if($log !== null) $log->error("Email trigger detected NO body!");
 	            $this->dumpRequestLog();
 	        }
 	    }
 	    else {
-	        if($log) $log->error("FAILED AUTH, returning 401...");
+	        if($log !== null) $log->error("FAILED AUTH, returning 401...");
 	        $this->dumpRequestLog();
 	    
 	        header('HTTP/1.1 401 Unauthorized');

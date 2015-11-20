@@ -68,18 +68,18 @@ class HTTPCli {
 			$error_result = curl_errno($curl_connect);
 			
 			if ($result === false || $error_result !== 0) {
-			    if($log_errors_only) {
-			        if($log) $log->error("HTTPCli for [".$this->url."] exec result [" . $error_result ."]");
+			    if($log_errors_only === true) {
+			        if($log !== null) $log->error("HTTPCli for [".$this->url."] exec result [" . $error_result ."]");
 			    }
 			    else {
-			        if($log) $this->error("HTTPCli for [".$this->url."] exec result [" . $error_result ."]");
+			        if($log !== null) $this->error("HTTPCli for [".$this->url."] exec result [" . $error_result ."]");
 			    }
 			}
 		}
 		catch(Exception $ex) {
 			curl_close($curl_connect);
-			if($log_errors_only) {
-			    if($log) $log->error("HTTPCli for [".$this->url."] exec error [" . $ex->getMessage() ."]");
+			if($log_errors_only === true) {
+			    if($log !== null) $log->error("HTTPCli for [".$this->url."] exec error [" . $ex->getMessage() ."]");
 			}
 			else {
 			    $this->error("HTTPCli SEND ERROR ocurred!", "HTTPCli SEND ERROR [" . $ex->getMessage() . "]");
@@ -88,7 +88,7 @@ class HTTPCli {
 		// Close connection
 		curl_close($curl_connect);
 
-		if($log) $log->trace("Send HTTPCli success response [" . $result ."]");
+		if($log !== null) $log->trace("Send HTTPCli success response [" . $result ."]");
 		return $result;
 	}
 	
@@ -96,4 +96,3 @@ class HTTPCli {
 		throwExceptionAndLogError($ui_msg, $log_msg);
 	}
 }
-?>

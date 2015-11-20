@@ -30,4 +30,3 @@ $template = $twig->resolveTemplate(
 
 // Output our template
 echo $template->render($view_template_vars);
-?>

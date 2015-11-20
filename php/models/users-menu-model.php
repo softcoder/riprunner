@@ -36,7 +36,7 @@ class UsersMenuViewModel extends BaseViewModel {
 		return parent::__isset($name);
 	}
 	
-	private function  getIsSelfEditMode() {
+	private function getIsSelfEditMode() {
 		$self_edit = get_query_param('se');
 		$self_edit = (isset($self_edit) === true && $self_edit == true);
 		return $self_edit;
@@ -89,4 +89,3 @@ class UsersMenuViewModel extends BaseViewModel {
 		return $resultArray;
 	}	
 }
-?>

@@ -93,4 +93,3 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		return $smsMsg;
 	}
 }
-?>

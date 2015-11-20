@@ -41,4 +41,3 @@ class RiprunnerTwig {
 $riprunner_twig = new \riprunner\RiprunnerTwig();
 $twig = $riprunner_twig->getEnvironment();
 //$twig->addExtension(new \Twig_Extension_Debug());
-?>

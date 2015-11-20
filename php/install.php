@@ -78,7 +78,7 @@ function install($FIREHALL, &$db_connection) {
         	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
         	if($FIREHALL !== null) {
 				if($form_action === "install") {
-				    $db = new \riprunner\DbConnection($FIREHALL,true);
+				    $db = new \riprunner\DbConnection($FIREHALL, true);
 				    $db_connection = $db->getConnection();
 					//die('Test Master connection!');
 				}
@@ -134,10 +134,10 @@ function install($FIREHALL, &$db_connection) {
 		</center>
         <?php endif; ?>
         
-        <?php
+<?php
         if($db_connection !== null) {
         	\riprunner\DbConnection::disconnect_db( $db_connection );
         }
-        ?>
+?>
     </body>
 </html>

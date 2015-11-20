@@ -72,4 +72,3 @@ class MobileAppInfoViewModel extends BaseViewModel {
 		return $result;
 	}
 }
-?>

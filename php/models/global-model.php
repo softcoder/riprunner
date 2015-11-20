@@ -145,4 +145,3 @@ class GlobalViewModel {
 		return $this->authModel;
 	}
 }
-?>

@@ -295,4 +295,3 @@ class LoginDeviceViewModel extends BaseViewModel {
 		        $this->getRegistrationId(), $loginMsg, $this->getGvm()->RR_DB_CONN);
 	}
 }
-?>

@@ -24,84 +24,84 @@ require_once 'third-party/html2text/Html2Text.php';
 require_once 'logging.php';
 
 interface IMapProvider {
-    public function imap_open ($mailbox, $username, $password, $options = null, $n_retries = null);
+    public function imap_open($mailbox, $username, $password, $options = null, $n_retries = null);
     
-    public function imap_last_error ();
+    public function imap_last_error();
     
-    public function imap_headers ($imap_stream);
+    public function imap_headers($imap_stream);
     
-    public function imap_headerinfo ($imap_stream, $msg_number, $fromlength = null, $subjectlength = null, $defaulthost = null);
+    public function imap_headerinfo($imap_stream, $msg_number, $fromlength = null, $subjectlength = null, $defaulthost = null);
     
-    public function imap_expunge ($imap_stream);
+    public function imap_expunge($imap_stream);
 
-    public function imap_close ($imap_stream, $flag = null);
+    public function imap_close($imap_stream, $flag = null);
     
-    public function imap_fetchstructure ($imap_stream, $msg_number, $options = null);
+    public function imap_fetchstructure($imap_stream, $msg_number, $options = null);
     
-    public function imap_fetchbody ($imap_stream, $msg_number, $section, $options = null);
+    public function imap_fetchbody($imap_stream, $msg_number, $section, $options = null);
     
-    public function imap_body ($imap_stream, $msg_number, $options = null);
+    public function imap_body($imap_stream, $msg_number, $options = null);
     
-    public function imap_8bit ($string);
+    public function imap_8bit($string);
     
-    public function imap_base64 ($text);
+    public function imap_base64($text);
     
-    public function imap_qprint ($string);
+    public function imap_qprint($string);
     
-    public function imap_delete ($imap_stream, $msg_number, $options = null);
+    public function imap_delete($imap_stream, $msg_number, $options = null);
 }
 
 class IMapProviderDefault implements IMapProvider {
-    public function imap_open ($mailbox, $username, $password, $options = null, $n_retries = null) {
+    public function imap_open($mailbox, $username, $password, $options = null, $n_retries = null) {
         return \imap_open($mailbox, $username, $password, $options, $n_retries);
     }
     
-    public function imap_last_error () {
-        return \imap_last_error ();
+    public function imap_last_error() {
+        return \imap_last_error();
     }
     
-    public function imap_headers ($imap_stream) {
-        return \imap_headers ($imap_stream);
+    public function imap_headers($imap_stream) {
+        return \imap_headers($imap_stream);
     }
     
-    public function imap_headerinfo ($imap_stream, $msg_number, $fromlength = null, $subjectlength = null, $defaulthost = null) {
-        return \imap_headerinfo ($imap_stream, $msg_number, $fromlength, $subjectlength, $defaulthost);
+    public function imap_headerinfo($imap_stream, $msg_number, $fromlength = null, $subjectlength = null, $defaulthost = null) {
+        return \imap_headerinfo($imap_stream, $msg_number, $fromlength, $subjectlength, $defaulthost);
     }
     
-    public function imap_expunge ($imap_stream) {
-        return \imap_expunge ($imap_stream);
+    public function imap_expunge($imap_stream) {
+        return \imap_expunge($imap_stream);
     }
     
-    public function imap_close ($imap_stream, $flag = null) {
-        return \imap_close ($imap_stream, $flag);
+    public function imap_close($imap_stream, $flag = null) {
+        return \imap_close($imap_stream, $flag);
     }
     
-    public function imap_fetchstructure ($imap_stream, $msg_number, $options = null) {
-        return \imap_fetchstructure ($imap_stream, $msg_number, $options);
+    public function imap_fetchstructure($imap_stream, $msg_number, $options = null) {
+        return \imap_fetchstructure($imap_stream, $msg_number, $options);
     }
     
-    public function imap_fetchbody ($imap_stream, $msg_number, $section, $options = null) {
-        return \imap_fetchbody ($imap_stream, $msg_number, $section, $options);
+    public function imap_fetchbody($imap_stream, $msg_number, $section, $options = null) {
+        return \imap_fetchbody($imap_stream, $msg_number, $section, $options);
     }
     
-    public function imap_body ($imap_stream, $msg_number, $options = null) {
-        return \imap_body ($imap_stream, $msg_number, $options);
+    public function imap_body($imap_stream, $msg_number, $options = null) {
+        return \imap_body($imap_stream, $msg_number, $options);
     }
     
-    public function imap_8bit ($string) {
-        return \imap_8bit ($string);
+    public function imap_8bit($string) {
+        return \imap_8bit($string);
     }
     
-    public function imap_base64 ($text) {
-        return \imap_base64 ($text);
+    public function imap_base64($text) {
+        return \imap_base64($text);
     }
     
-    public function imap_qprint ($string) {
-        return \imap_qprint ($string);
+    public function imap_qprint($string) {
+        return \imap_qprint($string);
     }
     
-    public function imap_delete ($imap_stream, $msg_number, $options = null) {
-        return \imap_delete ($imap_stream, $msg_number, $options);
+    public function imap_delete($imap_stream, $msg_number, $options = null) {
+        return \imap_delete($imap_stream, $msg_number, $options);
     }
 }
 
@@ -166,7 +166,7 @@ class EmailTriggerPolling {
             if ($mail === false) {
                 // call this to avoid the mailbox is empty error message
                 $err_text = $this->getIMapProvider()->imap_last_error();
-                if($log) $log->error('Email trigger checking imap_open response ['.$err_text.']');
+                if($log !== null) $log->error('Email trigger checking imap_open response ['.$err_text.']');
             }
             else {
                 $headers = $this->getIMapProvider()->imap_headers($mail);
@@ -185,38 +185,38 @@ class EmailTriggerPolling {
                     $header = $this->getIMapProvider()->imap_headerinfo($mail, $num);
                      
                     $hash_text = 'RIPHASH-';
-                    if(isset($header->date)) {
+                    if(isset($header->date) === true) {
                         $hash_text.=$header->date.'-';
                     }
-                    if(isset($header->senderaddress)) {
+                    if(isset($header->senderaddress) === true) {
                         $hash_text.=$header->senderaddress.'-';
                     }
-                    if(isset($header->toaddress)) {
+                    if(isset($header->toaddress) === true) {
                         $hash_text.=$header->toaddress.'-';
                     }
-                    if(isset($header->toaddress)) {
+                    if(isset($header->toaddress) === true) {
                         $hash_text.=$header->toaddress.'-';
                     }
-                    if(isset($header->subject)) {
+                    if(isset($header->subject) === true) {
                         $hash_text.=$header->subject.'-';
                     }
-                    if(isset($header->message_id)) {
+                    if(isset($header->message_id) === true) {
                         $hash_text.=$header->message_id.'-';
                     }
-                    if(isset($header->Size)) {
+                    if(isset($header->Size) === true) {
                         $hash_text.=$header->Size.'-';
                     }
 
                     $mail_hash = hash('md5', $hash_text);
-                    if($log) $log->trace('Checking email hash ['.$mail_hash.'] if already triggered...');
+                    if($log !== null) $log->trace('Checking email hash ['.$mail_hash.'] if already triggered...');
 
                     if($FIREHALL->EMAIL->PROCESS_UNREAD_ONLY === true) {
                         $trigger_hash_string = print_r($trigger_hash_list, true);
-                        if($log) $log->trace('Looking for hash ['.$mail_hash.'] in ['.$trigger_hash_string.']');
+                        if($log !== null) $log->trace('Looking for hash ['.$mail_hash.'] in ['.$trigger_hash_string.']');
                         $html.= 'Looking for hash ['.$mail_hash.'] in ['.$trigger_hash_string.']<br />';
 
                         if(array_search($mail_hash, $trigger_hash_list) !== false) {
-                            if($log) $log->trace('Skipping Read email # ['.$num.'] subject: '.$header->subject);
+                            if($log !== null) $log->trace('Skipping Read email # ['.$num.'] subject: '.$header->subject);
                             $html.= 'Skipping Read email # ['.$num.'] subject: '.$header->subject.'<br /><br />';
                             continue;
                         }
@@ -230,16 +230,16 @@ class EmailTriggerPolling {
                         $from .= '@'.$header->from[0]->host;
                     }
                     //$from = $header->from[0]->mailbox.'@'.$header->from[0]->host;
-                    $valid_email_trigger = validate_email_sender($FIREHALL,$from);
+                    $valid_email_trigger = validate_email_sender($FIREHALL, $from);
                     if($valid_email_trigger === true) {
-                        if($log) $log->trace('Using email # ['.$num.'] for processing..');
+                        if($log !== null) $log->trace('Using email # ['.$num.'] for processing..');
                         $html.= 'Using email # ['.$num.'] for processing..<br />';
 
                         $this->process_email_trigger($FIREHALL, $html, $mail, $num);
                     }
                     if($FIREHALL->EMAIL->PROCESS_UNREAD_ONLY === true) {
                         addTriggerHash(1, $FIREHALL, $mail_hash, $db_connection);
-                        if($log) $log->trace('Adding email hash ['.$mail_hash.']');
+                        if($log !== null) $log->trace('Adding email hash ['.$mail_hash.']');
                         $html.= '<h2>Adding email hash ['.$mail_hash.']</h2>';
                     }
                 }
@@ -267,7 +267,7 @@ class EmailTriggerPolling {
         }
         $nparts = count($multi);
     
-        if($log) $log->trace('Email trigger check Email contains ['.$nparts.'] parts.');
+        if($log !== null) $log->trace('Email trigger check Email contains ['.$nparts.'] parts.');
         $html .='Email contains ['.$nparts.'] parts<br>';
     
         if ($nparts === 0) {
@@ -317,7 +317,7 @@ class EmailTriggerPolling {
                 $realdata = $this->getIMapProvider()->imap_qprint($text);
             }
     
-            if($log) $log->trace('Email trigger check part# '.$part_index.' is mime type ['.$mimetype.'].');
+            if($log !== null) $log->trace('Email trigger check part# '.$part_index.' is mime type ['.$mimetype.'].');
              
             if ($mimetype === 'Text/Html') {
                 $html .='**CONVERTING email from ['.$mimetype.'] to plain text</b><br />';
@@ -325,7 +325,7 @@ class EmailTriggerPolling {
                 $html_email = new \Html2Text\Html2Text($realdata);
                 $realdata   = $html_email->getText();
             }
-            if($log) $log->trace('Email trigger check part# '.$part_index.' contents ['.$realdata.'].');
+            if($log !== null) $log->trace('Email trigger check part# '.$part_index.' contents ['.$realdata.'].');
              
             $fullEmailBodyText .= $realdata;
     
@@ -338,10 +338,10 @@ class EmailTriggerPolling {
         }
     
         if (isset($fullEmailBodyText) === true && strlen($fullEmailBodyText) > 0) {
-            if($log) $log->trace('Email trigger processing contents...');
+            if($log !== null) $log->trace('Email trigger processing contents...');
     
             $callout = processFireHallText($realdata);
-            if($log) $log->trace('Email trigger processing contents signal result: '.var_export($callout->isValid(), true));
+            if($log !== null) $log->trace('Email trigger processing contents signal result: '.var_export($callout->isValid(), true));
     
             if ($callout->isValid() === true) {
                 $html    .='Signalling callout<br />';
@@ -351,7 +351,7 @@ class EmailTriggerPolling {
     
                 # Delete processed email message
                 if ($FIREHALL->EMAIL->EMAIL_DELETE_PROCESSED === true) {
-                    if($log) $log->trace('Email trigger processing Delete email message#: '.$num);
+                    if($log !== null) $log->trace('Email trigger processing Delete email message#: '.$num);
     
                     echo 'Delete email message#: '.$num.PHP_EOL;
                     $this->getIMapProvider()->imap_delete($mail, $num);

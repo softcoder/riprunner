@@ -79,4 +79,3 @@ class CalloutHistoryViewModel extends BaseViewModel {
 		return $this->callout_cols;
 	}
 }
-?>

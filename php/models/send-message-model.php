@@ -47,4 +47,3 @@ class SendMessageViewModel extends BaseViewModel {
 		return $gcm_send_mode;
 	}
 }
-?>

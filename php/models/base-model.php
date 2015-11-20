@@ -50,4 +50,3 @@ abstract class BaseViewModel {
 	
 	abstract protected function getVarContainerName();
 }
-?>

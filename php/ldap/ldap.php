@@ -190,4 +190,3 @@ class LDAP {
 		return $error_msg;
 	}
 }
-?>

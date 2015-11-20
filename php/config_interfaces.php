@@ -108,10 +108,10 @@ class FireHallDatabase
 
 	public function toString() {
 		$result = "Database Settings:" .
-	      		  "\ndsn: " . ($this->DSN !== null ? $this->DSN : '').
-				  "\nusername: " . ($this->USER !== null ? $this->USER : '').
-				  "\ndatabase: " . ($this->DATABASE !== null ? $this->DATABASE : '').
-				  "\ndb_conn: " . ($this->DATABASE_CONNECTION !== null ? $this->DATABASE_CONNECTION : '');
+	      		  "\ndsn: " . (($this->DSN !== null) ? $this->DSN : '').
+				  "\nusername: " . (($this->USER !== null) ? $this->USER : '').
+				  "\ndatabase: " . (($this->DATABASE !== null) ? $this->DATABASE : '').
+				  "\ndb_conn: " . (($this->DATABASE_CONNECTION !== null) ? $this->DATABASE_CONNECTION : '');
 		return $result;
 	}
 
@@ -131,7 +131,6 @@ class FireHallDatabase
 	    $this->DATABASE_CONNECTION = $db_conn;
 	}
 }
-	
 
 class FireHallMySQL extends FireHallDatabase {
     // The name of the MySQL database Host
@@ -158,7 +157,7 @@ class FireHallMySQL extends FireHallDatabase {
         if('MYSQL_DATABASE' === $name) {
             return $this->DATABASE;
         }
-        if (property_exists($this, $name)) {
+        if (property_exists($this, $name) === true) {
             return $this->$name;
         }        
     }
@@ -185,7 +184,7 @@ class FireHallMySQL extends FireHallDatabase {
             $this->DATABASE = $value;
         }
         else {
-            if (property_exists($this, $name)) {
+            if (property_exists($this, $name) === true) {
                 $this->$name = $value;
             }
         }
@@ -193,9 +192,9 @@ class FireHallMySQL extends FireHallDatabase {
     
     public function toString() {
         $result = "MySQL Settings:" .
-                "\nhostname: " . ($this->MYSQL_HOST !== null ? $this->MYSQL_HOST : '') .
-                "\ndb: " . ($this->DATABASE !== null ? $this->DATABASE : '') .
-                "\nusername: " . ($this->MYSQL_USER !== null ? $this->MYSQL_USER : '');
+                "\nhostname: " . (($this->MYSQL_HOST !== null) ? $this->MYSQL_HOST : '') .
+                "\ndb: " . (($this->DATABASE !== null) ? $this->DATABASE : '') .
+                "\nusername: " . (($this->MYSQL_USER !== null) ? $this->MYSQL_USER : '');
         return $result;
     }
 
@@ -703,7 +702,7 @@ class FireHallConfig
 	    if('MYSQL' === $name) {
 	        return $this->DB;
 	    }
-	    if (property_exists($this, $name)) {
+	    if (property_exists($this, $name) === true) {
 	        return $this->$name;
 	    }
 	}
@@ -718,7 +717,7 @@ class FireHallConfig
 	        $this->DB = $value;
 	    }
 	    else {
-	        if (property_exists($this, $name)) {
+	        if (property_exists($this, $name) === true) {
 	            $this->$name = $value;
 	        }
 	    }
@@ -752,4 +751,3 @@ class FireHallConfig
 		$this->LDAP = $ldapcfg;
 	}
 }
-?>

@@ -38,7 +38,8 @@ function login_ldap($FIREHALL, $user_id, $password) {
 	$log->trace('filter ['.$filter.']');
 
 	$entries = $ldap->search($FIREHALL->LDAP->LDAP_BASE_USERDN, $filter, $FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
-	if(isset($entries) && $entries !== null && empty($entries) === false && isset($entries[0])) {
+	if(isset($entries) === true && $entries !== null && empty($entries) === false && 
+	        isset($entries[0]) === true) {
 		//var_dump($entries);
 		$binddn = $entries[0][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
 	
@@ -51,15 +52,15 @@ function login_ldap($FIREHALL, $user_id, $password) {
 	
 			$userCount = $info['count'];
 			for ($i=0; $i < $userCount; $i++) {
-				if(isset($info[$i]['cn'])) {
+				if(isset($info[$i]['cn']) === true) {
 					$log->trace("User: ". $info[$i]['cn'][0]);
 				}
-				if(isset($info[$i]['mobile'])) {
+				if(isset($info[$i]['mobile'])=== true) {
 					$log->trace("Mobile: ". $info[$i]['mobile'][0]);
 				}
 	
 				//if($debug_functions) var_dump($info);
-				if(isset($info[$i]['sn'])) {
+				if(isset($info[$i]['sn'])=== true) {
 					$log->trace("You are accessing ". $info[$i]['sn'][0] .", " . $info[$i]['givenname'][0]);
 				}
 					
@@ -78,7 +79,7 @@ function login_ldap($FIREHALL, $user_id, $password) {
 			// Get the user-agent string of the user.
 			$user_browser = $_SERVER['HTTP_USER_AGENT'];
 			
-			if(ENABLE_AUDITING) {
+			if(ENABLE_AUDITING === true) {
 				$log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");
 			}
 			
@@ -109,7 +110,7 @@ function login_ldap($FIREHALL, $user_id, $password) {
 function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 	global $log;
 
-	if($FIREHALL->LDAP->ENABLED_CACHE) {
+	if($FIREHALL->LDAP->ENABLED_CACHE === true) {
 		$cache_key_lookup = "RIPRUNNER_LDAP_USER_ACCESS_" . $FIREHALL->FIREHALL_ID . ((isset($user_id) === true) ? $user_id : "") . ((isset($userDn) === true) ? $userDn : "");
 		$cache = new \riprunner\CacheProxy();
 		if ($cache->hasItem($cache_key_lookup) === true) {
@@ -254,7 +255,7 @@ function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 		}
 	}
 
-	if($FIREHALL->LDAP->ENABLED_CACHE) {
+	if($FIREHALL->LDAP->ENABLED_CACHE === true) {
 		$cache->setItem($cache_key_lookup, $userAccess);
 	}
 	
@@ -533,4 +534,3 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 		//die("FORCE EXIT!");
 	}
 }
-?>

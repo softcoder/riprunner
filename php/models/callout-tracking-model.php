@@ -399,4 +399,3 @@ class CalloutTrackingViewModel extends BaseViewModel {
 		return $this->responding_people_geo_list;
 	}
 }
-?>

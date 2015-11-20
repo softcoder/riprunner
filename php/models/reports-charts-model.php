@@ -639,13 +639,13 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
                 //echo "id [$id] value [$value]" . PHP_EOL;
                 
                 if($id === 0) {
-                    $month_key = $value + 0;
+                    $month_key = ($value + 0);
                 }
                 if($id === 1) {
                     $user_key = $value;
                 }
                 if($id === 2) {
-                    if(array_key_exists($month_key,$sumArray) === false) {
+                    if(array_key_exists($month_key, $sumArray) === false) {
                         //echo "#1 month_key [$month_key] user_key [$user_key] value [$value]<BR>" . PHP_EOL;
                         
                         $row = array();
@@ -654,7 +654,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
                         
                         //echo "#1.1 month_key [$month_key] user_key [$user_key] cur [" .$sumArray[$month_key][$user_key]."] value [$value]<BR>" . PHP_EOL;
                     }
-                    else if(array_key_exists($user_key,$sumArray[$month_key]) === false) {
+                    else if(array_key_exists($user_key, $sumArray[$month_key]) === false) {
                         //echo "#2 month_key [$month_key] user_key [$user_key] value [$value]<BR>" . PHP_EOL;
 
                         $sumArray[$month_key][$user_key] = ($value + 0.0);
@@ -675,8 +675,8 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         //var_dump ($sumArray, true);
         
         $newArray = array();
-        foreach ($sumArray as $month_key=>$subArray) {
-            foreach ($subArray as $user_key=>$value) {
+        foreach ($sumArray as $month_key => $subArray) {
+            foreach ($subArray as $user_key => $value) {
                 
                 //echo "MERGING [$month_key] [$user_key] [$value]<BR>" . PHP_EOL;
                 
@@ -749,4 +749,3 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         return $formatted_data;
     }
 }
-?>

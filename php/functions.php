@@ -79,7 +79,7 @@ function getGEOCoordinatesFromAddress($FIREHALL, $address) {
 									$geoloc['results'][0]['geometry']['location']['lng']);
 	}
 	else {
-		if($log) $log->warn("GEO MAP JSON response error google geo api url [$url] result [$result]");
+		if($log !== null) $log->warn("GEO MAP JSON response error google geo api url [$url] result [$result]");
 	}
 
 	return $result_geo_coords;
@@ -93,7 +93,7 @@ function findFireHallConfigById($fhid, $list) {
 			return $firehall;
 		}
 	}
-	if($log) $log->error("Scanning for fhid [$fhid] NOT FOUND!");
+	if($log !== null) $log->error("Scanning for fhid [$fhid] NOT FOUND!");
 	return null;
 }
 
@@ -128,7 +128,7 @@ function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
 	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
 	$qry_bind->closeCursor();
 	
-	if($log) $log->trace("Call getMobilePhoneListFromDB SQL success for sql [$sql] row count: " . count($rows));
+	if($log !== null) $log->trace("Call getMobilePhoneListFromDB SQL success for sql [$sql] row count: " . count($rows));
 	
 	$result = array();
 	foreach($rows as $row) {
@@ -187,7 +187,7 @@ function checkForLiveCallout($FIREHALL, $db_connection) {
 	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
 	$qry_bind->closeCursor();
 	
-	if($log) $log->trace("Call checkForLiveCallout SQL success for sql [$sql] row count: " . count($rows));
+	if($log !== null) $log->trace("Call checkForLiveCallout SQL success for sql [$sql] row count: " . count($rows));
 	
 	if(empty($rows) === false) {
 		$row = $rows[0];
@@ -226,7 +226,7 @@ function make_comparer() {
 		: array($criterion, SORT_ASC, null));
 	}
 
-	return function($first, $second) use (&$criteria) {
+	return function ($first, $second) use (&$criteria) {
 		foreach ($criteria as $criterion) {
 			// How will we compare this round?
 			list($column, $sortOrder, $projection) = $criterion;
@@ -453,12 +453,12 @@ function validate_email_sender($FIREHALL, $from) {
     
         $valid_email_trigger = false;
         if(isset($from) === true && $from !== null) {
-            if($log) $log->warn('Email trigger check on From field for ['.$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER.']');
+            if($log !== null) $log->warn('Email trigger check on From field for ['.$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER.']');
             
             $valid_email_from_triggers = explode(';', $FIREHALL->EMAIL->EMAIL_FROM_TRIGGER);
             foreach($valid_email_from_triggers as $valid_email_from_trigger) {
     
-                if($log) $log->warn('Email trigger check on From field for ['.$valid_email_from_trigger.']');
+                if($log !== null) $log->warn('Email trigger check on From field for ['.$valid_email_from_trigger.']');
     
 
                 // Match on exact email address if @ in trigger text
@@ -485,21 +485,19 @@ function validate_email_sender($FIREHALL, $from) {
                     $valid_email_trigger = true;
                 }
                  
-                if($log) $log->warn("Email trigger check on From field result: " . 
+                if($log !== null) $log->warn("Email trigger check on From field result: " . 
                         (($valid_email_trigger === true) ? "true" : "false") . " for value [$fromaddr]".
                         " expected [$valid_email_from_trigger]");
                 
-                if($valid_email_trigger) {
+                if($valid_email_trigger === true) {
                     break;
                 }
             }
         }
         else {
-            if($log) $log->warn("Email webhook trigger check from field Error not set!");
+            if($log !== null) $log->warn("Email webhook trigger check from field Error not set!");
         }
     }
     
     return $valid_email_trigger;
 }
-
-?>

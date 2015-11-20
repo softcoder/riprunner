@@ -48,12 +48,6 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 		$sql = $sql_statement->getSqlStatement('check_live_callouts');
 		
-// 		$sql = 'SELECT * FROM callouts' .
-// 				' WHERE status NOT IN (3,10) AND ' .
-// 				' TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . 
-// 				DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
-// 				' ORDER BY id DESC LIMIT 1;';
-
 		$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->bindParam(':max_age', $max_hours_old);
@@ -70,4 +64,3 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 		return $this->getCalloutModel();
 	}
 }
-?>

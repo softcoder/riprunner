@@ -38,7 +38,7 @@ class CacheProxy {
 			$this->cacheProviderType = $this->cacheProviderTypeFallback;
 		}
 				
-		if($log) $log->trace("Cache proxy constructor will use type: " . $this->cacheProviderType);
+		if($log !== null) $log->trace("Cache proxy constructor will use type: " . $this->cacheProviderType);
 	}
 
 	private function getCacheProvider() {
@@ -47,7 +47,7 @@ class CacheProxy {
 			$this->cacheProvider = PluginsLoader::findPlugin(
 					'riprunner\ICachePlugin', $this->cacheProviderType);
 			if($this->cacheProvider === null) {
-				if($log) $log->error("Invalid Cache Plugin type: [" . $this->cacheProviderType . "]");
+				if($log !== null) $log->error("Invalid Cache Plugin type: [" . $this->cacheProviderType . "]");
 				throw new \Exception("Invalid Cache Plugin type: [" . $this->cacheProviderType . "]");
 			}
 		}
@@ -87,4 +87,3 @@ class CacheProxy {
 		return $this->getCacheProvider()->clear();
 	}
 }
-?>

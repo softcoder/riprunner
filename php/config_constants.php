@@ -54,5 +54,3 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	// The current versions of the Rip Runner Android app
 	define( 'CURRENT_ANDROID_VERSIONCODE',	9);
 	define( 'CURRENT_ANDROID_VERSIONNAME',	'1.8');
-	
-?>

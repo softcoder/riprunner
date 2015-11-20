@@ -36,4 +36,3 @@ function throwExceptionAndLogError($ui_error_msg, $log_error_msg) {
 		die($ui_error_msg);
 	}
 }
-?>

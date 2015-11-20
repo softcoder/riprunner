@@ -48,15 +48,12 @@ class AuthViewModel extends BaseViewModel {
 		if($this->getGvm() === null) {
 			throw new \Exception("Invalid null gvm var reference.");
 		}
-		//if(isset($this->getGvm()->RR_DB_CONN) === true) {
+
 		$auth = new \riprunner\Authentication($this->getGvm()->firehall);
 		return $auth->login_check();
-		//}
-		return false;
 	}
 	
 	private function userHasAcess($access_flag) {
 		return \riprunner\Authentication::userHasAcess($access_flag);
 	}
 }
-?>

@@ -88,4 +88,3 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 		return $this->response_cols;
 	}
 }
-?>

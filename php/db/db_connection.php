@@ -102,7 +102,7 @@ class DbConnection {
             $this->pdo->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
         }
         catch (\PDOException $e) {
-            if($log) $log->error("DB Connect for: dsn [$dsn] user [$user] error [" . $e->getMessage() . "]");
+            if($log !== null) $log->error("DB Connect for: dsn [$dsn] user [$user] error [" . $e->getMessage() . "]");
             throw $e;
         }
         return $this->pdo;

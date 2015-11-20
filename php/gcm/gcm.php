@@ -251,4 +251,3 @@ class GCM {
         throwExceptionAndLogError($ui_msg, $log_msg);
     }
 }
-?>

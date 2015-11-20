@@ -79,4 +79,3 @@ class SMSTwilioPlugin implements ISMSPlugin {
 		return $resultSMS;
 	}
 }
-?>

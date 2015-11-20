@@ -133,4 +133,3 @@ class SMSEzTextingPlugin implements ISMSPlugin {
 		return $resultSMS;
 	}
 }
-?>
