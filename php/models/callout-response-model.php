@@ -352,12 +352,12 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$log->trace("Call Response callout update SQL success for sql [$sql] affected rows: " . $affected_update_rows);
 			
 			// Output the response update result
-			$this->respond_result = "";
+			$this->respond_result = '';
 			if($this->affected_response_rows <= 0) {
-				$this->respond_result .= "OK=" . $this->callout_respond_id . "|" . $affected_update_rows . "|";
+				$this->respond_result .= 'OK='.$this->callout_respond_id.'|'.$affected_update_rows.'|';
 			}
 			else {
-				$this->respond_result .= "OK=?" . "|" . $affected_update_rows . "|";
+				$this->respond_result .= 'OK=?'.'|'.$affected_update_rows.'|';
 			}
 			$log->trace("Call Response end result [". $this->respond_result ."] affected rows: " . 
 					$affected_update_rows . " response_duplicates: " . $response_duplicates);
