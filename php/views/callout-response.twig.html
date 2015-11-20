@@ -9,7 +9,7 @@
 <html>
 <head>
 <script type="text/javascript">
-    var result = '{{ response_vm.respond_result|escape('js') }}';
+    var result = "{{ response_vm.respond_result|escape('js') }}";
     {% set redirect_url = gvm.RR_DOC_ROOT ~ 'ci/' ~ 
         'fhid=' ~ response_vm.firehall_id ~ '&cid=' ~ response_vm.callout_id ~
         '&ckid=' ~ response_vm.calloutkey_id ~
@@ -24,7 +24,7 @@
 </body>
 </html>            
             {% else %}
-{{ response_vm.respond_result|escape('html') }}            
+{{ response_vm.respond_result|escape('html') }}
             {% endif %}
         {% else %}
         ERROR3  
