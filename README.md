@@ -60,6 +60,8 @@ Why is Rip Runner a good choice for me?:
 - It's Open Source meaning anyone with programming skills in PHP can easily make changes to suit your needs
 - It's very flexible. You are able to change many aspects of the behaviour and display of this application. You can select from various backend database engines (Mysql, MS SQL, Postgres, Oracle, etc). You can customize the user interface by making small overrides via the 'twig' framework or completely repalce the user interface with your own. You can easily add on trigger mechanisms, support additional SMS providers all with relative ease.
 - It's secure. We have adopted industry 'best practises' to ensure the security of this application. Security experts have evaluated the software to look for weaknesses and this continual process is ongoing.
+- Its (mostly) clean code. The source code comes with many unit tests to ensure that ongoing changes to the source code do not break existing functionalty. (uses PHPUnit and dbUnit)
+- Lastly its fast. We cache information where it makes sense to produce a scalable user experience, and conform to PHP 'best practises' for optimimum performance.
 
 System Requirements:
 --------------------
