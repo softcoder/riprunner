@@ -16,7 +16,17 @@
         (response_vm.member_id is not null ? '&member_id=' ~ response_vm.member_id : '') %}
                      
     var redir_url = "{{ redirect_url|raw }}";
-	window.location.href = redir_url;
+    try {
+        window.location.replace(redir_url);
+    }
+    catch(e) {
+    	try {
+    	   window.location.href = redir_url;
+    	}
+    	catch(e) {
+    		window.location = redir_url;
+    	}
+    }
 </script>
 </head>
 <body>

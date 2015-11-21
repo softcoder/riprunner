@@ -345,6 +345,7 @@ class EmailTriggerPolling {
     
             if ($callout->isValid() === true) {
                 $html    .='Signalling callout<br />';
+                if($log !== null) $log->warn("Email polling trigger dump contents... [$realdata]");
     
                 $callout->setFirehall($FIREHALL);
                 $this->getSignalManager()->signalFireHallCallout($callout);

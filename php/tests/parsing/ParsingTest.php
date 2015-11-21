@@ -119,7 +119,93 @@ class ParsingTest extends BaseDBFixture {
         $this->assertEquals('‐120.77206',$callout->getGPSLong());
         $this->assertEquals('PRGGRP1',$callout->getUnitsResponding());
     }
+    
+    public function testProcessFireHallTextTrigger_regress1_Valid() {
+        $realdata = "Date: 2015-11-21 05:32:25
+Type: MED
+Address: 9115 SALMON VALLEY RD,SALMON VALLEY, BC
+Latitude: 54.0873847
+Longitude: -122.5898009";
+    
+        $callout = processFireHallTextTrigger($realdata);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $this->assertEquals('2015-11-21 05:32:25',$callout->getDateTimeAsString());
+        $this->assertEquals('MED',$callout->getCode());
+        $this->assertEquals('9115 SALMON VALLEY RD,SALMON VALLEY, BC',$callout->getAddress());
+        $this->assertEquals('54.0873847',$callout->getGPSLat());
+        $this->assertEquals('-122.5898009',$callout->getGPSLong());
+        $this->assertEquals('',$callout->getUnitsResponding());
+    }
 
+    public function testProcessFireHallTextTrigger_regress2_Valid() {
+        $realdata = "Date: 2015-11-21 05:32:25
+Type: MED
+Address: 9115 SALMON VALLEY RD,SALMON VALLEY, BC
+Latitude: 54.0873847
+Longitude: -122.5898009
+Units Responding: SALGRP1";
+    
+        $callout = processFireHallTextTrigger($realdata);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $this->assertEquals('2015-11-21 05:32:25',$callout->getDateTimeAsString());
+        $this->assertEquals('MED',$callout->getCode());
+        $this->assertEquals('9115 SALMON VALLEY RD,SALMON VALLEY, BC',$callout->getAddress());
+        $this->assertEquals('54.0873847',$callout->getGPSLat());
+        $this->assertEquals('-122.5898009',$callout->getGPSLong());
+        $this->assertEquals('SALGRP1',$callout->getUnitsResponding());
+    }
+
+    public function testProcessFireHallTextTrigger_regress3_Valid() {
+        $realdata = "Date: 2015-11-21 05:32:25
+Type: MED
+Latitude: 54.0873847
+Longitude: -122.5898009";
+    
+        $callout = processFireHallTextTrigger($realdata);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $this->assertEquals('2015-11-21 05:32:25',$callout->getDateTimeAsString());
+        $this->assertEquals('MED',$callout->getCode());
+        $this->assertEquals('',$callout->getAddress());
+        $this->assertEquals('54.0873847',$callout->getGPSLat());
+        $this->assertEquals('-122.5898009',$callout->getGPSLong());
+        $this->assertEquals('',$callout->getUnitsResponding());
+    }
+
+    public function testProcessFireHallTextTrigger_regress4_Valid() {
+        $realdata = "Date: 2015-11-21 05:32:25
+Type: MED
+Address: 9115 SALMON VALLEY RD,SALMON VALLEY, BC";
+    
+        $callout = processFireHallTextTrigger($realdata);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $this->assertEquals('2015-11-21 05:32:25',$callout->getDateTimeAsString());
+        $this->assertEquals('MED',$callout->getCode());
+        $this->assertEquals('9115 SALMON VALLEY RD,SALMON VALLEY, BC',$callout->getAddress());
+        $this->assertEquals('',$callout->getGPSLat());
+        $this->assertEquals('',$callout->getGPSLong());
+        $this->assertEquals('',$callout->getUnitsResponding());
+    }
+
+    public function testProcessFireHallTextTrigger_regress5_Valid() {
+        $realdata = "Date: 2015-11-21 05:32:25
+Type: MED
+Units Responding: SALGRP1";
+    
+        $callout = processFireHallTextTrigger($realdata);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $this->assertEquals('2015-11-21 05:32:25',$callout->getDateTimeAsString());
+        $this->assertEquals('MED',$callout->getCode());
+        $this->assertEquals('',$callout->getAddress());
+        $this->assertEquals('',$callout->getGPSLat());
+        $this->assertEquals('',$callout->getGPSLong());
+        $this->assertEquals('SALGRP1',$callout->getUnitsResponding());
+    }
+    
     public function testValidate_email_sender_DISABLE_CHECK_Valid() {
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
         $FIREHALL->EMAIL->setFromTrigger(null);

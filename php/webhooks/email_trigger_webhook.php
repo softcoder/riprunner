@@ -15,7 +15,7 @@ require_once __RIPRUNNER_ROOT__ . '/webhooks/email_trigger.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 global $log;
-if($log === true) $log->warn("START ==> Google App Engine email trigger for client [" . \riprunner\Authentication::getClientIPInfo() ."]");
+if($log !== null) $log->warn("START ==> Google App Engine email trigger for client [" . \riprunner\Authentication::getClientIPInfo() ."]");
 
 $trigger_hook = new \riprunner\EmailTriggerWebHook();
 $result = $trigger_hook->executeTriggerCheck($FIREHALLS);
