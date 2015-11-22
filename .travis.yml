@@ -11,7 +11,7 @@ notifications:
 before_script:
   - composer install
   - composer dump-autoload -o
-script: 
+  - sudo cp php/config-default.php php/config.php
+script:
 # ALL THE BUILD COMMANDS HERE
-cp php/config-default.php php/config.php
 phpunit --coverage-text
