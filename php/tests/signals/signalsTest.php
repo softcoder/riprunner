@@ -115,7 +115,7 @@ class SignalsTest extends BaseDBFixture {
 	    ->will($this->returnValue(1));
 	    
 	    // Ensure signalRecipients is called
-	    $mock_gcm->expects($this->once())
+	    $mock_gcm->expects($this->atLeastOnce())
 	    ->method('getDeviceCount');
 	     
 	    // Set up mock return value when signalRecipients is called
@@ -159,7 +159,7 @@ class SignalsTest extends BaseDBFixture {
 	    ->will($this->returnValue(1));
 	     
 	    // Ensure signalRecipients is called
-	    $mock_gcm->expects($this->once())
+	    $mock_gcm->expects($this->atLeastOnce())
 	    ->method('getDeviceCount');
 	
 	    // Set up mock return value when signalRecipients is called
@@ -231,7 +231,7 @@ class SignalsTest extends BaseDBFixture {
 	    ->will($this->returnValue(1));
 	
 	    // Ensure signalRecipients is called
-	    $mock_gcm->expects($this->once())
+	    $mock_gcm->expects($this->atLeastOnce())
 	    ->method('getDeviceCount');
 	
 	    // Set up mock return value when signalRecipients is called
@@ -365,7 +365,7 @@ class SignalsTest extends BaseDBFixture {
 	    ->will($this->returnValue(1));
 	     
 	    // Ensure signalRecipients is called
-	    $mock_gcm->expects($this->once())
+	    $mock_gcm->expects($this->atLeastOnce())
 	    ->method('getDeviceCount');
 	    
 	    // Set up mock return value when signalRecipients is called
@@ -421,7 +421,7 @@ class SignalsTest extends BaseDBFixture {
 	    ->will($this->returnValue(1));
 	
 	    // Ensure signalRecipients is called
-	    $mock_gcm->expects($this->once())
+	    $mock_gcm->expects($this->atLeastOnce())
 	    ->method('getDeviceCount');
 	     
 	    // Set up mock return value when signalRecipients is called
