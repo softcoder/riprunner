@@ -177,6 +177,9 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
     protected function tearDown() {
         \riprunner\DbConnection::disconnect_db( $this->DBCONNECTION );
         $this->FIREHALLS = null;
+        $this->DBCONNECTION = null;
+        $this->pdoConn = null;
+        self::$pdo = null;
         
         parent::tearDown();
     }

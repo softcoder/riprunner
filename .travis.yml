@@ -12,5 +12,4 @@ before_script:
   - composer install
 #  - composer dump-autoload -o
   - sudo cp php/config-test.php php/config.php
-  - sudo mv php/tests/bootstrap.php php/tests/bootstrap_
 script: phpunit --coverage-text
