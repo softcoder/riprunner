@@ -158,7 +158,7 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
         $LOCAL_DEBUG_LDAP->setGroupMemberOf_Attribute('memberuid');
         
         $LOCAL_DEBUG_FIREHALL = new FireHallConfig();
-        $LOCAL_DEBUG_FIREHALL->setEnabled(DEBUG_MODE);
+        $LOCAL_DEBUG_FIREHALL->setEnabled(true);
         $LOCAL_DEBUG_FIREHALL->setFirehallId(0);
         $LOCAL_DEBUG_FIREHALL->setDBSettings($LOCAL_DEBUG_DB);
         $LOCAL_DEBUG_FIREHALL->setEmailSettings($LOCAL_DEBUG_EMAIL);
