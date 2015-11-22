@@ -276,7 +276,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// Main Firehall Configuration Container Settings
 	$LOCAL_DEBUG_FIREHALL = new FireHallConfig();
 	$LOCAL_DEBUG_FIREHALL->setEnabled(true);
-	$LOCAL_DEBUG_FIREHALL->setFirehallId(XXXXX);     				//  I USE THE MAIN HALL PHONE NUMBER
+	$LOCAL_DEBUG_FIREHALL->setFirehallId(123);     				//  I USE THE MAIN HALL PHONE NUMBER
 	$LOCAL_DEBUG_FIREHALL->setDBSettings($LOCAL_DEBUG_DB);
 	$LOCAL_DEBUG_FIREHALL->setEmailSettings($LOCAL_DEBUG_EMAIL);
 	$LOCAL_DEBUG_FIREHALL->setSMS_Settings($LOCAL_DEBUG_SMS);
