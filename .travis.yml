@@ -13,4 +13,4 @@ before_script:
 #  - composer dump-autoload -o
   - sudo cp php/config-test.php php/config.php
 #script: phpunit --coverage-text
-script: phpunit --verbose --debug --bootstrap php/tests/bootstrap.php
+script: phpunit --verbose --debug
