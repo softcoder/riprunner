@@ -32,7 +32,7 @@ class TriggersTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    // Create a stub for the SignalManager class.
-	    $mock_signal_mgr = $this->getMockBuilder('riprunner\SignalManager')
+	    $mock_signal_mgr = $this->getMockBuilder('\riprunner\SignalManager')
 	    ->getMock(array('signalFireHallCallout'));
 	
 	    // Ensure signalFireHallCallout is called
@@ -63,7 +63,7 @@ class TriggersTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    // Create a stub for the SignalManager class.
-	    $mock_signal_mgr = $this->getMockBuilder('riprunner\SignalManager')
+	    $mock_signal_mgr = $this->getMockBuilder('\riprunner\SignalManager')
 	    ->getMock(array('signalFireHallCallout'));
 	
 	    // Ensure signalFireHallCallout is called
@@ -93,7 +93,7 @@ class TriggersTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    // Create a stub for the SignalManager class.
-	    $mock_signal_mgr = $this->getMockBuilder('riprunner\SignalManager')
+	    $mock_signal_mgr = $this->getMockBuilder('\riprunner\SignalManager')
 	    ->getMock(array('signalFireHallCallout'));
 	
 	    // Ensure signalFireHallCallout is called
@@ -119,7 +119,7 @@ class TriggersTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    // Create a stub for the SignalManager class.
-	    $mock_signal_mgr = $this->getMockBuilder('riprunner\SignalManager')
+	    $mock_signal_mgr = $this->getMockBuilder('\riprunner\SignalManager')
 	    ->getMock(array('signalFireHallCallout'));
 	
 	    // Ensure signalFireHallCallout is called
@@ -145,7 +145,7 @@ class TriggersTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    // Create a stub for the SignalManager class.
-	    $mock_signal_mgr = $this->getMockBuilder('riprunner\SignalManager')
+	    $mock_signal_mgr = $this->getMockBuilder('\riprunner\SignalManager')
 	    ->getMock(array('signalFireHallCallout'));
 	
 	    // Ensure signalFireHallCallout is called
@@ -169,7 +169,7 @@ class TriggersTest extends BaseDBFixture {
 	public function testEmailTriggerPolling_Valid()  {
 	    
 	    // Create a fake pop3 server
-	    $mock_pop3 = $this->getMockBuilder('riprunner\IMapProvider')
+	    $mock_pop3 = $this->getMockBuilder('\riprunner\IMapProvider')
 	    ->getMock(array('imap_open','imap_headers','imap_headerinfo',
                  	    'imap_fetchstructure','imap_fetchbody','imap_qprint'));
 	    
@@ -219,7 +219,7 @@ class TriggersTest extends BaseDBFixture {
 	     
 	    
 	    // Create a stub for the SignalManager class.
-	    $mock_signal_mgr = $this->getMockBuilder('riprunner\SignalManager')
+	    $mock_signal_mgr = $this->getMockBuilder('\riprunner\SignalManager')
 	    ->getMock(array('signalFireHallCallout'));
 	
 	    // Ensure signalFireHallCallout is called
@@ -237,7 +237,7 @@ class TriggersTest extends BaseDBFixture {
 	public function testEmailTriggerPolling_from_email_InValid()  {
 	     
 	    // Create a fake pop3 server
-	    $mock_pop3 = $this->getMockBuilder('riprunner\IMapProvider')
+	    $mock_pop3 = $this->getMockBuilder('\riprunner\IMapProvider')
 	    ->getMock(array('imap_open','imap_headers','imap_headerinfo',
 	            'imap_fetchstructure','imap_fetchbody','imap_qprint'));
 	     
@@ -277,7 +277,7 @@ class TriggersTest extends BaseDBFixture {
 	
 	     
 	    // Create a stub for the SignalManager class.
-	    $mock_signal_mgr = $this->getMockBuilder('riprunner\SignalManager')
+	    $mock_signal_mgr = $this->getMockBuilder('\riprunner\SignalManager')
 	    ->getMock(array('signalFireHallCallout'));
 	
 	    // Ensure signalFireHallCallout is called
@@ -294,7 +294,7 @@ class TriggersTest extends BaseDBFixture {
 	public function testEmailTriggerPolling_email_content_InValid()  {
 	     
 	    // Create a fake pop3 server
-	    $mock_pop3 = $this->getMockBuilder('riprunner\IMapProvider')
+	    $mock_pop3 = $this->getMockBuilder('\riprunner\IMapProvider')
 	    ->getMock(array('imap_open','imap_headers','imap_headerinfo',
 	            'imap_fetchstructure','imap_fetchbody','imap_qprint'));
 	     
@@ -339,7 +339,7 @@ class TriggersTest extends BaseDBFixture {
 	
 	     
 	    // Create a stub for the SignalManager class.
-	    $mock_signal_mgr = $this->getMockBuilder('riprunner\SignalManager')
+	    $mock_signal_mgr = $this->getMockBuilder('\riprunner\SignalManager')
 	    ->getMock(array('signalFireHallCallout'));
 	
 	    // Ensure signalFireHallCallout is called

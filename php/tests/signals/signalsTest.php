@@ -48,7 +48,7 @@ class SignalsTest extends BaseDBFixture {
 		$callout->setFirehall($FIREHALL);
 
 		// Create a stub for the ISMSCalloutPlugin class.
-		$mock_sms_callout_plugin = $this->getMockBuilder('riprunner\ISMSCalloutPlugin')
+		$mock_sms_callout_plugin = $this->getMockBuilder('\riprunner\ISMSCalloutPlugin')
 		->getMock(array('signalRecipients'));
 		
 		// Set up mock return value when signalRecipients is called
@@ -72,7 +72,7 @@ class SignalsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_sms_plugin = $this->getMockBuilder('riprunner\ISMSPlugin')
+	    $mock_sms_plugin = $this->getMockBuilder('\riprunner\ISMSPlugin')
 	    ->getMock(array('signalRecipients'));
 	
 	    // Set up mock return value when signalRecipients is called
@@ -105,7 +105,7 @@ class SignalsTest extends BaseDBFixture {
 	    $callout->setFirehall($FIREHALL);
 	     
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_gcm = $this->getMockBuilder('riprunner\GCM')
+	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
 	    ->disableOriginalConstructor()
 	    ->getMock(array('send','getDeviceCount'));
 
@@ -149,7 +149,7 @@ class SignalsTest extends BaseDBFixture {
 	    $callout->setFirehall($FIREHALL);
 	
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_gcm = $this->getMockBuilder('riprunner\GCM')
+	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
 	    ->disableOriginalConstructor()
 	    ->getMock(array('send','getDeviceCount'));
 	
@@ -186,7 +186,7 @@ class SignalsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_gcm = $this->getMockBuilder('riprunner\GCM')
+	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
 	    ->disableOriginalConstructor()
 	    ->getMock(array('send','getDeviceCount'));
 	
@@ -221,7 +221,7 @@ class SignalsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_gcm = $this->getMockBuilder('riprunner\GCM')
+	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
 	    ->disableOriginalConstructor()
 	    ->getMock(array('send','getDeviceCount'));
 	
@@ -287,7 +287,7 @@ class SignalsTest extends BaseDBFixture {
 	    $user_status = 'COMPLETED';
 	            
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_sms_plugin = $this->getMockBuilder('riprunner\ISMSPlugin')
+	    $mock_sms_plugin = $this->getMockBuilder('\riprunner\ISMSPlugin')
 	    ->getMock(array('signalRecipients'));
 	
 	    // Set up mock return value when signalRecipients is called
@@ -341,7 +341,7 @@ class SignalsTest extends BaseDBFixture {
 	    $callout->setFirehall($FIREHALL);
 	
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_sms_callout_plugin = $this->getMockBuilder('riprunner\ISMSCalloutPlugin')
+	    $mock_sms_callout_plugin = $this->getMockBuilder('\riprunner\ISMSCalloutPlugin')
 	    ->getMock(array('signalRecipients'));
 	    
 	    // Set up mock return value when signalRecipients is called
@@ -355,7 +355,7 @@ class SignalsTest extends BaseDBFixture {
 	    ->with($this->equalTo($callout),$this->equalTo(''));
 
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_gcm = $this->getMockBuilder('riprunner\GCM')
+	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
 	    ->disableOriginalConstructor()
 	    ->getMock(array('send','getDeviceCount'));
 	    
@@ -397,7 +397,7 @@ class SignalsTest extends BaseDBFixture {
 	    $callout->setFirehall($FIREHALL);
 	
 	    // Create a stub for the ISMSPlugin class.
-	    $mock_sms_plugin = $this->getMockBuilder('riprunner\ISMSPlugin')
+	    $mock_sms_plugin = $this->getMockBuilder('\riprunner\ISMSPlugin')
 	    ->getMock(array('signalRecipients'));
  
 	    // Set up mock return value when signalRecipients is called
@@ -411,7 +411,7 @@ class SignalsTest extends BaseDBFixture {
 	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda is attending the callout: MED.'));
 	
 	    // Create a stub for the GCM class.
-	    $mock_gcm = $this->getMockBuilder('riprunner\GCM')
+	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
 	    ->disableOriginalConstructor()
 	    ->getMock(array('send','getDeviceCount'));
 	     
