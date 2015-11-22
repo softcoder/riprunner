@@ -250,8 +250,8 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_WEBSITE->setFirehallName('FIREHALL_NAME');                // ie: Salmon Valley Volunteer Fire Department
 	$LOCAL_DEBUG_WEBSITE->setFirehallAddress('FIREHALL ADDRESS');          // ie: 5155 Salmon Valley Road, Prince George, BC
 	$LOCAL_DEBUG_WEBSITE->setFirehallTimezone('America/Vancouver');
-	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLatitude(YOUR FIREHALL LATITUDE);  // ie: 54.0916667
-	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLongitude(YOU FIREHALL LONGITUDE); // ie: -122.6537361
+	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLatitude(123.456);  // ie: 54.0916667
+	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLongitude(-123.456); // ie: -122.6537361
 	$LOCAL_DEBUG_WEBSITE->setGoogleMap_ApiKey(DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY);
 	$LOCAL_DEBUG_WEBSITE->setCityNameSubs($GOOGLE_MAP_CITY_LOOKUP);
 	$LOCAL_DEBUG_WEBSITE->setStreetNameSubs($GOOGLE_MAP_STREET_LOOKUP);
