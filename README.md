@@ -1,3 +1,5 @@
+[![Build Status](https://api.travis-ci.org/softcoder/riprunner.png)](https://travis-ci.org/softcoder/riprunner)
+
 Rip Runner
 =========
 
