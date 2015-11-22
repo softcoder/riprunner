@@ -17,6 +17,16 @@
         </testsuite>
     </testsuites>
 
-    <php>
-    </php>
+    <filter>
+      <whitelist processUncoveredFilesFromWhitelist="true">
+        <directory suffix=".php">/php</directory>
+        <exclude>
+          <directory suffix=".php">/php/tests</directory>
+          <directory suffix=".php">/php/third-party</directory>
+        </exclude>
+      </whitelist>
+    </filter> 
+
 </phpunit>
+
+
