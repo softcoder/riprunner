@@ -314,5 +314,4 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'EMAIL_PARSING_UNITS_PATTERN_GENERIC', 		'/Responding:(.*?)(?:$|Type:|Address:|Latitude:|Longitude:|Date:)/m' );
 	
 	// ------------------------------------------------------------------------
-	
-?>
+
