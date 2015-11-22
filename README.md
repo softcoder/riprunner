@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/softcoder/riprunner.svg?branch=master)](https://travis-ci.org/softcoder/riprunner)
+
 Rip Runner
 =========
 
