@@ -8,7 +8,7 @@
     },
     "autoload": {
         "classmap": [
-            "tests/bootstrap.php"
+            "php/tests/bootstrap.php"
         ]
     }
 }
