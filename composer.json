@@ -2,14 +2,17 @@
     "require": {
     },
     "require-dev": {
-        "phpunit/phpunit": "3.7.*@dev",
-        "phpunit/dbunit": "1.3.*",
-        "mockery/mockery": "0.9.4"
+        "phpmd/phpmd" : "@stable",
+        "phpunit/phpunit": "3.7.*",
+        "phpunit/phpunit-selenium": ">=1.2",
+        "phpunit/dbunit": ">=1.2",
+        "phpunit/phpunit-story": "*",
+        "phpunit/php-invoker": "*"
     },
     "autoload": {
-        "classmap": [
-            "php/tests/bootstrap.php"
-        ]
+        "psr-0": {"": "src"}
+    },
+    "config": {
+        "bin-dir": "bin/"
     }
 }
-
