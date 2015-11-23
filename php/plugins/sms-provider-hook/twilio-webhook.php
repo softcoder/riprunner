@@ -116,7 +116,7 @@ $result = handle_sms_command($FIREHALLS);
 Hello <?php echo $result->getUserId() ?> 
 <?php if($result->getIsProcessed() === true): ?>
 Processed SMS CMD: [<?php echo $result->getCmd() ?>]
-Body [<?php echo ((isset($_REQUEST['Body']) === true) ? $_REQUEST['Body'] : '') ?>]
+Body [<?php echo ((getSafeRequestValue('Body') !== null) ? getSafeRequestValue('Body') : '') ?>]
 <?php elseif(in_array(strtoupper($result->getCmd()), $SMS_AUTO_CMD_HELP) === true): ?>
 Available commands:
 Respond to live callout, any of: <?php echo implode(', ', $SMS_AUTO_CMD_RESPONDING) . PHP_EOL ?>
@@ -126,12 +126,12 @@ Broadcast message to all: <?php echo $SMS_AUTO_CMD_BULK.PHP_EOL ?>
 Show help, any of: <?php echo implode(', ', $SMS_AUTO_CMD_HELP).PHP_EOL ?>
 <?php else: ?>
 Received SMS
-From [<?php echo ((isset($_REQUEST['From']) === true) ? $_REQUEST['From'] : '') ?>]
-To [<?php echo ((isset($_REQUEST['To']) === true) ? $_REQUEST['To'] : '') ?>]
-MessageSid [<?php echo ((isset($_REQUEST['MessageSid']) === true) ? $_REQUEST['MessageSid'] : '') ?>]
-SmsSid [<?php echo ((isset($_REQUEST['SmsSid']) === true) ? $_REQUEST['SmsSid'] : '') ?>]
-NumMedia [<?php echo ((isset($_REQUEST['NumMedia']) === true) ? $_REQUEST['NumMedia'] : '') ?>]
-Body [<?php echo ((isset($_REQUEST['Body']) === true) ? $_REQUEST['Body'] : '') ?>]
+From [<?php echo ((getSafeRequestValue('From') !== null) ? getSafeRequestValue('From') : '') ?>]
+To [<?php echo ((getSafeRequestValue('To') !== null) ? getSafeRequestValue('To') : '') ?>]
+MessageSid [<?php echo ((getSafeRequestValue('MessageSid') !== null) ? getSafeRequestValue('MessageSid') : '') ?>]
+SmsSid [<?php echo ((getSafeRequestValue('SmsSid') !== null) ? getSafeRequestValue('SmsSid') : '') ?>]
+NumMedia [<?php echo ((getSafeRequestValue('NumMedia') !== null) ? getSafeRequestValue('NumMedia') : '') ?>]
+Body [<?php echo ((getSafeRequestValue('Body') !== null) ? getSafeRequestValue('Body') : '') ?>]
 <?php if(in_array(strtoupper($result->getCmd()), $SMS_AUTO_CMD_RESPONDING) === true && count($result->getLiveCallouts()) <= 0): ?>
 Cannot respond, no callouts active!
 <?php elseif(in_array(strtoupper($result->getCmd()), $SMS_AUTO_CMD_COMPLETED) === true && count($result->getLiveCallouts()) <= 0): ?>
@@ -266,8 +266,8 @@ function handle_sms_command($FIREHALLS_LIST) {
 	$result = new \riprunner\SmSCommandResult();
 	$result->setIsProcessed(false);
 
-	if(isset($_REQUEST['From']) === true) {
-		$sms_user = clean_mobile_number($_REQUEST['From']);
+	if(getSafeRequestValue('From') !== null) {
+		$sms_user = clean_mobile_number(getSafeRequestValue('From'));
 		$result->setSmsCaller($sms_user);
 
 		# Loop through all Firehalls
@@ -292,7 +292,7 @@ function handle_sms_command($FIREHALLS_LIST) {
 						// Account is valid
 						if($result->getUserId() !== null) {
 							// Now check which command the user wants to process
-							$sms_cmd = ((isset($_REQUEST['Body']) === true) ? $_REQUEST['Body'] : '');
+							$sms_cmd = ((getSafeRequestValue('Body') !== null) ? getSafeRequestValue('Body') : '');
 							$result->setCmd($sms_cmd);
 							
 							if( in_array(strtoupper($sms_cmd), $SMS_AUTO_CMD_TEST) === true) {
@@ -429,7 +429,7 @@ function validateTwilioHost($FIREHALLS_LIST) {
 				return true;
 			}
 
-			$sms_user = ((isset($_REQUEST['From']) === true) ? $_REQUEST['From'] : '');
+			$sms_user = ((getSafeRequestValue('From') !== null) ? getSafeRequestValue('From') : '');
 			$log->error("Validate twilio host failed for client [" . \riprunner\Authentication::getClientIPInfo() ."] sms user [$sms_user], returned [$validate_result] url [$url] vars [" . implode(', ', $vars) . "] sig [$signature] auth [$authToken[1]]");
 		}
 	}

@@ -18,6 +18,17 @@ require_once 'logging.php';
 
 \riprunner\Authentication::sec_session_start();
 
+function isRequestedFileValid($file) {
+    global $log;
+    $appender = $log->getRootLogger()->getAppender('myAppender');
+    $relative_log_path = str_replace(__RIPRUNNER_ROOT__ . '/', "", $appender->getFile());
+    
+    $path_parts = pathinfo($relative_log_path);
+    $file_name  = $path_parts['basename'];
+
+    return $file === $file_name;
+}
+
 global $log;
 if (isset($_SESSION['firehall_id']) === true) {
 	$firehall_id = $_SESSION['firehall_id'];
@@ -25,13 +36,14 @@ if (isset($_SESSION['firehall_id']) === true) {
     $auth = new\riprunner\Authentication($FIREHALL);
     if ($auth->login_check() === true) {
     	$file_path = get_query_param('file');
-    	if(isset($file_path) === true && empty($file_path) === false) {
+    	if(isset($file_path) === true && empty($file_path) === false &&
+   	        isRequestedFileValid($file_path) === true) {
     		$path_parts = pathinfo($file_path);
     		$file_name  = $path_parts['basename'];
     		$file_path  = './' . $file_name;
     		
     		// allow a file to be streamed instead of sent as an attachment
-    		$is_attachment = ((isset($_REQUEST['stream']) === true) ? false : true);
+    		$is_attachment = ((getSafeRequestValue('stream') !== null) ? false : true);
     		
     		// make sure the file exists
     		if (is_file($file_path) === true) {

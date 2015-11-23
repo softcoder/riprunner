@@ -120,8 +120,8 @@ class EmailTriggerWebHook {
         if($this->request_variables !== null && array_key_exists($key, $this->request_variables) === true) {
             return $this->request_variables[$key];
         }
-        if($_REQUEST !== null && array_key_exists($key, $_REQUEST) === true) {
-            return $_REQUEST[$key];
+        if(getSafeRequestValue($key) !== null) {
+            return getSafeRequestValue($key);
         }
         return null;
     }

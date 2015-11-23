@@ -427,9 +427,9 @@ class SignalManager {
     public function signalFireHallCallout($callout) {
     	global $log;
     	if($log !== null) {
-    	    $log->warn('Callout signalled for: '.($callout->getAddress() !== null ? $callout->getAddress() : '?').
-    	            ' geo: '.($callout->getGPSLat() !== null ? $callout->getGPSLat() : '?').
-    	            ', '.($callout->getGPSLong() !== null ? $callout->getGPSLong() : '?'));
+    	    $log->warn('Callout signalled for: '.(($callout->getAddress() !== null) ? $callout->getAddress() : '?').
+    	            ' geo: '.(($callout->getGPSLat() !== null) ? $callout->getGPSLat() : '?').
+    	            ', '.(($callout->getGPSLong() !== null) ? $callout->getGPSLong() : '?'));
     	}
     	
     	$signal_result = '';

@@ -15,15 +15,16 @@ require_once 'ldap_functions.php';
 require_once 'url/http-cli.php';
 require_once 'logging.php';
 
+function getSafeRequestValue($key) {
+    $request_list = array_merge($_GET, $_POST);
+    if(array_key_exists($key, $request_list) === true) {
+        return $request_list[$key];
+    }
+    return null;
+}
+
 function get_query_param($param_name) {
-	$result = null;
-	if(isset($_GET[$param_name]) === true) {
-		$result = $_GET[$param_name];
-	}
-	else if(isset($_POST[$param_name]) === true) {
-		$result = $_POST[$param_name];
-	}
-	return $result;
+    return getSafeRequestValue($param_name);
 }	
 
 function getAddressForMapping($FIREHALL, $address) {
