@@ -18,7 +18,7 @@ require_once 'logging.php';
 function getSafeRequestValue($key) {
     $request_list = array_merge($_GET, $_POST);
     if(array_key_exists($key, $request_list) === true) {
-        return $request_list[$key];
+        return htmlspecialchars($request_list[$key]);
     }
     return null;
 }

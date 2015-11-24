@@ -425,10 +425,10 @@ class SMSCommandHandler {
     }
     private function getServerVar($key) {
         if($this->server_variables !== null && array_key_exists($key, $this->server_variables) === true) {
-            return $this->server_variables[$key];
+            return htmlspecialchars($this->server_variables[$key]);
         }
         if($_SERVER !== null && array_key_exists($key, $_SERVER) === true) {
-            return $_SERVER[$key];
+            return htmlspecialchars($_SERVER[$key]);
         }
         return null;
     }
@@ -440,7 +440,7 @@ class SMSCommandHandler {
     }
     private function getRequestVar($key) {
         if($this->request_variables !== null && array_key_exists($key, $this->request_variables) === true) {
-            return $this->request_variables[$key];
+            return htmlspecialchars($this->request_variables[$key]);
         }
         return getSafeRequestValue($key);
     }

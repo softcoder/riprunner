@@ -87,19 +87,19 @@ class Authentication {
     static public function getClientIPInfo() {
         $ip_address = '';
         if (empty($_SERVER['HTTP_CLIENT_IP']) === false) {
-            $ip_address .= 'HTTP_CLIENT_IP: '.$_SERVER['HTTP_CLIENT_IP'];
+            $ip_address .= 'HTTP_CLIENT_IP: '.htmlspecialchars($_SERVER['HTTP_CLIENT_IP']);
         }
         if (empty($_SERVER['HTTP_X_FORWARDED_FOR']) === false) {
             if (empty($ip_address) === false) {
                 $ip_address .= ' ';
             }
-            $ip_address .= 'HTTP_X_FORWARDED_FOR: '.$_SERVER['HTTP_X_FORWARDED_FOR'];
+            $ip_address .= 'HTTP_X_FORWARDED_FOR: '.htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']);
         }
         if (empty($_SERVER['REMOTE_ADDR']) === false) {
             if (empty($ip_address) === false) {
                 $ip_address .= ' ';
             }
-            $ip_address .= 'REMOTE_ADDR: '.$_SERVER['REMOTE_ADDR'];
+            $ip_address .= 'REMOTE_ADDR: '.htmlspecialchars($_SERVER['REMOTE_ADDR']);
         }
         return $ip_address;
     }
@@ -152,7 +152,7 @@ class Authentication {
                         // Password is correct!
                         // Get the user-agent string of the user.
                         if(isset($_SERVER['HTTP_USER_AGENT']) === true) {
-                            $user_browser = $_SERVER['HTTP_USER_AGENT'];
+                            $user_browser = htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
                         }
                         else {
                             $user_browser = 'UNKNONW user agent.';
@@ -216,7 +216,7 @@ class Authentication {
             $ldap_enabled = $_SESSION['ldap_enabled'];
 
             // Get the user-agent string of the user.
-            $user_browser = $_SERVER['HTTP_USER_AGENT'];
+            $user_browser = htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
 
             if(isset($ldap_enabled) === true && $ldap_enabled === true) {
                 if($log !== null) $log->trace("LOGINCHECK using LDAP...");
