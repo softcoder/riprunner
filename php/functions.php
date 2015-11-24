@@ -195,23 +195,12 @@ function checkForLiveCallout($FIREHALL, $db_connection) {
 		$callout_id = $row->id;
 		$callkey_id = $row->call_key;
 
-		if(isset($_SERVER['HTTP_HOST']) === true) {
-		    $redirect_host  = $_SERVER['HTTP_HOST'];
-		}
-		else {
-		    $redirect_host  = '';
-		}
-		if(isset($_SERVER['PHP_SELF']) === true) {
-		    $redirect_uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-		}
-		else {
-		    $redirect_uri   = '';
-		}
+		$redirect_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 		$redirect_extra = 'ci/fhid=' . urlencode($FIREHALL->FIREHALL_ID) .
 							'&cid=' . urlencode($callout_id) .
 							'&ckid=' . urlencode($callkey_id);
+		$current_callout = '<a target="_blank" href="'.$redirect_root.$redirect_extra.'" class="alert">A Callout is in progress, CLICK HERE for details</a>';
 
-		$current_callout = '<a target="_blank" href="http://' . $redirect_host . $redirect_uri.'/'.$redirect_extra.'" class="alert">A Callout is in progress, CLICK HERE for details</a>';
 		echo $current_callout;
 		return $current_callout;
 	}
@@ -338,8 +327,8 @@ function getFirehallRootURLFromRequest($request_url, $firehalls) {
 		return $firehalls[0]->WEBSITE->WEBSITE_ROOT_URL;
 	}
 	else {
-		if(isset($request_url) === false && isset($_SERVER["REQUEST_URI"]) === true) {
-			$request_url = $_SERVER["REQUEST_URI"];
+		if(isset($request_url) === false && isset($_SERVER['REQUEST_URI']) === true) {
+			$request_url = htmlspecialchars($_SERVER['REQUEST_URI']);
 		}
 		foreach ($firehalls as &$firehall) {
 			//$log->trace("#2 Looking for website root URL req [$request_url] firehall root [" . $firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
