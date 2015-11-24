@@ -25,7 +25,7 @@ class HTTPCli {
 		Constructor
 		@param $url the url
 	*/
-	public function __construct($url_value) {
+	public function __construct($url_value=null) {
 		$this->url = $url_value;
 	}
 	
