@@ -13,6 +13,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 
 require_once 'object_factory.php';
 require_once 'authentication/authentication.php';
+require_once 'config/config_manager.php';
 require_once 'cache/cache-proxy.php';
 require_once 'logging.php';
 
@@ -79,7 +80,8 @@ function login_ldap($FIREHALL, $user_id, $password) {
 			// Get the user-agent string of the user.
 			$user_browser = $_SERVER['HTTP_USER_AGENT'];
 			
-			if(ENABLE_AUDITING === true) {
+			$config = new \riprunner\ConfigManager();
+			if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
 				$log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");
 			}
 			
@@ -89,7 +91,7 @@ function login_ldap($FIREHALL, $user_id, $password) {
 			// XSS protection as we might print this value
 			//$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
 			$_SESSION['user_id'] = $user_id;
-			$_SESSION['login_string'] = hash(USER_PASSWORD_HASH_ALGORITHM, $password . $user_browser);
+			$_SESSION['login_string'] = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
 			$_SESSION['firehall_id'] = $FirehallId;
 			$_SESSION['ldap_enabled'] = true;
 			$_SESSION['user_access'] = $userAccess;

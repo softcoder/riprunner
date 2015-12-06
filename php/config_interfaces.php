@@ -48,6 +48,9 @@ class FireHallEmailAccount
 		$this->PROCESS_UNREAD_ONLY = $unread_only;
 	}
 
+	public function __toString() {
+	    return $this->toString();
+	}
 	public function toString() {
 		$result = "Email Settings:" .
 				  "\nhost enabled: " . var_export($this->EMAIL_HOST_ENABLED, true) .
@@ -106,6 +109,9 @@ class FireHallDatabase
 		$this->DATABASE_CONNECTION = $db_conn;
 	}
 
+	public function __toString() {
+	    return $this->toString();
+	}
 	public function toString() {
 		$result = "Database Settings:" .
 	      		  "\ndsn: " . (($this->DSN !== null) ? $this->DSN : '').
@@ -189,7 +195,10 @@ class FireHallMySQL extends FireHallDatabase {
             }
         }
     }
-    
+
+    public function __toString() {
+        return $this->toString();
+    }
     public function toString() {
         $result = "MySQL Settings:" .
                 "\nhostname: " . (($this->MYSQL_HOST !== null) ? $this->MYSQL_HOST : '') .
@@ -294,7 +303,10 @@ class FireHallSMS
 		$this->SMS_PROVIDER_TWILIO_AUTH_TOKEN = $twilio_auth_token;
 		$this->SMS_PROVIDER_TWILIO_FROM = $twilio_from;
 	}
-	
+
+	public function __toString() {
+	    return $this->toString();
+	}
 	public function toString() {
 		$result = "SMS Settings:" .
 				"\nenabled: " . var_export($this->SMS_SIGNAL_ENABLED, true) .
@@ -391,6 +403,9 @@ class FireHallMobile
 		$this->GCM_SAM = $gcm_sam;
 	}
 
+	public function __toString() {
+	    return $this->toString();
+	}
 	public function toString() {
 		$result = "Mobile Settings:" .
 				"\nsms signal enabled: " . var_export($this->MOBILE_SIGNAL_ENABLED, true) .
@@ -469,6 +484,9 @@ class FireHallWebsite
 		$this->MAX_INVALID_LOGIN_ATTEMPTS = $max_logins;
 	}
 
+	public function __toString() {
+	    return $this->toString();
+	}
 	public function toString() {
 		$result = "Website Settings:" .
 				"\nFirehall name: " . $this->FIREHALL_NAME .
@@ -577,6 +595,9 @@ class FireHall_LDAP
 		$this->ENABLED_CACHE = true;
 	}
 
+	public function __toString() {
+	    return $this->toString();
+	}
 	public function toString() {
 		$result = "LDAP Settings:" .
 				"\nenabled: " . var_export($this->ENABLED, true) .
@@ -685,6 +706,9 @@ class FireHallConfig
 		$this->LDAP = $ldapcfg;
 	}
 
+	public function __toString() {
+	    return $this->toString();
+	}
 	public function toString() {
 		$result = "Firehall Settings:" .
 				"\nenabled: " . var_export($this->ENABLED, true) .

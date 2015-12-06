@@ -9,6 +9,7 @@ require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/object_factory.php';
 require_once __RIPRUNNER_ROOT__ . '/models/auth-model.php';
+require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 
 // Model array of variables to be used for view
 if(isset($view_template_vars) === false) {
@@ -63,7 +64,9 @@ class GlobalViewModel {
 			return $this->getUserFirehallId();
 		}
 		if('enabled_asynch_mode' === $name) {
-			return ENABLE_ASYNCH_MODE;
+			//return ENABLE_ASYNCH_MODE;
+		    $config = new \riprunner\ConfigManager();
+		    return $config->getSystemConfigValue('ENABLE_ASYNCH_MODE');
 		}
 		if('phpinfo' === $name) {
 			return $this->getPhpInfo();

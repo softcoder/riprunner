@@ -11,6 +11,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 
 require_once 'config.php';
 require_once 'models/callout-details.php';
+require_once 'config/config_manager.php';
 
 // The email just contains basic incident information.  Here is a sample:
 //
@@ -31,9 +32,11 @@ require_once 'models/callout-details.php';
 //
 function processFireHallText($msgText) {
 	
+    $config = new \riprunner\ConfigManager();
+    
 	$callout = new \riprunner\CalloutDetails();
 	
-	$callDateTime = extractDelimitedValueFromString($msgText, EMAIL_PARSING_DATETIME_PATTERN, 1);
+	$callDateTime = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_DATETIME_PATTERN'), 1);
 	if($callDateTime !== null) {
 	    $callDateTime = trim($callDateTime);
 	    echo "DateTime : [" . $callDateTime . "]\n";
@@ -42,7 +45,7 @@ function processFireHallText($msgText) {
 		$callout->setDateTime($callDateTime);
 	}
 	
-	$callCode =  extractDelimitedValueFromString($msgText, EMAIL_PARSING_CALLCODE_PATTERN, 1);
+	$callCode =  extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_CALLCODE_PATTERN'), 1);
 	if($callCode !== null) {
 		$callCode = trim($callCode);
 		echo "Code : [" . $callCode . "]\n";
@@ -54,7 +57,7 @@ function processFireHallText($msgText) {
 	$callType = convertCallOutTypeToText($callCode);
 	echo "Incident Description : [" . $callType . "]\n";
 	
-	$callAddress = extractDelimitedValueFromString($msgText, EMAIL_PARSING_ADDRESS_PATTERN, 1);
+	$callAddress = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_ADDRESS_PATTERN'), 1);
 	if($callAddress !== null) {
 		$callAddress = trim($callAddress);
 		echo "Incident Address : [" . $callAddress . "]\n";
@@ -63,7 +66,7 @@ function processFireHallText($msgText) {
 		$callout->setAddress($callAddress);
 	}
 	
-	$callGPSLat = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LATITUDE_PATTERN, 1);
+	$callGPSLat = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_LATITUDE_PATTERN'), 1);
 	if($callGPSLat !== null) {
 		$callGPSLat = trim($callGPSLat);
 		echo "Incident GPS Lat : [" . $callGPSLat . "]\n";
@@ -72,7 +75,7 @@ function processFireHallText($msgText) {
 		$callout->setGPSLat($callGPSLat);
 	}
 	
-   	$callGPSLong = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LONGITUDE_PATTERN, 1);
+   	$callGPSLong = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_LONGITUDE_PATTERN'), 1);
    	if($callGPSLong !== null) {
    	    $callGPSLong = trim($callGPSLong);
    	    echo "Incident GPS Long : [" . $callGPSLong . "]\n";
@@ -81,7 +84,7 @@ function processFireHallText($msgText) {
 		$callout->setGPSLong($callGPSLong);
 	}
 	
-   	$callUnitsResponding = extractDelimitedValueFromString($msgText, EMAIL_PARSING_UNITS_PATTERN, 1);
+   	$callUnitsResponding = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_UNITS_PATTERN'), 1);
    	if($callUnitsResponding !== null) {
 	   	$callUnitsResponding = trim($callUnitsResponding);
 	   	echo "Incident Units Responding : [" . $callUnitsResponding . "]\n";
@@ -94,12 +97,14 @@ function processFireHallText($msgText) {
 }
 
 function processFireHallTextTrigger($msgText) {
-	
+
+    $config = new \riprunner\ConfigManager();
+    
 	$callout = new \riprunner\CalloutDetails();
 
 	$msgText = str_replace(array("\n", "\r"), '', $msgText);
 	
-	$callDateTime = extractDelimitedValueFromString($msgText, EMAIL_PARSING_DATETIME_PATTERN_GENERIC, 1);
+	$callDateTime = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_DATETIME_PATTERN_GENERIC'), 1);
 	if($callDateTime !== null) {
 		$callDateTime = trim($callDateTime);
 		echo "DateTime : [" . $callDateTime . "]\n";
@@ -108,7 +113,7 @@ function processFireHallTextTrigger($msgText) {
 		$callout->setDateTime($callDateTime);
 	}
 
-	$callCode =  extractDelimitedValueFromString($msgText, EMAIL_PARSING_CALLCODE_PATTERN_GENERIC, 1);
+	$callCode =  extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_CALLCODE_PATTERN_GENERIC'), 1);
 	if($callCode !== null) {
 		$callCode = trim($callCode);
 		echo "Code : [" . $callCode . "]\n";
@@ -120,7 +125,7 @@ function processFireHallTextTrigger($msgText) {
 	$callType = convertCallOutTypeToText($callCode);
 	echo "Incident Description : [" . $callType . "]\n";
 
-	$callAddress = extractDelimitedValueFromString($msgText, EMAIL_PARSING_ADDRESS_PATTERN_GENERIC, 1);
+	$callAddress = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_ADDRESS_PATTERN_GENERIC'), 1);
 	if($callAddress !== null) {
 		$callAddress = trim($callAddress);
 		echo "Incident Address : [" . $callAddress . "]\n";
@@ -129,7 +134,7 @@ function processFireHallTextTrigger($msgText) {
 		$callout->setAddress($callAddress);
 	}
 
-	$callGPSLat = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LATITUDE_PATTERN_GENERIC, 1);
+	$callGPSLat = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_LATITUDE_PATTERN_GENERIC'), 1);
 	if($callGPSLat !== null) {
 		$callGPSLat = trim($callGPSLat);
 		echo "Incident GPS Lat : [" . $callGPSLat . "]\n";
@@ -138,7 +143,7 @@ function processFireHallTextTrigger($msgText) {
 		$callout->setGPSLat($callGPSLat);
 	}
 
-	$callGPSLong = extractDelimitedValueFromString($msgText, EMAIL_PARSING_LONGITUDE_PATTERN_GENERIC, 1);
+	$callGPSLong = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_LONGITUDE_PATTERN_GENERIC'), 1);
 	if($callGPSLong !== null) {
 		$callGPSLong = trim($callGPSLong);
 		echo "Incident GPS Long : [" . $callGPSLong . "]\n";
@@ -147,7 +152,7 @@ function processFireHallTextTrigger($msgText) {
 		$callout->setGPSLong($callGPSLong);
 	}
 
-	$callUnitsResponding = extractDelimitedValueFromString($msgText, EMAIL_PARSING_UNITS_PATTERN_GENERIC, 1);
+	$callUnitsResponding = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_UNITS_PATTERN_GENERIC'), 1);
 	if($callUnitsResponding !== null) {
 		$callUnitsResponding = trim($callUnitsResponding);
 		echo "Incident Units Responding : [" . $callUnitsResponding . "]\n";

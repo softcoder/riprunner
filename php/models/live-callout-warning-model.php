@@ -9,6 +9,7 @@ require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/callout-model.php';
+require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 
 // The model class handling variable requests dynamically
 class LiveCalloutWarningViewModel extends BaseViewModel {
@@ -48,7 +49,10 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 		$sql = $sql_statement->getSqlStatement('check_live_callouts');
 		
-		$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
+		//$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
+		$config = new \riprunner\ConfigManager();
+		$max_hours_old = $config->getSystemConfigValue('DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD');
+		
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->bindParam(':max_age', $max_hours_old);
 		$qry_bind->execute();

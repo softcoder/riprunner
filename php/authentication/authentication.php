@@ -17,7 +17,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 ( defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false ) ) {
 	die( 'This file must not be invoked directly.' );
 }
-
+require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class Authentication {
@@ -56,7 +56,10 @@ class Authentication {
         $ses_already_started = isset($_SESSION);
         if ($ses_already_started === false) {
             $session_name = 'sec_session_id';   // Set a custom session name
-            $secure = SECURE;
+            //$secure = SECURE;
+            $config = new \riprunner\ConfigManager();
+            $secure = $config->getSystemConfigValue('SECURE');
+            
             // This stops JavaScript being able to access the session id.
             $httponly = true;
             // Forces sessions to only use cookies.
@@ -69,10 +72,10 @@ class Authentication {
             // Gets current cookies params.
             $cookieParams = session_get_cookie_params();
             session_set_cookie_params($cookieParams["lifetime"],
-                    $cookieParams["path"],
-                    $cookieParams["domain"],
-                    $secure,
-                    $httponly);
+                                      $cookieParams["path"],
+                                      $cookieParams["domain"],
+                                      $secure,
+                                      $httponly);
             // Sets the session name to the one set above.
             session_name($session_name);
             // Start the PHP session
@@ -158,7 +161,8 @@ class Authentication {
                             $user_browser = 'UNKNONW user agent.';
                         }
                          
-                        if(ENABLE_AUDITING === true) {
+                        $config = new \riprunner\ConfigManager();
+                        if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
                             if($log !== null) $log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . self::getClientIPInfo() . "]");
                         }
                         // XSS protection as we might print this value
@@ -167,7 +171,7 @@ class Authentication {
                         // XSS protection as we might print this value
                         //$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
                         $_SESSION['user_id'] = $userId;
-                        $_SESSION['login_string'] = hash(USER_PASSWORD_HASH_ALGORITHM, $userPwd . $user_browser);
+                        $_SESSION['login_string'] = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $userPwd . $user_browser);
                         $_SESSION['firehall_id'] = $FirehallId;
                         $_SESSION['ldap_enabled'] = false;
                         $_SESSION['user_access'] = $userAccess;
@@ -236,7 +240,8 @@ class Authentication {
                 if ($row !== false) {
                     // If the user exists get variables from result.
                     $password = $row->user_pwd;
-                    $login_check = hash(USER_PASSWORD_HASH_ALGORITHM, $password . $user_browser);
+                    $config = new \riprunner\ConfigManager();
+                    $login_check = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
 
                     if ($login_check === $login_string) {
                         return true;

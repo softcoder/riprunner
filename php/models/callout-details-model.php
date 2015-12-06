@@ -9,6 +9,7 @@ require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
+require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 
 // The model class handling variable requests dynamically
 class CalloutDetailsViewModel extends BaseViewModel {
@@ -60,10 +61,14 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			return $this->getCalloutDetailsEndRespondingList();
 		}
 		if('google_map_type' === $name) {
-			return GOOGLE_MAP_TYPE;
+			//return GOOGLE_MAP_TYPE;
+		    $config = new \riprunner\ConfigManager();
+		    return $config->getSystemConfigValue('GOOGLE_MAP_TYPE');
 		}
 		if('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED' === $name) {
-			return ALLOW_CALLOUT_UPDATES_AFTER_FINISHED;
+			//return ALLOW_CALLOUT_UPDATES_AFTER_FINISHED;
+		    $config = new \riprunner\ConfigManager();
+		    return $config->getSystemConfigValue('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED');
 		}
 		
 		if('map_callout_geo_dest' === $name) {

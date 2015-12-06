@@ -10,6 +10,7 @@ require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
+require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 
 // The model class handling variable requests dynamically
 class LoginDeviceViewModel extends BaseViewModel {
@@ -195,7 +196,10 @@ class LoginDeviceViewModel extends BaseViewModel {
 			$qry_bind->bindParam(':max_age', $max_hours_old);
 			$qry_bind->execute();
 			
-			$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
+			//$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
+			$config = new \riprunner\ConfigManager();
+			$max_hours_old = $config->getSystemConfigValue('DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD');
+
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 			$qry_bind->closeCursor();
 			

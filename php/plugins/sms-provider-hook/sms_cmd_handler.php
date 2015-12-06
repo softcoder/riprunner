@@ -19,6 +19,7 @@ require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/url/http-cli.php';
 require_once __RIPRUNNER_ROOT__ . '/models/callout-details.php';
+require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 require_once __RIPRUNNER_ROOT__ . '/third-party/html2text/Html2Text.php';
@@ -339,7 +340,10 @@ class SMSCommandHandler {
         $sql_statement = new \riprunner\SqlStatement($db_connection);
         $sql = $sql_statement->getSqlStatement('check_live_callouts_max');
     
-        $max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
+        //$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
+        $config = new \riprunner\ConfigManager();
+        $max_hours_old = $config->getSystemConfigValue('DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD');
+        
         $qry_bind = $db_connection->prepare($sql);
         $qry_bind->bindParam(':max_age', $max_hours_old);
         $qry_bind->execute();

@@ -2,6 +2,15 @@
 -- Table structures for rip runner for the SQLite engine
 --
 
+CREATE TABLE IF NOT EXISTS config (
+id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+firehall_id varchar(80) NOT NULL,
+keyname varchar(255) NOT NULL,
+keyindex INTEGER NOT NULL DEFAULT 0,
+keyvalue varchar(255) NOT NULL,
+updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS callouts 
 (
 id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -73,6 +82,8 @@ type INTEGER NOT NULL DEFAULT 0,
 firehall_id varchar(80) NOT NULL,
 hash_data TEXT NOT NULL
 );
+
+CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 
 CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);
 

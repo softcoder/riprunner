@@ -13,6 +13,7 @@ require_once 'db/db_connection.php';
 require_once 'db/sql_statement.php';
 require_once 'ldap_functions.php';
 require_once 'url/http-cli.php';
+require_once 'config/config_manager.php';
 require_once 'logging.php';
 
 function getSafeRequestValue($key) {
@@ -180,7 +181,10 @@ function checkForLiveCallout($FIREHALL, $db_connection) {
 	$sql_statement = new \riprunner\SqlStatement($db_connection);
 	$sql = $sql_statement->getSqlStatement('check_live_callouts');
 
-	$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
+	//$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
+	$config = new \riprunner\ConfigManager();
+	$max_hours_old = $config->getSystemConfigValue('DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD');
+	
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->bindParam(':max_age', $max_hours_old);
 	$qry_bind->execute();

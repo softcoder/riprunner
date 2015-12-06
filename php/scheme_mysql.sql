@@ -1,6 +1,14 @@
 --
 -- -- Table structures for rip runner for the MySQL engine
 --
+CREATE TABLE IF NOT EXISTS `config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `firehall_id` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
+  `keyname` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `keyindex` int(11) NOT NULL DEFAULT 0,
+  `keyvalue` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `callouts` (
   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -67,6 +75,8 @@ CREATE TABLE IF NOT EXISTS `trigger_history` (
   `firehall_id` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
   `hash_data` TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 
 CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);
 
