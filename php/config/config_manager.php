@@ -47,7 +47,7 @@ class ConfigManager {
     }
     
     public function getFirehallConfigValue($key, $firehall_id) {
-        $result = $this->findConfigValueInConfigs($key,$firehall_id);
+        $result = $this->findConfigValueInConfigs($key, $firehall_id);
         if($result === null) {
             $result = $this->findConfigValueInFirehalls($key, $firehall_id);
         }
@@ -103,10 +103,10 @@ class ConfigManager {
     }
     
     private function loadConfigValuesForFirehall($firehall_id) {
-        global $log;
+        //global $log;
         if($this->firehall_configs !== null && array_key_exists($firehall_id,
                 $this->firehall_configs) === false) {
-            $firehall = $this->findFireHallConfigById($firehall_id);
+            //$firehall = $this->findFireHallConfigById($firehall_id);
             // Load firehall specific config from the database
             
             /* DB style config which i decided was a bad option
@@ -140,7 +140,7 @@ class ConfigManager {
         if($this->firehall_configs !== null && array_key_exists($firehall_id, 
                 $this->firehall_configs) === true) {
             $firehall = $this->firehall_configs[$firehall_id];
-            if(array_key_exists($key,$firehall) === true) {
+            if(array_key_exists($key, $firehall) === true) {
                 return $firehall[$key];
             }
         }
@@ -148,7 +148,7 @@ class ConfigManager {
     }
     
     private function loadConfigValuesForDefault() {
-        global $log;
+        //global $log;
         if($this->default_config === null) {
             $filename = $this->getDefaultConfigFileFullPath();
             if(file_exists($filename) === true) {
@@ -175,7 +175,7 @@ class ConfigManager {
     }
     private function findConfigValueInObject($key_parts, $index, $lookup_object) {
         if($lookup_object !== null) {
-            if($lookup_object !== null && property_exists($lookup_object, $key_parts[$index])) {
+            if($lookup_object !== null && property_exists($lookup_object, $key_parts[$index]) === true) {
                 $new_lookup_object = $lookup_object->{$key_parts[$index]};
                 $index++;
                 if($index < count($key_parts)) {
@@ -235,14 +235,15 @@ class ConfigManager {
         return $sql_array;
     }
     
-    private function write_ini_file($assoc_arr, $path, $has_sections=FALSE) {
+    private function write_ini_file($assoc_arr, $path, $has_sections=false) {
         $content = "";
-        if ($has_sections) {
+        if ($has_sections === true) {
             foreach ($assoc_arr as $key => $elem) {
                 $content .= "[".$key."]\n";
                 foreach ($elem as $key2 => $elem2) {
-                    if(is_array($elem2)) {
-                        for($i = 0;$i < count($elem2); $i++) {
+                    if(is_array($elem2) === true) {
+                        $elem2_count = count($elem2);
+                        for($i = 0;$i < $elem2_count; $i++) {
                             if(is_bool($elem2[$i]) === true) {
                                 $content .= $key2."[] = \"". (($elem2[$i] === true) ? 'true' : 'false')."\"\n";
                             }
@@ -267,8 +268,9 @@ class ConfigManager {
         }
         else {
             foreach ($assoc_arr as $key => $elem) {
-                if(is_array($elem)) {
-                    for($i = 0;$i < count($elem); $i++) {
+                if(is_array($elem) === true) {
+                    $elem_count = count($elem);
+                    for($i = 0;$i < $elem_count; $i++) {
                         $content .= $key."[] = \"".$elem[$i]."\"\n";
                     }
                 }

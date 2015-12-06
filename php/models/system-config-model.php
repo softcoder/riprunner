@@ -105,18 +105,18 @@ class SystemConfigModel extends BaseViewModel {
 	    
 	    $resultArray = array();
 	    foreach($attributes as $key => $value) {
-            $real_value = $config->getFirehallConfigValue($key,$firehall_id);
+            $real_value = $config->getFirehallConfigValue($key, $firehall_id);
             
             if(is_object($real_value) === true) {
                 $sub_attributes = get_object_vars($real_value);
                 foreach($sub_attributes as $sub_key => $sub_value) {
-                    $sub_real_value = $config->getFirehallConfigValue($key.'->'.$sub_key,$firehall_id);
+                    $sub_real_value = $config->getFirehallConfigValue($key.'->'.$sub_key, $firehall_id);
                     if(is_object($sub_real_value) === true) {
                         $sub_sub_attributes = get_object_vars($sub_real_value);
                         foreach($sub_sub_attributes as $sub_sub_key => $sub_sub_value) {
-                            $sub_sub_real_value = $config->getFirehallConfigValue($key.'->'.$sub_key.'->'.$sub_sub_key,$firehall_id);
+                            $sub_sub_real_value = $config->getFirehallConfigValue($key.'->'.$sub_key.'->'.$sub_sub_key, $firehall_id);
                             
-                            if(is_array($sub_sub_real_value)) {
+                            if(is_array($sub_sub_real_value) === true) {
                                 continue;
                             }
                             
@@ -131,7 +131,7 @@ class SystemConfigModel extends BaseViewModel {
                         }
                     }
                     else {
-                        if(is_array($sub_real_value)) {
+                        if(is_array($sub_real_value) === true) {
                             continue;
                         }
                         
@@ -147,7 +147,7 @@ class SystemConfigModel extends BaseViewModel {
                 }
             }
             else {
-                if(is_array($real_value)) {
+                if(is_array($real_value) === true) {
                     continue;
                 }
 
