@@ -139,7 +139,7 @@
 				// ------------------------------------------
                 // Pie chart of call types for current year
                 var options_year = {
-					title:'Call Types - Current Year'
+					title:'Call Types - Year: {{ reportscharts_vm.report_year }}'
 					,'legend': { position: 'right', textStyle: { fontSize:14 } }
 					,chartArea:{left:100,top:25,width:"75%",height:"85%"}
 					,width:'50%'
@@ -193,7 +193,7 @@
                 // ------------------------------------------
                 // Line chart of call volume for current year
                 var options_year_volume = {
-					'title':'Total Call Volume by Type (All Calls) - Current Year by Month'
+					'title':'Total Call Volume by Type (All Calls) - by Month for Year: {{ reportscharts_vm.report_year }}'
 					,hAxis: { baselineColor: '#fff', gridlineColor: 'lightgrey', textPosition: 'none' }
 					,vAxis:{ logScale:true }
 					,'legend': { position: 'right', textStyle: { fontSize:14 } }
@@ -224,7 +224,7 @@
                 // ------------------------------------------
                 // Line chart of call response volume for current year
                 var options_year_response_volume = {
-					'title':'Total Call Response Volume by Person (Completed/Cancelled Calls) - Current Year by Month'
+					'title':'Total Call Response Volume by Person (Completed/Cancelled Calls) - by Month for Year: {{ reportscharts_vm.report_year }}'
 					,hAxis: { 
 						 baselineColor: '#fff'
 						,gridlineColor: 'lightgrey'
@@ -272,10 +272,30 @@
 					chart_year_response_volume.draw(data_year_response_volume, options_year_response_volume);
 				});
               }
+              
             </script>
             
             <!--Div that will hold the pie chart-->
             <table class="chart_center">
+                <tr>
+                    <td><span class="report_input_title">Select reporting year</span> 
+                        <select id="select_report_year" class="report_input_selector">
+                          <option value=""></option>
+						  <option value="2013">2013</option>
+						  <option value="2014">2014</option>
+						  <option value="2015">2015</option>
+						  <option value="2016">2016</option>
+						  <option value="2017">2017</option>
+						  <option value="2018">2018</option>
+						  <option value="2019">2019</option>
+						  <option value="2020">20206</option>
+						</select>
+						<a id="load_report" href="{{ gvm.RR_DOC_ROOT }}controllers/reports-charts-controller.php"
+						onclick="location.href=this.href+'?report_year='+document.getElementById('select_report_year').value;return false;"
+						class="report_input_title">Run Report</a>
+					</td>
+                </tr>
+            
                 <tr>
 					<td><div id="chart_allyears_div"></div></td>
                 </tr>
@@ -296,7 +316,7 @@
             <br />
                         
             <div class="inner_table">
-            <h3>Total Call Response Volume by Person (Completed/Cancelled Calls) - Current Year by Month</h3>
+            <h3>Total Call Response Volume by Person (Completed/Cancelled Calls) - by Month for Year: {{ reportscharts_vm.report_year }}</h3>
             <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
                 {% if reportscharts_vm.callresponsevol_currentyear is defined %}
                 <thead>
@@ -348,7 +368,7 @@
             </div>
             
             <div class="inner_table">
-            <h3>Total Call Response Hours by Person (Completed/Cancelled Calls) - Current Year by Month</h3>
+            <h3>Total Call Response Hours by Person (Completed/Cancelled Calls) - by Month fro Year: {{ reportscharts_vm.report_year }}</h3>
             <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
                 {% if reportscharts_vm.callresponse_hours_currentyear is defined %}
                 <thead>

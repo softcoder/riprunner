@@ -860,3 +860,14 @@ a.alert {
    color: yellow;
  }
 }
+
+.report_input_title {
+    color:white;
+    font-size:30px;
+    font-weight: bold;
+}
+
+.report_input_selector {
+    font-size:30px;
+    font-weight: bold;
+}

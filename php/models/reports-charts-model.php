@@ -28,22 +28,27 @@ class ReportsChartsViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
+	    if('report_year' === $name) {
+	        return $this->getReportYear();
+	    }
 		if('calltypes_currentmonth' === $name) {
-			$current_month_start = date('Y-m-01');
-			$current_month_end = date('Y-m-t');
-				
+			//$current_month_start = date('Y-m-01');
+			//$current_month_end = date('Y-m-t');
+		    $current_month_start = $this->getReportStartDateMonth();
+		    $current_month_end = $this->getReportEndDateMonth();
+		    
 			return $this->getCallTypeStatsForDateRange(
 					$current_month_start, $current_month_end);
 		}
 		if('calltypes_currentyear' === $name) {
-			$year_start = strtotime('first day of January', time());
-            $year_end = strtotime('last day of December', time());
+			//$year_start = strtotime('first day of January', time());
+            //$year_end = strtotime('last day of December', time());
                                 
-            $current_year_start = date('Y-m-d', $year_start);
-            $current_year_end = date('Y-m-d', $year_end);
+            //$current_year_start = date('Y-m-d', $year_start);
+            //$current_year_end = date('Y-m-d', $year_end);
 					
 			return $this->getCallTypeStatsForDateRange(
-						$current_year_start, $current_year_end);
+						$this->getReportStartDate(), $this->getReportEndDate());
 		}
 		if('calltypes_allyears' === $name) {
 			return $this->getCallTypeStatsForAllDates();
@@ -82,20 +87,55 @@ class ReportsChartsViewModel extends BaseViewModel {
 			array('calltypes_currentmonth','calltypes_currentyear','calltypes_allyears',
   				  'callvoltypes_currentyear', 'callvoltypes_currentyear_cols',
 				  'callresponsevol_currentyear', 'callresponsevol_currentyear_cols',
-				  'callresponse_hours_currentyear', 'callresponse_hours_currentyear_cols'
+				  'callresponse_hours_currentyear', 'callresponse_hours_currentyear_cols',
+			      'report_year'
 			)) === true) {
 			return true;
 		}
 		return parent::__isset($name);
 	}
 
+	public function getReportYear() {
+	    if(get_query_param('report_year') === null || get_query_param('report_year') === '') {
+	        return date("Y");
+	    }
+	    return get_query_param('report_year');
+	}
+
+	public function getReportStartDate() {
+	    //$year_start = strtotime('first day of January '.$this->getReportYear());
+	    //$report_year_start = date('Y-m-d', $year_start);
+	    $report_year_start = date($this->getReportYear().'-01-01');
+	    return $report_year_start;
+	}
+
+	public function getReportEndDate() {
+	    //$year_end = strtotime('last day of December '.$this->getReportYear());
+	    //$report_year_end = date('Y-m-d', $year_end);
+	    $report_year_end = date($this->getReportYear().'-12-31');
+	    return $report_year_end;
+	}
+
+	private function getReportStartDateMonth() {
+	    $report_year_start = date($this->getReportYear().'-m-01');
+	    return $report_year_start;
+	}
+	
+	private function getReportEndDateMonth() {
+	    $report_year_end = date($this->getReportYear().'-m-t');
+	    return $report_year_end;
+	}
+	
 	private function getCallResponseVolCurrentyear() {
 		if(isset($this->callresponsevol_currentyear) === false) {
-			$year_start = strtotime('first day of January', time());
-			$year_end = strtotime('last day of December', time());
+			//$year_start = strtotime('first day of January', time());
+			//$year_end = strtotime('last day of December', time());
 	
-			$current_year_start = date('Y-m-d', $year_start);
-			$current_year_end = date('Y-m-d', $year_end);
+			//$current_year_start = date('Y-m-d', $year_start);
+			//$current_year_end = date('Y-m-d', $year_end);
+		    $current_year_start = $this->getReportStartDate();
+		    $current_year_end = $this->getReportEndDate();
+		    
 			$this->callresponsevol_currentyear_cols = array();
 	
 			$this->callresponsevol_currentyear =
@@ -109,11 +149,14 @@ class ReportsChartsViewModel extends BaseViewModel {
 	
 	private function getCallResponseHoursCurrentyear() {
 	    if(isset($this->callresponse_hours_currentyear) === false) {
-	        $year_start = strtotime('first day of January', time());
-	        $year_end = strtotime('last day of December', time());
+	        //$year_start = strtotime('first day of January', time());
+	        //$year_end = strtotime('last day of December', time());
 	
-	        $current_year_start = date('Y-m-d', $year_start);
-	        $current_year_end = date('Y-m-d', $year_end);
+	        //$current_year_start = date('Y-m-d', $year_start);
+	        //$current_year_end = date('Y-m-d', $year_end);
+	        $current_year_start = $this->getReportStartDate();
+	        $current_year_end = $this->getReportEndDate();
+	         
 	        $this->callresponse_hours_currentyear_cols = array();
 	
 	        $this->callresponse_hours_currentyear =
@@ -127,11 +170,14 @@ class ReportsChartsViewModel extends BaseViewModel {
 	
 	private function getCallVolTypesCurrentyear() {
 		if(isset($this->callvoltypes_currentyear) === false) {
-			$year_start = strtotime('first day of January', time());
-			$year_end = strtotime('last day of December', time());
+			//$year_start = strtotime('first day of January', time());
+			//$year_end = strtotime('last day of December', time());
 			 
-			$current_year_start = date('Y-m-d', $year_start);
-			$current_year_end = date('Y-m-d', $year_end);
+			//$current_year_start = date('Y-m-d', $year_start);
+			//$current_year_end = date('Y-m-d', $year_end);
+		    $current_year_start = $this->getReportStartDate();
+		    $current_year_end = $this->getReportEndDate();
+		    
 			$this->callvoltypes_currentyear_cols = array();
 		
 			$this->callvoltypes_currentyear =
@@ -214,7 +260,9 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 	
 	private function getCallVolumeStatsForDateRange($startDate, $endDate, 
 													&$dynamicColumnTitles) {
-	
+
+	    //echo "!!!!! $startDate to $endDate" .PHP_EOL;
+	    
 		$MAX_MONTHLY_LABEL = "*MONTH TOTAL";
 	
 		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
