@@ -139,7 +139,7 @@
 				// ------------------------------------------
                 // Pie chart of call types for current year
                 var options_year = {
-					title:'Call Types - Year: {{ reportscharts_vm.report_year }}'
+					title:'Call Types - for the Year: {{ reportscharts_vm.report_year }}'
 					,'legend': { position: 'right', textStyle: { fontSize:14 } }
 					,chartArea:{left:100,top:25,width:"75%",height:"85%"}
 					,width:'50%'
@@ -165,7 +165,7 @@
 				// ------------------------------------------
                 // Pie chart of call types for current month
                 var options_month = {
-					title:'Call Types - Current Month'
+					title:'Call Types - Current Month for the Year: {{ reportscharts_vm.report_year }}'
 					,'legend': { position: 'right', textStyle: { fontSize:14 } }
 					,chartArea:{left:100,top:25,width:"75%",height:"85%"}
 					,width:'100%'
@@ -193,7 +193,7 @@
                 // ------------------------------------------
                 // Line chart of call volume for current year
                 var options_year_volume = {
-					'title':'Total Call Volume by Type (All Calls) - by Month for Year: {{ reportscharts_vm.report_year }}'
+					'title':'Total Call Volume by Type (All Calls) - by Month for the Year: {{ reportscharts_vm.report_year }}'
 					,hAxis: { baselineColor: '#fff', gridlineColor: 'lightgrey', textPosition: 'none' }
 					,vAxis:{ logScale:true }
 					,'legend': { position: 'right', textStyle: { fontSize:14 } }
@@ -224,7 +224,7 @@
                 // ------------------------------------------
                 // Line chart of call response volume for current year
                 var options_year_response_volume = {
-					'title':'Total Call Response Volume by Person (Completed/Cancelled Calls) - by Month for Year: {{ reportscharts_vm.report_year }}'
+					'title':'Total Call Response Volume by Person (Completed/Cancelled Calls) - by Month for the Year: {{ reportscharts_vm.report_year }}'
 					,hAxis: { 
 						 baselineColor: '#fff'
 						,gridlineColor: 'lightgrey'
@@ -311,7 +311,7 @@
             <br />
                         
             <div class="inner_table">
-            <h3>Total Call Response Volume by Person (Completed/Cancelled Calls) - by Month for Year: {{ reportscharts_vm.report_year }}</h3>
+            <h3>Total Call Response Volume by Person (Completed/Cancelled Calls) - by Month for the Year: {{ reportscharts_vm.report_year }}</h3>
             <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
                 {% if reportscharts_vm.callresponsevol_currentyear is defined %}
                 <thead>
@@ -363,7 +363,7 @@
             </div>
             
             <div class="inner_table">
-            <h3>Total Call Response Hours by Person (Completed/Cancelled Calls) - by Month fro Year: {{ reportscharts_vm.report_year }}</h3>
+            <h3>Total Call Response Hours by Person (Completed/Cancelled Calls) - by Month for the Year: {{ reportscharts_vm.report_year }}</h3>
             <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
                 {% if reportscharts_vm.callresponse_hours_currentyear is defined %}
                 <thead>
