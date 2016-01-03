@@ -281,18 +281,13 @@
                     <td><span class="report_input_title">Select reporting year</span> 
                         <select id="select_report_year" class="report_input_selector">
                           <option value=""></option>
-						  <option value="2013">2013</option>
-						  <option value="2014">2014</option>
-						  <option value="2015">2015</option>
-						  <option value="2016">2016</option>
-						  <option value="2017">2017</option>
-						  <option value="2018">2018</option>
-						  <option value="2019">2019</option>
-						  <option value="2020">20206</option>
+                          {% for row in reportscharts_vm.report_years_with_data %}
+						  <option value="{{ row.year }}">{{ row.year }}</option>
+						  {% endfor %}
 						</select>
-						<a id="load_report" href="{{ gvm.RR_DOC_ROOT }}controllers/reports-charts-controller.php"
-						onclick="location.href=this.href+'?report_year='+document.getElementById('select_report_year').value;return false;"
-						class="report_input_title">Run Report</a>
+						<input type="button" id="load_report" 
+						onclick="location.href='{{ gvm.RR_DOC_ROOT }}controllers/reports-charts-controller.php?report_year='+document.getElementById('select_report_year').value;return false;"
+						class="report_submit" value="Run Reports">
 					</td>
                 </tr>
             

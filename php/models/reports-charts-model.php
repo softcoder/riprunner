@@ -31,6 +31,9 @@ class ReportsChartsViewModel extends BaseViewModel {
 	    if('report_year' === $name) {
 	        return $this->getReportYear();
 	    }
+	    if('report_years_with_data' === $name) {
+	        return $this->getReportYearsWithData();
+	    }
 		if('calltypes_currentmonth' === $name) {
 			//$current_month_start = date('Y-m-01');
 			//$current_month_end = date('Y-m-t');
@@ -88,7 +91,7 @@ class ReportsChartsViewModel extends BaseViewModel {
   				  'callvoltypes_currentyear', 'callvoltypes_currentyear_cols',
 				  'callresponsevol_currentyear', 'callresponsevol_currentyear_cols',
 				  'callresponse_hours_currentyear', 'callresponse_hours_currentyear_cols',
-			      'report_year'
+			      'report_year', 'report_years_with_data'
 			)) === true) {
 			return true;
 		}
@@ -100,6 +103,19 @@ class ReportsChartsViewModel extends BaseViewModel {
 	        return date("Y");
 	    }
 	    return get_query_param('report_year');
+	}
+	
+	public function getReportYearsWithData() {
+	    // Read from the database
+	    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+	    $sql = $sql_statement->getSqlStatement('report_years_with_data');
+	    
+	    $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+	    $qry_bind->execute();
+	    
+	    $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+	    $qry_bind->closeCursor();
+	    return $rows;
 	}
 
 	public function getReportStartDate() {
