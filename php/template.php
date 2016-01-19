@@ -7,8 +7,10 @@ namespace riprunner;
 
 require_once 'config_constants.php';
 require_once __RIPRUNNER_ROOT__ . '/third-party/Twig/Autoloader.php';
+//require_once __RIPRUNNER_ROOT__ . '/third-party/Twig/Extension/Twig/Extensions/Autoloader.php';
 
 \Twig_Autoloader::register();
+//\Twig_Extensions_Autoloader::register();
 
 class RiprunnerTwig {
     
@@ -41,3 +43,4 @@ class RiprunnerTwig {
 $riprunner_twig = new \riprunner\RiprunnerTwig();
 $twig = $riprunner_twig->getEnvironment();
 //$twig->addExtension(new \Twig_Extension_Debug());
+//$twig->addExtension(new \Twig_Extensions_Extension_Text());

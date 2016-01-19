@@ -264,6 +264,8 @@ class FireHallSMS
 	public $SMS_RECIPIENTS_ARE_GROUP;
 	// If the recipient list should be dynamically built from the database set this value to true
 	public $SMS_RECIPIENTS_FROM_DB;
+	// The recipients to send an SMS during communications (but only for notification purpsoes, they cannot respond)
+	public $SMS_RECIPIENTS_NOTIFY_ONLY;
 	// The Base API URL for sending SMS messages using sendhub.com
 	public $SMS_PROVIDER_SENDHUB_BASE_URL;
 	// The Base API URL for sending SMS messages using textbelt.com
@@ -292,6 +294,7 @@ class FireHallSMS
 		$this->SMS_GATEWAY_TYPE = $gateway_type;
 		$this->SMS_CALLOUT_PROVIDER_TYPE = $callout_type;
 		$this->SMS_RECIPIENTS = $recipients;
+		$this->SMS_RECIPIENTS_NOTIFY_ONLY = '';
 		$this->SMS_RECIPIENTS_ARE_GROUP = $recipients_are_group;
 		$this->SMS_RECIPIENTS_FROM_DB = $recipients_from_db;
 		$this->SMS_PROVIDER_SENDHUB_BASE_URL = $sendhub_base_url;
@@ -315,6 +318,7 @@ class FireHallSMS
 				"\nrecipients list: " . $this->SMS_RECIPIENTS .
 				"\nrecipients are a group name: " . var_export($this->SMS_RECIPIENTS_ARE_GROUP, true) .
 				"\nGet recipients from DB: " . var_export($this->SMS_RECIPIENTS_FROM_DB, true) .
+				"\nrecipients notify only list: " . $this->SMS_RECIPIENTS_NOTIFY_ONLY .
 				"\nSendhub url: " . $this->SMS_PROVIDER_SENDHUB_BASE_URL .
 				"\nTextbelt url: " . $this->SMS_PROVIDER_TEXTBELT_BASE_URL .
 				"\nEzTexting url: " . $this->SMS_PROVIDER_EZTEXTING_BASE_URL .
@@ -336,6 +340,13 @@ class FireHallSMS
 	}
 	public function setRecipients($recipients) {
 		$this->SMS_RECIPIENTS = $recipients;
+	}
+	
+	public function getRecipientsNotifyOnly() {
+	    return $this->SMS_RECIPIENTS_NOTIFY_ONLY;
+	}
+	public function setRecipientsNotifyOnly($recipients) {
+	    $this->SMS_RECIPIENTS_NOTIFY_ONLY = $recipients;
 	}
 	public function setRecipientsAreGroup($recipients_are_group) {
 		$this->SMS_RECIPIENTS_ARE_GROUP = $recipients_are_group;

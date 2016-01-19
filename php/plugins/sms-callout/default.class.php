@@ -13,6 +13,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 require_once 'plugin_interfaces.php';
 require_once __RIPRUNNER_ROOT__ . '/template.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
+require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 
 class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 
@@ -33,13 +34,17 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 
 		$log->trace("Using SMS plugin [". $smsPlugin->getPluginType() ."]");
 		
+		$config = new \riprunner\ConfigManager(array($callout->getFirehall()));
+				
 		if($callout->getFirehall()->LDAP->ENABLED === true) {
 			$recipients = get_sms_recipients_ldap($callout->getFirehall(), null);
 			$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { $m; return ''; }, $recipients);
-			
 			$recipient_list = explode(';', $recipients);
 			$recipient_list_array = $recipient_list;
-			
+
+			$sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY',$callout->getFirehall()->FIREHALL_ID);
+			$recipient_list_array = array_merge($recipient_list_array,explode(';', $sms_notify));
+				
 			$recipient_list_type = RecipientListType::MobileList;
 		}
 		else {
@@ -58,6 +63,8 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 				$recipient_list = explode(';', $recipients);
 				$recipient_list_array = $recipient_list;
 			}
+			$sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY',$callout->getFirehall()->FIREHALL_ID);
+			$recipient_list_array = array_merge($recipient_list_array,explode(';', $sms_notify));
 		}
 		
 		$smsText = self::getSMSCalloutMessage($callout);

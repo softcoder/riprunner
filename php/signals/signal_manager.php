@@ -16,6 +16,7 @@ require_once __RIPRUNNER_ROOT__.'/functions.php';
 require_once __RIPRUNNER_ROOT__.'/object_factory.php';
 require_once __RIPRUNNER_ROOT__.'/template.php';
 require_once __RIPRUNNER_ROOT__.'/logging.php';
+require_once __RIPRUNNER_ROOT__.'/config/config_manager.php';
 
 class SignalManager {
     
@@ -100,12 +101,17 @@ class SignalManager {
                 throw new Exception("Invalid SMS Plugin type: [" . $FIREHALL->SMS->SMS_GATEWAY_TYPE . "]");
             }
         
+            $config = new \riprunner\ConfigManager(array($FIREHALL));
+            
             if($FIREHALL->LDAP->ENABLED === true) {
                 $recipients = get_sms_recipients_ldap($FIREHALL, null);
                 $recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { $m; return ''; }, $recipients);
                 	
                 $recipient_list = explode(';', $recipients);
                 $recipient_list_array = $recipient_list;
+                
+                $sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY',$FIREHALL->FIREHALL_ID);
+                $recipient_list_array = array_merge($recipient_list_array,explode(';', $sms_notify));
             }
             else {
                 $recipient_list_type = (($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP === true) ?
@@ -123,6 +129,12 @@ class SignalManager {
                     $recipient_list = explode(';', $recipients);
                     $recipient_list_array = $recipient_list;
                 }
+                
+                //var_dump($recipient_list_array);
+                $sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY',$FIREHALL->FIREHALL_ID);
+                //echo "sms_notify is [$sms_notify]" . PHP_EOL;
+                $recipient_list_array = array_merge($recipient_list_array,explode(';', $sms_notify));
+                //var_dump($recipient_list_array);
             }
         
             $resultSMS = $smsPlugin->signalRecipients($FIREHALL->SMS, $recipient_list_array,
