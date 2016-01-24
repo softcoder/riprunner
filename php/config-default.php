@@ -121,6 +121,7 @@ $GOOGLE_MAP_STREET_LOOKUP = array(
 
 // Google maps city name substitution list: Original name -> Google map name
 define( 'GOOGLE_MAP_CITY_DEFAULT', 'PRINCE GEORGE,' );
+define( 'GOOGLE_MAP_CITY_DEFAULT2', ',PRINCE GEORGE' );
 
 // This is a list of common areas around your city.  this tables substitues each for the city you have chosen
 $GOOGLE_MAP_CITY_LOOKUP = array(
@@ -173,7 +174,61 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 		//"WILLISTON LAKE," => "WILLISTON LAKE,",
 		"WILLOW RIVER," => GOOGLE_MAP_CITY_DEFAULT,
 		"WILLOW RIVER VALLEY," => "WILLOW RIVER,",
-		"WOODPECKER," => GOOGLE_MAP_CITY_DEFAULT
+		"WOODPECKER," => GOOGLE_MAP_CITY_DEFAULT,
+        
+        
+        
+        //",ALBREDA" => "ALBREDA,",
+        //",BEAR LAKE" => "BEAR LAKE,",
+        ",BEAVERLEY" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",BEDNESTI NORMAN" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",BLACKWATER NORTH" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",BUCKHORN" => GOOGLE_MAP_CITY_DEFAULT2,
+        //",CARP LAKE" => "CARP LAKE,",
+        ",CHIEF LAKE" => GOOGLE_MAP_CITY_DEFAULT2,
+        //",CRESCENT SPUR" => "CRESCENT SPUR,",
+        //",DOME CREEK" => "DOME CREEK,",
+        //",DUNSTER" => "DUNSTER,",
+        ",FERNDALE-TABOR" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",FOREMAN FLATS" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",FORT GEORGE NO 2" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",GISCOME" => GOOGLE_MAP_CITY_DEFAULT2,
+        //",HIXON" => ",HIXON",
+        ",ISLE PIERRE" => GOOGLE_MAP_CITY_DEFAULT2,
+        //",MACKENZIE" => ",MACKENZIE",
+        ",MACKENZIE RURAL" => ",MACKENZIE RURAL",
+        //",MCBRIDE" => ",MCBRIDE",
+        ",MCBRIDE RURAL" => ",MCBRIDE",
+        //",MCGREGOR" => GOOGLE_MAP_CITY_DEFAULT,
+        //",MCLEOD LAKE" => "MCLEOD LAKE,"
+        ",MCLEOD LAKE RESERVE" => ",MCLEOD LAKE",
+        ",MIWORTH" => GOOGLE_MAP_CITY_DEFAULT2,
+        //",MOSSVALE" => ",MOSSVALE",
+        //",MOUNT ROBSON" => ",MOUNT ROBSON",
+        ",MUD RIVER" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",NESS LAKE" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",NORTH KELLY" => GOOGLE_MAP_CITY_DEFAULT2,
+        //",PARSNIP" => ",PARSNIP",
+        ",PINE PASS" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",PINEVIEW FFG" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",PINEVIEW" => GOOGLE_MAP_CITY_DEFAULT2,
+        //",PRINCE GEORGE" => ",PRINCE GEORGE",
+        ",PURDEN" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",RED ROCK" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",SALMON VALLEY" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",SHELL-GLEN" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",STONER" => GOOGLE_MAP_CITY_DEFAULT2,
+        //",SUMMIT LAKE" => ",SUMMIT LAKE",
+        //",TETE JAUNE" => ",TETE JAUNE",
+        //",UPPER FRASER" => ",UPPER FRASER",
+        //",VALEMOUNT" => ",VALEMOUNT",
+        ",VALEMOUNT RURAL" => ",VALEMOUNT",
+        ",WEST LAKE" => GOOGLE_MAP_CITY_DEFAULT2,
+        //",WILLISTON LAKE" => ",WILLISTON LAKE",
+        ",WILLOW RIVER" => GOOGLE_MAP_CITY_DEFAULT2,
+        ",WILLOW RIVER VALLEY" => "WILLOW RIVER",
+        ",WOODPECKER" => GOOGLE_MAP_CITY_DEFAULT2
+        
 	);
 	
 	
@@ -299,19 +354,19 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// 	Units Responding: SALGRP1
 	//
 	define( 'EMAIL_PARSING_DATETIME_PATTERN', 	'/Date: (.*?)$/m' );
-	define( 'EMAIL_PARSING_CALLCODE_PATTERN', 	'/Type: (.*?)$/m' );
+    define( 'EMAIL_PARSING_CALLCODE_PATTERN', 	'/Type: (.*?)(?:$| -)/m' );
 	define( 'EMAIL_PARSING_ADDRESS_PATTERN', 	'/Address: (.*?)$/m' );
 	define( 'EMAIL_PARSING_LATITUDE_PATTERN', 	'/Latitude: (.*?)$/m' );
 	define( 'EMAIL_PARSING_LONGITUDE_PATTERN', 	'/Longitude: (.*?)$/m' );
 	define( 'EMAIL_PARSING_UNITS_PATTERN', 		'/Units Responding: (.*?)$/m' );
 	
 	// Email parser lookup patterns for email triggers via Google App Engine webhook
-	define( 'EMAIL_PARSING_DATETIME_PATTERN_GENERIC', 	'/Date:(.*?)(?:$|Type:|Address:|Latitude:|Longitude:|Units)/m' );
-	define( 'EMAIL_PARSING_CALLCODE_PATTERN_GENERIC', 	'/Type:(.*?)(?:$|Type:|Address:|Latitude:|Longitude:|Units)/m' );
-	define( 'EMAIL_PARSING_ADDRESS_PATTERN_GENERIC', 	'/Address:(.*?)(?:$|Type:|Address:|Latitude:|Longitude:|Units)/m' );
-	define( 'EMAIL_PARSING_LATITUDE_PATTERN_GENERIC', 	'/Latitude:(.*?)(?:$|Type:|Address:|Latitude:|Longitude:|Units)/m' );
-	define( 'EMAIL_PARSING_LONGITUDE_PATTERN_GENERIC', 	'/Longitude:(.*?)(?:$|Type:|Address:|Latitude:|Longitude:|Units)/m' );
-	define( 'EMAIL_PARSING_UNITS_PATTERN_GENERIC', 		'/Responding:(.*?)(?:$|Type:|Address:|Latitude:|Longitude:|Date:)/m' );
+	define( 'EMAIL_PARSING_DATETIME_PATTERN_GENERIC', 	'/Date:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units)/m' );
+	define( 'EMAIL_PARSING_CALLCODE_PATTERN_GENERIC', 	'/Type:(.*?)(?:$| -|Type:|Department:|Address:|Latitude:|Longitude:|Units)/m' );
+	define( 'EMAIL_PARSING_ADDRESS_PATTERN_GENERIC', 	'/Address:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units)/m' );
+	define( 'EMAIL_PARSING_LATITUDE_PATTERN_GENERIC', 	'/Latitude:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units)/m' );
+	define( 'EMAIL_PARSING_LONGITUDE_PATTERN_GENERIC', 	'/Longitude:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units)/m' );
+	define( 'EMAIL_PARSING_UNITS_PATTERN_GENERIC', 		'/Responding:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Date:)/m' );
 	
 	// ------------------------------------------------------------------------
 

@@ -21,6 +21,7 @@ function extractDelimitedValueFromString($rawValue, $regularExpression, $groupRe
 	$cleanRawValue = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/u', '', $rawValue);
 	preg_match($regularExpression, $cleanRawValue, $result);
 	if(isset($result[$groupResultIndex]) === true) {
+	    //echo "regex [$regularExpression] lookup [$cleanRawValue] result [" . $result[$groupResultIndex] ."]" .PHP_EOL;
 		$result[$groupResultIndex] = str_replace(array("\n", "\r"), '', $result[$groupResultIndex]);
 		return $result[$groupResultIndex];
 	}

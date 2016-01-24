@@ -42,7 +42,8 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
     protected function getMapSubsForCities() {
         // Google maps city name substitution list: Original name -> Google map name
         $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST = 'PRINCE GEORGE,';
-    
+        $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2 = ',PRINCE GEORGE';
+        
         // This is a list of common areas around your city.  this tables substitues each for the city you have chosen
         $GOOGLE_MAP_CITY_LOOKUP = array(
     
@@ -95,7 +96,62 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
                 //"WILLISTON LAKE," => "WILLISTON LAKE,",
                 "WILLOW RIVER," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
                 "WILLOW RIVER VALLEY," => "WILLOW RIVER,",
-                "WOODPECKER," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST
+                "WOODPECKER," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
+                
+                
+
+
+                //",ALBREDA" => "ALBREDA,",
+                //",BEAR LAKE" => "BEAR LAKE,",
+                ",BEAVERLEY" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",BEDNESTI NORMAN" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",BLACKWATER NORTH" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",BUCKHORN" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                //",CARP LAKE" => "CARP LAKE,",
+                ",CHIEF LAKE" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                //",CRESCENT SPUR" => "CRESCENT SPUR,",
+                //",DOME CREEK" => "DOME CREEK,",
+                //",DUNSTER" => "DUNSTER,",
+                ",FERNDALE-TABOR" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",FOREMAN FLATS" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",FORT GEORGE NO 2" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",GISCOME" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                //",HIXON" => ",HIXON",
+                ",ISLE PIERRE" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                //",MACKENZIE" => ",MACKENZIE",
+                ",MACKENZIE RURAL" => ",MACKENZIE RURAL",
+                //",MCBRIDE" => ",MCBRIDE",
+                ",MCBRIDE RURAL" => ",MCBRIDE",
+                //",MCGREGOR" => GOOGLE_MAP_CITY_DEFAULT,
+                //",MCLEOD LAKE" => "MCLEOD LAKE,"
+                ",MCLEOD LAKE RESERVE" => ",MCLEOD LAKE",
+                ",MIWORTH" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                //",MOSSVALE" => ",MOSSVALE",
+                //",MOUNT ROBSON" => ",MOUNT ROBSON",
+                ",MUD RIVER" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",NESS LAKE" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",NORTH KELLY" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                //",PARSNIP" => ",PARSNIP",
+                ",PINE PASS" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",PINEVIEW FFG" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",PINEVIEW" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                //",PRINCE GEORGE" => ",PRINCE GEORGE",
+                ",PURDEN" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",RED ROCK" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",SALMON VALLEY" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",SHELL-GLEN" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",STONER" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                //",SUMMIT LAKE" => ",SUMMIT LAKE",
+                //",TETE JAUNE" => ",TETE JAUNE",
+                //",UPPER FRASER" => ",UPPER FRASER",
+                //",VALEMOUNT" => ",VALEMOUNT",
+                ",VALEMOUNT RURAL" => ",VALEMOUNT",
+                ",WEST LAKE" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                //",WILLISTON LAKE" => ",WILLISTON LAKE",
+                ",WILLOW RIVER" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2,
+                ",WILLOW RIVER VALLEY" => "WILLOW RIVER",
+                ",WOODPECKER" => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST2
+                
         );
         return $GOOGLE_MAP_CITY_LOOKUP;
     }

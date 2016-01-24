@@ -261,5 +261,45 @@ Units Responding: SALGRP1";
         $is_valid = validate_email_sender($FIREHALL,'cad@princefrank.ca');
         $this->assertEquals(false,$is_valid);
     }
+
+    public function testProcessFireHallText_TEXT_Email_new_format_Valid() {
+        $realdata = "Date: 2016-01-22 08:02:52
+                     Type: MVI3 - MVI3 - Entrapment; Motor Vehicle Incident
+                     Department: Salmon Valley Fire
+                     Address: HART HWY/WRIGHT CREEK RD,SALMON VALLEY
+                     Latitude: 54.08310
+                     Longitude: -122.69719
+                     Units Responding: SALGRP1";
+    
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallText($realdata);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2016-01-22 08:02:52',$callout->getDateTimeAsString());
+        $this->assertEquals('MVI3',$callout->getCode());
+        $this->assertEquals('HART HWY/WRIGHT CREEK RD,SALMON VALLEY',$callout->getAddress());
+        $this->assertEquals('HART HWY/WRIGHT CREEK RD,PRINCE GEORGE',$callout->getAddressForMap());
+        $this->assertEquals('54.08310',$callout->getGPSLat());
+        $this->assertEquals('-122.69719',$callout->getGPSLong());
+        $this->assertEquals('SALGRP1',$callout->getUnitsResponding());
+    }
+
+    public function testProcessFireHallText_TEXT_new_format_Valid() {
+        $realdata = "Date: 2016-01-22 08:02:52Type: MVI3 - MVI3 - Entrapment; Motor Vehicle IncidentDepartment: Salmon Valley FireAddress: HART HWY/WRIGHT CREEK RD,SALMON VALLEYLatitude: 54.08310Longitude: -122.69719Units Responding: SALGRP1";
+    
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2016-01-22 08:02:52',$callout->getDateTimeAsString());
+        $this->assertEquals('MVI3',$callout->getCode());
+        $this->assertEquals('HART HWY/WRIGHT CREEK RD,SALMON VALLEY',$callout->getAddress());
+        $this->assertEquals('HART HWY/WRIGHT CREEK RD,PRINCE GEORGE',$callout->getAddressForMap());
+        $this->assertEquals('54.08310',$callout->getGPSLat());
+        $this->assertEquals('-122.69719',$callout->getGPSLong());
+        $this->assertEquals('SALGRP1',$callout->getUnitsResponding());
+    }
     
 }
