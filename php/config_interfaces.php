@@ -282,6 +282,13 @@ class FireHallSMS
 	public $SMS_PROVIDER_TWILIO_AUTH_TOKEN;
 	// The API FROM mobile phone # to use for twilio
 	public $SMS_PROVIDER_TWILIO_FROM;
+
+	// The Base API URL for sending SMS messages using plivio.com
+	public $SMS_PROVIDER_PLIVIO_BASE_URL;
+	// The API authentication token to use for plivio
+	public $SMS_PROVIDER_PLIVIO_AUTH_TOKEN;
+	// The API FROM mobile phone # to use for plivio
+	public $SMS_PROVIDER_PLIVIO_FROM;
 	
 	public function __construct($sms_enabled=false, $gateway_type=null, 
 			$callout_type=null, $recipients=null, $recipients_are_group=false, 
@@ -293,18 +300,28 @@ class FireHallSMS
 		$this->SMS_SIGNAL_ENABLED = $sms_enabled;
 		$this->SMS_GATEWAY_TYPE = $gateway_type;
 		$this->SMS_CALLOUT_PROVIDER_TYPE = $callout_type;
+		
 		$this->SMS_RECIPIENTS = $recipients;
 		$this->SMS_RECIPIENTS_NOTIFY_ONLY = '';
 		$this->SMS_RECIPIENTS_ARE_GROUP = $recipients_are_group;
 		$this->SMS_RECIPIENTS_FROM_DB = $recipients_from_db;
+		
 		$this->SMS_PROVIDER_SENDHUB_BASE_URL = $sendhub_base_url;
+		
 		$this->SMS_PROVIDER_TEXTBELT_BASE_URL = $textbelt_base_url;
+		
 		$this->SMS_PROVIDER_EZTEXTING_BASE_URL = $eztexting_base_url;
 		$this->SMS_PROVIDER_EZTEXTING_USERNAME = $eztexting_username;
 		$this->SMS_PROVIDER_EZTEXTING_PASSWORD = $eztexting_password;
+		
 		$this->SMS_PROVIDER_TWILIO_BASE_URL = $twilio_base_url;
 		$this->SMS_PROVIDER_TWILIO_AUTH_TOKEN = $twilio_auth_token;
 		$this->SMS_PROVIDER_TWILIO_FROM = $twilio_from;
+		
+		$this->SMS_PROVIDER_PLIVIO_BASE_URL = null;
+		$this->SMS_PROVIDER_PLIVIO_AUTH_ID = null;
+		$this->SMS_PROVIDER_PLIVIO_AUTH_TOKEN = null;
+		$this->SMS_PROVIDER_PLIVIO_FROM = null;
 	}
 
 	public function __toString() {
@@ -325,7 +342,11 @@ class FireHallSMS
 				"\nEzTexting username: " . $this->SMS_PROVIDER_EZTEXTING_USERNAME .
 				"\nTwilio url: " . $this->SMS_PROVIDER_TWILIO_BASE_URL .
 				//"\nTwilio auth token: " . $this->SMS_PROVIDER_TWILIO_AUTH_TOKEN .
-				"\nTwilio from sms: " . $this->SMS_PROVIDER_TWILIO_FROM;
+				"\nTwilio from sms: " . $this->SMS_PROVIDER_TWILIO_FROM.
+				"\nPlivio url: " . $this->SMS_PROVIDER_PLIVIO_BASE_URL .
+				//"\nPlivio auth token: " . $this->SMS_PROVIDER_PLIVIO_AUTH_TOKEN .
+				"\nPlivio from sms: " . $this->SMS_PROVIDER_PLIVIO_FROM;
+				
 		return $result;
 	}
 	
@@ -369,6 +390,7 @@ class FireHallSMS
 	public function setEzTextingPassword($eztexting_password) {
 		$this->SMS_PROVIDER_EZTEXTING_PASSWORD = $eztexting_password;
 	}
+	
 	public function setTwilioBaseURL($twilio_base_url) {
 		$this->SMS_PROVIDER_TWILIO_BASE_URL = $twilio_base_url;
 	}
@@ -378,6 +400,20 @@ class FireHallSMS
 	public function setTwilioFromNumber($twilio_from) {
 		$this->SMS_PROVIDER_TWILIO_FROM = $twilio_from;
 	}
+	
+	public function setPlivioBaseURL($base_url) {
+	    $this->SMS_PROVIDER_PLIVIO_BASE_URL = $base_url;
+	}
+	public function setPlivioAuthId($auth_id) {
+	    $this->SMS_PROVIDER_PLIVIO_AUTH_ID = $auth_id;
+	}
+	public function setPlivioAuthToken($auth_token) {
+	    $this->SMS_PROVIDER_PLIVIO_AUTH_TOKEN = $auth_token;
+	}
+	public function setPlivioFromNumber($from) {
+	    $this->SMS_PROVIDER_PLIVIO_FROM = $from;
+	}
+	
 }
 
 // ----------------------------------------------------------------------

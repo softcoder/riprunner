@@ -151,6 +151,7 @@ class ReportsChartsViewModel extends BaseViewModel {
 			//$current_year_end = date('Y-m-d', $year_end);
 		    $current_year_start = $this->getReportStartDate();
 		    $current_year_end = $this->getReportEndDate();
+		    //echo "getCallResponseVolCurrentyear start [$current_year_start] end [$current_year_end]" .PHP_EOL;
 		    
 			$this->callresponsevol_currentyear_cols = array();
 	
