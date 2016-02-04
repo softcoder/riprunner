@@ -122,6 +122,13 @@ function map_initialize() {
 	    if(marker != null) {
 	        marker.setMap(map);
 	    }
+	    
+	    try {
+	    	getGEOLocationCoords_initialize();
+	    }
+	    catch(e) {
+	    	
+	    }
 	});
 }
    
