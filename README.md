@@ -19,8 +19,8 @@ Key Features:
 - Pluggable support for SMS gateway providers to send SMS information to fire fighters. 
   Current SMS providers implemented include (all offer free acounts with limited SMS / month):
   - Twilio (twilio.com - paid account charges approx $0.0075 per SMS -> https://www.twilio.com/sms/pricing)
-  - Sendhub (sendhub.com)
   - Plivo (plivo.com - paid account charges approx $0.0035 per SMS -> https://www.plivo.com/pricing/CA/#!sms)
+  - Sendhub (sendhub.com)
   - EzTexting (eztexting.com)
   - TextBelt (textbelt.com -> a free service but not as reliable and not available everywhere)
 - Self Installation
