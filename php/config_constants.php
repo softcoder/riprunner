@@ -40,7 +40,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	define( 'SMS_GATEWAY_SENDHUB', 						'SENDHUB');
 	define( 'SMS_GATEWAY_EZTEXTING', 					'EZTEXTING');
 	define( 'SMS_GATEWAY_TWILIO', 						'TWILIO');
-	define( 'SMS_GATEWAY_PLIVIO', 						'PLIVIO');
+	define( 'SMS_GATEWAY_PLIVO', 						'PLIVO');
 	
 	define( 'SMS_CALLOUT_PROVIDER_DEFAULT', 			'DEFAULT');
 

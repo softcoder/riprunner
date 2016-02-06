@@ -12,20 +12,20 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 
 require_once 'plugin_interfaces.php';
 
-class SMSPlivioPlugin implements ISMSPlugin {
+class SMSPlivoPlugin implements ISMSPlugin {
 
 	public function getPluginType() {
-		return 'PLIVIO';
+		return 'PLIVO';
 	}
 	public function getMaxSMSTextLength() {
 		return 0;
 	}
 	public function signalRecipients($SMSConfig, $recipient_list, $recipient_list_type, $smsText) {
 
-		$resultSMS = 'START Send SMS using Plivio.' . PHP_EOL;
+		$resultSMS = 'START Send SMS using Plivo.' . PHP_EOL;
 
 		if($recipient_list_type === RecipientListType::GroupList) {
-			throw new \Exception("Plivio SMS Plugin does not support groups!");
+			throw new \Exception("Plivo SMS Plugin does not support groups!");
 		}
 		else {
 			$recipient_list_numbers = $recipient_list;
@@ -33,11 +33,11 @@ class SMSPlivioPlugin implements ISMSPlugin {
 	
 		$resultSMS .= 'About to send SMS to: [' . implode(",", $recipient_list_numbers) . ']' . PHP_EOL;
 	
-		$url = $SMSConfig->SMS_PROVIDER_PLIVIO_BASE_URL.'Account/'.$SMSConfig->SMS_PROVIDER_PLIVIO_AUTH_ID.'/Message/';
+		$url = $SMSConfig->SMS_PROVIDER_PLIVO_BASE_URL.'Account/'.$SMSConfig->SMS_PROVIDER_PLIVO_AUTH_ID.'/Message/';
 	
 		foreach($recipient_list_numbers as $recipient) {
 			$data = array("dst" => '1' . $recipient, 
-						  "src" => $SMSConfig->SMS_PROVIDER_PLIVIO_FROM,
+						  "src" => $SMSConfig->SMS_PROVIDER_PLIVO_FROM,
 						  "text" => $smsText);
 		
 			$data_string = json_encode($data);
@@ -49,14 +49,14 @@ class SMSPlivioPlugin implements ISMSPlugin {
 			curl_setopt($s, CURLOPT_POSTFIELDS, $data_string);
 			curl_setopt($s, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($s, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
-			curl_setopt($s, CURLOPT_USERPWD, $SMSConfig->SMS_PROVIDER_PLIVIO_AUTH_ID.':'.$SMSConfig->SMS_PROVIDER_PLIVIO_AUTH_TOKEN);
+			curl_setopt($s, CURLOPT_USERPWD, $SMSConfig->SMS_PROVIDER_PLIVO_AUTH_ID.':'.$SMSConfig->SMS_PROVIDER_PLIVO_AUTH_TOKEN);
 		
 			curl_setopt($s, CURLOPT_HTTPHEADER, array(
 			        'Content-Type: application/json',
 			        'Content-Length: ' . strlen($data_string))
 			        );
 				
-			//echo '<br>PLIVIO SMS URL to call: ' . $url . '<br>using JSON: ' . $data_string . PHP_EOL;
+			//echo '<br>PLIVO SMS URL to call: ' . $url . '<br>using JSON: ' . $data_string . PHP_EOL;
 			
 			$result = curl_exec($s);
 		
@@ -72,11 +72,11 @@ class SMSPlivioPlugin implements ISMSPlugin {
 		
 			$httpCode = curl_getinfo($s, CURLINFO_HTTP_CODE);
 			if ($httpCode != 202) {
-			    $resultSMS_current .= 'Plivio error code: ' . $httpCode . PHP_EOL;
+			    $resultSMS_current .= 'Plivo error code: ' . $httpCode . PHP_EOL;
 			}
 			
 			curl_close($s);
-			//echo 'PLIVIO SMS result: ' . $resultSMS_current . PHP_EOL;
+			//echo 'PLIVO SMS result: ' . $resultSMS_current . PHP_EOL;
 			
 			$resultSMS .= $resultSMS_current;
 		}

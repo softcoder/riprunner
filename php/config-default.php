@@ -266,10 +266,10 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'DEFAULT_SMS_PROVIDER_TWILIO_BASE_URL', 	'https://api.twilio.com/xxxx-xx-xx/Accounts/X/Messages.xml');
 	define( 'DEFAULT_SMS_PROVIDER_TWILIO_AUTH_TOKEN', 	'X:X');
 	define( 'DEFAULT_SMS_PROVIDER_TWILIO_FROM', 		'+xxxxxxxxxx');
-	define( 'DEFAULT_SMS_PROVIDER_PLIVIO_BASE_URL', 	'https://api.plivo.com/v1/');
-	define( 'DEFAULT_SMS_PROVIDER_PLIVIO_AUTH_ID', 	    'XX');
-	define( 'DEFAULT_SMS_PROVIDER_PLIVIO_AUTH_TOKEN', 	'XXXX');
-	define( 'DEFAULT_SMS_PROVIDER_PLIVIO_FROM', 		'16044261553');
+	define( 'DEFAULT_SMS_PROVIDER_PLIVO_BASE_URL', 	'https://api.plivo.com/v1/');
+	define( 'DEFAULT_SMS_PROVIDER_PLIVO_AUTH_ID', 	    'XX');
+	define( 'DEFAULT_SMS_PROVIDER_PLIVO_AUTH_TOKEN', 	'XXXX');
+	define( 'DEFAULT_SMS_PROVIDER_PLIVO_FROM', 		'16044261553');
 	
 	$LOCAL_DEBUG_SMS = new FireHallSMS();
 	$LOCAL_DEBUG_SMS->setSignalEnabled(true);
@@ -279,12 +279,12 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_SMS->setTwilioAuthToken(DEFAULT_SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	$LOCAL_DEBUG_SMS->setTwilioFromNumber(DEFAULT_SMS_PROVIDER_TWILIO_FROM);
 	
-	//$LOCAL_DEBUG_SMS->setGatewayType(SMS_GATEWAY_PLIVIO);
+	//$LOCAL_DEBUG_SMS->setGatewayType(SMS_GATEWAY_PLIVO);
 	//$LOCAL_DEBUG_SMS->setCalloutProviderType(SMS_CALLOUT_PROVIDER_DEFAULT);
-	//$LOCAL_DEBUG_SMS->setPlivioBaseURL(DEFAULT_SMS_PROVIDER_PLIVIO_BASE_URL);
-	//$LOCAL_DEBUG_SMS->setPlivioAuthId(DEFAULT_SMS_PROVIDER_PLIVIO_AUTH_ID);
-	//$LOCAL_DEBUG_SMS->setPlivioAuthToken(DEFAULT_SMS_PROVIDER_PLIVIO_AUTH_TOKEN);
-	//$LOCAL_DEBUG_SMS->setPlivioFromNumber(DEFAULT_SMS_PROVIDER_PLIVIO_FROM);
+	//$LOCAL_DEBUG_SMS->setPlivoBaseURL(DEFAULT_SMS_PROVIDER_PLIVO_BASE_URL);
+	//$LOCAL_DEBUG_SMS->setPlivoAuthId(DEFAULT_SMS_PROVIDER_PLIVO_AUTH_ID);
+	//$LOCAL_DEBUG_SMS->setPlivoAuthToken(DEFAULT_SMS_PROVIDER_PLIVO_AUTH_TOKEN);
+	//$LOCAL_DEBUG_SMS->setPlivoFromNumber(DEFAULT_SMS_PROVIDER_PLIVO_FROM);
 	
 	// ----------------------------------------------------------------------
 	// Mobile App Settings
@@ -367,12 +367,12 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// ----------------------------------------------------------------------
 	// Email parser lookup patterns for email triggers
 	define( 'EMAIL_PARSING_DATETIME_PATTERN', 	'/Date: (.*?)$/m' );
-    define( 'EMAIL_PARSING_CALLCODE_PATTERN', 	'/Type: (.*?)(?:$| -)/m' );
+	define( 'EMAIL_PARSING_CALLCODE_PATTERN', 	'/Type: (.*?)(?:$| -)/m' );
 	define( 'EMAIL_PARSING_ADDRESS_PATTERN', 	'/Address: (.*?)$/m' );
 	define( 'EMAIL_PARSING_LATITUDE_PATTERN', 	'/Latitude: (.*?)$/m' );
 	define( 'EMAIL_PARSING_LONGITUDE_PATTERN', 	'/Longitude: (.*?)$/m' );
 	define( 'EMAIL_PARSING_UNITS_PATTERN', 		'/Units Responding: (.*?)$/m' );
-	
+
 	// Email parser lookup patterns for email triggers via Google App Engine webhook
 	define( 'EMAIL_PARSING_DATETIME_PATTERN_GENERIC', 	'/Date:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units)/m' );
 	define( 'EMAIL_PARSING_CALLCODE_PATTERN_GENERIC', 	'/Type:(.*?)(?:$| -|Type:|Department:|Address:|Latitude:|Longitude:|Units)/m' );

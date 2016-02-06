@@ -24,7 +24,7 @@ require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 require_once __RIPRUNNER_ROOT__ . '/third-party/html2text/Html2Text.php';
 require_once __RIPRUNNER_ROOT__ . '/third-party/twilio-php/Services/Twilio.php';
-require_once __RIPRUNNER_ROOT__ . '/third-party/plivio-php/plivio.php';
+require_once __RIPRUNNER_ROOT__ . '/third-party/plivo-php/plivo.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class SmSCommandResult {
@@ -110,7 +110,7 @@ class SMSCommandHandler {
     static public $SPECIAL_MOBILE_PREFIX2 = '1';
     
     static private $TWILIO_WEBHOOK_URL = 'plugins/sms-provider-hook/twilio-webhook.php';
-    static private $PLIVIO_WEBHOOK_URL = 'plugins/sms-provider-hook/plivio-webhook.php';
+    static private $PLIVO_WEBHOOK_URL = 'plugins/sms-provider-hook/plivo-webhook.php';
     
     private $server_variables = null;
     private $post_variables = null;
@@ -158,7 +158,7 @@ class SMSCommandHandler {
                                 if($SMS_GateWay === SMS_GATEWAY_TWILIO) {
                                     $sms_cmd = (($this->getRequestVar('Body') !== null) ? $this->getRequestVar('Body') : '');
                                 }
-                                else if($SMS_GateWay === SMS_GATEWAY_PLIVIO) {
+                                else if($SMS_GateWay === SMS_GATEWAY_PLIVO) {
                                     $sms_cmd = (($this->getRequestVar('Text') !== null) ? $this->getRequestVar('Text') : '');
                                 }
                                 $result->setCmd($sms_cmd);
@@ -274,7 +274,7 @@ class SMSCommandHandler {
         if ($this->startsWith(strtoupper($cmd_result->getCmd()), self::$SMS_AUTO_CMD_BULK) === true) {
             $recipient_list = $cmd_result->getSmsRecipients();
             
-            if($SMS_GateWay === SMS_GATEWAY_PLIVIO) {
+            if($SMS_GateWay === SMS_GATEWAY_PLIVO) {
 				$dst_sms = '';
 				foreach ($recipient_list as &$sms_user) {                
 					if($dst_sms !== '') {
@@ -282,7 +282,7 @@ class SMSCommandHandler {
 					}
 					$dst_sms .= self::$SPECIAL_MOBILE_PREFIX2.$sms_user;
 				}
-                $result .= "<Message src='" . $cmd_result->getFirehall()->SMS->SMS_PROVIDER_PLIVIO_FROM . 
+                $result .= "<Message src='" . $cmd_result->getFirehall()->SMS->SMS_PROVIDER_PLIVO_FROM . 
                 "' dst='".$dst_sms."'>Group SMS from " . htmlspecialchars($cmd_result->getUserId()) .
                 //"' dst='12503018904'>Group SMS from " . $cmd_result->getUserId() . " recipients woudl be: " . htmlspecialchars($dst_sms) .
                 ": " . htmlspecialchars(substr($cmd_result->getCmd(), strlen(self::$SMS_AUTO_CMD_BULK))) . "</Message>";
@@ -304,8 +304,8 @@ class SMSCommandHandler {
     static public function getTwilioWebhookUrl() {
         return self::$TWILIO_WEBHOOK_URL;
     }
-    static public function getPlivioWebhookUrl() {
-        return self::$PLIVIO_WEBHOOK_URL;
+    static public function getPlivoWebhookUrl() {
+        return self::$PLIVO_WEBHOOK_URL;
     }
     
     public function validateTwilioHost($FIREHALLS_LIST) {
@@ -342,17 +342,17 @@ class SMSCommandHandler {
         return false;
     }
 
-    public function validatePlivioHost($FIREHALLS_LIST) {
+    public function validatePlivoHost($FIREHALLS_LIST) {
         //return true;
         global $log;
         foreach ($FIREHALLS_LIST as &$FIREHALL) {
             if($FIREHALL->ENABLED === true && $FIREHALL->SMS->SMS_SIGNAL_ENABLED === true &&
-               isset($FIREHALL->SMS->SMS_PROVIDER_PLIVIO_AUTH_TOKEN) === true) {
+               isset($FIREHALL->SMS->SMS_PROVIDER_PLIVO_AUTH_TOKEN) === true) {
                     
                 //Get Page URI - Change to "https://" if Needed
                 //$get_uri = "http://" . $_SERVER[HTTP_HOST] . $_SERVER[REQUEST_URI];
                 $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-                $get_uri = $site_root.self::$PLIVIO_WEBHOOK_URL;
+                $get_uri = $site_root.self::$PLIVO_WEBHOOK_URL;
                 
                 $raw_post_array = $this->getAllPostVars();
                 $get_post_params = array();
@@ -362,17 +362,17 @@ class SMSCommandHandler {
                 
                 //Get Valid Signature from Plivo
                 $get_signature = (($this->getServerVar('HTTP_X_PLIVO_SIGNATURE') !== null) ? $this->getServerVar('HTTP_X_PLIVO_SIGNATURE') : null);
-                $get_auth_token = $FIREHALL->SMS->SMS_PROVIDER_PLIVIO_AUTH_TOKEN;
+                $get_auth_token = $FIREHALL->SMS->SMS_PROVIDER_PLIVO_AUTH_TOKEN;
                 
                 //Signature Match Returns TRUE (1) - Mismatch Returns FALSE (0)
                 $validate_signature = validate_signature($get_uri, $get_post_params, $get_signature, $get_auth_token);                    
                 if ($validate_signature === true) {
-                    // This request definitely came from Plivio
+                    // This request definitely came from Plivo
                     return true;
                 }
                 
                 $sms_user = (($this->getRequestVar('From') !== null) ? $this->getRequestVar('From') : '');
-                if($log !== null) $log->error("Validate plivio host failed for client [" . \riprunner\Authentication::getClientIPInfo().
+                if($log !== null) $log->error("Validate plivo host failed for client [" . \riprunner\Authentication::getClientIPInfo().
                         "] sms user [$sms_user], returned [$validate_signature] url [$get_uri] vars [" . implode(', ', $raw_post_array) .
                         "] signature [" . $get_signature . "]");
             }

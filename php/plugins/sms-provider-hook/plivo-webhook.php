@@ -20,18 +20,18 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 require_once __RIPRUNNER_ROOT__ . '/plugins/sms-provider-hook/sms_cmd_handler.php';
 
 $sms_cmd_handler = new \riprunner\SMSCommandHandler();
-// Check if Plivio is calling us, if not 401
-if($sms_cmd_handler->validatePlivioHost($FIREHALLS) === false) {
+// Check if Plivo is calling us, if not 401
+if($sms_cmd_handler->validatePlivoHost($FIREHALLS) === false) {
 	header('HTTP/1.1 401 Unauthorized');
 	exit;
 }
 header("content-type: text/xml");
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-$result = $sms_cmd_handler->handle_sms_command($FIREHALLS,SMS_GATEWAY_PLIVIO);
+$result = $sms_cmd_handler->handle_sms_command($FIREHALLS,SMS_GATEWAY_PLIVO);
 ?>
 <Response>
 <?php if($result->getFirehall() !== null && $result->getUserId() !== null): ?>
-    <Message src="<?php echo $result->getFirehall()->SMS->SMS_PROVIDER_PLIVIO_FROM ?>" dst="<?php echo getSafeRequestValue('From') ?>">
+    <Message src="<?php echo $result->getFirehall()->SMS->SMS_PROVIDER_PLIVO_FROM ?>" dst="<?php echo getSafeRequestValue('From') ?>">
 Hello <?php echo $result->getUserId() ?> 
 <?php if($result->getIsProcessed() === true): ?>
 Processed SMS CMD: [<?php echo $result->getCmd() ?>]
@@ -59,6 +59,6 @@ Cannot cancel the callout, no callouts active!
 <?php endif; ?>
 <?php endif; ?>
     </Message>
-<?php echo $sms_cmd_handler->process_bulk_sms_command($result, SMS_GATEWAY_PLIVIO) ?>
+<?php echo $sms_cmd_handler->process_bulk_sms_command($result, SMS_GATEWAY_PLIVO) ?>
 <?php endif; ?>    
 </Response>

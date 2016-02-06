@@ -283,14 +283,14 @@ class FireHallSMS
 	// The API FROM mobile phone # to use for twilio
 	public $SMS_PROVIDER_TWILIO_FROM;
 
-	// The Base API URL for sending SMS messages using plivio.com
-	public $SMS_PROVIDER_PLIVIO_BASE_URL;
-	// The API authentication id to use for plivio
-	public $SMS_PROVIDER_PLIVIO_AUTH_ID;
-	// The API authentication token to use for plivio
-	public $SMS_PROVIDER_PLIVIO_AUTH_TOKEN;
-	// The API FROM mobile phone # to use for plivio
-	public $SMS_PROVIDER_PLIVIO_FROM;
+	// The Base API URL for sending SMS messages using plivo.com
+	public $SMS_PROVIDER_PLIVO_BASE_URL;
+	// The API authentication id to use for plivo
+	public $SMS_PROVIDER_PLIVO_AUTH_ID;
+	// The API authentication token to use for plivo
+	public $SMS_PROVIDER_PLIVO_AUTH_TOKEN;
+	// The API FROM mobile phone # to use for plivo
+	public $SMS_PROVIDER_PLIVO_FROM;
 	
 	public function __construct($sms_enabled=false, $gateway_type=null, 
 			$callout_type=null, $recipients=null, $recipients_are_group=false, 
@@ -320,10 +320,10 @@ class FireHallSMS
 		$this->SMS_PROVIDER_TWILIO_AUTH_TOKEN = $twilio_auth_token;
 		$this->SMS_PROVIDER_TWILIO_FROM = $twilio_from;
 		
-		$this->SMS_PROVIDER_PLIVIO_BASE_URL = null;
-		$this->SMS_PROVIDER_PLIVIO_AUTH_ID = null;
-		$this->SMS_PROVIDER_PLIVIO_AUTH_TOKEN = null;
-		$this->SMS_PROVIDER_PLIVIO_FROM = null;
+		$this->SMS_PROVIDER_PLIVO_BASE_URL = null;
+		$this->SMS_PROVIDER_PLIVO_AUTH_ID = null;
+		$this->SMS_PROVIDER_PLIVO_AUTH_TOKEN = null;
+		$this->SMS_PROVIDER_PLIVO_FROM = null;
 	}
 
 	public function __toString() {
@@ -345,9 +345,9 @@ class FireHallSMS
 				"\nTwilio url: " . $this->SMS_PROVIDER_TWILIO_BASE_URL .
 				//"\nTwilio auth token: " . $this->SMS_PROVIDER_TWILIO_AUTH_TOKEN .
 				"\nTwilio from sms: " . $this->SMS_PROVIDER_TWILIO_FROM.
-				"\nPlivio url: " . $this->SMS_PROVIDER_PLIVIO_BASE_URL .
-				//"\nPlivio auth token: " . $this->SMS_PROVIDER_PLIVIO_AUTH_TOKEN .
-				"\nPlivio from sms: " . $this->SMS_PROVIDER_PLIVIO_FROM;
+				"\nPlivo url: " . $this->SMS_PROVIDER_PLIVO_BASE_URL .
+				//"\nPlivo auth token: " . $this->SMS_PROVIDER_PLIVO_AUTH_TOKEN .
+				"\nPlivo from sms: " . $this->SMS_PROVIDER_PLIVO_FROM;
 				
 		return $result;
 	}
@@ -403,17 +403,17 @@ class FireHallSMS
 		$this->SMS_PROVIDER_TWILIO_FROM = $twilio_from;
 	}
 	
-	public function setPlivioBaseURL($base_url) {
-	    $this->SMS_PROVIDER_PLIVIO_BASE_URL = $base_url;
+	public function setPlivoBaseURL($base_url) {
+	    $this->SMS_PROVIDER_PLIVO_BASE_URL = $base_url;
 	}
-	public function setPlivioAuthId($auth_id) {
-	    $this->SMS_PROVIDER_PLIVIO_AUTH_ID = $auth_id;
+	public function setPlivoAuthId($auth_id) {
+	    $this->SMS_PROVIDER_PLIVO_AUTH_ID = $auth_id;
 	}
-	public function setPlivioAuthToken($auth_token) {
-	    $this->SMS_PROVIDER_PLIVIO_AUTH_TOKEN = $auth_token;
+	public function setPlivoAuthToken($auth_token) {
+	    $this->SMS_PROVIDER_PLIVO_AUTH_TOKEN = $auth_token;
 	}
-	public function setPlivioFromNumber($from) {
-	    $this->SMS_PROVIDER_PLIVIO_FROM = $from;
+	public function setPlivoFromNumber($from) {
+	    $this->SMS_PROVIDER_PLIVO_FROM = $from;
 	}
 	
 }
