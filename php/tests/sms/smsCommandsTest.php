@@ -82,7 +82,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $this->getDBConnection($FIREHALL);
 	     
 	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
-	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS);
+	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
 	    $this->assertEquals('mark.vejvoda', $result->getUserId());
@@ -126,7 +126,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $this->getDBConnection($FIREHALL);
 	    
 	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
-	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS);
+	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
 	    $this->assertEquals('mark.vejvoda', $result->getUserId());
@@ -169,7 +169,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $this->getDBConnection($FIREHALL);
 	     
 	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
-	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS);
+	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
 	    $this->assertEquals('mark.vejvoda', $result->getUserId());
@@ -212,7 +212,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $this->getDBConnection($FIREHALL);
 	
 	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
-	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS);
+	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
 	    $this->assertEquals('mark.vejvoda', $result->getUserId());
@@ -230,7 +230,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $result->setUserId('test.user');
 	    
 	    $sms_cmd_handler = new \riprunner\SMSCommandHandler();
-	    $result = $sms_cmd_handler->process_bulk_sms_command($result);
+	    $result = $sms_cmd_handler->process_bulk_sms_command($result,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals("<Message to='+12505551212'>Group SMS from test.user: </Message><Message to='+12505551213'>Group SMS from test.user: </Message>", $result);
 	}
 	

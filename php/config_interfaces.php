@@ -285,6 +285,8 @@ class FireHallSMS
 
 	// The Base API URL for sending SMS messages using plivio.com
 	public $SMS_PROVIDER_PLIVIO_BASE_URL;
+	// The API authentication id to use for plivio
+	public $SMS_PROVIDER_PLIVIO_AUTH_ID;
 	// The API authentication token to use for plivio
 	public $SMS_PROVIDER_PLIVIO_AUTH_TOKEN;
 	// The API FROM mobile phone # to use for plivio

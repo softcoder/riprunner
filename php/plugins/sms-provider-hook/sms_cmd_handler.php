@@ -24,6 +24,7 @@ require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 require_once __RIPRUNNER_ROOT__ . '/third-party/html2text/Html2Text.php';
 require_once __RIPRUNNER_ROOT__ . '/third-party/twilio-php/Services/Twilio.php';
+require_once __RIPRUNNER_ROOT__ . '/third-party/plivio-php/plivio.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class SmSCommandResult {
@@ -106,8 +107,10 @@ class SMSCommandHandler {
     static public $SMS_AUTO_CMD_HELP = array('?','H', 'LIST');
     
     static public $SPECIAL_MOBILE_PREFIX = '+1';
+    static public $SPECIAL_MOBILE_PREFIX2 = '1';
     
     static private $TWILIO_WEBHOOK_URL = 'plugins/sms-provider-hook/twilio-webhook.php';
+    static private $PLIVIO_WEBHOOK_URL = 'plugins/sms-provider-hook/plivio-webhook.php';
     
     private $server_variables = null;
     private $post_variables = null;
@@ -121,7 +124,7 @@ class SMSCommandHandler {
         $this->http_client = $http_client;
     }
     
-    public function handle_sms_command($FIREHALLS_LIST) {
+    public function handle_sms_command($FIREHALLS_LIST,$SMS_GateWay) {
         global $log;
         $result = new \riprunner\SmSCommandResult();
         $result->setIsProcessed(false);
@@ -133,7 +136,7 @@ class SMSCommandHandler {
             # Loop through all Firehalls
             foreach ($FIREHALLS_LIST as &$FIREHALL) {
                 if($FIREHALL->ENABLED === true && $FIREHALL->SMS->SMS_SIGNAL_ENABLED === true) {
-                    if($log !== null) $log->trace("Twilio trigger checking firehall: [" . $FIREHALL->WEBSITE->FIREHALL_NAME . "]");
+                    if($log !== null) $log->trace("SMS Host trigger checking firehall: [" . $FIREHALL->WEBSITE->FIREHALL_NAME . "]");
     
                     $db_connection = null;
                     try {
@@ -152,7 +155,12 @@ class SMSCommandHandler {
                             // Account is valid
                             if($result->getUserId() !== null) {
                                 // Now check which command the user wants to process
-                                $sms_cmd = (($this->getRequestVar('Body') !== null) ? $this->getRequestVar('Body') : '');
+                                if($SMS_GateWay === SMS_GATEWAY_TWILIO) {
+                                    $sms_cmd = (($this->getRequestVar('Body') !== null) ? $this->getRequestVar('Body') : '');
+                                }
+                                else if($SMS_GateWay === SMS_GATEWAY_PLIVIO) {
+                                    $sms_cmd = (($this->getRequestVar('Text') !== null) ? $this->getRequestVar('Text') : '');
+                                }
                                 $result->setCmd($sms_cmd);
                                 	
                                 if( in_array(strtoupper($sms_cmd), self::$SMS_AUTO_CMD_TEST) === true) {
@@ -160,7 +168,7 @@ class SMSCommandHandler {
                                     $URL = $site_root . "test/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
                                     "&uid=" . urlencode($result->getUserId());
                                      
-                                    if($log !== null) $log->warn("Calling URL for twilio TESTING [$URL]");
+                                    if($log !== null) $log->warn("Calling URL for sms host TESTING [$URL]");
                                     $httpclient = $this->getHttpClient($URL);
                                     $cmd_result = $httpclient->execute();
                                     if($log !== null) $log->warn("Called URL returned [$cmd_result]");
@@ -179,7 +187,7 @@ class SMSCommandHandler {
                                         "&uid=" . urlencode($result->getUserId()) .
                                         "&ckid=" . urlencode($most_current_callout['call_key']);
                                         	
-                                        if($log !== null) $log->warn("Calling URL for twilio Call Responding Response [$URL]");
+                                        if($log !== null) $log->warn("Calling URL for sms host Call Responding Response [$URL]");
                                         $httpclient = $this->getHttpClient($URL);
                                         $cmd_result = $httpclient->execute();
                                         if($log !== null) $log->warn("Called URL returned [$cmd_result]");
@@ -203,7 +211,7 @@ class SMSCommandHandler {
                                         "&ckid=" . urlencode($most_current_callout['call_key']) .
                                         "&status=" . urlencode(\CalloutStatusType::Complete);
                                         	
-                                        if($log !== null) $log->warn("Calling URL for twilio Call Completed Response [$URL]");
+                                        if($log !== null) $log->warn("Calling URL for sms host Call Completed Response [$URL]");
                                         $httpclient = $this->getHttpClient($URL);
                                         $cmd_result = $httpclient->execute();
                                         if($log !== null) $log->warn("Called URL returned [$cmd_result]");
@@ -227,7 +235,7 @@ class SMSCommandHandler {
                                         "&ckid=" . urlencode($most_current_callout['call_key']) .
                                         "&status=" . urlencode(\CalloutStatusType::Cancelled);
     
-                                        if($log !== null) $log->warn("Calling URL for twilio Call Cancel Response [$URL]");
+                                        if($log !== null) $log->warn("Calling URL for sms host Call Cancel Response [$URL]");
                                         $httpclient = $this->getHttpClient($URL);
                                         $cmd_result = $httpclient->execute();
                                         if($log !== null) $log->warn("Called URL returned [$cmd_result]");
@@ -260,14 +268,31 @@ class SMSCommandHandler {
         return $result;
     }
     
-    public function process_bulk_sms_command($cmd_result) {
+    public function process_bulk_sms_command($cmd_result,$SMS_GateWay) {
         global $log;
         $result = '';
         if ($this->startsWith(strtoupper($cmd_result->getCmd()), self::$SMS_AUTO_CMD_BULK) === true) {
             $recipient_list = $cmd_result->getSmsRecipients();
-            foreach ($recipient_list as &$sms_user) {
-                $result .= "<Message to='".self::$SPECIAL_MOBILE_PREFIX.$sms_user."'>Group SMS from " . $cmd_result->getUserId() .
-                ": " . substr($cmd_result->getCmd(), strlen(self::$SMS_AUTO_CMD_BULK)) . "</Message>";
+            
+            if($SMS_GateWay === SMS_GATEWAY_PLIVIO) {
+				$dst_sms = '';
+				foreach ($recipient_list as &$sms_user) {                
+					if($dst_sms !== '') {
+						$dst_sms .= '<';
+					}
+					$dst_sms .= self::$SPECIAL_MOBILE_PREFIX2.$sms_user;
+				}
+                $result .= "<Message src='" . $cmd_result->getFirehall()->SMS->SMS_PROVIDER_PLIVIO_FROM . 
+                "' dst='".$dst_sms."'>Group SMS from " . htmlspecialchars($cmd_result->getUserId()) .
+                //"' dst='12503018904'>Group SMS from " . $cmd_result->getUserId() . " recipients woudl be: " . htmlspecialchars($dst_sms) .
+                ": " . htmlspecialchars(substr($cmd_result->getCmd(), strlen(self::$SMS_AUTO_CMD_BULK))) . "</Message>";
+            }
+            else {
+                foreach ($recipient_list as &$sms_user) {
+                    $result .= "<Message to='".self::$SPECIAL_MOBILE_PREFIX.$sms_user."'>Group SMS from " . 
+                    htmlspecialchars($cmd_result->getUserId()) .
+                    ": " . htmlspecialchars(substr($cmd_result->getCmd(), strlen(self::$SMS_AUTO_CMD_BULK))) . "</Message>";
+                }
             }
             
             if($log !== null) $log->warn("Sending bulk message to sms users [".$cmd_result->getCmd()."]");
@@ -278,6 +303,9 @@ class SMSCommandHandler {
 
     static public function getTwilioWebhookUrl() {
         return self::$TWILIO_WEBHOOK_URL;
+    }
+    static public function getPlivioWebhookUrl() {
+        return self::$PLIVIO_WEBHOOK_URL;
     }
     
     public function validateTwilioHost($FIREHALLS_LIST) {
@@ -313,13 +341,50 @@ class SMSCommandHandler {
         }
         return false;
     }
+
+    public function validatePlivioHost($FIREHALLS_LIST) {
+        //return true;
+        global $log;
+        foreach ($FIREHALLS_LIST as &$FIREHALL) {
+            if($FIREHALL->ENABLED === true && $FIREHALL->SMS->SMS_SIGNAL_ENABLED === true &&
+               isset($FIREHALL->SMS->SMS_PROVIDER_PLIVIO_AUTH_TOKEN) === true) {
+                    
+                //Get Page URI - Change to "https://" if Needed
+                //$get_uri = "http://" . $_SERVER[HTTP_HOST] . $_SERVER[REQUEST_URI];
+                $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
+                $get_uri = $site_root.self::$PLIVIO_WEBHOOK_URL;
+                
+                $raw_post_array = $this->getAllPostVars();
+                $get_post_params = array();
+                foreach ($raw_post_array as $key => $value) {
+                    $get_post_params[$key] = urldecode($value);
+                }
+                
+                //Get Valid Signature from Plivo
+                $get_signature = (($this->getServerVar('HTTP_X_PLIVO_SIGNATURE') !== null) ? $this->getServerVar('HTTP_X_PLIVO_SIGNATURE') : null);
+                $get_auth_token = $FIREHALL->SMS->SMS_PROVIDER_PLIVIO_AUTH_TOKEN;
+                
+                //Signature Match Returns TRUE (1) - Mismatch Returns FALSE (0)
+                $validate_signature = validate_signature($get_uri, $get_post_params, $get_signature, $get_auth_token);                    
+                if ($validate_signature === true) {
+                    // This request definitely came from Plivio
+                    return true;
+                }
+                
+                $sms_user = (($this->getRequestVar('From') !== null) ? $this->getRequestVar('From') : '');
+                if($log !== null) $log->error("Validate plivio host failed for client [" . \riprunner\Authentication::getClientIPInfo().
+                        "] sms user [$sms_user], returned [$validate_signature] url [$get_uri] vars [" . implode(', ', $raw_post_array) .
+                        "] signature [" . $get_signature . "]");
+            }
+        }
+        return false;
+    }
     
     private function startsWith($haystack, $needle) {
         $length = strlen($needle);
         return (substr($haystack, 0, $length) === $needle);
     }
     private function find_sms_match($sms_user, $recipient_list_array) {
-        //global $SPECIAL_MOBILE_PREFIX;
         if (in_array($sms_user, $recipient_list_array) === true) {
             return $sms_user;
         }
@@ -327,10 +392,19 @@ class SMSCommandHandler {
             return self::$SPECIAL_MOBILE_PREFIX . $sms_user;
         }
         if($this->startsWith($sms_user, self::$SPECIAL_MOBILE_PREFIX) === true &&
-                in_array(substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX)), $recipient_list_array) === true) {
-                    return substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX));
+            in_array(substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX)), $recipient_list_array) === true) {
+                return substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX));
+        }
+        
+        if (in_array(self::$SPECIAL_MOBILE_PREFIX2 . $sms_user, $recipient_list_array) === true) {
+            return self::$SPECIAL_MOBILE_PREFIX2 . $sms_user;
+        }
+        if($this->startsWith($sms_user, self::$SPECIAL_MOBILE_PREFIX2) === true &&
+                in_array(substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX2)), $recipient_list_array) === true) {
+                    return substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX2));
                 }
-                return null;
+        
+        return null;
     }
     
     private function getLiveCalloutModelList($db_connection) {
@@ -420,7 +494,7 @@ class SMSCommandHandler {
         $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
         $qry_bind->closeCursor();
     
-        if($log !== null) $log->trace("Twilio got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . count($rows));
+        if($log !== null) $log->trace("SMS Host got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . count($rows));
     
         foreach($rows as $row){
             $result->setUserAccountId($row->id);
