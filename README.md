@@ -332,7 +332,7 @@ Plivo Application configuration:
        using Message Method: POST.
 
 
-- Send the following text message to your Twilio phone # to get a list of availble commands: ?
+- Send the following text message to your Twilio phone # to get a list of available commands: ?
 
 Special Notes:
 --------------
