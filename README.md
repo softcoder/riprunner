@@ -332,7 +332,7 @@ Plivo Application configuration:
        using Message Method: POST.
 
 
-- Send the following text message to your provider account phone # to get a list of available commands: ?
+To test your provider, send the following text message to your provider configured account phone # to get a list of available commands: ?
 
 Special Notes:
 --------------
