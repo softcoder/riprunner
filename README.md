@@ -20,6 +20,7 @@ Key Features:
   Current SMS providers implemented include (all offer free acounts with limited SMS / month):
   - Twilio (twilio.com) <-- recommended (paid account charges approx $0.0075 per SMS -> https://www.twilio.com/sms/pricing)
   - Sendhub (sendhub.com)
+  - Plivio (plivio.com)
   - EzTexting (eztexting.com)
   - TextBelt (textbelt.com -> a free service but not as reliable and not available everywhere)
 - Self Installation
