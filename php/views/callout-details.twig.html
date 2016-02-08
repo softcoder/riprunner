@@ -3,6 +3,7 @@
     <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
     <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
 	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
+	
 	{% if gvm.isMobile %}
 	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/callout-mobile.css" />
 	{% else %}
@@ -288,7 +289,7 @@ function getGEOLocationCoords_initialize() {
 $( document ).ready(function() {
 	
 	//getGEOLocationCoords(getGEOLocationCoords_callback_fn);
-        
+    
 	// Handle any responder tracking
 	{% if callout_details_vm.firehall is defined and
 	      callout_details_vm.firehall is not null and
@@ -316,7 +317,14 @@ $( document ).ready(function() {
         
         var MAP_AUTO_REFRESH_SECONDS = 60;
         // This reloads the page
-        setTimeout(function () { 
+        setTimeout(function () {
+        	   try {
+        		    SaveView(riprunner_js_map);
+        	   }
+               catch(e) {
+                   console.info('Error calling SaveView msg: ' + e.message);            
+               }
+        		    
                location.reload(true); 
             }, MAP_AUTO_REFRESH_SECONDS * 1000);
         // This counts down to 0

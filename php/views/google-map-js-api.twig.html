@@ -1,7 +1,9 @@
    <div style="width: 600px;">
      <div class="google-maps" id="map"></div> 
    </div>
+   <script type="text/javascript" src="{{ gvm.RR_DOC_ROOT }}js/savemapview.js"></script>
    <script type="text/javascript">
+   var riprunner_js_map = null;
 function map_initialize() {
     //debugger;
 	var directionsService = new google.maps.DirectionsService();
@@ -24,19 +26,29 @@ function map_initialize() {
 	   //["SALMON VALLEY FIRE DEPARTMENT", 54.091680, -122.653749, 7]
 	];
 	{% endblock %}
+
+    var mapzoom = 13;
+    var mapcenter = new google.maps.LatLng({{ CALLORIGIN }});
+    var maplat = mapcenter.lat();
+    var maplng = mapcenter.lng();
+    var maptypeid = google.maps.MapTypeId.ROADMAP;
+	
+    //debugger;
+    var initialZoom = true;
 	
     var map = new google.maps.Map(document.getElementById('map'), {
-		zoom: 13,
-		center: new google.maps.LatLng({{ CALLORIGIN }}),
+		zoom: mapzoom,
+		center: mapcenter,
 		draggable: true,
 		scrollwheel: true,
-		mapTypeId: google.maps.MapTypeId.ROADMAP,
+		mapTypeId: maptypeid,
 		zoomControl: true,
 		zoomControlOptions: {
 			position: google.maps.ControlPosition.LEFT_TOP
 		}
     });
-
+    //LoadView(map);
+    
 	directionsDisplay.setMap(map);
 	var request = {
 		destination: "{{ DESTINATION }}", 
@@ -118,7 +130,7 @@ function map_initialize() {
 		//});
 		//boundaryLayer.setMap(map);
 		{% endblock %}
-
+		
 	    if(marker != null) {
 	        marker.setMap(map);
 	    }
@@ -127,9 +139,31 @@ function map_initialize() {
 	    	getGEOLocationCoords_initialize();
 	    }
 	    catch(e) {
-	    	
+	    	console.info('Error calling getGEOLocationCoords_initialize msg: ' + e.message);	    	
 	    }
 	});
+
+	// Restore previous map settings if they exist
+    google.maps.event.addListener(map, 'zoom_changed', function () {
+    	console.info('In zoom_changed');
+        zoomChangeBoundsListener = google.maps.event.addListener(map, 'bounds_changed', function (event) {
+        	console.info('In zoom_changed + bounds_changed');
+        	try {
+	            if (initialZoom == true) {
+	            	initialZoom = false;
+	            	console.info('Updating zoom...');
+	                LoadView(this);
+	            }
+        	}
+            catch(e) {
+                console.info('Error calling LoadView msg: ' + e.message);            
+            }
+        	
+            google.maps.event.removeListener(zoomChangeBoundsListener);
+        });
+    });
+    	
+	riprunner_js_map = map;
 }
    
    function loadScript(src,callback) {
