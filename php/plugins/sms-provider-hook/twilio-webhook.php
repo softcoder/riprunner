@@ -44,13 +44,14 @@ Cancel current callout, any of: <?php echo implode(', ', \riprunner\SMSCommandHa
 Broadcast message to all: <?php echo \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_BULK.PHP_EOL ?>
 Show help, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_HELP).PHP_EOL ?>
 <?php else: ?>
-Received SMS
+Received Unknown SMS command
 From [<?php echo ((getSafeRequestValue('From') !== null) ? getSafeRequestValue('From') : '') ?>]
 To [<?php echo ((getSafeRequestValue('To') !== null) ? getSafeRequestValue('To') : '') ?>]
 MessageSid [<?php echo ((getSafeRequestValue('MessageSid') !== null) ? getSafeRequestValue('MessageSid') : '') ?>]
 SmsSid [<?php echo ((getSafeRequestValue('SmsSid') !== null) ? getSafeRequestValue('SmsSid') : '') ?>]
 NumMedia [<?php echo ((getSafeRequestValue('NumMedia') !== null) ? getSafeRequestValue('NumMedia') : '') ?>]
 Body [<?php echo ((getSafeRequestValue('Body') !== null) ? getSafeRequestValue('Body') : '') ?>]
+To show all available commands, use any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_HELP).PHP_EOL ?>
 <?php if(in_array(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_RESPONDING) === true && count($result->getLiveCallouts()) <= 0): ?>
 Cannot respond, no callouts active!
 <?php elseif(in_array(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_COMPLETED) === true && count($result->getLiveCallouts()) <= 0): ?>
