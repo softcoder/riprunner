@@ -339,6 +339,15 @@ Special Notes:
 
 Compiling the Android application in the Eclipse IDE requires you to install the ADT plugin (http://developer.android.com/tools/sdk/eclipse-adt.html) as well as setup the Google Play Services SDK (https://developer.android.com/google/play-services/setup.html#Setup) as this is a dependency in the riprunner android app.
 
+Contributions:
+--------------
+Special thanks to all who have contributed to the success of this project. We accept patches and ideas from others and priortize based on time constraints and compatibility with our future direction.
+
+Contributors currently include:
+- The Salmon Valley Fire Hall for all the great testing and feedback
+- Dennis Lloyd (Officer at the Shell Glen Fire Hall) for peer review, and many contributions, without which
+  we would have many more defecs and have a much less pleasing user interface.
+
 Contact Info:
 --------------
 - Email: mark_vejvoda@hotmail.com
