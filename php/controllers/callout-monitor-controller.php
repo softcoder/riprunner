@@ -32,7 +32,6 @@ if(isset($server_mode) === true && $server_mode === 'true') {
 		echo 'Access Denied!';
 		ob_flush();
 		flush();
-		
 		die();
 	}
 	header('Content-Type: text/event-stream');
@@ -60,7 +59,6 @@ if(isset($server_mode) === true && $server_mode === 'true') {
 			echo "data: {\n";
 			echo "data: \"keyid\": \"\", \n";
 			echo "data: \"id\": -1\n";
-				
 			echo "data: }\n";
 			echo PHP_EOL;
 			ob_flush();

@@ -61,16 +61,52 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			return $this->getCalloutDetailsEndRespondingList();
 		}
 		if('google_map_type' === $name) {
-			//return GOOGLE_MAP_TYPE;
 		    $config = new \riprunner\ConfigManager();
 		    return $config->getSystemConfigValue('GOOGLE_MAP_TYPE');
+        }
+        if('MAP_REFRESH_TIMER' === $name) {
+			//return MAP_REFRESH_TIMER;
+			$config = new \riprunner\ConfigManager();
+			return $config->getSystemConfigValue('MAP_REFRESH_TIMER');
 		}
 		if('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED' === $name) {
 			//return ALLOW_CALLOUT_UPDATES_AFTER_FINISHED;
 		    $config = new \riprunner\ConfigManager();
 		    return $config->getSystemConfigValue('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED');
 		}
-		
+        if('MEMBER_UPDATE_COMPLETED' === $name) {
+            return MEMBER_UPDATE_COMPLETED;
+        }
+        if('OFFICER_UPDATE_COMPLETED' === $name) {
+            return OFFICER_UPDATE_COMPLETED;
+        }
+        if('STREAM_AUDIO_ENABLED' === $name) {
+            return STREAM_AUDIO_ENABLED;
+        }
+        if('STREAM_MOBILE' === $name) {
+            return STREAM_MOBILE;
+        }
+        if('STREAM_DESKTOP' === $name) {
+            return STREAM_DESKTOP;
+        }
+        if('STREAM_URL' === $name) {
+            return STREAM_URL;
+        }
+        if('STREAM_TYPE' === $name) {
+            return STREAM_TYPE;
+        }
+        if('STREAM_AUTOPLAY_MOBILE' === $name) {
+            return STREAM_AUTOPLAY_MOBILE;
+        }
+        if('STREAM_AUTOPLAY_DESKTOP' === $name) {
+            return STREAM_AUTOPLAY_DESKTOP;
+        }
+        if('MOBILE_LG_ZOOM' === $name) {
+            return MOBILE_LG_ZOOM;
+        }
+        if('DESKTOP_LG_ZOOM' === $name) {
+            return DESKTOP_LG_ZOOM;
+        }
 		if('map_callout_geo_dest' === $name) {
 		    return get_query_param('map_callout_geo_dest');
 		}
@@ -95,10 +131,11 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			array('firehall_id','firehall','callout_id','calloutkey_id', 'member_id',
 				  'callout_responding_user_id', 'callout_status_complete', 'callout_status_cancel',
 			      'callout_details_list','callout_details_responding_list',
-				  'callout_details_not_responding_list', 'callout_details_end_responding_list',
-				  'google_map_type', 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED',
-	 	          'map_callout_geo_dest', 'map_callout_address_dest', 'map_fh_geo_lat',
-		          'map_fh_geo_long', 'map_webroot'
+                'callout_details_not_responding_list','callout_details_end_responding_list','google_map_type',
+                'MAP_REFRESH_TIMER','MEMBER_UPDATE_COMPLETED','OFFICER_UPDATE_COMPLETED',
+                'STREAM_AUDIO_ENABLED','STREAM_MOBILE','STREAM_DESKTOP','STREAM_URL','STREAM_TYPE','STREAM_AUTOPLAY_MOBILE','STREAM_AUTOPLAY_DESKTOP',
+                'MOBILE_LG_ZOOM','DESKTOP_LG_ZOOM','ALLOW_CALLOUT_UPDATES_AFTER_FINISHED',
+                'map_callout_geo_dest','map_callout_address_dest','map_fh_geo_lat','map_fh_geo_long','map_webroot'
 			)) === true) {
 			return true;
 		}

@@ -71,6 +71,73 @@ class GlobalViewModel {
 		if('phpinfo' === $name) {
 			return $this->getPhpInfo();
 		}
+		if('MENU_TYPE' == $name) {
+			if(defined('MENU_TYPE')) {
+				return MENU_TYPE;
+			}
+		}
+		if('CUSTOM_MAIN_CSS' == $name) {
+			if(defined('CUSTOM_MAIN_CSS')) {
+				return CUSTOM_MAIN_CSS;
+			}
+			return '';
+		}
+		if('CUSTOM_MOBILE_CSS' == $name) {
+			if(defined('CUSTOM_MOBILE_CSS')) {
+				return CUSTOM_MOBILE_CSS;
+			}
+			return '';
+		}
+		if('ICON_MARKERSCUSTOM_LEGEND' == $name) {
+			if(defined('ICON_MARKERSCUSTOM_LEGEND')) {
+				return ICON_MARKERSCUSTOM_LEGEND;
+			}
+		}
+		if('ICON_MARKERSCUSTOM' == $name) {
+			if(defined('ICON_MARKERSCUSTOM')) {
+				return ICON_MARKERSCUSTOM;
+			}
+		}
+		if('ICON_HYDRANT' == $name) {
+			if(defined('ICON_HYDRANT')) {
+				return ICON_HYDRANT;
+			}
+		}
+		if('ICON_FIREHALL' == $name) {
+			if(defined('ICON_FIREHALL')) {
+				return ICON_FIREHALL;
+			}
+		}
+		if('ICON_WATERTANK' == $name) {
+			if(defined('ICON_WATERTANK')) {
+				return ICON_WATERTANK;
+			}
+		}
+		if('ICON_CALLORIGIN' == $name) {
+			if(defined('ICON_CALLORIGIN')) {
+				return ICON_CALLORIGIN;
+			}
+		}
+		if('JSMAP_WIDTH' == $name) {
+			if(defined('JSMAP_WIDTH')) {
+				return JSMAP_WIDTH;
+			}
+		}
+		if('JSMAP_HEIGHT' == $name) {
+			if(defined('JSMAP_HEIGHT')) {
+				return JSMAP_HEIGHT;
+			}
+		}
+		if('JSMAP_MOBILEWIDTH' == $name) {
+			if(defined('JSMAP_MOBILEWIDTH')) {
+				return JSMAP_MOBILEWIDTH;
+			}
+		}
+		if('JSMAP_MOBILEHEIGHT' == $name) {
+			if(defined('JSMAP_MOBILEHEIGHT')) {
+				return JSMAP_MOBILEHEIGHT;
+			}
+		}
 		
 		// throw some kind of error
 		throw new \Exception("Invalid var reference [$name].");
@@ -81,7 +148,9 @@ class GlobalViewModel {
 			array('isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN',
 					AuthViewModel::getAuthVarContainerName(),'firehall',
 					'firehall_list','user_firehallid','enabled_asynch_mode',
-					'phpinfo'
+					'phpinfo','MENU_TYPE','CUSTOM_MAIN_CSS','CUSTOM_MOBILE_CSS',
+					'ICON_MARKERSCUSTOM_LEGEND','ICON_MARKERSCUSTOM','ICON_HYDRANT','ICON_FIREHALL','ICON_WATERTANK','ICON_CALLORIGIN',
+					'JSMAP_WIDTH','JSMAP_HEIGHT','JSMAP_MOBILEWIDTH','JSMAP_MOBILEHEIGHT'
 			)) === true) {
 			return true;
 		}

@@ -13,9 +13,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 
 require_once 'config_interfaces.php';
 require_once 'config_constants.php';
-if(file_exists('config-jsmap-extras.php') === true) {
-    include_once 'config-jsmap-extras.php';
-}
+require_once 'config/config_manager.php';
 
 // This true / false variable defines whether or not users can update callouts
 // even after their status is set to cancelled or completed
@@ -31,6 +29,32 @@ define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
 
 define( 'GOOGLE_MAP_TYPE', 'javascript');
 //define( 'GOOGLE_MAP_TYPE', 'iframe');
+
+define('MAP_REFRESH_TIMER', '60');
+
+// these will only work with the javascript map
+define('JSMAP_WIDTH','100%');
+define('JSMAP_HEIGHT','550px');
+define('JSMAP_MOBILEWIDTH','85%');
+define('JSMAP_MOBILEHEIGHT','1000px');
+
+define('MOBILE_LG_ZOOM','yes');  // Large zoom controls on mobile devices
+define('DESKTOP_LG_ZOOM','yes');  // Large zoom controls on non-mobile devices
+
+// ====================================================================================================
+// === ENABLE THE AUDIO SOURCE FOR REALTIME RADIO TRAFFIC AVAIALABLE OVER DEVICES                   ===
+// === SERVER MUST HAVE AN AUDIO CHANNEL FROM YOUR RADIO NETWORK AND MADE AVAILABLE WITH SOFTWARE   ===
+// === CAPABLE OF STREAMING AN MP3 AND/OR OOG AUDIO STREAM TO DEVICES OUTSIDE OF YOUR NETWORK       ===
+// === TESTING KNOWN SERVERS ARE ICECAST AND VLC PLAYER WITH A CONFIGURED HTTP STREAM               ===
+// ====================================================================================================
+define('STREAM_AUDIO_ENABLED', 'no');
+define('STREAM_MOBILE', 'no');
+define('STREAM_DESKTOP', 'no');
+//define('STREAM_URL', 'http://radiostream.sgvfr.com:65432/call.mp3');
+define('STREAM_URL', '');
+define('STREAM_TYPE', 'audio/mp3');
+define('STREAM_AUTOPLAY_DESKTOP', 'no');  //almost always works on desktop devices.
+define('STREAM_AUTOPLAY_MOBILE', 'no');  //may not work on all devices, especially iPhone.
 
 // ====================================================================================================
 // ===--------------EDIT BLOCKS BELOW ONLY IF YOU KNOW WHAT YOUR DOING------------------------------===

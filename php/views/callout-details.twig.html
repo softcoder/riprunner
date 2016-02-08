@@ -3,7 +3,6 @@
     <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
     <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
 	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
-	
 	{% if gvm.isMobile %}
 	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/callout-mobile.css" />
 	{% else %}
@@ -19,95 +18,122 @@
         <span class="ci_header">Call Information:</span>
         {% endblock %}
         
-            {% set callkey_validated = false %}
-            {% set callout_pending = false %}
+        {% set callkey_validated = false %}
+        {% set callout_pending = false %}
+        {% for row in callout_details_vm.callout_details_list %}
             
-            {% for row in callout_details_vm.callout_details_list %}
-            
-                {% block callout_header %}
-		        <div id="callContent{{ loop.index }}">
-		          <span class="ci_header_time">Page Time: {{ row.calltime }}</span><br />
-		          <span class="ci_header_type">Call Type: {{ row.callout_type_desc }}</span><br />
-		          <span class="ci_header_address">Call Address: {{ row.address }}</span><br />
-		          <span class="ci_header_units">Responding Units: {{ row.units }}</span><br />
-		          <span class="ci_header_status">Call Status: {{ row.callout_status_desc }}</span><br />
-		          <span class="ci_header_status" id="geo_tag">Your GEO Position: ?</span>
-		        </div>
-                {% endblock %}
-            
-                {% set callout_pending = 
-                        row.callout_status_completed == false and 
-                        row.callout_status_cancelled == false %}
-                
-                
-		        {% block callout_refresh_display %}
-                <span id='reload_timer_ui' class='ci_reload_timer'></span>
-		        {% endblock %}
-                
-		        <div id="callResponseContent{{ loop.index }}">
-		        
-		        {% block callout_responding_header %}
-		        <span class="ci_responders_header">Responders:
-                {% endblock %}
-            
-                {% for row_responding in callout_details_vm.callout_details_responding_list %}
-                
-                    {% block callout_responding_details %}
-                    {% if loop.index > 1 %}
-                    , &nbsp;
-                    {% endif %}
-                    
-                    {% if row_responding.latitude is defined and 
-                       row_responding.latitude != 0.0 and
-                       row_responding.longitude is defined and 
-                       row_responding.longitude != 0.0 %}
-                    
-				        <a target="_blank" href="http://maps.google.com/maps?saddr={{ row_responding.responder_location }}&daddr={{ row_responding.firehall_location }} ({{ row_responding.firehall_location }})"
-				           class="ci_responders_user_link">{{ row_responding.user_id }}</a>
+	{% if gvm.isMobile %}
+	{% block callout_header_mobile %}
+		<div id="callContent{{ loop.index }}">
+		<table class=box-table-a width="100%">
+		{% if row.address is empty %}
+			<tr><td class=ci_header_address colspan=3>NO ADDRESS RECIVED FROM FOCC</td></tr>
+		{% else %}
+			<tr><td class=ci_header_address colspan=3>{{ row.address }}</td></tr>
+		{% endif %}
+		<tr><td class=ci_header_type{% if row.callout_status_desc == 'notified' or row.callout_status_desc == 'responding' %}_blink{% endif %}>{{ row.callout_type_desc|upper }}</td>
+		<td class=ci_header_time>{{ row.calltime }}</td><td class=ci_header_status{% if row.callout_status_desc == 'notified' or row.callout_status_desc == 'responding' %}_blink{% endif %}>{{ row.callout_status_desc|upper }}</td></tr>
+		{% if row.callout_status_desc == 'notified' or row.callout_status_desc == 'responding' %}
+		{% if callout_details_vm.STREAM_MOBILE == 'yes' and callout_details_vm.STREAM_AUDIO_ENABLED == 'yes' %}
+		<tr><td colspan=3>
+		<audio src="{{ callout_details_vm.STREAM_URL }}" id="player" {% if callout_details_vm.STREAM_AUTOPLAY_MOBILE == 'yes' %}autoplay{% endif %}>
+		<source type="{{ callout_details_vm.STREAM_TYPE }}" /></audio>
+		<INPUT TYPE="button" VALUE="PLAY/PAUSE RADIO-(15/s DELAY)" class="ci_audio_feed" onclick="aud_play_pause()"></div>
+		</tr></td>
+		{% endif %}
+		{% endif %}
+		</table>
+		<hr>
+		<table class=box-table-a width="100%">
+		<tr><td><span class="ci_header_units">CALCULATED TRAVEL: </span><span class="ci_header_units_list" id="geo_tag"></span></td></tr>
+		<tr><td><span class="ci_header_units">UNITS:</span><span class=ci_header_units_list>{{ row.units }} </span></td></tr>
+		<tr><td><span class="ci_responders_header">RESPONDERS:</span>
+		 {% for row_responding in callout_details_vm.callout_details_responding_list %}
+		  {% block callout_responding_details_mobile %}
+		   {% if loop.index > 1 %}<span class="ci_responders_header">,</span>{% endif %}
+		   {% if row_responding.latitude is defined and row_responding.latitude != 0.0 and row_responding.longitude is defined and row_responding.longitude != 0.0 %}
+			<span class=ci_responders_members><a target="_blank" href="http://maps.google.com/maps?saddr={{ row_responding.responder_location }}&daddr={{ row_responding.firehall_location }} ({{ row_responding.firehall_location }})">{{ row_responding.user_id|upper }}</a></span>
+		   {% else %}
+			<span class="ci_responders_members">{{ row_responding.user_id|upper }}</span>
+		   {% endif %}
+		  {% endblock %}
+		 {% endfor %}
+		 </td></tr>
+		 </table>
+	{% endblock %}
 
-                    {% else %}
-                    {{ row_responding.user_id }}
-                    {% endif %}                    
-            
-                    {% endblock %}
-                    
-                {% endfor %}
+	{% else %}
 
-		        </span><br />
-		        
-		        {% block callout_show_responding_map %}
-		        <a target="_blank" href="{{ gvm.RR_DOC_ROOT }}ct/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&ta=mr&ckid=${{ callout_details_vm.calloutkey_id }}"
-		           class="ci_responders_map_link">Show Responders Map</a>
-		        {% endblock %}
-		        
-		        </div>
+	{% block callout_header %}
+		<div id="callContent{{ loop.index }}">
+		<table class=box-table-a border=0 width="100%">
+		{% if row.address is empty %}
+			<tr><td class=ci_header_address colspan=3>NO ADDRESS FROM FOCC</td></tr>
+		{% else %}
+			<tr><td class=ci_header_address colspan=3>{{ row.address }}</td></tr>
+		{% endif %}
+		<tr><td class=ci_header_type{% if row.callout_status_desc == 'notified' or row.callout_status_desc == 'responding' %}_blink{% endif %}>{{ row.callout_type_desc|upper }}</td>
+		<td class=ci_header_time>{{ row.calltime }}</td><td class=ci_header_status{% if row.callout_status_desc == 'notified' or row.callout_status_desc == 'responding' %}_blink{% endif %}>{{ row.callout_status_desc|upper }}</td></tr>
+		{% if row.callout_status_desc == 'notifed' or row.callout_status_desc == 'responding' %}
+		{% if callout_details_vm.STREAM_DESKTOP == 'yes' and callout_details_vm.STREAM_AUDIO_ENABLED == 'yes' %}
+		<tr><td COLSPAN=3>
+		<audio src='{{ callout_details_vm.STREAM_URL }}' id="player" {% if callout_details_vm.STREAM_AUTOPLAY_DESKTOP == 'yes' %}autoplay{% endif %}>
+		<source type="{{ callout_details_vm.STREAM_TYPE }}" /></audio>
+		<INPUT TYPE="button" VALUE="PLAY/PAUSE RADIO-(15/s DELAY)" class="ci_audio_feed" onclick="aud_play_pause()"></div>
+		</tr></td>
+		{% endif %}
+		{% endif %}
+		</table>
+		<hr>
+		<table class=box-table-a border=0 width="100%">
+		<tr><td><span class="ci_header_units">CALCULATED TRAVEL: </span><span class="ci_header_units_list" id="geo_tag"></span></td></tr>
+		<tr><td><span class=ci_header_units>UNITS: </span><span class=ci_header_units_list>{{ row.units }} </span></td></tr>
+		<tr><td><span class="ci_responders_header">RESPONDERS:</span>
+		 {% for row_responding in callout_details_vm.callout_details_responding_list %}
+		  {% block callout_responding_details %}
+		   {% if loop.index > 1 %}<span class="ci_responders_header">,</span>{% endif %}
+		   {% if row_responding.latitude is defined and row_responding.latitude != 0.0 and row_responding.longitude is defined and row_responding.longitude != 0.0 %}
+			<span class=ci_responders_members><a target="_blank" href="http://maps.google.com/maps?saddr={{ row_responding.responder_location }}&daddr={{ row_responding.firehall_location }} ({{ row_responding.firehall_location }})">{{ row_responding.user_id|upper }}</a></span>
+		   {% else %}
+			<span class="ci_responders_members">{{ row_responding.user_id|upper }}</span>
+		   {% endif %}
+		  {% endblock %}
+		 {% endfor %}
+		 </td></tr>
+		 </table>
+	{% endblock %}
+	{% endif %}
             
-                <script type="text/javascript">            
-                var callout_geo_dest = '{{ row.callout_geo_dest }}';
-                </script>
+        {% set callout_pending = row.callout_status_completed == false and 
+                                 row.callout_status_cancelled == false %}
+                
+        <div id="callResponseContent{{ loop.index }}">
+        {% if callout_pending %}
+         <span id='reload_timer_ui' class='ci_reload_timer'></span><br>
+        {% endif %}
+
+        {% block callout_show_responding_map %}
+    <!-- 	 <a target="_blank" href="{{ gvm.RR_DOC_ROOT }}ct/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&ta=mr&ckid=${{ callout_details_vm.calloutkey_id }}" class="ci_responders_map_link">SHOW RESPONDERS MAP</a>
+     -->	{% endblock %}
+        </div>
+		        
+        </div>
+            
+        <script type="text/javascript">            
+        var callout_geo_dest = '{{ row.callout_geo_dest }}';
+        </script>
             
                 {% if callout_details_vm.google_map_type == 'javascript' %}
-
-		          {% block callout_js_inline_map %}
-
+	              {% block callout_js_inline_map %}
                   {% include ['@custom/google-map-js-api-custom.twig.html', 'google-map-js-api.twig.html'] with 
                      { 'CALLORIGIN' : row.callout_geo_dest, 
                        'DESTINATION' : row.callout_address_dest,
-                       'FDLOCATION' : callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE ~ 
-                                      ',' ~ 
+                       'FDLOCATION' : callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE ~ ',' ~ 
                                       callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE,
                        'WEB_ROOT' : callout_details_vm.firehall.WEBSITE.WEBSITE_ROOT_URL }
                   %}
-
-                  <!--  
-                  <iframe frameborder="1" style="border:1"  
-                      src="{{ gvm.RR_DOC_ROOT }}controllers/callout-details-controller.php?enable_map_view=true&fhid={{ callout_details_vm.firehall_id|url_encode }}&map_callout_geo_dest={{ row.callout_geo_dest|url_encode }}&map_callout_address_dest={{ row.callout_address_dest|url_encode }}&map_fh_geo_lat={{ callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE|url_encode }}&map_fh_geo_long={{ callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE|url_encode }}&map_webroot={{ callout_details_vm.firehall.WEBSITE.WEBSITE_ROOT_URL|url_encode }}">
-                  </iframe>
-                  -->
-		          
-		          {% endblock %}
-		        
-		        {% else %}
+  	              {% endblock %}
+	            {% else %}
                 <div class="google-maps">
                   {% block callout_inline_map %} 
                   <iframe frameborder="1" style="border:1"  
@@ -115,8 +141,7 @@
                   </iframe>
                   {% endblock %}
                 </div>
-		        
-		        {% endif %}
+                {% endif %}
                 
                 {% if callout_details_vm.calloutkey_id is defined and 
                       callout_details_vm.calloutkey_id != null and 
@@ -138,7 +163,11 @@
                       callkey_validated == true %}
 
 			        <br />
-			        <table>
+                    {% if gvm.isMobile %}
+	                <table width="{{ gvm.JSMAP_MOBILEWIDTH }}" align=center>
+	                {% else %}
+	                <table width="{{ gvm.JSMAP_WIDTH }}" align=center>
+	                {% endif %}
 
                     {% set no_response_count = 0 %}
                     {% for row_no in callout_details_vm.callout_details_not_responding_list %}
@@ -153,7 +182,7 @@
                                 <span class='inset-button'>{{ row_no.user_id }}</span>
                             </td>
                             <td class="ci_align_cell" colspan="2">
-                                <INPUT TYPE="button" VALUE="Respond" 
+                                <INPUT TYPE="button" VALUE="RESPOND" 
                                        class="ci_respondnow" 
                                        onclick="if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
 

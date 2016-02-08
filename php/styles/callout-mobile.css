@@ -1,25 +1,16 @@
 @CHARSET "UTF-8";
 
 @mixin vertical-align {
-  position: relative;
-  top: 50%;
-  -webkit-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
+    position: relative;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
 }
-
-.ci_triangle-right {
-    width: 0;
-    height: 0;
-    border-top: 10px solid transparent;
-    border-left: 50px solid red;
-    border-bottom: 10px solid transparent;
-    
-    @include vertical-align;
-}   
-
-.ci_align_cell {
-    vertical-align: top;
+#legend {
+    font-size:25px;
+    background: white;
+    padding: 10px;
 }
 
 .inset-button {
@@ -60,59 +51,147 @@
     -webkit-box-shadow: 0px 1px 0px white, inset 0px 0px 0px 1px rgba(0, 0, 0, 0.19), 0px 0px 10px 0px rgba(255, 255, 255, 0.16), inset 0px 0px 10px 0px rgba(0, 0, 0, 0.68);
 }
 
+.ci_align_cell {
+    vertical-align: middle;
+    width: 1px;
+    white-space: nowrap;
+}
 
 .ci_body {
-  background-color:black;
+    font-family:"Courier New", Courier, monospace;
+    background-color:black;
 }
 
 .ci_body_error {
-  background-color:white;
+    background-color:white;
 }
 
 .ci_header {
+    text-align: center;
     color:white;
     font-size:35px;
     font-weight: bold;
-}
-
-.ci_header_time {
-    color:white;
-    font-size:30px;
-    font-weight: bold;
-}
-
-.ci_header_type {
-    color:yellow;
-    font-size:30px;
-    font-weight: bold;
+    text-align: center;
 }
 
 .ci_header_address {
     color:cyan;
-    font-size:30px;
+    position: relative;
+    font-size: 45px;
     font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    white-space: -moz-pre-wrap; /* Firefox */
+    white-space: -o-pre-wrap; /* Opera */
+    white-space: pre-wrap; /* Chrome */
+    word-wrap: break-word; /* IE */
+}
+.ci_header_type {
+    text-align: center;
+    color:yellow;
+    font-size:45px;
+    font-weight: bold;
+    width: 33%;
+}
+.ci_header_type_blink {
+    text-align: center;
+    color:yellow;
+    font-size:45px;
+    font-weight: bold;
+    width: 33%;
+    -webkit-animation-name: blinker;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-timing-function: steps(1, start);
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation-name: blinker;
+    -moz-animation-duration: 1s;
+    -moz-animation-timing-function: steps(1, start);
+    -moz-animation-iteration-count: infinite;
+    animation-name: blinker;
+    animation-duration: 1s;
+    animation-timing-function: steps(1, start);
+    animation-iteration-count: infinite;
+}
+.ci_header_time {
+    text-align: center;
+    color:white;
+    font-size:45px;
+    font-weight: bold;
+    width: 33%;
+}
+.ci_header_status {
+    padding: 0px;
+    text-align: center;
+    color:yellow;
+    font-size:45px;
+    font-weight: bold;
+    width: 33%;
+}
+.ci_header_status_blink {
+    padding: 0px;
+    text-align: center;
+    color:yellow;
+    font-size:45px;
+    font-weight: bold;
+    width: 33%;
+    -webkit-animation-name: blinker;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-timing-function: steps(1, start);
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation-name: blinker;
+    -moz-animation-duration: 1s;
+    -moz-animation-timing-function: steps(1, start);
+    -moz-animation-iteration-count: infinite;
+    animation-name: blinker;
+    animation-duration: 1s;
+    animation-timing-function: steps(1, start);
+    animation-iteration-count: infinite;
 }
 
 .ci_header_units {
+    color: white;
+    font-size:40px;
+    font-weight: bold;
+    width: 33%
+}
+.ci_header_units_list {
     color:lime;
-    font-size:30px;
+    font-size:40px;
     font-weight: bold;
 }
 
-.ci_header_status {
-    color:yellow;
-    font-size:30px;
+.ci_header_audio_play {
+    text-align: center;
+    color:red;
     font-weight: bold;
+  font: bold 30px Arial;
+  text-decoration: none;
+  background-color: #EEEEEE;
+  padding: 2px 6px 2px 6px;
+  border-top: 1px solid #CCCCCC;
+  border-right: 1px solid #333333;
+  border-bottom: 1px solid #333333;
+  border-left: 1px solid #CCCCCC;
 }
 
 .ci_responders_header {
     color:white;
-    font-size:30px;
+    font-size:40px;
     font-weight: bold;
 }
+.ci_responders_members {
+    color:white;
+    font-size:40px;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: left;
+}
 
-.ci_responders_user_link {
+.ci_responders_members a{
     color:lime;
+    font-size:40px;
+    font-weight: bold;
+    text-decoration: none;
 }
 
 .ci_responders_map_link {
@@ -120,12 +199,15 @@
     font-size:33px;
 }
 
-.ci_respondnow {
-  padding: 25px;
-  background-color:yellow;
-  font-size:50px; 
-  color: red;
-  
+.ci_respondnow, .ci_audio_feed {
+    padding: 16px;
+    background-color:yellow;
+    font-size:50px; 
+    color: red;
+    width: 100%;
+    border: 1px solid #aabcfe;
+    cursor: pointer;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
     -webkit-border-radius: 30px;
     -moz-border-radius: 30px;
     -ms-border-radius: 30px;
@@ -136,24 +218,21 @@
     -ms-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
     -o-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
     box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
-    border: 1px solid #aabcfe;
-    cursor: pointer;
-    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
 }
 
 .ci_finish_now_user {
     color:white;
     background-color:blue;
-    font-size:35px;
+    font-size:45px;
     font-weight: bold;
 }
 
 .ci_completenow {
-  padding: 25px;
-  background-color:green;
-  font-size:50px; 
-  color: white;
-  
+    padding: 18px;
+    background-color:green;
+    font-size:50px; 
+    color: white;
+    width: 100%;  
     -webkit-border-radius: 30px;
     -moz-border-radius: 30px;
     -ms-border-radius: 30px;
@@ -170,11 +249,11 @@
 }
 
 .ci_cancelnow {
-  padding: 25px;
-  background-color:red;
-  font-size:50px; 
-  color: white;
-  
+    padding: 18px;
+    background-color:red;
+    font-size:50px; 
+    color: white;
+    width: 100%;  
     -webkit-border-radius: 30px;
     -moz-border-radius: 30px;
     -ms-border-radius: 30px;
@@ -189,42 +268,40 @@
     cursor: pointer;
     text-shadow: 0 1px 0 rgba(255,255,255,0.5);
 }
-.ci_respondername {
-	padding-left: 50px;
+.ci_responderName {
     color:yellow;
     font-size:50px;
     font-weight: bold;
 }
 
 .ci_responderTable    {
-        display: table;
+    display: table;
 
     }
 .ci_responderCell    {
-        display: table-cell;
-        border: none;
-        border-width: thin;
-        padding-left: 5px;
-        padding-right: 5px;
-		color:yellow;
-		font-size:25px;
-		font-weight: bold;
-    }
+    display: table-cell;
+    border: none;
+    border-width: thin;
+    padding-left: 5px;
+    padding-right: 5px;
+    color:yellow;
+    font-size:35px;
+    font-weight: bold;
+}
 
 .ci_reload_timer {
-  font-size:40px;
-  font-weight: bold;
-  color: white;
+    font-size:40px;
+    font-weight: bold;
+    color: white;
 }
 
 .google-maps {
+    margin: auto;
 	position: relative;
-	#padding-bottom: 75%; // This is the aspect ratio
-	#height: 0;
-	#overflow: hidden;
-	width: 900 !important;
-	height: 600 !important;
-     
+	#padding-bottom: 40%; // This is the aspect ratio
+	overflow: hidden;
+	width: {{ gvm.JSMAP_MOBILEWIDTH }} !important;
+	height: {{ gvm.JSMAP_MOBILEHEIGHT }} !important;
 }
 
 .google-maps iframe {
@@ -234,4 +311,25 @@
 	width: 100% !important;
 	height: 100% !important;
 }
+@-moz-keyframes blinker {  
+    0% { background-color: none; }
+    50% { background-color: red }
+    100% { background-color: none; }
+}
 
+@-webkit-keyframes blinker {  
+    0% { background-color: none; }
+    50% { background-color: red }
+    100% { background-color: none; }
+}
+
+@keyframes blinker {  
+    0% { background-color: none; }
+    50% { background-color: red }
+    100% { background-color: none; }
+}
+
+#player {
+    height:0;
+    width:0
+}
