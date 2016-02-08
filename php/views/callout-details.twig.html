@@ -4,9 +4,9 @@
     <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
 	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
 	{% if gvm.isMobile %}
-	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/callout-mobile.css" />
+	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/callout-mobile.css?version=1" />
 	{% else %}
-	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/callout-main.css" />
+	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/callout-main.css?version=1" />
 	{% endif %}
 </head>
 
@@ -302,7 +302,7 @@ function getGEOLocationCoords_callback_fn(geoAccess,param2) {
         	directionsService.route( request, function( response, status ) {
         	    if ( status === 'OK' ) {
         	        var point = response.routes[ 0 ].legs[ 0 ];
-        	        $( '#geo_tag' ).html( 'Estimated time to scene: ' + point.duration.text + ' (' + point.distance.text + ')' );
+        	        $( '#geo_tag' ).html( point.duration.text + ' (' + point.distance.text + ')' );
         	        console.info('Estimated time to scene: ' + point.duration.text + ' (' + point.distance.text + ')');
         	    }
         	} );        	

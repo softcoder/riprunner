@@ -35,8 +35,12 @@ class DbConnection {
     	if(isset($this->firehall) === false) {
     		throwExceptionAndLogError('Db Connection firehall is not set!', 'Db Connection firehall is not set.');
     	}
-    	
+    	 
     	if($this->firehall !== null) {
+    	    if($this->firehall->ENABLED === false) {
+    	        throwExceptionAndLogError('Db Connection firehall disabled!', 'Db Connection firehall disabled.');
+    	    }
+    	    	
     	    // Firehall already has an injected DB Connection
     	    if($this->firehall->DB->DATABASE_CONNECTION !== null) {
     	        $this->pdo = $this->firehall->DB->DATABASE_CONNECTION;

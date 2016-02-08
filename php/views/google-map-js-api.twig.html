@@ -231,7 +231,7 @@ function map_initialize() {
         // -----------------------------------------------------------------------------
         // Set map bounds here
         var boundaryLayer = new google.maps.KmlLayer({
-            url: '{{ WEB_ROOT }}kml/boundaries.kml?dummy='+(new Date()).getTime(),
+            url: '{{ WEB_ROOT }}kml/boundaries.kml?version=1',
             preserveViewport: true,
             supressInfoWindows: true
         });
