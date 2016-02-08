@@ -160,10 +160,10 @@ class SMSCommandHandler {
                             if($result->getUserId() !== null) {
                                 // Now check which command the user wants to process
                                 if($SMS_GateWay === SMS_GATEWAY_TWILIO) {
-                                    $sms_cmd = (($this->getRequestVar('Body') !== null) ? $this->getRequestVar('Body') : '');
+                                    $sms_cmd = trim(($this->getRequestVar('Body') !== null) ? $this->getRequestVar('Body') : '');
                                 }
                                 else if($SMS_GateWay === SMS_GATEWAY_PLIVO) {
-                                    $sms_cmd = (($this->getRequestVar('Text') !== null) ? $this->getRequestVar('Text') : '');
+                                    $sms_cmd = trim(($this->getRequestVar('Text') !== null) ? $this->getRequestVar('Text') : '');
                                 }
                                 $result->setCmd($sms_cmd);
 
