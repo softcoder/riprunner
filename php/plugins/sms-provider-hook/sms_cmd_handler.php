@@ -291,7 +291,10 @@ class SMSCommandHandler {
             
             if($SMS_GateWay === SMS_GATEWAY_PLIVO) {
 				$dst_sms = '';
-				foreach ($recipient_list as &$sms_user) {                
+				foreach ($recipient_list as &$sms_user) {
+				    if(trim($sms_user) == '') {
+				        continue;
+				    }
 					if($dst_sms !== '') {
 						$dst_sms .= '<';
 					}
@@ -304,6 +307,10 @@ class SMSCommandHandler {
             }
             else {
                 foreach ($recipient_list as &$sms_user) {
+                    if(trim($sms_user) == '') {
+                        continue;
+                    }
+                    
                     $result .= "<Message to='".self::$SPECIAL_MOBILE_PREFIX.$sms_user."'>Group SMS from " . 
                     htmlspecialchars($cmd_result->getUserId()) .
                     ": " . htmlspecialchars(substr($cmd_result->getCmd(), strlen(self::$SMS_AUTO_CMD_BULK))) . "</Message>";

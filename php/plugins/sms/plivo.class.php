@@ -35,8 +35,19 @@ class SMSPlivoPlugin implements ISMSPlugin {
 	
 		$url = $SMSConfig->SMS_PROVIDER_PLIVO_BASE_URL.'Account/'.$SMSConfig->SMS_PROVIDER_PLIVO_AUTH_ID.'/Message/';
 	
-		foreach($recipient_list_numbers as $recipient) {
-			$data = array("dst" => '1' . $recipient, 
+		$dst_sms = '';
+		foreach ($recipient_list_numbers as $recipient) {
+		    if(trim($recipient) == '') {
+		        continue;
+		    }
+		    if($dst_sms !== '') {
+		        $dst_sms .= '<';
+		    }
+		    $dst_sms .= '1' . $recipient;
+		}
+		
+		//foreach($recipient_list_numbers as $recipient) {
+			$data = array("dst" => $dst_sms, 
 						  "src" => $SMSConfig->SMS_PROVIDER_PLIVO_FROM,
 						  "text" => $smsText);
 		
@@ -79,9 +90,8 @@ class SMSPlivoPlugin implements ISMSPlugin {
 			//echo 'PLIVO SMS result: ' . $resultSMS_current . PHP_EOL;
 			
 			$resultSMS .= $resultSMS_current;
-		}
-		
-		
+		//}
+				
 		return $resultSMS;
 	}
 }
