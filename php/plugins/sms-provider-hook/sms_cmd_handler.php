@@ -162,7 +162,14 @@ class SMSCommandHandler {
                                     $sms_cmd = (($this->getRequestVar('Text') !== null) ? $this->getRequestVar('Text') : '');
                                 }
                                 $result->setCmd($sms_cmd);
-                                	
+
+                                if($log !== null) $log->trace("Looking for matching sms command input: [" . $sms_cmd . 
+                                        "] compare with #1 [" . self::$SMS_AUTO_CMD_TEST . "]" .
+                                        "] compare with #2 [" . self::$SMS_AUTO_CMD_RESPONDING . "]" .
+                                        "] compare with #3 [" . self::$SMS_AUTO_CMD_COMPLETED . "]" .
+                                        "] compare with #4 [" . self::$SMS_AUTO_CMD_CANCELLED . "]" .
+                                        "] compare with #5 [" . self::$SMS_AUTO_CMD_CANCELLED . "]");
+                                
                                 if( in_array(strtoupper($sms_cmd), self::$SMS_AUTO_CMD_TEST) === true) {
                                     $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
                                     $URL = $site_root . "test/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
@@ -271,6 +278,10 @@ class SMSCommandHandler {
     public function process_bulk_sms_command($cmd_result,$SMS_GateWay) {
         global $log;
         $result = '';
+        
+        if($log !== null) $log->trace("Looking for matching sms bulk command input: [" . $cmd_result->getCmd() .
+                "] compare with #1 [" . self::$SMS_AUTO_CMD_BULK . "]");
+        
         if ($this->startsWith(strtoupper($cmd_result->getCmd()), self::$SMS_AUTO_CMD_BULK) === true) {
             $recipient_list = $cmd_result->getSmsRecipients();
             
