@@ -759,7 +759,7 @@ class Response extends Element {
     }
 
     public function toXML() {
-        $xml = parent::toXML($header=TRUE);
+        $xml = parent::toXML(TRUE);
         return $xml;
     }
 }

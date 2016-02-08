@@ -144,6 +144,10 @@ class SMSCommandHandler {
                         $db_connection = $db->getConnection();
     
                         $recipient_list_array = $this->get_recipients_list($FIREHALL, $db_connection);
+                        
+                        if($log !== null) $log->trace("Looking for matching sms command recipients list: [" . 
+                                implode(",",$recipient_list_array) . "]");
+                        
                         $matching_sms_user = $this->find_sms_match($sms_user, $recipient_list_array);
                         if ($matching_sms_user !== null) {
                             $result->setSmsCaller($matching_sms_user);
@@ -164,11 +168,11 @@ class SMSCommandHandler {
                                 $result->setCmd($sms_cmd);
 
                                 if($log !== null) $log->trace("Looking for matching sms command input: [" . $sms_cmd . 
-                                        "] compare with #1 [" . self::$SMS_AUTO_CMD_TEST . "]" .
-                                        "] compare with #2 [" . self::$SMS_AUTO_CMD_RESPONDING . "]" .
-                                        "] compare with #3 [" . self::$SMS_AUTO_CMD_COMPLETED . "]" .
-                                        "] compare with #4 [" . self::$SMS_AUTO_CMD_CANCELLED . "]" .
-                                        "] compare with #5 [" . self::$SMS_AUTO_CMD_CANCELLED . "]");
+                                        "] compare with #1 [" . implode(",",self::$SMS_AUTO_CMD_TEST) . "]" .
+                                        "] compare with #2 [" . implode(",",self::$SMS_AUTO_CMD_RESPONDING) . "]" .
+                                        "] compare with #3 [" . implode(",",self::$SMS_AUTO_CMD_COMPLETED) . "]" .
+                                        "] compare with #4 [" . implode(",",self::$SMS_AUTO_CMD_CANCELLED) . "]" .
+                                        "] compare with #5 [" . implode(",",self::$SMS_AUTO_CMD_CANCELLED) . "]");
                                 
                                 if( in_array(strtoupper($sms_cmd), self::$SMS_AUTO_CMD_TEST) === true) {
                                     $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
@@ -404,16 +408,16 @@ class SMSCommandHandler {
         }
         if($this->startsWith($sms_user, self::$SPECIAL_MOBILE_PREFIX) === true &&
             in_array(substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX)), $recipient_list_array) === true) {
-                return substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX));
+            return substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX));
         }
         
         if (in_array(self::$SPECIAL_MOBILE_PREFIX2 . $sms_user, $recipient_list_array) === true) {
             return self::$SPECIAL_MOBILE_PREFIX2 . $sms_user;
         }
         if($this->startsWith($sms_user, self::$SPECIAL_MOBILE_PREFIX2) === true &&
-                in_array(substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX2)), $recipient_list_array) === true) {
-                    return substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX2));
-                }
+            in_array(substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX2)), $recipient_list_array) === true) {
+            return substr($sms_user, strlen(self::$SPECIAL_MOBILE_PREFIX2));
+        }
         
         return null;
     }
