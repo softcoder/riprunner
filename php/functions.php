@@ -155,6 +155,9 @@ function getCallStatusDisplayText($dbStatus) {
 		case CalloutStatusType::Responding:
 			$result = 'responding';
 			break;
+		case CalloutStatusType::NotResponding:
+		    $result = 'NOT responding';
+		    break;
 		case CalloutStatusType::Cancelled:
 			$result = 'cancelled';
 			break;

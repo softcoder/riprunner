@@ -286,6 +286,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 					// Add any custom fields with values here
 					$row_r['responder_location'] = urlencode($row_r['latitude']) . ',' . urlencode($row_r['longitude']);
 					$row_r['firehall_location'] = urlencode($this->getGvm()->firehall->WEBSITE->FIREHALL_HOME_ADDRESS);
+					$row_r['responder_display_status'] = getCallStatusDisplayText($row_r['status']);
 
 					$results[] = $row_r;
 				}

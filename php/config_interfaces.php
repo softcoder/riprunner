@@ -10,6 +10,7 @@ abstract class CalloutStatusType {
 	const Notified = 1;
 	const Responding = 2;
 	const Cancelled = 3;
+	const NotResponding = 4;
 	const Complete = 10;
 }
 

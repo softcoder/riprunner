@@ -21,6 +21,9 @@
         {% set callkey_validated = false %}
         {% set callout_pending = false %}
         {% for row in callout_details_vm.callout_details_list %}
+    
+        {% set callout_pending = row.callout_status_completed == false and 
+                                 row.callout_status_cancelled == false %}
             
 	{% if gvm.isMobile %}
 	{% block callout_header_mobile %}
@@ -47,19 +50,46 @@
 		<table class=box-table-a width="100%">
 		<tr><td><span class="ci_header_units">CALCULATED TRAVEL: </span><span class="ci_header_units_list" id="geo_tag"></span></td></tr>
 		<tr><td><span class="ci_header_units">UNITS:</span><span class=ci_header_units_list>{{ row.units }} </span></td></tr>
-		<tr><td><span class="ci_responders_header">RESPONDERS:</span>
+		<tr><td>
+		
+        <table cellpadding="2" width=100%>
+         <tr>
+          <td><span class="ci_responders_header">Responder</span></td>
+          <td><span class="ci_responders_header">Status</span></td>
+          <td><span class="ci_responders_header">Response Time</span></td>
+          <td><span class="ci_responders_header">ETA</span></td>
+         </tr>
 		 {% for row_responding in callout_details_vm.callout_details_responding_list %}
 		  {% block callout_responding_details_mobile %}
-		   {% if loop.index > 1 %}<span class="ci_responders_header">,</span>{% endif %}
+		   <tr><td>
 		   {% if row_responding.latitude is defined and row_responding.latitude != 0.0 and row_responding.longitude is defined and row_responding.longitude != 0.0 %}
 			<span class=ci_responders_members><a target="_blank" href="http://maps.google.com/maps?saddr={{ row_responding.responder_location }}&daddr={{ row_responding.firehall_location }} ({{ row_responding.firehall_location }})">{{ row_responding.user_id|upper }}</a></span>
 		   {% else %}
 			<span class="ci_responders_members">{{ row_responding.user_id|upper }}</span>
 		   {% endif %}
+           </td>
+           <td>
+            {% if callout_pending and row_responding.status == 2 %}
+            <span class="ci_header_type_blink">{{ row_responding.responder_display_status }}</span>
+           {% else %}
+            <span class="ci_responders_header">{{ row_responding.responder_display_status }}</span>
+           {% endif %}
+            
+           </td>
+           <td>
+            <span class=ci_header_response_time>{{ row_responding.responsetime }}</span>
+           </td>
+           <td>
+            <input type="hidden" id="responder_geo_{{ loop.index }}" value="{{ row_responding.responder_location }}">
+            <span class="ci_header_response_eta" id="responder_eta_{{ loop.index }}">?</span>
+           </td>
+           </tr>
 		  {% endblock %}
 		 {% endfor %}
-		 </td></tr>
-		 </table>
+		</table>
+		 
+		</td></tr>
+		</table>
 	{% endblock %}
 
 	{% else %}
@@ -88,24 +118,50 @@
 		<table class=box-table-a border=0 width="100%">
 		<tr><td><span class="ci_header_units">CALCULATED TRAVEL: </span><span class="ci_header_units_list" id="geo_tag"></span></td></tr>
 		<tr><td><span class=ci_header_units>UNITS: </span><span class=ci_header_units_list>{{ row.units }} </span></td></tr>
-		<tr><td><span class="ci_responders_header">RESPONDERS:</span>
+		
+		<tr><td>
+		
+        <table cellpadding="2" width=95%>
+ 		 <tr>
+ 		  <td><span class="ci_responders_header">Responder</span></td>
+ 		  <td><span class="ci_responders_header">Status</span></td>
+ 		  <td><span class="ci_responders_header">Response Time</span></td>
+ 		  <td><span class="ci_responders_header">ETA on scene</span></td>
+ 		 </tr>
 		 {% for row_responding in callout_details_vm.callout_details_responding_list %}
 		  {% block callout_responding_details %}
-		   {% if loop.index > 1 %}<span class="ci_responders_header">,</span>{% endif %}
+           <tr><td>
 		   {% if row_responding.latitude is defined and row_responding.latitude != 0.0 and row_responding.longitude is defined and row_responding.longitude != 0.0 %}
 			<span class=ci_responders_members><a target="_blank" href="http://maps.google.com/maps?saddr={{ row_responding.responder_location }}&daddr={{ row_responding.firehall_location }} ({{ row_responding.firehall_location }})">{{ row_responding.user_id|upper }}</a></span>
 		   {% else %}
 			<span class="ci_responders_members">{{ row_responding.user_id|upper }}</span>
 		   {% endif %}
+		   </td>
+           <td>
+            {% if callout_pending and row_responding.status == 2 %}
+            <span class="ci_header_type_blink">{{ row_responding.responder_display_status }}</span>
+           {% else %}
+            <span class="ci_responders_header">{{ row_responding.responder_display_status }}</span>
+           {% endif %}
+            
+           </td>
+           <td>
+            <span class="ci_header_response_time">{{ row_responding.responsetime }}</span>
+           </td>
+           <td>
+            <input type="hidden" id="responder_geo_{{ loop.index }}" value="{{ row_responding.responder_location }}">
+            <span class="ci_header_response_eta" id="responder_eta_{{ loop.index }}">?</span>
+           </td>
+		   </tr>
 		  {% endblock %}
 		 {% endfor %}
+		 </table>
+		 
 		 </td></tr>
 		 </table>
 	{% endblock %}
 	{% endif %}
             
-        {% set callout_pending = row.callout_status_completed == false and 
-                                 row.callout_status_cancelled == false %}
                 
         <div id="callResponseContent{{ loop.index }}">
         {% if callout_pending %}
@@ -164,9 +220,9 @@
 
 			        <br />
                     {% if gvm.isMobile %}
-	                <table width="{{ gvm.JSMAP_MOBILEWIDTH }}" align=center>
+	                <table width="{{ gvm.JSMAP_MOBILEWIDTH }}" align="center">
 	                {% else %}
-	                <table width="{{ gvm.JSMAP_WIDTH }}" align=center>
+	                <table width="{{ gvm.JSMAP_WIDTH }}" align="center">
 	                {% endif %}
 
                     {% set no_response_count = 0 %}
@@ -312,13 +368,58 @@ function getGEOLocationCoords_callback_fn(geoAccess,param2) {
 
 function getGEOLocationCoords_initialize() {
 	getGEOLocationCoords(getGEOLocationCoords_callback_fn);
+	setResponderETAs();
 }
 // https://maps.googleapis.com/maps/api/js?v=3.exp&key={{ callout_details_vm.firehall.WEBSITE.WEBSITE_GOOGLE_MAP_API_KEY }}&alternatives=true&callback=map_initialize    
-    
-$( document ).ready(function() {
+
+function setResponderETAs() {
+    console.info('In setResponderETAs() START');
+    //debugger;
+    var responder_count = {{ callout_details_vm.callout_details_responding_list|length }};    
+    for(index = 1; index <= responder_count; ++index) {
+    	try {
+	    	var callout_geo_src = $( '#responder_geo_'+index).attr('value');
+		    if(callout_geo_src != 'undefined' && callout_geo_dest != 'undefined') {
+	            $( '#responder_eta_' + index ).html( 'calculating...' );
+	            //$( '#geo_tag' ).html( 'Your GEO Position: ' + param2.lat + ", " + param2.lng + " dest: " + callout_geo_dest);
+	            console.info('You: ' + callout_geo_src + " dest: " + callout_geo_dest);
+	            
+	            var origin = callout_geo_src;
+	            var destination = callout_geo_dest; // using string
 	
-	//getGEOLocationCoords(getGEOLocationCoords_callback_fn);
-    
+	            //debugger;
+	            var directionsService = new google.maps.DirectionsService();
+	            var request = {
+	                origin: origin, // LatLng|string
+	                destination: destination, // LatLng|string
+	                travelMode: google.maps.DirectionsTravelMode.DRIVING
+	            };
+	
+	            calculateRoute(directionsService, request, index);
+		    }
+    	}
+        catch(ex) {
+            console.info('ERROR In setResponderETAs() for index: ' + index + ' error: ' + ex.message);
+        }
+	}
+}
+function calculateRoute(directionsService,request,index) {
+    directionsService.route( request, function( response, status ) {
+        //debugger;
+        if ( status === 'OK' ) {
+            var point = response.routes[ 0 ].legs[ 0 ];
+            //$( '#geo_tag' ).html( point.duration.text + ' (' + point.distance.text + ')' );
+            $( '#responder_eta_' + index ).html( point.duration.text + ' (' + point.distance.text + ')' );
+            console.info('Estimated time to scene: ' + point.duration.text + ' (' + point.distance.text + ')');
+        }
+        else {
+            $( '#responder_eta_' + index ).html( 'unknown' );
+            console.info('Estimated time to scene unknown response code: ' + status);
+        }
+    });
+}
+
+$( document ).ready(function() {
 	// Handle any responder tracking
 	{% if callout_details_vm.firehall is defined and
 	      callout_details_vm.firehall is not null and
@@ -355,7 +456,7 @@ $( document ).ready(function() {
                }
         		    
                location.reload(true); 
-            }, MAP_AUTO_REFRESH_SECONDS * 1000);
+        }, MAP_AUTO_REFRESH_SECONDS * 1000);
         // This counts down to 0
         setInterval(function () { 
             var ui_refresh = document.getElementById('reload_timer_ui');

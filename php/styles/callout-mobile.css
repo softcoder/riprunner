@@ -160,6 +160,22 @@
     font-weight: bold;
 }
 
+.ci_header_response_time {
+    text-align: center;
+    color:white;
+    font-size:30px;
+    font-weight: bold;
+    width: 33%;
+}
+
+.ci_header_response_eta {
+    text-align: center;
+    color:white;
+    font-size:30px;
+    font-weight: bold;
+    width: 33%;
+}
+
 .ci_header_audio_play {
     text-align: center;
     color:red;
