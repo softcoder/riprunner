@@ -116,7 +116,7 @@
 .ci_header_type_blink_response_status {
     text-align: center;
     color:yellow;
-    font-size:30px;
+    font-size:40px;
     font-weight: bold;
     width: 100%;
     -webkit-animation-name: blinker;

@@ -70,8 +70,8 @@
         <table width="100%" border="1">
          <tr>
           <td><span class="ci_responders_header">Responder</span></td>
-          <td><span class="ci_responders_header">Status</span></td>
-          <td><span class="ci_responders_header">Response Time</span></td>
+          <td width=40%><span class="ci_responders_header">Status</span></td>
+          <!--  <td><span class="ci_responders_header">Response Time</span></td> -->
           <td><span class="ci_responders_header">ETA</span></td>
          </tr>
 		 {% for row_responding in callout_details_vm.callout_details_responding_list %}
@@ -113,9 +113,11 @@
             <span class="ci_responders_header">{{ row_responding.responder_display_status }}</span>
            {% endif %}
            </td>
+           <!--  
            <td>
             <span class=ci_header_response_time>{{ row_responding.responsetime }}</span>
            </td>
+           -->
            <td>
             <input type="hidden" id="responder_geo_{{ loop.index }}" value="{{ row_responding.responder_location }}">
             <input type="hidden" id="responder_name_{{ loop.index }}" value="{{ row_responding.user_id }}">
