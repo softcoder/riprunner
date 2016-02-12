@@ -298,7 +298,7 @@ class SignalsTest extends BaseDBFixture {
 	    // Ensure signalRecipients is called
 	    $mock_sms_plugin->expects($this->once())
 	    ->method('signalRecipients')
-	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda is attending the callout: MED.'));
+	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda set their status to paged for the callout: MED.'));
 	
 	    // Call the test
 	    $signalManager = new \riprunner\SignalManager(null,$mock_sms_plugin,null,$this->getTwigEnv());
@@ -325,7 +325,7 @@ class SignalsTest extends BaseDBFixture {
 	    $signalManager = new \riprunner\SignalManager(null,null,null,$this->getTwigEnv());
 	    $result = $signalManager->getSMSCalloutResponseMessage($callout,$user_id,$user_status);
 	
-	    $this->assertEquals("Responder: mark.vejvoda is attending the callout: MED.", $result);
+	    $this->assertEquals("Responder: mark.vejvoda set their status to paged for the callout: MED.", $result);
 	}
 	
 	public function testSignalFireHallCallout_Valid() {
@@ -408,7 +408,7 @@ class SignalsTest extends BaseDBFixture {
 	    // Ensure signalRecipients is called
 	    $mock_sms_plugin->expects($this->once())
 	    ->method('signalRecipients')
-	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda is attending the callout: MED.'));
+	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda set their status to paged for the callout: MED.'));
 	
 	    // Create a stub for the GCM class.
 	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')

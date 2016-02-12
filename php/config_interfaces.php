@@ -11,6 +11,11 @@ abstract class CalloutStatusType {
 	const Responding = 2;
 	const Cancelled = 3;
 	const NotResponding = 4;
+	const Standby = 5;
+	const Responding_at_hall = 6;
+	const Responding_to_scene = 7;
+	const Responding_at_scene = 8;
+	const Responding_return_hall = 9;
 	const Complete = 10;
 }
 

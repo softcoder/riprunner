@@ -255,11 +255,11 @@ class CalloutResponseViewModel extends BaseViewModel {
 		$sql = $sql_statement->getSqlStatement('callout_total_count_by_id_and_user_and_status');
 
 		$cid = $this->getCalloutId();
-		$uid = $this->getUserStatus();
+		$status = $this->getUserStatus();
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->bindParam(':cid', $cid);
 		$qry_bind->bindParam(':uid', $this->useracctid);
-		$qry_bind->bindParam(':status', $uid);
+		$qry_bind->bindParam(':status', $status);
 		$qry_bind->execute();
 
 		$response_duplicates = 0;

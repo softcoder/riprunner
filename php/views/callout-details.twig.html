@@ -28,15 +28,15 @@
 	{% if gvm.isMobile %}
 	{% block callout_header_mobile %}
 		<div id="callContent{{ loop.index }}">
-		<table class=box-table-a width="100%">
+		<table class="box-table-a" width="100%">
 		{% if row.address is empty %}
-			<tr><td class=ci_header_address colspan=3>NO ADDRESS RECIVED FROM FOCC</td></tr>
+			<tr><td class="ci_header_address" colspan="3">NO ADDRESS RECIVED FROM FOCC</td></tr>
 		{% else %}
-			<tr><td class=ci_header_address colspan=3>{{ row.address }}</td></tr>
+			<tr><td class="ci_header_address" colspan="3">{{ row.address }}</td></tr>
 		{% endif %}
-		<tr><td class=ci_header_type{% if row.callout_status_desc == 'notified' or row.callout_status_desc == 'responding' %}_blink{% endif %}>{{ row.callout_type_desc|upper }}</td>
-		<td class=ci_header_time>{{ row.calltime }}</td><td class=ci_header_status{% if row.callout_status_desc == 'notified' or row.callout_status_desc == 'responding' %}_blink{% endif %}>{{ row.callout_status_desc|upper }}</td></tr>
-		{% if row.callout_status_desc == 'notified' or row.callout_status_desc == 'responding' %}
+		<tr><td class=ci_header_type{% if callout_pending %}_blink{% endif %}>{{ row.callout_type_desc|upper }}</td>
+		<td class=ci_header_time>{{ row.calltime }}</td><td class=ci_header_status{% if callout_pending %}_blink{% endif %}>{{ row.callout_status_desc|upper }}</td></tr>
+		{% if callout_pending %}
 		{% if callout_details_vm.STREAM_MOBILE == 'yes' and callout_details_vm.STREAM_AUDIO_ENABLED == 'yes' %}
 		<tr><td colspan=3>
 		<audio src="{{ callout_details_vm.STREAM_URL }}" id="player" {% if callout_details_vm.STREAM_AUTOPLAY_MOBILE == 'yes' %}autoplay{% endif %}>
@@ -47,12 +47,27 @@
 		{% endif %}
 		</table>
 		<hr>
-		<table class=box-table-a width="100%">
+		
+        <script type="text/javascript">         
+         function updateResponderStatus(user_id, row_id) {
+             //debugger; 
+             if(confirm('Confirm that '+user_id+' status should be '+
+                        $( '#ui_call_update_response_status'+row_id+' option:selected' ).text()+'?')) { 
+                 $('#form_call_update_response_status_'+row_id).attr('action',
+                   '{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid='+user_id+'&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_update_response_status'+row_id ).val());
+                 $('form#form_call_update_response_status_'+row_id).submit();
+                 return true;
+             } 
+             return false;
+         }
+        </script>
+		
+		<table class="box-table-a" width="100%">
 		<tr><td><span class="ci_header_units">CALCULATED TRAVEL: </span><span class="ci_header_units_list" id="geo_tag"></span></td></tr>
 		<tr><td><span class="ci_header_units">UNITS:</span><span class=ci_header_units_list>{{ row.units }} </span></td></tr>
 		<tr><td>
 		
-        <table cellpadding="2" width=100%>
+        <table width="100%" border="1">
          <tr>
           <td><span class="ci_responders_header">Responder</span></td>
           <td><span class="ci_responders_header">Status</span></td>
@@ -69,12 +84,34 @@
 		   {% endif %}
            </td>
            <td>
-            {% if callout_pending and row_responding.status == 2 %}
-            <span class="ci_header_type_blink">{{ row_responding.responder_display_status }}</span>
+            {% if callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
+                  and row_responding.status != 4 %}
+            <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
+                <option value="4" {{ callout_pending and row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
+                <option value="5" {{ callout_pending and row_responding.status == 5 ? 'selected="selected"' : '' }}>Standby</option>
+                <option value="2" {{ callout_pending and row_responding.status == 2 ? 'selected="selected"' : '' }}>Respond (to hall)</option>
+                <option value="6" {{ callout_pending and row_responding.status == 6 ? 'selected="selected"' : '' }}>Respond (at hall)</option>
+                <option value="7" {{ callout_pending and row_responding.status == 7 ? 'selected="selected"' : '' }}>Respond (to scene)</option>
+                <option value="8" {{ callout_pending and row_responding.status == 8 ? 'selected="selected"' : '' }}>Respond (at scene)</option>
+                <option value="9" {{ callout_pending and row_responding.status == 9 ? 'selected="selected"' : '' }}>Return to hall</option>
+            </select>
+            <form id="form_call_update_response_status_{{ row_responding.id }}" action="" method="POST">
+            </form>
+            <script type="text/javascript">
+            $('#ui_call_update_response_status{{ row_responding.id }}').focus(function() {
+                //Store original value
+                $(this).data('lastValue',$(this).val());                
+            });
+            $('#ui_call_update_response_status{{ row_responding.id }}').change(function() {
+                if (!updateResponderStatus('{{ row_responding.user_id }}', {{ row_responding.id }})) {
+                    $(this).val($.data(this, 'lastValue'));
+                    return false;
+                }     
+            });         
+            </script>
            {% else %}
             <span class="ci_responders_header">{{ row_responding.responder_display_status }}</span>
            {% endif %}
-            
            </td>
            <td>
             <span class=ci_header_response_time>{{ row_responding.responsetime }}</span>
@@ -97,14 +134,14 @@
 
 	{% block callout_header %}
 		<div id="callContent{{ loop.index }}">
-		<table class=box-table-a border=0 width="100%">
+		<table class="box-table-a" border="0" width="100%">
 		{% if row.address is empty %}
 			<tr><td class=ci_header_address colspan=3>NO ADDRESS FROM FOCC</td></tr>
 		{% else %}
 			<tr><td class=ci_header_address colspan=3>{{ row.address }}</td></tr>
 		{% endif %}
-		<tr><td class=ci_header_type{% if row.callout_status_desc == 'notified' or row.callout_status_desc == 'responding' %}_blink{% endif %}>{{ row.callout_type_desc|upper }}</td>
-		<td class=ci_header_time>{{ row.calltime }}</td><td class=ci_header_status{% if row.callout_status_desc == 'notified' or row.callout_status_desc == 'responding' %}_blink{% endif %}>{{ row.callout_status_desc|upper }}</td></tr>
+		<tr><td class=ci_header_type{% if callout_pending %}_blink{% endif %}>{{ row.callout_type_desc|upper }}</td>
+		<td class=ci_header_time>{{ row.calltime }}</td><td class=ci_header_status{% if callout_pending %}_blink{% endif %}>{{ row.callout_status_desc|upper }}</td></tr>
 		{% if row.callout_status_desc == 'notifed' or row.callout_status_desc == 'responding' %}
 		{% if callout_details_vm.STREAM_DESKTOP == 'yes' and callout_details_vm.STREAM_AUDIO_ENABLED == 'yes' %}
 		<tr><td COLSPAN=3>
@@ -116,13 +153,28 @@
 		{% endif %}
 		</table>
 		<hr>
-		<table class=box-table-a border=0 width="100%">
+		
+        <script type="text/javascript">         
+         function updateResponderStatus(user_id, row_id) {
+             //debugger; 
+             if(confirm('Confirm that '+user_id+' status should be '+
+                        $( '#ui_call_update_response_status'+row_id+' option:selected' ).text()+'?')) { 
+                 $('#form_call_update_response_status_'+row_id).attr('action',
+                   '{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid='+user_id+'&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_update_response_status'+row_id ).val());
+                 $('form#form_call_update_response_status_'+row_id).submit();
+                 return true;
+             } 
+             return false;
+         }
+        </script>
+		
+		<table class="box-table-a" border="0" width="100%">
 		<tr><td><span class="ci_header_units">CALCULATED TRAVEL: </span><span class="ci_header_units_list" id="geo_tag"></span></td></tr>
-		<tr><td><span class=ci_header_units>UNITS: </span><span class=ci_header_units_list>{{ row.units }} </span></td></tr>
+		<tr><td><span class="ci_header_units">UNITS: </span><span class="ci_header_units_list">{{ row.units }} </span></td></tr>
 		
 		<tr><td>
 		
-        <table cellpadding="2" width=95%>
+        <table cellpadding="2" border="1" width=95%>
  		 <tr>
  		  <td><span class="ci_responders_header">Responder</span></td>
  		  <td><span class="ci_responders_header">Status</span></td>
@@ -139,12 +191,34 @@
 		   {% endif %}
 		   </td>
            <td>
-            {% if callout_pending and row_responding.status == 2 %}
-            <span class="ci_header_type_blink">{{ row_responding.responder_display_status }}</span>
+            {% if callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
+                  and row_responding.status != 4 %}
+            <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
+                <option value="4" {{ callout_pending and row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
+                <option value="5" {{ callout_pending and row_responding.status == 5 ? 'selected="selected"' : '' }}>Standby</option>
+                <option value="2" {{ callout_pending and row_responding.status == 2 ? 'selected="selected"' : '' }}>Respond (to hall)</option>
+                <option value="6" {{ callout_pending and row_responding.status == 6 ? 'selected="selected"' : '' }}>Respond (at hall)</option>
+                <option value="7" {{ callout_pending and row_responding.status == 7 ? 'selected="selected"' : '' }}>Respond (to scene)</option>
+                <option value="8" {{ callout_pending and row_responding.status == 8 ? 'selected="selected"' : '' }}>Respond (at scene)</option>
+                <option value="9" {{ callout_pending and row_responding.status == 9 ? 'selected="selected"' : '' }}>Return to hall</option>
+            </select>
+	        <form id="form_call_update_response_status_{{ row_responding.id }}" action="" method="POST">
+	        </form>
+	        <script type="text/javascript">
+	        $('#ui_call_update_response_status{{ row_responding.id }}').focus(function() {
+	        	//Store original value
+	            $(this).data('lastValue',$(this).val());	        	
+	        });
+	        $('#ui_call_update_response_status{{ row_responding.id }}').change(function() {
+                if (!updateResponderStatus('{{ row_responding.user_id }}', {{ row_responding.id }})) {
+                    $(this).val($.data(this, 'lastValue'));
+                    return false;
+                }     
+	        });	        
+	        </script>
            {% else %}
             <span class="ci_responders_header">{{ row_responding.responder_display_status }}</span>
            {% endif %}
-            
            </td>
            <td>
             <span class="ci_header_response_time">{{ row_responding.responsetime }}</span>
@@ -240,14 +314,26 @@
                                 <span class='inset-button'>{{ row_no.user_id }}</span>
                             </td>
                             <td class="ci_align_cell" colspan="2">
-                                <INPUT TYPE="button" VALUE="RESPOND" 
-                                       class="ci_respondnow" 
-                                       onclick="if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
+                                <select id="ui_call_set_response_status{{ row_no.id }}" class="ci_respondnow"
+                                        onchange="$('#call_no_response_{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status{{ row_no.id }}' ).val());
+                                                 if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();">
+	                                <option value="4">Not Responding</option>
+	                                <option value="5">Standby</option>
+	                                <option value="2" selected="selected">Respond (to hall)</option>
+	                                <option value="6">Respond (at hall)</option>
+	                                <option value="7">Respond (to scene)</option>
+	                                <option value="8">Respond (at scene)</option>
+	                                <option value="9">Return to hall</option>
+                                </select>
+                                <INPUT TYPE="button" VALUE="SET STATUS" 
+                                       class="ci_respondnow_update" 
+                                       onclick="$('#call_no_response_{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status{{ row_no.id }}' ).val());
+                                       if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
 
                                 <form id="call_no_response_{{ row_no.id }}" 
                                   action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}" 
                                   method="POST" 
-                                  onsubmit="return confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} is responding?',document.getElementById('call_no_response_{{ row_no.id }}'));">
+                                  onsubmit="return confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'));">
                                 </form>
                             </td>
                             </tr>

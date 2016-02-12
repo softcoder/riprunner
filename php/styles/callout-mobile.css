@@ -112,6 +112,27 @@
     animation-timing-function: steps(1, start);
     animation-iteration-count: infinite;
 }
+
+.ci_header_type_blink_response_status {
+    text-align: center;
+    color:yellow;
+    font-size:30px;
+    font-weight: bold;
+    width: 100%;
+    -webkit-animation-name: blinker;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-timing-function: steps(1, start);
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation-name: blinker;
+    -moz-animation-duration: 1s;
+    -moz-animation-timing-function: steps(1, start);
+    -moz-animation-iteration-count: infinite;
+    animation-name: blinker;
+    animation-duration: 1s;
+    animation-timing-function: steps(1, start);
+    animation-iteration-count: infinite;
+}
+
 .ci_header_time {
     text-align: center;
     color:white;
@@ -217,10 +238,31 @@
 
 .ci_respondnow, .ci_audio_feed {
     padding: 16px;
+    background-color:white;
+    font-size:50px; 
+    color: red;
+    width: 60%;
+    border: 1px solid #aabcfe;
+    cursor: pointer;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    border-radius: 30px;
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -moz-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -ms-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -o-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+}
+
+.ci_respondnow_update {
+    padding: 16px;
     background-color:yellow;
     font-size:50px; 
     color: red;
-    width: 100%;
+    width: 40%;
     border: 1px solid #aabcfe;
     cursor: pointer;
     text-shadow: 0 1px 0 rgba(255,255,255,0.5);

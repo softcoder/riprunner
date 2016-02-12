@@ -420,7 +420,6 @@ class SignalManager {
         $view_template_vars['callout'] = $callout;
         $view_template_vars['responding_userid'] = $userId;
         $view_template_vars['responding_userstatus'] = $userStatus;
-        $view_template_vars['responding_userstatus'] = $userStatus;
         $view_template_vars['responding_userstatus_description'] = getCallStatusDisplayText($userStatus);
         $view_template_vars['status_type_complete'] = \CalloutStatusType::Complete;
         $view_template_vars['status_type_cancelled'] = \CalloutStatusType::Cancelled;
