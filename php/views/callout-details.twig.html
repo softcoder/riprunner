@@ -81,6 +81,7 @@
            </td>
            <td>
             <input type="hidden" id="responder_geo_{{ loop.index }}" value="{{ row_responding.responder_location }}">
+            <input type="hidden" id="responder_name_{{ loop.index }}" value="{{ row_responding.user_id }}">
             <span class="ci_header_response_eta" id="responder_eta_{{ loop.index }}">?</span>
            </td>
            </tr>
@@ -150,6 +151,7 @@
            </td>
            <td>
             <input type="hidden" id="responder_geo_{{ loop.index }}" value="{{ row_responding.responder_location }}">
+            <input type="hidden" id="responder_name_{{ loop.index }}" value="{{ row_responding.user_id }}">
             <span class="ci_header_response_eta" id="responder_eta_{{ loop.index }}">?</span>
            </td>
 		   </tr>
@@ -366,13 +368,13 @@ function getGEOLocationCoords_callback_fn(geoAccess,param2) {
 	}
 }
 
-function getGEOLocationCoords_initialize() {
+function getGEOLocationCoords_initialize(map) {
 	getGEOLocationCoords(getGEOLocationCoords_callback_fn);
-	setResponderETAs();
+	setResponderETAs(map);
 }
 // https://maps.googleapis.com/maps/api/js?v=3.exp&key={{ callout_details_vm.firehall.WEBSITE.WEBSITE_GOOGLE_MAP_API_KEY }}&alternatives=true&callback=map_initialize    
 
-function setResponderETAs() {
+function setResponderETAs(map) {
     console.info('In setResponderETAs() START');
     //debugger;
     var responder_count = {{ callout_details_vm.callout_details_responding_list|length }};    
@@ -396,6 +398,7 @@ function setResponderETAs() {
 	            };
 	
 	            calculateRoute(directionsService, request, index);
+	            addResponderToMap($( '#responder_name_'+index).attr('value'), callout_geo_src, map);
 		    }
     	}
         catch(ex) {
@@ -403,6 +406,37 @@ function setResponderETAs() {
         }
 	}
 }
+
+function addResponderToMap(responder_name, responder_geo, map) {
+	console.info('In addResponderToMap() START');
+	try {
+        // Create and place markers for Responders
+        //debugger;
+        var latlng = responder_geo.split(',')
+		var infowindow = new google.maps.InfoWindow();
+		var marker = new google.maps.Marker({
+			position: new google.maps.LatLng(parseFloat(latlng[0]),parseFloat(latlng[1])),
+	        title: "Responder: " + responder_name,
+	        clickable: true,
+	        icon: '{{ gvm.RR_DOC_ROOT }}images/icons/respond_to_hall.png',
+	        map: map
+		});
+		
+        google.maps.event.addListener(marker, 'click', (function(marker, responder_name) {
+            return function() {
+                infowindow.setContent(responder_name);
+                infowindow.open(map, marker);
+            }
+        })
+        (marker, responder_name));
+		
+        marker.setMap(map);
+    }
+    catch(ex) {
+        console.info('ERROR In addResponderToMap() for responder_name: ' + responder_name + ' error: ' + ex.message);
+    }
+}
+
 function calculateRoute(directionsService,request,index) {
     directionsService.route( request, function( response, status ) {
         //debugger;

@@ -104,7 +104,8 @@ function map_initialize() {
          waterTank: { name: 'Water Source', icon: '{{ gvm.RR_DOC_ROOT }}images/icons/water.png' },
          Origin_GPS: { name: 'Origin GPS', icon: '{{ gvm.RR_DOC_ROOT }}images/icons/phone.png' },
          FireHall: { name: 'Fire Station', icon: '{{ gvm.RR_DOC_ROOT }}images/icons/firedept.png' },
-         waterHydrant: { name: 'Fire Hydrant', icon: '{{ gvm.RR_DOC_ROOT }}images/icons/redhydrant_small.png' }
+         waterHydrant: { name: 'Fire Hydrant', icon: '{{ gvm.RR_DOC_ROOT }}images/icons/redhydrant_small.png' },
+         responderToHall: { name: 'Responder', icon: '{{ gvm.RR_DOC_ROOT }}images/icons/respond_to_hall.png' }
     };
     {% endblock %}
 
@@ -142,6 +143,7 @@ function map_initialize() {
     });
     //------------------------------------------------------------------------------
     
+    //debugger;
     // -----------------------------------------------------------------------------
     // Create the driving route to the 911 call
     directionsDisplay.setMap(map);
@@ -274,7 +276,7 @@ function map_initialize() {
     });
     
     try {
-  	    getGEOLocationCoords_initialize();
+  	    getGEOLocationCoords_initialize(map);
     }
     catch(e) {
         console.info('Error calling getGEOLocationCoords_initialize msg: ' + e.message);            
