@@ -1,5 +1,6 @@
 # Ignore these files
 config.php
+google_appengine/
 riprunner.log
 # Except this file
 !.gitignore
