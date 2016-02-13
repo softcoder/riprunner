@@ -1,0 +1,28 @@
+./plugins/sms-callout/default.class.php:		$template = $twig->resolveTemplate(
+./firehall_signal_gcm.php:	$template = $twig->resolveTemplate(
+./controllers/view-logs-controller.php:$template = $twig->resolveTemplate(
+./controllers/mobile-app-info-controller.php:$template = $twig->resolveTemplate(
+./controllers/callout-history-controller.php:$template = $twig->resolveTemplate(
+./controllers/callout-history-response-controller.php:$template = $twig->resolveTemplate(
+./controllers/login-device-controller.php:$template = $twig->resolveTemplate(
+./controllers/main-menu-controller.php:$template = $twig->resolveTemplate(
+./controllers/callout-tracking-controller.php:$template = $twig->resolveTemplate(
+./controllers/system-info-controller.php:$template = $twig->resolveTemplate(
+./controllers/users-menu-controller.php:$template = $twig->resolveTemplate(
+./controllers/reports-charts-controller.php:$template = $twig->resolveTemplate(
+./controllers/callout-details-controller.php:    $template = $twig->resolveTemplate(
+./controllers/callout-details-controller.php:$template = $twig->resolveTemplate(
+./controllers/login-controller.php:$template = $twig->resolveTemplate(
+./controllers/callout-monitor-controller.php:	$template = $twig->resolveTemplate(
+./controllers/callout-response-controller.php:$template = $twig->resolveTemplate(
+./tests/signals/signalsTest.php:        return $this->riprunner_twig->getEnvironment();
+./firehall_signal_response.php:	$template = $twig->resolveTemplate(
+./template.php:$twig = $riprunner_twig->getEnvironment();
+./template.php://$twig->addExtension(new \Twig_Extension_Debug());
+./template.php:$twig->addExtension(new \Twig_Extensions_Extension_Text());
+./third-party/Twig/TokenParser/Use.php: * @see http://www.twig-project.org/doc/templates.html#horizontal-reuse for details.
+./third-party/Twig/TokenParser/Sandbox.php: * @see http://www.twig-project.org/doc/api.html#sandbox-extension for details
+./third-party/Twig/Test/IntegrationTestCase.php:            $twig->addGlobal('global', 'global');
+./third-party/Twig/Test/IntegrationTestCase.php:                $twig->addExtension($extension);
+./third-party/Twig/Test/IntegrationTestCase.php:                $template = $twig->loadTemplate('index.twig');
+./third-party/Twig/Test/IntegrationTestCase.php:                    echo $twig->compile($twig->parse($twig->tokenize($source, $name)));

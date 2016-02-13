@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Secure Login: Protected Page</title>
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
+        {% endif %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
+        <style>
+            .current-row{background-color:#B24926;color:#FFF;}
+            .current-col{background-color:#1b1b1b;color:#FFF;}
+            .tbl-qa{width: 100%;font-size:0.9em;background-color: #f5f5f5;}
+            .tbl-qa th.table-header {padding: 5px;text-align: left;padding:10px;}
+            .tbl-qa .table-row td {padding:10px;background-color: #FDFDFD;}
+        </style>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
+		<script>
+		function showEdit(editableObj) {
+            $(editableObj).css("background","#FFF");
+        }
+		function saveToDatabase(editableObj,column,id,revert_value) {
+			//debugger;
+		    $(editableObj).css("background","#FFF url({{ gvm.RR_DOC_ROOT }}images/loadericon.gif) no-repeat right");
+		    
+		    if(editableObj.innerText != $(editableObj).attr('originalvalue')) {
+		    	//debugger;
+		    	//alert('Value changed posting!');
+		    	
+		    	var action = 'edit_constants';
+		    	if(revert_value !== 'undefined' && revert_value == 'true') {
+		    		action = 'revert_constants';
+		    	}
+		    	else if(revert_value !== 'undefined' && revert_value == 'all') {
+                    action = 'revertall_constants';
+                }
+		    	
+			    $.ajax({
+			        url: "{{ gvm.RR_DOC_ROOT }}controllers/system-config-controller.php",
+			        type: "POST",
+			        data: 'action='+action+'&column='+column+'&editval='+editableObj.innerText+'&id='+id,
+			        success: function(data) {
+			        	//alert('Success saving change.');
+			            $(editableObj).css("background","");
+		                var redir_url = "{{ gvm.RR_DOC_ROOT }}controllers/system-config-controller.php";
+		                try {
+		                    window.location.replace(redir_url);
+		                }
+		                catch(e) {
+		                    try {
+		                       window.location.href = redir_url;
+		                    }
+		                    catch(e) {
+		                        window.location = redir_url;
+		                    }
+		                }
+			        },
+	  		        error: function(request, status, error) {
+			          //debugger;
+			          alert('Error saving changes, error msg: ' + request.responseText);                 
+			        }
+			   });
+		    }
+		    else {
+		    	if(editableObj.innerText != $(editableObj).attr('defaultvalue')) {
+		    		$(editableObj).css("background","lime");
+		    	}
+		    	else {
+		    	    $(editableObj).css("background","");
+		    	}
+		    }
+		}
+		</script>
+    </head>
+    <body>
+        <div class="container_center">
+        {% if gvm.auth.isAuth and (gvm.auth.isAdmin) %} 
+                
+            {% include 'user-welcome.twig.html' %}
+            {% include 'live-callout-warning.twig.html' %}
+            
+            <div class="menudiv_wrapper">
+              <nav class="vertical">
+                <ul>
+                  <li>
+                    <label for="main_page">Return to ..</label>
+                    <input type="radio" name="verticalMenu" id="main_page" />
+                    <div>
+                      <ul>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                  <li>
+                    <label for="logout">Exit</label>
+                    <input type="radio" name="verticalMenu" id="logout" />
+                    <div>
+                      <ul>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}logout.php">Logout</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+
+            <h2>Rip Runner Config - System Settings</h2>
+            <div id="riprunner_config" style="font-size:20px; color: white; height: 400px; overflow: auto;border: 2px solid #555;">
+            <center>
+            <input type='button' value='Reset All system settings to defaults' onclick="if(confirm('Are you sure that you want to reset all values to their defaults?')) saveToDatabase(this,'default_value','revertall','all'); return false;">
+            <table id="box-table-a">
+            {% for config in systemconfig_vm.constants_list %}
+                {% if loop.index == 1 %}
+                <thead>
+                    <tr>
+                    <th scope="col">Setting name</th>
+                    <th scope="col">Default value</th>
+                    <th scope="col">Current value</th>
+                    <th scope="col">Action</th>
+                    <tr>
+                </thead>
+                {% endif %}
+                                
+                <tr>
+                <td>
+                {{ config.getName() }}
+                </td>
+                <td>
+                {{ config.getDefaultValue() }}
+                </td>
+                <td contenteditable='true' defaultvalue='{{ config.getDefaultValue() }}' originalvalue='{{ config.getCurrentValue() }}'
+                    {% if config.getDefaultValue() != config.getCurrentValue() %}style='background-color:lime'{% endif %}  
+                    onBlur="saveToDatabase(this,'default_value','{{ config.getName() }}')" onClick='showEdit(this);'>
+                {{ config.getCurrentValue() }}
+                </td>
+                <td>
+                {% if config.getDefaultValue() != config.getCurrentValue() %}
+                <input type='button' value='Reset to default' onclick="saveToDatabase(this,'default_value','{{ config.getName() }}','true')">
+                {% endif %}
+                </td>
+                </tr>
+            {% endfor %}
+            </table>
+            </center>
+            </div>
+
+            {% for firehall_id, firehall_attributes in systemconfig_vm.firehalls_list %}
+            <h2>Rip Runner Config - Firehall Settings for hall#: {{ firehall_id }}</h2>
+            <div id="riprunner_fhconfig{{ firehall_id }}" style="font-size:20px; color: white; height: 400px; overflow: auto;border: 2px solid #555;">
+            <center>
+            <table id="box-table-a">
+            {% for config in firehall_attributes %}
+                {% if loop.index == 1 %}
+                <thead>
+                    <tr>
+                    <th scope="col">Setting name</th>
+                    <th scope="col">Default value</th>
+                    <th scope="col">Current value</th>
+                    <th scope="col">Action</th>
+                    <tr>
+                </thead>
+                {% endif %}
+                                
+                <tr>
+                <td>
+                {{ config.getName() }}
+                </td>
+                <td>
+                {{ config.getDefaultValue() }}
+                </td>
+                <td defaultvalue='{{ config.getDefaultValue() }}' originalvalue='{{ config.getCurrentValue() }}'
+                    {% if config.getDefaultValue() != config.getCurrentValue() %}style='background-color:lime'{% endif %}>
+                {{ config.getCurrentValue() }}
+                </td>
+                <td>
+                </td>
+                </tr>
+            {% endfor %}    
+            </table>
+            </center>
+            </div>            
+            {% endfor %}
+            
+        {% else %}
+            {% include 'access-denied.twig.html' %}
+        {% endif %}
+        </div>
+    </body>
+</html>
