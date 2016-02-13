@@ -582,15 +582,17 @@ class SignalManager {
     }
 
     public function signalFireHallResponse($callout, $userId, $userGPSLat, $userGPSLong,
-            $userStatus) {
+            $userStatus, $isFirstResponseForUser) {
     
         $result = '';
     
         if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
-            $result .= $this->signalResponseToSMSPlugin($callout, $userId,
-                    $userGPSLat, $userGPSLong, $userStatus);
-            //$result .= signalResponseToSMSPlugin($callout, $userId,
-            //		$userGPSLat, $userGPSLong, $userStatus);
+            if($isFirstResponseForUser === true || isCalloutInProgress($userStatus) == false) {
+                $result .= $this->signalResponseToSMSPlugin($callout, $userId,
+                        $userGPSLat, $userGPSLong, $userStatus);
+                //$result .= signalResponseToSMSPlugin($callout, $userId,
+                //		$userGPSLat, $userGPSLong, $userStatus);
+            }
         }
     
         if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED === true &&

@@ -440,7 +440,7 @@ class SignalsTest extends BaseDBFixture {
 	    $user_status = 'RESPONDING';
 	    
 	    $signalManager = new \riprunner\SignalManager(null,$mock_sms_plugin,$mock_gcm,$this->getTwigEnv());
-	    $result = $signalManager->signalFireHallResponse($callout,$user_id,$userGPSLat,$userGPSLong,$user_status);
+	    $result = $signalManager->signalFireHallResponse($callout,$user_id,$userGPSLat,$userGPSLong,$user_status,true);
 	
 	    $this->assertEquals('TEST SUCCESS SMS!TEST SUCCESS GCM!', $result);
 	}

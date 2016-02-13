@@ -19,6 +19,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 	private $useracctid;
 	private $affected_response_rows;
 	private $startTrackingResponder;
+	private $isFirstResponseForUser;
 	private $callout_respond_id;
 	private $respond_result;
 	private $callout;
@@ -250,6 +251,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 		global $log;
 		$log->trace("Call Response START --> updateCallResponse");
 
+		$this->isFirstResponseForUser = false;
 		// Check if there is already a response record for this user and call
 		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 		$sql = $sql_statement->getSqlStatement('callout_total_count_by_id_and_user_and_status');
@@ -325,6 +327,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 			
 			$this->callout_respond_id = $this->getGvm()->RR_DB_CONN->lastInsertId();
 			$this->startTrackingResponder = true;
+			$this->isFirstResponseForUser = true;
 		}
 		$log->trace("Call Response END --> updateCallResponse");
 		return $response_duplicates;
@@ -372,7 +375,8 @@ class CalloutResponseViewModel extends BaseViewModel {
 						$this->getUserId(), 
 						$this->getUserLat(),
 						$this->getUserLong(),
-						$this->getUserStatus());
+						$this->getUserStatus(),
+				        $this->isFirstResponseForUser);
 			}
 			$log->trace("Call Response END --> getRespondResult");
 		}
