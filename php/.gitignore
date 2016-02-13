@@ -1,4 +1,5 @@
 # Ignore these files
 config.php
+riprunner.log
 # Except this file
 !.gitignore
