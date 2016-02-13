@@ -1,0 +1,4 @@
+# Ignore these files
+sgvfr.class.php
+# Except this file
+!.gitignore
