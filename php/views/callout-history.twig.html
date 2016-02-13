@@ -3,7 +3,19 @@
     <head>
         <meta charset="UTF-8">
         <title>Secure Login: Protected Page</title>
-	{% include 'global-css-js.twig.html' %}
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
+        {% endif %}
+        
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
+        
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/freeze-header.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
     </head>
     <body>
 
@@ -12,10 +24,7 @@
             {% include 'user-welcome.twig.html' %}
             {% include 'live-callout-warning.twig.html' %}
         
-			{% if gvm.MENU_TYPE == 'horizontal' %}
-				{% include 'global-horizontal-menu.twig.html' %}
-			{% elseif gvm.MENU_TYPE == 'vertical' %}
-		<div class="menudiv_wrapper">
+        <div class="menudiv_wrapper">
           <nav class="vertical">
             <ul>
               <li>
@@ -39,15 +48,14 @@
             </ul>
           </nav>
         </div>
-			{% else %}
-				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
-			{% endif %}
+
         {% if callout_history_vm.callout_list is empty %}
         <b>NO Data.</b>
         {% endif %}
         
         <div class="inner_table">
-	        <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left;">
+	        <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
+	        
 	        {% if callout_history_vm.callout_cols is defined %}
 	            <thead>
 		            <tr>
@@ -56,23 +64,15 @@
 		                  col_name != 'callout_address_origin' and 
 		                  col_name != 'callout_address_dest' and
 		                  col_name != 'callout_status_desc' %}
-				{% if col_name == 'updatetime' %}
-				<th scope="col" class="column_nowrap"><input id="{{ col_name }}" type="checkbox" name='showhide' /><label for="{{ col_name }}"></label>&nbsp;U/D TIME</th>
-	            {% elseif col_name == 'calltime' %}
-	            <th scope="col" class="column_nowrap">DISPATCH TIME</th>
-				{% elseif col_name == 'call_key' %}
-				<th scope="col" width=50 class="column_nowrap"><input id="{{ col_name }}" type="checkbox" name='showhide' /><label for="{{ col_name }}"></label>&nbsp;KEY</th>
-	            {% elseif col_name == 'calltype' %}
-				<th scope="col">TYPE</th>
-	            {% elseif col_name == 'hours_spent' %}
-				<th scope="col">HOURS</th>
-				{% elseif col_name == 'responders' %}
-				<th scope="col" class="column_nowrap_center">ATTENDED</th>
-		        {% else  %}
-				<th scope="col" class="column_nowrap">{{ col_name|upper }}</th>
-		        {% endif %}
-		        {% endfor %}
-	            <th scope="col" class="column_nowrap_center">DETAILS</th>
+		                {% if col_name == 'address' %}
+		                    <th scope="col" class="column_nowrap">{{ col_name }}</th>
+                        {% elseif col_name == 'hours_spent' %}
+                            <th scope="col">approx. hours</th>
+		                {% else  %}
+		                    <th scope="col">{{ col_name }}</th>
+		                {% endif %}
+		            {% endfor %}
+	                <th scope="col">call details</th>
 	            </tr>
 	            </thead>
 	            
@@ -84,22 +84,40 @@
                           col_name != 'callout_address_origin' and 
                           col_name != 'callout_address_dest' and
                           col_name != 'callout_status_desc' %}
-	                    {% if col_name == 'calltype' %}<td class="column_nowrap" title='{{ row.callout_type_desc }}'><p>{{ row[col_name] }}</p></td>
-	                    {% elseif col_name == 'calltime' %}<td class="column_nowrap">{{ row[col_name] }}</td>
-	                    {% elseif col_name == 'address' %}<td class="column_nowrap"><a target="_blank" href="http://maps.google.com/maps?saddr={{ row.callout_address_origin }}&daddr={{ row.callout_address_dest }} ({{ row[col_name] }})&dirflg=d">{{ row[col_name] }}</a></td>
-	                    {% elseif col_name == 'updatetime' %}<td class="column_nowrap"><p>{{ row[col_name] }}</p></td>
-	                    {% elseif col_name == 'status' %}<td class="column_nowrap">{{ row.callout_status_desc }}</td>
-			            {% elseif col_name == 'units' %}<td class="column_wrap">{{ row[col_name] }}</td>
-	                    {% elseif col_name == 'hours_spent' %}<td class="column_nowrap">{{ row.hours_spent|number_format(3, '.', ',') }} Hours</td>
-	                    {% elseif col_name == 'responders' %}<td class="column_nowrap_center"><p><a class=button-link href="{{ gvm.RR_DOC_ROOT }}controllers/callout-history-response-controller.php?cid={{ row.id }}">{{ row[col_name] }}</a></p></td>
-	                    {% else %}<td class="column_nowrap"><p>{{ row[col_name] }}</p></td>
+	                    {% if col_name == 'calltype' %}
+	                        <td title='{{ row.callout_type_desc }}'>{{ row[col_name] }}</td>
+	                    {% elseif col_name == 'calltime' %}
+	                        <td class="column_nowrap">{{ row[col_name] }}</td>
+	                    {% elseif col_name == 'address' %}
+	                        <td class="column_nowrap">
+	                            <a target="_blank" 
+	                               href="http://maps.google.com/maps?saddr={{ row.callout_address_origin }}&daddr={{ row.callout_address_dest }} ({{ row[col_name] }})&dirflg=d">
+	                               {{ row[col_name] }}
+	                            </a>
+	                        </td>
+	                    {% elseif col_name == 'updatetime' %}                    
+	                        <td class="column_nowrap">{{ row[col_name] }}</td>
+	                    {% elseif col_name == 'status' %}
+	                        <td>{{ row.callout_status_desc }}</td>
+
+	                    {% elseif col_name == 'hours_spent' %}
+                            <td>{{ row.hours_spent }}</td>
+	                    {% elseif col_name == 'responders' %}
+	                        <td>
+	                            <a href="{{ gvm.RR_DOC_ROOT }}controllers/callout-history-response-controller.php?cid={{ row.id }}">{{ row[col_name] }}</a>
+	                        </td>
+	                    {% else %}
+	                        <td>{{ row[col_name] }}</td>
 	                    {% endif %}
 	                {% endfor %}
-			{% if gvm.auth.isAdmin %}
-				<td class="column_nowrap"><p><a class=button-link href="{{ gvm.firehall.WEBSITE.WEBSITE_ROOT_URL }}ci/cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}" target="_blank">DETAILS</a></p></td>
-			{% else %}
-				<td class="column_nowrap"><p><a class=button-link href="{{ gvm.firehall.WEBSITE.WEBSITE_ROOT_URL }}ci/cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}&member_id={{ gvm.auth.username }}" target="_blank">DETAILS</a></p></td>
-			{% endif %}
+	                
+	                <td class="column_nowrap">
+	                   <a target="_blank" 
+	                      href="{{ gvm.firehall.WEBSITE.WEBSITE_ROOT_URL }}ci/cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}">
+	                      details
+	                   </a> 
+	                </td>
+	                
 	                </tr>
 	            {% endfor %}
 	        {% endif %}
@@ -110,18 +128,5 @@
             {% include 'access-denied.twig.html' %}
         {% endif %}
       </div>
-	  <script>
-	  $(function() {
-    $("#box-table-a input[type=checkbox]").on("change", function(e) {
-        var id = $(this).parent().index()+1,
-            col = $("table tr td:nth-child("+id+") p");
-        $(this).is(":checked") ? col.show() : col.hide();
-    }).change();
-    
-    $("button").on("click", function(e) {
-        $("input[type=checkbox]").prop("checked", true).change();
-    });
-	})
-	</script>
     </body>
 </html>

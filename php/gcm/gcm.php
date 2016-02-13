@@ -16,12 +16,18 @@
 */
 namespace riprunner;
 
+if(defined('__RIPRUNNER_ROOT__') === false) {
+    define('__RIPRUNNER_ROOT__', dirname(dirname(__FILE__)));
+}
+
 if ( defined('INCLUSION_PERMITTED') === false ||
 ( defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false ) ) {
 	die( 'This file must not be invoked directly.' );
 }
 
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
+require_once __RIPRUNNER_ROOT__ . '/db/db_connection.php';
+require_once __RIPRUNNER_ROOT__ . '/db/sql_statement.php';
 
 class GCM {
 
@@ -199,7 +205,8 @@ class GCM {
         global $log;
     
     	if (isset($this->db_connection) === true) {
-            $sql = 'DELETE FROM devicereg WHERE registration_id = :reg_id;';
+    	    $sql_statement = new \riprunner\SqlStatement($this->db_connection);
+    	    $sql = $sql_statement->getSqlStatement('devicereg_delete_by_regid');
             
             $qry_bind = $this->db_connection->prepare($sql);
             $qry_bind->bindParam(':reg_id', $device_id);
@@ -215,7 +222,9 @@ class GCM {
 
     	$registration_ids = array();
     	if (isset($device_id) === false) {
-    	    $sql = 'SELECT registration_id FROM devicereg WHERE firehall_id = :fhid;';
+    	    
+    	    $sql_statement = new \riprunner\SqlStatement($this->db_connection);
+    	    $sql = $sql_statement->getSqlStatement('devicereg_select_by_fhid');
     
             $qry_bind = $this->db_connection->prepare($sql);
             $qry_bind->bindParam(':fhid', $this->firehall_id);
@@ -242,4 +251,3 @@ class GCM {
         throwExceptionAndLogError($ui_msg, $log_msg);
     }
 }
-?>

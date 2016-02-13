@@ -9,6 +9,7 @@ require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
+require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 
 // The model class handling variable requests dynamically
 class CalloutDetailsViewModel extends BaseViewModel {
@@ -60,16 +61,25 @@ class CalloutDetailsViewModel extends BaseViewModel {
             return $this->getCalloutDetailsEndRespondingList();
         }
         if('google_map_type' === $name) {
-            return GOOGLE_MAP_TYPE;
+            //return GOOGLE_MAPTYPE;
+		    $config = new \riprunner\ConfigManager();
+		    return $config->getSystemConfigValue('GOOGLE_MAPTYPE');
         }
-        if('MAP_AUTO_REFRESH_TIMER' === $name) {
-            return MAP_AUTO_REFRESH_TIMER;
+        if('MAP_REFRESH_TIMER' === $name) {
+			//return MAP_REFRESH_TIMER;
+			$config = new \riprunner\ConfigManager();
+			return $config->getSystemConfigValue('MAP_REFRESH_TIMER');
+		}
+		if('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED' === $name) {
+			//return ALLOW_CALLOUT_UPDATES_AFTER_FINISHED;
+		    $config = new \riprunner\ConfigManager();
+		    return $config->getSystemConfigValue('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED');
         }
-        if('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED' === $name) {
-            return ALLOW_CALLOUT_UPDATES_AFTER_FINISHED;
+        if('MEMBER_UPDATE_COMPLETED' === $name) {
+            return MEMBER_UPDATE_COMPLETED;
         }
-        if('ALLOW_OFFICER_CALLOUT_UPDATES_AFTER_FINISHED' === $name) {
-            return ALLOW_OFFICER_CALLOUT_UPDATES_AFTER_FINISHED;
+        if('OFFICER_UPDATE_COMPLETED' === $name) {
+            return OFFICER_UPDATE_COMPLETED;
         }
         if('STREAM_AUDIO_ENABLED' === $name) {
             return STREAM_AUDIO_ENABLED;
@@ -92,12 +102,6 @@ class CalloutDetailsViewModel extends BaseViewModel {
         if('STREAM_AUTOPLAY_DESKTOP' === $name) {
             return STREAM_AUTOPLAY_DESKTOP;
         }
-        if('MOBILE_LARGE_ZOOM_BUTTONS' === $name) {
-            return MOBILE_LARGE_ZOOM_BUTTONS;
-        }
-        if('DESKTOP_LARGE_ZOOM_BUTTONS' === $name) {
-            return DESKTOP_LARGE_ZOOM_BUTTONS;
-        }
         if('map_callout_geo_dest' === $name) {
             return get_query_param('map_callout_geo_dest');
         }
@@ -113,7 +117,28 @@ class CalloutDetailsViewModel extends BaseViewModel {
         if('map_webroot' === $name) {
             return get_query_param('map_webroot');
         }
-        
+        if('RESPOND_OPT_2' === $name) {
+            return RESPOND_OPT_2;
+        }
+        if('RESPOND_OPT_4' === $name) {
+            return RESPOND_OPT_4;
+        }
+        if('RESPOND_OPT_5' === $name) {
+            return RESPOND_OPT_5;
+        }
+        if('RESPOND_OPT_6' === $name) {
+            return RESPOND_OPT_6;
+        }
+        if('RESPOND_OPT_7' === $name) {
+            return RESPOND_OPT_7;
+        }
+        if('RESPOND_OPT_8' === $name) {
+            return RESPOND_OPT_8;
+        }
+        if('RESPOND_OPT_9' === $name) {
+            return RESPOND_OPT_9;
+        }
+
         return parent::__get($name);
     }
 
@@ -123,10 +148,11 @@ class CalloutDetailsViewModel extends BaseViewModel {
                 'callout_responding_user_id', 'callout_status_complete', 'callout_status_cancel',
                 'callout_details_list','callout_details_responding_list',
                 'callout_details_not_responding_list','callout_details_end_responding_list','google_map_type',
-                'MAP_AUTO_REFRESH_TIMER','ALLOW_CALLOUT_UPDATES_AFTER_FINISHED','ALLOW_OFFICER_CALLOUT_UPDATES_AFTER_FINISHED',
+                'MAP_REFRESH_TIMER','MEMBER_UPDATE_COMPLETED','OFFICER_UPDATE_COMPLETED',
                 'STREAM_AUDIO_ENABLED','STREAM_MOBILE','STREAM_DESKTOP','STREAM_URL','STREAM_TYPE','STREAM_AUTOPLAY_MOBILE','STREAM_AUTOPLAY_DESKTOP',
-                'MOBILE_LARGE_ZOOM_BUTTONS','DESKTOP_LARGE_ZOOM_BUTTONS',
-                'map_callout_geo_dest','map_callout_address_dest','map_fh_geo_lat','map_fh_geo_long','map_webroot'
+                'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED',
+                'map_callout_geo_dest','map_callout_address_dest','map_fh_geo_lat','map_fh_geo_long','map_webroot',
+                'RESPOND_OPT_2','RESPOND_OPT_4','RESPOND_OPT_5','RESPOND_OPT_6','RESPOND_OPT_7','RESPOND_OPT_8','RESPOND_OPT_9'
             )) === true) {
             return true;
         }
@@ -193,13 +219,19 @@ class CalloutDetailsViewModel extends BaseViewModel {
             
             if($callout_id !== -1 && isset($callkey_id) === true) {
                 // Read from the database info about this callout
-                $sql = "SELECT * FROM callouts ";
+
+			    $sql_cid = '';
+			    $sql_ckid = '';
                 if(isset($callout_id) === true && $callout_id !== null) {
-                    $sql .= " WHERE id = :cid";
+			        $sql_cid = ' WHERE id = :cid';
                     if(isset($callkey_id) === true && $callkey_id !== null) {
-                        $sql .= " AND call_key = :ckid";
+			            $sql_ckid = ' AND call_key = :ckid';
                     }
                 }
+			    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			    $sql = $sql_statement->getSqlStatement('check_callouts_by_id_and_keyid');
+			    $sql = preg_replace_callback('(:sql_cid)', function ($m) use ($sql_cid) { return $sql_cid; }, $sql);
+			    $sql = preg_replace_callback('(:sql_ckid)', function ($m) use ($sql_ckid) { return $sql_ckid; }, $sql);
 
                 $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
                 if(isset($callout_id) ===true && $callout_id !== null) {
@@ -209,12 +241,11 @@ class CalloutDetailsViewModel extends BaseViewModel {
                     }
                 }
                 $qry_bind->execute();
-                
-                $log->trace("Call Info callouts SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
-                
                 $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
                 $qry_bind->closeCursor();
                 
+				$log->trace("Call Info callouts SQL success for sql [$sql] row count: " . count($rows));
+				
                 $results = array();
                 foreach($rows as $row){
                     // Add any custom fields with values here
@@ -244,36 +275,35 @@ class CalloutDetailsViewModel extends BaseViewModel {
         if(isset($this->callout_details_responding_list) === false) {
             global $log;
             
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			if($this->getFirehall()->LDAP->ENABLED === true) {
+			    $sql_response = $sql_statement->getSqlStatement('ldap_check_callouts_responding');
+			}
+			else {
+			    $sql_response = $sql_statement->getSqlStatement('check_callouts_responding');
+			}
+				
             $callouts = $this->getCalloutDetailsList();
             foreach($callouts as $row) {
                 if($this->getFirehall()->LDAP->ENABLED === true) {
                     create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
-                    $sql_response = 'SELECT a.*, b.user_id ' .
-                                    ' FROM callouts_response a ' .
-                                    ' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
-                                    ' WHERE calloutid = :cid;';
-                }
-                else {
-                    $sql_response = 'SELECT a.*, b.user_id ' .
-                                    ' FROM callouts_response a ' .
-                                    ' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-                                    ' WHERE calloutid = :cid;';
                 }
 
                 $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_response);
                 $qry_bind->bindParam(':cid', $row['id']);
                 $qry_bind->execute();
-                
-                $log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . $qry_bind->rowCount());
 
                 $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
                 $qry_bind->closeCursor();
                 
+				$log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . count($rows));
+				
                 $results = array();
                 foreach($rows as $row_r){
                     // Add any custom fields with values here
                     $row_r['responder_location'] = urlencode($row_r['latitude']) . ',' . urlencode($row_r['longitude']);
                     $row_r['firehall_location'] = urlencode($this->getGvm()->firehall->WEBSITE->FIREHALL_HOME_ADDRESS);
++					$row_r['responder_display_status'] = getCallStatusDisplayText($row_r['status']);
 
                     $results[] = $row_r;
                 }
@@ -288,28 +318,26 @@ class CalloutDetailsViewModel extends BaseViewModel {
             global $log;
             
             // Select all user accounts for the firehall that did not yet respond
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+							
             if($this->getFirehall()->LDAP->ENABLED === true) {
                 create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
-                $sql_no_response = 'SELECT id, user_id FROM ldap_user_accounts ' .
-                                   ' WHERE id NOT IN (SELECT useracctid ' .
-                                   ' FROM callouts_response WHERE calloutid = :cid);';
+				$sql_no_response = $sql_statement->getSqlStatement('ldap_check_callouts_not_responding');
             }
             else {
-                $sql_no_response = 'SELECT id, user_id FROM user_accounts ' .
-                                   ' WHERE id NOT IN (SELECT useracctid ' .
-                                   ' FROM callouts_response WHERE calloutid = :cid);';
+			    $sql_no_response = $sql_statement->getSqlStatement('check_callouts_not_responding');
             }
 
             $cid = $this->getCalloutId();
             $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_no_response);
             $qry_bind->bindParam(':cid', $cid);
             $qry_bind->execute();
-                
-            $log->trace("Call Info callouts no responses SQL success for sql [$sql_no_response] row count: " . $qry_bind->rowCount());
 
             $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
             $qry_bind->closeCursor();
                 
+			$log->trace("Call Info callouts no responses SQL success for sql [$sql_no_response] row count: " . count($rows));
+			
             $results = array();
             foreach($rows as $row){
                 // Add any custom fields with values here
@@ -326,27 +354,25 @@ class CalloutDetailsViewModel extends BaseViewModel {
             global $log;
             
             // Select all user accounts for the firehall that did respond to the call
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			
             if($this->getFirehall()->LDAP->ENABLED === true) {
                 create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
-                $sql_yes_response = 'SELECT id,user_id FROM ldap_user_accounts ' .
-                                    ' WHERE id IN (SELECT useracctid ' .
-                                    ' FROM callouts_response WHERE calloutid = :cid);';
+				$sql_yes_response = $sql_statement->getSqlStatement('ldap_check_callouts_yes_responding');
             }
             else {
-                $sql_yes_response = 'SELECT id,user_id FROM user_accounts ' .
-                                    ' WHERE id IN (SELECT useracctid ' .
-                                    ' FROM callouts_response WHERE calloutid = :cid);';
+			    $sql_yes_response = $sql_statement->getSqlStatement('check_callouts_yes_responding');
             }
             
             $cid = $this->getCalloutId();
             $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_yes_response);
             $qry_bind->bindParam(':cid', $cid);
             $qry_bind->execute();
-                
-            $log->trace("Call Info callouts yes responses SQL success for sql [$sql_yes_response] row count: " . $qry_bind->rowCount());
-            
+           
             $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
             $qry_bind->closeCursor();
+
+			$log->trace("Call Info callouts yes responses SQL success for sql [$sql_yes_response] row count: " . count($rows));
                 
             $results = array();
             foreach($rows as $row){
@@ -359,4 +385,3 @@ class CalloutDetailsViewModel extends BaseViewModel {
         return $this->callout_details_end_responding_list;
     }
 }
-?>

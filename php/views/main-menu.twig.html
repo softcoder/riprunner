@@ -3,7 +3,12 @@
     <head>
         <meta charset="UTF-8">
         <title>Secure Login: Protected Page</title>
-		{% include 'global-css-js.twig.html' %}
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
+        {% endif %}
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
     </head>
     <body>
         <div class="container_center">
@@ -19,9 +24,7 @@
                 <a target='_blank' href='{{ mainmenu_vm.REMOTE_VERSION_NOTES }}' 
                    class='notice'>Click here for update information</a>
             {% endif %}
-			{% if gvm.MENU_TYPE == 'horizontal' %}
-				{% include 'global-horizontal-menu.twig.html' %}
-			{% elseif gvm.MENU_TYPE == 'vertical' %}
+            
             <div class="menudiv_wrapper">
               <nav class="vertical">
                 <ul>
@@ -34,6 +37,7 @@
                         <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/users-menu-controller.php">User Accounts</a></li>
                         <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/system-info-controller.php">System Information</a></li>
                         <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/view-logs-controller.php">View Logs</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/system-config-controller.php">System Config</a></li>
                       </ul>
                     </div>
                   </li>
@@ -87,11 +91,8 @@
                 </ul>
               </nav>
             </div>
-			{% else %}
-				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
-			{% endif %}
         {% else %}
-				{% include 'access-denied.twig.html' %}
+            {% include 'access-denied.twig.html' %}
         {% endif %}
         </div>
     </body>

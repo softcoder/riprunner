@@ -12,12 +12,13 @@ if(defined('__RIPRUNNER_ROOT__') === false) {
 }
 
 require_once __RIPRUNNER_ROOT__ . '/template.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/live-callout-warning-model.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 // Register our view and variables for the template
-sec_session_start();
+\riprunner\Authentication::sec_session_start();
 new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 new ViewLogsController($global_vm, $view_template_vars);
 
@@ -52,4 +53,3 @@ $template = $twig->resolveTemplate(
 
 // Output our template
 echo $template->render($view_template_vars);
-?>

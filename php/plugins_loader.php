@@ -5,6 +5,11 @@
 // ==============================================================
 namespace riprunner;
 
+if ( defined('INCLUSION_PERMITTED') === false ||
+(defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false)) {
+    die( 'This file must not be invoked directly.' );
+}
+
 if(defined('__RIPRUNNER_ROOT__') === false) {
     define('__RIPRUNNER_ROOT__', dirname(__FILE__));
 }
@@ -46,4 +51,3 @@ class PluginsLoader {
 		return null;
 	}
 }
-?>

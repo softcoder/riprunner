@@ -10,112 +10,52 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 }
 
 require_once 'config.php';
+require_once 'db/db_connection.php';
+require_once 'db/sql_statement.php';
+require_once 'authentication/authentication.php';
 require_once 'functions.php';
-
-function import_sql_file($location, $db_connection) {
-	//load file
-	//echo 'IMPORTING [' . $location . ']' . PHP_EOL;
-	$commands = file_get_contents($location);
-
-	//delete comments
-	$lines = explode("\n", $commands);
-	$commands = '';
-	foreach($lines as $line){
-		$line = trim($line);
-		if( $line !== '' && startsWith($line, '--') === false){
-			$commands .= $line . "\n";
-		}
-	}
-
-	//convert to array
-	$commands = explode(";", $commands);
-
-	//run commands
-	$total   = 0;
-	$success = 0;
-	foreach($commands as $command){
-		if(trim($command) !== '') {
-			$success += (($db_connection->query( $command ) === false) ? 0 : 1);
-			$total++;
-		}
-	}
-
-	//return number of successful queries and total number of queries found
-	return array(
-			"success" => $success,
-			"total" => $total
-	);
-}
-
-
-// Here's a startsWith function
-function startsWith($haystack, $needle) {
-	$length = strlen($needle);
-	return (substr($haystack, 0, $length) === $needle);
-}
 
 function install($FIREHALL, &$db_connection) {
 
-	$db_exist = db_exists($db_connection, $FIREHALL->MYSQL->MYSQL_DATABASE, null);
-	$db_table_exist = db_exists($db_connection, $FIREHALL->MYSQL->MYSQL_DATABASE, 'user_accounts');
+    $sql_statement = new \riprunner\SqlStatement($db_connection);
+    $db_exist = $sql_statement->db_exists($FIREHALL->DB->DATABASE, null);
+    $db_table_exist = $sql_statement->db_exists($FIREHALL->DB->DATABASE, 'user_accounts');
 	
 	if($db_exist === false) {
-		$sql = 'CREATE DATABASE ' . $FIREHALL->MYSQL->MYSQL_DATABASE . ';';
+	    $sql = $sql_statement->getSqlStatement('database_create');
+	    $dbname = $FIREHALL->DB->DATABASE;
+	    $sql = preg_replace_callback('(:db)', function ($m) use ($dbname) { $m; return $dbname; }, $sql);
 		$db_connection->query( $sql );
-		echo '<b>Successfully created database [' . $FIREHALL->MYSQL->MYSQL_DATABASE . ']</b><br />' . PHP_EOL;
+		
+		echo '<b>Successfully created database [' . $FIREHALL->DB->DATABASE . ']</b><br />' . PHP_EOL;
 	}
 	
-	db_disconnect( $db_connection );
+	\riprunner\DbConnection::disconnect_db( $db_connection );
 	$db_connection = null;
 	
 	// Connect to the database
-	$db_connection = db_connect_firehall($FIREHALL);
+	$db = new \riprunner\DbConnection($FIREHALL);
+	$db_connection = $db->getConnection();
 	
 	if($db_table_exist === false) {
-		$schema_results = import_sql_file(__DIR__ . '/scheme_mysql.sql', $db_connection);
+	    $sql_statement = new \riprunner\SqlStatement($db_connection);
+	    $schema_results = $sql_statement->installSchema();
 		echo '<b>SCHEMA Import Information, Success: ' . $schema_results["success"] . ' Total: ' . $schema_results["total"] . '</b><br />' . PHP_EOL;
 
 		$random_password = uniqid('', true);
-		$new_pwd = encryptPassword($random_password);
-		$sql = "INSERT INTO `user_accounts` (firehall_id,user_id,user_pwd,access) " .
-		       " VALUES(:fhid,'admin',:pwd,1)";
+		$new_pwd = \riprunner\Authentication::encryptPassword($random_password);
+		
+		$sql = $sql_statement->getSqlStatement('admin_user_create');
 		$qry_bind = $db_connection->prepare($sql);
 		$qry_bind->bindParam(':fhid', $FIREHALL->FIREHALL_ID);
 		$qry_bind->bindParam(':pwd', $new_pwd);
 		$qry_bind->execute();
 		
-		echo '<b>A default admin account has been created, with the following information:<br />Firehall Id: <font color="red">' . $FIREHALL->FIREHALL_ID . '</font><br />User id: <font color="red">admin</font><br />Password: <font color="red">' . $random_password . '</font></b><br />' . PHP_EOL;
+		echo '<b>A default admin account has been created, with the following information:<br />Firehall Id: <font color="red">' . 
+		     $FIREHALL->FIREHALL_ID . '</font><br />User id: <font color="red">admin</font><br />Password: <font color="red">' . 
+		     $random_password . '</font></b><br />' . PHP_EOL;
 		echo '<b><a href="login">Login Page</a></b>' . PHP_EOL;
 	}
-}
-
-function db_exists($db_connection, $dbname, $dbtable) {
-	$exists = false;
-	
-	if(isset($dbtable) === true) {
-		$sql = "SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = :dbname AND table_name = :dbtable;";
-	}
-	else {
-		$sql = "SELECT count(SCHEMA_NAME) as count FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = :dbname;";
-	}
-
-	$qry_bind = $db_connection->prepare($sql);
-	$qry_bind->bindParam(':dbname', $dbname);
-	if(isset($dbtable) === true) {
-		$qry_bind->bindParam(':dbtable', $dbtable);
-	}
-	$qry_bind->execute();
-		
-	//echo 'DB: ' . $dbname . ' sql: ' . $sql  . ' results: ' . $sql_result->num_rows . PHP_EOL;
-	
-	//echo "db check #1" . PHP_EOL;
-	$result = $qry_bind->fetch(\PDO::FETCH_OBJ);
-	if($result->count > 0) {
-		//echo "db check #2" . PHP_EOL;
-		$exists = true;
-	}
-	$qry_bind->closeCursor();
-	return $exists;
 }
 
 ?>
@@ -138,10 +78,13 @@ function db_exists($db_connection, $dbname, $dbtable) {
         	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
         	if($FIREHALL !== null) {
 				if($form_action === "install") {
-					$db_connection = db_connect_firehall_master($FIREHALL);
+				    $db = new \riprunner\DbConnection($FIREHALL,true);
+				    $db_connection = $db->getConnection();
+					//die('Test Master connection!');
 				}
 				else {
-	        		$db_connection = db_connect_firehall($FIREHALL);
+				    $db = new \riprunner\DbConnection($FIREHALL);
+				    $db_connection = $db->getConnection();
 				}
         	}
         }
@@ -162,7 +105,8 @@ function db_exists($db_connection, $dbname, $dbtable) {
             
             <?php
             if($form_action === 'install') {
-				$db_exist = db_exists($db_connection, $FIREHALL->MYSQL->MYSQL_DATABASE, 'user_accounts');
+                $sql_statement = new \riprunner\SqlStatement($db_connection);
+                $db_exist = $sql_statement->db_exists($FIREHALL->DB->DATABASE, 'user_accounts');
 				
 				if($db_exist === true) {
 					echo '<p>The Firehall already exists.</p><br />' . PHP_EOL;
@@ -192,7 +136,7 @@ function db_exists($db_connection, $dbname, $dbtable) {
         
         <?php
         if($db_connection !== null) {
-        	db_disconnect( $db_connection );
+        	\riprunner\DbConnection::disconnect_db( $db_connection );
         }
         ?>
     </body>

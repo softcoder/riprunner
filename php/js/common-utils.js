@@ -369,3 +369,41 @@ function loadingSpinner(parent,spinnerColorValue) {
     
     return new Spinner(opts).spin(target);
 }
+
+//Note: This example requires that you consent to location sharing when
+//prompted by your browser. If you see the error "The Geolocation service
+//failed.", it means you probably did not give permission for the browser to
+//locate you.
+
+function getGEOLocationCoords(callback_fn) {
+
+// Try HTML5 geolocation.
+if (navigator.geolocation) {
+ navigator.geolocation.getCurrentPosition(function(position) {
+   var pos = {
+     lat: position.coords.latitude,
+     lng: position.coords.longitude
+   };
+
+   //infoWindow.setPosition(pos);
+   //infoWindow.setContent('Location found.');
+   //map.setCenter(pos);
+   callback_fn(true,pos);
+ }, function() {
+   handleLocationError(true, callback_fn);
+ });
+} 
+else {
+ // Browser doesn't support Geolocation
+ handleLocationError(false, callback_fn);
+}
+}
+
+function handleLocationError(browserHasGeolocation, callback_fn) {
+//infoWindow.setPosition(pos);
+//infoWindow.setContent(browserHasGeolocation ?
+//                     'Error: The Geolocation service failed.' :
+//                     'Error: Your browser doesn\'t support geolocation.');
+	
+	callback_fn(false,browserHasGeolocation);
+}

@@ -46,32 +46,24 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 			// Read from the database info about this callout
 			$callout_id = get_query_param('cid');
 			
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+				
 			if($this->getGvm()->firehall->LDAP->ENABLED === true) {
 				create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
-				$sql = 'SELECT b.user_id,a.responsetime,a.latitude,a.longitude,' .
-				       'a.status,a.updatetime,c.address ' .
-				       ' FROM callouts_response a ' .
-				       ' LEFT JOIN ldap_user_accounts b on a.useracctid = b.id ' .
-				       ' LEFT JOIN callouts c on a.calloutid = c.id ' .
-				       ' WHERE calloutid = :cid;';
+				$sql = $sql_statement->getSqlStatement('ldap_callout_history_response_select');
 			}
 			else {
-				$sql = 'SELECT b.user_id,a.responsetime,a.latitude,a.longitude,' .
-				       'a.status,a.updatetime,c.address ' .
-				       ' FROM callouts_response a ' .
-				       ' LEFT JOIN user_accounts b on a.useracctid = b.id ' .
-				       ' LEFT JOIN callouts c on a.calloutid = c.id ' .
-				       ' WHERE calloutid = :cid;';
+			    $sql = $sql_statement->getSqlStatement('callout_history_response_select');
 			}
 
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 			$qry_bind->bindParam(':cid', $callout_id);
 			$qry_bind->execute();
-				
-			$log->trace("About to display callout response list for sql [$sql] result count: " . $qry_bind->rowCount());
 			
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 			$qry_bind->closeCursor();
+			
+			$log->trace("About to display callout response list for sql [$sql] result count: " . count($rows));
 			
 			$this->response_list = array();
 			foreach($rows as $row) {
@@ -96,4 +88,3 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 		return $this->response_cols;
 	}
 }
-?>

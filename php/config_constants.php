@@ -21,9 +21,11 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	define( 'PRODUCT_URL',  		'http://soft-haus.com' );
 	define( 'DEBUG_MODE', 			false);
 	define( 'ENABLE_AUDITING',		true);
-	define( "SECURE", 			false);    // FOR DEVELOPMENT ONLY!!!!
-	define( "ENABLE_ASYNCH_MODE", 	true);
+	define( 'SECURE', 			false);    // FOR DEVELOPMENT ONLY!!!!
+	define( 'ENABLE_ASYNCH_MODE', 	true);
 
+	define('USER_PASSWORD_HASH_ALGORITHM', 	 'sha512');
+	        
 	define('USER_ACCESS_ADMIN', 	 0x1);
 	define('USER_ACCESS_SIGNAL_SMS', 0x2);
 	//define('USER_ACCESS_X', 0x4);
@@ -38,6 +40,8 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	define( 'SMS_GATEWAY_SENDHUB', 						'SENDHUB');
 	define( 'SMS_GATEWAY_EZTEXTING', 					'EZTEXTING');
 	define( 'SMS_GATEWAY_TWILIO', 						'TWILIO');
+	define( 'SMS_GATEWAY_PLIVO', 						'PLIVO');
+	
 	define( 'SMS_CALLOUT_PROVIDER_DEFAULT', 			'DEFAULT');
 
 	// ----------------------------------------------------------------------
@@ -52,4 +56,3 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	define( 'CURRENT_ANDROID_VERSIONCODE',	9);
 	define( 'CURRENT_ANDROID_VERSIONNAME',	'1.8');
 	
-?>

@@ -18,5 +18,4 @@ if(defined('INCLUSION_PERMITTED') === false) {
 require_once 'logging.php';
 
 echo "Got android errors, THANK YOU." . PHP_EOL;
-$log->error("Got params:\n" . serialize($_GET) . "\npost:\n" . serialize($_POST));
-?>
+if($log !== null) $log->error("Got params:\n" . serialize($_GET) . "\npost:\n" . serialize($_POST));

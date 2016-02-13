@@ -9,6 +9,7 @@ require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/callout-model.php';
+require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 
 // The model class handling variable requests dynamically
 class LiveCalloutWarningViewModel extends BaseViewModel {
@@ -44,16 +45,19 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 	private function getLiveCalloutModel() {
 		global $log;
 		// Check if there is an active callout (within last 48 hours) and if so send the details
-		$sql = 'SELECT * FROM callouts' .
-				' WHERE status NOT IN (3,10) AND ' .
-				' TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . 
-				DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
-				' ORDER BY id DESC LIMIT 1;';
 
+		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+		$sql = $sql_statement->getSqlStatement('check_live_callouts');
+		
+		//$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
+		$config = new \riprunner\ConfigManager();
+		$max_hours_old = $config->getSystemConfigValue('DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD');
+		
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+		$qry_bind->bindParam(':max_age', $max_hours_old);
 		$qry_bind->execute();
 		
-		$log->trace("Call checkForLiveCallout SQL success for sql [$sql] row count: " . $qry_bind->rowCount());
+		$log->trace("Call checkForLiveCallout SQL success for sql [$sql].");
 		$row = $qry_bind->fetch(\PDO::FETCH_OBJ);
 		if($row !== false) {
 			$this->getCalloutModel()->id = $row->id;
@@ -64,4 +68,3 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 		return $this->getCalloutModel();
 	}
 }
-?>

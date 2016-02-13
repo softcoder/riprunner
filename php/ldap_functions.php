@@ -12,6 +12,8 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 }
 
 require_once 'object_factory.php';
+require_once 'authentication/authentication.php';
+require_once 'config/config_manager.php';
 require_once 'cache/cache-proxy.php';
 require_once 'logging.php';
 
@@ -19,6 +21,7 @@ function extractDelimitedValueFromString($rawValue, $regularExpression, $groupRe
 	$cleanRawValue = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/u', '', $rawValue);
 	preg_match($regularExpression, $cleanRawValue, $result);
 	if(isset($result[$groupResultIndex]) === true) {
+		//echo "regex [$regularExpression] lookup [$cleanRawValue] result [" . $result[$groupResultIndex] ."]" .PHP_EOL;
 		$result[$groupResultIndex] = str_replace(array("\n", "\r"), '', $result[$groupResultIndex]);
 		return $result[$groupResultIndex];
 	}
@@ -37,7 +40,8 @@ function login_ldap($FIREHALL, $user_id, $password) {
 	$log->trace('filter ['.$filter.']');
 
 	$entries = $ldap->search($FIREHALL->LDAP->LDAP_BASE_USERDN, $filter, $FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
-	if(isset($entries) && $entries !== null && empty($entries) === false && isset($entries[0])) {
+	if(isset($entries) === true && $entries !== null && empty($entries) === false && 
+	        isset($entries[0]) === true) {
 		//var_dump($entries);
 	$binddn = $entries[0][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
 
@@ -50,15 +54,15 @@ function login_ldap($FIREHALL, $user_id, $password) {
 
 			$userCount = $info['count'];
 			for ($i=0; $i < $userCount; $i++) {
-				if(isset($info[$i]['cn'])) {
+				if(isset($info[$i]['cn']) === true) {
 					$log->trace("User: ". $info[$i]['cn'][0]);
 				}
-				if(isset($info[$i]['mobile'])) {
+				if(isset($info[$i]['mobile'])=== true) {
 					$log->trace("Mobile: ". $info[$i]['mobile'][0]);
 				}
 
 			//if($debug_functions) var_dump($info);
-				if(isset($info[$i]['sn'])) {
+				if(isset($info[$i]['sn'])=== true) {
 					$log->trace("You are accessing ". $info[$i]['sn'][0] .", " . $info[$i]['givenname'][0]);
 				}
 				
@@ -77,8 +81,9 @@ function login_ldap($FIREHALL, $user_id, $password) {
 		// Get the user-agent string of the user.
 		$user_browser = $_SERVER['HTTP_USER_AGENT'];
 		
-		if(ENABLE_AUDITING) {
-			$log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . getClientIPInfo() . "]");
+			$config = new \riprunner\ConfigManager();
+			if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
+				$log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");
 		}
 		
 		// XSS protection as we might print this value
@@ -87,7 +92,7 @@ function login_ldap($FIREHALL, $user_id, $password) {
 		// XSS protection as we might print this value
 		//$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
 		$_SESSION['user_id'] = $user_id;
-		$_SESSION['login_string'] = hash('sha512', $password . $user_browser);
+		$_SESSION['login_string'] = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
 		$_SESSION['firehall_id'] = $FirehallId;
 		$_SESSION['ldap_enabled'] = true;
 		$_SESSION['user_access'] = $userAccess;
@@ -108,7 +113,7 @@ function login_ldap($FIREHALL, $user_id, $password) {
 function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 	global $log;
 
-	if($FIREHALL->LDAP->ENABLED_CACHE) {
+	if($FIREHALL->LDAP->ENABLED_CACHE === true) {
 		$cache_key_lookup = "RIPRUNNER_LDAP_USER_ACCESS_" . $FIREHALL->FIREHALL_ID . ((isset($user_id) === true) ? $user_id : "") . ((isset($userDn) === true) ? $userDn : "");
 		$cache = new \riprunner\CacheProxy();
 		if ($cache->hasItem($cache_key_lookup) === true) {
@@ -253,7 +258,7 @@ function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 		}
 	}
 
-	if($FIREHALL->LDAP->ENABLED_CACHE) {
+	if($FIREHALL->LDAP->ENABLED_CACHE === true) {
 		$cache->setItem($cache_key_lookup, $userAccess);
 	}
 	
@@ -397,6 +402,9 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 	$userCount = $info['count'];
 	$log->trace('populateLDAPUsers about to iterate over: '.$userCount.' users');
 	
+	$sql_statement = new \riprunner\SqlStatement($db_connection);
+	$sql = $sql_statement->getSqlStatement('ldap_user_accounts_insert');
+	
 	for ($i = 0; $i < (int)$userCount; $i++) {
 		$log->trace("Sorted result #:" . $i);
 		//if($debug_functions) var_dump($info[$i]);
@@ -422,9 +430,6 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 			}
 
 			$userAccess = ldap_user_access($FIREHALL, $ldap, $username[0], $userDn);
-
-			$sql = "INSERT IGNORE INTO ldap_user_accounts (id,firehall_id,user_id,mobile_phone,access) " .
-				   " values(:uid,:fhid,:user_id,:mobile_phone,:access);";
 			
 			$qry_bind = $db_connection->prepare($sql);
 			$qry_bind->bindParam(':uid', $user_id_number[0]);
@@ -482,9 +487,6 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 					
 						$userAccess = ldap_user_access($FIREHALL, $ldap, $username[0], $userDn);
 					
-						$sql = "INSERT IGNORE INTO ldap_user_accounts (id,firehall_id,user_id,mobile_phone,access) " .
-							   " values(:uid,:fhid,:user_id,:mobile_phone,:access);";
-
 						$qry_bind = $db_connection->prepare($sql);
 						$qry_bind->bindParam(':uid', $user_id_number[0]);
 						$qry_bind->bindParam(':fhid', $FIREHALL->FIREHALL_ID);
@@ -505,22 +507,16 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 }
 
 function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
-	global $log;
+	//global $log;
 	// Create a temp table of users from LDAP
-	$sql = 'CREATE TEMPORARY TABLE IF NOT EXISTS ldap_user_accounts (
-			id INT( 11 ) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			firehall_id varchar(80) COLLATE utf8_unicode_ci NOT NULL,
-			user_id varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-			user_pwd varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-			mobile_phone varchar(25) COLLATE utf8_unicode_ci NOT NULL,
-			access INT( 11 ) NOT NULL DEFAULT 0,
-			updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-			) ENGINE = INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;';
+	
+	$sql_statement = new \riprunner\SqlStatement($db_connection);
+	$sql = $sql_statement->getSqlStatement('ldap_user_accounts_create');
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();
 	
-	$sql = 'SELECT count(*) as usercount from ldap_user_accounts;';
+	$sql = $sql_statement->getSqlStatement('ldap_user_accounts_count');
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();
@@ -541,4 +537,3 @@ function create_temp_users_table_for_ldap($FIREHALL, $db_connection) {
 		//die("FORCE EXIT!");
 	}
 }
-?>

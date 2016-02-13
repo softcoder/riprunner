@@ -19,20 +19,21 @@ function signalFireHallCallout($callout) {
 	$log->trace('Callout signalled for: '. $callout->getAddress());
 	
 	// Connect to the database
-	$db_connection = db_connect_firehall($callout->getFirehall());
+	$db = new \riprunner\DbConnection($callout->getFirehall());
+	$db_connection = $db->getConnection();
 	
 	// update database info about this callout
 	$callout_dt_str = $callout->getDateTimeAsString();
 	
 	// See if this is a duplicate callout?
-	$sql = "SELECT id,call_key,status " .
-			"FROM callouts WHERE calltime = :ctime AND calltype = :ctype AND " .
-			" (address = :caddress OR (latitude = :lat AND longitude = :long));";
+	$sql_statement = new \riprunner\SqlStatement($db_connection);
+	$sql = $sql_statement->getSqlStatement('check_existing_callout');
 
 	$ctype = $callout->getCode();
 	$caddress = $callout->getAddress();
 	$lat = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLat()));
 	$long = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLong()));
+	
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->bindParam(':ctime', $callout_dt_str);
 	$qry_bind->bindParam(':ctype', $ctype);
@@ -56,16 +57,14 @@ function signalFireHallCallout($callout) {
 	// Found duplicate callout so update some fields on original callout
 	if($callout->getId() !== null) {
 		// Insert the new callout
-		$sql = 'UPDATE callouts' .
-				' SET address = :caddress, latitude = :lat, longitude = :long, ' .
-				' units = :units' .
-				' WHERE id = :id AND (address <> :caddress OR latitude <> :lat OR longitude <> :long OR units <> :units);';
+	    $sql = $sql_statement->getSqlStatement('callout_update');
 
 		$caddress = $callout->getAddress();
 		$lat = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLat()));
 		$long = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLong()));
 		$units = $callout->getUnitsResponding();
 		$cid = $callout->getId();
+		
 		$qry_bind = $db_connection->prepare($sql);
 		$qry_bind->bindParam(':caddress', $caddress);
 		$qry_bind->bindParam(':lat', $lat);
@@ -96,8 +95,7 @@ function signalFireHallCallout($callout) {
 		// Insert the new callout
 		$callout->setKeyId(uniqid('', true));
 		
-		$sql = 'INSERT INTO callouts (calltime,calltype,address,latitude,longitude,units,call_key) ' .
-				' values(:cdatetime, :ctype, :caddress, :lat, :long, :units, :ckid);';
+		$sql = $sql_statement->getSqlStatement('callout_insert');
 
 		$cdatetime = $callout->getDateTimeAsString();
 		$ctype = (($callout->getCode() !== null) ? $callout->getCode() : "");
@@ -129,7 +127,7 @@ function signalFireHallCallout($callout) {
 		signalCallOutRecipientsUsingGCM($callout, null, $gcmMsg, $db_connection);
 
 		// Only update status if not cancelled or completed already
-		$sql_update = 'UPDATE callouts SET status = :status WHERE id = :id AND status NOT in(3,10);';
+		$sql_update = $sql_statement->getSqlStatement('callout_status_update');
 			
 		$cid = $callout->getId();
 		$status_notified = CalloutStatusType::Notified;
@@ -140,7 +138,7 @@ function signalFireHallCallout($callout) {
 	}
 	
 	if($db_connection !== null) {
-		db_disconnect( $db_connection );
+		\riprunner\DbConnection::disconnect_db( $db_connection );
 	}
 }
 ?>

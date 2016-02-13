@@ -9,6 +9,7 @@ require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/object_factory.php';
 require_once __RIPRUNNER_ROOT__ . '/models/auth-model.php';
+require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 
 // Model array of variables to be used for view
 if(isset($view_template_vars) === false) {
@@ -63,7 +64,9 @@ class GlobalViewModel {
 			return $this->getUserFirehallId();
 		}
 		if('enabled_asynch_mode' === $name) {
-			return ENABLE_ASYNCH_MODE;
+			//return ENABLE_ASYNCH_MODE;
+		    $config = new \riprunner\ConfigManager();
+		    return $config->getSystemConfigValue('ENABLE_ASYNCH_MODE');
 		}
 		if('phpinfo' === $name) {
 			return $this->getPhpInfo();
@@ -85,6 +88,60 @@ class GlobalViewModel {
 			}
 			return '';
 		}
+		if('ICON_MARKERSCUSTOM_LEGEND' == $name) {
+			if(defined('ICON_MARKERSCUSTOM_LEGEND')) {
+				return ICON_MARKERSCUSTOM_LEGEND;
+			}
+		}
+		if('ICON_MARKERSCUSTOM' == $name) {
+			if(defined('ICON_MARKERSCUSTOM')) {
+				return ICON_MARKERSCUSTOM;
+			}
+		}
+		if('ICON_HYDRANT' == $name) {
+			if(defined('ICON_HYDRANT')) {
+				return ICON_HYDRANT;
+			}
+		}
+		if('ICON_FIREHALL' == $name) {
+			if(defined('ICON_FIREHALL')) {
+				return ICON_FIREHALL;
+			}
+		}
+		if('ICON_WATERTANK' == $name) {
+			if(defined('ICON_WATERTANK')) {
+				return ICON_WATERTANK;
+			}
+		}
+		if('ICON_CALLORIGIN' == $name) {
+			if(defined('ICON_CALLORIGIN')) {
+				return ICON_CALLORIGIN;
+			}
+		}
+		if('ICON_RESPONDER' == $name) {
+			if(defined('ICON_RESPONDER')) {
+				return ICON_RESPONDER;
+			}
+		}if('JSMAP_WIDTH' == $name) {
+			if(defined('JSMAP_WIDTH')) {
+				return JSMAP_WIDTH;
+			}
+		}
+		if('JSMAP_HEIGHT' == $name) {
+			if(defined('JSMAP_HEIGHT')) {
+				return JSMAP_HEIGHT;
+			}
+		}
+		if('JSMAP_MOBILEWIDTH' == $name) {
+			if(defined('JSMAP_MOBILEWIDTH')) {
+				return JSMAP_MOBILEWIDTH;
+			}
+		}
+		if('JSMAP_MOBILEHEIGHT' == $name) {
+			if(defined('JSMAP_MOBILEHEIGHT')) {
+				return JSMAP_MOBILEHEIGHT;
+			}
+		}
 
 		// throw some kind of error
 		throw new \Exception("Invalid var reference [$name].");
@@ -95,7 +152,9 @@ class GlobalViewModel {
 			array('isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN',
 					AuthViewModel::getAuthVarContainerName(),'firehall',
 					'firehall_list','user_firehallid','enabled_asynch_mode',
-					'phpinfo','MENU_TYPE','CUSTOM_MAIN_CSS','CUSTOM_MOBILE_CSS'
+					'phpinfo','MENU_TYPE','CUSTOM_MAIN_CSS','CUSTOM_MOBILE_CSS',
+					'ICON_MARKERSCUSTOM_LEGEND','ICON_MARKERSCUSTOM','ICON_HYDRANT','ICON_FIREHALL','ICON_WATERTANK','ICON_CALLORIGIN','ICON_RESPONDER',
+					'JSMAP_WIDTH','JSMAP_HEIGHT','JSMAP_MOBILEWIDTH','JSMAP_MOBILEHEIGHT'
 			)) === true) {
 			return true;
 		}
@@ -139,7 +198,9 @@ class GlobalViewModel {
 		$fire_hall = $this->getFireHall();
 		if(isset($fire_hall) === true) {
 			if(isset($this->db_connection) === false) {
-				$this->db_connection = db_connect_firehall($fire_hall);
+				//$this->db_connection = db_connect_firehall($fire_hall);
+			    $db = new \riprunner\DbConnection($fire_hall);
+			    $this->db_connection = $db->getConnection();
 			}
 			return $this->db_connection;
 		}
@@ -148,7 +209,7 @@ class GlobalViewModel {
 	
 	private function closeDBConnection() {
 		if(isset($this->db_connection) === true) {
-			db_disconnect($this->db_connection);
+			\riprunner\DbConnection::disconnect_db($this->db_connection);
 			$this->db_connection = null;
 		}
 	}
@@ -160,4 +221,3 @@ class GlobalViewModel {
 		return $this->authModel;
 	}
 }
-?>

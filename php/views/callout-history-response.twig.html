@@ -3,7 +3,18 @@
     <head>
         <meta charset="UTF-8">
         <title>Secure Login: Protected Page</title>
-        {% include 'global-css-js.twig.html' %}
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
+        {% endif %}
+        
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
+        
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/freeze-header.js"></script>
     </head>
     <body>
 
@@ -12,9 +23,6 @@
             {% include 'user-welcome.twig.html' %}
             {% include 'live-callout-warning.twig.html' %}
         
-			{% if gvm.MENU_TYPE == 'horizontal' %}
-				{% include 'global-horizontal-menu.twig.html' %}
-			{% elseif gvm.MENU_TYPE == 'vertical' %}
         <div class="menudiv_wrapper">
           <nav class="vertical">
             <ul>
@@ -42,9 +50,7 @@
             </ul>
           </nav>
         </div>
-			{% else %}
-				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
-			{% endif %}
+                    
         {% if response_history_vm.response_list is empty %}
         <b>NO Data.</b>
         {% endif %}
@@ -77,7 +83,7 @@
 	                        <td class="column_nowrap">{{ row[col_name] }}</td>
 	                    {% elseif col_name == 'latitude' or col_name == 'longitude' %}
 	                        {% if row.latitude != 0.0 and row.longitude != 0.0 %}
-	                        <td class=column_nowrap>
+	                        <td>
 	                            <a target="_blank" 
 	                                href="http://maps.google.com/maps?saddr={{ row.responder_origin }}&daddr={{ row.callout_address_dest }} ({{ row.callout_address_dest }})">
 	                                {{ row[col_name] }}
@@ -91,7 +97,7 @@
 	                    {% elseif col_name == 'updatetime' %}
 	                        <td class="column_nowrap">{{ row[col_name] }}</td>
 	                    {% else %}
-	                        <td class=column_nowrap>{{ row[col_name] }}</td>
+	                        <td>{{ row[col_name] }}</td>
 	                    {% endif %}
 	                {% endfor %}
 	                </tr>

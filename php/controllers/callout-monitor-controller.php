@@ -12,6 +12,7 @@ if(defined('__RIPRUNNER_ROOT__') === false) {
 }
 
 require_once __RIPRUNNER_ROOT__ . '/template.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/live-callout-warning-model.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
@@ -19,19 +20,19 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 // Register our view and variables for the template
 $server_mode = get_query_param('server_mode');
 if(isset($server_mode) === true && $server_mode === 'true') {
-	sec_session_start_ext(true);
+    \riprunner\Authentication::sec_session_start_ext(true);
 }
 else {
-	sec_session_start();
+	\riprunner\Authentication::sec_session_start();
 }
 $live_callout_info = new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 
 if(isset($server_mode) === true && $server_mode === 'true') {
 	if($global_vm->auth->isAuth === false) {
+	    ob_start();
 		echo 'Access Denied!';
 		ob_flush();
 		flush();
-		
 		die();
 	}
 	header('Content-Type: text/event-stream');
@@ -44,7 +45,8 @@ if(isset($server_mode) === true && $server_mode === 'true') {
 	 * @param string $msg Line of text that should be transmitted.
 	*/
 	function sendMsg($live_callout_info) {
-		if(isset($live_callout_info) === true) {
+		if(isset($live_callout_info) === true && isset($live_callout_info->callout) && 
+		        $live_callout_info->callout != null && $live_callout_info->callout->id != null) {
 			echo "id: " . $live_callout_info->callout->id . PHP_EOL;
 			echo "data: {\n";
 			echo "data: \"keyid\": \"". $live_callout_info->callout->callkey ."\", \n";
@@ -59,7 +61,6 @@ if(isset($server_mode) === true && $server_mode === 'true') {
 			echo "data: {\n";
 			echo "data: \"keyid\": \"\", \n";
 			echo "data: \"id\": -1\n";
-				
 			echo "data: }\n";
 			echo PHP_EOL;
 			ob_flush();
@@ -68,7 +69,7 @@ if(isset($server_mode) === true && $server_mode === 'true') {
 	}
 	
 	$startedAt = time();
-	
+	ob_start();
 	do {
 		// Cap connections at 10 seconds. The browser will reopen the connection on close
 		if ((time() - $startedAt) > 41) {
@@ -81,7 +82,7 @@ if(isset($server_mode) === true && $server_mode === 'true') {
 		if($time_elapsed <= 1 || $time_elapsed === 20 || $time_elapsed === 40) {
 			$live_callout_info = new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 			if(isset($live_callout_info) === true && isset($live_callout_info->callout->id) === true &&
-					$live_callout_info->callout->id !== '') {
+					$live_callout_info->callout->id != null && $live_callout_info->callout->id != '') {
 				sendMsg($live_callout_info);
 				die();
 			}
@@ -110,4 +111,3 @@ else {
 	// Output our template
 	echo $template->render($view_template_vars);
 }
-?>

@@ -9,14 +9,24 @@
 <html>
 <head>
 <script type="text/javascript">
-    var result = '{{ response_vm.respond_result }}';
+    var result = "{{ response_vm.respond_result|escape('js') }}";
     {% set redirect_url = gvm.RR_DOC_ROOT ~ 'ci/' ~ 
         'fhid=' ~ response_vm.firehall_id ~ '&cid=' ~ response_vm.callout_id ~
         '&ckid=' ~ response_vm.calloutkey_id ~
         (response_vm.member_id is not null ? '&member_id=' ~ response_vm.member_id : '') %}
                      
     var redir_url = "{{ redirect_url|raw }}";
+    try {
+        window.location.replace(redir_url);
+    }
+    catch(e) {
+    	try {
 	window.location.href = redir_url;
+    	}
+    	catch(e) {
+    		window.location = redir_url;
+    	}
+    }
 </script>
 </head>
 <body>
@@ -24,7 +34,7 @@
 </body>
 </html>            
             {% else %}
-{{ response_vm.respond_result }}            
+{{ response_vm.respond_result|escape('html') }}            
             {% endif %}
         {% else %}
         ERROR3  

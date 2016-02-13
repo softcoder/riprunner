@@ -5,8 +5,8 @@
 // ==============================================================
 namespace riprunner;
 
-if ( !defined('INCLUSION_PERMITTED') ||
-( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) {
+if ( defined('INCLUSION_PERMITTED') === false ||
+( defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED !== true ) ) {
 	die( 'This file must not be invoked directly.' );
 }
 
@@ -36,11 +36,12 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 		
 		// First we will send our sms callout to officers
 		$recipients_officers = get_sms_recipients_ldap($callout->getFirehall(),
+//		"(&(memberOf=cn=SGVFR-OFFICERS,ou=Groups,dc=sgvfr,dc=lan)(memberOf=cn=SGVFR-SMSCALLOUT,ou=Groups,dc=sgvfr,dc=lan))");
 		"(&(memberOf=cn=SGVFR-OFFICERS-TEST,ou=Groups,dc=sgvfr,dc=lan)(memberOf=cn=SGVFR-SMSCALLOUT-TEST,ou=Groups,dc=sgvfr,dc=lan))");
 		//echo "Officers found: [$recipients_officers]" . PHP_EOL;
 		
-		if(isset($recipients_officers) && strlen($recipients_officers) > 0) {
-			$recipients_officers = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { return ''; }, $recipients_officers);
+		if(isset($recipients_officers) === true && strlen($recipients_officers) > 0) {
+			$recipients_officers = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { $m; return ''; }, $recipients_officers);
 			
 			$recipient_officers_list = explode(';',$recipients_officers);
 			$recipient_officers_list_array = $recipient_officers_list;
@@ -48,7 +49,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 			if(count($recipient_officers_list_array) > 0) {
 				$smsText = self::getOfficerSMSCalloutMessage($callout,
 											$smsPlugin->getMaxSMSTextLength());
-				if(isset($msgPrefix)) {
+				if(isset($msgPrefix) === true) {
 					$smsText = $msgPrefix . $smsText;
 				}
 				//$resultSMS = "Test sending SMS to OFFICERS: " . var_export($recipient_officers_list_array,true) . " SMS MSG: $smsText" .PHP_EOL;
@@ -57,7 +58,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 						$recipient_officers_list_array,
 						$recipient_list_type, $smsText);
 				
-				if(isset($resultSMS)) {
+				if(isset($resultSMS) === true) {
 					echo $resultSMS . PHP_EOL;
 				}
 			}
@@ -68,7 +69,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 		$recipients_members = get_sms_recipients_ldap($callout->getFirehall(),null);
 		//echo "Members found: [$recipients_members]" . PHP_EOL;
 		
-		if(isset($recipients_members) && strlen($recipients_members) > 0) {
+		if(isset($recipients_members) === true && strlen($recipients_members) > 0) {
 			$recipient_members_list = explode(';',$recipients_members);
 			$recipient_members_list_array = $recipient_members_list;
 			// Filter out officers that we already sent to
@@ -83,7 +84,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 						$smsText = self::getMemberSMSCalloutMessage($callout,
 								$recipient_parts[1],
 								$smsPlugin->getMaxSMSTextLength());
-						if(isset($msgPrefix)) {
+						if(isset($msgPrefix) === true) {
 							$smsText = $msgPrefix . $smsText;
 						}
 							
@@ -94,7 +95,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 								$callout->getFirehall()->SMS, 
 								$recipient_array,
 								$recipient_list_type, $smsText);
-						if(isset($resultSMS)) {
+						if(isset($resultSMS) === true) {
 							echo $resultSMS;
 						}
 					}
@@ -116,7 +117,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 		. '&ckid=' . $callout->getKeyId();
 	
 		$smsMsg = $msgSummary .', ' . $details_link;
-		if(isset($maxLength) && $maxLength > 0) {
+		if(isset($maxLength) === true && $maxLength > 0) {
 			$smsMsg = array($msgSummary,
 					$details_link);
 		}
@@ -139,7 +140,7 @@ class SMSCallout_SGVFR_Plugin implements ISMSCalloutPlugin {
 		. '&member_id=' . $user_id;
 	
 		$smsMsg = $msgSummary .', ' . $details_link;
-		if(isset($maxLength) && $maxLength > 0) {
+		if(isset($maxLength) === true && $maxLength > 0) {
 			$smsMsg = array($msgSummary,
 					$details_link);
 		}

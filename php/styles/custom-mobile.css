@@ -36,3 +36,21 @@
     float: right;
     width: 50%;
 }
+th.rotate {
+  /* Something you can count on */
+  height: 180px;
+  white-space: nowrap;
+}
+
+th.rotate > div {
+  transform: 
+    /* Magic Numbers */
+    translate(1px, 60px)
+    /* 45 is really 360 - 45 */
+    rotate(290deg);
+  width: 40px;
+}
+th.rotate > div > span {
+  text-decoration: none;
+  padding: 0px;
+}

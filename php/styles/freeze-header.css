@@ -32,6 +32,7 @@ table.head-no-pad {
 }
 .column_nowrap {
 	white-space: nowrap;
+	word-break: break-all !important;
 }
 .column_nowrap_left {
 	white-space: nowrap;

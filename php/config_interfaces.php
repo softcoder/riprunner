@@ -8,8 +8,14 @@
 abstract class CalloutStatusType {
 	const Paged = 0;
 	const Notified = 1;
-	const Responding = 2;
+	const RESPOND_OPT_2 = 2;
 	const Cancelled = 3;
+	const RESPOND_OPT_4 = 4;
+	const RESPOND_OPT_5 = 5;
+	const RESPOND_OPT_6 = 6;
+	const RESPOND_OPT_7 = 7;
+	const RESPOND_OPT_8 = 8;
+	const RESPOND_OPT_9 = 9;
 	const Complete = 10;
 }
 
@@ -33,7 +39,7 @@ class FireHallEmailAccount
 	public $EMAIL_HOST_PASSWORD;
 	// Email should be deleted after it is received and processed.
 	public $EMAIL_DELETE_PROCESSED;
-
+	// Only examine unread emails
 	public $PROCESS_UNREAD_ONLY;
 	
 	public function __construct($host_enabled=false, $from_trigger=null, 
@@ -48,6 +54,9 @@ class FireHallEmailAccount
 		$this->PROCESS_UNREAD_ONLY = $unread_only;
 	}
 
+		public function __toString() {
+			return $this->toString();
+	}
 	public function toString() {
 		$result = "Email Settings:" .
 				  "\nhost enabled: " . var_export($this->EMAIL_HOST_ENABLED, true) .
@@ -84,41 +93,152 @@ class FireHallEmailAccount
 }
 			
 // ----------------------------------------------------------------------
-class FireHallMySQL
+class FireHallDatabase
 {
-	// The name of the MySQL database Host
-	public $MYSQL_HOST;
-	// The name of the MySQL database
-	public $MYSQL_DATABASE;
-	// The username to authenticate to the MySQL database
-	public $MYSQL_USER;
-	// The user password to authenticate to the MySQL database
-	public $MYSQL_PASSWORD;
+    // The database engine specific DSN
+    public $DSN;
+	// The username to authenticate to the  database
+	public $USER;
+	// The user password to authenticate to the database
+	public $PASSWORD;
+	// The name of the  database
+	public $DATABASE;
+	// The  database connection
+	public $DATABASE_CONNECTION;
+	
+	public function __construct($dsn=null, $username=null, $password=null,$db=null,
+	        $db_conn=null) {
+		$this->DSN = $dsn;
+		$this->USER = $username;
+		$this->PASSWORD = $password;
+		$this->DATABASE = $db;
+		$this->DATABASE_CONNECTION = $db_conn;
+	}
+
+	public function __toString() {
+	    return $this->toString();
+	}
+	public function toString() {
+		$result = "Database Settings:" .
+	      		  "\ndsn: " . (($this->DSN !== null) ? $this->DSN : '').
+				  "\nusername: " . (($this->USER !== null) ? $this->USER : '').
+				  "\ndatabase: " . (($this->DATABASE !== null) ? $this->DATABASE : '').
+				  "\ndb_conn: " . (($this->DATABASE_CONNECTION !== null) ? $this->DATABASE_CONNECTION : '');
+		return $result;
+	}
+
+	public function setDsn($dsn) {
+	    $this->DSN = $dsn;
+	}
+	public function setDatabaseName($db) {
+	    $this->DATABASE = $db;
+	}
+	public function setUserName($username) {
+		$this->USER = $username;
+	}
+	public function setPassword($password) {
+		$this->PASSWORD = $password;
+	}
+	public function setDbConnection($db_conn) {
+	    $this->DATABASE_CONNECTION = $db_conn;
+	}
+}
+
+class FireHallMySQL extends FireHallDatabase {
+    // The name of the MySQL database Host
+    public $MYSQL_HOST;
 
 	public function __construct($host=null, $database=null, $username=null, 
 								$password=null) {
 		$this->MYSQL_HOST = $host;
 		$this->MYSQL_DATABASE = $database;
-		$this->MYSQL_USER = $username;
-		$this->MYSQL_PASSWORD = $password;
+        
+        $this->USER = $username;
+        $this->PASSWORD = $password;
+        
+        $this->setupDsn();
+    }
+ 
+    public function __get($name) {
+        if('MYSQL_USER' === $name) {
+            return $this->USER;
+        }
+        if('MYSQL_PASSWORD' === $name) {
+            return $this->PASSWORD;
+        }
+        if('MYSQL_DATABASE' === $name) {
+            return $this->DATABASE;
+        }
+        if (property_exists($this, $name) === true) {
+            return $this->$name;
+        }        
+    }
+    public function __isset($name) {
+        if('MYSQL_USER' === $name) {
+            return parent::__isset('USER');
+        }
+        if('MYSQL_PASSWORD' === $name) {
+            return parent::__isset($this->PASSWORD);
+        }
+        if('MYSQL_DATABASE' === $name) {
+            return parent::__isset($this->$this->DATABASE);
+        }
+        return isset($this->$name);
+    }
+    public function __set($name, $value) {
+        if('MYSQL_USER' === $name) {
+            $this->USER = $value;
+        }
+        else if('MYSQL_PASSWORD' === $name) {
+            $this->PASSWORD = $value;
+        }
+        else if('MYSQL_DATABASE' === $name) {
+            $this->DATABASE = $value;
+        }
+        else {
+            if (property_exists($this, $name) === true) {
+                $this->$name = $value;
+            }
+        }
 	}
 
+    public function __toString() {
+        return $this->toString();
+    }
 	public function toString() {
 		$result = "MySQL Settings:" .
- 				  "\nhostname: " . $this->MYSQL_HOST .
-				  "\ndb: " . $this->MYSQL_DATABASE .
-				  "\nusername: " . $this->MYSQL_USER;
+                "\nhostname: " . (($this->MYSQL_HOST !== null) ? $this->MYSQL_HOST : '') .
+                "\ndb: " . (($this->DATABASE !== null) ? $this->DATABASE : '') .
+                "\nusername: " . (($this->MYSQL_USER !== null) ? $this->MYSQL_USER : '');
 		return $result;
+    }
+
+    private function setupDsn() {
+        if($this->MYSQL_HOST !== null && $this->DATABASE !== null) {
+            $this->DSN = 'mysql:host='.$this->MYSQL_HOST.';dbname='.$this->DATABASE;
+            //echo "#1 DSN [$this->DSN]" . PHP_EOL;
+        }
+        else if($this->MYSQL_HOST !== null) {
+            $this->DSN = 'mysql:host='.$this->MYSQL_HOST;
+            //echo "#2 DSN [$this->DSN]" . PHP_EOL;
+        }
+        else {
+            $this->DSN = '';
+            //echo "#3 DSN [$this->DSN]" . PHP_EOL;
+        }
 	}
 	
 	public function setHostName($host) {
 		$this->MYSQL_HOST = $host;
+        $this->setupDsn();
 	}
 	public function setDatabseName($database) {
 		$this->MYSQL_DATABASE = $database;
+        $this->setupDsn();
 	}
 	public function setDatabaseName($database) {
 		$this->MYSQL_DATABASE = $database;
+        $this->setupDsn();
 	}
 	public function setUserName($username) {
 		$this->MYSQL_USER = $username;
@@ -150,6 +270,8 @@ class FireHallSMS
 	public $SMS_RECIPIENTS_ARE_GROUP;
 	// If the recipient list should be dynamically built from the database set this value to true
 	public $SMS_RECIPIENTS_FROM_DB;
+	// The recipients to send an SMS during communications (but only for notification purpsoes, they cannot respond)
+	public $SMS_RECIPIENTS_NOTIFY_ONLY;
 	// The Base API URL for sending SMS messages using sendhub.com
 	public $SMS_PROVIDER_SENDHUB_BASE_URL;
 	// The Base API URL for sending SMS messages using textbelt.com
@@ -167,6 +289,15 @@ class FireHallSMS
 	// The API FROM mobile phone # to use for twilio
 	public $SMS_PROVIDER_TWILIO_FROM;
 	
+		// The Base API URL for sending SMS messages using plivo.com
+	public $SMS_PROVIDER_PLIVO_BASE_URL;
+	// The API authentication id to use for plivo
+	public $SMS_PROVIDER_PLIVO_AUTH_ID;
+	// The API authentication token to use for plivo
+	public $SMS_PROVIDER_PLIVO_AUTH_TOKEN;
+	// The API FROM mobile phone # to use for plivo
+	public $SMS_PROVIDER_PLIVO_FROM;
+	
 	public function __construct($sms_enabled=false, $gateway_type=null, 
 			$callout_type=null, $recipients=null, $recipients_are_group=false, 
 			$recipients_from_db=true, $sendhub_base_url=null, 
@@ -177,19 +308,33 @@ class FireHallSMS
 		$this->SMS_SIGNAL_ENABLED = $sms_enabled;
 		$this->SMS_GATEWAY_TYPE = $gateway_type;
 		$this->SMS_CALLOUT_PROVIDER_TYPE = $callout_type;
+		
 		$this->SMS_RECIPIENTS = $recipients;
+		$this->SMS_RECIPIENTS_NOTIFY_ONLY = '';
 		$this->SMS_RECIPIENTS_ARE_GROUP = $recipients_are_group;
 		$this->SMS_RECIPIENTS_FROM_DB = $recipients_from_db;
+
 		$this->SMS_PROVIDER_SENDHUB_BASE_URL = $sendhub_base_url;
+		
 		$this->SMS_PROVIDER_TEXTBELT_BASE_URL = $textbelt_base_url;
+
 		$this->SMS_PROVIDER_EZTEXTING_BASE_URL = $eztexting_base_url;
 		$this->SMS_PROVIDER_EZTEXTING_USERNAME = $eztexting_username;
 		$this->SMS_PROVIDER_EZTEXTING_PASSWORD = $eztexting_password;
+
 		$this->SMS_PROVIDER_TWILIO_BASE_URL = $twilio_base_url;
 		$this->SMS_PROVIDER_TWILIO_AUTH_TOKEN = $twilio_auth_token;
 		$this->SMS_PROVIDER_TWILIO_FROM = $twilio_from;
+
+		$this->SMS_PROVIDER_PLIVO_BASE_URL = null;
+		$this->SMS_PROVIDER_PLIVO_AUTH_ID = null;
+		$this->SMS_PROVIDER_PLIVO_AUTH_TOKEN = null;
+		$this->SMS_PROVIDER_PLIVO_FROM = null;
+    }
+
+	public function __toString() {
+	    return $this->toString();
 	}
-	
 	public function toString() {
 		$result = "SMS Settings:" .
 				"\nenabled: " . var_export($this->SMS_SIGNAL_ENABLED, true) .
@@ -198,13 +343,18 @@ class FireHallSMS
 				"\nrecipients list: " . $this->SMS_RECIPIENTS .
 				"\nrecipients are a group name: " . var_export($this->SMS_RECIPIENTS_ARE_GROUP, true) .
 				"\nGet recipients from DB: " . var_export($this->SMS_RECIPIENTS_FROM_DB, true) .
+				"\nrecipients notify only list: " . $this->SMS_RECIPIENTS_NOTIFY_ONLY .
 				"\nSendhub url: " . $this->SMS_PROVIDER_SENDHUB_BASE_URL .
 				"\nTextbelt url: " . $this->SMS_PROVIDER_TEXTBELT_BASE_URL .
 				"\nEzTexting url: " . $this->SMS_PROVIDER_EZTEXTING_BASE_URL .
 				"\nEzTexting username: " . $this->SMS_PROVIDER_EZTEXTING_USERNAME .
 				"\nTwilio url: " . $this->SMS_PROVIDER_TWILIO_BASE_URL .
 				//"\nTwilio auth token: " . $this->SMS_PROVIDER_TWILIO_AUTH_TOKEN .
-				"\nTwilio from sms: " . $this->SMS_PROVIDER_TWILIO_FROM;
+				"\nTwilio from sms: " . $this->SMS_PROVIDER_TWILIO_FROM.
+				"\nPlivo url: " . $this->SMS_PROVIDER_PLIVO_BASE_URL .
+				//"\nPlivo auth token: " . $this->SMS_PROVIDER_PLIVO_AUTH_TOKEN .
+				"\nPlivo from sms: " . $this->SMS_PROVIDER_PLIVO_FROM;
+
 		return $result;
 	}
 	
@@ -219,6 +369,13 @@ class FireHallSMS
 	}
 	public function setRecipients($recipients) {
 		$this->SMS_RECIPIENTS = $recipients;
+	}
+
+	public function getRecipientsNotifyOnly() {
+	    return $this->SMS_RECIPIENTS_NOTIFY_ONLY;
+	}
+	public function setRecipientsNotifyOnly($recipients) {
+	    $this->SMS_RECIPIENTS_NOTIFY_ONLY = $recipients;
 	}
 	public function setRecipientsAreGroup($recipients_are_group) {
 		$this->SMS_RECIPIENTS_ARE_GROUP = $recipients_are_group;
@@ -241,6 +398,7 @@ class FireHallSMS
 	public function setEzTextingPassword($eztexting_password) {
 		$this->SMS_PROVIDER_EZTEXTING_PASSWORD = $eztexting_password;
 	}
+
 	public function setTwilioBaseURL($twilio_base_url) {
 		$this->SMS_PROVIDER_TWILIO_BASE_URL = $twilio_base_url;
 	}
@@ -250,6 +408,20 @@ class FireHallSMS
 	public function setTwilioFromNumber($twilio_from) {
 		$this->SMS_PROVIDER_TWILIO_FROM = $twilio_from;
 	}
+
+	public function setPlivoBaseURL($base_url) {
+	    $this->SMS_PROVIDER_PLIVO_BASE_URL = $base_url;
+	}
+	public function setPlivoAuthId($auth_id) {
+	    $this->SMS_PROVIDER_PLIVO_AUTH_ID = $auth_id;
+	}
+	public function setPlivoAuthToken($auth_token) {
+	    $this->SMS_PROVIDER_PLIVO_AUTH_TOKEN = $auth_token;
+	}
+	public function setPlivoFromNumber($from) {
+	    $this->SMS_PROVIDER_PLIVO_FROM = $from;
+	}
+
 }
 
 // ----------------------------------------------------------------------
@@ -286,6 +458,9 @@ class FireHallMobile
 		$this->GCM_SAM = $gcm_sam;
 	}
 
+	public function __toString() {
+		return $this->toString();
+	}
 	public function toString() {
 		$result = "Mobile Settings:" .
 				"\nsms signal enabled: " . var_export($this->MOBILE_SIGNAL_ENABLED, true) .
@@ -364,6 +539,9 @@ class FireHallWebsite
 		$this->MAX_INVALID_LOGIN_ATTEMPTS = $max_logins;
 	}
 
+	public function __toString() {
+		return $this->toString();
+	}
 	public function toString() {
 		$result = "Website Settings:" .
 				"\nFirehall name: " . $this->FIREHALL_NAME .
@@ -451,7 +629,7 @@ class FireHall_LDAP
 			$user_dn_attr='dn', $user_sort_attr='sn',
 			$user_all_users_filter_attr=null, $user_admin_group_filter_attr=null,
 			$user_sms_group_filter_attr=null, $group_member_of_attr=null,
-			$user_sms_attr='mobile', $user_id_attr='uidnumber', $user_name_attr='uid') {
+			$user_sms_attr=null, $user_id_attr=null, $user_name_attr='uid') {
 		
 		$this->ENABLED = $enabled;
 		$this->LDAP_SERVERNAME = $name;
@@ -472,6 +650,9 @@ class FireHall_LDAP
 		$this->ENABLED_CACHE = true;
 	}
 
+	public function __toString() {
+		return $this->toString();
+	}
 	public function toString() {
 		$result = "LDAP Settings:" .
 				"\nenabled: " . var_export($this->ENABLED, true) .
@@ -483,8 +664,6 @@ class FireHall_LDAP
 				"\nUser Sort attr: " . $this->LDAP_USER_SORT_ATTR_NAME .
 				"\nLogin all users filter: " . $this->LDAP_LOGIN_ALL_USERS_FILTER .
 				"\nAdmin group filter: " . $this->LDAP_LOGIN_ADMIN_GROUP_FILTER .
-				"\nSMS group filter: " . $this->LDAP_LOGIN_SMS_GROUP_FILTER .
-				"\nSMS group filter: " . $this->LDAP_LOGIN_SMS_GROUP_FILTER .
 				"\nSMS group filter: " . $this->LDAP_LOGIN_SMS_GROUP_FILTER .
 				"\nGroup memberof attr: " . $this->LDAP_GROUP_MEMBER_OF_ATTR_NAME .
 				"\nUser SMS attr: " . $this->LDAP_USER_SMS_ATTR_NAME .
@@ -554,8 +733,8 @@ class FireHallConfig
 	public $ENABLED;
 	// A unique ID to differentiate multipel firehalls
 	public $FIREHALL_ID;
-	// The Mysql configuration for the Firehall
-	public $MYSQL;
+	// The Database configuration for the Firehall
+	public $DB;
 	// The Email configuration for the Firehall
 	public $EMAIL;
 	// The SMS configuration for the Firehall
@@ -567,12 +746,12 @@ class FireHallConfig
 	// The LDAP configuration for the firehall
 	public $LDAP;
 		
-	public function __construct($enabled=false, $id=null, $mysql=null, 
+	public function __construct($enabled=false, $id=null, $db=null, 
 			$email=null, $sms=null, $website=null, $mobile=null, $ldapcfg=null) {
 		
 		$this->ENABLED = $enabled;
 		$this->FIREHALL_ID = $id;
-		$this->MYSQL = $mysql;
+		$this->DB = $db;
 		$this->EMAIL = $email;
 		$this->SMS = $sms;
 		$this->WEBSITE = $website;
@@ -580,17 +759,45 @@ class FireHallConfig
 		$this->LDAP = $ldapcfg;
 	}
 
+	public function __toString() {
+	    return $this->toString();
+	}
 	public function toString() {
 		$result = "Firehall Settings:" .
 				"\nenabled: " . var_export($this->ENABLED, true) .
 				"\nFirehall ID: " . $this->FIREHALL_ID .
 				"\n" . $this->EMAIL->toString() .
-				"\n" . $this->MYSQL->toString() .
+				"\n" . $this->DB->toString() .
 				"\n" . $this->SMS->toString() .
 				"\n" . $this->WEBSITE->toString() .
 				"\n" . $this->MOBILE->toString() .
 				"\n" . $this->LDAP->toString();
 		return $result;
+	}
+	
+	public function __get($name) {
+	    if('MYSQL' === $name) {
+	        return $this->DB;
+	    }
+	    if (property_exists($this, $name) === true) {
+	        return $this->$name;
+	    }
+	}
+	public function __isset($name) {
+	    if('MYSQL' === $name) {
+	        return isset($this->DB);
+	    }
+	    return isset($this->$name);
+	}
+	public function __set($name, $value) {
+	    if('MYSQL' === $name) {
+	        $this->DB = $value;
+	    }
+	    else {
+	        if (property_exists($this, $name) === true) {
+	            $this->$name = $value;
+	        }
+	    }
 	}
 	
 	public function setEnabled($enabled) {
@@ -599,8 +806,11 @@ class FireHallConfig
 	public function setFirehallId($id) {
 		$this->FIREHALL_ID = $id;
 	}
-	public function setMySQLSettings($mysql) {
-		$this->MYSQL = $mysql;
+	public function setDBSettings($db) {
+	    $this->DB = $db;
+	}
+	public function setMySQLSettings($db) {
+		$this->DB = $db;
 	}
 	public function setEmailSettings($email) {
 		$this->EMAIL = $email;
@@ -618,4 +828,3 @@ class FireHallConfig
 		$this->LDAP = $ldapcfg;
 	}
 }
-?>

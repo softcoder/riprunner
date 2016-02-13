@@ -3,16 +3,17 @@ ul.tabs
 {
     padding: 6px 0;
     font-size: 0;
-    margin:0;
+margin:0 auto;
     list-style-type: none;
     text-align: center; /*set to left, center, or right to align the tabs as desired*/
-	border-top: 1px solid #B7B7B7; padding:30px 16px;
+	border-top: 1px solid #B7B7B7; 
+	padding:15px;
 }
         
 ul.tabs li
 {
     display: inline;
-    margin: 0;
+margin:0 auto;
     margin-right:4px; /*distance between tabs*/
 }
         
@@ -57,5 +58,7 @@ ul.tabs li.selected a:hover
 
 div.tabcontents
 {
-  #  border-top: 1px solid #B7B7B7; padding:30px 16px;
+margin:0 auto;
+  border-top: 1px solid #B7B7B7;
+  padding:0px 0px;
 }

@@ -40,6 +40,7 @@ abstract class BaseViewModel {
 	}
 
 	public function __isset($name) {
+	    $name;
 		return false;
 	}
 	
@@ -49,4 +50,3 @@ abstract class BaseViewModel {
 	
 	abstract protected function getVarContainerName();
 }
-?>

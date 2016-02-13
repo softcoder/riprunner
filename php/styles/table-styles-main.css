@@ -12,9 +12,9 @@ body
 {
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
 	font-size: 12px;
-	margin: 45px;
+	margin: 0px auto;
 	#width: 90%;
-	text-align: left;
+	#text-align: left;
 	border-collapse: collapse;
 }
 
@@ -23,26 +23,29 @@ body
 	padding: 2px 5px 2px 5px;
 	text-decoration: underline;
 	text-transform: uppercase;
+	font-size: 12px;
 }
 #box-table-a th
 {
 	font-size: 12px;
-	font-weight: normal;
-	padding: 2px 2px 2px 2px;
+	font-weight: bold;
+	padding: 4px 2px 4px 2px;
 	background: #b9c9fe;
-	border-top: 4px solid #aabcfe;
+	border-top: 1px solid #aabcfe;
 	border-bottom: 1px solid #fff;
-	color: #039;
+	color: #669;
+	text-decoration: none !important;
 }
 #box-table-a td
 {
-	font-size: 12px;
+	font-size: 11px;
 	padding: 2px 8px 2px 8px;
 	background: #e8edff; 
 	border-bottom: 1px solid #fff;
 	color: #669;
 	border-top: 1px solid transparent;
 	vertical-align: top;
+	text-align: left;
 }
 #box-table-a tr:hover td
 {
@@ -53,38 +56,15 @@ body
 {
 	background: #b9c9fe;
 	color: #339;
+	text-align: left;
 }
 
-#box-table-b
+#box-table-a tr td.months
 {
-	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
-	font-size: 12px;
-	margin: 45px;
-	width: 480px;
-	text-align: center;
-	border-collapse: collapse;
-	border-top: 7px solid #9baff1;
-	border-bottom: 7px solid #9baff1;
-}
-#box-table-b th
-{
-	font-size: 13px;
-	font-weight: normal;
-	padding: 8px;
-	background: #e8edff;
-	border-right: 1px solid #9baff1;
-	border-left: 1px solid #9baff1;
-	color: #039;
-}
-#box-table-b td
-{
-	padding: 8px;
-	background: #e8edff; 
-	border-right: 1px solid #aabcfe;
-	border-left: 1px solid #aabcfe;
+	#background: #b9c9fe;
 	color: #669;
+	text-align: left;
 }
-
 #background-image
 {
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;

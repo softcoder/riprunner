@@ -14,13 +14,12 @@ if(defined('__RIPRUNNER_ROOT__') === false) {
 }
 
 require_once __RIPRUNNER_ROOT__ . '/template.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/send-message-model.php';
+require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 
-require_once __RIPRUNNER_ROOT__ . '/firehall_signal_callout.php';
-require_once __RIPRUNNER_ROOT__ . '/firehall_signal_gcm.php';
-
-sec_session_start();
+\riprunner\Authentication::sec_session_start();
 // Register our view and variables for the template
 if(isset($sendmsg_mv) === false ) {
 	$sendmsg_mv = new SendMessageViewModel($global_vm, $view_template_vars);
@@ -53,7 +52,9 @@ class SendMessageController {
 	private function sendSMS_Message() {
 		$smsMsg = get_query_param('txtMsg');
 		
-		$sendMsgResult = sendSMSPlugin_Message($this->global_vm->firehall, $smsMsg);
+		$signalManager = new \riprunner\SignalManager();
+		$sendMsgResult = $signalManager->sendSMSPlugin_Message($this->global_vm->firehall, $smsMsg);
+		
 		$sendMsgResultStatus = "SMS Message sent to applicable recipients.";
 		
 		$this->view_template_vars["sendmsg_ctl_result"] = $sendMsgResult;
@@ -61,7 +62,10 @@ class SendMessageController {
 	}
 	private function sendGCM_Message() {
 		$gcmMsg = get_query_param('txtMsg');
-        $sendMsgResult = sendGCM_Message($this->global_vm->firehall, $gcmMsg, $this->global_vm->RR_DB_CONN);
+		
+		$signalManager = new \riprunner\SignalManager();
+		$sendMsgResult = $signalManager->sendGCM_Message($this->global_vm->firehall, 
+		        $gcmMsg, $this->global_vm->RR_DB_CONN);
                 
         if(strpos($sendMsgResult, "|GCM_ERROR:") !== false) {
             $sendMsgResultStatus = "Error sending Android Message: " . $sendMsgResult;
@@ -74,4 +78,3 @@ class SendMessageController {
         $this->view_template_vars["sendmsg_ctl_result_status"] = $sendMsgResultStatus;
 	}
 }
-?>

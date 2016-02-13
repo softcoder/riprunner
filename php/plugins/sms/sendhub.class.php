@@ -83,4 +83,3 @@ class SMSSendhubPlugin implements ISMSPlugin {
 		return $resultSMS;
 	}
 }
-?>

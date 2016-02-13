@@ -6,6 +6,7 @@
 namespace riprunner;
 
 require_once __RIPRUNNER_ROOT__ . '/config.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 
@@ -37,31 +38,33 @@ class UsersMenuViewModel extends BaseViewModel {
 	
 	private function  getIsSelfEditMode() {
 		$self_edit = get_query_param('se');
-		$self_edit = (isset($self_edit) === true && $self_edit === true);
+		$self_edit = (isset($self_edit) === true && $self_edit == true);
 		return $self_edit;
 	}
 	
 	private function getUserList() {
 		global $log;
+
 		// Read from the database info about this callout
-		$sql_where_clause = '';
-		
 		$self_edit = $this->getIsSelfEditMode();
-		if($self_edit === true) {
-			$sql_where_clause = ' WHERE id=:id';
-		}
+		
+		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 		
 		if($this->getGvm()->firehall->LDAP->ENABLED === true) {
 			create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
-			$sql = 'SELECT * FROM ldap_user_accounts order by access DESC, user_id ASC ' . 
-					$sql_where_clause . 
-					';';
+			
+			$sql = $sql_statement->getSqlStatement('ldap_user_list_select');
 		}
 		else {
-			$sql = 'SELECT * FROM user_accounts ' . 
-					$sql_where_clause . 
-					';';
+		    $sql = $sql_statement->getSqlStatement('user_list_select');
 		}
+		
+		$sql_where_clause = '';
+		if($self_edit === true) {
+		    $sql_where_clause = ' WHERE id=:id';
+		}
+		$sql = preg_replace_callback('(:criteria)', function ($m) use ($sql_where_clause) { $m; return $sql_where_clause; }, $sql);
+		//echo "self_edit = $self_edit sql [$sql]" . PHP_EOL;
 
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		if($self_edit === true) {
@@ -69,16 +72,16 @@ class UsersMenuViewModel extends BaseViewModel {
 		}
 		$qry_bind->execute();
 		
-		$log->trace("About to display user list for sql [$sql] result count: " . $qry_bind->rowCount());
-		
 		$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 		$qry_bind->closeCursor();
+		
+		$log->trace("About to display user list for sql [$sql] result count: " . count($rows));
 		
 		$resultArray = array();
 		foreach($rows as $row){
 			// Add any custom fields with values here
-			$row['access_admin'] = userHasAcessValueDB($row['access'], USER_ACCESS_ADMIN);
-			$row['access_sms'] = userHasAcessValueDB($row['access'], USER_ACCESS_SIGNAL_SMS);
+			$row['access_admin'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_ADMIN);
+			$row['access_sms'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_SIGNAL_SMS);
 			
 			$resultArray[] = $row;
 		}		
@@ -86,4 +89,3 @@ class UsersMenuViewModel extends BaseViewModel {
 		return $resultArray;
 	}	
 }
-?>

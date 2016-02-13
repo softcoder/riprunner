@@ -9,8 +9,8 @@ require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
-require_once __RIPRUNNER_ROOT__ . '/firehall_signal_callout.php';
-require_once __RIPRUNNER_ROOT__ . '/firehall_signal_response.php';
+require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
+require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 
 // The model class handling variable requests dynamically
 class LoginDeviceViewModel extends BaseViewModel {
@@ -107,7 +107,8 @@ class LoginDeviceViewModel extends BaseViewModel {
 			}
 			else {
 				// Read from the database info about this callout
-				$sql = "SELECT user_pwd,id FROM user_accounts WHERE  firehall_id = :fhid AND user_id = :uid;";
+			    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			    $sql = $sql_statement->getSqlStatement('callout_authenticate_by_fhid_and_userid');
 
 				$fhid = $this->getFirehallId();
 				$uid = $this->getUserId();
@@ -142,8 +143,11 @@ class LoginDeviceViewModel extends BaseViewModel {
 	private function getRegisterResult() {
 		if(isset($this->register_result) === false) {
 			
-			$sql = "UPDATE devicereg SET user_id = :uid, updatetime = CURRENT_TIMESTAMP() " .
-					" WHERE registration_id = :regid AND firehall_id = :fhid;";
+		    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+		    $sql = $sql_statement->getSqlStatement('devicereg_userid_for_regid_update');
+		    
+// 			$sql = "UPDATE devicereg SET user_id = :uid, updatetime = CURRENT_TIMESTAMP() " .
+// 					" WHERE registration_id = :regid AND firehall_id = :fhid;";
 
 			$uid = $this->getUserId();
 			$regid = $this->getRegistrationId();
@@ -156,8 +160,10 @@ class LoginDeviceViewModel extends BaseViewModel {
 			
 			$this->register_result = '';
 			if($qry_bind->rowCount() <= 0) {
-				$sql = "INSERT INTO devicereg (registration_id,firehall_id,user_id) " .
-						" values(:regid, :fhid, :uid);";
+			    $sql = $sql_statement->getSqlStatement('devicereg_insert');
+			    
+// 				$sql = "INSERT INTO devicereg (registration_id,firehall_id,user_id) " .
+// 						" values(:regid, :fhid, :uid);";
 
 				$uid = $this->getUserId();
 				$regid = $this->getRegistrationId();
@@ -183,18 +189,21 @@ class LoginDeviceViewModel extends BaseViewModel {
 			global $log;
 			
 			// Check if there is an active callout (within last 48 hours) and if so send the details
-			$sql = 'SELECT * FROM callouts' .
-					' WHERE status NOT IN (3,10) AND TIMESTAMPDIFF(HOUR,`calltime`,CURRENT_TIMESTAMP()) <= ' . 
-					DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD .
-					' ORDER BY id DESC LIMIT 1;';
+			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+			$sql = $sql_statement->getSqlStatement('check_live_callouts');
 
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+			$qry_bind->bindParam(':max_age', $max_hours_old);
 			$qry_bind->execute();
 			
-			$log->trace("About to collect live callout for sql [$sql] result count: " . $qry_bind->rowCount());
-			
+			//$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
+			$config = new \riprunner\ConfigManager();
+			$max_hours_old = $config->getSystemConfigValue('DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD');
+
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 			$qry_bind->closeCursor();
+			
+			$log->trace("About to collect live callout for sql [$sql] result count: " . count($rows));
 
 			$this->live_callout = array();
 			foreach($rows as $row){
@@ -235,27 +244,25 @@ class LoginDeviceViewModel extends BaseViewModel {
 		$callout->setKeyId($callKey);
 		$callout->setStatus($callStatus);
 		
+		$signalManager = new \riprunner\SignalManager();
 		// Send Callout details to logged in user only
-		$gcmMsg = getGCMCalloutMessage($callout);
-		
-		$result .= signalCallOutRecipientsUsingGCM($callout,
+		$gcmMsg = $signalManager->getGCMCalloutMessage($callout);
+		$result .= $signalManager->signalCallOutRecipientsUsingGCM($callout,
 												$this->getRegistrationId(),
 												$gcmMsg,
 												$this->getGvm()->RR_DB_CONN);
 		
+		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+				
 		if(isset($this->user_account_id) === true) {
 			if($this->getFirehall()->LDAP->ENABLED === true) {
 				create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 				// START: responders
-				$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a ' .
-								' LEFT JOIN ldap_user_accounts b ON a.useracctid = b.id ' .
-								' WHERE calloutid = :cid AND b.user_id = :uid;';
+				$sql_response = $sql_statement->getSqlStatement('ldap_callout_responders');
 			}
 			else {
 				// START: responders
-				$sql_response = 'SELECT a.*, b.user_id FROM callouts_response a ' .
-								' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-								' WHERE calloutid = :cid AND b.user_id = :uid;';
+			    $sql_response = $sql_statement->getSqlStatement('callout_responders');
 			}
 			
 			$uid = $this->getUserId();
@@ -270,11 +277,11 @@ class LoginDeviceViewModel extends BaseViewModel {
 			if(empty($rows) === false) {
 				$row = $rows[0];
 				$userStatus = $row->status;
-		
-				$gcmResponseMsg = getSMSCalloutResponseMessage($callout,
-										$this->getUserId(), $userStatus, 0);
-		
-				$result .= signalResponseRecipientsUsingGCM($callout, 
+				
+				$gcmResponseMsg = $signalManager->getSMSCalloutResponseMessage($callout,
+				        $this->getUserId(), $userStatus);
+
+				$result .= $signalManager->signalResponseRecipientsUsingGCM($callout, 
 										$this->getUserId(), $userStatus, 
 										$gcmResponseMsg,
 										$this->getRegistrationId(),
@@ -287,8 +294,8 @@ class LoginDeviceViewModel extends BaseViewModel {
 	private function getSignalLogin() {
 		$loginMsg = 'GCM_LOGINOK';
 		
-		signalLoginStatusUsingGCM($this->getFirehall(), $this->getRegistrationId(),
-			$loginMsg, $this->getGvm()->RR_DB_CONN);
+		$signalManager = new \riprunner\SignalManager();
+		$signalManager->signalLoginStatusUsingGCM($this->getFirehall(), 
+		        $this->getRegistrationId(), $loginMsg, $this->getGvm()->RR_DB_CONN);
 	}
 }
-?>

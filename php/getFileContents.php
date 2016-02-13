@@ -12,28 +12,38 @@ define( 'INCLUSION_PERMITTED', true );
 
 require_once 'config_constants.php';
 require_once 'config.php';
+require_once 'authentication/authentication.php';
 require_once 'functions.php';
 require_once 'logging.php';
 
-sec_session_start();
+\riprunner\Authentication::sec_session_start();
+
+function isRequestedFileValid($file) {
+    global $log;
+    $appender = $log->getRootLogger()->getAppender('myAppender');
+    $relative_log_path = str_replace(__RIPRUNNER_ROOT__ . '/', "", $appender->getFile());
+    
+    $path_parts = pathinfo($relative_log_path);
+    $file_name  = $path_parts['basename'];
+
+    return $file === $file_name;
+}
 
 global $log;
-$db_connection = null;
 if (isset($_SESSION['firehall_id']) === true) {
 	$firehall_id = $_SESSION['firehall_id'];
 	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
-	$db_connection = db_connect_firehall($FIREHALL);
-}
-
-if (login_check($db_connection) === true) {
+    $auth = new\riprunner\Authentication($FIREHALL);
+    if ($auth->login_check() === true) {
 	$file_path = get_query_param('file');
-	if(isset($file_path) === true && empty($file_path) === false) {
+    	if(isset($file_path) === true && empty($file_path) === false &&
+   	        isRequestedFileValid($file_path) === true) {
 		$path_parts = pathinfo($file_path);
 		$file_name  = $path_parts['basename'];
 		$file_path  = './' . $file_name;
 		
 		// allow a file to be streamed instead of sent as an attachment
-		$is_attachment = ((isset($_REQUEST['stream']) === true) ? false : true);
+    		$is_attachment = ((getSafeRequestValue('stream') !== null) ? false : true);
 		
 		// make sure the file exists
 		if (is_file($file_path) === true) {
@@ -158,6 +168,17 @@ if (login_check($db_connection) === true) {
 	else {
 		$log->error("HTTP 400 detected for file get request for file [$file_path]");
 		header("HTTP/1.0 400 Bad Request");
+    	}
+    }
+    else {
+        $file_path = get_query_param('file');
+        $log->error("Invalid session auth for file get request for file [$file_path]");
+        
+        echo "<body>" . PHP_EOL;
+        echo "<p>" . PHP_EOL;
+        echo "<span class='error'>You are not authorized to access this page.</span> Please <a href='login/'>login</a>." . PHP_EOL;
+        echo "</p>" . PHP_EOL;
+        echo "</body>" . PHP_EOL;
 	}
 }
 else {
@@ -170,4 +191,3 @@ else {
 	echo "</p>" . PHP_EOL;
 	echo "</body>" . PHP_EOL;
 }
-?>

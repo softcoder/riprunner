@@ -3,10 +3,19 @@
     <head>
         <meta charset="UTF-8">
         <title>Secure Login: Protected Page</title>
- 		{% include 'global-css-js.twig.html' %}
-	<link href="{{ gvm.RR_DOC_ROOT }}/styles/tabs/template2/tabcontent.css" rel="stylesheet" type="text/css" />
-	<script src="{{ gvm.RR_DOC_ROOT }}/js/tabcontent.js" type="text/javascript"></script>
-	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
+        
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
+		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/custom-main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
+        {% endif %}
+        
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/d3.min.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/smartresize.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
         
@@ -26,9 +35,6 @@
             {% include 'user-welcome.twig.html' %}
             {% include 'live-callout-warning.twig.html' %}
         
-			{% if gvm.MENU_TYPE == 'horizontal' %}
-				{% include 'global-horizontal-menu.twig.html' %}
-			{% elseif gvm.MENU_TYPE == 'vertical' %}
             <div class="menudiv_wrapper">
               <nav class="vertical">
                 <ul>
@@ -62,10 +68,7 @@
                 </ul>
               </nav>
             </div>
-			{% else %}
-				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
-			{% endif %}
-
+            
 	        <script type="text/javascript">
 	        function addJSONDataToChartData(json_data, chart_data) {
 	            var table_data = new Array();
@@ -97,7 +100,7 @@
             <script type="text/javascript">
                   
               // Load the Visualization API and the piechart package.
-              google.load('visualization', '1.1', {'packages':['corechart']});
+              google.load('visualization', '1.0', {'packages':['corechart']});
               // Set a callback to run when the Google Visualization API is loaded.
               google.setOnLoadCallback(drawChart);
         
@@ -109,17 +112,17 @@
                 // ------------------------------------------
                 // Pie chart of call types for all years
                 var options_allyears = {
-			title: 'Call Types - All Recorded Callouts'
-			,'legend': { position: 'right',
-						 textStyle: { fontSize:11 } }
-			,chartArea:{left:5,top:25,width:"100%",height:"100%"}
-			,width:'100%'
-			,height:'500'
-			,is3D: true
-			,pieSliceText: 'percent'
-			,pieSliceTextStyle: {color:'white', fontSize:'10'}
-			,fontSize: 14
-		};
+					'title':'Call Types - All Recorded Callouts'
+					,'legend': { position: 'right', textStyle: { fontSize:14 } }
+					,chartArea:{left:100,top:25,width:"75%",height:"85%"}
+					,width:'100%'
+					,height:'500'
+					,is3D: true
+					,pieSliceText: 'percent'
+					,pieSliceTextStyle: {color:'white', fontSize:'10'}
+					,fontSize: 14
+					
+				};
                 
                 // Create the data table.
                 var data_allyears = new google.visualization.DataTable();
@@ -128,7 +131,7 @@
                 var json_data_allyears = jQuery.parseJSON('{{ reportscharts_vm.calltypes_allyears|json_encode()|raw }}');
 
                 addJSONDataToChartData(json_data_allyears, data_allyears);
-
+                
                 // Instantiate and draw our chart, passing in some options.
                 var chart_allyears = new google.visualization.PieChart(document.getElementById('chart_allyears_div'));
                 chart_allyears.draw(data_allyears, options_allyears);
@@ -136,16 +139,16 @@
 				// ------------------------------------------
                 // Pie chart of call types for current year
                 var options_year = {
-			title:'Call Types - Current Year'
-			,'legend': { position: 'right', textStyle: { fontSize:11 } }
-			,chartArea:{left:5,top:25,width:"100%",height:"100%"}
-			,width:'50%'
-			,height:'300'
-			,is3D: true
-			,pieSliceText: 'percent'
-			,pieSliceTextStyle: {color:'white', fontSize:'10'}
-			,fontSize: 14
-		};
+					title:'Call Types - for the Year: {{ reportscharts_vm.report_year }}'
+					,'legend': { position: 'right', textStyle: { fontSize:14 } }
+					,chartArea:{left:100,top:25,width:"75%",height:"85%"}
+					,width:'50%'
+					,height:'300'
+					,is3D: true
+					,pieSliceText: 'percent'
+					,pieSliceTextStyle: {color:'white', fontSize:'10'}
+					,fontSize: 14
+				};
                 
                 // Create the data table.
                 var data_year = new google.visualization.DataTable();
@@ -162,16 +165,16 @@
 				// ------------------------------------------
                 // Pie chart of call types for current month
                 var options_month = {
-			title:'Call Types - Current Month'
-			,'legend': { position: 'right', textStyle: { fontSize:11 } }
-			,chartArea:{left:5,top:25,width:"100%",height:"100%"}
-			,width:'100%'
-			,height:'300'
-			,is3D: true
-			,pieSliceText: 'percent'
-			,pieSliceTextStyle: {color:'white', fontSize:'10'}
-			,fontSize: 14
-		};
+					title:'Call Types - Current Month for the Year: {{ reportscharts_vm.report_year }}'
+					,'legend': { position: 'right', textStyle: { fontSize:14 } }
+					,chartArea:{left:100,top:25,width:"75%",height:"85%"}
+					,width:'100%'
+					,height:'300'
+					,is3D: true
+					,pieSliceText: 'percent'
+					,pieSliceTextStyle: {color:'white', fontSize:'10'}
+					,fontSize: 14
+				};
               
                 // Create the data table.
                 var data = new google.visualization.DataTable();
@@ -183,7 +186,6 @@
                 addJSONDataToChartData(json_data_month, data);
                 
                 // Instantiate and draw our chart, passing in some options.
-
                 var chart = new google.visualization.PieChart(document.getElementById('chart_month_div'));
                 chart.draw(data, options_month);
 
@@ -191,15 +193,16 @@
                 // ------------------------------------------
                 // Line chart of call volume for current year
                 var options_year_volume = {
-			'title':'Total Call Volume by Type (All Calls) - Current Year by Month'
-			,hAxis: { baselineColor:'#fff', gridlineColor:'lightgrey', textPosition:'none', format:'short' }
-			,vAxis:{ logScale:true }
-			,'legend': { position: 'right',textStyle:{ fontSize:12 } }
-			,chartArea:{ left:100, top:25, width:"70%", height:"100%" }
-			,width:'100%'
-			,height:'400'
-			,isStacked: true
-		};
+					'title':'Total Call Volume by Type (All Calls) - by Month for the Year: {{ reportscharts_vm.report_year }}'
+					,hAxis: { baselineColor: '#fff', gridlineColor: 'lightgrey', textPosition: 'none' }
+					,vAxis:{ logScale:true }
+					,'legend': { position: 'right', textStyle: { fontSize:14 } }
+					,'explorer' : {}
+					,chartArea:{ left:100,top:25,width:"60%",height:"85%" }
+					,width:'100%'
+					,height:'400'
+					,isStacked: true
+				};
                 
                 // Create the data table.
                 var data_year_volume = new google.visualization.DataTable();
@@ -221,34 +224,33 @@
                 // ------------------------------------------
                 // Line chart of call response volume for current year
                 var options_year_response_volume = {
-					'title':'Total Call Response Volume by Person (Completed/Cancelled Calls) - Current Year by Month'
+					'title':'Total Call Response Volume by Person (Completed/Cancelled Calls) - by Month for the Year: {{ reportscharts_vm.report_year }}'
 					,hAxis: { 
 						 baselineColor: '#fff'
 						,gridlineColor: 'lightgrey'
-						,textPosition:'none'
-						,format: 'short'
+						,textPosition: 'none'
 						}
 					//,'curveType': 'function'
-					,vAxis:{ logScale:true }
-					,'legend': { position: 'right', textStyle: { fontSize:12 }}
-					,'bar': { groupWidth:'75%' }
-					,chartArea:{ left:100, top:25, width:"70%", height:"90%" }
+					,'explorer' : {}
+					,'legend': { position: 'right', textStyle: { fontSize:14 } }
+					,'bar': { groupWidth: '75%' }
+					,chartArea:{left:100,top:25,width:"70%",height:"85%"}
 					,width:'100%'
 					,height:'400'
-					,isStacked: 'true'
-
+					,isStacked: true
+				
 				};
                 
                 // Create the data table.
                 var data_year_response_volume = new google.visualization.DataTable();
                 data_year_response_volume.addColumn('string', 'Month');
                 var json_data_year_response_volume = jQuery.parseJSON('{{ reportscharts_vm.callresponsevol_currentyear|json_encode()|raw }}');
-//                var max_data_year_response_volume_value = d3.max(json_data_year_response_volume, function(array) {
-//                    return d3.max(array.filter(function(value) {
-//                        return typeof value === "number";
-//                    }));
-//                });
-//                alert('Max value for json_data_year_response_volume: ' + max_data_year_response_volume_value);
+                var max_data_year_response_volume_value = d3.max(json_data_year_response_volume, function(array) {
+                    return d3.max(array.filter(function(value) {
+                        return typeof value === "number";
+                    }));
+                });
+                //alert('Max value for json_data_year_response_volume: ' + max_data_year_response_volume_value);
 
                 {% for title in reportscharts_vm.callresponsevol_currentyear_cols %} 
                 data_year_response_volume.addColumn('number', '{{ title }}');
@@ -270,44 +272,46 @@
 					chart_year_response_volume.draw(data_year_response_volume, options_year_response_volume);
 				});
               }
+              
             </script>
             
             <!--Div that will hold the pie chart-->
             <table class="chart_center">
                 <tr>
+                    <td><span class="report_input_title">Select reporting year</span> 
+                        <select id="select_report_year" class="report_input_selector">
+                          <option value=""></option>
+                          {% for row in reportscharts_vm.report_years_with_data %}
+						  <option value="{{ row.year }}">{{ row.year }}</option>
+						  {% endfor %}
+						</select>
+						<input type="button" id="load_report" 
+						onclick="location.href='{{ gvm.RR_DOC_ROOT }}controllers/reports-charts-controller.php?report_year='+document.getElementById('select_report_year').value;return false;"
+						class="report_submit" value="Run Reports">
+					</td>
+                </tr>
+            
+                <tr>
 					<td><div id="chart_allyears_div"></div></td>
                 </tr>
                 <tr>
-			<td><div style="width: 100%; display: table;">
-				<div style="display: table-cell; width:50%;" id="chart_year_div"></div>
-				<div style="display: table-cell; width:50%;" id="chart_month_div"></div>
-			</div></td>
-		</tr>
+					<td><div id="chart_year_div"></div></td>
+				</tr>
+				<tr>
+					<td><div id="chart_month_div"></div></td>
+				</tr>
+                <tr>
+					<td><div id="chart_year_volume_div"></div></td>
+                </tr>
+                <tr>
+					<td><div id="chart_year_response_volume_div"></div></td>
+				</tr>
             </table>
                         
             <br />
-            <br />
-            <br />
-<ul class="tabs" data-persist="true">
-    <li><a href="#view1">Calls By Month</a></li>
-    <li><a href="#view2">Calls Responded by Member (Chart)</a></li>
-    <li><a href="#view3">Calls Responded by Member (Table)</a></li>
-    <li><a href="#view4">Responder Hours (under development)</a></li>
-</ul>
-<div class="tabcontents">
- <div id="view1">
-	<table class="chart_center">
-	<tr><td><div id="chart_year_volume_div"></div></td></tr>
-	</table>
- </div>
- <div id="view2">
-	<table class="chart_center">
-	<tr><td><div id="chart_year_response_volume_div"></div></td></tr>
-	</table>
-   </div>
-    <div id="view3">
-	<div class="inner_table">
-         <!--   <h3>Total Call Response Volume by Person (Completed/Cancelled Calls) - Current Year by Month</h3> -->
+                        
+            <div class="inner_table">
+            <h3>Total Call Response Volume by Person (Completed/Cancelled Calls) - by Month for the Year: {{ reportscharts_vm.report_year }}</h3>
             <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
                 {% if reportscharts_vm.callresponsevol_currentyear is defined %}
                 <thead>
@@ -339,7 +343,7 @@
 			               {% endfor %}
 			               {% set summary_row = new_summary_row %}
 	                   {% endif %}
-	                <td>{{ col_value }}11</td>
+	                <td>{{ col_value }}</td>
 	                {% endfor %}            
                 </tr>
                 {% endfor %}
@@ -347,20 +351,19 @@
                 <tr>
                 {% for sum_value in summary_row %}
                     {% if loop.first == false %}
-                    <td class=totals>{{ sum_value }}</td>
+                    <td>{{ sum_value }}</td>
                     {% else %}
                     <td>Totals</td>
                     {% endif %}
                 {% endfor %}            
                 </tr>
-
+                
                 {% endif %}
             </table>
             </div>
-    </div>
-    <div id="view4">
+            
             <div class="inner_table">
-            <h3>Total Call Response Hours by Person (Completed/Cancelled Calls) - Current Year by Month</h3>
+            <h3>Total Call Response Hours by Person (Completed/Cancelled Calls) - by Month for the Year: {{ reportscharts_vm.report_year }}</h3>
             <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
                 {% if reportscharts_vm.callresponse_hours_currentyear is defined %}
                 <thead>
@@ -376,7 +379,7 @@
                 {% for col_value in reportscharts_vm.callresponse_hours_currentyear_cols %}
                     {% set summary_row = summary_row|merge({ (loop.index0): 0}) %}
                 {% endfor %}
-             
+                
                 {% for row in reportscharts_vm.callresponse_hours_currentyear %}
                 <tr>
                     {% for col_value in row %}
@@ -400,9 +403,9 @@
                 <tr>
                 {% for sum_value in summary_row %}
                     {% if loop.first == false %}
-                    <td class=totals>{{ sum_value|number_format(2, '.', ',') }}</td>
+                    <td>{{ sum_value }}</td>
                     {% else %}
-                    <td class=totals>Totals</td>
+                    <td>Totals</td>
                     {% endif %}
                 {% endfor %}            
                 </tr>
@@ -416,10 +419,5 @@
             {% include 'access-denied.twig.html' %}
         {% endif %}
         </div>
-    </div>
-</div>
-<br />
-<br />
-<br />
-</body>
+    </body>
 </html>

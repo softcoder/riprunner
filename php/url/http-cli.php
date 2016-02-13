@@ -25,7 +25,7 @@ class HTTPCli {
 		Constructor
 		@param $url the url
 	*/
-	public function __construct($url_value) {
+	public function __construct($url_value=null) {
 		$this->url = $url_value;
 	}
 	
@@ -37,7 +37,7 @@ class HTTPCli {
 		Send the message to the device
 		@param $message The message to send
 	*/
-	public function execute() {
+	public function execute($log_errors_only=false) {
 		global $log;
 
 		// Open connection
@@ -65,18 +65,30 @@ class HTTPCli {
 			
 			// Execute post
 			$result = curl_exec($curl_connect);
-			if ($result === false) {
-				$this->error("HTTPCli exec result [" . curl_error($curl_connect) ."]");
+			$error_result = curl_errno($curl_connect);
+			
+			if ($result === false || $error_result !== 0) {
+			    if($log_errors_only === true) {
+			        if($log !== null) $log->error("HTTPCli for [".$this->url."] exec result [" . $error_result ."]");
+			    }
+			    else {
+			        if($log !== null) $this->error("HTTPCli for [".$this->url."] exec result [" . $error_result ."]");
+			    }
 			}
 		}
 		catch(Exception $ex) {
 			curl_close($curl_connect);
+			if($log_errors_only === true) {
+			    if($log !== null) $log->error("HTTPCli for [".$this->url."] exec error [" . $ex->getMessage() ."]");
+			}
+			else {
 			$this->error("HTTPCli SEND ERROR ocurred!", "HTTPCli SEND ERROR [" . $ex->getMessage() . "]");
+		}
 		}
 		// Close connection
 		curl_close($curl_connect);
 
-		$log->trace("Send HTTPCli success response [" . $result ."]");
+		if($log !== null) $log->trace("Send HTTPCli success response [" . $result ."]");
 		return $result;
 	}
 	
@@ -84,4 +96,3 @@ class HTTPCli {
 		throwExceptionAndLogError($ui_msg, $log_msg);
 	}
 }
-?>

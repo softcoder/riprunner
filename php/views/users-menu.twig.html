@@ -3,18 +3,23 @@
     <head>
         <meta charset="UTF-8">
         <title>Secure Login: Protected Page</title>
-		{% include 'global-css-js.twig.html' %}
-   </head>
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
+        {% endif %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
+    </head>
     <body>
         <div class="container_center">
         {% if gvm.auth.isAuth and (gvm.auth.isAdmin or usersmenu_vm.selfedit_mode) %} 
                 
             {% include 'user-welcome.twig.html' %}
             {% include 'live-callout-warning.twig.html' %}
-
-			{% if gvm.MENU_TYPE == 'horizontal' %}
-				{% include 'global-horizontal-menu.twig.html' %}
-			{% elseif gvm.MENU_TYPE == 'vertical' %}
+            
             <input type="hidden" id="se" name="se" value="true"/>
             
             <div class="menudiv_wrapper">
@@ -41,9 +46,6 @@
                 </ul>
               </nav>
             </div>
-			{% else %}
-				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
-			{% endif %}
 
             {% if not usersmenu_vm.selfedit_mode %}
                 {% set override_smc_controller = 'users-menu-controller.php' %}
@@ -67,24 +69,18 @@
                 {% if loop.index == 1 %}
 		        <thead>
 			        <tr>
-			        <th scope="col">UID</th>
-                    {% if not gvm.isMobile %}                  
-			        <th scope="col">Firehall ID</th>
-                    {% endif %}
-                    <th scope="col">User</th>
+			        <th scope="col">Record Id</th>
+			        <th scope="col">Firehall Id</th>
+			        <th scope="col">User Id</th>
 			        {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
 			            <th scope="col">Password</th>
 			            <th scope="col">Re-type Password</th>
 			        {% endif %}
-			        <th scope="col">Mobile</th>
-			        <th scope="col">Admin </th>
-			        <th scope="col">SMS</th>
-			        {% if not gvm.isMobile %}                  
+			        <th scope="col">Mobile Phone</th>
+			        <th scope="col">Admin Access</th>
+			        <th scope="col">Enable SMS</th>
 			        <th scope="col" class="column_nowrap">Update Date/Time</th>
-                    {% endif %}
-		                {% if not gvm.firehall.LDAP.ENABLED %}
-			        <th scope="col" colspan="2" align="Center">Modify Data {{ gvm.firehall.LDAP.ENABLED }}</th>
-				{% endif %}
+			        <th scope="col" colspan="2" align="Center">Modify Data</th>
 			        <tr>
 		        </thead>
                 {% endif %}
@@ -95,11 +91,10 @@
                     usersmenu_ctl_edit_userid == user.id and 
                     gvm.firehall.LDAP.ENABLED == false ? true : false) %}
                     
-	            <tr {% if user.access_admin == 'yes' %}{% endif %}>
+	            <tr>
 	            <td>
 	            {{ user.id }}
 	            </td>
-                {% if not gvm.isMobile %}
 	            <td>
 	            {% if edit_current_row and not usersmenu_vm.selfedit_mode %}
 	                <input id="edit_firehall_id" name="edit_firehall_id" type="input" 
@@ -108,7 +103,6 @@
 	                {{ user.firehall_id }}
 	            {% endif %}
 	            </td>
-                {% endif %}
 	            <td>
 	            {% if edit_current_row %}
 	                <input id="edit_user_id_name" name="edit_user_id_name" 
@@ -156,9 +150,9 @@
 	                {{ user.access_sms ? 'yes' : 'no' }}
 	            {% endif %}
 	            </td>
-                {% if not gvm.isMobile %}                  
-			    <td class="column_nowrap">{{ user.updatetime }}</td>
-			    {% endif %}
+	            <td class="column_nowrap">
+	               {{ user.updatetime }}
+	            </td>
 	            {% if edit_current_row and not gvm.firehall.LDAP.ENABLED %}
 	                <td colspan="2">
 	                <input type="button" value="Save" 
@@ -168,7 +162,9 @@
 	                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}controllers/users-menu-controller.php{{ usersmenu_vm.selfedit_mode ? '?se=true' : '' }}'; return false;" />
 	                </td>
 	            {% else %}
-	                {% if not gvm.firehall.LDAP.ENABLED %}
+	                {% if gvm.firehall.LDAP.ENABLED %}
+	                    <td colspan="2"></td>
+	                {% else %}
 	                    <td{{ usersmenu_vm.selfedit_mode ? ' colspan="2" ' : '' }}>
 	                    <input type="button" value="Edit" 
 	                           onclick="edit_user(this.form, {{ user.id }});" />

@@ -86,4 +86,3 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 		
 \Flight::set('flight.log_errors', true);	
 \Flight::start();
-?>

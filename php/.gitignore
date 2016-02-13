@@ -1,1 +1,4 @@
-/apk/
+# Ignore these files
+config.php
+# Except this file
+!.gitignore
