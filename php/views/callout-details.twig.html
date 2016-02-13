@@ -89,10 +89,10 @@
             <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
                 <option value="4" {{ callout_pending and row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
                 <option value="5" {{ callout_pending and row_responding.status == 5 ? 'selected="selected"' : '' }}>Standby</option>
-                <option value="2" {{ callout_pending and row_responding.status == 2 ? 'selected="selected"' : '' }}>Respond (to hall)</option>
-                <option value="6" {{ callout_pending and row_responding.status == 6 ? 'selected="selected"' : '' }}>Respond (at hall)</option>
-                <option value="7" {{ callout_pending and row_responding.status == 7 ? 'selected="selected"' : '' }}>Respond (to scene)</option>
-                <option value="8" {{ callout_pending and row_responding.status == 8 ? 'selected="selected"' : '' }}>Respond (at scene)</option>
+                <option value="2" {{ callout_pending and row_responding.status == 2 ? 'selected="selected"' : '' }}>Respond to hall</option>
+                <option value="6" {{ callout_pending and row_responding.status == 6 ? 'selected="selected"' : '' }}>Respond at hall</option>
+                <option value="7" {{ callout_pending and row_responding.status == 7 ? 'selected="selected"' : '' }}>Respond to scene</option>
+                <option value="8" {{ callout_pending and row_responding.status == 8 ? 'selected="selected"' : '' }}>Respond at scene</option>
                 <option value="9" {{ callout_pending and row_responding.status == 9 ? 'selected="selected"' : '' }}>Return to hall</option>
             </select>
             <form id="form_call_update_response_status_{{ row_responding.id }}" action="" method="POST">
@@ -198,10 +198,10 @@
             <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
                 <option value="4" {{ callout_pending and row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
                 <option value="5" {{ callout_pending and row_responding.status == 5 ? 'selected="selected"' : '' }}>Standby</option>
-                <option value="2" {{ callout_pending and row_responding.status == 2 ? 'selected="selected"' : '' }}>Respond (to hall)</option>
-                <option value="6" {{ callout_pending and row_responding.status == 6 ? 'selected="selected"' : '' }}>Respond (at hall)</option>
-                <option value="7" {{ callout_pending and row_responding.status == 7 ? 'selected="selected"' : '' }}>Respond (to scene)</option>
-                <option value="8" {{ callout_pending and row_responding.status == 8 ? 'selected="selected"' : '' }}>Respond (at scene)</option>
+                <option value="2" {{ callout_pending and row_responding.status == 2 ? 'selected="selected"' : '' }}>Respond to hall</option>
+                <option value="6" {{ callout_pending and row_responding.status == 6 ? 'selected="selected"' : '' }}>Respond at hall</option>
+                <option value="7" {{ callout_pending and row_responding.status == 7 ? 'selected="selected"' : '' }}>Respond to scene</option>
+                <option value="8" {{ callout_pending and row_responding.status == 8 ? 'selected="selected"' : '' }}>Respond at scene</option>
                 <option value="9" {{ callout_pending and row_responding.status == 9 ? 'selected="selected"' : '' }}>Return to hall</option>
             </select>
 	        <form id="form_call_update_response_status_{{ row_responding.id }}" action="" method="POST">
@@ -321,10 +321,10 @@
                                                  if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();">
 	                                <option value="4">Not Responding</option>
 	                                <option value="5">Standby</option>
-	                                <option value="2" selected="selected">Respond (to hall)</option>
-	                                <option value="6">Respond (at hall)</option>
-	                                <option value="7">Respond (to scene)</option>
-	                                <option value="8">Respond (at scene)</option>
+	                                <option value="2" selected="selected">Respond to hall</option>
+	                                <option value="6">Respond at hall</option>
+	                                <option value="7">Respond to scene</option>
+	                                <option value="8">Respond at scene</option>
 	                                <option value="9">Return to hall</option>
                                 </select>
                                 <INPUT TYPE="button" VALUE="SET STATUS" 

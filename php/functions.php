@@ -162,13 +162,13 @@ function getCallStatusDisplayText($dbStatus) {
 	        $result = 'standby';
 	        break;
         case CalloutStatusType::Responding_at_hall:
-            $result = 'responding (at hall)';
+            $result = 'responding at hall';
             break;
         case CalloutStatusType::Responding_to_scene:
             $result = 'responding to scene';
             break;
         case CalloutStatusType::Responding_at_scene:
-            $result = 'responding (on scene)';
+            $result = 'responding on scene';
             break;
         case CalloutStatusType::Responding_return_hall:
             $result = 'return to hall';
