@@ -1,3 +1,13 @@
+Rip Runner - Shell Glen Fire / Rescue
+=========
+
+A Firehall dispatching communication suite modifed and customized from softcoder/github
+https://github.com/softcoder/riprunner
+Special thanks to Mark Vejvoda, whom without, this fork would not exist.
+
+I have made many additional customizations to this project.
+
+
 Rip Runner
 =========
 
@@ -7,25 +17,28 @@ A Firehall dispatching communication suite.
 
 Description:
 
-This application suite was designed by volunteer fire fighters to enhance the experience of First Responders during an emergency 911 callout. The main goal of this application is to provide a completely free suite of applications which help fire fighters receive timely information and communicate activities with one another as incidents progress. This software is currently in use by firehalls in the Prince George, BC Canada, Regional District. For contact information see the contact section at the bottom of this page.
+This application suite was designed by volunteer fire fighters to enhance the experience of First Responders during an emergency 911 callout. The main goal of this application is to provide a completely free suite of applications which help fire fighters receive timely information and communicate activities with one another as incidents progress. This software is currently in use by some firehalls in the Prince George, BC Canada, Regional District. For contact information see the contact section at the bottom of this page.
 
 Key Features:
 -------------
-- Email polling to check for an emergency 911 callout (or page) received from your FOCC (Fire Operations Command Center). Easily adaptable to other callout trigger mechanisms.
+- Real-time Email trigger (using Google App Engine) or polling to check for an emergency 911 callout (or page) received from your FOCC (Fire Operations Command Center). Easily adaptable to other callout trigger mechanisms.
 - Pluggable support for SMS gateway providers to send SMS information to fire fighters. 
   Current SMS providers implemented include (all offer free acounts with limited SMS / month):
-  - Twilio (twilio.com) <-- recommended (paid account charges approx $0.0075 per SMS -> https://www.twilio.com/sms/pricing)
+  - Twilio (twilio.com - paid account charges approx $0.0075 per SMS -> https://www.twilio.com/sms/pricing)
+  - Plivo (plivo.com - paid account charges approx $0.0035 per SMS -> https://www.plivo.com/pricing/CA/#!sms)
   - Sendhub (sendhub.com)
   - EzTexting (eztexting.com)
   - TextBelt (textbelt.com -> a free service but not as reliable and not available everywhere)
 - Self Installation
 - User Account management (LDAP support optional)
 - Callout history with responding members
+- 'SMS command mode' allows SMS only users to respond to call
 - Google Maps showing Distance from Firehall to Incident
 - Google charts shows statistical view of data.
 - Ability for members to indicate a response to callouts allowing other members to know who is responding
 - Customizable user interface using twig templates (http://twig.sensiolabs.org/)
 - Experimental Android App which interfaces to the web application (does not require SMS Gateway, uses free GCM)
+- Makes a great backup system in case of power outages at your firehall, still get callouts via cell phone when radio backup battery system fails.
 
 Key Android App Features:
 -------------------------
@@ -35,15 +48,38 @@ Key Android App Features:
 - Acquires your GPS co-ordinates to display a map from your location to the firehall which other members can view during a callout.
 - Displays a map from the Firehall to the Incident scene
 - Allows responders to indicate that they are responding to the call with the click of 1 button. (other responders are notified of each responder)
-- Allows responders to indicate that the call is completed or cancelled with the click of 1 button. (other responders are notified)
+- Allows responders to indicate that the call is coempleted or cancelled with the click of 1 button. (other responders are notified)
 - If you login during a live callout, you will receive the pager tones and live call information.
+
+Overview:
+-------------------------
+
+![Overview](/screenshots/riprunner-diagram.png?raw=true "Overview")
+
+The diagram above shows all of the possible features enabled and the communication paths involved. This may be simplified depending on your needs and how you configure Rip Runner. You may or may not require the following:
+- An archaic FOCC that uses a CAD system that only notifies via email requires one of two methods to trigger the callout process. If your FOCC can directly call the rip runner website calling a rip runner URL containing callout details then the trigger system can be greatly simplified.
+- A Cron or polling mechaism to check for archaic email notifications from FOCC (we reccomend using the google app engine email gateway solution).
+- An SMS provider to integrate text messages via cell carriers (we recommend using twilio as the best service provider tested).
+- An LDAP server to manage user accounts.
+- Map services via google maps.
+- Android communication using google app engine.
+
+Why is Rip Runner a good choice for me?:
+--------------------
+- It's written by firefighters for firefighters.
+- It's free!
+- It's Open Source meaning anyone with programming skills in PHP can easily make changes to suit your needs
+- It's very flexible. You are able to change many aspects of the behaviour and display of this application. You can select from various backend database engines (Mysql, MS SQL, Postgres, Oracle, etc). You can customize the user interface by making small overrides via the 'twig' framework or completely repalce the user interface with your own. You can easily add on trigger mechanisms, support additional SMS providers all with relative ease.
+- It's secure. We have adopted industry 'best practises' to ensure the security of this application. Security experts have evaluated the software to look for weaknesses and this continual process is ongoing.
+- Its (mostly) clean code. The source code comes with many unit tests to ensure that ongoing changes to the source code do not break existing functionalty. (uses PHPUnit and dbUnit)
+- Lastly its fast. We cache information where it makes sense to produce a scalable user experience, and conform to PHP 'best practises' for optimimum performance.
 
 System Requirements:
 --------------------
 - An email account that recieves Callout information during a 911 page (other trigger mechanisms can be easily supported, please contact using the details at the bottom of this page)
-- A service that periodically triggers the email polling (like cron) if your dispatch system is based off emails. One free option (included in the source tree) is to use a google app engine (GAE) account to do the polling for you (see the googleae folder contents)
+- A Google App Engine account with one of our GAE apps published OR a service that periodically triggers the email polling (like cron) if your dispatch system is based off of emails. One free option (included in the source tree) is to use a google app engine (GAE) account to do the polling for you (see the googleae folder contents)
 - A webserver that can run PHP 5.x (such as Apache, IIS or NGinx)
-- A MySQL database to install the Rip Runner Schema and store the data
+- A MySQL (or other PDO compatible) database to install the Rip Runner Schema and store the data (see the list supported here: http://php.net/manual/en/pdo.drivers.php)
 - A Registered Account on an SMS Gateway Provider (Twilio (recommended),Sendhub,EzTexting,TextBelt)
 - A Google Maps API key: https://developers.google.com/maps/documentation/javascript/tutorial#api_key (one key for server applications and one for android apps)
 - Optional: If using the experimental Android app, you need a Google Apps Engine (GAE) Project Number (see http://developer.android.com/google/gcm/gs.html) and Browser API Key.
@@ -88,22 +124,21 @@ Installation:
 - Edit the values in [config-default.php](php/config-default.php) to suit your environment. (see Configuration section below)
 - Rename the file config-default.php to config.php
 - Upload the files in the php folder to a location on your webserver (this will be the root folder for riprunner).
-- If using IIS (Apache user skip to Open the url step) you should import the file [IIS_Import.htaccess](php/IIS_Import.htaccess) following these steps:
+- If using IIS (Apache users skip to 'Open the url') you should import the file [IIS_Import.htaccess](php/IIS_Import.htaccess) following these steps:
 -  1. Start IIS Manager. 
 -  2. On the left, in the Connections pane, select Default Web Site.
 -  3. On the right, in Features View, click URL Rewrite.
 -  4. On the right, in the Actions pane, click Import Rules. 
 -  5. Select the file IIS_import.htaccess using the ... elipses and import, then click apply.
-- Open the url: http://www.yourwebserver.com/uploadlocation/install.php (substitute your root riprunner host:/path)
+- Open the url: http://www.yourwebserver.com/uploadlocation/install.php (substitute your root riprunner host://uploadpath/install.php)
 - If everything was done correctly you should see an install page offering to install one the firehall's 
   you configured in config.php (we support more than 1 firehall if desired). Select the firehall and click install.
 - If successful the installation will display the admin user's password. Click the link to login using it.
 - Add firehall members to the user accounts page. Users given admin access can modify user accounts. You may also choose to use an LDAP server to manage accounts in which case you should specify LDAP values in config.php.
-- You will need something that will trigger the email trigger checker. If your server offers a 'cron' or 
-  scheduler process, configure it to visit http://www.yourwebserver.com/uploadlocation/email_trigger_check.php
+- You will need something that will trigger the email trigger checker. Please check the Readme in the googleae folder for details. If your server offers a 'cron' or scheduler process, configure it to visit http://www.yourwebserver.com/uploadlocation/email_trigger_check.php
   every minute. If your server does not have cron or limits the frequency, you can use Google App Engine's 
   cron service to call your email trigger every minute. (see files in [php/googleae](php/googleae) folder as a reference)
-- Send a test email to the trigger email address in order to see if you get notified of a callout (if using a 'from' filter make sure you send the email from the 'from' address that you specified).
+- Send a test email to the trigger email address in order to see if you get notified of a callout (if using a 'from' filter make sure you send the e from the 'from' address that you specified).
 - To allow use of the Android app, either copy the prebuilt apk located in 
   android/RipRunnerApp/bin/RipRunnerApp.apk to apk/ or compile the Android app in Eclipse and copy to apk/
   This will allow users to select the Android app from the Mobile menu item for download and installation 
@@ -204,6 +239,10 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	define( 'DEFAULT_GCM_API_KEY', 	'X');
 	// Below is the Google Cloud Messaging Project Number (aka sender id)
 	define( 'DEFAULT_GCM_PROJECTID','X');
+	// The Google Project Id
+	define( 'DEFAULT_GCM_APPLICATIONID','X');
+	// The Google Service Account Name
+	define( 'DEFAULT_GCM_SAM','applicationid@appspot.gserviceaccount.com');
 
 	// Below we create a Mobile structure for our firehall.
 	// See the class FireHallMobile in config_interfaces.php
@@ -214,7 +253,9 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	    true,
 	    DEFAULT_GCM_SEND_URL,
 	    DEFAULT_GCM_API_KEY,
-	    DEFAULT_GCM_PROJECTID);
+	    DEFAULT_GCM_PROJECTID,
+	    DEFAULT_GCM_APPLICATIONID,
+	    DEFAULT_GCM_SAM);
 	
 	// ----------------------------------------------------------------------
 	// Website and Location Settings
@@ -282,10 +323,36 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	$FIREHALLS = array($LOCAL_DEBUG_FIREHALL);
 
 
+SMS command mode:
+--------------
+Currently users of the Twilio and Plivo providers are able to offer users the ability to communicate using SMS (no data connection needed). To configure this option you must edit the following in your provider:
+
+Twilio Account configuration:
+- Under Numbers -> Twilio Numbers -> SMS and MMS: Select Configure with URL as follows:
+       Request URL: http://www.yourwebserver.com/riprunner/plugins/sms-provider-hook/twilio-webhook.php
+       using HTTP Post.
+
+Plivo Application configuration:
+- Under Edit Application: Select Message URL as follows:
+       Request URL: http://www.yourwebserver.com/riprunner/plugins/sms-provider-hook/plivo-webhook.php
+       using Message Method: POST.
+
+
+To test your provider, send the following text message to your provider configured account phone # to get a list of available commands: ?
+
 Special Notes:
 --------------
 
 Compiling the Android application in the Eclipse IDE requires you to install the ADT plugin (http://developer.android.com/tools/sdk/eclipse-adt.html) as well as setup the Google Play Services SDK (https://developer.android.com/google/play-services/setup.html#Setup) as this is a dependency in the riprunner android app.
+
+Contributions:
+--------------
+Special thanks to all who have contributed to the success of this project. We accept patches and ideas from others and priortize based on time constraints and compatibility with our future direction.
+
+Contributors currently include:
+- The Salmon Valley Fire Hall for all the great testing and feedback
+- Dennis Lloyd (Officer at the Shell Glen Fire Hall) for peer review, and many contributions, without which
+  we would have many more defecs and have a much less pleasing user interface.
 
 Contact Info:
 --------------
