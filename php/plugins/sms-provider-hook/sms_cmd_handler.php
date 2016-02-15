@@ -110,12 +110,12 @@ class SMSCommandHandler {
     // Usage would be something like: U H  <-- update status to at hall
     static public $SMS_AUTO_CMD_STATUS_UPDATE = array('U','UP','UPDATE');
     
-    static public $SMS_AUTO_CMD_STATUS_NOT_RESPONDING = array('N','NO','NOT');
+    static public $SMS_AUTO_CMD_STATUS_NOT_RESPONDING = array('N','NO');
     static public $SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY = array('S','SB','STANDBY');
     static public $SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL = array('H','HALL');
     static public $SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE = array('D','DIRECT');
     static public $SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE = array('O','ON','ONSCENE');
-    static public $SMS_AUTO_CMD_STATUS_RETURN_HALL = array('B','BACK','BACKHALL');
+    static public $SMS_AUTO_CMD_STATUS_RETURN_HALL = array('B','BACK');
     
     static public $SMS_AUTO_CMD_COMPLETED = array('D','FI','CP','COMPLETE');
     static public $SMS_AUTO_CMD_CANCELLED = array('X','Q','CANCEL');
@@ -558,8 +558,13 @@ class SMSCommandHandler {
         return new \riprunner\HTTPCli($url);
     }
     
-    private function commandMatch($sms_cmd, $lookup_sms_cmds, $match_type) {
+    public function commandMatch($sms_cmd, $lookup_sms_cmds, $match_type) {
+        global $log;
         $result = false;
+        
+        if($log !== null) $log->trace("In commandMatch Looking for matching sms command for: [" . $sms_cmd
+                . "] match_type: " . $match_type . " lookup: " . (is_array($lookup_sms_cmds) ? implode(",",$lookup_sms_cmds) : $lookup_sms_cmds));
+                
         switch($match_type) {
             case CommandMatchType::Exact:
                 if(is_array($lookup_sms_cmds) === true) {
@@ -583,6 +588,9 @@ class SMSCommandHandler {
                 }
                 break;
         }
+        
+        if($log !== null) $log->trace("In commandMatch result: " . var_export($result,true));
+        
         return $result;
     }
 
@@ -616,6 +624,7 @@ class SMSCommandHandler {
         }
         else {
             if($log !== null) $log->warn("No active callouts for command [$sms_cmd]");
+            //$result->setIsProcessed(true);
         }
     }
     private function processStatusUpdate($sms_cmd, $db_connection, $log, $FIREHALLS_LIST, &$FIREHALL, &$result) {
@@ -668,6 +677,7 @@ class SMSCommandHandler {
         }
         else {
             if($log !== null) $log->warn("No active callouts for command [$sms_cmd]");
+            //$result->setIsProcessed(true);
         }
     }
 }
