@@ -302,11 +302,50 @@ class SignalsTest extends BaseDBFixture {
 	
 	    // Call the test
 	    $signalManager = new \riprunner\SignalManager(null,$mock_sms_plugin,null,$this->getTwigEnv());
-	    $result = $signalManager->signalResponseToSMSPlugin($callout,$user_id,$userGPSLat,$userGPSLong,$user_status);
+	    $result = $signalManager->signalResponseToSMSPlugin($callout,$user_id,$userGPSLat,$userGPSLong,$user_status, null);
 	
 	    $this->assertEquals("TEST SUCCESS!", $result);
 	}
 
+	public function testSignalResponseToSMSPlugin_with_ETA_Valid() {
+	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+	
+	    $callout = new \riprunner\CalloutDetails();
+	    $callout->setDateTime('2015-01-02 09:28:10');
+	    $callout->setCode('MED');
+	    $callout->setAddress('9115 Salmon Valley Road, Prince George, BC');
+	    $callout->setGPSLat('54.0873847');
+	    $callout->setGPSLong('-122.5898009');
+	    $callout->setUnitsResponding('SALGRP1');
+	    $callout->setFirehall($FIREHALL);
+	
+	    $user_id = 'mark.vejvoda';
+	    $userGPSLat = '54.0916667';
+	    $userGPSLong = '-122.6537361';
+	    $user_status = 'Responding';
+	    $user_eta = 14;
+	     
+	    // Create a stub for the ISMSCalloutPlugin class.
+	    $mock_sms_plugin = $this->getMockBuilder('\riprunner\ISMSPlugin')
+	    ->getMock(array('signalRecipients'));
+	
+	    // Set up mock return value when signalRecipients is called
+	    $mock_sms_plugin->expects($this->any())
+	    ->method('signalRecipients')
+	    ->will($this->returnValue('TEST SUCCESS!'));
+	
+	    // Ensure signalRecipients is called
+	    $mock_sms_plugin->expects($this->once())
+	    ->method('signalRecipients')
+	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda set their status to paged for the callout: MED eta: 14.'));
+	
+	    // Call the test
+	    $signalManager = new \riprunner\SignalManager(null,$mock_sms_plugin,null,$this->getTwigEnv());
+	    $result = $signalManager->signalResponseToSMSPlugin($callout,$user_id,$userGPSLat,$userGPSLong,$user_status, $user_eta);
+	
+	    $this->assertEquals("TEST SUCCESS!", $result);
+	}
+	
 	public function testGetSMSCalloutResponseMessage_Valid() {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
@@ -323,7 +362,7 @@ class SignalsTest extends BaseDBFixture {
 	    $user_status = 'COMPLETED';
 	     
 	    $signalManager = new \riprunner\SignalManager(null,null,null,$this->getTwigEnv());
-	    $result = $signalManager->getSMSCalloutResponseMessage($callout,$user_id,$user_status);
+	    $result = $signalManager->getSMSCalloutResponseMessage($callout,$user_id,$user_status, null);
 	
 	    $this->assertEquals("Responder: mark.vejvoda set their status to paged for the callout: MED.", $result);
 	}
@@ -440,7 +479,7 @@ class SignalsTest extends BaseDBFixture {
 	    $user_status = 'RESPONDING';
 	    
 	    $signalManager = new \riprunner\SignalManager(null,$mock_sms_plugin,$mock_gcm,$this->getTwigEnv());
-	    $result = $signalManager->signalFireHallResponse($callout,$user_id,$userGPSLat,$userGPSLong,$user_status,true);
+	    $result = $signalManager->signalFireHallResponse($callout,$user_id,$userGPSLat,$userGPSLong,$user_status,null,true);
 	
 	    $this->assertEquals('TEST SUCCESS SMS!TEST SUCCESS GCM!', $result);
 	}

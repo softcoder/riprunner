@@ -17,6 +17,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 	private $user_authenticated;
 	private $user_status;
 	private $useracctid;
+	private $user_eta;
 	private $affected_response_rows;
 	private $startTrackingResponder;
 	private $isFirstResponseForUser;
@@ -50,6 +51,9 @@ class CalloutResponseViewModel extends BaseViewModel {
 		if('user_status' === $name) {
 			return $this->getUserStatus();
 		}
+		if('user_eta' === $name) {
+		    return $this->getUserEta();
+		}
 		if('member_id' === $name) {
 			return get_query_param('member_id');
 		}
@@ -73,7 +77,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 	public function __isset($name) {
 		if(in_array($name,
 			array('firehall_id','callout_id','user_id','has_user_password','user_lat',
-				  'user_long', 'user_status', 'member_id', 'calloutkey_id', 'firehall',
+				  'user_long', 'user_status', 'user_eta', 'member_id', 'calloutkey_id', 'firehall',
 				  'user_authenticated', 'respond_result' )) === true) {
 			return true;
 		}
@@ -109,6 +113,12 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$this->user_status = get_query_param('status');
 		}
 		return $this->user_status;
+	}
+	private function getUserEta() {
+	    if(isset($this->user_eta) === false) {
+	        $this->user_eta = get_query_param('eta');
+	    }
+	    return $this->user_eta;
 	}
 	private function getCalloutKeyId() {
 		$callkey_id = get_query_param('ckid');
@@ -192,6 +202,8 @@ class CalloutResponseViewModel extends BaseViewModel {
 					if($this->getUserPassword() === null) {
 						$this->user_authenticated = true;
 						$this->useracctid = $row->id;
+						
+						$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] useracctid: " . $this->useracctid);
 							
 						if($this->getUserStatus() === null) {
 							$this->user_status = \CalloutStatusType::Responding;
@@ -258,6 +270,8 @@ class CalloutResponseViewModel extends BaseViewModel {
 
 		$cid = $this->getCalloutId();
 		$status = $this->getUserStatus();
+		$eta = $this->getUserEta();
+		
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->bindParam(':cid', $cid);
 		$qry_bind->bindParam(':uid', $this->useracctid);
@@ -270,7 +284,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$response_duplicates = (int)$row->total_count;
 		}
 		$qry_bind->closeCursor();
-		$log->trace("Call Response count check got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . $response_duplicates);
+		$log->trace("Call Response count check got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] useracctid [".$this->useracctid."] eta [".$eta."] got count: " . $response_duplicates);
 		
 		// Update the response table
 		if($this->getUserPassword() === null && $this->getUserLat() === null && 
@@ -285,6 +299,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 		$cid = $this->getCalloutId();
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->bindParam(':status', $status);
+		$qry_bind->bindParam(':eta', $eta);
 		$qry_bind->bindParam(':cid', $cid);
 		$qry_bind->bindParam(':uid', $this->useracctid);
 		if(($this->getUserPassword() === null && $this->getUserLat() === null && 
@@ -316,6 +331,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$qry_bind->bindParam(':cid', $cid);
 			$qry_bind->bindParam(':uid', $this->useracctid);
 			$qry_bind->bindParam(':status', $status);
+			$qry_bind->bindParam(':eta', $eta);
 			if(($this->getUserPassword() === null && $this->getUserLat() === null && 
  				 $this->getCalloutKeyId() !== null) === false) {
 				$lat = $this->getUserLat();
@@ -376,6 +392,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 						$this->getUserLat(),
 						$this->getUserLong(),
 						$this->getUserStatus(),
+				        $this->getUserEta(),
 				        $this->isFirstResponseForUser);
 			}
 			$log->trace("Call Response END --> getRespondResult");

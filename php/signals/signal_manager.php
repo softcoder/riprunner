@@ -402,24 +402,24 @@ class SignalManager {
 
         return $msgSummary;
     }
-    
-    
+        
     public function signalResponseToSMSPlugin($callout, $userId, $userGPSLat, $userGPSLong,
-            $userStatus) {
+            $userStatus, $eta) {
         $userGPSLat;
         $userGPSLong;
         
 
-        $smsText = $this->getSMSCalloutResponseMessage($callout, $userId, $userStatus);
+        $smsText = $this->getSMSCalloutResponseMessage($callout, $userId, $userStatus, $eta);
         return $this->sendSMSPlugin_Message($callout->getFirehall(), $smsText);
     }
     
-    public function getSMSCalloutResponseMessage($callout, $userId, $userStatus) {
+    public function getSMSCalloutResponseMessage($callout, $userId, $userStatus, $eta) {
         
         $view_template_vars = array();
         $view_template_vars['callout'] = $callout;
         $view_template_vars['responding_userid'] = $userId;
         $view_template_vars['responding_userstatus'] = $userStatus;
+        $view_template_vars['responding_usereta'] = $eta;
         $view_template_vars['responding_userstatus_description'] = getCallStatusDisplayText($userStatus);
         $view_template_vars['status_type_complete'] = \CalloutStatusType::Complete;
         $view_template_vars['status_type_cancelled'] = \CalloutStatusType::Cancelled;
@@ -582,14 +582,14 @@ class SignalManager {
     }
 
     public function signalFireHallResponse($callout, $userId, $userGPSLat, $userGPSLong,
-            $userStatus, $isFirstResponseForUser) {
+            $userStatus, $eta, $isFirstResponseForUser) {
     
         $result = '';
     
         if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
             if($isFirstResponseForUser === true || isCalloutInProgress($userStatus) == false) {
                 $result .= $this->signalResponseToSMSPlugin($callout, $userId,
-                        $userGPSLat, $userGPSLong, $userStatus);
+                        $userGPSLat, $userGPSLong, $userStatus, $eta);
                 //$result .= signalResponseToSMSPlugin($callout, $userId,
                 //		$userGPSLat, $userGPSLong, $userStatus);
             }
@@ -598,7 +598,7 @@ class SignalManager {
         if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED === true &&
             $callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED === true) {
 
-            $gcmMsg = $this->getSMSCalloutResponseMessage($callout, $userId, $userStatus);
+            $gcmMsg = $this->getSMSCalloutResponseMessage($callout, $userId, $userStatus, $eta);
             //$gcmMsg = getSMSCalloutResponseMessage($callout, $userId, $userStatus, 0);
 
 

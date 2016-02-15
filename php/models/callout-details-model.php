@@ -312,8 +312,10 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			}
 
 			$cid = $this->getCalloutId();
+			$fhid = $this->getFirehallId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_no_response);
 			$qry_bind->bindParam(':cid', $cid);
+			$qry_bind->bindParam(':fhid', $fhid);
 			$qry_bind->execute();
 
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);

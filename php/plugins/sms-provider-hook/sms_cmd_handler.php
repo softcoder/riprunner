@@ -27,6 +27,11 @@ require_once __RIPRUNNER_ROOT__ . '/third-party/twilio-php/Services/Twilio.php';
 require_once __RIPRUNNER_ROOT__ . '/third-party/plivo-php/plivo.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
+abstract class CommandMatchType extends \BasicEnum {
+    const Exact = 0;
+    const StartsWith = 1;
+}
+
 class SmSCommandResult {
     private $sms_caller;
     private $firehall;
@@ -100,11 +105,23 @@ class SmSCommandResult {
 class SMSCommandHandler {
 
     static public $SMS_AUTO_CMD_BULK = 'ALL:';
-    static public $SMS_AUTO_CMD_RESPONDING = array('RE','RP','RESPOND');
-    static public $SMS_AUTO_CMD_COMPLETED = array('FI','CO','COMPLETE');
+    
+    static public $SMS_AUTO_CMD_RESPONDING = array('R','Y','RE','RP','RESPOND');
+    // Usage would be something like: U H  <-- update status to at hall
+    static public $SMS_AUTO_CMD_STATUS_UPDATE = array('U','UP','UPDATE');
+    
+    static public $SMS_AUTO_CMD_STATUS_NOT_RESPONDING = array('N','NO','NOT');
+    static public $SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY = array('S','SB','STANDBY');
+    static public $SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL = array('H','HALL');
+    static public $SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE = array('D','DIRECT');
+    static public $SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE = array('O','ON','ONSCENE');
+    static public $SMS_AUTO_CMD_STATUS_RETURN_HALL = array('B','BACK','BACKHALL');
+    
+    static public $SMS_AUTO_CMD_COMPLETED = array('D','FI','CP','COMPLETE');
     static public $SMS_AUTO_CMD_CANCELLED = array('X','Q','CANCEL');
+    
     static public $SMS_AUTO_CMD_TEST = array('TEST');
-    static public $SMS_AUTO_CMD_HELP = array('?','H', 'LIST');
+    static public $SMS_AUTO_CMD_HELP = array('?', 'LIST');
     
     static public $SPECIAL_MOBILE_PREFIX = '+1';
     static public $SPECIAL_MOBILE_PREFIX2 = '1';
@@ -170,9 +187,10 @@ class SMSCommandHandler {
                                 if($log !== null) $log->trace("Looking for matching sms command input: [" . $sms_cmd . 
                                         "] compare with #1 [" . implode(",",self::$SMS_AUTO_CMD_TEST) . "]" .
                                         "] compare with #2 [" . implode(",",self::$SMS_AUTO_CMD_RESPONDING) . "]" .
-                                        "] compare with #3 [" . implode(",",self::$SMS_AUTO_CMD_COMPLETED) . "]" .
-                                        "] compare with #4 [" . implode(",",self::$SMS_AUTO_CMD_CANCELLED) . "]" .
-                                        "] compare with #5 [" . implode(",",self::$SMS_AUTO_CMD_CANCELLED) . "]");
+                                        "] compare with #3 [" . implode(",",self::$SMS_AUTO_CMD_STATUS_UPDATE) . "]" .
+                                        "] compare with #4 [" . implode(",",self::$SMS_AUTO_CMD_COMPLETED) . "]" .
+                                        "] compare with #5 [" . implode(",",self::$SMS_AUTO_CMD_CANCELLED) . "]" .
+                                        "] compare with #6 [" . implode(",",self::$SMS_AUTO_CMD_CANCELLED) . "]");
                                 
                                 if( in_array(strtoupper($sms_cmd), self::$SMS_AUTO_CMD_TEST) === true) {
                                     $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
@@ -186,28 +204,16 @@ class SMSCommandHandler {
     
                                     $result->setIsProcessed(true);
                                 }
-                                else if( in_array(strtoupper($sms_cmd), self::$SMS_AUTO_CMD_RESPONDING) === true) {
-                                    $live_callout_list = $this->getLiveCalloutModelList($db_connection);
-                                    $result->setLiveCallouts($live_callout_list);
-    
-                                    if($live_callout_list !== null && empty($live_callout_list) === false) {
-                                        $most_current_callout = reset($live_callout_list);
-                                        $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
-                                        $URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
-                                        "&cid=" . urlencode($most_current_callout['id']) .
-                                        "&uid=" . urlencode($result->getUserId()) .
-                                        "&ckid=" . urlencode($most_current_callout['call_key']);
-                                        	
-                                        if($log !== null) $log->warn("Calling URL for sms host Call Responding Response [$URL]");
-                                        $httpclient = $this->getHttpClient($URL);
-                                        $cmd_result = $httpclient->execute();
-                                        if($log !== null) $log->warn("Called URL returned [$cmd_result]");
-    
-                                        $result->setIsProcessed(true);
-                                    }
-                                    else {
-                                        if($log !== null) $log->warn("No active callouts for command [$sms_cmd]");
-                                    }
+                                //else if( in_array(strtoupper($sms_cmd), self::$SMS_AUTO_CMD_RESPONDING) === true) {
+                                else if($this->commandMatch($sms_cmd,self::$SMS_AUTO_CMD_RESPONDING,
+                                        CommandMatchType::StartsWith) === true) {
+                                    $this->processResponding($sms_cmd, $db_connection, 
+                                            $log, $FIREHALLS_LIST, $FIREHALL, $result);
+                                }
+                                else if($this->commandMatch($sms_cmd.' ',self::$SMS_AUTO_CMD_STATUS_UPDATE, 
+                                        CommandMatchType::StartsWith) === true) {
+                                    $this->processStatusUpdate($sms_cmd, $db_connection, 
+                                            $log, $FIREHALLS_LIST, $FIREHALL, $result);
                                 }
                                 else if(in_array(strtoupper($sms_cmd), self::$SMS_AUTO_CMD_COMPLETED) === true) {
                                     $live_callout_list = $this->getLiveCalloutModelList($db_connection);
@@ -550,5 +556,118 @@ class SMSCommandHandler {
             return $this->http_client;
         }
         return new \riprunner\HTTPCli($url);
+    }
+    
+    private function commandMatch($sms_cmd, $lookup_sms_cmds, $match_type) {
+        $result = false;
+        switch($match_type) {
+            case CommandMatchType::Exact:
+                if(is_array($lookup_sms_cmds) === true) {
+                    $result = in_array(strtoupper($sms_cmd), $lookup_sms_cmds);
+                }
+                else {
+                    $result = strtoupper($sms_cmd) == $lookup_sms_cmds;
+                }
+                break;
+            case CommandMatchType::StartsWith:
+                if(is_array($lookup_sms_cmds) === true) {
+                    foreach ($lookup_sms_cmds as $key => $value) {
+                        if (0 === strpos(strtoupper($sms_cmd), $value)) {
+                            $result = true;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    $result = strtoupper($sms_cmd) == $lookup_sms_cmds;
+                }
+                break;
+        }
+        return $result;
+    }
+
+    private function getETAFromCmd($sms_cmd) {
+        $match_result = preg_match_all('!\d+!', $sms_cmd, $eta);
+        if($match_result && $eta != null && count($eta) > 0 && $eta[0] != null && $eta[0][0] != null) {
+            return "&eta=" . urlencode($eta[0][0]);
+        }
+        return '';
+    }
+    private function processResponding($sms_cmd, $db_connection, $log, $FIREHALLS_LIST, &$FIREHALL, &$result) {
+        $live_callout_list = $this->getLiveCalloutModelList($db_connection);
+        $result->setLiveCallouts($live_callout_list);
+        
+        if($live_callout_list !== null && empty($live_callout_list) === false) {
+            $most_current_callout = reset($live_callout_list);
+                        
+            $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
+            $URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
+                                "&cid=" . urlencode($most_current_callout['id']) .
+                                "&uid=" . urlencode($result->getUserId()) .
+                                "&ckid=" . urlencode($most_current_callout['call_key']).
+                                $this->getETAFromCmd($sms_cmd);
+            
+            if($log !== null) $log->warn("Calling URL for sms host Call Responding Response [$URL]");
+            $httpclient = $this->getHttpClient($URL);
+            $cmd_result = $httpclient->execute();
+            if($log !== null) $log->warn("Called URL returned [$cmd_result]");
+        
+            $result->setIsProcessed(true);
+        }
+        else {
+            if($log !== null) $log->warn("No active callouts for command [$sms_cmd]");
+        }
+    }
+    private function processStatusUpdate($sms_cmd, $db_connection, $log, $FIREHALLS_LIST, &$FIREHALL, &$result) {
+        $live_callout_list = $this->getLiveCalloutModelList($db_connection);
+        $result->setLiveCallouts($live_callout_list);
+        
+        if($live_callout_list !== null && empty($live_callout_list) === false) {
+            $most_current_callout = reset($live_callout_list);
+        
+            $sms_cmd_list = explode(' ', $sms_cmd);
+            $updateToStatus = null;
+            if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_NOT_RESPONDING, CommandMatchType::StartsWith)) {
+                $updateToStatus = \CalloutStatusType::NotResponding;
+            }
+            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY, CommandMatchType::StartsWith)) {
+                $updateToStatus = \CalloutStatusType::Standby;
+            }
+            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL, CommandMatchType::StartsWith)) {
+                $updateToStatus = \CalloutStatusType::Responding_at_hall;
+            }
+            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE, CommandMatchType::StartsWith)) {
+                $updateToStatus = \CalloutStatusType::Responding_to_scene;
+            }
+            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE, CommandMatchType::StartsWith)) {
+                $updateToStatus = \CalloutStatusType::Responding_at_scene;
+            }
+            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RETURN_HALL, CommandMatchType::StartsWith)) {
+                $updateToStatus = \CalloutStatusType::Responding_return_hall;
+            }
+            
+            if(\CalloutStatusType::isValidValue($updateToStatus) == false) {
+                if($log !== null) $log->error("Invalid status in updatestatus [".$sms_cmd."]");
+            }
+            else {
+                $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
+                $URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
+                                    "&cid=" . urlencode($most_current_callout['id']) .
+                                    "&uid=" . urlencode($result->getUserId()) .
+                                    "&ckid=" . urlencode($most_current_callout['call_key']) .
+                                    "&status=" . urlencode($updateToStatus) .
+                                    $this->getETAFromCmd($sms_cmd_list[1]);
+                 
+                if($log !== null) $log->warn("Calling URL for sms host Call Responding Response [$URL]");
+                $httpclient = $this->getHttpClient($URL);
+                $cmd_result = $httpclient->execute();
+                if($log !== null) $log->warn("Called URL returned [$cmd_result]");
+            
+                $result->setIsProcessed(true);
+            }
+        }
+        else {
+            if($log !== null) $log->warn("No active callouts for command [$sms_cmd]");
+        }
     }
 }

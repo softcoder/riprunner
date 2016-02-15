@@ -1,0 +1,1 @@
+ALTER TABLE callouts_response ADD COLUMN eta int(11) AFTER longitude;

@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS `callouts_response` (
   `useracctid` int(11) NOT NULL,
   `responsetime` datetime NOT NULL,
   `latitude` DECIMAL(10,6) NOT NULL,  
-  `longitude` DECIMAL(10,6) NOT NULL,  
+  `longitude` DECIMAL(10,6) NOT NULL,
+  `eta` int(11),
   `status` int(11) NOT NULL DEFAULT 0,
   `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

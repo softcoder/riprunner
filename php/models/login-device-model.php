@@ -279,7 +279,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 				$userStatus = $row->status;
 				
 				$gcmResponseMsg = $signalManager->getSMSCalloutResponseMessage($callout,
-				        $this->getUserId(), $userStatus);
+				        $this->getUserId(), $userStatus, null);
 				
 				$result .= $signalManager->signalResponseRecipientsUsingGCM($callout, 
 										$this->getUserId(), $userStatus, 

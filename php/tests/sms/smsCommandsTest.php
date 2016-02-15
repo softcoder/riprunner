@@ -132,6 +132,55 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $this->assertEquals('mark.vejvoda', $result->getUserId());
 	}
 
+	public function testSMSCommand_handle_CMD_RESPONDING_with_ETA_Valid()  {
+	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+	
+	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
+	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
+	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $post_vars = array();
+	    $validate_result = $validator->computeSignature($url, $post_vars);
+	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
+	
+	    $request_vars = array('From' => '2505551212',
+	            'Body' => \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_RESPONDING[0].'15'
+	    );
+	
+	    // Create a stub for the HTTPCli class.
+	    $mock_http_client = $this->getMockBuilder('\riprunner\HTTPCli')
+	    ->getMock(array('setURL','execute'));
+	
+	    // Ensure execute is called
+	    $mock_http_client->expects($this->once())
+	    ->method('execute')
+	    ->with($this->anything());
+	
+	    // Ensure setURL is called
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('cr/fhid='));
+	
+	    // Ensure responding DOES NOT contain setting the status explicitly
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->matchesRegularExpression('/^((?!\&status=).)*$/s'));
+
+	    // Ensure responding DOES contain setting the eta explicitly
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('&eta=15'));
+	     
+	    // Stub in dummy db connection for this test
+	    $this->getDBConnection($FIREHALL);
+	     
+	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
+	    $this->assertEquals(true, $result->getIsProcessed());
+	    $this->assertEquals('2505551212', $result->getSmsCaller());
+	    $this->assertEquals('mark.vejvoda', $result->getUserId());
+	}
+	
 	public function testSMSCommand_handle_CMD_COMPLETED_Valid()  {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
@@ -232,6 +281,326 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $sms_cmd_handler = new \riprunner\SMSCommandHandler();
 	    $result = $sms_cmd_handler->process_bulk_sms_command($result,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals("<Message to='+12505551212'>Group SMS from test.user: </Message><Message to='+12505551213'>Group SMS from test.user: </Message>", $result);
+	}
+
+	public function testSMSCommand_handle_CMD_UPDATE_STATUS_TO_NOT_RESPONDING_Valid()  {
+	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+	
+	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
+	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
+	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $post_vars = array();
+	    $validate_result = $validator->computeSignature($url, $post_vars);
+	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
+	
+	    $request_vars = array('From' => '2505551212',
+	            'Body' => \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE[0].' '.
+	                      \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_NOT_RESPONDING[0]
+	    );
+	
+	    // Create a stub for the HTTPCli class.
+	    $mock_http_client = $this->getMockBuilder('\riprunner\HTTPCli')
+	    ->getMock(array('setURL','execute'));
+	
+	    // Ensure execute is called
+	    $mock_http_client->expects($this->once())
+	    ->method('execute')
+	    ->with($this->anything());
+	
+	    // Ensure setURL is called
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('cr/fhid='));
+	
+	    // Esnure responding DOES contain setting the status explicitly
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('&status='.\CalloutStatusType::NotResponding));
+	    
+	    // Stub in dummy db connection for this test
+	    $this->getDBConnection($FIREHALL);
+	     
+	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
+	    $this->assertEquals(true, $result->getIsProcessed());
+	    $this->assertEquals('2505551212', $result->getSmsCaller());
+	    $this->assertEquals('mark.vejvoda', $result->getUserId());
+	}
+
+	public function testSMSCommand_handle_CMD_UPDATE_STATUS_TO_RESPONDING_AT_HALL_Valid()  {
+	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+	
+	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
+	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
+	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $post_vars = array();
+	    $validate_result = $validator->computeSignature($url, $post_vars);
+	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
+	
+	    $request_vars = array('From' => '2505551212',
+	            'Body' => \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE[1].' '.
+	            \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL[1]
+	    );
+	
+	    // Create a stub for the HTTPCli class.
+	    $mock_http_client = $this->getMockBuilder('\riprunner\HTTPCli')
+	    ->getMock(array('setURL','execute'));
+	
+	    // Ensure execute is called
+	    $mock_http_client->expects($this->once())
+	    ->method('execute')
+	    ->with($this->anything());
+	
+	    // Ensure setURL is called
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('cr/fhid='));
+	
+	    // Esnure responding DOES contain setting the status explicitly
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('&status='.\CalloutStatusType::Responding_at_hall));
+	     
+	    // Stub in dummy db connection for this test
+	    $this->getDBConnection($FIREHALL);
+	
+	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
+	    $this->assertEquals(true, $result->getIsProcessed());
+	    $this->assertEquals('2505551212', $result->getSmsCaller());
+	    $this->assertEquals('mark.vejvoda', $result->getUserId());
+	}
+
+	public function testSMSCommand_handle_CMD_UPDATE_STATUS_TO_RESPONDING_AT_SCENE_Valid()  {
+	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+	
+	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
+	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
+	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $post_vars = array();
+	    $validate_result = $validator->computeSignature($url, $post_vars);
+	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
+	
+	    $request_vars = array('From' => '2505551212',
+	            'Body' => \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE[1].' '.
+	            \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE[0]
+	    );
+	
+	    // Create a stub for the HTTPCli class.
+	    $mock_http_client = $this->getMockBuilder('\riprunner\HTTPCli')
+	    ->getMock(array('setURL','execute'));
+	
+	    // Ensure execute is called
+	    $mock_http_client->expects($this->once())
+	    ->method('execute')
+	    ->with($this->anything());
+	
+	    // Ensure setURL is called
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('cr/fhid='));
+	
+	    // Esnure responding DOES contain setting the status explicitly
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('&status='.\CalloutStatusType::Responding_at_scene));
+	
+	    // Stub in dummy db connection for this test
+	    $this->getDBConnection($FIREHALL);
+	
+	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
+	    $this->assertEquals(true, $result->getIsProcessed());
+	    $this->assertEquals('2505551212', $result->getSmsCaller());
+	    $this->assertEquals('mark.vejvoda', $result->getUserId());
+	}
+
+	public function testSMSCommand_handle_CMD_UPDATE_STATUS_TO_RESPONDING_TO_SCENE_Valid()  {
+	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+	
+	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
+	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
+	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $post_vars = array();
+	    $validate_result = $validator->computeSignature($url, $post_vars);
+	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
+	
+	    $request_vars = array('From' => '2505551212',
+	            'Body' => \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE[0].' '.
+	            \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE[1]
+	    );
+	
+	    // Create a stub for the HTTPCli class.
+	    $mock_http_client = $this->getMockBuilder('\riprunner\HTTPCli')
+	    ->getMock(array('setURL','execute'));
+	
+	    // Ensure execute is called
+	    $mock_http_client->expects($this->once())
+	    ->method('execute')
+	    ->with($this->anything());
+	
+	    // Ensure setURL is called
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('cr/fhid='));
+	
+	    // Esnure responding DOES contain setting the status explicitly
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('&status='.\CalloutStatusType::Responding_to_scene));
+	
+	    // Stub in dummy db connection for this test
+	    $this->getDBConnection($FIREHALL);
+	
+	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
+	    $this->assertEquals(true, $result->getIsProcessed());
+	    $this->assertEquals('2505551212', $result->getSmsCaller());
+	    $this->assertEquals('mark.vejvoda', $result->getUserId());
+	}
+
+	public function testSMSCommand_handle_CMD_UPDATE_STATUS_TO_RESPONDING_TO_SCENE_with_ETA_Valid()  {
+	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+	
+	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
+	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
+	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $post_vars = array();
+	    $validate_result = $validator->computeSignature($url, $post_vars);
+	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
+	
+	    $request_vars = array('From' => '2505551212',
+	            'Body' => \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE[0].' '.
+	            \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE[1].'10'
+	    );
+	
+	    // Create a stub for the HTTPCli class.
+	    $mock_http_client = $this->getMockBuilder('\riprunner\HTTPCli')
+	    ->getMock(array('setURL','execute'));
+	
+	    // Ensure execute is called
+	    $mock_http_client->expects($this->once())
+	    ->method('execute')
+	    ->with($this->anything());
+	
+	    // Ensure setURL is called
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('cr/fhid='));
+	
+	    // Esnure responding DOES contain setting the status explicitly
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('&status='.\CalloutStatusType::Responding_to_scene));
+
+	    // Ensure responding DOES contain setting the eta explicitly
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('&eta=10'));
+	     
+	    // Stub in dummy db connection for this test
+	    $this->getDBConnection($FIREHALL);
+	
+	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
+	    $this->assertEquals(true, $result->getIsProcessed());
+	    $this->assertEquals('2505551212', $result->getSmsCaller());
+	    $this->assertEquals('mark.vejvoda', $result->getUserId());
+	}
+	
+	public function testSMSCommand_handle_CMD_UPDATE_STATUS_TO_RESPONDING_STANDBY_Valid()  {
+	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+	
+	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
+	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
+	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $post_vars = array();
+	    $validate_result = $validator->computeSignature($url, $post_vars);
+	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
+	
+	    $request_vars = array('From' => '2505551212',
+	            'Body' => \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE[0].' '.
+	            \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY[0]
+	    );
+	
+	    // Create a stub for the HTTPCli class.
+	    $mock_http_client = $this->getMockBuilder('\riprunner\HTTPCli')
+	    ->getMock(array('setURL','execute'));
+	
+	    // Ensure execute is called
+	    $mock_http_client->expects($this->once())
+	    ->method('execute')
+	    ->with($this->anything());
+	
+	    // Ensure setURL is called
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('cr/fhid='));
+	
+	    // Esnure responding DOES contain setting the status explicitly
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('&status='.\CalloutStatusType::Standby));
+	
+	    // Stub in dummy db connection for this test
+	    $this->getDBConnection($FIREHALL);
+	
+	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
+	    $this->assertEquals(true, $result->getIsProcessed());
+	    $this->assertEquals('2505551212', $result->getSmsCaller());
+	    $this->assertEquals('mark.vejvoda', $result->getUserId());
+	}
+
+	public function testSMSCommand_handle_CMD_UPDATE_STATUS_TO_RETURN_TO_HALL_Valid()  {
+	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+	
+	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
+	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
+	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $post_vars = array();
+	    $validate_result = $validator->computeSignature($url, $post_vars);
+	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
+	
+	    $request_vars = array('From' => '2505551212',
+	            'Body' => \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE[0].' '.
+	            \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RETURN_HALL[0]
+	    );
+	
+	    // Create a stub for the HTTPCli class.
+	    $mock_http_client = $this->getMockBuilder('\riprunner\HTTPCli')
+	    ->getMock(array('setURL','execute'));
+	
+	    // Ensure execute is called
+	    $mock_http_client->expects($this->once())
+	    ->method('execute')
+	    ->with($this->anything());
+	
+	    // Ensure setURL is called
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('cr/fhid='));
+	
+	    // Esnure responding DOES contain setting the status explicitly
+	    $mock_http_client->expects($this->once())
+	    ->method('setURL')
+	    ->with($this->stringContains('&status='.\CalloutStatusType::Responding_return_hall));
+	
+	    // Stub in dummy db connection for this test
+	    $this->getDBConnection($FIREHALL);
+	
+	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
+	    $this->assertEquals(true, $result->getIsProcessed());
+	    $this->assertEquals('2505551212', $result->getSmsCaller());
+	    $this->assertEquals('mark.vejvoda', $result->getUserId());
 	}
 	
 }
