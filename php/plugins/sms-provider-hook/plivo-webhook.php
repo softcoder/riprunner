@@ -46,6 +46,7 @@ Respond to hall: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUT
 Respond to scene: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE) . PHP_EOL ?>
 On scene: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE) . PHP_EOL ?>
 Return to hall: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RETURN_HALL) . PHP_EOL ?>
+ie: update to standby: <?php echo \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE[0].' '.\riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY[0].PHP_EOL ?>
 Complete current callout, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_COMPLETED) . PHP_EOL ?>
 Cancel current callout, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CANCELLED) . PHP_EOL ?>
 Broadcast message to all: <?php echo \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_BULK.PHP_EOL ?>
