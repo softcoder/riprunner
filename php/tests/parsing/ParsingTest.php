@@ -341,5 +341,45 @@ Units Responding: SALGRP1";
         $this->assertEquals('-122.69719',$callout->getGPSLong());
         $this->assertEquals('SALGRP1',$callout->getUnitsResponding());
     }
+
+    public function testProcessFireHallText_TEXT_Email_new3_format_Valid() {
+        $realdata = "Date: 2016-02-19 06:31:19
+                     Type: CARBM - Carbon Monoixide Alarm
+                     Department: Shell-Glen Fire/Rescue
+                     Address: 11850 HIGHPLAIN RD,SHELL-GLEN, BC
+                     Latitude: 53.97288
+                     Longitude: -122.54791
+                     Units Responding: SHLGRP1";
+    
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallText($realdata);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2016-02-19 06:31:19',$callout->getDateTimeAsString());
+        $this->assertEquals('CARBM',$callout->getCode());
+        $this->assertEquals('11850 HIGHPLAIN RD,SHELL-GLEN, BC',$callout->getAddress());
+        $this->assertEquals('11850 HIGHPLAIN RD,PRINCE GEORGE, BC',$callout->getAddressForMap());
+        $this->assertEquals('53.97288',$callout->getGPSLat());
+        $this->assertEquals('-122.54791',$callout->getGPSLong());
+        $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
+    }
+
+    public function testProcessFireHallText_TEXT_new3_format_Valid() {
+        $realdata = "Date: 2016-02-19 06:31:19Type: CARBM - Carbon Monoixide AlarmDepartment: Shell-Glen Fire/RescueAddress: 11850 HIGHPLAIN RD,SHELL-GLEN, BCLatitude: 53.97288Longitude: -122.54791Units Responding: SHLGRP1";
+    
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata);
+        
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2016-02-19 06:31:19',$callout->getDateTimeAsString());
+        $this->assertEquals('CARBM',$callout->getCode());
+        $this->assertEquals('11850 HIGHPLAIN RD,SHELL-GLEN, BC',$callout->getAddress());
+        $this->assertEquals('11850 HIGHPLAIN RD,PRINCE GEORGE, BC',$callout->getAddressForMap());
+        $this->assertEquals('53.97288',$callout->getGPSLat());
+        $this->assertEquals('-122.54791',$callout->getGPSLong());
+        $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
+    }
     
 }

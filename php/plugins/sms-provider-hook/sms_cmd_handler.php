@@ -106,6 +106,8 @@ class SMSCommandHandler {
 
     static public $SMS_AUTO_CMD_BULK = 'ALL:';
     
+    static public $SMS_AUTO_CMD_CONTACTS = array('#','CONTACTS');
+    
     static public $SMS_AUTO_CMD_RESPONDING = array('R','Y','RE','RP','RESPOND');
     // Usage would be something like: U H  <-- update status to at hall
     static public $SMS_AUTO_CMD_STATUS_UPDATE = array('U','UP','UPDATE');
@@ -329,6 +331,27 @@ class SMSCommandHandler {
         return $result;
     }
 
+    public function process_contacts_sms_command($cmd_result) {
+        global $log;
+        $result = '';
+        
+        if($log !== null) $log->trace("Looking for sms contacts list...");
+        
+        $contacts = explode(';',$cmd_result->getFirehall()->SMS->getSpecialContacts());
+        if($contacts != null && is_array($contacts) === true) {
+            foreach ($contacts as $contact) {
+                $contact_parts = explode('|',$contact);
+                if($contact_parts != null && is_array($contact_parts) && count($contact_parts) >= 2) {
+                    if($result !== '') {
+                        $result .= PHP_EOL;
+                    }
+                    $result .= $contact_parts[0] . ' - ' . $contact_parts[1];
+                }
+            }
+        }
+        return $result;
+    }
+    
     static public function getTwilioWebhookUrl() {
         return self::$TWILIO_WEBHOOK_URL;
     }

@@ -304,6 +304,8 @@ class FireHallSMS
 	public $SMS_RECIPIENTS_FROM_DB;
 	// The recipients to send an SMS during communications (but only for notification purpsoes, they cannot respond)
 	public $SMS_RECIPIENTS_NOTIFY_ONLY;
+	// A list of special contacts to use in the application (like poison control etc)
+	public $SMS_SPECIAL_CONTACTS;
 	// The Base API URL for sending SMS messages using sendhub.com
 	public $SMS_PROVIDER_SENDHUB_BASE_URL;
 	// The Base API URL for sending SMS messages using textbelt.com
@@ -343,6 +345,7 @@ class FireHallSMS
 		
 		$this->SMS_RECIPIENTS = $recipients;
 		$this->SMS_RECIPIENTS_NOTIFY_ONLY = '';
+		$this->SMS_SPECIAL_CONTACTS = '';
 		$this->SMS_RECIPIENTS_ARE_GROUP = $recipients_are_group;
 		$this->SMS_RECIPIENTS_FROM_DB = $recipients_from_db;
 		
@@ -375,7 +378,8 @@ class FireHallSMS
 				"\nrecipients list: " . $this->SMS_RECIPIENTS .
 				"\nrecipients are a group name: " . var_export($this->SMS_RECIPIENTS_ARE_GROUP, true) .
 				"\nGet recipients from DB: " . var_export($this->SMS_RECIPIENTS_FROM_DB, true) .
-				"\nrecipients notify only list: " . $this->SMS_RECIPIENTS_NOTIFY_ONLY .
+				"\nRecipients notify only list: " . $this->SMS_RECIPIENTS_NOTIFY_ONLY .
+				"\nSpecial contacts list: " . $this->SMS_SPECIAL_CONTACTS .
 				"\nSendhub url: " . $this->SMS_PROVIDER_SENDHUB_BASE_URL .
 				"\nTextbelt url: " . $this->SMS_PROVIDER_TEXTBELT_BASE_URL .
 				"\nEzTexting url: " . $this->SMS_PROVIDER_EZTEXTING_BASE_URL .
@@ -409,6 +413,14 @@ class FireHallSMS
 	public function setRecipientsNotifyOnly($recipients) {
 	    $this->SMS_RECIPIENTS_NOTIFY_ONLY = $recipients;
 	}
+	
+	public function getSpecialContacts() {
+	    return $this->SMS_SPECIAL_CONTACTS;
+	}
+	public function setSpecialContacts($contacts) {
+	    $this->SMS_SPECIAL_CONTACTS = $contacts;
+	}
+	
 	public function setRecipientsAreGroup($recipients_are_group) {
 		$this->SMS_RECIPIENTS_ARE_GROUP = $recipients_are_group;
 	}
