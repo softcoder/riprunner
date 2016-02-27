@@ -238,6 +238,21 @@ function openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt) {
 	}
 
 	//alert('current_attempt = ' + current_attempt);
+
+	/*
+	var w = null;
+	if(typeof hidden === 'undefined' || hidden == false) {
+	   w = window.open();
+	}
+	else {
+       w= window.open('','_blank', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=-1, top=-1, width=1, height=1, visible=none', '');
+    }
+	$("body", w.document).load(url_path, function() {
+	    // do your stuff
+		
+	});
+	*/
+	
 	
 	$.ajax({
       url: url_path,
@@ -258,10 +273,22 @@ function openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt) {
     		  w= window.open('','_blank', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=-1, top=-1, width=1, height=1, visible=none', '');
     	  }
     	  
-    	  w.document.write(result);
-    	  //$(w.document.body).html(result);
-    	  //$(w.document.documentElement).outerHTML(result);
-    	  //w.document.documentElement.outerHTML = result;
+    	  // popup blockers result in null
+    	  if(w != null) {
+	    	  w.document.write(result);
+	    	  //$(w.document.body).html(result);
+	    	  //$(w.document.documentElement).outerHTML(result);
+	    	  //w.document.documentElement.outerHTML = result;
+    	  }
+    	  else {
+    		  console.info('In openAjaxUrl success, BUT ERROR!!! cannot popup page likely blocked from popup blocker!.');
+
+    		  var error_div="<div class='container_center' id='error_msg'><div id='error_msg_close'><h3>X</h3></div><h3>CANNOT Open popups as you have a popup blocker for this website!</h3></div></center>";
+    		  $(document.body).prepend(error_div);
+    		  $(document).on('click','.error_msg_close',function(){
+    			    $(this).parent().remove();
+    		  });
+    	  }
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
     	  //debugger;
@@ -273,7 +300,8 @@ function openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt) {
     		  openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt);
     		}, retry_freq);	        		
       }
-    })
+    });
+
     return false;	
 }
 

@@ -14,6 +14,7 @@
         
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
         
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/freeze-header.js"></script>
@@ -199,10 +200,20 @@ function signalPage(callout_url) {
 		    $(mp3)[0].addEventListener('ended', function(){
 		    	console.info('In signalPage playing tones ENDED shows call details for url: ' + callout_url);
 		        {% if gvm.enabled_asynch_mode %}
-		        openAjaxUrl(callout_url,false,10,30000);
+		        //openAjaxUrl(callout_url,false,10,30000);
 		        {% else %}
-		        window.location = callout_url;
+		        //window.location = callout_url;
 		        {% endif %}
+                var win = window.open(callout_url);
+                if(win == null) {
+                    console.info('In window.open ERROR!!! cannot popup page likely blocked from popup blocker!.');
+
+                    var error_div="<div class='container_center' id='error_msg'><div id='error_msg_close'><h3>X</h3></div><h3>CANNOT Open popups as you have a popup blocker for this website!</h3></div></center>";
+                    $(document.body).prepend(error_div);
+                    $(document).on('click','.error_msg_close',function(){
+                      $(this).parent().remove();
+                    });
+                }
 		        console.info('In signalPage playing tones ENDED complete');
 		    }, false);
 		    
@@ -288,7 +299,8 @@ source.addEventListener('message', function(event) {
 		  logger.log('Got a live page!', 'msg');
 		  
 	      var callout_url = "{{ gvm.RR_DOC_ROOT }}ci/fhid={{ gvm.firehall.FIREHALL_ID }}&cid=" + data.id + 
-	                        "&ckid=" + data.keyid; 
+	                        "&ckid=" + data.keyid;
+	      // callout_url += "&member_id={{ gvm.auth.user_id }}"
 		  
 	      signalPage(callout_url);
 		  logger.log('Playing page tone!', 'msg');
