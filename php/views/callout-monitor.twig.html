@@ -13,12 +13,15 @@
         {% endif %}
         
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
-        
+          
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/freeze-header.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
+
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}js/jquery-ui-themes-1.11.4/themes/smoothness/jquery-ui.min.css">
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
         
 		<style>
 		@-webkit-keyframes glowGreen {
@@ -165,8 +168,17 @@
             </ul>
           </nav>
         </div>
-    
+        
     <p>
+	  <div id="dialog-message" title="Error" style="display:none">
+		  <p>
+		    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>
+		    CANNOT Open popups as you have a popup blocker for this website!
+		  </p>
+		  <p>
+		    Please allow this website to open popups.
+		  </p>
+  	  </div>
       <button onclick="logger.clear()">Clear log</button>
       <button onclick="closeConnection()">Stop reconnections</button>
       <span id="connection">Connecting...<div></div></span>
@@ -208,11 +220,19 @@ function signalPage(callout_url) {
                 if(win == null) {
                     console.info('In window.open ERROR!!! cannot popup page likely blocked from popup blocker!.');
 
-                    var error_div="<div class='container_center' id='error_msg'><div id='error_msg_close'><h3>X</h3></div><h3>CANNOT Open popups as you have a popup blocker for this website!</h3></div></center>";
-                    $(document.body).prepend(error_div);
-                    $(document).on('click','.error_msg_close',function(){
-                      $(this).parent().remove();
-                    });
+                    //var error_div="<div class='container_center' id='error_msg'><h3>CANNOT Open popups as you have a popup blocker for this website!</h3></div>";
+                    //$(document.body).prepend(error_div);
+                    
+                    $(function() {
+                        $( "#dialog-message" ).dialog({
+                          modal: true,
+                          buttons: {
+                            Ok: function() {
+                              $( this ).dialog( "close" );
+                            }
+                          }
+                        });
+                    });                    
                 }
 		        console.info('In signalPage playing tones ENDED complete');
 		    }, false);
