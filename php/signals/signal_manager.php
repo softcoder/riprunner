@@ -150,10 +150,6 @@ class SignalManager {
         
         return $resultSMS;
     }
-
-    
-    
-    
     
     public function signalCallOutRecipientsUsingGCM($callout, $device_id, $smsMsg, $db_connection) {
         global $log;
@@ -507,15 +503,10 @@ class SignalManager {
     		    $signal_result = 'UPDATE_CALLOUT';
     			$update_prefix_msg = "*UPDATED* ";
     			
-    			//$signalManager = new \riprunner\SignalManager();
-    			//signalCalloutToSMSPlugin($callout, $update_prefix_msg);
     			$this->signalCalloutToSMSPlugin($callout, $update_prefix_msg);
     			
-    			//$gcmMsg = getGCMCalloutMessage($callout);
     			$gcmMsg = $this->getGCMCalloutMessage($callout);
     			
-    			//signalCallOutRecipientsUsingGCM($callout, null,
-    			//		$update_prefix_msg . $gcmMsg, $db_connection);
     			$this->signalCallOutRecipientsUsingGCM($callout, null,
     					$update_prefix_msg . $gcmMsg, $db_connection);
     		}
@@ -554,14 +545,10 @@ class SignalManager {
     		
     		if($log !== null) $log->trace('Callout signalling members for NEW call.');
     		
-    		//$signalManager = new \riprunner\SignalManager();
-    		//signalCalloutToSMSPlugin($callout, null);
     		$this->signalCalloutToSMSPlugin($callout, null);
     	
-    		//$gcmMsg = getGCMCalloutMessage($callout);
     		$gcmMsg = $this->getGCMCalloutMessage($callout);
     		
-    		//signalCallOutRecipientsUsingGCM($callout, null, $gcmMsg, $db_connection);
     		$this->signalCallOutRecipientsUsingGCM($callout, null, $gcmMsg, $db_connection);
     
     		// Only update status if not cancelled or completed already
@@ -588,10 +575,10 @@ class SignalManager {
     
         if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
             if($isFirstResponseForUser === true || isCalloutInProgress($userStatus) == false) {
-                $result .= $this->signalResponseToSMSPlugin($callout, $userId,
-                        $userGPSLat, $userGPSLong, $userStatus, $eta);
-                //$result .= signalResponseToSMSPlugin($callout, $userId,
-                //		$userGPSLat, $userGPSLong, $userStatus);
+                if(isRespondingStatus($userStatus) == true) {
+                    $result .= $this->signalResponseToSMSPlugin($callout, $userId,
+                            $userGPSLat, $userGPSLong, $userStatus, $eta);
+                }
             }
         }
     
@@ -599,11 +586,6 @@ class SignalManager {
             $callout->getFirehall()->MOBILE->GCM_SIGNAL_ENABLED === true) {
 
             $gcmMsg = $this->getSMSCalloutResponseMessage($callout, $userId, $userStatus, $eta);
-            //$gcmMsg = getSMSCalloutResponseMessage($callout, $userId, $userStatus, 0);
-
-
-            //$result .= signalResponseRecipientsUsingGCM($callout, $userId,
-            //            		$userStatus, $gcmMsg, null, null);
 
             $result .= $this->signalResponseRecipientsUsingGCM($callout, $userId,
                     $userStatus, $gcmMsg, null, null);

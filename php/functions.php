@@ -192,6 +192,14 @@ function isCalloutInProgress($callout_status) {
 	return true;
 }
 
+function isRespondingStatus($callout_status) {
+	if(isset($callout_status) === false || 
+		((int)$callout_status === CalloutStatusType::NotResponding)) {
+		return false;
+	}
+	return true;
+}
+
 function checkForLiveCallout($FIREHALL, $db_connection) {
 	global $log;
 	// Check if there is an active callout (within last 48 hours) and if so send the details

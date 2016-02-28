@@ -84,16 +84,16 @@
 		   {% endif %}
            </td>
            <td>
-            {% if callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
-                  and row_responding.status != 4 %}
+            {% if callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED or (callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
+                  and row_responding.status != 4) %}
             <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
-                <option value="4" {{ callout_pending and row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
-                <option value="5" {{ callout_pending and row_responding.status == 5 ? 'selected="selected"' : '' }}>Standby</option>
-                <option value="2" {{ callout_pending and row_responding.status == 2 ? 'selected="selected"' : '' }}>Respond to hall</option>
-                <option value="6" {{ callout_pending and row_responding.status == 6 ? 'selected="selected"' : '' }}>Respond at hall</option>
-                <option value="7" {{ callout_pending and row_responding.status == 7 ? 'selected="selected"' : '' }}>Respond to scene</option>
-                <option value="8" {{ callout_pending and row_responding.status == 8 ? 'selected="selected"' : '' }}>Respond at scene</option>
-                <option value="9" {{ callout_pending and row_responding.status == 9 ? 'selected="selected"' : '' }}>Return to hall</option>
+                <option value="4" {{ row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
+                <option value="5" {{ row_responding.status == 5 ? 'selected="selected"' : '' }}>Standby</option>
+                <option value="2" {{ row_responding.status == 2 ? 'selected="selected"' : '' }}>Respond to hall</option>
+                <option value="6" {{ row_responding.status == 6 ? 'selected="selected"' : '' }}>Respond at hall</option>
+                <option value="7" {{ row_responding.status == 7 ? 'selected="selected"' : '' }}>Respond to scene</option>
+                <option value="8" {{ row_responding.status == 8 ? 'selected="selected"' : '' }}>Respond at scene</option>
+                <option value="9" {{ row_responding.status == 9 ? 'selected="selected"' : '' }}>Return to hall</option>
             </select>
             <form id="form_call_update_response_status_{{ row_responding.id }}" action="" method="POST">
             </form>
@@ -193,16 +193,16 @@
 		   {% endif %}
 		   </td>
            <td>
-            {% if callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
-                  and row_responding.status != 4 %}
+            {% if callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED or (callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
+                  and row_responding.status != 4) %}
             <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
-                <option value="4" {{ callout_pending and row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
-                <option value="5" {{ callout_pending and row_responding.status == 5 ? 'selected="selected"' : '' }}>Standby</option>
-                <option value="2" {{ callout_pending and row_responding.status == 2 ? 'selected="selected"' : '' }}>Respond to hall</option>
-                <option value="6" {{ callout_pending and row_responding.status == 6 ? 'selected="selected"' : '' }}>Respond at hall</option>
-                <option value="7" {{ callout_pending and row_responding.status == 7 ? 'selected="selected"' : '' }}>Respond to scene</option>
-                <option value="8" {{ callout_pending and row_responding.status == 8 ? 'selected="selected"' : '' }}>Respond at scene</option>
-                <option value="9" {{ callout_pending and row_responding.status == 9 ? 'selected="selected"' : '' }}>Return to hall</option>
+                <option value="4" {{ row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
+                <option value="5" {{ row_responding.status == 5 ? 'selected="selected"' : '' }}>Standby</option>
+                <option value="2" {{ row_responding.status == 2 ? 'selected="selected"' : '' }}>Respond to hall</option>
+                <option value="6" {{ row_responding.status == 6 ? 'selected="selected"' : '' }}>Respond at hall</option>
+                <option value="7" {{ row_responding.status == 7 ? 'selected="selected"' : '' }}>Respond to scene</option>
+                <option value="8" {{ row_responding.status == 8 ? 'selected="selected"' : '' }}>Respond at scene</option>
+                <option value="9" {{ row_responding.status == 9 ? 'selected="selected"' : '' }}>Return to hall</option>
             </select>
 	        <form id="form_call_update_response_status_{{ row_responding.id }}" action="" method="POST">
 	        </form>
@@ -248,7 +248,8 @@
 
         {% block callout_show_responding_map %}
     <!-- 	 <a target="_blank" href="{{ gvm.RR_DOC_ROOT }}ct/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&ta=mr&ckid=${{ callout_details_vm.calloutkey_id }}" class="ci_responders_map_link">SHOW RESPONDERS MAP</a>
-     -->	{% endblock %}
+     -->	
+        {% endblock %}
         </div>
 		        
         </div>

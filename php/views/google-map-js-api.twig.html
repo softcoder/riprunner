@@ -1,9 +1,11 @@
 <script type="text/javascript" src="{{ gvm.RR_DOC_ROOT }}js/savemapview.js"></script>
+<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}js/jquery-ui-themes-1.11.4/themes/smoothness/jquery-ui.min.css">
+<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
 
 {% if gvm.isMobile %}
-<table width="{{ gvm.JSMAP_MOBILEWIDTH }}" align="center">
+<table id="map_container" width="{{ gvm.JSMAP_MOBILEWIDTH }}" align="center" class="ui-widget-content">
 {% else %}
-<table width="{{ gvm.JSMAP_WIDTH }}" align="center">
+<table id="map_container" width="{{ gvm.JSMAP_WIDTH }}" align="center" class="ui-widget-content">
 {% endif %}
 <tr><td>
 {% if gvm.isMobile %}
@@ -15,6 +17,10 @@
     <div id="legend"></div>
 </td></tr></table>
    <script type="text/javascript">
+   $(function() {
+       $( "#map_container" ).resizable();
+   });        
+   
 var riprunner_js_map = null;
 
 {% if (gvm.isMobile and callout_details_vm.MOBILE_LG_ZOOM == 'yes') or 
