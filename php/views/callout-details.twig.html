@@ -84,7 +84,8 @@
 		   {% endif %}
            </td>
            <td>
-            {% if callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED or (callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
+            {% if (callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED and row_responding.status != 3 and row_responding.status != 10) or 
+                  (callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
                   and row_responding.status != 4) %}
             <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
                 <option value="4" {{ row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
@@ -193,7 +194,8 @@
 		   {% endif %}
 		   </td>
            <td>
-            {% if callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED or (callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
+            {% if (callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED and row_responding.status != 3 and row_responding.status != 10) or 
+                  (callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
                   and row_responding.status != 4) %}
             <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
                 <option value="4" {{ row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
@@ -423,7 +425,7 @@
 {% endif %}
 
 <script type="text/javascript">
-
+  
 function getGEOLocationCoords_callback_fn(geoAccess,param2) {
 	//alert('In getGEOLocationCoords_callback_fn' + geoAccess);
 	//alert(param2);
@@ -486,8 +488,7 @@ function setResponderETAs(map) {
 	                travelMode: google.maps.DirectionsTravelMode.DRIVING
 	            };
 	
-	            calculateRoute(directionsService, request, index);
-	            addResponderToMap($( '#responder_name_'+index).attr('value'), callout_geo_src, map);
+	            calculateRoute(directionsService, request, index, callout_geo_src, map);
 		    }
     	}
         catch(ex) {
@@ -526,18 +527,38 @@ function addResponderToMap(responder_name, responder_geo, map) {
     }
 }
 
-function calculateRoute(directionsService,request,index) {
+function calculateRoute(directionsService,request,index, callout_geo_src, map) {
     directionsService.route( request, function( response, status ) {
         //debugger;
         if ( status === 'OK' ) {
             var point = response.routes[ 0 ].legs[ 0 ];
             //$( '#geo_tag' ).html( point.duration.text + ' (' + point.distance.text + ')' );
             $( '#responder_eta_' + index ).html( point.duration.text + ' (' + point.distance.text + ')' );
-            console.info('Estimated time to scene: ' + point.duration.text + ' (' + point.distance.text + ')');
+            console.info('*SUCCESS* index: ' + index + ' callout_geo_src: ' + callout_geo_src + ' Estimated time to scene: ' + point.duration.text + ' (' + point.distance.text + ')');
+            
+            addResponderToMap($( '#responder_name_'+index).attr('value'), callout_geo_src, map);
         }
         else {
             $( '#responder_eta_' + index ).html( 'unknown' );
-            console.info('Estimated time to scene unknown response code: ' + status);
+            console.info('*FAILED* index: ' + index + ' callout_geo_src: ' + callout_geo_src + ' Estimated time to scene unknown response code: ' + status);
+            
+            // === if we were sending the requests to fast, try this one again and increase the delay
+            if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+            	try {
+	            	//calculateRoute(directionsService,request,index, callout_geo_src, map);
+	            	//setTimeout('getAddress("'+addresses[nextAddress]+'",theNext)', 100);
+	            	//setTimeout('calculateRoute(directionsService,request,index, callout_geo_src, map)', 100);
+            		setTimeout(function(){
+            			calculateRoute(directionsService,request,index, callout_geo_src, map);
+            		}, 120*index);
+	            }
+                catch(ex) {
+                    console.info('ERROR In calculateRoute() for index: ' + index + ' error: ' + ex.message);
+                }
+            }
+            else {
+            	addResponderToMap($( '#responder_name_'+index).attr('value'), callout_geo_src, map);
+            }
         }
     });
 }
