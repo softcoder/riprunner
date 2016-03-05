@@ -223,19 +223,12 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			}
 			
 			// Get the latest GEO coordinates for each responding member
-
 			if($this->getFirehall()->LDAP->ENABLED === true) {
+			    create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 			    $sql = $sql_statement->getSqlStatement('ldap_check_callout_tracking_responders');
 			}
 			else {
     			$sql = $sql_statement->getSqlStatement('check_callout_tracking_responders');
-    				
-//     			$sql = 'SELECT a.useracctid, a.calloutid, a.latitude,a.longitude, b.user_id ' .
-//     					' FROM callouts_geo_tracking a ' .
-//     					' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-//     					' WHERE firehall_id = :fhid AND a.calloutid = :cid AND ' .
-//     					'       a.trackingtime = (SELECT MAX(a1.trackingtime) FROM callouts_geo_tracking a1 WHERE a.calloutid = a1.calloutid AND a.useracctid = a1.useracctid)' .
-//     					' ORDER BY a.useracctid,a.trackingtime DESC;';
 			}
 			$fhid = $this->getFirehallId();
 			$cid = $this->getCalloutId();
@@ -268,13 +261,15 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			
 			// Authenticate the user
 		    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+		    
 			if($this->getFirehall()->LDAP->ENABLED === true) {
+			    create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 			    $sql = $sql_statement->getSqlStatement('ldap_callout_authenticate_by_fhid_and_userid');
 			}
 			else {
     			$sql = $sql_statement->getSqlStatement('callout_authenticate_by_fhid_and_userid');
 			}
-			
+				
 			$fhid = $this->getFirehallId();
 			$uid = $this->getUserId();
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
@@ -361,17 +356,11 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			// Get the latest GEO coordinates for each responding member
 			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 			if($this->getFirehall()->LDAP->ENABLED === true) {
+			    create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 			    $sql = $sql_statement->getSqlStatement('ldap_check_callout_tracking_responders');
 			}
 			else {
     			$sql = $sql_statement->getSqlStatement('check_callout_tracking_responders');
-			
-// 			$sql = 'SELECT a.useracctid, a.calloutid, a.latitude,a.longitude, b.user_id ' .
-// 					' FROM callouts_geo_tracking a ' .
-// 					' LEFT JOIN user_accounts b ON a.useracctid = b.id ' .
-// 					' WHERE firehall_id = :fhid AND a.calloutid = :cid ' .
-// 					' AND a.trackingtime = (SELECT MAX(a1.trackingtime) FROM callouts_geo_tracking a1 WHERE a.calloutid = a1.calloutid AND a.useracctid = a1.useracctid)' .
-// 					' ORDER BY a.useracctid,a.trackingtime DESC;';
 			}
 			
 			$fhid = $this->getFirehallId();
