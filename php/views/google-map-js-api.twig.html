@@ -8,6 +8,10 @@
 <table id="map_container" width="{{ gvm.JSMAP_WIDTH }}" align="center" class="ui-widget-content">
 {% endif %}
 <tr><td>
+<input id="toggle_map_drag" type="checkbox" onclick="toggleMapDragable(this.checked);"><label for="toggle_map_drag" class="ci_map_toggle">Enable map drag movement</span>
+<input id="toggle_map_scrollwheel" type="checkbox" onclick="toggleMapScrollWheel(this.checked);"><label for="toggle_map_scrollwheel" class="ci_map_toggle">Enable map zoom movement</span>
+</td></tr>
+<tr><td>
 {% if gvm.isMobile %}
      <div class="google-maps" id="map" style="height: {{ gvm.JSMAP_MOBILEHEIGHT }};"></div> 
 {% else %}
@@ -22,7 +26,7 @@
    });        
    
 var riprunner_js_map = null;
-
+	
 {% if (gvm.isMobile and callout_details_vm.MOBILE_LG_ZOOM == 'yes') or 
   (not gvm.isMobile and callout_details_vm.DESKTOP_LG_ZOOM == 'yes') %}
 function ZoomControl(controlDiv, map) {
@@ -124,12 +128,12 @@ function map_initialize() {
             zoom: 14
             ,center: new google.maps.LatLng({{ CALLORIGIN }})
             ,streetViewControl: true
-            ,draggable: true
-            ,scrollwheel: true
+            ,draggable: false
+            ,scrollwheel: false
             ,overviewMapControl:true
             ,panControl: true
             ,disableDefaultUI: false
-            ,zoomControl: false
+            ,zoomControl: true
             ,mapTypeControlOptions: {
                 style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
                 position: google.maps.ControlPosition.TOP_RIGHT,
@@ -290,7 +294,18 @@ function map_initialize() {
 
 	riprunner_js_map = map;
 }
-   
+
+	function toggleMapDragable(enabled) {
+	    riprunner_js_map.setOptions({
+	      draggable: enabled
+	    });
+	}
+	function toggleMapScrollWheel(enabled) {
+		  riprunner_js_map.setOptions({
+	      scrollwheel: enabled
+	    });
+	}
+
    function loadScript(src,callback) {
 	   var script = document.createElement("script");
 	   script.type = "text/javascript";
