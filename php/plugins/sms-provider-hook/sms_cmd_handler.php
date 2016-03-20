@@ -310,7 +310,7 @@ class SMSCommandHandler {
 				}
                 $result .= "<Message src='" . $cmd_result->getFirehall()->SMS->SMS_PROVIDER_PLIVO_FROM . 
                 "' dst='".$dst_sms."'>Group SMS from " . htmlspecialchars($cmd_result->getUserId()) .
-                //"' dst='12503018904'>Group SMS from " . $cmd_result->getUserId() . " recipients woudl be: " . htmlspecialchars($dst_sms) .
+                //"' dst='".self::$SPECIAL_MOBILE_PREFIX2."2503018904'>Group SMS from " . htmlspecialchars($cmd_result->getUserId()) . " recipients woudl be: " . htmlspecialchars($dst_sms) .
                 ": " . htmlspecialchars(substr($cmd_result->getCmd(), strlen(self::$SMS_AUTO_CMD_BULK))) . "</Message>";
             }
             else {
