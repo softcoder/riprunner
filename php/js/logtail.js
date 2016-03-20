@@ -103,7 +103,8 @@ function get_log() {
             }
 
             if (first_load && data.length > load)
-                throw "Server's response was too long";
+                //throw "Server's response was too long, data: " + data.length + " load: " + load;
+            	console.info("WARNING: Server's response was too long, data: " + data.length + " load: " + load);
 
             var added = false;
 

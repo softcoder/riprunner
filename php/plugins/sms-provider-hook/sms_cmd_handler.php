@@ -431,7 +431,7 @@ class SMSCommandHandler {
         return false;
     }
     
-    private function startsWith($haystack, $needle) {
+    public function startsWith($haystack, $needle) {
         $length = strlen($needle);
         return (substr($haystack, 0, $length) === $needle);
     }
