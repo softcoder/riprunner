@@ -17,7 +17,7 @@ require_once 'config/config_manager.php';
 
 // This true / false variable defines whether or not users can update callouts
 // even after their status is set to cancelled or completed
-define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
+define('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
 
 // ====================================================================================================
 // ===                     ENABLE JAVASCRIPT OR IFRAME MAPPING STYLES                               ===
@@ -27,7 +27,7 @@ define( 'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
 // === SUCH AS WATER SOURCES OR HYDRANT LOCATIONS.                                                  ===
 // ====================================================================================================
 
-define( 'GOOGLE_MAP_TYPE', 'javascript');
+define('GOOGLE_MAP_TYPE', 'javascript');
 //define( 'GOOGLE_MAP_TYPE', 'iframe');
 
 define('MAP_REFRESH_TIMER', '60');
@@ -37,9 +37,6 @@ define('JSMAP_WIDTH','100%');
 define('JSMAP_HEIGHT','550px');
 define('JSMAP_MOBILEWIDTH','85%');
 define('JSMAP_MOBILEHEIGHT','1000px');
-
-define('MOBILE_LG_ZOOM','yes');  // Large zoom controls on mobile devices
-define('DESKTOP_LG_ZOOM','yes');  // Large zoom controls on non-mobile devices
 
 // ====================================================================================================
 // === ENABLE THE AUDIO SOURCE FOR REALTIME RADIO TRAFFIC AVAIALABLE OVER DEVICES                   ===
@@ -361,6 +358,8 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_LDAP->setLoginAllUsersFilter('(|(memberOf=cn=MEMBERS,ou=Groups,dc=EXAMPLE,dc=COM)(memberOf=cn=OFFICERS,ou=Groups,dc=EXAMPLE,dc=COM))');
 	$LOCAL_DEBUG_LDAP->setAdminGroupFilter('(&(memberOf=cn=OFFICERS,ou=Groups,dc=EXAMPLE,dc=COM))');
 	$LOCAL_DEBUG_LDAP->setSMSGroupFilter('(&(objectClass=posixAccount)(memberOf=cn=SMSCALLOUT-USERS,ou=Groups,dc=EXAMPLE,dc=COM))');
+	$LOCAL_DEBUG_LDAP->setRespondSelfGroupFilter('(&(objectClass=posixAccount)(memberOf=cn=SMSCALLOUT-RESPOND-SELF,ou=Groups,dc=EXAMPLE,dc=COM))');
+	$LOCAL_DEBUG_LDAP->setRespondOthersGroupFilter('(&(objectClass=posixAccount)(memberOf=cn=SMSCALLOUT-RESPOND-OTHERS,ou=Groups,dc=EXAMPLE,dc=COM))');
 	$LOCAL_DEBUG_LDAP->setGroupMemberOf_Attribute('memberuid');
 	
 	// ----------------------------------------------------------------------

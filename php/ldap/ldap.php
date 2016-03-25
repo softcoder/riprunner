@@ -164,7 +164,7 @@ class LDAP {
 	}
 	
 	private function handleBindFailed($binddn, $password) {
-		define('LDAP_OPT_DIAGNOSTIC_MESSAGE', 0x0032);
+		if(defined('LDAP_OPT_DIAGNOSTIC_MESSAGE') == false) define('LDAP_OPT_DIAGNOSTIC_MESSAGE', 0x0032);
 			
 		$error_msg = "LDAP bind error ";
 		if (ldap_get_option($this->connection, LDAP_OPT_DIAGNOSTIC_MESSAGE, $extended_error) === true) {
@@ -180,7 +180,7 @@ class LDAP {
 	}
 	
 	private function handleSearchFailed($base_dn, $filter, $sort_by) {
-		define('LDAP_OPT_DIAGNOSTIC_MESSAGE', 0x0032);
+		if(defined('LDAP_OPT_DIAGNOSTIC_MESSAGE') == false) define('LDAP_OPT_DIAGNOSTIC_MESSAGE', 0x0032);
 
 		$error_msg = "LDAP search error ";
 		if (ldap_get_option($this->connection, LDAP_OPT_DIAGNOSTIC_MESSAGE, $extended_error) === true) {

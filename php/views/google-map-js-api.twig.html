@@ -27,11 +27,9 @@
    
 var riprunner_js_map = null;
 	
-{% if (gvm.isMobile and callout_details_vm.MOBILE_LG_ZOOM == 'yes') or 
-  (not gvm.isMobile and callout_details_vm.DESKTOP_LG_ZOOM == 'yes') %}
 function ZoomControl(controlDiv, map) {
     // Creating divs & styles for custom zoom control
-    controlDiv.style.padding = '5px';
+    controlDiv.style.padding = '0px';
     // Set CSS for the control wrapper
     var controlWrapper = document.createElement('div');
     controlWrapper.style.borderStyle = 'solid';
@@ -40,21 +38,22 @@ function ZoomControl(controlDiv, map) {
     controlWrapper.style.cursor = 'pointer';
     controlWrapper.style.backgroundColor = 'white';
     controlWrapper.style.opacity = '0.5';
-    controlWrapper.style.width = '128px'; 
-    controlWrapper.style.height = '256px';
+    controlWrapper.style.width = '80px'; 
+    controlWrapper.style.height = '160px';
     controlDiv.appendChild(controlWrapper);
     // Set CSS for the zoomIn
     var zoomInButton = document.createElement('div');
-    zoomInButton.style.width = '128px'; 
-    zoomInButton.style.height = '128px';
+    zoomInButton.style.width = '80px'; 
+    zoomInButton.style.height = '80px';
     zoomInButton.style.backgroundImage = 'url("{{ gvm.RR_DOC_ROOT }}images/plus.png")';
     controlWrapper.appendChild(zoomInButton);
     // Set CSS for the zoomOut
     var zoomOutButton = document.createElement('div');
-    zoomOutButton.style.width = '128px'; 
-    zoomOutButton.style.height = '128px';
+    zoomOutButton.style.width = '80px'; 
+    zoomOutButton.style.height = '80px';
     zoomOutButton.style.backgroundImage = 'url("{{ gvm.RR_DOC_ROOT }}images/minus.png")';
     controlWrapper.appendChild(zoomOutButton);
+    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(controlWrapper);
     // -----------------------------------------------------------------------------
     // Setup the click event listener - zoomIn
     google.maps.event.addDomListener(zoomInButton, 'click', function() {
@@ -67,7 +66,6 @@ function ZoomControl(controlDiv, map) {
     });  
     // -----------------------------------------------------------------------------
 }
-{% endif %}
 
 function map_initialize() {
     //debugger;
@@ -142,14 +140,6 @@ function map_initialize() {
                     google.maps.MapTypeId.ROADMAP
               	]
             }
-{% if (gvm.isMobile and callout_details_vm.MOBILE_LG_ZOOM == 'no') or 
-      (not gvm.isMobile and callout_details_vm.DESKTOP_LG_ZOOM == 'no') %}
-            ,zoomControl: true
-            ,zoomControlOptions: {
-                position: google.maps.ControlPosition.RIGHT_TOP,
-                style: google.maps.ZoomControlStyle.LARGE
-            }
-{% endif %}
     });
     //------------------------------------------------------------------------------
     
@@ -226,13 +216,11 @@ function map_initialize() {
     }
     // -----------------------------------------------------------------------------
     // Create Large Zoom Controls
-{% if (gvm.isMobile and callout_details_vm.MOBILE_LG_ZOOM == 'yes') or 
-  (not gvm.isMobile and callout_details_vm.DESKTOP_LG_ZOOM == 'yes') %}
     var zoomControlDiv = document.createElement('div');
     var zoomControl = new ZoomControl(zoomControlDiv, map);
     zoomControlDiv.index = 1;
     map.controls[google.maps.ControlPosition.LEFT_TOP].push(zoomControlDiv);
-{% endif %}
+
     // -----------------------------------------------------------------------------
     // Set Driving Directions
     //debugger;

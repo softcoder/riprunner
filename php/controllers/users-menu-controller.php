@@ -151,11 +151,15 @@ class UsersMenuController {
 			$edit_firehall_id = $_SESSION['firehall_id'];
 			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
 			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
+			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
+			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 		}
 		else {
 			$edit_firehall_id = get_query_param('edit_firehall_id');
 			$edit_admin_access = get_query_param('edit_admin_access');
 			$edit_sms_access = get_query_param('edit_sms_access');
+			$edit_respond_self_access = get_query_param('edit_respond_self_access');
+			$edit_respond_others_access = get_query_param('edit_respond_others_access');
 		}
 		$edit_user_id_name = get_query_param('edit_user_id_name');
 		$edit_mobile_phone = get_query_param('edit_mobile_phone');
@@ -176,6 +180,18 @@ class UsersMenuController {
 			}
 			else {
 				$sql_user_access .= ', access = access & ~' . USER_ACCESS_SIGNAL_SMS;
+			}
+			if(isset($edit_respond_self_access) === true && $edit_respond_self_access === 'on') {
+			    $sql_user_access .= ', access = access | ' . USER_ACCESS_CALLOUT_RESPOND_SELF;
+			}
+			else {
+			    $sql_user_access .= ', access = access & ~' . USER_ACCESS_CALLOUT_RESPOND_SELF;
+			}
+			if(isset($edit_respond_others_access) === true && $edit_respond_others_access === 'on') {
+			    $sql_user_access .= ', access = access | ' . USER_ACCESS_CALLOUT_RESPOND_OTHERS;
+			}
+			else {
+			    $sql_user_access .= ', access = access & ~' . USER_ACCESS_CALLOUT_RESPOND_OTHERS;
 			}
 		}
 		
@@ -206,7 +222,8 @@ class UsersMenuController {
 		
 		// INSERT
 		if(isset($new_pwd) === true) {
-			$new_pwd_value = $db_connection->real_escape_string($new_pwd);
+			//$new_pwd_value = $db_connection->real_escape_string($new_pwd);
+		    $new_pwd_value = $new_pwd;
 		}
 		else {
 			$new_pwd_value = '';
@@ -216,11 +233,15 @@ class UsersMenuController {
 			$edit_firehall_id = $_SESSION['firehall_id'];
 			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
 			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
+			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
+			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 		}
 		else {
 			$edit_firehall_id = get_query_param('edit_firehall_id');
 			$edit_admin_access = get_query_param('edit_admin_access');
 			$edit_sms_access = get_query_param('edit_sms_access');
+			$edit_respond_self_access = get_query_param('edit_respond_self_access');
+			$edit_respond_others_access = get_query_param('edit_respond_others_access');
 		}
 		$edit_user_id_name = get_query_param('edit_user_id_name');
 		$edit_mobile_phone = get_query_param('edit_mobile_phone');
@@ -233,7 +254,13 @@ class UsersMenuController {
 		if(isset($edit_sms_access) === true && $edit_sms_access === 'on') {
 			$new_user_access |= USER_ACCESS_SIGNAL_SMS;
 		}
-
+		if(isset($edit_respond_self_access) === true && $edit_respond_self_access === 'on') {
+		    $new_user_access |= USER_ACCESS_CALLOUT_RESPOND_SELF;
+		}
+		if(isset($edit_respond_others_access) === true && $edit_respond_others_access === 'on') {
+		    $new_user_access |= USER_ACCESS_CALLOUT_RESPOND_OTHERS;
+		}
+		
 		$sql_statement = new \riprunner\SqlStatement($db_connection);
 		$sql = $sql_statement->getSqlStatement('user_accounts_insert');
 

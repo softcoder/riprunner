@@ -26,8 +26,10 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 
 	define('USER_PASSWORD_HASH_ALGORITHM', 	 'sha512');
 	        
-	define('USER_ACCESS_ADMIN', 	 0x1);
-	define('USER_ACCESS_SIGNAL_SMS', 0x2);
+	define('USER_ACCESS_ADMIN', 	             0x1);
+	define('USER_ACCESS_SIGNAL_SMS',             0x2);
+	define('USER_ACCESS_CALLOUT_RESPOND_SELF',   0x4);
+	define('USER_ACCESS_CALLOUT_RESPOND_OTHERS', 0x8);
 	//define('USER_ACCESS_X', 0x4);
 	//define('USER_ACCESS_X', 0x8);
 

@@ -18,6 +18,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	private $callout_details_responding_list;
 	private $callout_details_not_responding_list;
 	private $callout_details_end_responding_list;
+	private $user_authenticated;
 	
 	protected function getVarContainerName() { 
 		return "callout_details_vm";
@@ -38,6 +39,12 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		}
 		if('member_id' === $name) {
 			return $this->getMemberId();
+		}
+		if('member_access_respond_self' === $name) {
+		    return $this->getMemberAccess(USER_ACCESS_CALLOUT_RESPOND_SELF);
+		}
+		if('member_access_respond_others' === $name) {
+		    return $this->getMemberAccess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 		}
 		if('callout_responding_user_id' === $name) {
 			return $this->getCalloutRespondingId();
@@ -65,21 +72,13 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		    return $config->getSystemConfigValue('GOOGLE_MAP_TYPE');
         }
         if('MAP_REFRESH_TIMER' === $name) {
-			//return MAP_REFRESH_TIMER;
 			$config = new \riprunner\ConfigManager();
 			return $config->getSystemConfigValue('MAP_REFRESH_TIMER');
 		}
 		if('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED' === $name) {
-			//return ALLOW_CALLOUT_UPDATES_AFTER_FINISHED;
 		    $config = new \riprunner\ConfigManager();
 		    return $config->getSystemConfigValue('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED');
 		}
-        if('MEMBER_UPDATE_COMPLETED' === $name) {
-            return MEMBER_UPDATE_COMPLETED;
-        }
-        if('OFFICER_UPDATE_COMPLETED' === $name) {
-            return OFFICER_UPDATE_COMPLETED;
-        }
         if('STREAM_AUDIO_ENABLED' === $name) {
             return STREAM_AUDIO_ENABLED;
         }
@@ -101,12 +100,6 @@ class CalloutDetailsViewModel extends BaseViewModel {
         if('STREAM_AUTOPLAY_DESKTOP' === $name) {
             return STREAM_AUTOPLAY_DESKTOP;
         }
-        if('MOBILE_LG_ZOOM' === $name) {
-            return MOBILE_LG_ZOOM;
-        }
-        if('DESKTOP_LG_ZOOM' === $name) {
-            return DESKTOP_LG_ZOOM;
-        }
 		if('map_callout_geo_dest' === $name) {
 		    return get_query_param('map_callout_geo_dest');
 		}
@@ -122,6 +115,9 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		if('map_webroot' === $name) {
 		    return get_query_param('map_webroot');
 		}
+		if('isCalloutAuth' === $name) {
+		    return $this->getIsCalloutAuth();
+		}
 		
 		return parent::__get($name);
 	}
@@ -131,11 +127,13 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			array('firehall_id','firehall','callout_id','calloutkey_id', 'member_id',
 				  'callout_responding_user_id', 'callout_status_complete', 'callout_status_cancel',
 			      'callout_details_list','callout_details_responding_list',
-                'callout_details_not_responding_list','callout_details_end_responding_list','google_map_type',
-                'MAP_REFRESH_TIMER','MEMBER_UPDATE_COMPLETED','OFFICER_UPDATE_COMPLETED',
-                'STREAM_AUDIO_ENABLED','STREAM_MOBILE','STREAM_DESKTOP','STREAM_URL','STREAM_TYPE','STREAM_AUTOPLAY_MOBILE','STREAM_AUTOPLAY_DESKTOP',
-                'MOBILE_LG_ZOOM','DESKTOP_LG_ZOOM','ALLOW_CALLOUT_UPDATES_AFTER_FINISHED',
-                'map_callout_geo_dest','map_callout_address_dest','map_fh_geo_lat','map_fh_geo_long','map_webroot'
+                  'callout_details_not_responding_list','callout_details_end_responding_list','google_map_type',
+                  'MAP_REFRESH_TIMER',
+                  'STREAM_AUDIO_ENABLED','STREAM_MOBILE','STREAM_DESKTOP','STREAM_URL','STREAM_TYPE',
+			      'STREAM_AUTOPLAY_MOBILE','STREAM_AUTOPLAY_DESKTOP',
+                  'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED',
+                  'map_callout_geo_dest','map_callout_address_dest','map_fh_geo_lat','map_fh_geo_long','map_webroot',
+			      'isCalloutAuth', 'member_access_respond_self', 'member_access_respond_others'
 			)) === true) {
 			return true;
 		}
@@ -173,13 +171,82 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	}
 
 	private function getMemberId() {
+	    if($this->getGvm()->auth->isAuth === true) {
+	        return $this->getGvm()->auth->username;
+	    }
 		$member_id = get_query_param('member_id');
 		return $member_id;
+	}
+	
+	private function getMemberAccess($access) {
+	    $member_id = $this->getMemberId();
+	    if($member_id !== null) {
+	        $user_access = $this->getGvm()->auth->getAuthEntity()->getUserAccess($this->getFirehallId(),$member_id);
+	        return $this->getGvm()->auth->getAuthEntity()->userHasAcessValueDB($user_access, $access);
+	    }
+	    return 0;
 	}
 	
 	private function getCalloutRespondingId() {
 		$cruid = get_query_param('cruid');
 		return $cruid;
+	}
+
+	private function getIsCalloutAuth() {
+	    if($this->getGvm()->auth->isAuth === true) {
+	        return true;
+	    }
+	    else if($this->getMemberId() != null) {
+	        return $this->checkUserAuth($this->getMemberId());
+	    }
+	    return false;
+	}
+	
+	private function checkUserAuth($user_id) {
+	    if(isset($this->user_authenticated) === false) {
+	        global $log;
+	        $log->trace("Call Response firehall_id [". $this->getFirehallId() ."] cid [". $this->getCalloutId() ."] user_id [". $this->getMemberId()."] ckid [". $this->getCalloutKeyId() ."]");
+	        	
+	        // Authenticate the user
+	        $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+	        	
+	        if($this->getGvm()->firehall->LDAP->ENABLED === true) {
+	            create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
+	            $sql = $sql_statement->getSqlStatement('ldap_callout_authenticate_by_fhid_and_userid');
+	        }
+	        else {
+	            $sql = $sql_statement->getSqlStatement('callout_authenticate_by_fhid_and_userid');
+	        }
+	
+	        $fhid = $this->getFirehallId();
+	        $user_id = $this->getMemberId();
+	        $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+	        $qry_bind->bindParam(':fhid', $fhid);
+	        $qry_bind->bindParam(':uid', $user_id);
+	        $qry_bind->execute();
+	
+	        $row = $qry_bind->fetch(\PDO::FETCH_OBJ);
+	        $qry_bind->closeCursor();
+	        	
+	        $log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getMemberId() ."] got count: " . count($row));
+	
+	        $this->useracctid = null;
+	        $this->user_authenticated = false;
+	        	
+	        if($row !== null) {
+                $this->user_authenticated = true;
+                $this->useracctid = $row->id;
+	
+                $log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getMemberId() ."] useracctid: " . $this->useracctid);
+	        }
+	        else {
+	            $log->error("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getMemberId() ."] BUT NOT FOUND in databse!");
+	        }
+	        	
+	        $log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getMemberId() ."] user_authenticated [".$this->user_authenticated."]");
+	    }
+	
+	    return $this->user_authenticated;
 	}
 	
 	private function getCalloutDetailsList() {
@@ -313,9 +380,11 @@ class CalloutDetailsViewModel extends BaseViewModel {
 
 			$cid = $this->getCalloutId();
 			$fhid = $this->getFirehallId();
+			$respond_access = USER_ACCESS_CALLOUT_RESPOND_SELF;
 			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_no_response);
 			$qry_bind->bindParam(':cid', $cid);
 			$qry_bind->bindParam(':fhid', $fhid);
+			$qry_bind->bindParam(':respond_access', $respond_access);
 			$qry_bind->execute();
 
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);

@@ -639,9 +639,11 @@ form:after {
     text-decoration: none;
 }
 
+/*
 input[type=checkbox] {
 display:none;
 }
+*/
  
 input[type=checkbox] + label
 {

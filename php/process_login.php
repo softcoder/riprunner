@@ -31,7 +31,10 @@ if (isset($_POST['firehall_id'], $_POST['user_id'], $_POST['p']) === true) {
         $auth = new\riprunner\Authentication($FIREHALL);
         
 	    if($auth->hasDbConnection() === true) {
-		    if ($auth->login($user_id, $password) === true) {
+	        if($auth->isDbSchemaVersionOutdated() === true) {
+	            echo 'Your database schema version is not up to date, please contact your system admin!';
+	        }
+		    else if ($auth->login($user_id, $password) === true) {
 		        // Login success 
 		    	header('Location: controllers/main-menu-controller.php');
 		    } 

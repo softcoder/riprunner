@@ -659,6 +659,10 @@ class FireHall_LDAP
 	public $LDAP_LOGIN_ADMIN_GROUP_FILTER;
 	// The ldap sms group filter expression
 	public $LDAP_LOGIN_SMS_GROUP_FILTER;
+	// The ldap respond_self group filter expression
+	public $LDAP_LOGIN_RESPOND_SELF_GROUP_FILTER;
+	// The ldap respond_others group filter expression
+	public $LDAP_LOGIN_RESPOND_OTHERS_GROUP_FILTER;
 	// The ldap group memberof attribute name
 	public $LDAP_GROUP_MEMBER_OF_ATTR_NAME;
 	// The ldap sms mobile attribute name
@@ -687,6 +691,8 @@ class FireHall_LDAP
 		$this->LDAP_LOGIN_ALL_USERS_FILTER = $user_all_users_filter_attr;
 		$this->LDAP_LOGIN_ADMIN_GROUP_FILTER = $user_admin_group_filter_attr;
 		$this->LDAP_LOGIN_SMS_GROUP_FILTER = $user_sms_group_filter_attr;
+		$this->LDAP_LOGIN_RESPOND_SELF_GROUP_FILTER = null;
+		$this->LDAP_LOGIN_RESPOND_OTHERS_GROUP_FILTER = null;
 		$this->LDAP_GROUP_MEMBER_OF_ATTR_NAME = $group_member_of_attr;
 		$this->LDAP_USER_SMS_ATTR_NAME = $user_sms_attr;
 		$this->LDAP_USER_ID_ATTR_NAME = $user_id_attr;
@@ -709,8 +715,8 @@ class FireHall_LDAP
 				"\nLogin all users filter: " . $this->LDAP_LOGIN_ALL_USERS_FILTER .
 				"\nAdmin group filter: " . $this->LDAP_LOGIN_ADMIN_GROUP_FILTER .
 				"\nSMS group filter: " . $this->LDAP_LOGIN_SMS_GROUP_FILTER .
-				"\nSMS group filter: " . $this->LDAP_LOGIN_SMS_GROUP_FILTER .
-				"\nSMS group filter: " . $this->LDAP_LOGIN_SMS_GROUP_FILTER .
+				"\nRespond Self group filter: " . $this->LDAP_LOGIN_RESPOND_SELF_GROUP_FILTER .
+				"\nRespond Others group filter: " . $this->LDAP_LOGIN_RESPOND_OTHERS_GROUP_FILTER .
 				"\nGroup memberof attr: " . $this->LDAP_GROUP_MEMBER_OF_ATTR_NAME .
 				"\nUser SMS attr: " . $this->LDAP_USER_SMS_ATTR_NAME .
 				"\nUserId attr: " . $this->LDAP_USER_ID_ATTR_NAME .
@@ -754,6 +760,12 @@ class FireHall_LDAP
 	}
 	public function setSMSGroupFilter($user_sms_group_filter) {
 		$this->LDAP_LOGIN_SMS_GROUP_FILTER = $user_sms_group_filter;
+	}
+	public function setRespondSelfGroupFilter($user_respond_self_group_filter) {
+	    $this->LDAP_LOGIN_RESPOND_SELF_GROUP_FILTER = $user_respond_self_group_filter;
+	}
+	public function setRespondOthersGroupFilter($user_respond_others_group_filter) {
+	    $this->LDAP_LOGIN_RESPOND_OTHERS_GROUP_FILTER = $user_respond_others_group_filter;
 	}
 	public function setGroupMemberOf_Attribute($group_member_of_attr) {
 		$this->LDAP_GROUP_MEMBER_OF_ATTR_NAME = $group_member_of_attr;

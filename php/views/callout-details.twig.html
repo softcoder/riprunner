@@ -13,8 +13,11 @@
 {% if callout_details_vm.firehall_id is defined %}
     {% if callout_details_vm.firehall is defined and callout_details_vm.firehall is not null %}
         {% if callout_details_vm.callout_id != -1 and callout_details_vm.calloutkey_id is defined %}
+        
+    {% if callout_details_vm.isCalloutAuth %}
     <body class="ci_body">
         {% block callout_header_title %}
+        <span class="ci_header">Welcome {{ callout_details_vm.member_id }} - </span>
         <span class="ci_header">Call Information:</span>
         {% endblock %}
         
@@ -84,9 +87,11 @@
 		   {% endif %}
            </td>
            <td>
-            {% if (callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED and row_responding.status != 3 and row_responding.status != 10) or 
-                  (callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
-                  and row_responding.status != 4) %}
+            {% if ((callout_details_vm.member_access_respond_self and row_responding.user_id == callout_details_vm.member_id) or 
+                    callout_details_vm.member_access_respond_others) and
+                   ((callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED and row_responding.status != 3 and row_responding.status != 10) or 
+                    (callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
+                    and row_responding.status != 4)) %}
             <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
                 <option value="4" {{ row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
                 <option value="5" {{ row_responding.status == 5 ? 'selected="selected"' : '' }}>Standby</option>
@@ -110,9 +115,9 @@
                 }     
             });         
             </script>
-           {% else %}
+            {% else %}
             <span class="ci_responders_header">{{ row_responding.responder_display_status }}</span>
-           {% endif %}
+            {% endif %}
            </td>
            <!--  
            <td>
@@ -194,9 +199,11 @@
 		   {% endif %}
 		   </td>
            <td>
-            {% if (callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED and row_responding.status != 3 and row_responding.status != 10) or 
-                  (callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
-                  and row_responding.status != 4) %}
+            {% if ((callout_details_vm.member_access_respond_self and row_responding.user_id == callout_details_vm.member_id) or 
+                    callout_details_vm.member_access_respond_others) and
+                  ((callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED and row_responding.status != 3 and row_responding.status != 10) or 
+                   (callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
+                   and row_responding.status != 4)) %}
             <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
                 <option value="4" {{ row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
                 <option value="5" {{ row_responding.status == 5 ? 'selected="selected"' : '' }}>Standby</option>
@@ -220,9 +227,9 @@
                 }     
 	        });	        
 	        </script>
-           {% else %}
+            {% else %}
             <span class="ci_responders_header">{{ row_responding.responder_display_status }}</span>
-           {% endif %}
+            {% endif %}
            </td>
            <td>
             <span class="ci_header_response_time">{{ row_responding.responsetime }}</span>
@@ -310,7 +317,8 @@
                     {% for row_no in callout_details_vm.callout_details_not_responding_list %}
 
                         {% if callout_details_vm.member_id is null or
-                           callout_details_vm.member_id == row_no.user_id %}
+                              ((callout_details_vm.member_access_respond_self and row_no.user_id == callout_details_vm.member_id) or 
+                                callout_details_vm.member_access_respond_others) %}
                 
                             {% block callout_no_response %}
                             {% if callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED or callout_pending %}
@@ -354,7 +362,8 @@
                         {% for row_yes in callout_details_vm.callout_details_end_responding_list %}
                     
 	                        {% if callout_details_vm.member_id is null or
-	                           callout_details_vm.member_id == row_yes.user_id %}
+                                  ((callout_details_vm.member_access_respond_self and row_yes.user_id == callout_details_vm.member_id) or 
+                                    callout_details_vm.member_access_respond_others) %}
                     
                                 {% block callout_yes_response_complete %}
 	                            <tr>
@@ -397,71 +406,46 @@
                     {% endif %}
                 {% endif %}
             {% endif %}
-             
-        {% else %}
-    <body class="ci_body_error">
-    <h2><b>Invalid Request</b></h2>
-           
-        {% endif %}
-    {% else %}
-    <body class="ci_body_error">
-    <h2><b>Invalid Request</b></h2>
-    
-        <div id="error">
-            <h2>
-            <b><font color="white">ERROR loading page, identifier not found!</font></b>
-            </h2>
-        </div>
-    {% endif %}
-{% else %}
-    <body class="ci_body_error">
-    <h2><b>Invalid Request</b></h2>
 
-    <div id="error">
-        <h2>
-        <b><font color="white">ERROR loading page, invalid identifier!</font></b>
-        </h2>
-    </div>
-{% endif %}
 
 <script type="text/javascript">
   
 function getGEOLocationCoords_callback_fn(geoAccess,param2) {
-	//alert('In getGEOLocationCoords_callback_fn' + geoAccess);
-	//alert(param2);
-	console.info('In getGEOLocationCoords_callback_fn: access = ' + geoAccess);
-	if(geoAccess && typeof callout_geo_dest != 'undefined') {
+    //alert('In getGEOLocationCoords_callback_fn' + geoAccess);
+    //alert(param2);
+    console.info('In getGEOLocationCoords_callback_fn: access = ' + geoAccess);
+    if(geoAccess && typeof callout_geo_dest != 'undefined') {
         //var geo_tag = document.getElementById('geo_tag');
         //if(typeof geo_tag != 'undefined') {
-        	//geo_tag.textContent = 'Your GEO Position: ' + param2.lat + ", " + param2.lng;
-        	$( '#geo_tag' ).html( 'Your GEO Position: ' + param2.lat + ", " + param2.lng );
-        	//$( '#geo_tag' ).html( 'Your GEO Position: ' + param2.lat + ", " + param2.lng + " dest: " + callout_geo_dest);
-        	console.info('You: ' + param2.lat + ", " + param2.lng + " dest: " + callout_geo_dest);
-        	
-        	var origin = new google.maps.LatLng( param2.lat, param2.lng );
-        	var destination = callout_geo_dest; // using string
+            //geo_tag.textContent = 'Your GEO Position: ' + param2.lat + ", " + param2.lng;
+            $( '#geo_tag' ).html( 'Your GEO Position: ' + param2.lat + ", " + param2.lng );
+            //$( '#geo_tag' ).html( 'Your GEO Position: ' + param2.lat + ", " + param2.lng + " dest: " + callout_geo_dest);
+            console.info('You: ' + param2.lat + ", " + param2.lng + " dest: " + callout_geo_dest);
+            
+            var origin = new google.maps.LatLng( param2.lat, param2.lng );
+            var destination = callout_geo_dest; // using string
 
-        	var directionsService = new google.maps.DirectionsService();
-        	var request = {
-        	    origin: origin, // LatLng|string
-        	    destination: destination, // LatLng|string
-        	    travelMode: google.maps.DirectionsTravelMode.DRIVING
-        	};
+            var directionsService = new google.maps.DirectionsService();
+            var request = {
+                origin: origin, // LatLng|string
+                destination: destination, // LatLng|string
+                travelMode: google.maps.DirectionsTravelMode.DRIVING
+            };
 
-        	directionsService.route( request, function( response, status ) {
-        	    if ( status === 'OK' ) {
-        	        var point = response.routes[ 0 ].legs[ 0 ];
-        	        $( '#geo_tag' ).html( point.duration.text + ' (' + point.distance.text + ')' );
-        	        console.info('Estimated time to scene: ' + point.duration.text + ' (' + point.distance.text + ')');
-        	    }
-        	} );        	
+            directionsService.route( request, function( response, status ) {
+                if ( status === 'OK' ) {
+                    var point = response.routes[ 0 ].legs[ 0 ];
+                    $( '#geo_tag' ).html( point.duration.text + ' (' + point.distance.text + ')' );
+                    console.info('Estimated time to scene: ' + point.duration.text + ' (' + point.distance.text + ')');
+                }
+            } );            
         //}
-	}
+    }
 }
 
 function getGEOLocationCoords_initialize(map) {
-	getGEOLocationCoords(getGEOLocationCoords_callback_fn);
-	setResponderETAs(map);
+    getGEOLocationCoords(getGEOLocationCoords_callback_fn);
+    setResponderETAs(map);
 }
 // https://maps.googleapis.com/maps/api/js?v=3.exp&key={{ callout_details_vm.firehall.WEBSITE.WEBSITE_GOOGLE_MAP_API_KEY }}&alternatives=true&callback=map_initialize    
 
@@ -470,48 +454,48 @@ function setResponderETAs(map) {
     //debugger;
     var responder_count = {{ callout_details_vm.callout_details_responding_list|length }};    
     for(index = 1; index <= responder_count; ++index) {
-    	try {
-	    	var callout_geo_src = $( '#responder_geo_'+index).attr('value');
-		    if(callout_geo_src != 'undefined' && callout_geo_dest != 'undefined') {
-	            $( '#responder_eta_' + index ).html( 'calculating...' );
-	            //$( '#geo_tag' ).html( 'Your GEO Position: ' + param2.lat + ", " + param2.lng + " dest: " + callout_geo_dest);
-	            console.info('You: ' + callout_geo_src + " dest: " + callout_geo_dest);
-	            
-	            var origin = callout_geo_src;
-	            var destination = callout_geo_dest; // using string
-	
-	            //debugger;
-	            var directionsService = new google.maps.DirectionsService();
-	            var request = {
-	                origin: origin, // LatLng|string
-	                destination: destination, // LatLng|string
-	                travelMode: google.maps.DirectionsTravelMode.DRIVING
-	            };
-	
-	            calculateRoute(directionsService, request, index, callout_geo_src, map);
-		    }
-    	}
+        try {
+            var callout_geo_src = $( '#responder_geo_'+index).attr('value');
+            if(callout_geo_src != 'undefined' && callout_geo_dest != 'undefined') {
+                $( '#responder_eta_' + index ).html( 'calculating...' );
+                //$( '#geo_tag' ).html( 'Your GEO Position: ' + param2.lat + ", " + param2.lng + " dest: " + callout_geo_dest);
+                console.info('You: ' + callout_geo_src + " dest: " + callout_geo_dest);
+                
+                var origin = callout_geo_src;
+                var destination = callout_geo_dest; // using string
+    
+                //debugger;
+                var directionsService = new google.maps.DirectionsService();
+                var request = {
+                    origin: origin, // LatLng|string
+                    destination: destination, // LatLng|string
+                    travelMode: google.maps.DirectionsTravelMode.DRIVING
+                };
+    
+                calculateRoute(directionsService, request, index, callout_geo_src, map);
+            }
+        }
         catch(ex) {
             console.info('ERROR In setResponderETAs() for index: ' + index + ' error: ' + ex.message);
         }
-	}
+    }
 }
 
 function addResponderToMap(responder_name, responder_geo, map) {
-	console.info('In addResponderToMap() START');
-	try {
+    console.info('In addResponderToMap() START');
+    try {
         // Create and place markers for Responders
         //debugger;
         var latlng = responder_geo.split(',')
-		var infowindow = new google.maps.InfoWindow();
-		var marker = new google.maps.Marker({
-			position: new google.maps.LatLng(parseFloat(latlng[0]),parseFloat(latlng[1])),
-	        title: "Responder: " + responder_name,
-	        clickable: true,
-	        icon: '{{ gvm.RR_DOC_ROOT }}images/icons/respond_to_hall.png',
-	        map: map
-		});
-		
+        var infowindow = new google.maps.InfoWindow();
+        var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(parseFloat(latlng[0]),parseFloat(latlng[1])),
+            title: "Responder: " + responder_name,
+            clickable: true,
+            icon: '{{ gvm.RR_DOC_ROOT }}images/icons/respond_to_hall.png',
+            map: map
+        });
+        
         google.maps.event.addListener(marker, 'click', (function(marker, responder_name) {
             return function() {
                 infowindow.setContent(responder_name);
@@ -519,7 +503,7 @@ function addResponderToMap(responder_name, responder_geo, map) {
             }
         })
         (marker, responder_name));
-		
+        
         marker.setMap(map);
     }
     catch(ex) {
@@ -544,45 +528,45 @@ function calculateRoute(directionsService,request,index, callout_geo_src, map) {
             
             // === if we were sending the requests to fast, try this one again and increase the delay
             if (status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
-            	try {
-	            	//calculateRoute(directionsService,request,index, callout_geo_src, map);
-	            	//setTimeout('getAddress("'+addresses[nextAddress]+'",theNext)', 100);
-	            	//setTimeout('calculateRoute(directionsService,request,index, callout_geo_src, map)', 100);
-            		setTimeout(function(){
-            			calculateRoute(directionsService,request,index, callout_geo_src, map);
-            		}, 120*index);
-	            }
+                try {
+                    //calculateRoute(directionsService,request,index, callout_geo_src, map);
+                    //setTimeout('getAddress("'+addresses[nextAddress]+'",theNext)', 100);
+                    //setTimeout('calculateRoute(directionsService,request,index, callout_geo_src, map)', 100);
+                    setTimeout(function(){
+                        calculateRoute(directionsService,request,index, callout_geo_src, map);
+                    }, 120*index);
+                }
                 catch(ex) {
                     console.info('ERROR In calculateRoute() for index: ' + index + ' error: ' + ex.message);
                 }
             }
             else {
-            	addResponderToMap($( '#responder_name_'+index).attr('value'), callout_geo_src, map);
+                addResponderToMap($( '#responder_name_'+index).attr('value'), callout_geo_src, map);
             }
         }
     });
 }
 
 $( document ).ready(function() {
-	// Handle any responder tracking
-	{% if callout_details_vm.firehall is defined and
-	      callout_details_vm.firehall is not null and
-	      callout_details_vm.callout_responding_user_id is defined and
-	      callout_details_vm.callout_responding_user_id is not null and
-	      callout_details_vm.firehall.MOBILE.MOBILE_TRACKING_ENABLED %}
+    // Handle any responder tracking
+    {% if callout_details_vm.firehall is defined and
+          callout_details_vm.firehall is not null and
+          callout_details_vm.callout_responding_user_id is defined and
+          callout_details_vm.callout_responding_user_id is not null and
+          callout_details_vm.firehall.MOBILE.MOBILE_TRACKING_ENABLED %}
 
-	    var uri = window.location.toString();
-	    if (uri.indexOf("?") > 0) {
-	      var clean_uri = uri.substring(0, uri.indexOf("&cruid"));
-	      window.history.replaceState({}, document.title, clean_uri);
-	    }
-	
+        var uri = window.location.toString();
+        if (uri.indexOf("?") > 0) {
+          var clean_uri = uri.substring(0, uri.indexOf("&cruid"));
+          window.history.replaceState({}, document.title, clean_uri);
+        }
+    
         {% if gvm.enabled_asynch_mode %}
         openAjaxUrl("{{ gvm.RR_DOC_ROOT }}ct/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&delay=60&uid={{ callout_details_vm.callout_responding_user_id }}&ckid={{ callout_details_vm.calloutkey_id }}",true,10,30000);
         {% else %}
         openURLHidden("{{ gvm.RR_DOC_ROOT }}ct/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&delay=60&uid={{ callout_details_vm.callout_responding_user_id }}&ckid={{ callout_details_vm.calloutkey_id }}");
         {% endif %}
-	
+    
     {% endif %}
 
     {% if callout_pending is defined and callout_pending %}
@@ -592,13 +576,13 @@ $( document ).ready(function() {
         var MAP_AUTO_REFRESH_SECONDS = 60;
         // This reloads the page
         setTimeout(function () {
-        	   try {
-        		    SaveView(riprunner_js_map);
-        	   }
+               try {
+                    SaveView(riprunner_js_map);
+               }
                catch(e) {
                    console.info('Error calling SaveView msg: ' + e.message);            
                }
-        		    
+                    
                location.reload(true); 
         }, MAP_AUTO_REFRESH_SECONDS * 1000);
         // This counts down to 0
@@ -615,6 +599,38 @@ $( document ).ready(function() {
     
 });     
 </script>
+
+    
+    {% else %}
+    <body class="ci_body_error">
+    <h2><b>Invalid Auth.</b></h2>
+    
+    {% endif %}
+             
+    {% else %}
+    <body class="ci_body_error">
+    <h2><b>Invalid Request(1)</b></h2>
+           
+        {% endif %}
+    {% else %}
+    <body class="ci_body_error">
+    <h2><b>Invalid Request(2)</b></h2>
+    
+        <div id="error">
+            <h2>
+            <b><font color="white">ERROR loading page, identifier not found!</font></b>
+            </h2>
+        </div>
+    {% endif %}
+{% else %}
+    <body class="ci_body_error">
+    <h2><b>Invalid Request(3)</b></h2>
+    <div id="error">
+        <h2>
+        <b><font color="white">ERROR loading page, invalid identifier!</font></b>
+        </h2>
+    </div>
+{% endif %}
 
 </body>
 </html>

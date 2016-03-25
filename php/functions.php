@@ -108,6 +108,52 @@ function getFirstActiveFireHallConfig($list) {
 	return null;
 }
 
+function getUserNameFromMobilePhone($FIREHALL, $db_connection, $matching_sms_user) {
+    global $log;
+
+    // Find matching user for mobile #
+    $must_close_db = false;
+    if(isset($db_connection) === false) {
+        $db = new \riprunner\DbConnection($FIREHALL);
+        $db_connection = $db->getConnection();
+    
+        $must_close_db = true;
+    }
+    
+    $sql_statement = new \riprunner\SqlStatement($db_connection);
+
+    if($FIREHALL->LDAP->ENABLED === true) {
+        create_temp_users_table_for_ldap($FIREHALL, $db_connection);
+
+        $sql = $sql_statement->getSqlStatement('ldap_user_accounts_select_by_mobile');
+    }
+    else {
+        $sql = $sql_statement->getSqlStatement('user_accounts_select_by_mobile');
+    }
+
+    $qry_bind = $db_connection->prepare($sql);
+    $qry_bind->bindParam(':fhid', $FIREHALL->FIREHALL_ID);
+    $qry_bind->bindParam(':mobile_phone', $matching_sms_user);
+
+    $qry_bind->execute();
+
+    $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+    $qry_bind->closeCursor();
+
+    if($log !== null) $log->trace("SMS Host got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . count($rows));
+
+    if($must_close_db === true) {
+        \riprunner\DbConnection::disconnect_db( $db_connection );
+    }
+    
+    foreach($rows as $row){
+        //$result->setUserAccountId($row->id);
+        //$result->setUserId($row->user_id);
+        return $row->user_id;
+    }
+    return null;
+}
+
 function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
 	global $log;
 

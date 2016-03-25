@@ -35,27 +35,43 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		$log->trace("Using SMS plugin [". $smsPlugin->getPluginType() ."]");
 		
 		$config = new \riprunner\ConfigManager(array($callout->getFirehall()));
-				
+
+		$db = new \riprunner\DbConnection($callout->getFirehall());
+		$db_connection = $db->getConnection();
+		
 		if($callout->getFirehall()->LDAP->ENABLED === true) {
+		    $log->trace("SMS plugin resolving ldap sms recipients...");
+		    
 			$recipients = get_sms_recipients_ldap($callout->getFirehall(), null);
+			
+			$log->trace("SMS plugin resolved ldap sms recipients: ".$recipients);
+			
 			$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { $m; return ''; }, $recipients);
+			
+			$log->trace("SMS plugin resolved parsed ldap sms recipients: ".$recipients);
+			
 			$recipient_list = explode(';', $recipients);
 			$recipient_list_array = $recipient_list;
 
 			$sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY',$callout->getFirehall()->FIREHALL_ID);
 			$recipient_list_array = array_merge($recipient_list_array,explode(';', $sms_notify));
-				
+
 			$recipient_list_type = RecipientListType::MobileList;
 		}
 		else {
+		    $log->trace("SMS plugin resolving sms recipients...");
+		    
 			$recipient_list_type = (($callout->getFirehall()->SMS->SMS_RECIPIENTS_ARE_GROUP === true) ?
 					RecipientListType::GroupList : RecipientListType::MobileList);
 			if($recipient_list_type === RecipientListType::GroupList) {
 				$recipients_group = $callout->getFirehall()->SMS->SMS_RECIPIENTS;
+				
+				$log->trace("SMS plugin resolved sms group recipients: ".$recipients_group);
+				
 				$recipient_list_array = explode(';', $recipients_group);
 			}
 			else if($callout->getFirehall()->SMS->SMS_RECIPIENTS_FROM_DB === true) {
-				$recipient_list = getMobilePhoneListFromDB($callout->getFirehall(), null);
+				$recipient_list = getMobilePhoneListFromDB($callout->getFirehall(), $db_connection);
 				$recipient_list_array = $recipient_list;
 			}
 			else {
@@ -71,14 +87,32 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		if(isset($msgPrefix) === true) {
 			$smsText = $msgPrefix . $smsText;
 		}
-		$resultSMS = $smsPlugin->signalRecipients($callout->getFirehall()->SMS,  
-				$recipient_list_array, $recipient_list_type, $smsText);
+		
+		// To send one common message to all recipients use the line below:
+		// $resultSMS = $smsPlugin->signalRecipients($callout->getFirehall()->SMS, $recipient_list_array, $recipient_list_type, $smsText);
+		
+		// To send a custom sms to each responder with their credentials use the code below
+		// START:
+		$resultSMS = '';
+		foreach($recipient_list_array as $recipient) {
+		    $log->trace("SMS plugin resolving sms recipient username for mobile: ".$recipient);
+		    $user_id = getUserNameFromMobilePhone($callout->getFirehall(), $db_connection, $recipient);
+		    if($user_id !== null) {
+    		    $recipient_array = array($recipient);
+    		    $resultSMS .= $smsPlugin->signalRecipients($callout->getFirehall()->SMS,  
+    				$recipient_array, $recipient_list_type, $smsText.'&member_id='.$user_id);
+		    }
+		    else {
+		        $log->trace("SMS plugin resolving sms recipient username NOT FOUND for mobile: ".$recipient);
+		    }
+		}
+		// END:
 		
 		$log->trace("Result from SMS plugin [$resultSMS]");
-		
 		if(isset($resultSMS) === true) {
 			echo $resultSMS;
 		}
+		\riprunner\DbConnection::disconnect_db( $db_connection );
 	}
 	
 	private function getSMSCalloutMessage($callout) {

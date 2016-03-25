@@ -46,6 +46,9 @@ class Authentication {
 //     	}
     }
     
+    static public function is_session_started() {
+        return (isset($_SESSION) === true);
+    }
     static public function sec_session_start() {
         self::sec_session_start_ext(null);
     }
@@ -53,7 +56,7 @@ class Authentication {
     static public function sec_session_start_ext($skip_regeneration) {
         global $log;
     
-        $ses_already_started = isset($_SESSION);
+        $ses_already_started = self::is_session_started();
         if ($ses_already_started === false) {
             $session_name = 'sec_session_id';   // Set a custom session name
             //$secure = SECURE;
@@ -105,6 +108,41 @@ class Authentication {
             $ip_address .= 'REMOTE_ADDR: '.htmlspecialchars($_SERVER['REMOTE_ADDR']);
         }
         return $ip_address;
+    }
+    
+    public function getUserAccess($fhid,$user_id) {
+        global $log;
+        
+        $userAccess = 0;
+        if($this->hasDbConnection() == false) {
+            if($log !== null) $log->warn("NO DB CONNECTION during Access check for user [$user_id] fhid [" .
+                    $fhid . "] client [" . self::getClientIPInfo() . "]");            
+            return $userAccess;
+        }
+        //else {
+        //    if($log !== null) $log->warn("YES DB CONNECTION during Access check for user [$user_id] fhid [" .
+        //            $fhid . "] client [" . self::getClientIPInfo() . "]");
+        //}
+        // Using prepared statements means that SQL injection is not possible.
+        $sql = $this->getSqlStatement('login_user_check');
+        $stmt = $this->getDbConnection()->prepare($sql);
+        if ($stmt !== false) {
+            $stmt->bindParam(':id', $user_id);  // Bind "$user_id" to parameter.
+            $stmt->bindParam(':fhid', $fhid);  // Bind "$user_id" to parameter.
+            $stmt->execute();    // Execute the prepared query.
+        
+            // get variables from result.
+            $row = $stmt->fetch(\PDO::FETCH_OBJ);
+            $stmt->closeCursor();
+        
+            if($row !== null && $row !== false) {
+                $userAccess = $row->access;
+            }
+            
+            if($log !== null) $log->trace("Access check for user [$user_id] fhid [" .
+                            $fhid . "] result: ". $userAccess ."client [" . self::getClientIPInfo() . "]");
+        }
+        return $userAccess;
     }
     
     public function login($user_id, $password) {
@@ -270,11 +308,13 @@ class Authentication {
         }
         else {
             // Not logged in
-            if($log !== null) $log->warn("Login check has no valid session! client [" . self::getClientIPInfo() . "] db userid: " .
-                    @$_SESSION['user_db_id'] .
-                    " userid: " . @$_SESSION['user_id'] . " login_String: " . @$_SESSION['login_string']);
-
-            if($log !== null) $log->error("LOGINCHECK F4");
+            //if($this->is_session_started() === true) {
+            //    if($log !== null) $log->warn("Login check has no valid session! client [" . self::getClientIPInfo() . "] db userid: " .
+            //            @$_SESSION['user_db_id'] .
+            //            " userid: " . @$_SESSION['user_id'] . " login_String: " . @$_SESSION['login_string']);
+    
+                //if($log !== null) $log->error("LOGINCHECK F4");
+            //}
             return false;
         }
     }
@@ -289,7 +329,7 @@ class Authentication {
     
     static public function encryptPassword($password) {
         $cost = 10;
-        $salt = strtr(base64_encode(mcrypt_create_iv(16, MCRYPT_DEV_URANDOM)), '+', '.');
+        $salt = strtr(\base64_encode(\mcrypt_create_iv(16, MCRYPT_DEV_URANDOM)), '+', '.');
         $salt = sprintf("$2a$%02d$", $cost) . $salt;
         $new_pwd = crypt($password, $salt);
     
@@ -298,6 +338,108 @@ class Authentication {
 
     public function hasDbConnection() {
         return ($this->db_connection !== null);
+    }
+
+    public function getDbSchemaVersion() {
+        $schema_db_version_get = null;
+        if($this->hasDbConnection() === true) {
+            // First ensure we have the config table installed
+            $sql_statement = new \riprunner\SqlStatement($this->db_connection);
+            $db_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, null);
+            $db_table_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, 'config');
+        
+            if($db_exist === true && $db_table_exist === true) {
+                // Get the schema version from the config table
+                $sql = $this->getSqlStatement('schema_version_get');
+                $stmt = $this->getDbConnection()->prepare($sql);
+                if ($stmt !== false) {
+                    //$stmt->bindParam(':fhid', $firehall_id);
+                    $stmt->execute();
+            
+                    $row = $stmt->fetch(\PDO::FETCH_OBJ);
+                    $stmt->closeCursor();
+                     
+                    if ($row !== false) {
+                        $schema_db_version_get = $row->keyvalue;
+                    }
+                }
+            }
+        }
+        return $schema_db_version_get;
+    }
+    public function isDbSchemaVersionOutdated() {
+        global $log;
+        if($this->hasDbConnection() === true) {
+            // First ensure we have the config table installed
+            $sql_statement = new \riprunner\SqlStatement($this->db_connection);
+            $db_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, null);
+            $db_table_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, 'config');
+            
+        	if($db_exist === false || $db_table_exist === false) {
+        	    if($log !== null) $log->warn("No db schema version detected, executing minimum schema sql.");
+        	    
+        	    $sql = $this->getSqlStatement('schema_upgrade_1_1');
+        	    $qry_bind = $this->getDbConnection()->prepare($sql);
+        	    $qry_bind->execute();
+        	    
+        	    $sql = $this->getSqlStatement('schema_upgrade_1_2');
+        	    $qry_bind = $this->getDbConnection()->prepare($sql);
+        	    $qry_bind->execute();
+        	}
+        	
+        	// Get the schema version from the config table
+        	$schema_db_version_get = null;
+            $sql = $this->getSqlStatement('schema_version_get');
+            $stmt = $this->getDbConnection()->prepare($sql);
+            if ($stmt !== false) {
+                //$stmt->bindParam(':fhid', $firehall_id);
+                $stmt->execute();
+
+                $row = $stmt->fetch(\PDO::FETCH_OBJ);
+                $stmt->closeCursor();
+                	
+                if ($row !== false) {
+                    $schema_db_version_get = $row->keyvalue;
+                }
+            }
+            // Minimum schema version expected
+            if ($schema_db_version_get+0 < 1.2) {
+                if($log !== null) $log->error("Db schema version lower than minimum expected: ".$schema_db_version_get);
+                return true;
+            }
+        	
+            if($log !== null) $log->trace("Looking for new Db schema, current version: ".$schema_db_version_get);
+            
+            // Now loop through all schemas looking for new entries to execute
+            for($major_schema_version = 1; $major_schema_version < 999; $major_schema_version++) {
+                $found_entry_for_major_version = false;
+                for($minor_schema_version = 1; $minor_schema_version < 999; $minor_schema_version++) {
+                    $sql_schema_version = ($major_schema_version.'.'.$minor_schema_version)+0;
+                    $schema_tag_name = 'schema_upgrade_'.$major_schema_version.'_'.$minor_schema_version;
+                    $sql = $this->getSqlStatement($schema_tag_name);
+                    if($sql !== null && !empty($sql)) {
+                        if($log !== null) $log->trace("Found sql for tag: ".$schema_tag_name. " sql: ".$sql);
+                        
+                        $found_entry_for_major_version = true;
+                        if ($sql_schema_version > $schema_db_version_get+0) {
+                            if($log !== null) $log->warn('Found new schema to execute, db schema version: '.$schema_db_version_get.
+                                                         ' new schema version: '.$sql_schema_version);
+                             
+                            $qry_bind = $this->getDbConnection()->prepare($sql);
+                            $qry_bind->execute();
+                        }
+                    }
+                    else {
+                        if($log !== null) $log->trace("NO MORE Found sql for tag: ".$schema_tag_name);
+                        break;
+                    }
+                }
+                if($found_entry_for_major_version === false) {
+                    break;
+                }
+            }
+        }
+        return false;
     }
     
     private function getDbConnection() {

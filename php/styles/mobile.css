@@ -646,9 +646,11 @@ form:after {
     color: #00aeef;
 }
 
+/*
 input[type=checkbox] {
 display:none;
 }
+*/
  
 input[type=checkbox] + label
 {

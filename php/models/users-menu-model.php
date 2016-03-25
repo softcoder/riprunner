@@ -38,13 +38,16 @@ class UsersMenuViewModel extends BaseViewModel {
 	
 	private function getIsSelfEditMode() {
 		$self_edit = get_query_param('se');
-		$self_edit = (isset($self_edit) === true && $self_edit == true);
+		$self_edit = (isset($self_edit) === true && $self_edit != null && $self_edit == true);
 		return $self_edit;
 	}
 	
 	private function getUserList() {
 		global $log;
 
+		// Debug
+		//$recipients = get_sms_recipients_ldap($this->getGvm()->firehall, null);
+		
 		// Read from the database info about this callout
 		$self_edit = $this->getIsSelfEditMode();
 		
@@ -82,6 +85,8 @@ class UsersMenuViewModel extends BaseViewModel {
 			// Add any custom fields with values here
 			$row['access_admin'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_ADMIN);
 			$row['access_sms'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_SIGNAL_SMS);
+			$row['access_respond_self'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_CALLOUT_RESPOND_SELF);
+			$row['access_respond_others'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 			
 			$resultArray[] = $row;
 		}		

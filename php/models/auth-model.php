@@ -11,6 +11,8 @@ require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 // The model class handling variable requests dynamically
 class AuthViewModel extends BaseViewModel {
 	
+    private $authEntity;
+    
 	static public function getAuthVarContainerName() {
 		return "auth";
 	}
@@ -49,14 +51,22 @@ class AuthViewModel extends BaseViewModel {
 		}
 		return parent::__isset($name);
 	}
+
+	public function getAuthEntity() {
+	    if($this->authEntity == null) {
+	        $this->authEntity = new \riprunner\Authentication($this->getGvm()->firehall);
+	    }
+	    return $this->authEntity;
+	}
 	
 	private function getIsAuth() {
 		if($this->getGvm() === null) {
 			throw new \Exception("Invalid null gvm var reference.");
 		}
-
-		$auth = new \riprunner\Authentication($this->getGvm()->firehall);
-		return $auth->login_check();
+		if($this->getAuthEntity()->is_session_started() === false) {
+		    return false;
+		}
+		return $this->getAuthEntity()->login_check();
 	}
 	
 	private function userHasAcess($access_flag) {

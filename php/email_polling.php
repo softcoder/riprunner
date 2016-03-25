@@ -134,12 +134,14 @@ class EmailTriggerPolling {
         $html = '';
     
         echo 'Loop count: '.count($FIREHALLS).PHP_EOL;
+        if($log !== null) $log->trace('Email trigger checking firehall count:'.count($FIREHALLS));
     
         # Loop through all Firehall email triggers
         foreach ($FIREHALLS as &$FIREHALL) {
             if ($FIREHALL->ENABLED === false ||
                 $FIREHALL->EMAIL->EMAIL_HOST_ENABLED === false) {
-
+                //echo 'Skipping firehall: '.$FIREHALL->WEBSITE->FIREHALL_NAME.PHP_EOL;
+                if($log !== null) $log->trace('Skipping firehall: '.$FIREHALL->WEBSITE->FIREHALL_NAME);
                 $html.= '<h2>Skipping: '.$FIREHALL->WEBSITE->FIREHALL_NAME.'</h2>';
                 $html.= 'config enabled = '.var_export($FIREHALL->ENABLED, true);
                 $html.= ', email = '.var_export($FIREHALL->EMAIL->EMAIL_HOST_ENABLED, true).'<br />';
@@ -151,24 +153,33 @@ class EmailTriggerPolling {
             //          $FIREHALL->WEBSITE->FIREHALL_NAME.
             //          ' connection string ['.$FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING.']'
             //     	 );
-
+            //echo 'Checking firehall: '.$FIREHALL->WEBSITE->FIREHALL_NAME.PHP_EOL;
+            if($log !== null) $log->trace('Checking firehall: '.$FIREHALL->WEBSITE->FIREHALL_NAME);
+            
             $html.= '<h2>Checking for: '.$FIREHALL->WEBSITE->FIREHALL_NAME.'</h2>';
             $html.= 'config enabled = '.var_export($FIREHALL->ENABLED, true);
             $html.= ', email = '.var_export($FIREHALL->EMAIL->EMAIL_HOST_ENABLED, true).'<br />';
              
             # Connect to the mail server and grab headers from the mailbox
-            $mail = @$this->getIMapProvider()->imap_open( $FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING,
+            $mail = $this->getIMapProvider()->imap_open( $FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING,
                                 $FIREHALL->EMAIL->EMAIL_HOST_USERNAME,
                                 $FIREHALL->EMAIL->EMAIL_HOST_PASSWORD,
                                 OP_SILENT,
                                 2);
 
+            //echo 'After imap_open firehall: '.$FIREHALL->WEBSITE->FIREHALL_NAME.PHP_EOL;
+            if($log !== null) $log->trace('After imap_open firehall: '.$FIREHALL->WEBSITE->FIREHALL_NAME);
+            
             if ($mail === false) {
                 // call this to avoid the mailbox is empty error message
+                echo 'IMAP error detected, details to follow...'.PHP_EOL;
                 $err_text = $this->getIMapProvider()->imap_last_error();
                 if($log !== null) $log->error('Email trigger checking imap_open response ['.$err_text.']');
             }
             else {
+                //echo 'IMAP success detected, details to follow...'.PHP_EOL;
+                if($log !== null) $log->trace('SUCCESS imap_open firehall: '.$FIREHALL->WEBSITE->FIREHALL_NAME);
+                
                 $headers = $this->getIMapProvider()->imap_headers($mail);
                 $headers_count = count($headers);
 
