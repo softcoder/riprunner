@@ -416,7 +416,7 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 			$username = $info[$i][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME];
 			unset($username['count']);
 
-			if($log !== null) $log->trace("Found username [$username]");
+			if($log !== null) $log->trace("Found username [$username[0]]");
 			
 			$userDn = $info[$i][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
 
