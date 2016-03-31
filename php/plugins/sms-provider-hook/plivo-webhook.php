@@ -67,7 +67,6 @@ Cannot cancel the callout, no callouts active!
 <?php elseif($sms_cmd_handler->startsWith(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_BULK) === true): ?> 
     </Message>
 <?php echo $sms_cmd_handler->process_bulk_sms_command($result,SMS_GATEWAY_PLIVO) ?>
-    <Message>
 <?php else: ?>
 Received Unknown SMS command
 From [<?php echo ((getSafeRequestValue('From') !== null) ? getSafeRequestValue('From') : '') ?>]
@@ -78,6 +77,8 @@ Text [<?php echo ((getSafeRequestValue('Text') !== null) ? getSafeRequestValue('
 To show all available commands, use any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_HELP).PHP_EOL ?>
 <?php endif; ?>
 <?php endif; ?>
+<?php if($sms_cmd_handler->startsWith(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_BULK) === false): ?> 
     </Message>
-<?php endif; ?>    
+<?php endif; ?>
+<?php endif; ?>
 </Response>

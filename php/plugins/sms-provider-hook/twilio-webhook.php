@@ -32,7 +32,7 @@ $result = $sms_cmd_handler->handle_sms_command($FIREHALLS,SMS_GATEWAY_TWILIO);
 <Response>
 <?php if($result->getFirehall() !== null && $result->getUserId() !== null): ?>
     <Message>
-Hello <?php echo $result->getUserId() ?> 
+Hello <?php echo $result->getUserId() ?>
 <?php if($result->getIsProcessed() === true): ?>
 Processed SMS CMD: [<?php echo $result->getCmd() ?>]
 Body [<?php echo ((getSafeRequestValue('Body') !== null) ? getSafeRequestValue('Body') : '') ?>]
@@ -64,10 +64,9 @@ Cannot update status, no callouts active!
 Cannot complete the callout, no callouts active!
 <?php elseif(in_array(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CANCELLED) === true && count($result->getLiveCallouts()) <= 0): ?>
 Cannot cancel the callout, no callouts active!
-<?php elseif($sms_cmd_handler->startsWith(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_BULK) === true): ?> 
+<?php elseif($sms_cmd_handler->startsWith(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_BULK) === true): ?>
     </Message>
 <?php echo $sms_cmd_handler->process_bulk_sms_command($result,SMS_GATEWAY_TWILIO) ?>
-    <Message>
 <?php else: ?>
 Received Unknown SMS command
 From [<?php echo ((getSafeRequestValue('From') !== null) ? getSafeRequestValue('From') : '') ?>]
@@ -79,6 +78,8 @@ Body [<?php echo ((getSafeRequestValue('Body') !== null) ? getSafeRequestValue('
 To show all available commands, use any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_HELP).PHP_EOL ?>
 <?php endif; ?>
 <?php endif; ?>
+<?php if($sms_cmd_handler->startsWith(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_BULK) === false): ?> 
     </Message>
-<?php endif; ?>    
+<?php endif; ?>
+<?php endif; ?>
 </Response>
