@@ -415,7 +415,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 
 		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 		
-		if($this->getGvm()->firehall->LDAP->ENABLED === true) {
+		if($this->getGvm()->firehall->LDAP->ENABLED == true) {
 			create_temp_users_table_for_ldap($this->getGvm()->firehall, 
 												$this->getGvm()->RR_DB_CONN);
 			// Search the database
@@ -464,7 +464,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
             array_push($dynamicColumnTitles, $row_titles->datalabel);
         }
 	
-        if($this->getGvm()->firehall->LDAP->ENABLED === true) {
+        if($this->getGvm()->firehall->LDAP->ENABLED == true) {
         	create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
 
 			// Find all occourences of calls that are completed(10) or canceled(3).  
@@ -587,7 +587,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
         $MAX_MONTHLY_LABEL = "*MONTHLY TOTAL";
     
         $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
-        if($this->getGvm()->firehall->LDAP->ENABLED === true) {
+        if($this->getGvm()->firehall->LDAP->ENABLED == true) {
             create_temp_users_table_for_ldap($this->getGvm()->firehall,
             $this->getGvm()->RR_DB_CONN);
             // Search the database
@@ -636,7 +636,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
             array_push($dynamicColumnTitles, $row_titles->datalabel);
         }
     
-        if($this->getGvm()->firehall->LDAP->ENABLED === true) {
+        if($this->getGvm()->firehall->LDAP->ENABLED == true) {
             create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
     
             // Find all occourences of calls that are completed(10) or canceled(3).

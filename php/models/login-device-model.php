@@ -102,7 +102,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 			$log->trace("device register registration_id = [". $this->getRegistrationId() ."] firehall_id = [". $this->getFirehallId() ."] user_id = [". $this->getUserId() ."] user_pwd = [". $this->getUserPassword() . "]");
 			
 			$this->user_account_id = null;
-			if($this->getFirehall()->LDAP->ENABLED === true) {
+			if($this->getFirehall()->LDAP->ENABLED == true) {
 				$this->user_authenticated = login_ldap($this->getFirehall(), $this->getUserId(), $this->getUserPassword());
 			}
 			else {
@@ -255,7 +255,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 				
 		if(isset($this->user_account_id) === true) {
-			if($this->getFirehall()->LDAP->ENABLED === true) {
+			if($this->getFirehall()->LDAP->ENABLED == true) {
 				create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 				// START: responders
 				$sql_response = $sql_statement->getSqlStatement('ldap_callout_responders');

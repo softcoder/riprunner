@@ -39,7 +39,7 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		$db = new \riprunner\DbConnection($callout->getFirehall());
 		$db_connection = $db->getConnection();
 		
-		if($callout->getFirehall()->LDAP->ENABLED === true) {
+		if($callout->getFirehall()->LDAP->ENABLED == true) {
 		    $log->trace("SMS plugin resolving ldap sms recipients...");
 		    
 			$recipients = get_sms_recipients_ldap($callout->getFirehall(), null);

@@ -48,7 +48,7 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 			
 			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 				
-			if($this->getGvm()->firehall->LDAP->ENABLED === true) {
+			if($this->getGvm()->firehall->LDAP->ENABLED == true) {
 				create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
 				$sql = $sql_statement->getSqlStatement('ldap_callout_history_response_select');
 			}

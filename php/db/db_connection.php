@@ -37,7 +37,7 @@ class DbConnection {
     	}
     	 
     	if($this->firehall !== null) {
-    	    if($this->firehall->ENABLED === false) {
+    	    if($this->firehall->ENABLED == false) {
     	        throwExceptionAndLogError('Db Connection firehall disabled!', 'Db Connection firehall disabled.');
     	    }
     	    	

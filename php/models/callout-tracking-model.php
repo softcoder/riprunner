@@ -223,7 +223,7 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			}
 			
 			// Get the latest GEO coordinates for each responding member
-			if($this->getFirehall()->LDAP->ENABLED === true) {
+			if($this->getFirehall()->LDAP->ENABLED == true) {
 			    create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 			    $sql = $sql_statement->getSqlStatement('ldap_check_callout_tracking_responders');
 			}
@@ -262,7 +262,7 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			// Authenticate the user
 		    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 		    
-			if($this->getFirehall()->LDAP->ENABLED === true) {
+			if($this->getFirehall()->LDAP->ENABLED == true) {
 			    create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 			    $sql = $sql_statement->getSqlStatement('ldap_callout_authenticate_by_fhid_and_userid');
 			}
@@ -355,7 +355,7 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			
 			// Get the latest GEO coordinates for each responding member
 			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
-			if($this->getFirehall()->LDAP->ENABLED === true) {
+			if($this->getFirehall()->LDAP->ENABLED == true) {
 			    create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
 			    $sql = $sql_statement->getSqlStatement('ldap_check_callout_tracking_responders');
 			}

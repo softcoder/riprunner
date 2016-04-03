@@ -43,9 +43,11 @@ class MobileAppInfoViewModel extends BaseViewModel {
 		
 		$firehall = $this->getGvm()->firehall;
 		if($this->getFirehallId() !== null) {
+		    $log->trace("Mobile app using fhid [" . $this->getFirehallId() . "]");
 			$firehall = findFireHallConfigById($this->getFirehallId(), $this->getGvm()->firehall_list);
 		}
 		if(isset($firehall) === false || $firehall === null) {
+		    $log->trace("Mobile app finding default fhid count: ".count($this->getGvm()->firehall_list));
 			$firehall = getFirstActiveFireHallConfig($this->getGvm()->firehall_list);
 		}
 		if(isset($firehall) === true && $firehall !== null) {

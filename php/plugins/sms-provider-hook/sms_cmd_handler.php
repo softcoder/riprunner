@@ -154,7 +154,7 @@ class SMSCommandHandler {
     
             # Loop through all Firehalls
             foreach ($FIREHALLS_LIST as &$FIREHALL) {
-                if($FIREHALL->ENABLED === true && $FIREHALL->SMS->SMS_SIGNAL_ENABLED === true) {
+                if($FIREHALL->ENABLED == true && $FIREHALL->SMS->SMS_SIGNAL_ENABLED == true) {
                     if($log !== null) $log->trace("SMS Host trigger checking firehall: [" . $FIREHALL->WEBSITE->FIREHALL_NAME . "]");
     
                     $db_connection = null;
@@ -363,7 +363,7 @@ class SMSCommandHandler {
         //return true;
         global $log;
         foreach ($FIREHALLS_LIST as &$FIREHALL) {
-            if($FIREHALL->ENABLED === true && $FIREHALL->SMS->SMS_SIGNAL_ENABLED === true &&
+            if($FIREHALL->ENABLED == true && $FIREHALL->SMS->SMS_SIGNAL_ENABLED == true &&
                 isset($FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN) === true) {
                 // Load auth token
                 $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
@@ -397,7 +397,7 @@ class SMSCommandHandler {
         //return true;
         global $log;
         foreach ($FIREHALLS_LIST as &$FIREHALL) {
-            if($FIREHALL->ENABLED === true && $FIREHALL->SMS->SMS_SIGNAL_ENABLED === true &&
+            if($FIREHALL->ENABLED == true && $FIREHALL->SMS->SMS_SIGNAL_ENABLED == true &&
                isset($FIREHALL->SMS->SMS_PROVIDER_PLIVO_AUTH_TOKEN) === true) {
                     
                 //Get Page URI - Change to "https://" if Needed
@@ -494,7 +494,7 @@ class SMSCommandHandler {
     }
     
     private function get_recipients_list($FIREHALL, $db_connection) {
-        if($FIREHALL->LDAP->ENABLED === true) {
+        if($FIREHALL->LDAP->ENABLED == true) {
             $recipients = get_sms_recipients_ldap($FIREHALL, null);
             $recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { $m; return ''; }, $recipients);
     
@@ -527,7 +527,7 @@ class SMSCommandHandler {
         // Find matching user for mobile #
         $sql_statement = new \riprunner\SqlStatement($db_connection);
     
-        if($FIREHALL->LDAP->ENABLED === true) {
+        if($FIREHALL->LDAP->ENABLED == true) {
             create_temp_users_table_for_ldap($FIREHALL, $db_connection);
     
             $sql = $sql_statement->getSqlStatement('ldap_user_accounts_select_by_mobile');

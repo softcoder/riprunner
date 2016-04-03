@@ -138,7 +138,7 @@ class EmailTriggerPolling {
     
         # Loop through all Firehall email triggers
         foreach ($FIREHALLS as &$FIREHALL) {
-            if ($FIREHALL->ENABLED === false ||
+            if ($FIREHALL->ENABLED == false ||
                 $FIREHALL->EMAIL->EMAIL_HOST_ENABLED === false) {
                 //echo 'Skipping firehall: '.$FIREHALL->WEBSITE->FIREHALL_NAME.PHP_EOL;
                 if($log !== null) $log->trace('Skipping firehall: '.$FIREHALL->WEBSITE->FIREHALL_NAME);

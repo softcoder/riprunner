@@ -103,7 +103,7 @@ class SignalManager {
         
             $config = new \riprunner\ConfigManager(array($FIREHALL));
             
-            if($FIREHALL->LDAP->ENABLED === true) {
+            if($FIREHALL->LDAP->ENABLED == true) {
                 $recipients = get_sms_recipients_ldap($FIREHALL, null);
                 $recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { $m; return ''; }, $recipients);
                 	

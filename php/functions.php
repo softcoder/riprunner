@@ -100,9 +100,13 @@ function findFireHallConfigById($fhid, $list) {
 }
 
 function getFirstActiveFireHallConfig($list) {
+    global $log;
 	foreach ($list as &$firehall) {
-		if($firehall->ENABLED === true) {
+		if($firehall->ENABLED == true) {
 			return $firehall;
+		}
+		else {
+		    $log->trace("In getFirstActiveFireHallConfig skipping: ".$firehall->toString());
 		}
 	}
 	return null;
@@ -122,7 +126,7 @@ function getUserNameFromMobilePhone($FIREHALL, $db_connection, $matching_sms_use
     
     $sql_statement = new \riprunner\SqlStatement($db_connection);
 
-    if($FIREHALL->LDAP->ENABLED === true) {
+    if($FIREHALL->LDAP->ENABLED == true) {
         create_temp_users_table_for_ldap($FIREHALL, $db_connection);
 
         $sql = $sql_statement->getSqlStatement('ldap_user_accounts_select_by_mobile');
@@ -409,7 +413,7 @@ function getFirehallRootURLFromRequest($request_url, $firehalls) {
 		foreach ($firehalls as &$firehall) {
 			//$log->trace("#2 Looking for website root URL req [$request_url] firehall root [" . $firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
 			
-			if($firehall->ENABLED === true && 
+			if($firehall->ENABLED == true && 
 					strpos($request_url, $firehall->WEBSITE->WEBSITE_ROOT_URL) === 0) {
 				return $firehall->WEBSITE->WEBSITE_ROOT_URL;
 			}
