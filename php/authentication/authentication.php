@@ -376,6 +376,7 @@ class Authentication {
             $db_table_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, 'config');
             
         	if($db_exist === false || $db_table_exist === false) {
+			    if($log !== null) $log->error("Db schemas missing, about to execute minimum schema.");
         	    $this->executeMinimumDbSchema();
         	}
         	
@@ -384,10 +385,12 @@ class Authentication {
             $sql = $this->getSqlStatement('schema_version_get');
             $stmt = $this->getDbConnection()->prepare($sql);
             if ($stmt == false) {
+			    if($log !== null) $log->error("Db schema version missing, about to execute minimum schema.");
                 $this->executeMinimumDbSchema();
                 $stmt = $this->getDbConnection()->prepare($sql);
             }
             if ($stmt !== false) {
+			    if($log !== null) $log->trace("Db schema version lookup check.");
                 //$stmt->bindParam(':fhid', $firehall_id);
                 $stmt->execute();
                 $row = $stmt->fetch(\PDO::FETCH_OBJ);
@@ -395,6 +398,17 @@ class Authentication {
                 if ($row !== false) {
                     $schema_db_version_get = $row->keyvalue;
                 }
+				else {
+					if($log !== null) $log->error("Db schema version data missing, about to execute minimum schema.");
+					$this->executeMinimumDbSchema();
+					
+					$stmt->execute();
+					$row = $stmt->fetch(\PDO::FETCH_OBJ);
+					$stmt->closeCursor();
+					if ($row !== false) {
+						$schema_db_version_get = $row->keyvalue;
+					}
+				}
             }
             
             // Minimum schema version expected
