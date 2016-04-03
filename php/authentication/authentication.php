@@ -376,32 +376,27 @@ class Authentication {
             $db_table_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, 'config');
             
         	if($db_exist === false || $db_table_exist === false) {
-        	    if($log !== null) $log->warn("No db schema version detected, executing minimum schema sql.");
-        	    
-        	    $sql = $this->getSqlStatement('schema_upgrade_1_1');
-        	    $qry_bind = $this->getDbConnection()->prepare($sql);
-        	    $qry_bind->execute();
-        	    
-        	    $sql = $this->getSqlStatement('schema_upgrade_1_2');
-        	    $qry_bind = $this->getDbConnection()->prepare($sql);
-        	    $qry_bind->execute();
+        	    $this->executeMinimumDbSchema();
         	}
         	
         	// Get the schema version from the config table
         	$schema_db_version_get = null;
             $sql = $this->getSqlStatement('schema_version_get');
             $stmt = $this->getDbConnection()->prepare($sql);
+            if ($stmt == false) {
+                $this->executeMinimumDbSchema();
+                $stmt = $this->getDbConnection()->prepare($sql);
+            }
             if ($stmt !== false) {
                 //$stmt->bindParam(':fhid', $firehall_id);
                 $stmt->execute();
-
                 $row = $stmt->fetch(\PDO::FETCH_OBJ);
                 $stmt->closeCursor();
-                	
                 if ($row !== false) {
                     $schema_db_version_get = $row->keyvalue;
                 }
             }
+            
             // Minimum schema version expected
             if ($schema_db_version_get+0 < 1.2) {
                 if($log !== null) $log->error("Db schema version lower than minimum expected: ".$schema_db_version_get);
@@ -440,6 +435,19 @@ class Authentication {
             }
         }
         return false;
+    }
+    
+    private function executeMinimumDbSchema() {
+        global $log;
+        if($log !== null) $log->warn("No db schema version detected, executing minimum schema sql.");
+         
+        $sql = $this->getSqlStatement('schema_upgrade_1_1');
+        $qry_bind = $this->getDbConnection()->prepare($sql);
+        $qry_bind->execute();
+         
+        $sql = $this->getSqlStatement('schema_upgrade_1_2');
+        $qry_bind = $this->getDbConnection()->prepare($sql);
+        $qry_bind->execute();
     }
     
     private function getDbConnection() {
