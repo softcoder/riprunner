@@ -192,13 +192,13 @@ class LoginDeviceViewModel extends BaseViewModel {
 			$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 			$sql = $sql_statement->getSqlStatement('check_live_callouts');
 
-			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-			$qry_bind->bindParam(':max_age', $max_hours_old);
-			$qry_bind->execute();
-			
 			//$max_hours_old = DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD;
 			$config = new \riprunner\ConfigManager();
 			$max_hours_old = $config->getSystemConfigValue('DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD');
+			
+			$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+			$qry_bind->bindParam(':max_age', $max_hours_old);
+			$qry_bind->execute();
 
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 			$qry_bind->closeCursor();
