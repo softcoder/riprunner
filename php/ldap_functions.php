@@ -440,7 +440,7 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 			$qry_bind->bindParam(':access', $userAccess);
 			$qry_bind->execute();
 			
-			if($log !== null) $log->trace("INSERT LDAP [$sql] affectedrows: " . $qry_bind->rowCount());
+			if($log !== null) $log->trace("#1 INSERT LDAP [$sql] for user: [$username[0]] with access: $userAccess affectedrows: " . $qry_bind->rowCount());
 		}
 		else if(isset($info[$i])  === true &&
 			isset($info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME]) === true) {
@@ -496,7 +496,7 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 						$qry_bind->bindParam(':access', $userAccess);
 						$qry_bind->execute();
 						
-						if($log !== null) $log->trace("INSERT LDAP [$sql] affectedrows: " . $qry_bind->rowCount());
+						if($log !== null) $log->trace("#2 INSERT LDAP [$sql] for user: [$username[0]] with access: $userAccess affectedrows: " . $qry_bind->rowCount());
 					}
 				}
 				else {

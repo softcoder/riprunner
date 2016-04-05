@@ -119,12 +119,13 @@ class Authentication {
                     $fhid . "] client [" . self::getClientIPInfo() . "]");            
             return $userAccess;
         }
-        //else {
-        //    if($log !== null) $log->warn("YES DB CONNECTION during Access check for user [$user_id] fhid [" .
-        //            $fhid . "] client [" . self::getClientIPInfo() . "]");
-        //}
-        // Using prepared statements means that SQL injection is not possible.
-        $sql = $this->getSqlStatement('login_user_check');
+        if($this->getFirehall()->LDAP->ENABLED === true) {
+            create_temp_users_table_for_ldap($this->getFirehall(), $this->getDbConnection());
+            $sql = $this->getSqlStatement('ldap_login_user_check');
+        }
+        else {
+            $sql = $this->getSqlStatement('login_user_check');
+        }
         $stmt = $this->getDbConnection()->prepare($sql);
         if ($stmt !== false) {
             $stmt->bindParam(':id', $user_id);  // Bind "$user_id" to parameter.
