@@ -51,7 +51,8 @@ function login_ldap($FIREHALL, $user_id, $password) {
 		if ($bind === true) {
 			if($log !== null) $log->trace("LDAP bind successful...");
 			$info = $entries;
-	
+
+			$user_id_number = null;
 			$userCount = $info['count'];
 			for ($i=0; $i < $userCount; $i++) {
 				if(isset($info[$i]['cn']) === true) {
@@ -83,12 +84,12 @@ function login_ldap($FIREHALL, $user_id, $password) {
 			
 			$config = new \riprunner\ConfigManager();
 			if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
-				if($log !== null) $log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");
+				if($log !== null) $log->warn("Login audit for user [$user_id] userid [".($user_id_number == null ? 'null' : $user_id_number[0])."]  firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");
 			}
 			
 			// XSS protection as we might print this value
 			//$user_id = preg_replace("/[^0-9]+/", "", $user_id);
-			$_SESSION['user_db_id'] = $user_id_number[0];
+			$_SESSION['user_db_id'] = ($user_id_number == null ? null : $user_id_number[0]);
 			// XSS protection as we might print this value
 			//$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
 			$_SESSION['user_id'] = $user_id;

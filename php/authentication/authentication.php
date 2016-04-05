@@ -201,7 +201,7 @@ class Authentication {
                          
                         $config = new \riprunner\ConfigManager();
                         if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
-                            if($log !== null) $log->warn("Login audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . self::getClientIPInfo() . "]");
+                            if($log !== null) $log->warn("Login audit for user [$user_id] userid [$dbId] firehallid [$FirehallId] agent [$user_browser] client [" . self::getClientIPInfo() . "]");
                         }
                         // XSS protection as we might print this value
                         //$user_id = preg_replace("/[^0-9]+/", "", $user_id);
@@ -219,7 +219,7 @@ class Authentication {
                     else {
                         // Password is not correct
                         // We record this attempt in the database
-                        if($log !== null) $log->error("Login attempt for user [$user_id] FAILED pwd check for client [" . self::getClientIPInfo() . "]");
+                        if($log !== null) $log->error("Login attempt for user [$user_id] userid [$dbId] FAILED pwd check for client [" . self::getClientIPInfo() . "]");
                          
                         $sql = $this->getSqlStatement('login_brute_force_insert');
                          
