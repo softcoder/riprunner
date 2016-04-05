@@ -185,7 +185,7 @@ function ldap_user_access_attribute($ldap, $FIREHALL, $search_filter, $user_id, 
 	//$log->trace("Admin sorted results:");
 	//var_dump($info);
 
-	for ($i=0; $i<$result["count"]; $i++) {
+	for ($i = 0; $i < $result["count"]; $i++) {
 		//if($debug_functions) echo "Admin sorted result #:" . $i . PHP_EOL;
 		//if($debug_functions) var_dump($info[$i]);
 
@@ -201,9 +201,9 @@ function ldap_user_access_attribute($ldap, $FIREHALL, $search_filter, $user_id, 
 			unset($members['count']);
 
 			foreach($members as $member) {
-				if($log !== null) $log->trace("searching for admin group users found: [$member] looking for [$user_id]");
+				if($log !== null) $log->trace("searching for admin group users found: [$member] looking for [$user_id] or userDn [$userDn]");
 
-				if($member === $user_id || $member === $userDn) {
+				if($member == $user_id || $member == $userDn) {
 					if($log !== null) $log->trace("Found $userAccessTagName group user: [$member]");
 
 					$user_found_in_group = true;
@@ -216,7 +216,7 @@ function ldap_user_access_attribute($ldap, $FIREHALL, $search_filter, $user_id, 
 			}
 		}
 		// Find by user member of attribute
-		else if(isset($result[$i])  === true &&
+		else if(isset($result[$i]) === true &&
 			isset($result[$i][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME]) === true) {
 
 			//if($debug_functions) echo "=====> looking for Admin LDAP users using a USER filter" . PHP_EOL;
@@ -231,8 +231,8 @@ function ldap_user_access_attribute($ldap, $FIREHALL, $search_filter, $user_id, 
 				
 			if($log !== null) $log->trace("Found user_id_number [$user_id_number[0]]");
 				
-			if($username[0] === $user_id || $username[0] === $userDn) {
-				if($log !== null) $log->trace("Found $userAccessTagName group user: [$username[0]]");
+			if($username[0] == $user_id || $username[0] == $userDn) {
+				if($log !== null) $log->trace("Found $userAccessTagName group user: [$username[0]] or userDn [$userDn]");
 					
 				$user_found_in_group = true;
 				$userAccess |= $searchAccessValue;
