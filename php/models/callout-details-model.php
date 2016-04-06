@@ -233,7 +233,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	        $this->useracctid = null;
 	        $this->user_authenticated = false;
 	        	
-	        if($row !== null) {
+	        if($row !== null && $row !== false) {
                 $this->user_authenticated = true;
                 $this->useracctid = $row->id;
 	

@@ -163,7 +163,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$this->useracctid = null;
 			$this->user_authenticated = false;
 			
-			if($row !== null) {
+			if($row !== null && $row !== false) {
 				
 				$this->callout = new \riprunner\CalloutDetails();
 				$this->callout->setFirehall($this->getGvm()->firehall);
@@ -187,7 +187,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 				
 				if( $result_count > 0) {
 
-					if($row_ci !== null) {
+					if($row_ci !== null && $row_ci !== false) {
 						$this->callout->setDateTime($row_ci->calltime);
 						$this->callout->setCode($row_ci->calltype);
 						$this->callout->setAddress($row_ci->address);
