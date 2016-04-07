@@ -132,6 +132,12 @@ function map_initialize() {
             ,panControl: true
             ,disableDefaultUI: false
             ,zoomControl: true
+            ,styles: [
+	            { "featureType": "landscape.man_made", "elementType": "geometry", "stylers": [ { "color": "#ff3300" } ] },
+	            { "featureType": "water", "stylers": [ { "color": "#0080ff" } ] },
+	            { "featureType": "road.highway", "elementType": "geometry.fill", "stylers": [ { "color": "#ffff00" } ] },
+	            { "featureType": "road", "elementType": "geometry.stroke", "stylers": [ { "color": "#b1bcbf" } ] }
+            ]            
             ,mapTypeControlOptions: {
                 style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
                 position: google.maps.ControlPosition.TOP_RIGHT,

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    
+    <item android:id="@+id/action_logout"
+          android:title="@string/logout"
+          app:showAsAction="ifRoom" />
+    
+    <item android:id="@+id/action_clear"
+          android:title="@string/clear"
+          app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_mapmygps"
+          android:title="@string/mapmygps"
+          app:showAsAction="ifRoom" />
+    
+    <!-- Settings, should always be in the overflow -->
+    <item android:id="@+id/action_settings"
+          android:title="@string/settings"
+          app:showAsAction="never" />
+    
+</menu>

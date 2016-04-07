@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context=".AppMainActivity" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/etFhid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textAutoComplete"
+                android:text="@string/firehallid" >
+
+                <requestFocus />
+            </EditText>
+
+            <EditText
+                android:id="@+id/etUid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="11"
+                android:inputType="textAutoComplete"
+                android:text="@string/userid" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal" >
+
+                <EditText
+                    android:id="@+id/etUpw"
+                    android:layout_width="247dp"
+                    android:layout_height="wrap_content"
+                    android:ems="12"
+                    android:inputType="textAutoComplete|textWebPassword"
+                    android:maxWidth="50dp"
+                    android:minWidth="50dp"
+                    android:text="" />
+
+                <Button
+                    android:id="@+id/btnLogin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_button"
+                    android:minHeight="30dp"
+                    android:onClick="onClick"
+                    android:text="@string/login" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtMsg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/login_credentials"
+                android:textColor="#0FF" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/btnMap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:layout_weight="0.06"
+                    android:background="@drawable/rounded_button"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:onClick="onClick"
+                    android:text="@string/map"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btnRespond"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:layout_weight="0.03"
+                    android:background="@drawable/rounded_button"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:onClick="onClick"
+                    android:text="@string/respond"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btnCallDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:layout_weight="0.02"
+                    android:background="@drawable/rounded_button"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:onClick="onClick"
+                    android:text="@string/call_details"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/btnCompleteCall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:layout_weight="0.73"
+                    android:background="@drawable/rounded_button"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:onClick="onClick"
+                    android:text="@string/complete_call"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btnCancelCall"
+                    android:layout_width="154dp"
+                    android:layout_height="35dp"
+                    android:layout_weight="0.19"
+                    android:background="@drawable/rounded_button"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:onClick="onClick"
+                    android:text="@string/cancel_call"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <ScrollView
+                android:id="@+id/textAreaScroller"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:fillViewport="true"
+                android:scrollbars="vertical" >
+
+                <TextView
+                    android:id="@+id/display"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:textColor="#FF0" />
+            </ScrollView>
+        </LinearLayout>
+
+        <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/scrollMap"
+            android:layout_width="fill_parent"
+            android:layout_height="425dp"
+            android:orientation="vertical">
+
+            <fragment xmlns:map_attr="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/map"
+                android:name="com.vejvoda.android.riprunner.ScrollableMapFragment"
+                android:layout_width="fill_parent"
+                android:layout_height="425dp"
+                map_attr:mapType="normal"
+                map_attr:uiCompass="true"
+                map_attr:uiRotateGestures="true"
+                map_attr:uiScrollGestures="true"
+                map_attr:uiTiltGestures="true"
+                map_attr:uiZoomControls="true"
+                map_attr:uiZoomGestures="true"
+                 />
+        </ScrollView>
+    </LinearLayout>
+
+</ScrollView>

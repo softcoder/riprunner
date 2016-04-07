@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  - Copyright 2013 Google Inc.
+  -
+  - Licensed under the Apache License, Version 2.0 (the "License"); you may not
+  - use this file except in compliance with the License. You may obtain a copy
+  - of the License at
+  -
+  - http://www.apache.org/licenses/LICENSE-2.0
+  -
+  - Unless required by applicable law or agreed to in writing, software
+  - distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  - WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  - License for the specific language governing permissions and limitations
+  - under the License.
+-->
+<resources>
+
+    <string name="mapmygps">Map my location</string>
+    <string name="settings">Settings</string>
+    <string name="app_name">Rip Runner</string>
+    <string name="hosturl">Host URL</string>
+    <string name="firehallid">FireHall Id</string>
+    <string name="userid">User</string>
+    <string name="password">Password</string>
+    <string name="login_credentials">Enter login credentials…</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    
+    <string name="clear">Clear</string>
+    <string name="map">Map</string>
+    <string name="respond">Responding</string>
+    
+    <string name="login_success">Logged in:</string>
+    <string name="waiting_for_callout">Waiting for callout…</string>
+    <string name="callout_respond_success">You are responding!</string>
+    <string name="complete_call">Complete Callout</string>
+    <string name="cancel_call">Cancel Callout</string>
+    <string name="call_details">Callout Detail</string>
+        
+    <string name="dialog_title_question">Confirmation</string>
+    
+    <string name="dialog_text_complete_call">Complete the current callout?</string>
+    <string name="dialog_text_cancel_call">Cancel the current callout?</string>
+    
+    <string name="Message_from_admin_prefix">*From Admin:</string>
+    
+    <string name="upgrade_message">A new version of RipRunner was detected, update now?</string>
+    <string name="invalid_senderid">Server config error: Invalid SenderId</string>
+    <string name="gcm_device_error">Android gcm device error: %1$s</string>
+    <string name="invalid_server_reply">Invalid %1$s server response: [%2$s]</string>
+    <string name="invalid_login_attempt">Invalid login attempt [%1$s]</string>
+    <string name="login_success_msg">Logged in: %1$s - %2$s</string>
+
+</resources>

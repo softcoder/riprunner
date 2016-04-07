@@ -1,0 +1,23 @@
+<resources>
+
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- General settings -->
+    <string name="pref_appversion">Application Version:</string>
+    
+    <string name="pref_header_general">General</string>
+    <string name="pref_title_host_url">Host URL</string>
+    <string name="pref_default_host_url">http://myhost.com/riprunner/</string>
+
+    <string name="pref_title_sender_id">GCM Project Number</string>
+    <string name="pref_default_sender_id"></string>
+
+    <string name="pref_title_tracking_enabled">Enable GEO Tracking</string>
+    
+    <string name="pref_regid">Device Id</string>
+    
+    <string name="pref_defaults_get">Get settings from server</string>
+    
+</resources>

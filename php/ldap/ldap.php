@@ -86,9 +86,10 @@ class LDAP {
 		else {
 			$log->trace('LDAP search result count: '.ldap_count_entries($this->connection, $result));
 			
-			if(isset($sort_by) === true) {
-				ldap_sort($this->connection, $result, $sort_by);
-			}
+			//if(isset($sort_by) === true) {
+			    // deprecatesd in php 7
+				//ldap_sort($this->connection, $result, $sort_by);
+			//}
 			
 			$entries = ldap_get_entries($this->connection, $result);
 
