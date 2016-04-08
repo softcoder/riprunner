@@ -28,6 +28,42 @@ function extractDelimitedValueFromString($rawValue, $regularExpression, $groupRe
 	return null;
 }
 
+function ldap_get_user_from_db($FIREHALL, $user_id, $db_connection) {
+    global $log;
+
+    $result = null;
+    if($FIREHALL->LDAP->ENABLED === true) {
+        
+        $must_close_db = false;
+        if(isset($db_connection) === false) {
+            $db = new \riprunner\DbConnection($FIREHALL);
+            $db_connection = $db->getConnection();
+        
+            $must_close_db = true;
+        }
+        
+        create_temp_users_table_for_ldap($FIREHALL, $db_connection);
+        $sql_statement = new \riprunner\SqlStatement($db_connection);
+        $sql = $sql_statement->getSqlStatement('ldap_login_user_check');
+    
+        $stmt = $db_connection->prepare($sql);
+        if ($stmt !== false) {
+            $fhid = $FIREHALL->FIREHALL_ID;
+            $stmt->bindParam(':id', $user_id);  // Bind "$user_id" to parameter.
+            $stmt->bindParam(':fhid', $fhid);  // Bind "$user_id" to parameter.
+            $stmt->execute();    // Execute the prepared query.
+    
+            // get variables from result.
+            $result = $stmt->fetch(\PDO::FETCH_OBJ);
+            $stmt->closeCursor();
+        }
+        if($must_close_db === true) {
+            \riprunner\DbConnection::disconnect_db( $db_connection );
+        }
+    }
+    return $result;
+}
+
 function login_ldap($FIREHALL, $user_id, $password) {
     global $log;
     
@@ -50,62 +86,71 @@ function login_ldap($FIREHALL, $user_id, $password) {
 		$bind = $ldap->bind_rdn($binddn, $password);
 		if ($bind === true) {
 			if($log !== null) $log->trace("LDAP bind successful...");
-			$info = $entries;
 
-			$user_id_number = null;
-			$userCount = $info['count'];
-			for ($i=0; $i < $userCount; $i++) {
-				if(isset($info[$i]['cn']) === true) {
-					if($log !== null) $log->trace("User: ". $info[$i]['cn'][0]);
-				}
-				if(isset($info[$i]['mobile'])=== true) {
-					if($log !== null) $log->trace("Mobile: ". $info[$i]['mobile'][0]);
-				}
-	
-				//if($debug_functions) var_dump($info);
-				if(isset($info[$i]['sn'])=== true) {
-					if($log !== null) $log->trace("You are accessing ". $info[$i]['sn'][0] .", " . $info[$i]['givenname'][0]);
-				}
-					
-				$userDn = $info[$i][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
-				$FirehallId = $FIREHALL->FIREHALL_ID;
-					
-				$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
-				unset($user_id_number['count']);
-	
-				if($log !== null) $log->trace("Distinguised name [$userDn]");
-			}
-	
-			$userAccess = ldap_user_access($FIREHALL, $ldap, $user_id, $userDn);
-	
-			// Password is correct!
+			$FirehallId = $FIREHALL->FIREHALL_ID;
 			// Get the user-agent string of the user.
 			$user_browser = $_SERVER['HTTP_USER_AGENT'];
-			
-			$config = new \riprunner\ConfigManager();
-			if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
-				if($log !== null) $log->warn("Login audit for user [$user_id] userid [".($user_id_number == null ? 'null' : $user_id_number[0])."]  firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");
+
+			// Now make sure the user is allowed access to the application
+			$user_db_row = ldap_get_user_from_db($FIREHALL, $user_id, $FIREHALL->DB->DATABASE_CONNECTION);
+			if($user_db_row !== null && $user_db_row !== false) {
+    			$info = $entries;
+    
+    			$user_id_number = null;
+    			$userCount = $info['count'];
+    			for ($i=0; $i < $userCount; $i++) {
+    				if(isset($info[$i]['cn']) === true) {
+    					if($log !== null) $log->trace("User: ". $info[$i]['cn'][0]);
+    				}
+    				if(isset($info[$i]['mobile'])=== true) {
+    					if($log !== null) $log->trace("Mobile: ". $info[$i]['mobile'][0]);
+    				}
+    	
+    				//if($debug_functions) var_dump($info);
+    				if(isset($info[$i]['sn'])=== true) {
+    					if($log !== null) $log->trace("You are accessing ". $info[$i]['sn'][0] .", " . $info[$i]['givenname'][0]);
+    				}
+    					
+    				$userDn = $info[$i][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
+    					
+    				$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
+    				unset($user_id_number['count']);
+    	
+    				if($log !== null) $log->trace("Distinguised name [$userDn]");
+    			}
+    	
+    			$userAccess = ldap_user_access($FIREHALL, $ldap, $user_id, $userDn);
+    	
+    			// Password is correct!
+    			
+    			$config = new \riprunner\ConfigManager();
+    			if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
+    				if($log !== null) $log->warn("Login audit for user [$user_id] userid [".($user_id_number == null ? 'null' : $user_id_number[0])."]  firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");
+    			}
+    			
+    			// XSS protection as we might print this value
+    			//$user_id = preg_replace("/[^0-9]+/", "", $user_id);
+    			$_SESSION['user_db_id'] = ($user_id_number == null ? null : $user_id_number[0]);
+    			// XSS protection as we might print this value
+    			//$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
+    			$_SESSION['user_id'] = $user_id;
+    			$_SESSION['login_string'] = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
+    			$_SESSION['firehall_id'] = $FirehallId;
+    			$_SESSION['ldap_enabled'] = true;
+    			$_SESSION['user_access'] = $userAccess;
+    		  
+    			if($log !== null) $log->trace("LDAP user access: $userAccess");
+    		  
+    			// Login successful.
+    			if($log !== null) $log->trace("LDAP LOGIN OK");
+    				
+    			// Enable for DEBUGGING
+    			//die("FORCE EXIT!");
+    			return true;
 			}
-			
-			// XSS protection as we might print this value
-			//$user_id = preg_replace("/[^0-9]+/", "", $user_id);
-			$_SESSION['user_db_id'] = ($user_id_number == null ? null : $user_id_number[0]);
-			// XSS protection as we might print this value
-			//$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
-			$_SESSION['user_id'] = $user_id;
-			$_SESSION['login_string'] = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
-			$_SESSION['firehall_id'] = $FirehallId;
-			$_SESSION['ldap_enabled'] = true;
-			$_SESSION['user_access'] = $userAccess;
-		  
-			if($log !== null) $log->trace("LDAP user access: $userAccess");
-		  
-			// Login successful.
-			if($log !== null) $log->trace("LDAP LOGIN OK");
-				
-			// Enable for DEBUGGING
-			//die("FORCE EXIT!");
-			return true;
+			else {
+			    if($log !== null) $log->warn("INVALID LDAP Login, valid user but no app access, audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");			    
+			}
 		}
 	}
 	return false;
