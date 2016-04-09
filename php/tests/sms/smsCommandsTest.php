@@ -212,7 +212,7 @@ class SmsCommandsTest extends BaseDBFixture {
 
 	    $mock_http_client->expects($this->once())
 	    ->method('setURL')
-	    ->with($this->stringContains('&status='.urlencode(\CalloutStatusType::Complete)));
+	    ->with($this->stringContains('&status='.urlencode(\riprunner\CalloutStatusType::Complete()->getId())));
 	     
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
@@ -255,7 +255,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	
 	    $mock_http_client->expects($this->once())
 	    ->method('setURL')
-	    ->with($this->stringContains('&status='.urlencode(\CalloutStatusType::Cancelled)));
+	    ->with($this->stringContains('&status='.urlencode(\riprunner\CalloutStatusType::Cancelled()->getId())));
 	
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
@@ -316,7 +316,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Esnure responding DOES contain setting the status explicitly
 	    $mock_http_client->expects($this->once())
 	    ->method('setURL')
-	    ->with($this->stringContains('&status='.\CalloutStatusType::NotResponding));
+	    ->with($this->stringContains('&status='.\riprunner\CalloutStatusType::NotResponding()->getId()));
 	    
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
@@ -361,7 +361,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Esnure responding DOES contain setting the status explicitly
 	    $mock_http_client->expects($this->once())
 	    ->method('setURL')
-	    ->with($this->stringContains('&status='.\CalloutStatusType::Responding_at_hall));
+	    ->with($this->stringContains('&status='.\riprunner\CalloutStatusType::Responding_at_hall()->getId()));
 	     
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
@@ -406,7 +406,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Esnure responding DOES contain setting the status explicitly
 	    $mock_http_client->expects($this->once())
 	    ->method('setURL')
-	    ->with($this->stringContains('&status='.\CalloutStatusType::Responding_at_scene));
+	    ->with($this->stringContains('&status='.\riprunner\CalloutStatusType::Responding_at_scene()->getId()));
 	
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
@@ -451,7 +451,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Esnure responding DOES contain setting the status explicitly
 	    $mock_http_client->expects($this->once())
 	    ->method('setURL')
-	    ->with($this->stringContains('&status='.\CalloutStatusType::Responding_to_scene));
+	    ->with($this->stringContains('&status='.\riprunner\CalloutStatusType::Responding_to_scene()->getId()));
 	
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
@@ -496,7 +496,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Esnure responding DOES contain setting the status explicitly
 	    $mock_http_client->expects($this->once())
 	    ->method('setURL')
-	    ->with($this->stringContains('&status='.\CalloutStatusType::Responding_to_scene));
+	    ->with($this->stringContains('&status='.\riprunner\CalloutStatusType::Responding_to_scene()->getId()));
 
 	    // Ensure responding DOES contain setting the eta explicitly
 	    $mock_http_client->expects($this->once())
@@ -546,7 +546,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Esnure responding DOES contain setting the status explicitly
 	    $mock_http_client->expects($this->once())
 	    ->method('setURL')
-	    ->with($this->stringContains('&status='.\CalloutStatusType::Standby));
+	    ->with($this->stringContains('&status='.\riprunner\CalloutStatusType::Standby()->getId()));
 	
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
@@ -591,7 +591,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Esnure responding DOES contain setting the status explicitly
 	    $mock_http_client->expects($this->once())
 	    ->method('setURL')
-	    ->with($this->stringContains('&status='.\CalloutStatusType::Responding_return_hall));
+	    ->with($this->stringContains('&status='.\riprunner\CalloutStatusType::Responding_return_hall()->getId()));
 	
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);

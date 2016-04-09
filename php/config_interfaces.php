@@ -4,53 +4,6 @@
 //	Under GNU GPL v3.0
 // ==============================================================
 
-abstract class BasicEnum {
-    private static $constCacheArray = NULL;
-
-    private static function getConstants() {
-        if (self::$constCacheArray == NULL) {
-            self::$constCacheArray = array();
-        }
-        $calledClass = get_called_class();
-        if (!array_key_exists($calledClass, self::$constCacheArray)) {
-            $reflect = new \ReflectionClass($calledClass);
-            self::$constCacheArray[$calledClass] = $reflect->getConstants();
-        }
-        return self::$constCacheArray[$calledClass];
-    }
-
-    public static function isValidName($name, $strict = false) {
-        $constants = self::getConstants();
-
-        if ($strict) {
-            return array_key_exists($name, $constants);
-        }
-
-        $keys = array_map('strtolower', array_keys($constants));
-        return in_array(strtolower($name), $keys);
-    }
-
-    public static function isValidValue($value, $strict = true) {
-        $values = array_values(self::getConstants());
-        return in_array($value, $values, $strict);
-    }
-}
-
-// Types of callout responder statuses
-abstract class CalloutStatusType extends BasicEnum {
-	const Paged = 0;
-	const Notified = 1;
-	const Responding = 2;
-	const Cancelled = 3;
-	const NotResponding = 4;
-	const Standby = 5;
-	const Responding_at_hall = 6;
-	const Responding_to_scene = 7;
-	const Responding_at_scene = 8;
-	const Responding_return_hall = 9;
-	const Complete = 10;
-}
-
 // ----------------------------------------------------------------------
 class FireHallEmailAccount
 {

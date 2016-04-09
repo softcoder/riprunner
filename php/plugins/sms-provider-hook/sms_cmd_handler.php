@@ -25,9 +25,10 @@ require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 require_once __RIPRUNNER_ROOT__ . '/third-party/html2text/Html2Text.php';
 require_once __RIPRUNNER_ROOT__ . '/third-party/twilio-php/Services/Twilio.php';
 require_once __RIPRUNNER_ROOT__ . '/third-party/plivo-php/plivo.php';
+require_once __RIPRUNNER_ROOT__ . '/core/CalloutStatusType.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
-abstract class CommandMatchType extends \BasicEnum {
+abstract class CommandMatchType extends BasicEnum {
     const Exact = 0;
     const StartsWith = 1;
 }
@@ -228,7 +229,7 @@ class SMSCommandHandler {
                                         "&cid=" . urlencode($most_current_callout['id']) .
                                         "&uid=" . urlencode($result->getUserId()) .
                                         "&ckid=" . urlencode($most_current_callout['call_key']) .
-                                        "&status=" . urlencode(\CalloutStatusType::Complete);
+                                        "&status=" . urlencode(CalloutStatusType::Complete()->getId());
                                         	
                                         if($log !== null) $log->warn("Calling URL for sms host Call Completed Response [$URL]");
                                         $httpclient = $this->getHttpClient($URL);
@@ -252,7 +253,7 @@ class SMSCommandHandler {
                                         "&cid=" . urlencode($most_current_callout['id']) .
                                         "&uid=" . urlencode($result->getUserId()) .
                                         "&ckid=" . urlencode($most_current_callout['call_key']) .
-                                        "&status=" . urlencode(\CalloutStatusType::Cancelled);
+                                        "&status=" . urlencode(CalloutStatusType::Cancelled()->getId());
     
                                         if($log !== null) $log->warn("Calling URL for sms host Call Cancel Response [$URL]");
                                         $httpclient = $this->getHttpClient($URL);
@@ -660,26 +661,27 @@ class SMSCommandHandler {
             $sms_cmd_list = explode(' ', $sms_cmd);
             $updateToStatus = null;
             if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_NOT_RESPONDING, CommandMatchType::StartsWith)) {
-                $updateToStatus = \CalloutStatusType::NotResponding;
+                $updateToStatus = CalloutStatusType::NotResponding()->getId();
             }
             else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY, CommandMatchType::StartsWith)) {
-                $updateToStatus = \CalloutStatusType::Standby;
+                $updateToStatus = CalloutStatusType::Standby()->getId();
             }
             else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL, CommandMatchType::StartsWith)) {
-                $updateToStatus = \CalloutStatusType::Responding_at_hall;
+                $updateToStatus = CalloutStatusType::Responding_at_hall()->getId();
             }
             else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE, CommandMatchType::StartsWith)) {
-                $updateToStatus = \CalloutStatusType::Responding_to_scene;
+                $updateToStatus = CalloutStatusType::Responding_to_scene()->getId();
             }
             else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE, CommandMatchType::StartsWith)) {
-                $updateToStatus = \CalloutStatusType::Responding_at_scene;
+                $updateToStatus = CalloutStatusType::Responding_at_scene()->getId();
             }
             else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RETURN_HALL, CommandMatchType::StartsWith)) {
-                $updateToStatus = \CalloutStatusType::Responding_return_hall;
+                $updateToStatus = CalloutStatusType::Responding_return_hall()->getId();
             }
             
-            if(\CalloutStatusType::isValidValue($updateToStatus) == false) {
-                if($log !== null) $log->error("Invalid status in updatestatus [".$sms_cmd."]");
+            if(CalloutStatusType::isValidValue($updateToStatus) == false) {
+                if($log !== null) $log->error("Invalid status in updatestatus [".$sms_cmd."] updateToStatus: $updateToStatus");
+                throw new \Exception("Invalid status in updatestatus [".$sms_cmd."] updateToStatus: $updateToStatus");
             }
             else {
                 $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);

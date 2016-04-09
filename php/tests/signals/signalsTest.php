@@ -284,7 +284,7 @@ class SignalsTest extends BaseDBFixture {
 	    $user_id = 'mark.vejvoda';
 	    $userGPSLat = '54.0916667';
 	    $userGPSLong = '-122.6537361';
-	    $user_status = 'COMPLETED';
+	    $user_status = \riprunner\CalloutStatusType::getStatusByName('COMPLETE')->getId();
 	            
 	    // Create a stub for the ISMSCalloutPlugin class.
 	    $mock_sms_plugin = $this->getMockBuilder('\riprunner\ISMSPlugin')
@@ -298,7 +298,7 @@ class SignalsTest extends BaseDBFixture {
 	    // Ensure signalRecipients is called
 	    $mock_sms_plugin->expects($this->once())
 	    ->method('signalRecipients')
-	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda set their status to paged for the callout: MED.'));
+	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda has marked the callout as: Complete.'));
 	
 	    // Call the test
 	    $signalManager = new \riprunner\SignalManager(null,$mock_sms_plugin,null,$this->getTwigEnv());
@@ -322,7 +322,7 @@ class SignalsTest extends BaseDBFixture {
 	    $user_id = 'mark.vejvoda';
 	    $userGPSLat = '54.0916667';
 	    $userGPSLong = '-122.6537361';
-	    $user_status = 'Responding';
+	    $user_status = \riprunner\CalloutStatusType::getStatusByName('Responding')->getId();
 	    $user_eta = 14;
 	     
 	    // Create a stub for the ISMSCalloutPlugin class.
@@ -337,7 +337,7 @@ class SignalsTest extends BaseDBFixture {
 	    // Ensure signalRecipients is called
 	    $mock_sms_plugin->expects($this->once())
 	    ->method('signalRecipients')
-	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda set their status to paged for the callout: MED eta: 14.'));
+	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda set their status to Respond to hall for the callout: MED eta: 14.'));
 	
 	    // Call the test
 	    $signalManager = new \riprunner\SignalManager(null,$mock_sms_plugin,null,$this->getTwigEnv());
@@ -359,12 +359,12 @@ class SignalsTest extends BaseDBFixture {
 	    $callout->setFirehall($FIREHALL);
 	
 	    $user_id = 'mark.vejvoda';
-	    $user_status = 'COMPLETED';
+	    $user_status = \riprunner\CalloutStatusType::getStatusByName('COMPLETE')->getId();
 	     
 	    $signalManager = new \riprunner\SignalManager(null,null,null,$this->getTwigEnv());
 	    $result = $signalManager->getSMSCalloutResponseMessage($callout,$user_id,$user_status, null);
 	
-	    $this->assertEquals("Responder: mark.vejvoda set their status to paged for the callout: MED.", $result);
+	    $this->assertEquals("Responder: mark.vejvoda has marked the callout as: Complete.", $result);
 	}
 	
 	public function testSignalFireHallCallout_Valid() {
@@ -447,7 +447,7 @@ class SignalsTest extends BaseDBFixture {
 	    // Ensure signalRecipients is called
 	    $mock_sms_plugin->expects($this->once())
 	    ->method('signalRecipients')
-	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda set their status to paged for the callout: MED.'));
+	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda set their status to Respond to hall for the callout: MED.'));
 	
 	    // Create a stub for the GCM class.
 	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
@@ -476,7 +476,8 @@ class SignalsTest extends BaseDBFixture {
 	    $user_id = 'mark.vejvoda';
 	    $userGPSLat = '54.0916667';
 	    $userGPSLong = '-122.6537361';
-	    $user_status = 'RESPONDING';
+	    $user_status = \riprunner\CalloutStatusType::getStatusByName('RESPONDING')->getId();
+	    
 	    
 	    $signalManager = new \riprunner\SignalManager(null,$mock_sms_plugin,$mock_gcm,$this->getTwigEnv());
 	    $result = $signalManager->signalFireHallResponse($callout,$user_id,$userGPSLat,$userGPSLong,$user_status,null,true);

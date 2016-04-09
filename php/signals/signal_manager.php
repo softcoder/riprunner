@@ -15,8 +15,9 @@ require_once __RIPRUNNER_ROOT__.'/config_interfaces.php';
 require_once __RIPRUNNER_ROOT__.'/functions.php';
 require_once __RIPRUNNER_ROOT__.'/object_factory.php';
 require_once __RIPRUNNER_ROOT__.'/template.php';
-require_once __RIPRUNNER_ROOT__.'/logging.php';
 require_once __RIPRUNNER_ROOT__.'/config/config_manager.php';
+require_once __RIPRUNNER_ROOT__.'/core/CalloutStatusType.php';
+require_once __RIPRUNNER_ROOT__.'/logging.php';
 
 class SignalManager {
     
@@ -416,9 +417,7 @@ class SignalManager {
         $view_template_vars['responding_userid'] = $userId;
         $view_template_vars['responding_userstatus'] = $userStatus;
         $view_template_vars['responding_usereta'] = $eta;
-        $view_template_vars['responding_userstatus_description'] = getCallStatusDisplayText($userStatus);
-        $view_template_vars['status_type_complete'] = \CalloutStatusType::Complete;
-        $view_template_vars['status_type_cancelled'] = \CalloutStatusType::Cancelled;
+        $view_template_vars['callout_status_entity'] = CalloutStatusType::getStatusById($userStatus);
     
         // Load our template
         $template = $this->getTwigEnv()->resolveTemplate(
@@ -541,7 +540,7 @@ class SignalManager {
     		$qry_bind->execute();
     		
     		$callout->setId($db_connection->lastInsertId());
-    		$callout->setStatus(\CalloutStatusType::Paged);
+    		$callout->setStatus(CalloutStatusType::Paged()->getId());
     		
     		if($log !== null) $log->trace('Callout signalling members for NEW call.');
     		
@@ -555,7 +554,7 @@ class SignalManager {
     		$sql_update = $sql_statement->getSqlStatement('callout_status_update');
     			
     		$cid = $callout->getId();
-    		$status_notified = \CalloutStatusType::Notified;
+    		$status_notified = CalloutStatusType::Notified()->getId();
     		$qry_bind = $db_connection->prepare($sql_update);
     		$qry_bind->bindParam(':status', $status_notified);
     		$qry_bind->bindParam(':id', $cid);
@@ -575,9 +574,12 @@ class SignalManager {
     
         if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
             if($isFirstResponseForUser === true || isCalloutInProgress($userStatus) == false) {
-                if(isRespondingStatus($userStatus) == true) {
-                    $result .= $this->signalResponseToSMSPlugin($callout, $userId,
-                            $userGPSLat, $userGPSLong, $userStatus, $eta);
+                if(CalloutStatusType::isValidValue($userStatus)) {
+                    $statusDef = CalloutStatusType::getStatusById($userStatus);
+                    if($statusDef->IsResponding() == true) {
+                        $result .= $this->signalResponseToSMSPlugin($callout, $userId,
+                                $userGPSLat, $userGPSLong, $userStatus, $eta);
+                    }
                 }
             }
         }

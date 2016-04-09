@@ -89,17 +89,22 @@
            <td>
             {% if ((callout_details_vm.member_access_respond_self and row_responding.user_id == callout_details_vm.member_id) or 
                     callout_details_vm.member_access_respond_others) and
-                   ((callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED and row_responding.status != 3 and row_responding.status != 10) or 
-                    (callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
-                    and row_responding.status != 4)) %}
+                   ((callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED and 
+                     not row_responding.callout_status_entity.IsCancelled() and 
+                     not row_responding.callout_status_entity.IsCompleted()) or 
+                    (callout_pending and 
+                     not row_responding.callout_status_entity.IsCancelled() and 
+                     not row_responding.callout_status_entity.IsCompleted() and 
+                     not row_responding.callout_status_entity.IsNotResponding())) %}
+                     
             <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
-                <option value="4" {{ row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
-                <option value="5" {{ row_responding.status == 5 ? 'selected="selected"' : '' }}>Standby</option>
-                <option value="2" {{ row_responding.status == 2 ? 'selected="selected"' : '' }}>Respond to hall</option>
-                <option value="6" {{ row_responding.status == 6 ? 'selected="selected"' : '' }}>Respond at hall</option>
-                <option value="7" {{ row_responding.status == 7 ? 'selected="selected"' : '' }}>Respond to scene</option>
-                <option value="8" {{ row_responding.status == 8 ? 'selected="selected"' : '' }}>Respond at scene</option>
-                <option value="9" {{ row_responding.status == 9 ? 'selected="selected"' : '' }}>Return to hall</option>
+            
+            {% for status_def in callout_details_vm.callout_status_defs %}
+              {% if status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby() %}
+              <option value="{{ status_def.getId() }}" {{ row_responding.status == status_def.getId() ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
+              {% endif %}
+            {% endfor %}
+            
             </select>
             <form id="form_call_update_response_status_{{ row_responding.id }}" action="" method="POST">
             </form>
@@ -201,17 +206,21 @@
            <td>
             {% if ((callout_details_vm.member_access_respond_self and row_responding.user_id == callout_details_vm.member_id) or 
                     callout_details_vm.member_access_respond_others) and
-                  ((callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED and row_responding.status != 3 and row_responding.status != 10) or 
-                   (callout_pending and row_responding.status != 3 and callout_pending and row_responding.status != 10
-                   and row_responding.status != 4)) %}
+                  ((callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED and 
+                    not row_responding.callout_status_entity.IsCancelled() and 
+                    not row_responding.callout_status_entity.IsCompleted()) or 
+                   (callout_pending and 
+                    not row_responding.callout_status_entity.IsCancelled() and 
+                    not row_responding.callout_status_entity.IsCompleted() and 
+                    not row_responding.callout_status_entity.IsNotResponding())) %}
             <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
-                <option value="4" {{ row_responding.status == 4 ? 'selected="selected"' : '' }}>Not Responding</option>
-                <option value="5" {{ row_responding.status == 5 ? 'selected="selected"' : '' }}>Standby</option>
-                <option value="2" {{ row_responding.status == 2 ? 'selected="selected"' : '' }}>Respond to hall</option>
-                <option value="6" {{ row_responding.status == 6 ? 'selected="selected"' : '' }}>Respond at hall</option>
-                <option value="7" {{ row_responding.status == 7 ? 'selected="selected"' : '' }}>Respond to scene</option>
-                <option value="8" {{ row_responding.status == 8 ? 'selected="selected"' : '' }}>Respond at scene</option>
-                <option value="9" {{ row_responding.status == 9 ? 'selected="selected"' : '' }}>Return to hall</option>
+            
+            {% for status_def in callout_details_vm.callout_status_defs %}
+              {% if status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby() %}
+              <option value="{{ status_def.getId() }}" {{ row_responding.status == status_def.getId() ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
+              {% endif %}
+            {% endfor %}
+            
             </select>
 	        <form id="form_call_update_response_status_{{ row_responding.id }}" action="" method="POST">
 	        </form>
@@ -248,7 +257,6 @@
 		 </table>
 	{% endblock %}
 	{% endif %}
-            
                 
         <div id="callResponseContent{{ loop.index }}">
         {% if callout_pending %}
@@ -266,9 +274,7 @@
         <script type="text/javascript">            
         var callout_geo_dest = '{{ row.callout_geo_dest }}';
         </script>
-            
-                {% if callout_details_vm.google_map_type == 'javascript' %}
-	              {% block callout_js_inline_map %}
+	            {% block callout_js_inline_map %}
                   {% include ['@custom/google-map-js-api-custom.twig.html', 'google-map-js-api.twig.html'] with 
                      { 'CALLORIGIN' : row.callout_geo_dest, 
                        'DESTINATION' : row.callout_address_dest,
@@ -276,16 +282,7 @@
                                       callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE,
                        'WEB_ROOT' : callout_details_vm.firehall.WEBSITE.WEBSITE_ROOT_URL }
                   %}
-  	              {% endblock %}
-	            {% else %}
-                <div class="google-maps">
-                  {% block callout_inline_map %} 
-                  <iframe frameborder="1" style="border:1"  
-                      src="https://www.google.com/maps/embed/v1/directions?key={{ callout_details_vm.firehall.WEBSITE.WEBSITE_GOOGLE_MAP_API_KEY }}&mode=driving&zoom=11&origin={{ callout_details_vm.firehall.WEBSITE.FIREHALL_HOME_ADDRESS }}&destination={{ row.callout_address_dest }}">
-                  </iframe>
-                  {% endblock %}
-                </div>
-                {% endif %}
+                {% endblock %}
                 
                 {% if callout_details_vm.calloutkey_id is defined and 
                       callout_details_vm.calloutkey_id != null and 
@@ -330,13 +327,13 @@
                                 <select id="ui_call_set_response_status{{ row_no.id }}" class="ci_respondnow"
                                         onchange="$('#call_no_response_{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status{{ row_no.id }}' ).val());
                                                  if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();">
-	                                <option value="4">Not Responding</option>
-	                                <option value="5">Standby</option>
-	                                <option value="2" selected="selected">Respond to hall</option>
-	                                <option value="6">Respond at hall</option>
-	                                <option value="7">Respond to scene</option>
-	                                <option value="8">Respond at scene</option>
-	                                <option value="9">Return to hall</option>
+
+						            {% for status_def in callout_details_vm.callout_status_defs %}
+						              {% if status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby() %}
+						            <option value="{{ status_def.getId() }}" {{ status_def.IsDefaultResponse() ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
+						              {% endif %}
+						            {% endfor %}
+	                                
                                 </select>
                                 <INPUT TYPE="button" VALUE="SET STATUS" 
                                        class="ci_respondnow_update" 

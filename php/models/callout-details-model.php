@@ -10,6 +10,7 @@ require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
 require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
+require_once __RIPRUNNER_ROOT__ . '/core/CalloutStatusType.php';
 
 // The model class handling variable requests dynamically
 class CalloutDetailsViewModel extends BaseViewModel {
@@ -50,10 +51,10 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			return $this->getCalloutRespondingId();
 		}
 		if('callout_status_complete' === $name) {
-			return \CalloutStatusType::Complete;
+			return CalloutStatusType::Complete()->getId();
 		}
 		if('callout_status_cancel' === $name) {
-			return \CalloutStatusType::Cancelled;
+			return CalloutStatusType::Cancelled()->getId();
 		}
 		if('callout_details_list' === $name) {
 			return $this->getCalloutDetailsList();
@@ -118,6 +119,9 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		if('isCalloutAuth' === $name) {
 		    return $this->getIsCalloutAuth();
 		}
+		if('callout_status_defs' === $name) {
+		    return CalloutStatusType::getStatusList();
+		}
 		
 		return parent::__get($name);
 	}
@@ -133,7 +137,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			      'STREAM_AUTOPLAY_MOBILE','STREAM_AUTOPLAY_DESKTOP',
                   'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED',
                   'map_callout_geo_dest','map_callout_address_dest','map_fh_geo_lat','map_fh_geo_long','map_webroot',
-			      'isCalloutAuth', 'member_access_respond_self', 'member_access_respond_others'
+			      'isCalloutAuth', 'member_access_respond_self', 'member_access_respond_others', 'callout_status_defs'
 			)) === true) {
 			return true;
 		}
@@ -300,9 +304,10 @@ class CalloutDetailsViewModel extends BaseViewModel {
 				foreach($rows as $row){
 					// Add any custom fields with values here
 	 				$row['callout_type_desc'] = convertCallOutTypeToText($row['calltype']);
-	 				$row['callout_status_desc'] = getCallStatusDisplayText($row['status']);
-	 				$row['callout_status_completed'] = ((int)$row['status'] === \CalloutStatusType::Complete);
-	 				$row['callout_status_cancelled'] = ((int)$row['status'] === \CalloutStatusType::Cancelled);
+	 				$row['callout_status_desc'] = CalloutStatusType::getStatusById($row['status'])->getDisplayName();
+	 				$row['callout_status_completed'] = CalloutStatusType::getStatusById($row['status'])->IsCompleted();
+	 				$row['callout_status_cancelled'] = CalloutStatusType::getStatusById($row['status'])->IsCancelled();
+	 				$row['callout_status_entity'] = CalloutStatusType::getStatusById($row['status']);
 	 				
 	 				if(isset($row['address']) === false || $row['address'] === '') {
 	 					$row['callout_address_dest'] = $row['latitude'] . ',' . $row['longitude'];
@@ -353,7 +358,8 @@ class CalloutDetailsViewModel extends BaseViewModel {
 					// Add any custom fields with values here
 					$row_r['responder_location'] = urlencode($row_r['latitude']) . ',' . urlencode($row_r['longitude']);
 					$row_r['firehall_location'] = urlencode($this->getGvm()->firehall->WEBSITE->FIREHALL_HOME_ADDRESS);
-					$row_r['responder_display_status'] = getCallStatusDisplayText($row_r['status']);
+					$row_r['responder_display_status'] = CalloutStatusType::getStatusById($row_r['status'])->getDisplayName();
+					$row_r['callout_status_entity'] = CalloutStatusType::getStatusById($row_r['status']);
 
 					$results[] = $row_r;
 				}

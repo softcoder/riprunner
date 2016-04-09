@@ -14,6 +14,7 @@ require_once 'db/sql_statement.php';
 require_once 'ldap_functions.php';
 require_once 'url/http-cli.php';
 require_once 'config/config_manager.php';
+require_once 'core/CalloutStatusType.php';
 require_once 'logging.php';
 
 function getSafeRequestValue($key) {
@@ -195,58 +196,22 @@ function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
 
 function getCallStatusDisplayText($dbStatus) {
 	$result = 'unknown [' . ((isset($dbStatus) === true) ? $dbStatus : 'null') . ']';
-	switch($dbStatus) {
-		case CalloutStatusType::Paged:
-			$result = 'paged';
-			break;
-		case CalloutStatusType::Notified:
-			$result = 'notified';
-			break;
-		case CalloutStatusType::Responding:
-			$result = 'responding';
-			break;
-		case CalloutStatusType::NotResponding:
-		    $result = 'NOT responding';
-		    break;
-	    case CalloutStatusType::Standby:
-	        $result = 'standby';
-	        break;
-        case CalloutStatusType::Responding_at_hall:
-            $result = 'responding at hall';
-            break;
-        case CalloutStatusType::Responding_to_scene:
-            $result = 'responding to scene';
-            break;
-        case CalloutStatusType::Responding_at_scene:
-            $result = 'responding on scene';
-            break;
-        case CalloutStatusType::Responding_return_hall:
-            $result = 'return to hall';
-            break;
-		case CalloutStatusType::Cancelled:
-			$result = 'cancelled';
-			break;
-		case CalloutStatusType::Complete:
-			$result = 'completed';
-			break;
+	if(\riprunner\CalloutStatusType::isValidValue($dbStatus)) {
+	    $result = \riprunner\CalloutStatusType::getStatusById($dbStatus)->getDisplayName();
+	}
+	else if(\riprunner\CalloutStatusType::isValidName($dbStatus)) {
+	    $result = \riprunner\CalloutStatusType::getStatusByName($dbStatus)->getDisplayName();
 	}
 	return $result;
 }
 
 function isCalloutInProgress($callout_status) {
-	if(isset($callout_status) === true && 
-		((int)$callout_status === CalloutStatusType::Cancelled || 
-		 (int)$callout_status === CalloutStatusType::Complete)) {
-		return false;
-	}
-	return true;
-}
-
-function isRespondingStatus($callout_status) {
-	if(isset($callout_status) === false || 
-		((int)$callout_status === CalloutStatusType::NotResponding)) {
-		return false;
-	}
+    if(isset($callout_status) === true) {
+        if(\riprunner\CalloutStatusType::isValidValue($callout_status)) {
+            $result = \riprunner\CalloutStatusType::getStatusById($callout_status);
+            return !($result->IsCancelled() || $result->IsCompleted());
+        }
+    }
 	return true;
 }
 

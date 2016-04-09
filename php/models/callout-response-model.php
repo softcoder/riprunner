@@ -10,6 +10,7 @@ require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
+require_once __RIPRUNNER_ROOT__ . '/core/CalloutStatusType.php';
 
 // The model class handling variable requests dynamically
 class CalloutResponseViewModel extends BaseViewModel {
@@ -206,7 +207,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 						$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] useracctid: " . $this->useracctid);
 							
 						if($this->getUserStatus() === null) {
-							$this->user_status = \CalloutStatusType::Responding;
+							$this->user_status = CalloutStatusType::Responding()->getId();
 						}
 					}
 				}
@@ -225,7 +226,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 							$this->useracctid = $row->id;
 			
 							if($this->getUserStatus() === null) {
-								$this->user_status = \CalloutStatusType::Responding;
+								$this->user_status = CalloutStatusType::Responding()->getId();
 							}
 						}
 						else {
@@ -238,7 +239,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 							$this->useracctid = $row->id;
 			
 							if($this->getUserStatus() === null) {
-								$this->user_status = \CalloutStatusType::Responding;
+								$this->user_status = CalloutStatusType::Responding()->getId();
 							}
 						}
 						else {
