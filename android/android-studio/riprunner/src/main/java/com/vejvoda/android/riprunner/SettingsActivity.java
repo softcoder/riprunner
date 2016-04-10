@@ -405,7 +405,20 @@ public class SettingsActivity extends PreferenceActivity implements
 									editor.putString(AppConstants.PROPERTY_ANDROID_ERROR_PAGE_URI, "");
 									editor.commit();
 								}
-								
+
+								if(json.has(AppConstants.PROPERTY_STATUS_LIST)) {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_STATUS_LIST, json.getString(AppConstants.PROPERTY_STATUS_LIST));
+									editor.commit();
+								}
+								else {
+									SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+									SharedPreferences.Editor editor = sharedPrefs.edit();
+									editor.putString(AppConstants.PROPERTY_STATUS_LIST, "");
+									editor.commit();
+								}
+
 								Log.i(Utils.TAG, Utils.getLineNumber() + ": Rip Runner Successfully received app settings.");
 								Toast.makeText(context, "Successfully received app settings.", Toast.LENGTH_LONG).show();
 								

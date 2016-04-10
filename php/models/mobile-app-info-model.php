@@ -33,7 +33,7 @@ class MobileAppInfoViewModel extends BaseViewModel {
 	}
 	
 	private function getFirehallId() {
-		$firehall_id = get_query_param('fhid');
+		$firehall_id = $this->getQueryParam('fhid');
 		return $firehall_id;
 	}
 	
@@ -43,16 +43,21 @@ class MobileAppInfoViewModel extends BaseViewModel {
 		
 		$firehall = $this->getGvm()->firehall;
 		if($this->getFirehallId() !== null) {
-		    $log->trace("Mobile app using fhid [" . $this->getFirehallId() . "]");
+		    if($log !== null) $log->trace("Mobile app using fhid [" . $this->getFirehallId() . "]");
 			$firehall = findFireHallConfigById($this->getFirehallId(), $this->getGvm()->firehall_list);
 		}
 		if(isset($firehall) === false || $firehall === null) {
-		    $log->trace("Mobile app finding default fhid count: ".count($this->getGvm()->firehall_list));
+		    if($log !== null) $log->trace("Mobile app finding default fhid count: ".count($this->getGvm()->firehall_list));
 			$firehall = getFirstActiveFireHallConfig($this->getGvm()->firehall_list);
 		}
 		if(isset($firehall) === true && $firehall !== null) {
-			$log->trace("Mobile app info fhid [" . $firehall->FIREHALL_ID . "]");
+			if($log !== null) $log->trace("Mobile app info fhid [" . $firehall->FIREHALL_ID . "]");
 	
+			$statusList = CalloutStatusType::getStatusList();
+			$statusListManualArray = array();
+			foreach($statusList as &$status) {
+			    array_push($statusListManualArray,$status->jsonSerialize());
+			}
 			$result = array(
 					"fhid"  => urlencode($firehall->FIREHALL_ID),
 					"gcm-projectid"  => urlencode($firehall->MOBILE->GCM_PROJECTID),
@@ -65,7 +70,9 @@ class MobileAppInfoViewModel extends BaseViewModel {
 					"tracking_page_uri" => "ct/",
 						
 					"kml_page_uri" => "kml/boundaries.kml",
-					"android_error_page_uri" => "android-error.php"
+					"android_error_page_uri" => "android-error.php",
+			        
+			        "status_list" => json_encode($statusListManualArray)  
 			);
 		}
 		else {

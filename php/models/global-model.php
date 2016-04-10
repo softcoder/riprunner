@@ -15,9 +15,9 @@ require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 if(isset($view_template_vars) === false) {
     $view_template_vars = array();
 }
-if(isset($global_vm) === false) {
+if(isset($global_vm) === false && isset($FIREHALLS)) {
 	$global_vm = new GlobalViewModel($FIREHALLS);
-	$view_template_vars["gvm"] = $global_vm;
+	$view_template_vars['gvm'] = $global_vm;
 }
 
 // The model class handling variable requests dynamically

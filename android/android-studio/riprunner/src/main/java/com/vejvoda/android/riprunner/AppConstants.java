@@ -22,6 +22,7 @@ public class AppConstants {
     public static final String PROPERTY_TRACKING_PAGE_URI 		= "tracking_page_uri";
     public static final String PROPERTY_KML_PAGE_URI 	  		= "kml_page_uri";
     public static final String PROPERTY_ANDROID_ERROR_PAGE_URI 	= "android_error_page_uri";
+    public static final String PROPERTY_STATUS_LIST             = "status_list";
     
     public static final String PROPERTY_APP_VERSION 		= "appVersion";
     public static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;

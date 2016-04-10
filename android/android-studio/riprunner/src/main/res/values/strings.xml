@@ -29,14 +29,14 @@
     
     <string name="clear">Clear</string>
     <string name="map">Map</string>
-    <string name="respond">Responding</string>
+    <string name="respond">Respond</string>
     
     <string name="login_success">Logged in:</string>
     <string name="waiting_for_callout">Waiting for callout…</string>
     <string name="callout_respond_success">You are responding!</string>
-    <string name="complete_call">Complete Callout</string>
-    <string name="cancel_call">Cancel Callout</string>
-    <string name="call_details">Callout Detail</string>
+    <string name="complete_call">Complete Call</string>
+    <string name="cancel_call">Cancel Call</string>
+    <string name="call_details">Details</string>
         
     <string name="dialog_title_question">Confirmation</string>
     
@@ -52,4 +52,7 @@
     <string name="invalid_login_attempt">Invalid login attempt [%1$s]</string>
     <string name="login_success_msg">Logged in: %1$s - %2$s</string>
 
+    <string-array name="status_list">
+        <item>Respond</item>
+    </string-array>
 </resources>

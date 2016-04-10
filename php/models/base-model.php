@@ -14,13 +14,13 @@ abstract class BaseViewModel {
 	// Global View Model Reference
 	private $gvm;
 	private $view_template_vars;
+	private $query_params;
 	
-	public function __construct($gvm=null, &$view_template_vars=null) { 
+	public function __construct($gvm=null, &$view_template_vars=null, &$query_params=null) { 
 		$this->gvm = $gvm;
-		
 		$this->registerVars($view_template_vars);
-		
 		$this->view_template_vars = $view_template_vars;
+		$this->query_params = $query_params;
 	}
 	
 	protected function getModelValue($name) {
@@ -49,4 +49,11 @@ abstract class BaseViewModel {
 	}
 	
 	abstract protected function getVarContainerName();
+	
+	protected function getQueryParam($key) {
+	    if($this->query_params !== null &&array_key_exists($key,$this->query_params)) {
+	        return $this->query_params[$key];
+	    }
+	    return get_query_param($key);
+	}
 }

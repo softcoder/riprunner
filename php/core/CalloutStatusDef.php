@@ -14,6 +14,7 @@ if(defined('__RIPRUNNER_ROOT__') === false) {
     define('__RIPRUNNER_ROOT__', dirname(__FILE__));
 }
 
+require_once 'JsonSerializable.php';
 require_once __RIPRUNNER_ROOT__.'/config_constants.php';
 
 // Types of status flags
@@ -36,7 +37,7 @@ abstract class BehaviourFlagType {
     const BEHAVIOUR_FLAG_DEFAULT_RESPONSE   = 0x10;
 }
 
-class CalloutStatusDef {
+class CalloutStatusDef implements JsonSerializable {
 
     private $id;
     private $name;
@@ -45,6 +46,7 @@ class CalloutStatusDef {
     private $statusFlags;
     private $behaviourFlags;
     private $accessFlags;
+    private $accessFlagsInclusive;
       
     public function __construct($id,$name,$displayName,
             $statusFlags,$behaviourFlags,$accessFlags, $accessFlagsInclusive) {
@@ -55,6 +57,34 @@ class CalloutStatusDef {
         $this->behaviourFlags = $behaviourFlags;
         $this->accessFlags = $accessFlags;
         $this->accessFlagsInclusive = $accessFlagsInclusive;
+    }
+    
+    public function jsonSerialize() {
+        return array(
+            'id' => $this->id,
+            'name' => $this->name,
+            'displayName' => $this->displayName,
+                
+            //'statusFlags' => $this->statusFlags,
+            //'behaviourFlags' => $this->behaviourFlags,
+            //'accessFlags' => $this->accessFlags
+            
+           'is_responding' => $this->IsResponding(),
+           'is_not_responding' => $this->IsNotResponding(),
+           'is_cancelled' => $this->IsCancelled(),
+           'is_completed' => $this->IsCompleted(),
+           'is_standby' => $this->IsStandby(),
+           'is_testing' => $this->IsTesting(),
+           'is_signal_all' => $this->IsSignalAll(),
+           'is_signall_responders' => $this->IsSignalResponders(),
+           'is_signall_non_responders' => $this->IsSignalNonResponders(),
+           'is_default_response' => $this->IsDefaultResponse(),
+                
+        );
+    }
+    
+    public function getProperties() {
+        return get_object_vars($this);
     }
     
     public function getId() {
