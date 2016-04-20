@@ -100,7 +100,9 @@
             <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
             
             {% for status_def in callout_details_vm.callout_status_defs %}
-              {% if status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby() %}
+              {% if status_def.hasAccess(callout_details_vm.getMemberAccessValue(row_responding.user_id)) and 
+                    status_def.isUserType(callout_details_vm.getMemberType(row_responding.user_id)) and 
+                 (status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby()) %}
               <option value="{{ status_def.getId() }}" {{ row_responding.status == status_def.getId() ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
               {% endif %}
             {% endfor %}
@@ -216,7 +218,9 @@
             <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
             
             {% for status_def in callout_details_vm.callout_status_defs %}
-              {% if status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby() %}
+              {% if status_def.hasAccess(callout_details_vm.getMemberAccessValue(row_responding.user_id)) and 
+                    status_def.isUserType(callout_details_vm.getMemberType(row_responding.user_id)) and 
+                    (status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby()) %}
               <option value="{{ status_def.getId() }}" {{ row_responding.status == status_def.getId() ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
               {% endif %}
             {% endfor %}
@@ -329,7 +333,9 @@
                                                  if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();">
 
 						            {% for status_def in callout_details_vm.callout_status_defs %}
-						              {% if status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby() %}
+						              {% if status_def.hasAccess(callout_details_vm.getMemberAccessValue(row_no.user_id)) and 
+                                            status_def.isUserType(callout_details_vm.getMemberType(row_no.user_id)) and 
+ 						                    (status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby()) %}
 						            <option value="{{ status_def.getId() }}" {{ status_def.IsDefaultResponse() ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
 						              {% endif %}
 						            {% endfor %}

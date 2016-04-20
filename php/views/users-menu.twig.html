@@ -75,6 +75,7 @@
 			        <th scope="col">Record Id</th>
 			        <th scope="col">Firehall Id</th>
 			        <th scope="col">User Id</th>
+			        <th scope="col">User Type</th>
 			        {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
 			            <th scope="col">Password</th>
 			            <th scope="col">Re-type Password</th>
@@ -99,6 +100,7 @@
 	            <td>
 	            {{ user.id }}
 	            </td>
+
 	            <td>
 	            {% if edit_current_row and not usersmenu_vm.selfedit_mode %}
 	                <input id="edit_firehall_id" name="edit_firehall_id" type="input" 
@@ -107,6 +109,7 @@
 	                {{ user.firehall_id }}
 	            {% endif %}
 	            </td>
+	            
 	            <td>
 	            {% if edit_current_row %}
 	                <input id="edit_user_id_name" name="edit_user_id_name" 
@@ -115,6 +118,26 @@
 	                {{ user.user_id }}
 	            {% endif %}
 	            </td>
+	            
+                <td>
+                {% if edit_current_row and not usersmenu_vm.selfedit_mode %}
+                    <select id="edit_user_type" name="edit_user_type">
+
+                    {% for user_type in usersmenu_vm.user_type_list %}
+                      <option value="{{ user_type.id }}" {{ user.user_type == user_type.id ? 'selected="selected"' : '' }}>{{ user_type.name }}</option>
+                    {% endfor %}
+
+                    </select>
+                {% else %}
+                    {% for user_type in usersmenu_vm.user_type_list %}
+                      {% if user.user_type == user_type.id %}
+                      {{ user_type.name }}
+                      {% endif %}
+                    {% endfor %}
+
+                {% endif %}
+                </td>
+	            
 	            {% if edit_current_row %}
                 <td>
                    <input id="edit_user_password_1" 
@@ -215,6 +238,15 @@
                     <input id="edit_user_id_name" name="edit_user_id_name" 
                            type="input" value=""/>
                 </td>
+                
+                <td>
+                  <select id="edit_user_type" name="edit_user_type">
+                  {% for user_type in usersmenu_vm.user_type_list %}
+                    <option value="{{ user_type.id }}">{{ user_type.name }}</option>
+                  {% endfor %}
+                  </select>
+                </td>
+                
                 <td>
                    <input id="edit_user_password_1" 
                            name="edit_user_password_1" type="password" 
@@ -277,9 +309,9 @@
             {% if not gvm.firehall.LDAP.ENABLED and not usersmenu_vm.selfedit_mode %}
             <tr>
             {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
-                <td colspan="13">
+                <td colspan="14">
             {% else %}
-                <td colspan="11">
+                <td colspan="12">
             {% endif %}
                     <input type="button" value="Add New" onclick="edit_user(this.form, -1);" />
                 </td>

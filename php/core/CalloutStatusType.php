@@ -63,56 +63,65 @@ class CalloutStatusType {
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL | 
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS | 
                     BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                    USER_ACCESS_ADMIN,true),
+                    USER_ACCESS_ADMIN,true,array(UserType::USER_TYPE_NONE)),
                 1 => new CalloutStatusDef(1,'Notified','Notified',StatusFlagType::STATUS_FLAG_NONE,
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
                     BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                    USER_ACCESS_ADMIN,true),
+                    USER_ACCESS_ADMIN,true,array(UserType::USER_TYPE_NONE)),
                 2 => new CalloutStatusDef(2,'Responding','Respond to hall',StatusFlagType::STATUS_FLAG_RESPONDING,
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
                     BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS |
                     BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE,
-                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false),
+                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
+                    array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_OFFICE_STAFF)),
                 3 => new CalloutStatusDef(3,'Cancelled','Cancelled',StatusFlagType::STATUS_FLAG_CANCELLED,
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
                     BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false),
+                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
+                    array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
                 4 => new CalloutStatusDef(4,'NotResponding','Not Responding',StatusFlagType::STATUS_FLAG_NOT_RESPONDING,
                     BehaviourFlagType::BEHAVIOUR_FLAG_NONE,
-                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false),
+                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
+                    array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_OFFICE_STAFF)),
                 5 => new CalloutStatusDef(5,'Standby','Standby',StatusFlagType::STATUS_FLAG_STANDBY,
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
                     BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false),
+                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
+                    array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
                 6 => new CalloutStatusDef(6,'Responding_at_hall','Respond at hall',StatusFlagType::STATUS_FLAG_RESPONDING,
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
                     BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false),
+                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
+                    array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
                 7 => new CalloutStatusDef(7,'Responding_to_scene','Respond to scene',StatusFlagType::STATUS_FLAG_RESPONDING,
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
                     BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false),
+                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
+                    array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
                 8 => new CalloutStatusDef(8,'Responding_at_scene','Respond at scene',StatusFlagType::STATUS_FLAG_RESPONDING,
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
                     BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false),
+                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
+                    array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
                 9 => new CalloutStatusDef(9,'Responding_return_hall','Return to hall',StatusFlagType::STATUS_FLAG_RESPONDING,
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
                     BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false),
+                    USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
+                    array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
                 10 => new CalloutStatusDef(10,'Complete','Complete',StatusFlagType::STATUS_FLAG_COMPLETED,
                         BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
                         BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
                         BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                        USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false),
+                        USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
+                        array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
             );
         }
         return $statusList;

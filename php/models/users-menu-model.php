@@ -24,13 +24,16 @@ class UsersMenuViewModel extends BaseViewModel {
 		if('user_list' === $name) {
 			return $this->getUserList();
 		}
+		if('user_type_list' === $name) {
+		    return $this->getUserTypeList();
+		}
 		
 		return parent::__get($name);
 	}
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('selfedit_mode','user_list')) === true) {
+			array('selfedit_mode','user_list','user_type_list')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
@@ -93,4 +96,35 @@ class UsersMenuViewModel extends BaseViewModel {
 				
 		return $resultArray;
 	}	
+	
+	private function getUserTypeList() {
+	    global $log;
+	
+	    // Read from the database info about this callout
+	    $self_edit = $this->getIsSelfEditMode();
+	
+	    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+	
+	    if($this->getGvm()->firehall->LDAP->ENABLED == true) {
+	        create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
+	    }
+        $sql = $sql_statement->getSqlStatement('user_type_list_select');
+	
+	    $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+	    $qry_bind->execute();
+	
+	    $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+	    $qry_bind->closeCursor();
+	
+	    $log->trace("About to display user type list for sql [$sql] result count: " . count($rows));
+	
+	    $resultArray = array();
+	    foreach($rows as $row){
+	        // Add any custom fields with values here
+	        $resultArray[] = $row;
+	    }
+	
+	    return $resultArray;
+	}
+	
 }

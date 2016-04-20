@@ -37,6 +37,15 @@ abstract class BehaviourFlagType {
     const BEHAVIOUR_FLAG_DEFAULT_RESPONSE   = 0x10;
 }
 
+// Types of status flags
+abstract class UserType {
+    const USER_TYPE_NONE           = 0;
+    const USER_TYPE_ADMIN          = 1;
+    const USER_TYPE_FIRE_FIGHTER   = 2;
+    const USER_TYPE_FIRE_APPARATUS = 3;
+    const USER_TYPE_OFFICE_STAFF   = 4;
+}
+
 class CalloutStatusDef implements JsonSerializable {
 
     private $id;
@@ -47,9 +56,12 @@ class CalloutStatusDef implements JsonSerializable {
     private $behaviourFlags;
     private $accessFlags;
     private $accessFlagsInclusive;
+    
+    private $userTypes;
       
     public function __construct($id,$name,$displayName,
-            $statusFlags,$behaviourFlags,$accessFlags, $accessFlagsInclusive) {
+            $statusFlags,$behaviourFlags,$accessFlags, $accessFlagsInclusive,
+            $userTypes) {
         $this->id = $id;
         $this->name = $name;
         $this->displayName = $displayName;
@@ -57,6 +69,7 @@ class CalloutStatusDef implements JsonSerializable {
         $this->behaviourFlags = $behaviourFlags;
         $this->accessFlags = $accessFlags;
         $this->accessFlagsInclusive = $accessFlagsInclusive;
+        $this->userTypes = $userTypes;
     }
     
     public function jsonSerialize() {
@@ -79,6 +92,8 @@ class CalloutStatusDef implements JsonSerializable {
            'is_signall_responders' => $this->IsSignalResponders(),
            'is_signall_non_responders' => $this->IsSignalNonResponders(),
            'is_default_response' => $this->IsDefaultResponse(),
+                
+           'user_types' => $this->userTypes,
                 
         );
     }
@@ -127,6 +142,16 @@ class CalloutStatusDef implements JsonSerializable {
     }
     public function IsDefaultResponse() {
         return ($this->behaviourFlags != null && ($this->behaviourFlags & BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE));
+    }
+
+    public function getUserTypes() {
+        return $this->userTypes;
+    }
+    public function isUserType($userType) {
+        if($this->userTypes == null) {
+            return true;
+        }
+        return in_array($userType,$this->userTypes);
     }
     
     public function hasAccess($userAccess) {

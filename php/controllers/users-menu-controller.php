@@ -149,6 +149,7 @@ class UsersMenuController {
 		// UPDATE
 		if($self_edit === true) {
 			$edit_firehall_id = $_SESSION['firehall_id'];
+			$edit_user_type = $_SESSION['user_type'];
 			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
 			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
@@ -156,6 +157,7 @@ class UsersMenuController {
 		}
 		else {
 			$edit_firehall_id = get_query_param('edit_firehall_id');
+			$edit_user_type = get_query_param('edit_user_type');
 			$edit_admin_access = get_query_param('edit_admin_access');
 			$edit_sms_access = get_query_param('edit_sms_access');
 			$edit_respond_self_access = get_query_param('edit_respond_self_access');
@@ -205,6 +207,7 @@ class UsersMenuController {
 		$qry_bind = $db_connection->prepare($sql);
 		$qry_bind->bindParam(':fhid', $edit_firehall_id);
 		$qry_bind->bindParam(':user_name', $edit_user_id_name);
+		$qry_bind->bindParam(':user_type', $edit_user_type);
 		if(isset($new_pwd) === true) {
 			$qry_bind->bindParam(':user_pwd', $new_pwd);
 		}
@@ -231,6 +234,7 @@ class UsersMenuController {
 
 		if($self_edit === true) {
 			$edit_firehall_id = $_SESSION['firehall_id'];
+			$edit_user_type = $_SESSION['user_type'];
 			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
 			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
@@ -238,6 +242,7 @@ class UsersMenuController {
 		}
 		else {
 			$edit_firehall_id = get_query_param('edit_firehall_id');
+			$edit_user_type = get_query_param('edit_user_type');
 			$edit_admin_access = get_query_param('edit_admin_access');
 			$edit_sms_access = get_query_param('edit_sms_access');
 			$edit_respond_self_access = get_query_param('edit_respond_self_access');
@@ -269,6 +274,7 @@ class UsersMenuController {
 		$qry_bind = $db_connection->prepare($sql);
 		$qry_bind->bindParam(':fhid', $edit_firehall_id);
 		$qry_bind->bindParam(':user_name', $edit_user_id_name);
+		$qry_bind->bindParam(':user_type', $edit_user_type);
 		$qry_bind->bindParam(':mobile_phone', $edit_mobile_phone);
 		$qry_bind->bindParam(':user_pwd', $new_pwd_value);
 		$qry_bind->bindParam(':access', $new_user_access);

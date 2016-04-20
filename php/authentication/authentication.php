@@ -145,6 +145,42 @@ class Authentication {
         }
         return $userAccess;
     }
+
+    public function getUserType($fhid,$user_id) {
+        global $log;
+    
+        $userType = 0;
+        if($this->hasDbConnection() == false) {
+            if($log !== null) $log->warn("NO DB CONNECTION during type check for user [$user_id] fhid [" .
+                    $fhid . "] client [" . self::getClientIPInfo() . "]");
+            return $userType;
+        }
+        if($this->getFirehall()->LDAP->ENABLED === true) {
+            create_temp_users_table_for_ldap($this->getFirehall(), $this->getDbConnection());
+            $sql = $this->getSqlStatement('ldap_login_user_check');
+        }
+        else {
+            $sql = $this->getSqlStatement('login_user_check');
+        }
+        $stmt = $this->getDbConnection()->prepare($sql);
+        if ($stmt !== false) {
+            $stmt->bindParam(':id', $user_id);  // Bind "$user_id" to parameter.
+            $stmt->bindParam(':fhid', $fhid);  // Bind "$user_id" to parameter.
+            $stmt->execute();    // Execute the prepared query.
+    
+            // get variables from result.
+            $row = $stmt->fetch(\PDO::FETCH_OBJ);
+            $stmt->closeCursor();
+    
+            if($row !== null && $row !== false) {
+                $userType = $row->user_type;
+            }
+    
+            if($log !== null) $log->trace("Type check for user [$user_id] fhid [" .
+                    $fhid . "] result: ". $userType ."client [" . self::getClientIPInfo() . "]");
+        }
+        return $userType;
+    }
     
     public function login($user_id, $password) {
         global $log;
@@ -173,6 +209,7 @@ class Authentication {
                 $userId = $row->user_id;
                 $userPwd = $row->user_pwd;
                 $userAccess = $row->access;
+                $userType = $row->user_type;
     
                 // hash the password with the unique salt.
                 //$password = hash('sha512', $password . $salt);
@@ -210,6 +247,7 @@ class Authentication {
                         // XSS protection as we might print this value
                         //$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
                         $_SESSION['user_id'] = $userId;
+                        $_SESSION['user_type'] = $userType;
                         $_SESSION['login_string'] = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $userPwd . $user_browser);
                         $_SESSION['firehall_id'] = $FirehallId;
                         $_SESSION['ldap_enabled'] = false;
@@ -423,7 +461,9 @@ class Authentication {
             // Now loop through all schemas looking for new entries to execute
             for($major_schema_version = 1; $major_schema_version < 999; $major_schema_version++) {
                 $found_entry_for_major_version = false;
-                for($minor_schema_version = 1; $minor_schema_version < 999; $minor_schema_version++) {
+                // For v1 major schema start at 1.1, all others at 0 like 2.0, 3.0
+                $start_minor_version = ($major_schema_version == 1 ? 1 : 0);
+                for($minor_schema_version = $start_minor_version; $minor_schema_version < 10; $minor_schema_version++) {
                     $sql_schema_version = ($major_schema_version.'.'.$minor_schema_version)+0;
                     $schema_tag_name = 'schema_upgrade_'.$major_schema_version.'_'.$minor_schema_version;
                     $sql = $this->getSqlStatement($schema_tag_name);
@@ -431,7 +471,8 @@ class Authentication {
                         if($log !== null) $log->trace("Found sql for tag: ".$schema_tag_name. " sql: ".$sql);
                         
                         $found_entry_for_major_version = true;
-                        if ($sql_schema_version > $schema_db_version_get+0) {
+                        //if ($sql_schema_version > $schema_db_version_get+0) {
+                        if(version_compare($schema_db_version_get, $sql_schema_version, '<')) {
                             if($log !== null) $log->warn('Found new schema to execute, db schema version: '.$schema_db_version_get.
                                                          ' new schema version: '.$sql_schema_version);
                              

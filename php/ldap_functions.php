@@ -97,6 +97,7 @@ function login_ldap($FIREHALL, $user_id, $password) {
     			$info = $entries;
     
     			$user_id_number = null;
+    			$userType = null;
     			$userCount = $info['count'];
     			for ($i=0; $i < $userCount; $i++) {
     				if(isset($info[$i]['cn']) === true) {
@@ -115,7 +116,10 @@ function login_ldap($FIREHALL, $user_id, $password) {
     					
     				$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
     				unset($user_id_number['count']);
-    	
+
+    				$userType = $info[$i][$FIREHALL->LDAP->LDAP_USER_TYPE_ATTR_NAME];
+    				unset($userType['count']);
+    				
     				if($log !== null) $log->trace("Distinguised name [$userDn]");
     			}
     	
@@ -134,6 +138,7 @@ function login_ldap($FIREHALL, $user_id, $password) {
     			// XSS protection as we might print this value
     			//$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
     			$_SESSION['user_id'] = $user_id;
+    			$_SESSION['user_type'] = $userType;
     			$_SESSION['login_string'] = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
     			$_SESSION['firehall_id'] = $FirehallId;
     			$_SESSION['ldap_enabled'] = true;
@@ -469,6 +474,12 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 			$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
 			unset($user_id_number['count']);
 
+			$userType = null;
+			if(!empty($info[$i][$FIREHALL->LDAP->LDAP_USER_TYPE_ATTR_NAME])) {
+			    $userType = $info[$i][$FIREHALL->LDAP->LDAP_USER_TYPE_ATTR_NAME];
+			    unset($userType['count']);
+			}
+				
 			$sms_value = array('');
 			if(isset($info[$i][$FIREHALL->LDAP->LDAP_USER_SMS_ATTR_NAME]) === true) {
 				$sms_value = $info[$i][$FIREHALL->LDAP->LDAP_USER_SMS_ATTR_NAME];
@@ -476,11 +487,13 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 			}
 
 			$userAccess = ldap_user_access($FIREHALL, $ldap, $username[0], $userDn);
+			$userType = (empty($userType) ? null : $userType[0]);
 			
 			$qry_bind = $db_connection->prepare($sql);
 			$qry_bind->bindParam(':uid', $user_id_number[0]);
 			$qry_bind->bindParam(':fhid', $FIREHALL->FIREHALL_ID);
 			$qry_bind->bindParam(':user_id', $username[0]);
+			$qry_bind->bindParam(':user_type', $userType);
 			$qry_bind->bindParam(':mobile_phone', $sms_value[0]);
 			$qry_bind->bindParam(':access', $userAccess);
 			$qry_bind->execute();
@@ -525,6 +538,12 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 						$user_id_number = $users_list[0][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
 						unset($user_id_number['count']);
 					
+						$userType = null;
+						if(!empty($users_list[0][$FIREHALL->LDAP->LDAP_USER_TYPE_ATTR_NAME])) {
+						    $userType = $users_list[0][$FIREHALL->LDAP->LDAP_USER_TYPE_ATTR_NAME];
+						    unset($userType['count']);
+						}
+						
 						$sms_value = array('');
 						if(isset($users_list[0][$FIREHALL->LDAP->LDAP_USER_SMS_ATTR_NAME]) === true) {
 							$sms_value = $users_list[0][$FIREHALL->LDAP->LDAP_USER_SMS_ATTR_NAME];
@@ -532,11 +551,13 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 						}
 					
 						$userAccess = ldap_user_access($FIREHALL, $ldap, $username[0], $userDn);
+						$userType = (empty($userType) ? null : $userType[0]);
 
 						$qry_bind = $db_connection->prepare($sql);
 						$qry_bind->bindParam(':uid', $user_id_number[0]);
 						$qry_bind->bindParam(':fhid', $FIREHALL->FIREHALL_ID);
 						$qry_bind->bindParam(':user_id', $username[0]);
+						$qry_bind->bindParam(':user_type', $userType);
 						$qry_bind->bindParam(':mobile_phone', $sms_value[0]);
 						$qry_bind->bindParam(':access', $userAccess);
 						$qry_bind->execute();

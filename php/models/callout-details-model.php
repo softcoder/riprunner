@@ -41,6 +41,12 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		if('member_id' === $name) {
 			return $this->getMemberId();
 		}
+		if('member_type' === $name) {
+		    return $this->getMemberType();
+		}
+		if('member_access' === $name) {
+		    return $this->getMemberAccessValue();
+		}
 		if('member_access_respond_self' === $name) {
 		    return $this->getMemberAccess(USER_ACCESS_CALLOUT_RESPOND_SELF);
 		}
@@ -128,7 +134,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('firehall_id','firehall','callout_id','calloutkey_id', 'member_id',
+			array('firehall_id','firehall','callout_id','calloutkey_id', 'member_id', 'member_type',
 				  'callout_responding_user_id', 'callout_status_complete', 'callout_status_cancel',
 			      'callout_details_list','callout_details_responding_list',
                   'callout_details_not_responding_list','callout_details_end_responding_list','google_map_type',
@@ -137,7 +143,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			      'STREAM_AUTOPLAY_MOBILE','STREAM_AUTOPLAY_DESKTOP',
                   'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED',
                   'map_callout_geo_dest','map_callout_address_dest','map_fh_geo_lat','map_fh_geo_long','map_webroot',
-			      'isCalloutAuth', 'member_access_respond_self', 'member_access_respond_others', 'callout_status_defs'
+			      'isCalloutAuth', 'member_access','member_access_respond_self', 'member_access_respond_others', 'callout_status_defs'
 			)) === true) {
 			return true;
 		}
@@ -180,6 +186,24 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	    }
 		$member_id = get_query_param('member_id');
 		return $member_id;
+	}
+
+	public function getMemberType($member_id) {
+	    //$member_id = $this->getMemberId();
+	    if($member_id !== null) {
+	        $user_type = $this->getGvm()->auth->getAuthEntity()->getUserType($this->getFirehallId(),$member_id);
+	        return $user_type;
+	    }
+	    return null;
+	}
+	
+	public function getMemberAccessValue($member_id) {
+	    //$member_id = $this->getMemberId();
+	    if($member_id !== null) {
+	        $user_access = $this->getGvm()->auth->getAuthEntity()->getUserAccess($this->getFirehallId(),$member_id);
+	        return $user_access;
+	    }
+	    return 0;
 	}
 	
 	private function getMemberAccess($access) {

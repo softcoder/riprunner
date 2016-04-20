@@ -624,13 +624,16 @@ class FireHall_LDAP
 	public $LDAP_USER_ID_ATTR_NAME;
 	// The ldap user name attribute name
 	public $LDAP_USER_NAME_ATTR_NAME;
-			
+	// The ldap user type attribute name
+	public $LDAP_USER_TYPE_ATTR_NAME;
+	
 	public function __construct($enabled=false, $name=null, $bind_rdn=null,
 			$bind_password=null, $dn=null, $user_dn=null, $login_filter=null, 
 			$user_dn_attr='dn', $user_sort_attr='sn',
 			$user_all_users_filter_attr=null, $user_admin_group_filter_attr=null,
 			$user_sms_group_filter_attr=null, $group_member_of_attr=null,
-			$user_sms_attr='mobile', $user_id_attr='uidnumber', $user_name_attr='uid') {
+			$user_sms_attr='mobile', $user_id_attr='uidnumber', $user_name_attr='uid',
+	        $user_type_attr='employeetype') {
 		
 		$this->ENABLED = $enabled;
 		$this->LDAP_SERVERNAME = $name;
@@ -650,6 +653,7 @@ class FireHall_LDAP
 		$this->LDAP_USER_SMS_ATTR_NAME = $user_sms_attr;
 		$this->LDAP_USER_ID_ATTR_NAME = $user_id_attr;
 		$this->LDAP_USER_NAME_ATTR_NAME = $user_name_attr;
+		$this->LDAP_USER_TYPE_ATTR_NAME = $user_type_attr;
 		$this->ENABLED_CACHE = true;
 	}
 
@@ -674,6 +678,7 @@ class FireHall_LDAP
 				"\nUser SMS attr: " . $this->LDAP_USER_SMS_ATTR_NAME .
 				"\nUserId attr: " . $this->LDAP_USER_ID_ATTR_NAME .
 				"\nUserName attr: " . $this->LDAP_USER_NAME_ATTR_NAME .
+				"\nUserType attr: " . $this->LDAP_USER_TYPE_ATTR_NAME .
 				"\nCaching enabled: " . var_export($this->ENABLED_CACHE, true);
 		return $result;
 	}
@@ -732,6 +737,10 @@ class FireHall_LDAP
 	public function setUserName_Attribute($user_name_attr) {
 		$this->LDAP_USER_NAME_ATTR_NAME = $user_name_attr;
 	}
+	public function setUserType_Attribute($user_type_attr) {
+	    $this->LDAP_USER_TYPE_ATTR_NAME = $user_type_attr;
+	}
+	
 	public function setEnableCache($caching) {
 	    $this->ENABLED_CACHE = $caching;
 	}
