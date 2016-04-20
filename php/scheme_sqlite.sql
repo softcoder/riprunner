@@ -56,6 +56,7 @@ user_id varchar(255) NOT NULL,
 user_pwd varchar(255) NOT NULL,
 mobile_phone varchar(25) NOT NULL DEFAULT '',
 access INTEGER NOT NULL DEFAULT 0,
+user_type int(11),
 updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
 
-    <user_accounts id="1" firehall_id="0" user_id="mark.vejvoda" user_pwd="temjCCsjBECmU" mobile_phone="2505551212" access="3" updatetime="2010-04-24 17:15:23" />
-    <user_accounts id="2" firehall_id="0" user_id="vickie.vejvoda" user_pwd="abc123" mobile_phone="" access="0" updatetime="2010-04-26 12:14:20" />
-    <user_accounts id="3" firehall_id="0" user_id="daniel.vejvoda" user_pwd="123" mobile_phone="2505551213" access="1" updatetime="2010-04-26 12:14:20" />
-    <user_accounts id="4" firehall_id="0" user_id="stephanie.vejvoda" user_pwd="abc" mobile_phone="2505551214" access="2" updatetime="2010-04-26 12:14:20" />
+    <user_accounts id="1" firehall_id="0" user_id="mark.vejvoda" user_pwd="temjCCsjBECmU" mobile_phone="2505551212" access="3" user_type="1" updatetime="2010-04-24 17:15:23" />
+    <user_accounts id="2" firehall_id="0" user_id="vickie.vejvoda" user_pwd="abc123" mobile_phone="" access="0" user_type="2" updatetime="2010-04-26 12:14:20" />
+    <user_accounts id="3" firehall_id="0" user_id="daniel.vejvoda" user_pwd="123" mobile_phone="2505551213" access="1" user_type="3" updatetime="2010-04-26 12:14:20" />
+    <user_accounts id="4" firehall_id="0" user_id="stephanie.vejvoda" user_pwd="abc" mobile_phone="2505551214" access="2" user_type="4" updatetime="2010-04-26 12:14:20" />
     
     <callouts id="1" calltime="2010-04-26 12:14:20" calltype="BURN" address="9115 Salmon Valley Road" latitude="" longitude="" units="SALGRP1" status="10" updatetime="2010-04-26 13:14:20" call_key="abc1" />
     <callouts id="2" calltime="2999-04-26 12:14:20" calltype="MED" address="9115 Salmon Valley Road" latitude="" longitude="" units="SALGRP1" status="1" updatetime="2999-04-26 13:14:20" call_key="abc2" />
