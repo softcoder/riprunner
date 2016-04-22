@@ -29,7 +29,7 @@ function extractDelimitedValueFromString($rawValue, $regularExpression, $groupRe
 }
 
 function ldap_get_user_from_db($FIREHALL, $user_id, $db_connection) {
-    global $log;
+    //global $log;
 
     $result = null;
     if($FIREHALL->LDAP->ENABLED === true) {

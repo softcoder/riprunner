@@ -100,9 +100,6 @@ class UsersMenuViewModel extends BaseViewModel {
 	private function getUserTypeList() {
 	    global $log;
 	
-	    // Read from the database info about this callout
-	    $self_edit = $this->getIsSelfEditMode();
-	
 	    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
 	
 	    if($this->getGvm()->firehall->LDAP->ENABLED == true) {

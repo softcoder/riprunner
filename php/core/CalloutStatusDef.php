@@ -151,7 +151,7 @@ class CalloutStatusDef implements JsonSerializable {
         if($this->userTypes == null) {
             return true;
         }
-        return in_array($userType,$this->userTypes);
+        return in_array($userType, $this->userTypes);
     }
     
     public function hasAccess($userAccess) {
@@ -178,7 +178,7 @@ class CalloutStatusDef implements JsonSerializable {
         return true;
     }
     private function getAccessFlagsValidateList() {
-        $validateList = array(USER_ACCESS_ADMIN,USER_ACCESS_SIGNAL_SMS,
+        return array(USER_ACCESS_ADMIN,USER_ACCESS_SIGNAL_SMS,
                               USER_ACCESS_CALLOUT_RESPOND_SELF,USER_ACCESS_CALLOUT_RESPOND_SELF,
                               USER_ACCESS_CALLOUT_RESPOND_OTHERS);
     }

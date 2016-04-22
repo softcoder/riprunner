@@ -451,7 +451,7 @@ class Authentication {
             }
             
             // Minimum schema version expected
-            if ($schema_db_version_get+0 < 1.2) {
+            if (($schema_db_version_get+0) < 1.2) {
                 if($log !== null) $log->error("Db schema version lower than minimum expected: ".$schema_db_version_get);
                 return true;
             }
@@ -462,9 +462,9 @@ class Authentication {
             for($major_schema_version = 1; $major_schema_version < 999; $major_schema_version++) {
                 $found_entry_for_major_version = false;
                 // For v1 major schema start at 1.1, all others at 0 like 2.0, 3.0
-                $start_minor_version = ($major_schema_version == 1 ? 1 : 0);
+                $start_minor_version = (($major_schema_version == 1) ? 1 : 0);
                 for($minor_schema_version = $start_minor_version; $minor_schema_version < 10; $minor_schema_version++) {
-                    $sql_schema_version = ($major_schema_version.'.'.$minor_schema_version)+0;
+                    $sql_schema_version = (($major_schema_version.'.'.$minor_schema_version)+0);
                     $schema_tag_name = 'schema_upgrade_'.$major_schema_version.'_'.$minor_schema_version;
                     $sql = $this->getSqlStatement($schema_tag_name);
                     if($sql !== null && !empty($sql)) {

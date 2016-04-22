@@ -11,11 +11,11 @@ require_once 'PlancakeEmailParser.php';
 
 $emailParser = new PlancakeEmailParser(file_get_contents('php://input'));
 $email_body = $emailParser->getBody();
-sysLog(LOG_INFO,"PHP Body of message: ".$email_body);
+syslog(LOG_INFO,"PHP Body of message: ".$email_body);
 
 $GAE_APP_ID = AppIdentityService::getApplicationId();
 $GAE_ACCOUNT_NAME = AppIdentityService::getServiceAccountName();
-sysLog(LOG_INFO,"PHP AppID: ".$GAE_APP_ID." SAM: ".$GAE_ACCOUNT_NAME);
+syslog(LOG_INFO,"PHP AppID: ".$GAE_APP_ID." SAM: ".$GAE_ACCOUNT_NAME);
 
 $data = array('sender' => $emailParser->getHeader('return-path'),
               'subject' => $emailParser->getSubject(),
@@ -47,4 +47,4 @@ $context = stream_context_create($context);
 $url = "http://soft-haus.com/svvfd/riprunner/webhooks/email_trigger_webhook.php";
 $result = file_get_contents($url, false, $context);
 
-sysLog(LOG_INFO,"PHP Result of calling webhook url: ". $result);
+syslog(LOG_INFO,"PHP Result of calling webhook url: ". $result);

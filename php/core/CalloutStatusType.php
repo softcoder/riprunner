@@ -8,10 +8,10 @@ namespace riprunner;
 require_once 'CalloutStatusDef.php';
 
 abstract class BasicEnum {
-    private static $constCacheArray = NULL;
+    private static $constCacheArray = null;
 
     private static function getConstants() {
-        if (self::$constCacheArray == NULL) {
+        if (self::$constCacheArray == null) {
             self::$constCacheArray = array();
         }
         $calledClass = get_called_class();

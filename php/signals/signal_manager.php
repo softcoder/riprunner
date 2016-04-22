@@ -574,7 +574,7 @@ class SignalManager {
     
         if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
             if($isFirstResponseForUser === true || isCalloutInProgress($userStatus) == false) {
-                if(CalloutStatusType::isValidValue($userStatus)) {
+                if(CalloutStatusType::isValidValue($userStatus) === true) {
                     $statusDef = CalloutStatusType::getStatusById($userStatus);
                     if($statusDef->IsResponding() == true) {
                         $result .= $this->signalResponseToSMSPlugin($callout, $userId,
