@@ -27,7 +27,7 @@ abstract class StatusFlagType {
     const STATUS_FLAG_STANDBY         = 0x10;
 }
 
-// Types of status flags
+// Types of behaviour flags
 abstract class BehaviourFlagType {
     const BEHAVIOUR_FLAG_NONE               = 0;
     const BEHAVIOUR_FLAG_TESTING            = 0x1;

@@ -91,6 +91,9 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		// To send one common message to all recipients use the line below:
 		// $resultSMS = $smsPlugin->signalRecipients($callout->getFirehall()->SMS, $recipient_list_array, $recipient_list_type, $smsText);
 		
+		// Remove empty and null entries
+		$recipient_list_array = array_filter($recipient_list_array, 'strlen' );
+		
 		// To send a custom sms to each responder with their credentials use the code below
 		// START:
 		$resultSMS = '';

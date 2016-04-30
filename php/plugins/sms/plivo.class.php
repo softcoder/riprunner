@@ -28,7 +28,8 @@ class SMSPlivoPlugin implements ISMSPlugin {
 			throw new \Exception("Plivo SMS Plugin does not support groups!");
 		}
 		else {
-			$recipient_list_numbers = $recipient_list;
+			// Remove empty and null entries
+			$recipient_list_numbers = array_filter($recipient_list, 'strlen' );
 		}
 	
 		$resultSMS .= 'About to send SMS to: [' . implode(",", $recipient_list_numbers) . ']' . PHP_EOL;

@@ -28,7 +28,8 @@ class SMSTwilioPlugin implements ISMSPlugin {
 			throw new \Exception("Twilio SMS Plugin does not support groups!");
 		}
 		else {
-			$recipient_list_numbers = $recipient_list;
+		    // Remove empty and null entries
+		    $recipient_list_numbers = array_filter($recipient_list, 'strlen' );
 		}
 	
 		$resultSMS .= 'About to send SMS to: [' . implode(",", $recipient_list_numbers) . ']' . PHP_EOL;
@@ -65,7 +66,7 @@ class SMSTwilioPlugin implements ISMSPlugin {
 		 		$xml = new \SimpleXMLElement($result);
 		 		
 		 		if ( isset($xml->RestException)  === true) {
-		 			$resultSMS .= 'TWILIO ERROR RESPONSE!' . PHP_EOL;
+		 			$resultSMS .= 'TWILIO ERROR RESPONSE! msg:' . $xml->RestException->Message . PHP_EOL;
 		 		}
 		 		else {
 		 			$resultSMS .= 'TWILIO SUCCESS RESPONSE!' . PHP_EOL;

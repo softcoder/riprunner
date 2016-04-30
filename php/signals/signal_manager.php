@@ -138,14 +138,17 @@ class SignalManager {
                 //var_dump($recipient_list_array);
             }
         
+            // Remove empty and null entries
+            $recipient_list_array = array_filter($recipient_list_array, 'strlen' );
+            
             $resultSMS = $smsPlugin->signalRecipients($FIREHALL->SMS, $recipient_list_array,
                     $recipient_list_type, $msg);
         
-            if(strpos($resultSMS, "ERROR") !== false) {
-                if($log !== null) $log->error("Error calling send msg SMS provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$resultSMS]");
+            if(strpos($resultSMS, "ERROR") === false) {
+                if($log !== null) $log->trace("Called SMS send msg provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$resultSMS]");
             }
             else {
-                if($log !== null) $log->trace("Called SMS send msg provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$resultSMS]");
+                if($log !== null) $log->error("Error calling send msg SMS provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$resultSMS]");
             }
         }
         
@@ -573,7 +576,7 @@ class SignalManager {
         $result = '';
     
         if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
-            if($isFirstResponseForUser === true || isCalloutInProgress($userStatus) == false) {
+            if($isFirstResponseForUser === true || isCalloutInProgress($userStatus) == true) {
                 if(CalloutStatusType::isValidValue($userStatus) === true) {
                     $statusDef = CalloutStatusType::getStatusById($userStatus);
                     if($statusDef->IsResponding() == true) {
