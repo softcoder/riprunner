@@ -265,13 +265,28 @@ class CalloutResponseViewModel extends BaseViewModel {
 		$log->trace("Call Response START --> updateCallResponse");
 
 		$this->isFirstResponseForUser = false;
-		// Check if there is already a response record for this user and call
-		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
-		$sql = $sql_statement->getSqlStatement('callout_total_count_by_id_and_user_and_status');
-
 		$cid = $this->getCalloutId();
 		$status = $this->getUserStatus();
 		$eta = $this->getUserEta();
+		
+		// Ensure the user has access to the callout status
+		$user_access = $this->getGvm()->auth->getAuthEntity()->getUserAccess(
+		        $this->getFirehallId(),$this->getUserId());
+		$statusDef = CalloutStatusType::getStatusById($status);
+		if($statusDef->hasAccess($user_access) == false) {
+		    $log->error('Member: '.$this->getUserId().' does not have access to status code: '.$status);
+		    throw new \Exception('Invalid response request detected, contact administrator for details!');
+		}
+		$user_type = $this->getGvm()->auth->getAuthEntity()->getUserType($this->getFirehallId(),$this->getUserId());
+		if($statusDef->isUserType($user_type) == false) {
+		    $log->error('Member: '.$this->getUserId().' does not have the required user type for status code: '.$status);
+		    throw new \Exception('Invalid response request detected, contact administrator for details!');
+		}
+		//
+		
+		// Check if there is already a response record for this user and call
+		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+		$sql = $sql_statement->getSqlStatement('callout_total_count_by_id_and_user_and_status');
 		
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		$qry_bind->bindParam(':cid', $cid);
