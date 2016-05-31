@@ -206,9 +206,10 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'EMAIL_PARSING_UNITS_PATTERN', 		'/Units Responding: (.*?)$/m' );
 	
 	// Email parser lookup patterns for email triggers via Google App Engine webhook
-	define( 'EMAIL_PARSING_DATETIME_PATTERN_GENERIC', 	'/Date:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units)/m' );
-	define( 'EMAIL_PARSING_CALLCODE_PATTERN_GENERIC', 	'/Type:(.*?)(?:$| -|Type:|Department:|Address:|Latitude:|Longitude:|Units)/m' );
-	define( 'EMAIL_PARSING_ADDRESS_PATTERN_GENERIC', 	'/Address:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units)/m' );
-	define( 'EMAIL_PARSING_LATITUDE_PATTERN_GENERIC', 	'/Latitude:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units)/m' );
-	define( 'EMAIL_PARSING_LONGITUDE_PATTERN_GENERIC', 	'/Longitude:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units)/m' );
-	define( 'EMAIL_PARSING_UNITS_PATTERN_GENERIC', 		'/Responding:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Date:)/m' );
+	define( 'EMAIL_PARSING_DATETIME_PATTERN_GENERIC', 	'/Date:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units|Google Maps Link:)/m' );
+	define( 'EMAIL_PARSING_CALLCODE_PATTERN_GENERIC', 	'/Type:(.*?)(?:$| -|Type:|Department:|Address:|Latitude:|Longitude:|Units|Google Maps Link:)/m' );
+	define( 'EMAIL_PARSING_ADDRESS_PATTERN_GENERIC', 	'/Address:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units|Google Maps Link:)/m' );
+	define( 'EMAIL_PARSING_LATITUDE_PATTERN_GENERIC', 	'/Latitude:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units|Google Maps Link:)/m' );
+	define( 'EMAIL_PARSING_LONGITUDE_PATTERN_GENERIC', 	'/Longitude:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units|Google Maps Link:)/m' );
+	define( 'EMAIL_PARSING_UNITS_PATTERN_GENERIC', 		'/Responding:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Date:|Google Maps Link:)/m' );
+	
