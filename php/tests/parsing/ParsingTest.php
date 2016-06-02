@@ -381,5 +381,46 @@ Units Responding: SALGRP1";
         $this->assertEquals('-122.54791',$callout->getGPSLong());
         $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
     }
+
+    public function testProcessFireHallText_TEXT_new_link_format_Valid() {
+        $realdata = "Date: 2016-05-26 11:28:59
+                     Type: LIFT - Lift Assist
+                     Department: Mackenzie Fire
+                     Address: 308 CROOKED RIVER CRES,MACKENZIE, BC
+                     Latitude: 55.34132
+                     Longitude: -123.10563
+                     Google Maps Link: http://maps.google.com/maps?z=1&t=m&q=loc:55.3413,-123.106
+                     Units Responding: MACGRP1";
+    
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallText($realdata);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2016-05-26 11:28:59',$callout->getDateTimeAsString());
+        $this->assertEquals('LIFT',$callout->getCode());
+        $this->assertEquals('308 CROOKED RIVER CRES,MACKENZIE, BC',$callout->getAddress());
+        $this->assertEquals('308 CROOKED RIVER CRES,MACKENZIE, BC',$callout->getAddressForMap());
+        $this->assertEquals('55.34132',$callout->getGPSLat());
+        $this->assertEquals('-123.10563',$callout->getGPSLong());
+        $this->assertEquals('MACGRP1',$callout->getUnitsResponding());
+    }
+
+    public function testProcessFireHallText_TEXT_new_gae_link_format_Valid() {
+        $realdata = "Date: 2016-05-26 11:28:59Type: LIFT - Lift AssistDepartment: Mackenzie FireAddress: 308 CROOKED RIVER CRES,MACKENZIE, BCLatitude: 55.34132Longitude: -123.10563Google Maps Link: http://maps.google.com/maps?z=1&t=m&q=loc:55.3413,-123.106Units Responding: MACGRP1";
+    
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2016-05-26 11:28:59',$callout->getDateTimeAsString());
+        $this->assertEquals('LIFT',$callout->getCode());
+        $this->assertEquals('308 CROOKED RIVER CRES,MACKENZIE, BC',$callout->getAddress());
+        $this->assertEquals('308 CROOKED RIVER CRES,MACKENZIE, BC',$callout->getAddressForMap());
+        $this->assertEquals('55.34132',$callout->getGPSLat());
+        $this->assertEquals('-123.10563',$callout->getGPSLong());
+        $this->assertEquals('MACGRP1',$callout->getUnitsResponding());
+    }
     
 }

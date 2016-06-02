@@ -352,5 +352,26 @@ class TriggersTest extends BaseDBFixture {
 	
 	    $this->assertNotContains('Signalling callout', $result);
 	}
+
+	public function testEmailTriggerfromfield_format1_Valid() {
+	    $from = "<donotreply@princegeorge.ca>";
+	    $from_result = preg_replace('/^\<|\>|\[|\]$/', '', $from);
+	    
+	    $this->assertEquals('donotreply@princegeorge.ca',$from_result);
+	}
+
+	public function testEmailTriggerfromfield_format2_Valid() {
+	    $from = "[donotreply@princegeorge.ca]";
+	    $from_result = preg_replace('/^\<|\>|\[|\]$/', '', $from);
+	
+	    $this->assertEquals('donotreply@princegeorge.ca',$from_result);
+	}
+	
+	public function testEmailTriggerfromfield_format3_Valid() {
+	    $from = "donotreply@princegeorge.ca";
+	    $from_result = preg_replace('/^\<|\>|\[|\]$/', '', $from);
+	     
+	    $this->assertEquals('donotreply@princegeorge.ca',$from_result);
+	}
 	
 }

@@ -74,7 +74,8 @@ class EmailTriggerWebHook {
         $from = $this->getRequestVar('sender');
         if($log !== null) $log->warn("Email trigger checking #1 from [$from]");
         
-        $from = extractDelimitedValueFromString($from, '~\<(.*?)\>~i', 1);
+        //$from = extractDelimitedValueFromString($from, '~\<(.*?)\>~i', 1);
+        $from = preg_replace('/^\<|\>|\[|\]$/', '', $from);
         
         if($log !== null) $log->warn("Email trigger checking #2 from [$from]");
         return $from;
