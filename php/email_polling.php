@@ -227,8 +227,12 @@ class EmailTriggerPolling {
                         $html.= 'Looking for hash ['.$mail_hash.'] in ['.$trigger_hash_string.']<br />';
 
                         if(array_search($mail_hash, $trigger_hash_list) !== false) {
-                            if($log !== null) $log->trace('Skipping Read email # ['.$num.'] subject: '.$header->subject);
-                            $html.= 'Skipping Read email # ['.$num.'] subject: '.$header->subject.'<br /><br />';
+                            $mail_subject = '';
+                            if(isset($header->subject) === true) {
+                                $mail_subject = $header->subject;
+                            }
+                            if($log !== null) $log->trace('Skipping Read email # ['.$num.'] subject: '.$mail_subject);
+                            $html.= 'Skipping Read email # ['.$num.'] subject: '.$mail_subject.'<br /><br />';
                             continue;
                         }
                     }
