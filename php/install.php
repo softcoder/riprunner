@@ -27,7 +27,7 @@ function install($FIREHALL, &$db_connection) {
 	    $sql = preg_replace_callback('(:db)', function ($m) use ($dbname) { $m; return $dbname; }, $sql);
 		$db_connection->query($sql);
 		
-		echo '<b>Successfully created database [' . $FIREHALL->DB->DATABASE . ']</b><br />' . PHP_EOL;
+		echo '<p style="font-size:35px; color: lime"><b>Successfully created database [' . $FIREHALL->DB->DATABASE . ']</b></p><br />' . PHP_EOL;
 	}
 	
 	\riprunner\DbConnection::disconnect_db( $db_connection );
@@ -40,7 +40,7 @@ function install($FIREHALL, &$db_connection) {
 	if($db_table_exist === false) {
 	    $sql_statement = new \riprunner\SqlStatement($db_connection);
 	    $schema_results = $sql_statement->installSchema();
-		echo '<b>SCHEMA Import Information, Success: ' . $schema_results["success"] . ' Total: ' . $schema_results["total"] . '</b><br />' . PHP_EOL;
+		echo '<p style="font-size:35px; color: lime"><b>SCHEMA Import Information, Success: ' . $schema_results["success"] . ' Total: ' . $schema_results["total"] . '</b></p><br />' . PHP_EOL;
 
 		$random_password = uniqid('', true);
 		$new_pwd = \riprunner\Authentication::encryptPassword($random_password);
@@ -51,15 +51,14 @@ function install($FIREHALL, &$db_connection) {
 		$qry_bind->bindParam(':pwd', $new_pwd);
 		$qry_bind->execute();
 		
-		echo '<b>A default admin account has been created, with the following information:<br />Firehall Id: <font color="red">' . 
-		     $FIREHALL->FIREHALL_ID . '</font><br />User id: <font color="red">admin</font><br />Password: <font color="red">' . 
-		     $random_password . '</font></b><br />' . PHP_EOL;
+		echo '<b>A default admin account has been created, with the following information:<br />'.
+		     'Firehall Id: <font color="red">'.$FIREHALL->FIREHALL_ID.'</font><br />'.
+		     'User id: <font color="red">admin</font><br />'. 
+		     'Password: <font color="red">'.$random_password . '</font></b><br />' . PHP_EOL;
 		echo '<b><a href="login">Login Page</a></b>' . PHP_EOL;
 	}
 }
-
 ?>
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -70,11 +69,9 @@ function install($FIREHALL, &$db_connection) {
     <body>
         <?php 
         $firehall_id = get_query_param('fhid');
-        
         $db_connection = null;
         if (isset($firehall_id) === true) {
 			$form_action = get_query_param('form_action');
-			
         	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
         	if($FIREHALL !== null) {
 				if($form_action === "install") {
@@ -89,7 +86,7 @@ function install($FIREHALL, &$db_connection) {
         	}
         }
         else {
-			$html_select = '<select style="font-size:16px" id="fhid" name="fhid">' . PHP_EOL;
+			$html_select = '<select style="font-size:35px" id="fhid" name="fhid">' . PHP_EOL;
 			foreach($FIREHALLS as $FIREHALL) {
 				$html_select .= '<option value="'.$FIREHALL->FIREHALL_ID.'">'
 							 . $FIREHALL->WEBSITE->FIREHALL_NAME 
@@ -100,21 +97,21 @@ function install($FIREHALL, &$db_connection) {
 		}
         
 		if (isset($firehall_id) === true) : ?>
-			<div style="font-size:20px; color: yellow">
-            <p>Checking to see if the Firehall is already installed: <?php echo $FIREHALL->WEBSITE->FIREHALL_NAME; ?>.</p>
-            
+			<div style="font-size:35px; color: yellow">
+            <p>Checking to see if the Firehall is already installed:</br>
+              <span style="font-size:35px; color: white"><?php echo $FIREHALL->WEBSITE->FIREHALL_NAME; ?></span>
+            </p>
             <?php
             if($form_action === 'install') {
                 $sql_statement = new \riprunner\SqlStatement($db_connection);
                 $db_exist = $sql_statement->db_exists($FIREHALL->DB->DATABASE, 'user_accounts');
-				
 				if($db_exist === true) {
-					echo '<p>The Firehall already exists.</p><br />' . PHP_EOL;
+					echo '<p style="font-size:35px; color: red">The Firehall already exists.</p><hr>' . PHP_EOL;
+					echo '<b><a href="install.php">Back to Install Page</a></b><br />' . PHP_EOL;
 					echo '<b><a href="login">Login Page</a></b><br />' . PHP_EOL;
 				}
 				else {
-					echo '<p>The Firehall DOES NOT exist, starting installation...</p>' . PHP_EOL;
-					
+					echo '<p style="font-size:35px; color: lime">The Firehall DOES NOT exist, starting installation...</p>' . PHP_EOL;
 					install($FIREHALL, $db_connection);
 				}
 			}
@@ -123,17 +120,19 @@ function install($FIREHALL, &$db_connection) {
         <?php else : ?>
 		<center>
         <form action="install.php" method="post" name="install_form">
-            <p style="font-size:20px; color: yellow">
-                Please select the firehall to check if installation is required.<br>
+            <p style="font-size:40px; color: white">
+                <?php echo PRODUCT_NAME.' v'.CURRENT_VERSION.' - '.PRODUCT_URL; ?><br>
+                <hr>
+            </p>
+            <p style="font-size:35px; color: yellow">
+                Please select the firehall config to check if installation is required.<br>
                 <?php echo $html_select; ?>
             </p>
-			<input style="font-size:16px;background-color:lime;width: 100px" type="submit" value="Install"/>
+			<input style="font-size:35px;background-color:lime;width: 200px" type="submit" value="Install"/>
 			<input type="hidden" id="form_action" name="form_action" value="install"/>
-            
         </form>
 		</center>
         <?php endif; ?>
-        
 <?php
         if($db_connection !== null) {
         	\riprunner\DbConnection::disconnect_db( $db_connection );
