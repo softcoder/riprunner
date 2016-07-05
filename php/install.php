@@ -8,15 +8,42 @@ if ( defined('INCLUSION_PERMITTED') === false ||
     (defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false)) {
 	die( 'This file must not be invoked directly.' );
 }
-
-require_once 'config.php';
+require_once 'config_constants.php';
+try {
+	if (!file_exists('config.php' )) {
+	  throw new Exception ('Config script does not exist!');
+	  }
+	else {
+		require_once 'config.php';
+	}
+}
+catch(Exception $e) {    
+  echo '<!DOCTYPE html>'.PHP_EOL.
+       '<html>'.PHP_EOL.
+       '<head>'.PHP_EOL.
+       '<meta charset="UTF-8">'.PHP_EOL.
+       '<title>Installation Page for: '.PRODUCT_NAME.'</title>'.PHP_EOL.
+       '<link rel="stylesheet" href="styles/main.css" />'.PHP_EOL.
+       '</head>'.PHP_EOL.
+       '<body>'.PHP_EOL.
+       '<p style="font-size:40px; color: white">'.
+	   PRODUCT_NAME.' v'.CURRENT_VERSION.' - '.PRODUCT_URL.'<br>'.
+	   '<hr></p>'.PHP_EOL.
+       '<p style="font-size:35px; color: red">'.PHP_EOL.
+       'Error detected, message : ' . $e->getMessage().', '.'Code : ' . $e->getCode().
+       '<br><span style="font-size:35px; color: yellow">Please create a config.php script.</span>'.PHP_EOL.
+       '</p><hr>'.PHP_EOL.
+       '</body>'.PHP_EOL.
+       '</html>';
+  return;
+}
+	
 require_once 'db/db_connection.php';
 require_once 'db/sql_statement.php';
 require_once 'authentication/authentication.php';
 require_once 'functions.php';
 
 function install($FIREHALL, &$db_connection) {
-
     $sql_statement = new \riprunner\SqlStatement($db_connection);
     $db_exist = $sql_statement->db_exists($FIREHALL->DB->DATABASE, null);
     $db_table_exist = $sql_statement->db_exists($FIREHALL->DB->DATABASE, 'user_accounts');
@@ -71,19 +98,41 @@ function install($FIREHALL, &$db_connection) {
         $firehall_id = get_query_param('fhid');
         $db_connection = null;
         if (isset($firehall_id) === true) {
-			$form_action = get_query_param('form_action');
-        	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
-        	if($FIREHALL !== null) {
-				if($form_action === "install") {
-				    $db = new \riprunner\DbConnection($FIREHALL, true);
-				    $db_connection = $db->getConnection();
-					//die('Test Master connection!');
+			try {
+				$form_action = get_query_param('form_action');
+				$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
+				if($FIREHALL !== null) {
+					if($form_action === "install") {
+						$db = new \riprunner\DbConnection($FIREHALL, true);
+						$db_connection = $db->getConnection();
+						//die('Test Master connection!');
+					}
+					else {
+						$db = new \riprunner\DbConnection($FIREHALL);
+						$db_connection = $db->getConnection();
+					}
 				}
-				else {
-				    $db = new \riprunner\DbConnection($FIREHALL);
-				    $db_connection = $db->getConnection();
-				}
-        	}
+			}	
+			catch(Exception $e) {    
+			  echo '<!DOCTYPE html>'.PHP_EOL.
+				   '<html>'.PHP_EOL.
+				   '<head>'.PHP_EOL.
+				   '<meta charset="UTF-8">'.PHP_EOL.
+				   '<title>Installation Page for: '.PRODUCT_NAME.'</title>'.PHP_EOL.
+				   '<link rel="stylesheet" href="styles/main.css" />'.PHP_EOL.
+				   '</head>'.PHP_EOL.
+				   '<body>'.PHP_EOL.
+				   '<p style="font-size:40px; color: white">'.
+				   PRODUCT_NAME.' v'.CURRENT_VERSION.' - '.PRODUCT_URL.'<br>'.
+				   '<hr></p>'.PHP_EOL.
+				   '<p style="font-size:35px; color: red">'.PHP_EOL.
+				   'Error detected, message : ' . $e->getMessage().', '.'Code : ' . $e->getCode().
+				   '<br><span style="font-size:35px; color: yellow">Please edit your config.php script and correct any errors.</span>'.PHP_EOL.
+				   '</p><hr>'.PHP_EOL.
+				   '</body>'.PHP_EOL.
+				   '</html>';
+			  return;
+			}
         }
         else {
 			$html_select = '<select style="font-size:35px" id="fhid" name="fhid">' . PHP_EOL;
