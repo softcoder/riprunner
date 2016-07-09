@@ -257,7 +257,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 // ===--------------EDIT BLOCKS BELOW TO COMPLETE THE SETUP FOR YOUR SITE--------------------===
 // =============================================================================================
 
-
+    // !!! email settings start
 	// Email Settings: blank allows emails from anyone. example value: vfd@gmail.com
 	define( 'DEFAULT_EMAIL_FROM_TRIGGER', '');
 	
@@ -268,7 +268,9 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_EMAIL->setUserName('IMAP/POP3 USERNAME');
 	$LOCAL_DEBUG_EMAIL->setPassword('IMAP/POP3 PASSWORD');
 	$LOCAL_DEBUG_EMAIL->setDeleteOnProcessed(true);        // Delete processed emails after they trigger a callout
+	// !!! email settings end
 	
+	// !!! db settings start
 	// ----------------------------------------------------------------------
 	// Database Settings
 	$LOCAL_DEBUG_DB = new FireHallDatabase();
@@ -276,9 +278,11 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_DB->setUserName('riprunner');
 	$LOCAL_DEBUG_DB->setPassword('password');
 	$LOCAL_DEBUG_DB->setDatabaseName('riprunner');
+	// !!! db settings end
 	
 	// ----------------------------------------------------------------------
 	// SMS Provider Settings
+	// !!! sms settings start
 	define( 'DEFAULT_SMS_PROVIDER_SENDHUB_BASE_URL', 	'https://api.sendhub.com/v1/messages/?username=X&api_key=X');
 	define( 'DEFAULT_SMS_PROVIDER_TEXTBELT_BASE_URL', 	'http://textbelt.com/canada');
 	define( 'DEFAULT_SMS_PROVIDER_EZTEXTING_BASE_URL', 	'https://app.eztexting.com/sending/messages?format=xml');
@@ -307,9 +311,11 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	//$LOCAL_DEBUG_SMS->setPlivoAuthId(DEFAULT_SMS_PROVIDER_PLIVO_AUTH_ID);
 	//$LOCAL_DEBUG_SMS->setPlivoAuthToken(DEFAULT_SMS_PROVIDER_PLIVO_AUTH_TOKEN);
 	//$LOCAL_DEBUG_SMS->setPlivoFromNumber(DEFAULT_SMS_PROVIDER_PLIVO_FROM);
+	// !!! sms settings end
 	
 	// ----------------------------------------------------------------------
 	// Mobile App Settings
+	// !!! mobile settings start
 	define( 'DEFAULT_GCM_API_KEY', 	'X');
 	// This is the Google 'Key for browser applications' API key from your google project:
 	// https://console.developers.google.com/project/<your proj name>/apiui/credential
@@ -329,9 +335,11 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_MOBILE->setGCM_ProjectNumber(DEFAULT_GCM_PROJECTID);
 	$LOCAL_DEBUG_MOBILE->setGCM_APP_ID(DEFAULT_GCM_APPLICATIONID);
 	$LOCAL_DEBUG_MOBILE->setGCM_SAM(DEFAULT_GCM_SAM);
+	// !!! mobile settings end
 	
 	// ----------------------------------------------------------------------
 	// Website and Location Settings
+	// !!! website settings start
 	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY', 'X' );
 
 	$LOCAL_DEBUG_WEBSITE = new FireHallWebsite();
@@ -344,9 +352,11 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_WEBSITE->setCityNameSubs($GOOGLE_MAP_CITY_LOOKUP);
 	$LOCAL_DEBUG_WEBSITE->setStreetNameSubs($GOOGLE_MAP_STREET_LOOKUP);
 	$LOCAL_DEBUG_WEBSITE->setRootURL('http://www.example.com/');	       // ie: http://firehall/riprunner/
+	// !!! website settings end
 	
 	// ----------------------------------------------------------------------
 	// LDAP Settings (optional for sites wanting to use LDAP user authentication
+	// !!! ldap settings start
 	$LOCAL_DEBUG_LDAP = new FireHall_LDAP();
 	$LOCAL_DEBUG_LDAP->setEnabled(true);
 	$LOCAL_DEBUG_LDAP->setHostName('ldap://LDAPHOSTNAME:LDAPPORT');
@@ -361,9 +371,11 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_LDAP->setRespondSelfGroupFilter('(&(objectClass=posixAccount)(memberOf=cn=SMSCALLOUT-RESPOND-SELF,ou=Groups,dc=EXAMPLE,dc=COM))');
 	$LOCAL_DEBUG_LDAP->setRespondOthersGroupFilter('(&(objectClass=posixAccount)(memberOf=cn=SMSCALLOUT-RESPOND-OTHERS,ou=Groups,dc=EXAMPLE,dc=COM))');
 	$LOCAL_DEBUG_LDAP->setGroupMemberOf_Attribute('memberuid');
+	// !!! ldap settings end
 	
 	// ----------------------------------------------------------------------
 	// Main Firehall Configuration Container Settings
+	// !!! firehall settings start
 	$LOCAL_DEBUG_FIREHALL = new FireHallConfig();
 	$LOCAL_DEBUG_FIREHALL->setEnabled(true);
 	$LOCAL_DEBUG_FIREHALL->setFirehallId(123);     				//  I USE THE MAIN HALL PHONE NUMBER
@@ -377,6 +389,8 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// Add as many firehalls to the array as you desire to support
 	$FIREHALLS = array(	$LOCAL_DEBUG_FIREHALL);
 
+	// !!! firehall settings end
+	
 	// ----------------------------------------------------------------------
 	// Email parser lookup patterns for email triggers
 	// The patterns below work for emails with the following format:

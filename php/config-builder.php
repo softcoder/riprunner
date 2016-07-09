@@ -1,0 +1,355 @@
+<?php
+// ==============================================================
+//	Copyright (C) 2016 Mark Vejvoda
+//	Under GNU GPL v3.0
+// ==============================================================
+
+function getSafeRequestValue($key) {
+    $request_list = array_merge($_GET, $_POST);
+    if(array_key_exists($key, $request_list) === true) {
+        return htmlspecialchars($request_list[$key]);
+    }
+    return null;
+}
+
+function get_query_param($param_name) {
+    return getSafeRequestValue($param_name);
+}
+
+// function extractDelimitedValueFromString($rawValue, $regularExpression, $groupResultIndex) {
+//     $cleanRawValue = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/u', '', $rawValue);
+//     preg_match($regularExpression, $cleanRawValue, $result);
+//     if(isset($result[$groupResultIndex]) === true) {
+//         //echo "regex [$regularExpression] lookup [$cleanRawValue] result [" . $result[$groupResultIndex] ."]" .PHP_EOL;
+//         $result[$groupResultIndex] = str_replace(array("\n", "\r"), '', $result[$groupResultIndex]);
+//         return $result[$groupResultIndex];
+//     }
+//     return null;
+// }
+
+function extractEmailSettings() {
+    $email_settings = '';
+    $email_enabled = get_query_param('email_enabled');
+    if($email_enabled != null) {
+        $email_connection = get_query_param('email_connection');
+        $email_user = get_query_param('email_user');
+        $email_pwd = get_query_param('email_pwd');
+        $email_from = get_query_param('email_from');
+        $email_delete = get_query_param('email_delete');
+    
+        $email_settings = '$EMAIL_SETTINGS = new FireHallEmailAccount();'.PHP_EOL;
+        $email_settings .= '$EMAIL_SETTINGS->setHostEnabled(true);'.PHP_EOL;
+        $email_settings .= "\$EMAIL_SETTINGS->setFromTrigger('$email_from');".PHP_EOL;
+        $email_settings .= "\$EMAIL_SETTINGS->setConnectionString('$email_connection');".PHP_EOL;
+        $email_settings .= "\$EMAIL_SETTINGS->setUserName('$email_user');".PHP_EOL;
+        $email_settings .= "\$EMAIL_SETTINGS->setPassword('$email_pwd');".PHP_EOL;
+        if($email_delete != null && $email_delete) {
+            $email_settings .= '\$EMAIL_SETTINGS->setDeleteOnProcessed(true);'.PHP_EOL;
+        }
+    }
+    else {
+        $email_settings = '$EMAIL_SETTINGS = new FireHallEmailAccount();'.PHP_EOL;
+        $email_settings .= '$EMAIL_SETTINGS->setHostEnabled(false);'.PHP_EOL;
+    }
+    return $email_settings;
+}
+
+function extractDBSettings() {
+    $db_settings = '';
+    $db_connection = get_query_param('db_connection');
+    $db_user = get_query_param('db_user');
+    $db_pwd = get_query_param('db_pwd');
+    $db_name = get_query_param('db_name');
+
+    $db_settings = '$DB_SETTINGS = new FireHallDatabase();'.PHP_EOL;
+    $db_settings .= "\$DB_SETTINGS->setDsn('$db_connection');".PHP_EOL;
+    $db_settings .= "\$DB_SETTINGS->setUserName('$db_user');".PHP_EOL;
+    $db_settings .= "\$DB_SETTINGS->setPassword('$db_pwd');".PHP_EOL;
+    $db_settings .= "\$DB_SETTINGS->setDatabaseName('$db_name');".PHP_EOL;
+    
+    return $db_settings;
+}
+
+function extractSMSSettings() {
+    $sms_settings = '';
+    $sms_enabled = get_query_param('sms_enabled');
+    if($sms_enabled != null) {
+        $sms_gateway_type = get_query_param('sms_gateway_type');
+        $sms_callout_provider_type = get_query_param('sms_callout_provider_type');
+        $sms_base = get_query_param('sms_base');
+        $sms_auth_token = get_query_param('sms_auth_token');
+        $sms_from = get_query_param('sms_from');
+        $sms_special_contacts = get_query_param('sms_special_contacts');
+    
+        $sms_settings = '$SMS_SETTINGS = new FireHallSMS();'.PHP_EOL;
+        $sms_settings .= '$SMS_SETTINGS->setSignalEnabled(true);'.PHP_EOL;
+        $sms_settings .= "\$SMS_SETTINGS->setGatewayType('$sms_gateway_type');".PHP_EOL;
+        $sms_settings .= "\$SMS_SETTINGS->setCalloutProviderType('$sms_callout_provider_type');".PHP_EOL;
+        $sms_settings .= "\$SMS_SETTINGS->setTwilioBaseURL('$sms_base');".PHP_EOL;
+        $sms_settings .= "\$SMS_SETTINGS->setTwilioAuthToken('$sms_auth_token');".PHP_EOL;
+        $sms_settings .= "\$SMS_SETTINGS->setTwilioFromNumber('$sms_from');".PHP_EOL;
+        $sms_settings .= "\$SMS_SETTINGS->setSpecialContacts('$sms_special_contacts');".PHP_EOL;
+    }
+    else {
+        $sms_settings = '$SMS_SETTINGS = new FireHallSMS();'.PHP_EOL;
+        $sms_settings .= '$SMS_SETTINGS->setSignalEnabled(false);'.PHP_EOL;
+    }
+    return $sms_settings;
+}
+
+function extractMobileSettings() {
+    $mobile_settings = '';
+    $mobile_enabled = get_query_param('mobile_enabled');
+    if($mobile_enabled != null) {
+        $mobile_enabled_tracking = get_query_param('mobile_enabled_tracking');
+        $mobile_enabled_gcm = get_query_param('mobile_enabled_gcm');
+        
+        $mobile_url = get_query_param('mobile_url');
+        $mobile_gcm_api_key = get_query_param('mobile_gcm_api_key');
+        $mobile_gcm_project = get_query_param('mobile_gcm_project');
+        $mobile_gcm_app_id = get_query_param('mobile_gcm_app_id');
+        $mobile_gcm_sam = get_query_param('mobile_gcm_sam');
+
+        $mobile_settings = '$MOBILE_SETTINGS = new FireHallMobile();'.PHP_EOL;
+        $mobile_settings .= '$MOBILE_SETTINGS->setSignalEnabled(true);'.PHP_EOL;
+        if($mobile_enabled_tracking != null) {
+            $mobile_settings .= '$MOBILE_SETTINGS->setTrackingEnabled(true);'.PHP_EOL;
+        }
+        if($mobile_enabled_gcm != null) {
+            $mobile_settings .= '$MOBILE_SETTINGS->setSignalGCM_Enabled(true);'.PHP_EOL;
+        }
+        $mobile_settings .= "\$MOBILE_SETTINGS->setSignalGCM_URL('$mobile_url');".PHP_EOL;
+        $mobile_settings .= "\$MOBILE_SETTINGS->setGCM_ApiKey('$mobile_gcm_api_key');".PHP_EOL;
+        $mobile_settings .= "\$MOBILE_SETTINGS->setGCM_ProjectNumber('$mobile_gcm_project');".PHP_EOL;
+        $mobile_settings .= "\$MOBILE_SETTINGS->setGCM_APP_ID('$mobile_gcm_app_id');".PHP_EOL;
+        $mobile_settings .= "\$MOBILE_SETTINGS->setGCM_SAM('$mobile_gcm_sam');".PHP_EOL;
+    }
+    else {
+        $mobile_settings = '$MOBILE_SETTINGS = new FireHallMobile();'.PHP_EOL;
+        $mobile_settings .= '$MOBILE_SETTINGS->setSignalEnabled(false);'.PHP_EOL;
+    }
+    
+    return $mobile_settings;
+}
+
+function extractWebsiteSettings() {
+    $website_settings = '';
+
+    $website_name = get_query_param('website_name');
+    $website_address = get_query_param('website_address');
+    $website_lat = get_query_param('website_lat');
+    $website_long = get_query_param('website_long');
+    $website_url = get_query_param('website_url');
+    $website_google_map_apikey = get_query_param('website_google_map_apikey');
+    $website_timezone = get_query_param('website_timezone');
+
+    $website_settings = '$WEBSITE_SETTINGS = new FireHallWebsite();'.PHP_EOL;
+    $website_settings .= "\$WEBSITE_SETTINGS->setFirehallName('$website_name');".PHP_EOL;
+    $website_settings .= "\$WEBSITE_SETTINGS->setFirehallAddress('$website_address');".PHP_EOL;
+    $website_settings .= "\$WEBSITE_SETTINGS->setFirehallTimezone('$website_timezone');".PHP_EOL;
+    $website_settings .= "\$WEBSITE_SETTINGS->setFirehallGeoLatitude('$website_lat');".PHP_EOL;
+    $website_settings .= "\$WEBSITE_SETTINGS->setFirehallGeoLongitude('$website_long');".PHP_EOL;
+    $website_settings .= "\$WEBSITE_SETTINGS->setGoogleMap_ApiKey('$website_google_map_apikey');".PHP_EOL;
+    $website_settings .= "\$WEBSITE_SETTINGS->setRootURL('$website_url');".PHP_EOL;
+    
+    return $website_settings;
+}
+
+function extractLdapSettings() {
+    $ldap_settings = '';
+    $ldap_enabled = get_query_param('ldap_enabled');
+    if($ldap_enabled != null) {
+        $ldap_enable_caching = get_query_param('ldap_enable_caching');
+        $ldap_host = get_query_param('ldap_host');
+        $ldap_bindrdn = get_query_param('ldap_bindrdn');
+        $ldap_bind_pwd = get_query_param('ldap_bind_pwd');
+        $ldap_basedn = get_query_param('ldap_basedn');
+        $ldap_userdn = get_query_param('ldap_userdn');
+        $ldap_login_filter = get_query_param('ldap_login_filter');
+        $ldap_login_all_filter = get_query_param('ldap_login_all_filter');
+        $ldap_login_admin_filter = get_query_param('ldap_login_admin_filter');
+        $ldap_login_sms_filter = get_query_param('ldap_login_sms_filter');
+        $ldap_login_respond_self_filter = get_query_param('ldap_login_respond_self_filter');
+        $ldap_login_respond_others_filter = get_query_param('ldap_login_respond_others_filter');
+        $ldap_member_group_attribute = get_query_param('ldap_member_group_attribute');
+        
+
+        $ldap_settings = '$LDAP_SETTINGS = new FireHall_LDAP();'.PHP_EOL;
+        $ldap_settings .= '$LDAP_SETTINGS->setEnabled(true);'.PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setHostName('$ldap_host');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setBindRDN('$ldap_bindrdn');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setBindPassword('$ldap_bind_pwd');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setBaseDN('$ldap_basedn');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setBaseUserDN('$ldap_userdn');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setLoginFilter('$ldap_login_filter');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setLoginAllUsersFilter('$ldap_login_all_filter');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setAdminGroupFilter('$ldap_login_admin_filter');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setSMSGroupFilter('$ldap_login_sms_filter');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setRespondSelfGroupFilter('$ldap_login_respond_self_filter');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setRespondOthersGroupFilter('$ldap_login_respond_others_filter');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setGroupMemberOf_Attribute('$ldap_member_group_attribute');".PHP_EOL;
+    }
+    else {
+        $ldap_settings = '$LDAP_SETTINGS = new FireHall_LDAP();'.PHP_EOL;
+        $ldap_settings .= '$LDAP_SETTINGS->setEnabled(false);'.PHP_EOL;
+    }
+    
+    return $ldap_settings;
+}
+
+function extractFirehallSettings() {
+    $firehall_settings = '';
+
+    $firehall_id = get_query_param('fh_id');
+
+    $firehall_settings = '$FIREHALL_SETTINGS = new FireHallConfig();'.PHP_EOL;
+    $firehall_settings .= '$FIREHALL_SETTINGS->setEnabled(true);'.PHP_EOL;
+    $firehall_settings .= "\$FIREHALL_SETTINGS->setFirehallId('$firehall_id');".PHP_EOL;
+    $firehall_settings .= '$FIREHALL_SETTINGS->setDBSettings($DB_SETTINGS);'.PHP_EOL;
+    $firehall_settings .= '$FIREHALL_SETTINGS->setEmailSettings($EMAIL_SETTINGS);'.PHP_EOL;
+    $firehall_settings .= '$FIREHALL_SETTINGS->setSMS_Settings($SMS_SETTINGS);'.PHP_EOL;
+    $firehall_settings .= '$FIREHALL_SETTINGS->setWebsiteSettings($WEBSITE_SETTINGS);'.PHP_EOL;
+    $firehall_settings .= '$FIREHALL_SETTINGS->setMobileSettings($MOBILE_SETTINGS);'.PHP_EOL;
+    $firehall_settings .= '$FIREHALL_SETTINGS->setLDAP_Settings($LDAP_SETTINGS);'.PHP_EOL;
+    
+    $firehall_settings .= '$FIREHALLS = array($FIREHALL_SETTINGS);'.PHP_EOL;
+    
+    return $firehall_settings;
+}
+
+function generateConfigFile() {
+    //echo "hello world!";
+    $config_default = file_get_contents('config-default.php');
+    
+    $email_settings = extractEmailSettings();
+    $config_default = preg_replace_callback('#// !!! email settings start(.+?)// !!! email settings end#s', function ($m) use ($email_settings) { $m; return $email_settings; }, $config_default);
+
+    $db_settings = extractDBSettings();
+    $config_default = preg_replace_callback('#// !!! db settings start(.+?)// !!! db settings end#s', function ($m) use ($db_settings) { $m; return $db_settings; }, $config_default);
+
+    $sms_settings = extractSMSSettings();
+    $config_default = preg_replace_callback('#// !!! sms settings start(.+?)// !!! sms settings end#s', function ($m) use ($sms_settings) { $m; return $sms_settings; }, $config_default);
+
+    $mobile_settings = extractMobileSettings();
+    $config_default = preg_replace_callback('#// !!! mobile settings start(.+?)// !!! mobile settings end#s', function ($m) use ($mobile_settings) { $m; return $mobile_settings; }, $config_default);
+
+    $website_settings = extractWebsiteSettings();
+    $config_default = preg_replace_callback('#// !!! website settings start(.+?)// !!! website settings end#s', function ($m) use ($website_settings) { $m; return $website_settings; }, $config_default);
+
+    $ldap_settings = extractLdapSettings();
+    $config_default = preg_replace_callback('#// !!! ldap settings start(.+?)// !!! ldap settings end#s', function ($m) use ($ldap_settings) { $m; return $ldap_settings; }, $config_default);
+
+    $firehall_settings = extractFirehallSettings();
+    $config_default = preg_replace_callback('#// !!! firehall settings start(.+?)// !!! firehall settings end#s', function ($m) use ($firehall_settings) { $m; return $firehall_settings; }, $config_default);
+    
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename=config.php');
+    header('Content-Transfer-Encoding: binary');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Pragma: public');
+    header('Content-Length: ' . strlen($config_default));
+    ob_clean();
+    flush();
+    echo $config_default;
+}
+
+$generate_config = get_query_param('generate');
+if(isset($generate_config) === true && $generate_config === 'true') {
+    generateConfigFile();
+    return;
+}
+
+?>
+<h1>Rip Runner Configuration Generator</h1>
+<hr>
+
+<form action="config-builder.php?generate=true" method="post">
+	<h3>Email Settings:</h3>
+	Enabled: <input type="checkbox" name="email_enabled"><br>
+	Connection string: <input type="text" name="email_connection" value=""><br>
+	Username: <input type="text" name="email_user" value=""><br>
+	Password: <input type="text" name="email_pwd" value=""><br>
+    From email address trigger: <input type="text" name="email_from" value=""><br>
+    Delete email after processing: <input type="checkbox" name="email_delete"><br>
+
+	<hr>
+	    
+	<h3>Database Settings:</h3>
+	Connection string: <input type="text" name="db_connection" value=""><br>
+	Username: <input type="text" name="db_user" value=""><br>
+	Password: <input type="text" name="db_pwd" value=""><br>
+    Database name: <input type="text" name="db_name" value=""><br>
+
+	<hr>
+	    
+	<h3>SMS Settings:</h3>
+	Enabled: <input type="checkbox" name="sms_enabled"><br>
+	Gateway type: 
+	<select name="sms_gateway_type">
+		<option value="TEXTBELT">Textbelt</option>
+		<option value="SENDHUB">Sendhub</option>
+		<option value="EZTEXTING">Ez Texting</option>
+		<option value="TWILIO" selected>Twilio</option>
+		<option value="PLIVO">Plivo</option>
+	</select>
+	<br>
+	Callout provider type:	<select name="sms_callout_provider_type">
+		<option value="DEFAULT">Default</option>
+	</select>
+	<br>
+	Base URL: <input type="text" name="sms_base" value=""><br>
+    Authorization Token: <input type="text" name="sms_auth_token" value=""><br>
+    Send from phone number: <input type="text" name="sms_from" value=""><br>
+    Special contacts info list: <input type="text" name="sms_special_contacts" value=""><br>
+
+	<hr>
+	    
+	<h3>Mobile Settings:</h3>
+	Enabled: <input type="checkbox" name="mobile_enabled"><br>
+	Tracking enabled: <input type="checkbox" name="mobile_enabled_tracking"><br>
+	Google cloud messaging (GCM) enabled: <input type="checkbox" name="mobile_enabled_gcm"><br>
+	Signal GCM url: <input type="text" name="mobile_url" value=""><br>
+	GCM api key: <input type="text" name="mobile_gcm_api_key" value=""><br>
+	GCM project number: <input type="text" name="mobile_gcm_project" value=""><br>
+	GCM application id: <input type="text" name="mobile_gcm_app_id" value=""><br>
+	GCM service account manager: <input type="text" name="mobile_gcm_sam" value=""><br>
+
+	<hr>
+	    
+	<h3>Website Settings:</h3>
+	Firehall name: <input type="text" name="website_name" value=""><br>
+    Firehall address: <input type="text" name="website_address" value=""><br>
+    Firehall geo coordinates latitude: <input type="text" name="website_lat" value="">
+    longitutde: <input type="text" name="website_long" value=""><br>
+    Root url: <input type="text" name="website_url" value=""><br>
+    Google map api key: <input type="text" name="website_google_map_apikey" value=""><br>
+    Timezone: <input type="text" name="website_timezone" value=""><br>
+    
+	<hr>
+	    
+	<h3>LDAP Settings:</h3>
+	Enabled: <input type="checkbox" name="ldap_enabled"><br>
+	Enable caching: <input type="checkbox" name="ldap_enable_caching"><br>
+    Hostname: <input type="text" name="ldap_host" value=""><br>
+    Bind RDN: <input type="text" name="ldap_bindrdn" value=""><br>
+    Bind Password: <input type="text" name="ldap_bind_pwd" value=""><br>
+    Base DN: <input type="text" name="ldap_basedn" value=""><br>
+    User DN: <input type="text" name="ldap_userdn" value=""><br>
+    Login filter: <input type="text" name="ldap_login_filter" value=""><br>
+    Login all users filter: <input type="text" name="ldap_login_all_filter" value=""><br>
+    Login admin group filter: <input type="text" name="ldap_login_admin_filter" value=""><br>
+    Login sms group filter: <input type="text" name="ldap_login_sms_filter" value=""><br>
+    Login respond self group filter: <input type="text" name="ldap_login_respond_self_filter" value=""><br>
+    Login respond others group filter: <input type="text" name="ldap_login_respond_others_filter" value=""><br>
+    Member of group attribute: <input type="text" name="ldap_member_group_attribute" value=""><br>
+
+	<hr>
+	    
+	<h3>Firehall Settings:</h3>
+    Firehall id: <input type="text" name="fh_id" value=""><br>
+    
+    <br>
+    <input type="Submit" value="Generate Configuration">
+</form>
