@@ -184,10 +184,10 @@ function extractLdapSettings() {
 		}
         $ldap_settings .= "\$LDAP_SETTINGS->setHostName('$ldap_host');".PHP_EOL;
 		if($ldap_bindrdn != '') {
-			$ldap_settings .= "\$LDAP_SETTINGS->setBindRDN('$ldap_bindrdn');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setBindRDN('$ldap_bindrdn');".PHP_EOL;
 		}
 		if($ldap_bind_pwd != '') {
-			$ldap_settings .= "\$LDAP_SETTINGS->setBindPassword('$ldap_bind_pwd');".PHP_EOL;
+        $ldap_settings .= "\$LDAP_SETTINGS->setBindPassword('$ldap_bind_pwd');".PHP_EOL;
 		}
         $ldap_settings .= "\$LDAP_SETTINGS->setBaseDN('$ldap_basedn');".PHP_EOL;
         $ldap_settings .= "\$LDAP_SETTINGS->setBaseUserDN('$ldap_userdn');".PHP_EOL;
@@ -276,21 +276,38 @@ if(isset($generate_config) === true && $generate_config === 'true') {
 <hr>
 
 <form action="config-builder.php?generate=true" method="post">
-	<h3>Email Settings:</h3>
-	Enabled: <input type="checkbox" name="email_enabled"><br>
-	Connection string: <input type="text" name="email_connection" value=""><br>
-	Username: <input type="text" name="email_user" value=""><br>
-	Password: <input type="text" name="email_pwd" value=""><br>
-    From email address trigger: <input type="text" name="email_from" value=""><br>
-    Delete email after processing: <input type="checkbox" name="email_delete"><br>
+
+	<h3>Database Settings (required):</h3>
+	Connection string: <input type="text" name="db_connection" value="" style="width:100%;"><br>
+	Username: <input type="text" name="db_user" value="" style="width:100%;"><br>
+	Password: <input type="text" name="db_pwd" value="" style="width:100%;"><br>
+    Database name: <input type="text" name="db_name" value="" style="width:100%;"><br>
 
 	<hr>
+
+	<h3>Website Settings (required):</h3>
+	Firehall name: <input type="text" name="website_name" value="" style="width:100%;"><br>
+    Firehall address: <input type="text" name="website_address" value="" style="width:100%;"><br>
+    Firehall geo coordinates latitude: <input type="text" name="website_lat" value="">
+    longitutde: <input type="text" name="website_long" value=""><br>
+    Root url: <input type="text" name="website_url" value="" style="width:100%;"><br>
+    Google map api key: <input type="text" name="website_google_map_apikey" value="" style="width:100%;"><br>
+    Timezone: <input type="text" name="website_timezone" value="" style="width:100%;"><br>
+    
+	<hr>
 	    
-	<h3>Database Settings:</h3>
-	Connection string: <input type="text" name="db_connection" value=""><br>
-	Username: <input type="text" name="db_user" value=""><br>
-	Password: <input type="text" name="db_pwd" value=""><br>
-    Database name: <input type="text" name="db_name" value=""><br>
+	<h3>Firehall Settings (required):</h3>
+    Firehall id: <input type="text" name="fh_id" value="" style="width:100%;"><br>
+
+	<hr>
+	
+	<h3>Email Settings:</h3>
+	Enabled: <input type="checkbox" name="email_enabled"><br>
+	Connection string: <input type="text" name="email_connection" value="" style="width:100%;"><br>
+	Username: <input type="text" name="email_user" value="" style="width:100%;"><br>
+	Password: <input type="text" name="email_pwd" value="" style="width:100%;"><br>
+    From email address trigger: <input type="text" name="email_from" value="" style="width:100%;"><br>
+    Delete email after processing: <input type="checkbox" name="email_delete"><br>
 
 	<hr>
 	    
@@ -309,10 +326,10 @@ if(isset($generate_config) === true && $generate_config === 'true') {
 		<option value="DEFAULT">Default</option>
 	</select>
 	<br>
-	Base URL: <input type="text" name="sms_base" value=""><br>
-    Authorization Token: <input type="text" name="sms_auth_token" value=""><br>
-    Send from phone number: <input type="text" name="sms_from" value=""><br>
-    Special contacts info list: <input type="text" name="sms_special_contacts" value=""><br>
+	Base URL: <input type="text" name="sms_base" value="" style="width:100%;"><br>
+    Authorization Token: <input type="text" name="sms_auth_token" value="" style="width:100%;"><br>
+    Send from phone number: <input type="text" name="sms_from" value="" style="width:100%;"><br>
+    Special contacts info list: <input type="text" name="sms_special_contacts" value="" style="width:100%;"><br>
 
 	<hr>
 	    
@@ -320,45 +337,29 @@ if(isset($generate_config) === true && $generate_config === 'true') {
 	Enabled: <input type="checkbox" name="mobile_enabled"><br>
 	Tracking enabled: <input type="checkbox" name="mobile_enabled_tracking"><br>
 	Google cloud messaging (GCM) enabled: <input type="checkbox" name="mobile_enabled_gcm"><br>
-	Signal GCM url: <input type="text" name="mobile_url" value=""><br>
-	GCM api key: <input type="text" name="mobile_gcm_api_key" value=""><br>
-	GCM project number: <input type="text" name="mobile_gcm_project" value=""><br>
-	GCM application id: <input type="text" name="mobile_gcm_app_id" value=""><br>
-	GCM service account manager: <input type="text" name="mobile_gcm_sam" value=""><br>
+	Signal GCM url: <input type="text" name="mobile_url" value="" style="width:100%;"><br>
+	GCM api key: <input type="text" name="mobile_gcm_api_key" value="" style="width:100%;"><br>
+	GCM project number: <input type="text" name="mobile_gcm_project" value="" style="width:100%;"><br>
+	GCM application id: <input type="text" name="mobile_gcm_app_id" value="" style="width:100%;"><br>
+	GCM service account manager: <input type="text" name="mobile_gcm_sam" value="" style="width:100%;"><br>
 
-	<hr>
-	    
-	<h3>Website Settings:</h3>
-	Firehall name: <input type="text" name="website_name" value=""><br>
-    Firehall address: <input type="text" name="website_address" value=""><br>
-    Firehall geo coordinates latitude: <input type="text" name="website_lat" value="">
-    longitutde: <input type="text" name="website_long" value=""><br>
-    Root url: <input type="text" name="website_url" value=""><br>
-    Google map api key: <input type="text" name="website_google_map_apikey" value=""><br>
-    Timezone: <input type="text" name="website_timezone" value=""><br>
-    
 	<hr>
 	    
 	<h3>LDAP Settings:</h3>
 	Enabled: <input type="checkbox" name="ldap_enabled"><br>
 	Enable caching: <input type="checkbox" name="ldap_enable_caching"><br>
-    Hostname: <input type="text" name="ldap_host" value=""><br>
-    Bind RDN: <input type="text" name="ldap_bindrdn" value=""><br>
-    Bind Password: <input type="text" name="ldap_bind_pwd" value=""><br>
-    Base DN: <input type="text" name="ldap_basedn" value=""><br>
-    User DN: <input type="text" name="ldap_userdn" value=""><br>
-    Login filter: <input type="text" name="ldap_login_filter" value=""><br>
-    Login all users filter: <input type="text" name="ldap_login_all_filter" value=""><br>
-    Login admin group filter: <input type="text" name="ldap_login_admin_filter" value=""><br>
-    Login sms group filter: <input type="text" name="ldap_login_sms_filter" value=""><br>
-    Login respond self group filter: <input type="text" name="ldap_login_respond_self_filter" value=""><br>
-    Login respond others group filter: <input type="text" name="ldap_login_respond_others_filter" value=""><br>
-    Member of group attribute: <input type="text" name="ldap_member_group_attribute" value=""><br>
-
-	<hr>
-	    
-	<h3>Firehall Settings:</h3>
-    Firehall id: <input type="text" name="fh_id" value=""><br>
+    Hostname: <input type="text" name="ldap_host" value="" style="width:100%;"><br>
+    Bind RDN: <input type="text" name="ldap_bindrdn" value="" style="width:100%;"><br>
+    Bind Password: <input type="text" name="ldap_bind_pwd" value="" style="width:100%;"><br>
+    Base DN: <input type="text" name="ldap_basedn" value="" style="width:100%;"><br>
+    User DN: <input type="text" name="ldap_userdn" value="" style="width:100%;"><br>
+    Login filter: <input type="text" name="ldap_login_filter" value="" style="width:100%;"><br>
+    Login all users filter: <input type="text" name="ldap_login_all_filter" value="" style="width:100%;"><br>
+    Login admin group filter: <input type="text" name="ldap_login_admin_filter" value="" style="width:100%;"><br>
+    Login sms group filter: <input type="text" name="ldap_login_sms_filter" value="" style="width:100%;"><br>
+    Login respond self group filter: <input type="text" name="ldap_login_respond_self_filter" value="" style="width:100%;"><br>
+    Login respond others group filter: <input type="text" name="ldap_login_respond_others_filter" value="" style="width:100%;"><br>
+    Member of group attribute: <input type="text" name="ldap_member_group_attribute" value="" style="width:100%;"><br>
     
     <br>
     <input type="Submit" value="Generate Configuration">
