@@ -7,7 +7,8 @@
 function getSafeRequestValue($key) {
     $request_list = array_merge($_GET, $_POST);
     if(array_key_exists($key, $request_list) === true) {
-        return htmlspecialchars($request_list[$key]);
+        //return htmlspecialchars($request_list[$key]);
+		return $request_list[$key];
     }
     return null;
 }
@@ -178,9 +179,16 @@ function extractLdapSettings() {
 
         $ldap_settings = '$LDAP_SETTINGS = new FireHall_LDAP();'.PHP_EOL;
         $ldap_settings .= '$LDAP_SETTINGS->setEnabled(true);'.PHP_EOL;
+		if($ldap_enable_caching != null) {
+			$ldap_settings .= '$LDAP_SETTINGS->setEnableCache(true);'.PHP_EOL;
+		}
         $ldap_settings .= "\$LDAP_SETTINGS->setHostName('$ldap_host');".PHP_EOL;
-        $ldap_settings .= "\$LDAP_SETTINGS->setBindRDN('$ldap_bindrdn');".PHP_EOL;
-        $ldap_settings .= "\$LDAP_SETTINGS->setBindPassword('$ldap_bind_pwd');".PHP_EOL;
+		if($ldap_bindrdn != '') {
+			$ldap_settings .= "\$LDAP_SETTINGS->setBindRDN('$ldap_bindrdn');".PHP_EOL;
+		}
+		if($ldap_bind_pwd != '') {
+			$ldap_settings .= "\$LDAP_SETTINGS->setBindPassword('$ldap_bind_pwd');".PHP_EOL;
+		}
         $ldap_settings .= "\$LDAP_SETTINGS->setBaseDN('$ldap_basedn');".PHP_EOL;
         $ldap_settings .= "\$LDAP_SETTINGS->setBaseUserDN('$ldap_userdn');".PHP_EOL;
         $ldap_settings .= "\$LDAP_SETTINGS->setLoginFilter('$ldap_login_filter');".PHP_EOL;
