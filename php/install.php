@@ -32,12 +32,13 @@ catch(Exception $e) {
        '<p style="font-size:35px; color: red">'.PHP_EOL.
        'Error detected, message : ' . $e->getMessage().', '.'Code : ' . $e->getCode().
        '<br><span style="font-size:35px; color: yellow">Please create a config.php script.</span>'.PHP_EOL.
+       '<b><a href="config-builder.php">Click here to generate a config.php</a></b>'.PHP_EOL.
        '</p><hr>'.PHP_EOL.
        '</body>'.PHP_EOL.
        '</html>';
   return;
 }
-	
+
 require_once 'db/db_connection.php';
 require_once 'db/sql_statement.php';
 require_once 'authentication/authentication.php';
@@ -99,19 +100,19 @@ function install($FIREHALL, &$db_connection) {
         $db_connection = null;
         if (isset($firehall_id) === true) {
 			try {
-				$form_action = get_query_param('form_action');
-				$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
-				if($FIREHALL !== null) {
-					if($form_action === "install") {
-						$db = new \riprunner\DbConnection($FIREHALL, true);
-						$db_connection = $db->getConnection();
-						//die('Test Master connection!');
-					}
-					else {
-						$db = new \riprunner\DbConnection($FIREHALL);
-						$db_connection = $db->getConnection();
-					}
+			$form_action = get_query_param('form_action');
+        	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
+        	if($FIREHALL !== null) {
+				if($form_action === "install") {
+				    $db = new \riprunner\DbConnection($FIREHALL, true);
+				    $db_connection = $db->getConnection();
+					//die('Test Master connection!');
 				}
+				else {
+				    $db = new \riprunner\DbConnection($FIREHALL);
+				    $db_connection = $db->getConnection();
+				}
+        	}
 			}	
 			catch(Exception $e) {    
 			  echo '<!DOCTYPE html>'.PHP_EOL.
