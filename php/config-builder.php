@@ -146,9 +146,11 @@ function extractWebsiteSettings() {
     $website_settings = '$WEBSITE_SETTINGS = new FireHallWebsite();'.PHP_EOL;
     $website_settings .= "\$WEBSITE_SETTINGS->setFirehallName('$website_name');".PHP_EOL;
     $website_settings .= "\$WEBSITE_SETTINGS->setFirehallAddress('$website_address');".PHP_EOL;
-    $website_settings .= "\$WEBSITE_SETTINGS->setFirehallTimezone('$website_timezone');".PHP_EOL;
-    $website_settings .= "\$WEBSITE_SETTINGS->setFirehallGeoLatitude('$website_lat');".PHP_EOL;
-    $website_settings .= "\$WEBSITE_SETTINGS->setFirehallGeoLongitude('$website_long');".PHP_EOL;
+    if($website_timezone != '') {
+        $website_settings .= "\$WEBSITE_SETTINGS->setFirehallTimezone('$website_timezone');".PHP_EOL;
+    }
+    $website_settings .= "\$WEBSITE_SETTINGS->setFirehallGeoLatitude($website_lat);".PHP_EOL;
+    $website_settings .= "\$WEBSITE_SETTINGS->setFirehallGeoLongitude($website_long);".PHP_EOL;
     $website_settings .= "\$WEBSITE_SETTINGS->setGoogleMap_ApiKey('$website_google_map_apikey');".PHP_EOL;
     $website_settings .= "\$WEBSITE_SETTINGS->setRootURL('$website_url');".PHP_EOL;
     

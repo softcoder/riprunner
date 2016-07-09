@@ -65,7 +65,8 @@ class DbConnection {
         	            $this->firehall->MYSQL->PASSWORD);
     	    }    	
     	    if(isset($this->firehall->WEBSITE->FIREHALL_TIMEZONE) === true && 
-    	            $this->firehall->WEBSITE->FIREHALL_TIMEZONE !== null) {
+    	            $this->firehall->WEBSITE->FIREHALL_TIMEZONE != null &&
+    	            $this->firehall->WEBSITE->FIREHALL_TIMEZONE != '') {
     	        date_default_timezone_set($this->firehall->WEBSITE->FIREHALL_TIMEZONE);
     	         
     	        //SET time_zone='offset';
