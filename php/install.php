@@ -33,7 +33,7 @@ catch(Exception $e) {
        'Error detected, message : ' . $e->getMessage().', '.'Code : ' . $e->getCode().
        '<br><span style="font-size:35px; color: yellow">Please create a config.php script.</span>'.PHP_EOL.
        '<br><b><a target="_blank" href="config-builder.php">Click here to generate a config.php</a>
-            Refresh this page once the config.php has been saved in the riprunner php folder of the server.</b>'.PHP_EOL.
+        <br>Refresh this page once the config.php has been saved in the riprunner php folder of the server.</b>'.PHP_EOL.
        '</p><hr>'.PHP_EOL.
        '</body>'.PHP_EOL.
        '</html>';
