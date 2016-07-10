@@ -114,6 +114,9 @@ Live Callout Screen:
 
 Installation:
 -------------
+Getting started on IIS (mostly same for LAMP):
+[![Getting Started install](https://youtu.be/ZyUfvYsW39Q/0.jpg)](https://youtu.be/ZyUfvYsW39Q)
+
 - Download the application either using git commands (for those who know how to use git) or download the master archive here: https://github.com/softcoder/riprunner/archive/master.zip and extract to a folder on your local PC.
 - Edit the values in [config-default.php](php/config-default.php) to suit your environment. (see Configuration section below)
 - Rename the file config-default.php to config.php
