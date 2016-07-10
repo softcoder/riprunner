@@ -93,25 +93,28 @@ System administration:
 
 Android App:
 
+<table>
+<tr>
+<td>
 Login Screen:
-
 <a href="/screenshots/android-login.png?raw=true"><img src="/screenshots/android-login.png?raw=true" align="left" height="713" width="401" ></a>
-<br>
-
+</td>
+<td>
 Options:
-
 <a href="/screenshots/android-settings.png?raw=true"><img src="/screenshots/android-settings.png?raw=true" align="left" height="713" width="401" ></a>
-<br>
-
+</td>
+</tr>
+<tr>
+<td>
 Main Screen:
-
 <a href="/screenshots/android-main.png?raw=true"><img src="/screenshots/android-main.png?raw=true" align="left" height="713" width="401" ></a>
-<br>
-
+</td>
+<td>
 Live Callout Screen:
-
 <a href="/screenshots/android-callout.png?raw=true"><img src="/screenshots/android-callout.png?raw=true" align="left" height="713" width="401" ></a>
-<br>
+</td>
+</tr>
+</table>
 
 Installation:
 -------------
