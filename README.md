@@ -124,10 +124,12 @@ Installation:
 - Upload the files in the php folder to a location on your webserver (this will be the root folder for riprunner).
 - If using IIS (Apache users skip to 'Open the url') you should import the file [IIS_Import.htaccess](php/IIS_Import.htaccess) following these steps:
 -  1. Start IIS Manager. 
--  2. On the left, in the Connections pane, select Default Web Site.
--  3. On the right, in Features View, click URL Rewrite.
--  4. On the right, in the Actions pane, click Import Rules. 
--  5. Select the file IIS_import.htaccess using the ... elipses and import, then click apply.
+-  2. On the left, in the Connections pane, select 'Sites' then 'Default Web Site'.
+-  3. Create a new virtual folder pointing to the root php folder of rip runner (example alias svvfd)
+-  4. With the alias selected (example svvfd) click on the right, in Features View, IIS, click URL Rewrite.
+-  5. On the right, in the Actions pane, click 'Open Feature'.
+-  6. On the right, in the Actions pane, click 'Import Rules'.
+-  7. Select the file IIS_import.htaccess using the ... elipses and import, then click apply.
 - Open the url: http://www.yourwebserver.com/uploadlocation/install.php (substitute your root riprunner host://uploadpath/install.php)
 - If everything was done correctly you should see an install page offering to install one the firehall's 
   you configured in config.php (we support more than 1 firehall if desired). Select the firehall and click install.
