@@ -145,7 +145,7 @@ Configuration:
 --------------
 #####Getting Started:
 
-[![Getting Started bare bones installation](http://img.youtube.com/vi/ZyUfvYsW39Q/0.jpg)](https://youtu.be/ZyUfvYsW39Q)
+[![Getting Started bare bones installation](http://img.youtube.com/vi/ZyUfvYsW39Q/0.jpg)](https://youtu.be/ZyUfvYsW39Q)]
 
 The most important information that you require to configure is located in config.php. 
 You must create this file (or rename [config-default.php](php/config-default.php) to config.php) and supply configuration values.
