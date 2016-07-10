@@ -95,7 +95,7 @@ Android App:
 
 Login Screen:
 
-<a href="/screenshots/android-login.png?raw=true"><img src="/screenshots/android-login.png?raw=true" align="left" height="600" width="800" ></a>
+<a href="/screenshots/android-login.png?raw=true"><img src="/screenshots/android-login.png?raw=true" align="left" height="713" width="401" ></a>
 
 ![Login](/screenshots/android-login.png?raw=true "Login")
 
