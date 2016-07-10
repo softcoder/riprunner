@@ -114,7 +114,7 @@ Live Callout Screen:
 
 Installation:
 -------------
-#####Getting started - basic installation:
+#####Getting started video - basic installation (click image below):
 
 [![Getting Started install](http://img.youtube.com/vi/ZyUfvYsW39Q/0.jpg)](https://youtu.be/ZyUfvYsW39Q)
 
