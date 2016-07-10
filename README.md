@@ -96,18 +96,22 @@ Android App:
 Login Screen:
 
 <a href="/screenshots/android-login.png?raw=true"><img src="/screenshots/android-login.png?raw=true" align="left" height="713" width="401" ></a>
+<br>
 
 Options:
 
 <a href="/screenshots/android-settings.png?raw=true"><img src="/screenshots/android-settings.png?raw=true" align="left" height="713" width="401" ></a>
+<br>
 
 Main Screen:
 
 <a href="/screenshots/android-main.png?raw=true"><img src="/screenshots/android-main.png?raw=true" align="left" height="713" width="401" ></a>
+<br>
 
 Live Callout Screen:
 
 <a href="/screenshots/android-callout.png?raw=true"><img src="/screenshots/android-callout.png?raw=true" align="left" height="713" width="401" ></a>
+<br>
 
 Installation:
 -------------
