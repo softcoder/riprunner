@@ -1,2 +1,2 @@
-911-Page: {{ callout.codeDescription }}, {{ callout.address }}, 
-{{ callout.firehall.WEBSITE.WEBSITE_ROOT_URL }}ci/cid={{ callout.id }}&fhid={{ callout.firehall.FIREHALL_ID }}&ckid={{ callout.keyId }}
+{% block sms_header %}911-Page: {{ callout.codeDescription }}, {{ callout.address }}, {% endblock %}
+{% block sms_url %}{{ callout.firehall.WEBSITE.WEBSITE_ROOT_URL }}ci/cid={{ callout.id }}&fhid={{ callout.firehall.FIREHALL_ID }}&ckid={{ callout.keyId }}{% endblock %}{% block sms_footer %}{% endblock %}

@@ -17,6 +17,12 @@ require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 
 class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 
+    private $twigEnv;
+    
+    public function setTwigEnv($twigEnv) {
+        $this->twigEnv = $twigEnv;
+    }
+    
 	public function getPluginType() {
 		return 'DEFAULT';
 	}
@@ -118,21 +124,34 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		\riprunner\DbConnection::disconnect_db( $db_connection );
 	}
 	
-	private function getSMSCalloutMessage($callout) {
+	private function getTwigEnv() {
+	    global $twig;
+	    if($this->twigEnv != null) {
+	        return	$this->twigEnv;
+	    }
+	    return $twig;
+	}
+	
+	public function getSMSCalloutMessage($callout) {
 		global $log;
-		global $twig;
 
 		$view_template_vars = array();
 		$view_template_vars['callout'] = $callout;
+
+		$callout_templates = array();
+		$calloutCode = $callout->getCode();
+		if($calloutCode != null && $calloutCode != '') {
+		    array_push($callout_templates, '@custom/sms-callout-msg-custom-'.strtolower($calloutCode).'.twig.html');
+		}
+		array_push($callout_templates, '@custom/sms-callout-msg-custom.twig.html');
+		array_push($callout_templates, 'sms-callout-msg.twig.html');
 		
 		// Load our template
-		$template = $twig->resolveTemplate(
-				array('@custom/sms-callout-msg-custom.twig.html',
-					  'sms-callout-msg.twig.html'));
+		$template = $this->getTwigEnv()->resolveTemplate($callout_templates);
 		// Output our template
 		$smsMsg = $template->render($view_template_vars);
 		
-		$log->trace("Sending SMS Callout msg [$smsMsg]");
+		if($log != null) $log->trace("Sending SMS Callout msg [$smsMsg]");
 		
 		return $smsMsg;
 	}
