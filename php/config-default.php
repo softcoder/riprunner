@@ -89,31 +89,43 @@ $CALLOUT_CODES_LOOKUP = array(
 		"FLOOD" => "Flooding",
 		"FOCC" => "Admin Call Records",
 		"FOREST" => "Forestry - Notification",
-		"GAS" => "Natural Gas Leak",
+		"GAS" => "Gas Leak - Natural/LPG",
 		"HANG" => "911 Hang Up",
 		"HAZM1" => "HazMat1 - Low Risk",
 		"HAZM2" => "HazMat2 - Mod Risk",
 		"HAZM3" => "HazMat3 - High Risk",
 		"HYDRO" => "Hydro - Notification",
+        "INVEST" => "Investigation",
 		"ISOF" => "Isolated Fire",
+        "ISOITEM" => "Item Fire",
 		"KITAMB" => "Kitimat Ambulance",
-		"KITF" => "Kitchen Fire",
+		"KITF" => "Kitchen Item Fire",
 		"LIFT" => "Lift Assist",
+        "LIFTEMG" => "Lift Assist Emergency",
+        "LIFTR" => "Lift Assist - Routine",
 		"MED" => "Medical Aid",
-		"MFIRE" => "Medical Fire",
+        "MEDR" => "Medical Aid - BCAS Routine",
+		"MFIRE" => "Medical Emergency/Fire Emergency",
 		"MVI1" => "MVI1- Motor Vehicle Incident",
 		"MVI2" => "MVI2 - Multiple Vehicles/Patients",
 		"MVI3" => "MVI3 - Entrapment; Motor Vehicle Incident",
 		"MVI4" => "MVI4 - Entrapment; Multiple Vehicles/Patients",
+        "NATGAS" => "Natural Gas - Notification",
 		"ODOUU" => "Odour Unknown",
 		"OPEN" => "Open Air Fire",
 		"PEDSTK" => "Pedestrian Struck",
 		"POLICE" => "Police - Notification",
 		"RESC" => "Rescue - Low Risk",
 		"RMED" => "Routine Medical Aid",
+        "RSC" => "Rescue - Other",
+        "RSCCON" => "Rescue - Confined Space",
+        "RSCHIG" => "Rescue - High Angle",
+        "RSCICE" => "Rescue - Ice",
+        "RSCIND" => "Rescue - Industrial",
+        "RSCWTR" => "Rescue - Water",
 		"RSCON" => "Rescue - Confined Space",
-		"RSHIG" => "Rescue - High Angle",
-		"RSICE" => "Rescue - Ice",
+        "RSHIG" => "Rescue - High Angle",
+        "RSICE" => "Rescue - Ice",
 		"RSIND" => "Rescue - Industrial",
 		"RSWTR" => "Rescue - Water",
 		"SHIPD" => "Ship/Boat Fire - At Dock",
@@ -129,9 +141,11 @@ $CALLOUT_CODES_LOOKUP = array(
 		"WILD1" => "Wildland - Small",
 		"WILD2" => "Wildland - Large",
 		"WILD3" => "Wildland - Interface",
+        "WILDINT" => "Wildland - Interface",
 		"WIRES" => "Hydro Lines Down",
-		"TESTONLY" => "TEST ONLY"
-		);
+		"TESTONLY" => "TEST ONLY",
+		"TRAINING" => "TRAINING NIGHT"
+        );
 
 // ----------------------------------------------------------------------
 
@@ -295,7 +309,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'DEFAULT_SMS_PROVIDER_PLIVO_AUTH_ID', 	    'XX');
 	define( 'DEFAULT_SMS_PROVIDER_PLIVO_AUTH_TOKEN', 	'XXXX');
 	define( 'DEFAULT_SMS_PROVIDER_PLIVO_FROM', 		'16044261553');
-	
+		
 	$LOCAL_DEBUG_SMS = new FireHallSMS();
 	$LOCAL_DEBUG_SMS->setSignalEnabled(true);
 	$LOCAL_DEBUG_SMS->setGatewayType(SMS_GATEWAY_TWILIO);
@@ -341,7 +355,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// Website and Location Settings
 	// !!! website settings start
 	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY', 'X' );
-
+	
 	$LOCAL_DEBUG_WEBSITE = new FireHallWebsite();
 	$LOCAL_DEBUG_WEBSITE->setFirehallName('FIREHALL_NAME');                // ie: Salmon Valley Volunteer Fire Department
 	$LOCAL_DEBUG_WEBSITE->setFirehallAddress('FIREHALL ADDRESS');          // ie: 5155 Salmon Valley Road, Prince George, BC
@@ -353,7 +367,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_WEBSITE->setStreetNameSubs($GOOGLE_MAP_STREET_LOOKUP);
 	$LOCAL_DEBUG_WEBSITE->setRootURL('http://www.example.com/');	       // ie: http://firehall/riprunner/
 	// !!! website settings end
-	
+		
 	// ----------------------------------------------------------------------
 	// LDAP Settings (optional for sites wanting to use LDAP user authentication
 	// !!! ldap settings start
@@ -372,7 +386,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_LDAP->setRespondOthersGroupFilter('(&(objectClass=posixAccount)(memberOf=cn=SMSCALLOUT-RESPOND-OTHERS,ou=Groups,dc=EXAMPLE,dc=COM))');
 	$LOCAL_DEBUG_LDAP->setGroupMemberOf_Attribute('memberuid');
 	// !!! ldap settings end
-	
+		
 	// ----------------------------------------------------------------------
 	// Main Firehall Configuration Container Settings
 	// !!! firehall settings start
@@ -385,7 +399,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_FIREHALL->setWebsiteSettings($LOCAL_DEBUG_WEBSITE);
 	$LOCAL_DEBUG_FIREHALL->setMobileSettings($LOCAL_DEBUG_MOBILE);
 	$LOCAL_DEBUG_FIREHALL->setLDAP_Settings($LOCAL_DEBUG_LDAP);
-	
+		
 	// Add as many firehalls to the array as you desire to support
 	$FIREHALLS = array(	$LOCAL_DEBUG_FIREHALL);
 
