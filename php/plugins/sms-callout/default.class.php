@@ -108,8 +108,11 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		    $user_id = getUserNameFromMobilePhone($callout->getFirehall(), $db_connection, $recipient);
 		    if($user_id !== null) {
     		    $recipient_array = array($recipient);
+    		    
+    		    //&authvalue=x
+    		    $smsTextWithAuth = str_replace('&authvalue=x', '&member_id='.$user_id, $smsText);
     		    $resultSMS .= $smsPlugin->signalRecipients($callout->getFirehall()->SMS,  
-    				$recipient_array, $recipient_list_type, $smsText.'&member_id='.$user_id);
+    				$recipient_array, $recipient_list_type, $smsTextWithAuth);
 		    }
 		    else {
 		        $log->trace("SMS plugin resolving sms recipient username NOT FOUND for mobile: ".$recipient);
