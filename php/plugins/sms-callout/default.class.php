@@ -110,7 +110,8 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
     		    $recipient_array = array($recipient);
     		    
     		    //&authvalue=x
-    		    $smsTextWithAuth = str_replace('&authvalue=x', '&member_id='.$user_id, $smsText);
+    		    //$smsTextWithAuth = str_replace('&authvalue=x', '&member_id='.$user_id, $smsText);
+    		    $smsTextWithAuth = $this->getSMSForRecipient($user_id, $smsText);
     		    $resultSMS .= $smsPlugin->signalRecipients($callout->getFirehall()->SMS,  
     				$recipient_array, $recipient_list_type, $smsTextWithAuth);
 		    }
@@ -125,6 +126,18 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 			echo $resultSMS;
 		}
 		\riprunner\DbConnection::disconnect_db( $db_connection );
+	}
+
+	public function getSMSForRecipient($user_id, $smsText) {
+	    global $log;
+	    
+	    $smsTextWithAuth = $smsText;
+        if($log != null) $log->trace("SMS plugin sms recipient user id: ".$user_id);
+        if($user_id !== null) {
+            //&authvalue=x
+            $smsTextWithAuth = str_replace('&authvalue=x', '&member_id='.$user_id, $smsText);
+        }
+        return $smsTextWithAuth;
 	}
 	
 	private function getTwigEnv() {
