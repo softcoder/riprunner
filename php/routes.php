@@ -15,16 +15,17 @@ if(defined('INCLUSION_PERMITTED') === false) {
     define( 'INCLUSION_PERMITTED', true);
 }
 
+require_once 'config_constants.php';
 //require_once 'config.php';
 try {
     if (!file_exists('config.php' )) {
-        throw new Exception ('Config script does not exist!');
+        throw new \Exception ('Config script does not exist!');
     }
     else {
         require_once 'config.php';
     }
 }
-catch(Exception $e) {
+catch(\Exception $e) {
     echo '<!DOCTYPE html>'.PHP_EOL.
     '<html>'.PHP_EOL.
     '<head>'.PHP_EOL.

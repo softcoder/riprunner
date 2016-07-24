@@ -39,7 +39,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	// ----------------------------------------------------------------------
 	// SMS Provider Settings
 	define( 'SMS_GATEWAY_TEXTBELT', 					'TEXTBELT');
-	define( 'SMS_GATEWAY_TEXTBELT_LOCAL', 				'TEXTBELT_LOCAL');
+	define( 'SMS_GATEWAY_TEXTBELT_LOCAL', 				'TEXTBELT-LOCAL');
 	define( 'SMS_GATEWAY_SENDHUB', 						'SENDHUB');
 	define( 'SMS_GATEWAY_EZTEXTING', 					'EZTEXTING');
 	define( 'SMS_GATEWAY_TWILIO', 						'TWILIO');

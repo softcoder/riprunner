@@ -316,6 +316,7 @@ if(isset($generate_config) === true && $generate_config === 'true') {
 	Gateway type: 
 	<select name="sms_gateway_type">
 		<option value="TEXTBELT">Textbelt</option>
+		<option value="TEXTBELT-LOCAL">Textbelt-Local</option>
 		<option value="SENDHUB">Sendhub</option>
 		<option value="EZTEXTING">Ez Texting</option>
 		<option value="TWILIO" selected>Twilio</option>

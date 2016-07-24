@@ -20,7 +20,7 @@ class SMSTextBeltLocalPlugin implements ISMSPlugin {
 	}
 	public function getMaxSMSTextLength() {
 		//return 130;
-		return 5096;
+		return 0;
 	}
 	public function signalRecipients($SMSConfig, $recipient_list, $recipient_list_type, $smsText) {
 		$resultSMS = 'START Send SMS using TextBelt-LOCAL.' . PHP_EOL;
@@ -34,14 +34,16 @@ class SMSTextBeltLocalPlugin implements ISMSPlugin {
 				
 		$resultSMS .= 'About to send SMS to: [' . implode(",", $recipient_list_numbers) . ']' . PHP_EOL;
 		
-		if(is_array($smsText) === false) {
-			$smsText = array($smsText);
-		}
-		
-		foreach($smsText as $smsMsg) {
-		    $from = $SMSConfig->SMS_PROVIDER_TEXTBELT_LOCAL_FROM;
-		    $from_region = $SMSConfig->SMS_PROVIDER_TEXTBELT_LOCAL_REGION;
-		    $resultSMS .= new PHPSMS\PHPSMS($recipient,$smsMsg,$from,$from_region);
+		//if(is_array($smsText) === false) {
+		//	$smsText = array($smsText);
+		//}
+	    $from = $SMSConfig->SMS_PROVIDER_TEXTBELT_LOCAL_FROM;
+	    $from_region = $SMSConfig->SMS_PROVIDER_TEXTBELT_LOCAL_REGION;
+        foreach($recipient_list_numbers as $recipient) {
+		    //foreach($smsText as $smsMsg) {
+		        $SMS_local = new \PHPSMS\PHPSMS($recipient,$smsText,$from,$from_region);
+                $resultSMS .= $SMS_local->getResult();
+            //}
 		}
 		return $resultSMS;
 	}

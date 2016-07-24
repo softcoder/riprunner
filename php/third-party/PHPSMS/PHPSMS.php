@@ -2,9 +2,10 @@
 
 namespace PHPSMS;
 
-use PHPSMS\Providers;
+require_once 'Providers.php';
   
 class PHPSMS {
+    private $result = '';
     /**
      * Main constructor for PHPSMS
      * @param string $number  Number you sending the message to
@@ -13,7 +14,7 @@ class PHPSMS {
      * @param string $region  Region the message is being sent from
      */
     public function __construct($number,$message,$from=null,$region='us') {
-      $providers = new Providers();
+      $providers = new \PHPSMS\Providers();
       $providerList;
       switch($region) {
         case 'us' :
@@ -29,7 +30,7 @@ class PHPSMS {
       if(!$number || !$message ) {
         return '';
       }
-      $result = '';
+      $this->result = '';
       foreach($providerList as $provider) {
         $to = str_replace('%s',$number,$provider);
         $headers = null;
@@ -39,12 +40,14 @@ class PHPSMS {
         }
         if(mail($to, PRODUCT_NAME, $message, $headers)) {
             //echo 'success to '.$to.'\n';
-            $result .= 'success to: '.$to.PHP_EOL;
+            $this->result .= 'success to: '.$to.PHP_EOL;
         }
         else {
-            $result .= 'fail to: '.$to.PHP_EOL;
+            $this->result .= 'fail to: '.$to.PHP_EOL;
         }
       }
-      return $result;
+    }
+    public function getResult() {
+        return $this->result;
     }
 }
