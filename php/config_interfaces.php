@@ -263,6 +263,11 @@ class FireHallSMS
 	public $SMS_PROVIDER_SENDHUB_BASE_URL;
 	// The Base API URL for sending SMS messages using textbelt.com
 	public $SMS_PROVIDER_TEXTBELT_BASE_URL;
+	// The From email address to use for sending SMS messages using the free local Textbelt provider
+	public $SMS_PROVIDER_TEXTBELT_LOCAL_FROM;
+	// The region to use for sending SMS messages using the free local Textbelt provider
+	// Valid values to use are: us, canada or intl
+	public $SMS_PROVIDER_TEXTBELT_LOCAL_REGION;
 	// The Base API URL for sending SMS messages using eztexting.com
 	public $SMS_PROVIDER_EZTEXTING_BASE_URL;
 	// The API username to use for eztexting
@@ -335,6 +340,9 @@ class FireHallSMS
 				"\nSpecial contacts list: " . $this->SMS_SPECIAL_CONTACTS .
 				"\nSendhub url: " . $this->SMS_PROVIDER_SENDHUB_BASE_URL .
 				"\nTextbelt url: " . $this->SMS_PROVIDER_TEXTBELT_BASE_URL .
+				
+				"\nTextbelt_Local from: " . $this->SMS_PROVIDER_TEXTBELT_LOCAL_FROM .
+				"\nTextbelt_Local region: " . $this->SMS_PROVIDER_TEXTBELT_LOCAL_REGION .
 				"\nEzTexting url: " . $this->SMS_PROVIDER_EZTEXTING_BASE_URL .
 				"\nEzTexting username: " . $this->SMS_PROVIDER_EZTEXTING_USERNAME .
 				"\nTwilio url: " . $this->SMS_PROVIDER_TWILIO_BASE_URL .
@@ -385,6 +393,12 @@ class FireHallSMS
 	}
 	public function setTextbeltBaseURL($textbelt_base_url) {
 		$this->SMS_PROVIDER_TEXTBELT_BASE_URL = $textbelt_base_url;
+	}
+	public function setTextbeltLocalFrom($value) {
+	    $this->SMS_PROVIDER_TEXTBELT_LOCAL_FROM = $value;
+	}
+	public function setTextbeltLocalRegion($value) {
+	    $this->SMS_PROVIDER_TEXTBELT_LOCAL_REGION = $value;
 	}
 	public function setEzTextingBaseURL($eztexting_base_url) {
 		$this->SMS_PROVIDER_EZTEXTING_BASE_URL = $eztexting_base_url;

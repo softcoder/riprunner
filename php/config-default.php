@@ -312,6 +312,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 		
 	$LOCAL_DEBUG_SMS = new FireHallSMS();
 	$LOCAL_DEBUG_SMS->setSignalEnabled(true);
+	// Using Twilio
 	$LOCAL_DEBUG_SMS->setGatewayType(SMS_GATEWAY_TWILIO);
 	$LOCAL_DEBUG_SMS->setCalloutProviderType(SMS_CALLOUT_PROVIDER_DEFAULT);
 	$LOCAL_DEBUG_SMS->setTwilioBaseURL(DEFAULT_SMS_PROVIDER_TWILIO_BASE_URL);
@@ -319,12 +320,19 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_SMS->setTwilioFromNumber(DEFAULT_SMS_PROVIDER_TWILIO_FROM);
 	$LOCAL_DEBUG_SMS->setSpecialContacts('Poison Control|16042642470;Canutec (Hazmat)|16139966666');
 	
+	// Using Plivo
 	//$LOCAL_DEBUG_SMS->setGatewayType(SMS_GATEWAY_PLIVO);
 	//$LOCAL_DEBUG_SMS->setCalloutProviderType(SMS_CALLOUT_PROVIDER_DEFAULT);
 	//$LOCAL_DEBUG_SMS->setPlivoBaseURL(DEFAULT_SMS_PROVIDER_PLIVO_BASE_URL);
 	//$LOCAL_DEBUG_SMS->setPlivoAuthId(DEFAULT_SMS_PROVIDER_PLIVO_AUTH_ID);
 	//$LOCAL_DEBUG_SMS->setPlivoAuthToken(DEFAULT_SMS_PROVIDER_PLIVO_AUTH_TOKEN);
 	//$LOCAL_DEBUG_SMS->setPlivoFromNumber(DEFAULT_SMS_PROVIDER_PLIVO_FROM);
+
+	// Local Free textbelt provider
+	//$LOCAL_DEBUG_SMS->setGatewayType(SMS_GATEWAY_TEXTBELT_LOCAL);
+	//$LOCAL_DEBUG_SMS->setCalloutProviderType(SMS_CALLOUT_PROVIDER_DEFAULT);
+	//$LOCAL_DEBUG_SMS->setTextbeltLocalFrom('riprunner@localhost.com');
+	//$LOCAL_DEBUG_SMS->setTextbeltLocalRegion('canada');
 	// !!! sms settings end
 	
 	// ----------------------------------------------------------------------
