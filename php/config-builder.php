@@ -319,32 +319,32 @@ if(isset($generate_config) === true && $generate_config === 'true') {
 <form action="config-builder.php?generate=true" method="post">
 
 	<h3>Database Settings (required):</h3>
-	Connection string: <input type="text" name="db_connection" value="" style="width:100%;"><br>
+	Connection string: <input type="text" name="db_connection" value="mysql:host=localhost;dbname=myvfd" style="width:100%;"><br>
 	Username: <input type="text" name="db_user" value="" style="width:100%;"><br>
 	Password: <input type="text" name="db_pwd" value="" style="width:100%;"><br>
-    Database name: <input type="text" name="db_name" value="" style="width:100%;"><br>
+    Database name: <input type="text" name="db_name" value="myvfd" style="width:100%;"><br>
 
 	<hr>
 
 	<h3>Website Settings (required):</h3>
-	Firehall name: <input type="text" name="website_name" value="" style="width:100%;"><br>
-    Firehall address: <input type="text" name="website_address" value="" style="width:100%;"><br>
-    Firehall geo coordinates latitude: <input type="text" name="website_lat" value="">
-    longitutde: <input type="text" name="website_long" value=""><br>
-    Root url: <input type="text" name="website_url" value="" style="width:100%;"><br>
+	Firehall name: <input type="text" name="website_name" value="My Volunteer Fire Department" style="width:100%;"><br>
+    Firehall address: <input type="text" name="website_address" value="5155 Fire Fighter Road, Prince George, BC" style="width:100%;"><br>
+    Firehall geo coordinates latitude: <input type="text" name="website_lat" value="54.0918642">
+    longitutde: <input type="text" name="website_long" value="-122.6544671"><br>
+    Root url: <input type="text" name="website_url" value="http://www.example.com/rr/" style="width:100%;"><br>
     Google map api key: <input type="text" name="website_google_map_apikey" value="" style="width:100%;"><br>
-    Timezone: <input type="text" name="website_timezone" value="" style="width:100%;"><br>
+    Timezone: <input type="text" name="website_timezone" value="America/Vancouver" style="width:100%;"><br>
     
 	<hr>
 	    
 	<h3>Firehall Settings (required):</h3>
-    Firehall id: <input type="text" name="fh_id" value="" style="width:100%;"><br>
+    Firehall id: <input type="text" name="fh_id" value="100" style="width:100%;"><br>
 
 	<hr>
 	
 	<h3>Email Settings:</h3>
 	Enabled: <input type="checkbox" name="email_enabled"><br>
-	Connection string: <input type="text" name="email_connection" value="" style="width:100%;"><br>
+	Connection string: <input type="text" name="email_connection" value="{pop.secureserver.net:995/pop3/ssl/novalidate-cert}INBOX" style="width:100%;"><br>
 	Username: <input type="text" name="email_user" value="" style="width:100%;"><br>
 	Password: <input type="text" name="email_pwd" value="" style="width:100%;"><br>
     From email address trigger: <input type="text" name="email_from" value="" style="width:100%;"><br>
