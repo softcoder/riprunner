@@ -77,18 +77,46 @@ function extractSMSSettings() {
     if($sms_enabled != null) {
         $sms_gateway_type = get_query_param('sms_gateway_type');
         $sms_callout_provider_type = get_query_param('sms_callout_provider_type');
-        $sms_base = get_query_param('sms_base');
-        $sms_auth_token = get_query_param('sms_auth_token');
-        $sms_from = get_query_param('sms_from');
         $sms_special_contacts = get_query_param('sms_special_contacts');
     
         $sms_settings = '$SMS_SETTINGS = new FireHallSMS();'.PHP_EOL;
         $sms_settings .= '$SMS_SETTINGS->setSignalEnabled(true);'.PHP_EOL;
         $sms_settings .= "\$SMS_SETTINGS->setGatewayType('$sms_gateway_type');".PHP_EOL;
         $sms_settings .= "\$SMS_SETTINGS->setCalloutProviderType('$sms_callout_provider_type');".PHP_EOL;
-        $sms_settings .= "\$SMS_SETTINGS->setTwilioBaseURL('$sms_base');".PHP_EOL;
-        $sms_settings .= "\$SMS_SETTINGS->setTwilioAuthToken('$sms_auth_token');".PHP_EOL;
-        $sms_settings .= "\$SMS_SETTINGS->setTwilioFromNumber('$sms_from');".PHP_EOL;
+        
+        if($sms_gateway_type == 'TEXTBELT') {
+            $sms_base = get_query_param('sms_textbelt_base');
+        
+            $sms_settings .= "\$SMS_SETTINGS->setTextbeltBaseURL('$sms_base');".PHP_EOL;
+        }
+        if($sms_gateway_type == 'TEXTBELT-LOCAL') {
+            $sms_from = get_query_param('sms_textbelt-local_from');
+            $sms_region = get_query_param('sms_textbelt-local_region');
+            
+            $sms_settings .= "\$SMS_SETTINGS->setTextbeltLocalFrom('$sms_from');".PHP_EOL;
+            $sms_settings .= "\$SMS_SETTINGS->setTextbeltLocalRegion('$sms_region');".PHP_EOL;
+        }
+        if($sms_gateway_type == 'TWILIO') {
+            $sms_base = get_query_param('sms_base');
+            $sms_auth_token = get_query_param('sms_auth_token');
+            $sms_from = get_query_param('sms_from');
+        
+            $sms_settings .= "\$SMS_SETTINGS->setTwilioBaseURL('$sms_base');".PHP_EOL;
+            $sms_settings .= "\$SMS_SETTINGS->setTwilioAuthToken('$sms_auth_token');".PHP_EOL;
+            $sms_settings .= "\$SMS_SETTINGS->setTwilioFromNumber('$sms_from');".PHP_EOL;
+        }
+        if($sms_gateway_type == 'PLIVO') {
+            $sms_base = get_query_param('sms_plivo_base');
+            $sms_auth_id = get_query_param('sms_plivo_auth_id');
+            $sms_auth_token = get_query_param('sms_plivo_auth_token');
+            $sms_from = get_query_param('sms_plivo_from');
+        
+            $sms_settings .= "\$SMS_SETTINGS->setPlivoBaseURL('$sms_base');".PHP_EOL;
+            $sms_settings .= "\$SMS_SETTINGS->setPlivoAuthId('$sms_auth_id');".PHP_EOL;
+            $sms_settings .= "\$SMS_SETTINGS->setPlivoAuthToken('$sms_auth_token');".PHP_EOL;
+            $sms_settings .= "\$SMS_SETTINGS->setPlivoFromNumber('$sms_from');".PHP_EOL;
+        }
+        
         $sms_settings .= "\$SMS_SETTINGS->setSpecialContacts('$sms_special_contacts');".PHP_EOL;
     }
     else {
@@ -272,6 +300,19 @@ if(isset($generate_config) === true && $generate_config === 'true') {
 }
 
 ?>
+
+<html>
+<head>
+    <script type="text/JavaScript" src="js/jquery-2.1.1.min.js"></script>
+    <link rel="stylesheet" href="js/jquery-ui-themes-1.11.4/themes/smoothness/jquery-ui.min.css">
+    <script type="text/JavaScript" src="js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
+
+    <script type="text/JavaScript" src="js/spin.js"></script>
+	<script type="text/JavaScript" src="js/common-utils.js"></script>
+	<link rel="stylesheet" href="styles/table-styles-main.css?version=1" />
+</head>
+
+<body class="ci_body">
 <h1>Rip Runner Configuration Generator</h1>
 <hr>
 
@@ -313,32 +354,55 @@ if(isset($generate_config) === true && $generate_config === 'true') {
 	    
 	<h3>SMS Settings:</h3>
 	Enabled: <input type="checkbox" name="sms_enabled"><br>
-	Gateway type: 
-	<select name="sms_gateway_type">
+	<label for="sms_gateway_type">Gateway type:</label>
+	<select name="sms_gateway_type" id="sms_gateway_type">
 		<option value="TEXTBELT">Textbelt</option>
 		<option value="TEXTBELT-LOCAL">Textbelt-Local</option>
+		<!--  
 		<option value="SENDHUB">Sendhub</option>
 		<option value="EZTEXTING">Ez Texting</option>
+		-->
 		<option value="TWILIO" selected>Twilio</option>
 		<option value="PLIVO">Plivo</option>
 	</select>
 	<br>
-	Callout provider type:	<select name="sms_callout_provider_type">
+	Callout provider type: 
+	<select name="sms_callout_provider_type">
 		<option value="DEFAULT">Default</option>
 	</select>
 	<br>
-	Base URL: <input type="text" name="sms_base" value="" style="width:100%;"><br>
+	<div name="sms_gateway_type_textbelt" id="sms_gateway_type_textbelt" style="display: none;">
+	Base URL: <input type="text" name="sms_textbelt_base" style="width:100%;" value="http://textbelt.com/canada"><br>
+	</div>
+	<div name="sms_gateway_type_textbelt-local" id="sms_gateway_type_textbelt-local" style="display: none;">
+	Email From Address: <input type="text" name="sms_textbelt-local_from" value="" style="width:100%;"><br>
+	<label for="sms_textbelt-local_region">Region:</label>
+	<select name="sms_textbelt-local_region" id="sms_textbelt-local_region">
+		<option value="canada" selected>Canada</option>
+		<option value="us">United States</option>
+		<option value="intl">International</option>
+	</select>
+	</div>
+	<div name="sms_gateway_type_twilio" id="sms_gateway_type_twilio">
+	Base URL: <input type="text" name="sms_base" style="width:100%;" value="https://api.twilio.com/2010-04-01/Accounts/XXXX/Messages.xml"><br>
     Authorization Token: <input type="text" name="sms_auth_token" value="" style="width:100%;"><br>
     Send from phone number: <input type="text" name="sms_from" value="" style="width:100%;"><br>
-    Special contacts info list: <input type="text" name="sms_special_contacts" value="" style="width:100%;"><br>
-
+	</div>
+	<div name="sms_gateway_type_plivo" id="sms_gateway_type_plivo" style="display: none;">
+	Base URL: <input type="text" name="sms_plivo_base" style="width:100%;" value="https://api.plivo.com/v1/"><br>
+    Authorization Id: <input type="text" name="sms_plivo_auth_id" value="" style="width:100%;"><br>
+    Authorization Token: <input type="text" name="sms_plivo_auth_token" value="" style="width:100%;"><br>
+    Send from phone number: <input type="text" name="sms_plivo_from" value="" style="width:100%;"><br>
+	</div>
+	Special contacts info list: <input type="text" name="sms_special_contacts" value="" style="width:100%;"><br>
+	
 	<hr>
 	    
 	<h3>Mobile Settings:</h3>
 	Enabled: <input type="checkbox" name="mobile_enabled"><br>
 	Tracking enabled: <input type="checkbox" name="mobile_enabled_tracking"><br>
 	Google cloud messaging (GCM) enabled: <input type="checkbox" name="mobile_enabled_gcm"><br>
-	Signal GCM url: <input type="text" name="mobile_url" value="" style="width:100%;"><br>
+	Signal GCM url: <input type="text" name="mobile_url" value="https://android.googleapis.com/gcm/send" style="width:100%;"><br>
 	GCM api key: <input type="text" name="mobile_gcm_api_key" value="" style="width:100%;"><br>
 	GCM project number: <input type="text" name="mobile_gcm_project" value="" style="width:100%;"><br>
 	GCM application id: <input type="text" name="mobile_gcm_app_id" value="" style="width:100%;"><br>
@@ -365,3 +429,25 @@ if(isset($generate_config) === true && $generate_config === 'true') {
     <br>
     <input type="Submit" value="Generate Configuration">
 </form>
+
+<script type="text/javascript">
+$(function() {
+	var previous_sms_gateway_type='TWILIO';
+    $( "#sms_gateway_type" ).selectmenu({
+         change: function( event, ui ) {
+             console.log(ui);
+             var selected_value = ui.item.value;
+             //debugger;
+             $( "#sms_gateway_type_"+selected_value.toLowerCase() ).show();
+             $( "#sms_gateway_type_"+previous_sms_gateway_type.toLowerCase() ).hide();
+             previous_sms_gateway_type = selected_value;
+         },
+    });
+});
+
+$( document ).ready(function() {
+	
+});     
+</script>
+</body>
+</html>
