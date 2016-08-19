@@ -572,19 +572,36 @@ class SignalManager {
 
     public function signalFireHallResponse($callout, $userId, $userGPSLat, $userGPSLong,
             $userStatus, $eta, $isFirstResponseForUser) {
-    
+        global $log;
         $result = '';
-    
+
+        //$calloutInProgress = isCalloutInProgress($callout->getStatus());
+        if($log !== null) $log->warn('Callout Response $userStatus value: '.$userStatus);
+        
         if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
-            if($isFirstResponseForUser === true || isCalloutInProgress($userStatus) == true) {
-                if(CalloutStatusType::isValidValue($userStatus) === true) {
-                    $statusDef = CalloutStatusType::getStatusById($userStatus);
-                    if($statusDef->IsResponding() == true) {
-                        $result .= $this->signalResponseToSMSPlugin($callout, $userId,
-                                $userGPSLat, $userGPSLong, $userStatus, $eta);
-                    }
+            if($log !== null) $log->warn('Callout Response SMS signal is enabled');
+            //if($isFirstResponseForUser === true || isCalloutInProgress($userStatus) == true) {
+            //if($callout_status_updated == true && CalloutStatusType::isValidValue($userStatus) === true) {
+            if(CalloutStatusType::isValidValue($userStatus) === true) {
+                $statusDef = CalloutStatusType::getStatusById($userStatus);
+//                 if(($statusDef->IsResponding() == true || 
+//                     $statusDef->IsCancelled() == true || 
+//                         $statusDef->IsCompleted() == true) && 
+//                         ($statusDef->IsSignalAll() == true || 
+//                          $statusDef->IsSignalResponders() == true ||
+//                          $statusDef->IsSignalNonResponders() == true)) {
+                if($log !== null) $log->warn('Callout Response SMS signal all: '.var_export($statusDef->IsSignalAll(), true));
+                
+                if($statusDef->IsSignalAll() == true ||
+                   $statusDef->IsSignalResponders() == true ||
+                   $statusDef->IsSignalNonResponders() == true) {
+                       
+                   if($log !== null) $log->warn('Callout Response SMS signal about to call plugin...');
+                   $result .= $this->signalResponseToSMSPlugin($callout, $userId,
+                            $userGPSLat, $userGPSLong, $userStatus, $eta);
                 }
             }
+            //}
         }
     
         if($callout->getFirehall()->MOBILE->MOBILE_SIGNAL_ENABLED === true &&
