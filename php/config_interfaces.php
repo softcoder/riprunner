@@ -239,7 +239,7 @@ class FireHallSMS
 	// Indicates whether we should signal responders using SMS during a callout
 	public $SMS_SIGNAL_ENABLED;
 	// The type of SMS Gateway. Current supported types:
-	// TEXTBELT, SENDHUB, EZTEXTING, TWILIO
+	// TEXTBELT, SENDHUB, EZTEXTING, TWILIO, PLIVO
 	// To Support additional SMS Providers contact the author or implement
 	// an SMS plugin class in the plugins/sms folder.
 	public $SMS_GATEWAY_TYPE;
