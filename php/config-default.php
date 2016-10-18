@@ -383,7 +383,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// LDAP Settings (optional for sites wanting to use LDAP user authentication
 	// !!! ldap settings start
 	$LOCAL_DEBUG_LDAP = new FireHall_LDAP();
-	$LOCAL_DEBUG_LDAP->setEnabled(true);
+	$LOCAL_DEBUG_LDAP->setEnabled(false);
 	$LOCAL_DEBUG_LDAP->setHostName('ldap://LDAPHOSTNAME:LDAPPORT');
 	$LOCAL_DEBUG_LDAP->setBindRDN('cn=READONLYUSER,dc=EXAMPLE,dc=COM');
 	$LOCAL_DEBUG_LDAP->setBindPassword('READONLYPASSWORD');
