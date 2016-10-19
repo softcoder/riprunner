@@ -1,7 +1,7 @@
 Introduction:
 =============
 
-There are two seperate services available fo which only 1 should be selected
+There are two seperate services available for which only 1 should be selected
 for use.
 
 Option #1: Setup a Google App engine app to receives live emails and trigger

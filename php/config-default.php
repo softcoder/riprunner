@@ -305,10 +305,10 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'DEFAULT_SMS_PROVIDER_TWILIO_BASE_URL', 	'https://api.twilio.com/xxxx-xx-xx/Accounts/X/Messages.xml');
 	define( 'DEFAULT_SMS_PROVIDER_TWILIO_AUTH_TOKEN', 	'X:X');
 	define( 'DEFAULT_SMS_PROVIDER_TWILIO_FROM', 		'+xxxxxxxxxx');
-	define( 'DEFAULT_SMS_PROVIDER_PLIVO_BASE_URL', 	'https://api.plivo.com/v1/');
+	define( 'DEFAULT_SMS_PROVIDER_PLIVO_BASE_URL', 	    'https://api.plivo.com/v1/');
 	define( 'DEFAULT_SMS_PROVIDER_PLIVO_AUTH_ID', 	    'XX');
 	define( 'DEFAULT_SMS_PROVIDER_PLIVO_AUTH_TOKEN', 	'XXXX');
-	define( 'DEFAULT_SMS_PROVIDER_PLIVO_FROM', 		'16044261553');
+	define( 'DEFAULT_SMS_PROVIDER_PLIVO_FROM', 		    '16044261553');
 		
 	$LOCAL_DEBUG_SMS = new FireHallSMS();
 	$LOCAL_DEBUG_SMS->setSignalEnabled(true);
@@ -380,7 +380,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// LDAP Settings (optional for sites wanting to use LDAP user authentication
 	// !!! ldap settings start
 	$LOCAL_DEBUG_LDAP = new FireHall_LDAP();
-	$LOCAL_DEBUG_LDAP->setEnabled(true);
+	$LOCAL_DEBUG_LDAP->setEnabled(false);
 	$LOCAL_DEBUG_LDAP->setHostName('ldap://LDAPHOSTNAME:LDAPPORT');
 	$LOCAL_DEBUG_LDAP->setBindRDN('cn=READONLYUSER,dc=EXAMPLE,dc=COM');
 	$LOCAL_DEBUG_LDAP->setBindPassword('READONLYPASSWORD');
