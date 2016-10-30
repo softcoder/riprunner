@@ -366,3 +366,6 @@ Contact Info:
 - Email: mark_vejvoda@hotmail.com
 - Join our IRC channel `#softhaus` on FreeNode.
 - Webchat IRC channel: http://webchat.freenode.net/?channels=softhaus
+
+----
+Free Firehall Software Volunteer SMS Android Google App Engine Communications
