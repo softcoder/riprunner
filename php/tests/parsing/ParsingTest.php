@@ -422,5 +422,29 @@ Units Responding: SALGRP1";
         $this->assertEquals('-123.10563',$callout->getGPSLong());
         $this->assertEquals('MACGRP1',$callout->getUnitsResponding());
     }
+
+    public function testProcessFireHallText_TEXT_new_callcodes_Valid() {
+        $realdata = "Date: 2017-05-26 11:28:59
+                     Type: AIRCR - Aircraft Crash
+                     Department: Salmon Valley Fire Dept
+                     Address: 9115 SALMON VALLEY ROAD, PRINCE GEORGE, BC
+                     Latitude: 55.34132
+                     Longitude: -123.10563
+                     Google Maps Link: http://maps.google.com/maps?z=1&t=m&q=loc:55.3413,-123.106
+                     Units Responding: SALGRP1";
+    
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallText($realdata);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2017-05-26 11:28:59',$callout->getDateTimeAsString());
+        $this->assertEquals('AIRCR',$callout->getCode());
+        $this->assertEquals('9115 SALMON VALLEY ROAD, PRINCE GEORGE, BC',$callout->getAddress());
+        $this->assertEquals('9115 SALMON VALLEY ROAD, PRINCE GEORGE, BC',$callout->getAddressForMap());
+        $this->assertEquals('55.34132',$callout->getGPSLat());
+        $this->assertEquals('-123.10563',$callout->getGPSLong());
+        $this->assertEquals('SALGRP1',$callout->getUnitsResponding());
+    }
     
 }
