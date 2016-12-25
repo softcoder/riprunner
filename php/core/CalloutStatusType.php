@@ -86,12 +86,18 @@ class CalloutStatusType {
                     BehaviourFlagType::BEHAVIOUR_FLAG_NONE,
                     USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
                     array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_OFFICE_STAFF)),
-                5 => new CalloutStatusDef(5,'Standby','Standby',StatusFlagType::STATUS_FLAG_STANDBY,
+                5 => new CalloutStatusDef(5,'Standby_in_area','Standby - In Area',StatusFlagType::STATUS_FLAG_STANDBY,
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
                     BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
                     USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
                     array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
+                11 => new CalloutStatusDef(11,'Standby_in_town','Standby - In Town',StatusFlagType::STATUS_FLAG_STANDBY,
+                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
+                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
+                        BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
+                        USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
+                        array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
                 6 => new CalloutStatusDef(6,'Responding_at_hall','Respond at hall',StatusFlagType::STATUS_FLAG_RESPONDING,
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
                     BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |

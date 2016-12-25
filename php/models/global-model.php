@@ -64,9 +64,11 @@ class GlobalViewModel {
 			return $this->getUserFirehallId();
 		}
 		if('enabled_asynch_mode' === $name) {
-			//return ENABLE_ASYNCH_MODE;
 		    $config = new \riprunner\ConfigManager();
 		    return $config->getSystemConfigValue('ENABLE_ASYNCH_MODE');
+		}
+		if('db_timezone' === $name) {
+		    return $this->getDBTimezoneInfo();
 		}
 		if('phpinfo' === $name) {
 			return $this->getPhpInfo();
@@ -148,7 +150,7 @@ class GlobalViewModel {
 			array('isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN',
 					AuthViewModel::getAuthVarContainerName(),'firehall',
 					'firehall_list','user_firehallid','enabled_asynch_mode',
-					'phpinfo','MENU_TYPE','CUSTOM_MAIN_CSS','CUSTOM_MOBILE_CSS',
+					'db_timezone', 'phpinfo','MENU_TYPE','CUSTOM_MAIN_CSS','CUSTOM_MOBILE_CSS',
 					'ICON_MARKERSCUSTOM_LEGEND','ICON_MARKERSCUSTOM','ICON_HYDRANT','ICON_FIREHALL','ICON_WATERTANK','ICON_CALLORIGIN',
 					'JSMAP_WIDTH','JSMAP_HEIGHT','JSMAP_MOBILEWIDTH','JSMAP_MOBILEHEIGHT'
 			)) === true) {
@@ -194,7 +196,6 @@ class GlobalViewModel {
 		$fire_hall = $this->getFireHall();
 		if(isset($fire_hall) === true) {
 			if(isset($this->db_connection) === false) {
-				//$this->db_connection = db_connect_firehall($fire_hall);
 			    $db = new \riprunner\DbConnection($fire_hall);
 			    $this->db_connection = $db->getConnection();
 			}
@@ -216,4 +217,26 @@ class GlobalViewModel {
 		}
 		return $this->authModel;
 	}
+	
+	private function getDBTimezoneInfo() {
+	    global $log;
+	
+	    $sql_statement = new \riprunner\SqlStatement($this->getDBConnection());
+	    $sql = $sql_statement->getSqlStatement('select_db_timezone');
+	
+	    $qry_bind = $this->getDBConnection()->prepare($sql);
+	    $qry_bind->execute();
+	
+	    $log->trace("Call getDBTimezoneInfo SQL success for sql [$sql].");
+	    $row = $qry_bind->fetch(\PDO::FETCH_BOTH);
+	    
+	    $result = 'DB Timezone: ';
+	    if($row !== false) {
+	        $result .= $row[0];
+	    }
+	    $qry_bind->closeCursor();
+	
+	    return $result;
+	}
+	
 }

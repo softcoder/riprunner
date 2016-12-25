@@ -25,6 +25,7 @@ new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 if(isset($global_vm->firehall) === true && $global_vm->firehall !== null) {
     $view_template_vars["riprunner_config"] = $global_vm->firehall->toString();
     $view_template_vars["riprunner_config_db_schema_version"] = $global_vm->auth->getAuthEntity()->getDbSchemaVersion();
+    $view_template_vars["riprunner_db_timezone"] = $global_vm->db_timezone;
 }
 
 $clearCache = get_query_param('clearCache');
