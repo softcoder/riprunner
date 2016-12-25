@@ -83,6 +83,17 @@ class DbConnection {
     	    }
     	}
     }
+    public function getPHPTimezoneOffset() {
+        $now = new \DateTime();
+        $mins = ($now->getOffset() / 60);
+        $sgn = (($mins < 0) ? -1 : 1);
+        $mins = abs($mins);
+        $hrs = floor($mins / 60);
+        $mins -= ($hrs * 60);
+        $offset = sprintf('%+d:%02d', ($hrs*$sgn), $mins);
+        return $offset;
+    }
+    
     public function getConnection() {
         return $this->pdo;
     }

@@ -24,6 +24,7 @@ if(isset($global_vm) === false && isset($FIREHALLS)) {
 class GlobalViewModel {
 	
 	private $detect_browser;
+	private $db_entity;
 	private $db_connection;
 	private $authModel;
 	private $firehalls;
@@ -196,8 +197,8 @@ class GlobalViewModel {
 		$fire_hall = $this->getFireHall();
 		if(isset($fire_hall) === true) {
 			if(isset($this->db_connection) === false) {
-			    $db = new \riprunner\DbConnection($fire_hall);
-			    $this->db_connection = $db->getConnection();
+			    $this->db_entity = new \riprunner\DbConnection($fire_hall);
+			    $this->db_connection = $this->db_entity->getConnection();
 			}
 			return $this->db_connection;
 		}
@@ -236,6 +237,8 @@ class GlobalViewModel {
 	    }
 	    $qry_bind->closeCursor();
 	
+	    $result .= "\nPHP Timezone: ".$this->db_entity->getPHPTimezoneOffset();
+	    
 	    return $result;
 	}
 	
