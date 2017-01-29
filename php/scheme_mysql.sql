@@ -77,6 +77,19 @@ CREATE TABLE IF NOT EXISTS `trigger_history` (
   `hash_data` TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `callout_status` (
+  `id` int(11) NOT NULL PRIMARY KEY,
+  `name` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
+  `display_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `status_flags` int(11) NOT NULL DEFAULT 0,
+  `behaviour_flags` int(11) NOT NULL DEFAULT 0,
+  `access_flags` int(11) NOT NULL DEFAULT 0,
+  `access_flags_inclusive` BOOLEAN NOT NULL DEFAULT 0,
+  `user_types_allowed` int(11) NOT NULL DEFAULT 0,
+  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 
 CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);

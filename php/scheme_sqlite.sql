@@ -85,6 +85,19 @@ firehall_id varchar(80) NOT NULL,
 hash_data TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS callout_status 
+(
+id INTEGER NOT NULL PRIMARY KEY,
+name varchar(80) NOT NULL,
+display_name varchar(255) NOT NULL,
+status_flags INTEGER NOT NULL DEFAULT 0,
+behaviour_flags INTEGER NOT NULL DEFAULT 0,
+access_flags INTEGER NOT NULL DEFAULT 0,
+access_flags_inclusive BOOLEAN NOT NULL DEFAULT 0,
+user_types_allowed INTEGER NOT NULL DEFAULT 0,
+updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 
 CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);

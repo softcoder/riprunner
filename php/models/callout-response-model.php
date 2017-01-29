@@ -207,7 +207,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 						$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] useracctid: " . $this->useracctid);
 							
 						if($this->getUserStatus() === null) {
-							$this->user_status = CalloutStatusType::Responding()->getId();
+							$this->user_status = CalloutStatusType::Responding($this->getGvm()->firehall)->getId();
 						}
 					}
 				}
@@ -226,7 +226,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 							$this->useracctid = $row->id;
 			
 							if($this->getUserStatus() === null) {
-								$this->user_status = CalloutStatusType::Responding()->getId();
+								$this->user_status = CalloutStatusType::Responding($this->getGvm()->firehall)->getId();
 							}
 						}
 						else {
@@ -239,7 +239,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 							$this->useracctid = $row->id;
 			
 							if($this->getUserStatus() === null) {
-								$this->user_status = CalloutStatusType::Responding()->getId();
+								$this->user_status = CalloutStatusType::Responding($this->getGvm()->firehall)->getId();
 							}
 						}
 						else {
@@ -272,7 +272,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 		// Ensure the user has access to the callout status
 		$user_access = $this->getGvm()->auth->getAuthEntity()->getUserAccess(
 		        $this->getFirehallId(),$this->getUserId());
-		$statusDef = CalloutStatusType::getStatusById($status);
+		$statusDef = CalloutStatusType::getStatusById($status,$this->getGvm()->firehall);
 		if($statusDef->hasAccess($user_access) == false) {
 		    $log->error('Member: '.$this->getUserId().' does not have access to status code: '.$status);
 		    throw new \Exception('Invalid response request detected, contact administrator for details!');

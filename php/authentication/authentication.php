@@ -252,6 +252,8 @@ class Authentication {
                         $_SESSION['firehall_id'] = $FirehallId;
                         $_SESSION['ldap_enabled'] = false;
                         $_SESSION['user_access'] = $userAccess;
+                        
+                        \riprunner\CalloutStatusType::getStatusList($this->getFirehall());
                         // Login successful.
                         return true;
                     }

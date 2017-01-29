@@ -286,7 +286,7 @@ function openAjaxUrl(url_path,hidden,max_retries,retry_freq,current_attempt) {
     		  var error_div="<div class='container_center' id='error_msg'><div id='error_msg_close'><h3>X</h3></div><h3>CANNOT Open popups as you have a popup blocker for this website!</h3></div></center>";
     		  $(document.body).prepend(error_div);
     		  $(document).on('click','.error_msg_close',function(){
-    			    $(this).parent().remove();
+    			  $(this).parent().remove();
     		  });
     	  }
       },

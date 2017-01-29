@@ -194,22 +194,22 @@ function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
 	return $result;
 }
 
-function getCallStatusDisplayText($dbStatus) {
+function getCallStatusDisplayText($dbStatus, $FIREHALL) {
 	$result = 'unknown [' . ((isset($dbStatus) === true) ? $dbStatus : 'null') . ']';
-	if(\riprunner\CalloutStatusType::isValidValue($dbStatus)) {
-	    $result = \riprunner\CalloutStatusType::getStatusById($dbStatus)->getDisplayName();
+	if(\riprunner\CalloutStatusType::isValidValue($dbStatus,$FIREHALL)) {
+	    $result = \riprunner\CalloutStatusType::getStatusById($dbStatus,$FIREHALL)->getDisplayName();
 	}
-	else if(\riprunner\CalloutStatusType::isValidName($dbStatus)) {
-	    $result = \riprunner\CalloutStatusType::getStatusByName($dbStatus)->getDisplayName();
+	else if(\riprunner\CalloutStatusType::isValidName($dbStatus,$FIREHALL)) {
+	    $result = \riprunner\CalloutStatusType::getStatusByName($dbStatus,$FIREHALL)->getDisplayName();
 	}
 	return $result;
 }
 
-function isCalloutInProgress($callout_status) {
+function isCalloutInProgress($callout_status,$FIREHALL) {
     if(isset($callout_status) === true) {
-        if(\riprunner\CalloutStatusType::isValidValue($callout_status)) {
-            $result = \riprunner\CalloutStatusType::getStatusById($callout_status);
-            return !($result->IsCancelled() || $result->IsCompleted());
+        if(\riprunner\CalloutStatusType::isValidValue($callout_status,$FIREHALL)) {
+            $result = \riprunner\CalloutStatusType::getStatusById($callout_status,$FIREHALL);
+            return !($result->IsCancelled($FIREHALL) || $result->IsCompleted($FIREHALL));
         }
     }
 	return true;

@@ -53,7 +53,7 @@ class MobileAppInfoViewModel extends BaseViewModel {
 		if(isset($firehall) === true && $firehall !== null) {
 			if($log !== null) $log->trace("Mobile app info fhid [" . $firehall->FIREHALL_ID . "]");
 	
-			$statusList = CalloutStatusType::getStatusList();
+			$statusList = CalloutStatusType::getStatusList($firehall);
 			$statusListManualArray = array();
 			foreach($statusList as &$status) {
 			    array_push($statusListManualArray,$status->jsonSerialize());

@@ -37,7 +37,7 @@ abstract class BehaviourFlagType {
     const BEHAVIOUR_FLAG_DEFAULT_RESPONSE   = 0x10;
 }
 
-// Types of status flags
+// Types of user types
 abstract class UserType {
     const USER_TYPE_NONE           = 0;
     const USER_TYPE_ADMIN          = 1;
@@ -45,6 +45,15 @@ abstract class UserType {
     const USER_TYPE_FIRE_APPARATUS = 3;
     const USER_TYPE_OFFICE_STAFF   = 4;
 }
+
+// Types of user types included
+// abstract class UserTypeIncluded {
+//     const USER_TYPE_NONE           = 0;
+//     const USER_TYPE_ADMIN          = 0x1;
+//     const USER_TYPE_FIRE_FIGHTER   = 0x2;
+//     const USER_TYPE_FIRE_APPARATUS = 0x4;
+//     const USER_TYPE_OFFICE_STAFF   = 0x8;
+// }
 
 class CalloutStatusDef implements JsonSerializable {
 
@@ -151,7 +160,12 @@ class CalloutStatusDef implements JsonSerializable {
         if($this->userTypes == null) {
             return true;
         }
-        return in_array($userType, $this->userTypes);
+        if(is_array($this->userTypes)) {
+            return in_array($userType, $this->userTypes);
+        }
+        
+        $user_type_bit = 1 << $userType-1;
+        return ($this->userTypes != null && ($this->userTypes & $user_type_bit));
     }
     
     public function hasAccess($userAccess) {

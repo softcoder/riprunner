@@ -57,7 +57,7 @@ class APIMapsTest extends BaseDBFixture {
 	public function testGetGEOCoordinatesFromAddress_InValid()  {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
-	    $geo_corrds = getGEOCoordinatesFromAddress($FIREHALL,'Planet Mars');
+	    $geo_corrds = getGEOCoordinatesFromAddress($FIREHALL,'Planet WackJob');
 	    $this->assertNull($geo_corrds);
 	}
 	

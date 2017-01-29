@@ -26,8 +26,6 @@ if (isset($_POST['firehall_id'], $_POST['user_id'], $_POST['p']) === true) {
     $db_connection = null;
     $FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
     if(isset($FIREHALL) === true) {
-        //$db = new \riprunner\DbConnection($FIREHALL);
-        //$db_connection = $db->getConnection();
         $auth = new\riprunner\Authentication($FIREHALL);
         
 	    if($auth->hasDbConnection() === true) {

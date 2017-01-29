@@ -143,6 +143,8 @@ function login_ldap($FIREHALL, $user_id, $password) {
     			$_SESSION['firehall_id'] = $FirehallId;
     			$_SESSION['ldap_enabled'] = true;
     			$_SESSION['user_access'] = $userAccess;
+    			
+    			\riprunner\CalloutStatusType::getStatusList($FIREHALL);
     		  
     			if($log !== null) $log->trace("LDAP user access: $userAccess");
     		  

@@ -29,7 +29,7 @@ class CalloutStatusTypeTest extends BaseDBFixture {
         
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 
-        $statusList = \riprunner\CalloutStatusType::getStatusList();
+        $statusList = \riprunner\CalloutStatusType::getStatusList($FIREHALL);
         
         $PAGED_STATUS_ID = 0;
         $PAGED_RESPONDING_TO_HALL_ID = 2;

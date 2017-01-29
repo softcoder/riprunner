@@ -229,7 +229,7 @@ class SMSCommandHandler {
                                         "&cid=" . urlencode($most_current_callout['id']) .
                                         "&uid=" . urlencode($result->getUserId()) .
                                         "&ckid=" . urlencode($most_current_callout['call_key']) .
-                                        "&status=" . urlencode(CalloutStatusType::Complete()->getId());
+                                        "&status=" . urlencode(CalloutStatusType::Complete($FIREHALL)->getId());
                                         	
                                         if($log !== null) $log->warn("Calling URL for sms host Call Completed Response [$URL]");
                                         $httpclient = $this->getHttpClient($URL);
@@ -253,7 +253,7 @@ class SMSCommandHandler {
                                         "&cid=" . urlencode($most_current_callout['id']) .
                                         "&uid=" . urlencode($result->getUserId()) .
                                         "&ckid=" . urlencode($most_current_callout['call_key']) .
-                                        "&status=" . urlencode(CalloutStatusType::Cancelled()->getId());
+                                        "&status=" . urlencode(CalloutStatusType::Cancelled($FIREHALL)->getId());
     
                                         if($log !== null) $log->warn("Calling URL for sms host Call Cancel Response [$URL]");
                                         $httpclient = $this->getHttpClient($URL);
@@ -661,25 +661,25 @@ class SMSCommandHandler {
             $sms_cmd_list = explode(' ', $sms_cmd);
             $updateToStatus = null;
             if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_NOT_RESPONDING, CommandMatchType::StartsWith)) {
-                $updateToStatus = CalloutStatusType::NotResponding()->getId();
+                $updateToStatus = CalloutStatusType::NotResponding($FIREHALL)->getId();
             }
             else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY, CommandMatchType::StartsWith)) {
-                $updateToStatus = CalloutStatusType::Standby()->getId();
+                $updateToStatus = CalloutStatusType::Standby($FIREHALL)->getId();
             }
             else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL, CommandMatchType::StartsWith)) {
-                $updateToStatus = CalloutStatusType::Responding_at_hall()->getId();
+                $updateToStatus = CalloutStatusType::Responding_at_hall($FIREHALL)->getId();
             }
             else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE, CommandMatchType::StartsWith)) {
-                $updateToStatus = CalloutStatusType::Responding_to_scene()->getId();
+                $updateToStatus = CalloutStatusType::Responding_to_scene($FIREHALL)->getId();
             }
             else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE, CommandMatchType::StartsWith)) {
-                $updateToStatus = CalloutStatusType::Responding_at_scene()->getId();
+                $updateToStatus = CalloutStatusType::Responding_at_scene($FIREHALL)->getId();
             }
             else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RETURN_HALL, CommandMatchType::StartsWith)) {
-                $updateToStatus = CalloutStatusType::Responding_return_hall()->getId();
+                $updateToStatus = CalloutStatusType::Responding_return_hall($FIREHALL)->getId();
             }
             
-            if(CalloutStatusType::isValidValue($updateToStatus) == false) {
+            if(CalloutStatusType::isValidValue($updateToStatus,$FIREHALL) == false) {
                 if($log !== null) $log->error("Invalid status in updatestatus [".$sms_cmd."] updateToStatus: $updateToStatus");
                 throw new \Exception("Invalid status in updatestatus [".$sms_cmd."] updateToStatus: $updateToStatus");
             }

@@ -38,7 +38,7 @@ class DbConnection {
     	 
     	if($this->firehall !== null) {
     	    if($this->firehall->ENABLED == false) {
-    	        throwExceptionAndLogError('Db Connection firehall disabled!', 'Db Connection firehall disabled.');
+    	        throwExceptionAndLogError('Db Connection firehall disabled: '.$this->firehall->FIREHALL_ID, 'Db Connection firehall disabled: '.$this->firehall->FIREHALL_ID);
     	    }
     	    	
     	    // Firehall already has an injected DB Connection
