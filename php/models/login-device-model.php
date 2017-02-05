@@ -208,7 +208,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 			$this->live_callout = array();
 			foreach($rows as $row){
 				// Add any custom fields with values here
-				$row['calltype_desc'] = convertCallOutTypeToText($row['calltype']);
+				$row['calltype_desc'] = convertCallOutTypeToText($row['calltype'],$this->getGvm()->firehall);
 				$this->live_callout[] = $row;
 			}
 		}
@@ -236,6 +236,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 		$callout->setFirehall($this->getFirehall());
 		$callout->setDateTime($callDateTimeNative);
 		$callout->setCode($callCode);
+		$callout->setCodeType(\riprunner\CalloutType::getTypeByCode($callCode, $this->getFirehall()));
 		$callout->setAddress($callAddress);
 		$callout->setGPSLat($callGPSLat);
 		$callout->setGPSLong($callGPSLong);

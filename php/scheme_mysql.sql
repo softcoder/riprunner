@@ -89,6 +89,17 @@ CREATE TABLE IF NOT EXISTS `callout_status` (
   `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `callout_type` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `code` varchar(12) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `description` varchar(255) COLLATE utf8_unicode_ci,
+  `custom_tag` varchar(255) COLLATE utf8_unicode_ci,
+  `effective_date` datetime NULL,
+  `expiration_date` datetime NULL,
+  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 

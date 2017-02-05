@@ -58,7 +58,7 @@ class CalloutHistoryViewModel extends BaseViewModel {
 			$this->callout_list = array();
 			foreach($rows as $row) {
 				// Add any custom fields with values here
-				$row['callout_type_desc'] = convertCallOutTypeToText($row['calltype']);
+				$row['callout_type_desc'] = convertCallOutTypeToText($row['calltype'],$this->getGvm()->firehall);
 				$row['callout_address_origin'] = urlencode($this->getGvm()->firehall->WEBSITE->FIREHALL_HOME_ADDRESS);
 				$row['callout_address_dest'] = getAddressForMapping($this->getGvm()->firehall, $row['address']);
 				$row['callout_status_desc'] = getCallStatusDisplayText($row['status'],$this->getGvm()->firehall);

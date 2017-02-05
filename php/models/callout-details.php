@@ -5,6 +5,8 @@
 // ==============================================================
 namespace riprunner;
 
+require_once __RIPRUNNER_ROOT__ . '/core/CalloutType.php';
+
 // The model class containing callout information
 class CalloutDetails {
 	
@@ -13,6 +15,7 @@ class CalloutDetails {
 	private $keyId;
 	private $dateTime;
 	private $code;
+	private $code_type;
 	private $address;
 	private $GPSLat;
 	private $GPSLong;
@@ -106,6 +109,17 @@ class CalloutDetails {
 		$this->code = $value;
 	}
 
+	public function getCodeType() {
+	    if($this->code_type == null) {
+	        $this->code_type = \riprunner\CalloutType::getTypeByCode($this->code, $this->getFirehall());
+	    }
+	    return $this->code_type;
+	}
+	public function setCodeType($value) {
+	    $this->code_type = $value;
+	}
+	
+	
 	public function getAddress() {
 		return $this->address;
 	}
@@ -149,10 +163,10 @@ class CalloutDetails {
 	}
 	
 	private function convertCallOutCodeToText($code) {
-		global $CALLOUT_CODES_LOOKUP;
+	    $calloutType = \riprunner\CalloutType::getTypeByCode($code, $this->getFirehall());
 		$codeText = 'UNKNOWN ['.$code.']';
-		if (isset($CALLOUT_CODES_LOOKUP) === true  && array_key_exists($code, $CALLOUT_CODES_LOOKUP) === true) {
-			$codeText = $CALLOUT_CODES_LOOKUP[$code];
+		if (isset($calloutType) === true) {
+			$codeText = $calloutType->getName();
 		}
 		return $codeText;
 	}

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Secure Login: Protected Page</title>
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css?version=1" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css?version=1" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
+        {% endif %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
+    </head>
+    <body>
+        <div class="container_center">
+        {% if gvm.auth.isAuth and (gvm.auth.isAdmin) %} 
+                
+            {% include 'user-welcome.twig.html' %}
+            {% include 'live-callout-warning.twig.html' %}
+            
+            <input type="hidden" id="se" name="se" value="true"/>
+            
+            <div class="menudiv_wrapper">
+              <nav class="vertical">
+                <ul>
+                  <li>
+                    <label for="main_page">Return to ..</label>
+                    <input type="radio" name="verticalMenu" id="main_page" />
+                    <div>
+                      <ul>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                  <li>
+                    <label for="logout">Exit</label>
+                    <input type="radio" name="verticalMenu" id="logout" />
+                    <div>
+                      <ul>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}logout.php">Logout</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+
+            
+            <form action="{{ gvm.RR_DOC_ROOT }}controllers/callout-type-controller.php" 
+                  method="post" name="type_edit_form">
+   
+            <center>
+            {% if typemenu_ctl_action_error == 100 %}
+            <b><font color="red">Invalid password! Passwords must match and be at least 5 characters.</font></b>
+            {% elseif typemenu_ctl_action_error == 101 %}
+            <b><font color="red">You must enter a Firehall Id</font></b>
+            {% elseif typemenu_ctl_action_error == 102 %}
+            <b><font color="red">You must enter a type Id</font></b>            
+            {% endif %}
+
+            <table id="box-table-a">
+                <thead>
+                    <tr>
+                    <th scope="col">Record Id</th>
+                    <th scope="col" class="column_nowrap">Code</th>
+                    <th scope="col" class="column_nowrap">Name</th>
+                    <th scope="col" class="column_nowrap">Description</th>
+                    <th scope="col" class="column_nowrap">Custom Tag</th>
+                    <th scope="col" class="column_nowrap">Effective Date</th>
+                    <th scope="col" class="column_nowrap">Expiration Date</th>
+                                        
+                    <th scope="col" class="column_nowrap">Update Date/Time</th>
+                    <th scope="col" colspan="2" align="Center">Modify Data</th>
+                    <tr>
+                </thead>
+
+                {% if typemenu_ctl_edit_typeid is null and not typemenu_ctl_insert_new %}
+                <tr>
+                    <td colspan="14">
+                        <input type="button" value="Add New" onclick="edit_type(this.form, -1);" />
+                    </td>
+                </tr>
+                {% endif %}
+
+                {% if typemenu_ctl_insert_new is defined and typemenu_ctl_insert_new %}
+                <tr>
+                <td>
+                NEW
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_code" name="edit_code" type="input" value=""/>
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_name" name="edit_name" type="input" value=""/>
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_description" name="edit_description" type="input" value=""/>
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_custom_tag" name="edit_custom_tag" type="input" value=""/>
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_effective_date" name="edit_effective_date" type="input" value=""/>
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_expiration_date" name="edit_expiration_date" type="input" value=""/>
+                </td>
+                <td colspan="3">
+                <input type="button" value="Save" 
+                       onclick="save_type(this.form, -1);" />
+                
+                <input type="button" value="Cancel" 
+                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}controllers/callout-type-controller.php'; return false;" />
+                </td>
+                </tr>
+                {% endif %}
+            
+            {% for type in callouttype_vm.type_list %}
+
+                {% set edit_current_row = 
+                   (typemenu_ctl_edit_typeid is defined and 
+                    typemenu_ctl_edit_typeid == type.id) %}
+                <tr>
+                <td>
+                {{ type.id }}
+                </td>
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_code" name="edit_code" type="input" 
+                           value="{{ type.code }}"/>
+                {% else %}
+                {{ type.code }}
+                {% endif %}
+                </td>
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_name" name="edit_name" type="input" 
+                           value="{{ type.name }}"/>
+                {% else %}
+                {{ type.name }}
+                {% endif %}
+                </td>
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_description" name="edit_description" type="input" 
+                           value="{{ type.description }}"/>
+                {% else %}
+                {{ type.description }}
+                {% endif %}
+                </td>
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_custom_tag" name="edit_custom_tag" type="input" 
+                           value="{{ type.custom_tag }}"/>
+                {% else %}
+                {{ type.custom_tag }}
+                {% endif %}
+                </td>
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_effective_date" name="edit_effective_date" type="input" 
+                           value="{{ type.effective_date }}"/>
+                {% else %}
+                {{ type.effective_date }}
+                {% endif %}
+                </td>
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_expiration_date" name="edit_expiration_date" type="input" 
+                           value="{{ type.expiration_date }}"/>
+                {% else %}
+                {{ type.expiration_date }}
+                {% endif %}
+                </td>
+
+                <td class="column_nowrap">
+                   {{ type.updatetime }}
+                </td>
+                
+                {% if edit_current_row %}
+                    <td colspan="2">
+                    <input type="button" value="Save" 
+                           onclick="save_type(this.form, {{ type.id }});" />
+                    
+                    <input type="button" value="Cancel" 
+                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}controllers/callout-type-controller.php'; return false;" />
+                    </td>
+                {% else %}
+                    <td>
+                    <input type="button" value="Edit" 
+                           onclick="edit_type(this.form, {{ type.id }});" />
+                    </td>
+                    <td>
+                    <input type="button" value="Delete" 
+                           onclick="return delete_type(this.form, {{ type.id }},'{{ type.name }}');" />
+                    </td>
+                {% endif %}
+                </tr>
+            {% endfor %}
+            
+            </table>
+            </center>
+            </form>
+            
+<script type="text/javascript">
+    function edit_type(form, type_id) {
+       addformhiddenfield(form, 'form_action', 'edit');
+       addformhiddenfield(form, 'edit_type_id', type_id);
+       
+       form.submit();
+    }
+
+    function save_type(form, type_id) {
+       addformhiddenfield(form, 'form_action', 'save');
+       addformhiddenfield(form, 'edit_type_id', type_id);
+       
+       form.submit();
+    }
+
+    function delete_type(form, type_id, type_id_name) {
+        if(confirm('Confirm DELETE for type: ' + type_id_name + '?')) {
+            addformhiddenfield(form, 'form_action', 'delete');
+            addformhiddenfield(form, 'edit_type_id', type_id);
+            
+            form.submit();
+            return true;
+        }
+        return false;
+    }
+
+    function send_msg(form, msg_type) {
+       addformhiddenfield(form, 'form_action', msg_type);
+       form.submit();
+    }
+
+    function toggleVisibility(itemId) {
+        var item = document.getElementById(itemId);
+        if(item.style.display == "none") {
+            item.style.display="block";
+        }
+        else {
+            item.style.display="none";
+        }
+    }
+    
+    var item = document.getElementById("edit_code");
+    if(item) {
+        item.focus();
+    }
+</script>
+        {% else %}
+            {% include 'access-denied.twig.html' %}
+        {% endif %}
+        </div>
+    </body>
+</html>

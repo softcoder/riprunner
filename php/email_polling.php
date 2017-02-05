@@ -355,7 +355,7 @@ class EmailTriggerPolling {
         if (isset($fullEmailBodyText) === true && strlen($fullEmailBodyText) > 0) {
             if($log !== null) $log->trace('Email trigger processing contents...');
     
-            $callout = processFireHallText($realdata);
+            $callout = processFireHallText($realdata, $FIREHALL);
             if($log !== null) $log->trace('Email trigger processing contents signal result: '.var_export($callout->isValid(), true));
     
             if ($callout->isValid() === true) {

@@ -25,4 +25,155 @@
     <callout_status id="10" name="Complete" display_name="Complete" status_flags="8" behaviour_flags="14" access_flags="29" access_flags_inclusive="0" user_types_allowed="15" updatetime="2999-04-26 13:14:20" />
     <callout_status id="11" name="Standby_in_town" display_name="Standby-In-Town" status_flags="16" behaviour_flags="14" access_flags="29" access_flags_inclusive="0" user_types_allowed="15" updatetime="2999-04-26 13:14:20" />
     
+    <callout_type id="0" code="AIRCR" name="Aircraft Crash" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="1" code="AIREL" name="Aircraft Emergency Landing" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="2" code="AIRF" name="Aircraft Fire" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="3" code="AIRSB" name="Aircraft Standby" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="4" code="ASSIST" name="Assist - General public or other agency assistance. Not a lift assist call." effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="5" code="BBQF" name="Barbeque Fire" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="6" code="BOMB" name="Bomb Threat" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="7" code="BURN" name="Burning Complaint" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="8" code="CARBM" name="Carbon Monoxide Alarm" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="9" code="CHIMF" name="Chimney Fire" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="10" code="CONTF" name="Container/Sea-Can or Pressurized Vessel Fire" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="11" code="DUMP" name="Dumpster" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="12" code="ELECF" name="Electrical Fire" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="13" code="ELECFSUB" name="Electrical Fire – Substation" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="14" code="EXP" name="Explosion" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="15" code="FALRMC" name="Fire Alarms – Commercial" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="16" code="FALRMF" name="Fire Alarms – False" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="17" code="FALRMR" name="Fire Alarms – Residential" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="18" code="FLOOD" name="Flooding" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="19" code="HAZNG" name="Hazmat – Natural Gas" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="20" code="HAZODOUR" name="Hazmat – Odour" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="21" code="HAZSPILL" name="Hazmat – Spill" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="22" code="HAZVAPOUR" name="Hazmat – Vapour" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="23" code="HAZCONF" name="Hazmat – CONFIRMED" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="24" code="HAZUNCON" name="Hazmat – UNCONFIRMED" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="25" code="WIRES" name="Hydro Lines Down" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="26" code="ITEM" name="Item Fire" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="27" code="KITCHENF" name="Kitchen Item Fire" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="28" code="LIFTEMG" name="Lift Assist – Emergency" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="29" code="LIFTR" name="Lift Assist – Routine" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="30" code="LIFTPUB" name="Lift Assist – Public" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="31" code="MED" name="Medical Aid" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="32" code="MEDR" name="Medical Aid - BCAS Routine" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="33" code="MEDFIRE" name="Medical Emergency/Fire Emergency" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="34" code="MEDHAZ" name="Medical Emergency/Hazmat Emergency" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="35" code="MVIMIN" name="MVI - Minor" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="36" code="MVISER" name="MVI – Serious" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="37" code="MVIPED" name="MVI - Pedestrian" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="38" code="OPEN" name="Open Air Fire" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="39" code="RESCCON" name="Rescue - Confined Space" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="40" code="RESCHIGH" name="Rescue - High Angle" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="41" code="RESCICE" name="Rescue – Ice" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="42" code="RESCIND" name="Rescue – Industrial" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="43" code="RESCMED" name="Rescue - Medical" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="44" code="RESC" name="Rescue – Other" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="45" code="RESCWTR" name="Rescue – Water" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="46" code="SHIPD" name="Ship/Boat Fire - At Dock" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="47" code="SHIPU" name="Ship/Boat Fire – Underway" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="48" code="SMOKIN" name="Smoke Report – Inside" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="49" code="STRCOLL" name="Structure Collapse" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="50" code="STROUT" name="Structure Fire – Outbuilding" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="51" code="STRRES" name="Structure Fire – Residential" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="52" code="STRCOM" name="Structure Fire – Commercial/High Hazard" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="53" code="STRHIGH" name="Structure Fire – High Life/Multi-Family" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="54" code="STRRECALL" name="Structure Fire – Recall" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="55" code="TRANS" name="Transformer/Pole Fire" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="56" code="VEHF" name="Vehicle Fire" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="57" code="WILDINT" name="Wildland – Interface" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="58" code="WILD2" name="Wildland – Large (Rank 4-6)" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="59" code="WILD1" name="Wildland – Small (Rank 1-3)" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="60" code="HANG" name="911 Hang Up" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="61" code="FOCC" name="Admin Call Records" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="62" code="AMBUL" name="Ambulance – Notification" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="63" code="CITY" name="City – Notification" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="64" code="DISPTEST" name="Dispatcher Test" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="65" code="DUTY" name="Duty Officer Notification" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="66" code="HYDRO" name="Hydro – Notification" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="67" code="INVEST" name="Investigation" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="68" code="NATGAS" name="Natural Gas – Notification" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="69" code="POLICE" name="Police – Notification" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="70" code="TESTONLY" name="TEST ONLY" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="71" code="TRAINING" name="TRAINING NIGHT" updatetime="2999-04-26 13:14:20" />
+	
+	<callout_type id="72" code="ACEL" name="Aircraft Emergency Landing" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="73" code="ACF" name="Aircraft Fire" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="74" code="ACRA" name="Aircraft Crash" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="75" code="ACSB" name="Aircraft Standby" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="76" code="AMBUL" name="Ambulance - Notification" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="77" code="ASSIST" name="Assist" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="78" code="BBQF" name="Barbeque Fire" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="79" code="BOMB" name="Bomb Threat" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="80" code="BURN" name="Burning Complaint" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="81" code="CARBM" name="Carbon Monoixide Alarm" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="82" code="CHIM" name="Chimney Fire" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="83" code="COMP" name="Complaints" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="84" code="DSPTEST" name="Dispatcher Test" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="85" code="DUMP" name="Dumpster" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="86" code="DUTY" name="Duty Officer Notification" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="87" code="ELCFS" name="Electrical Fire - Substation" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="88" code="EXP" name="Explosion" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="89" code="FALRMC" name="Fire Alarms - Commercial" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="90" code="FALRMF" name="Fire Alarms - False" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="91" code="FALRMR" name="Fire Alarms - Residential" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="92" code="FLOOD" name="Flooding" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="93" code="FOCC" name="Admin Call Records" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="94" code="FOREST" name="Forestry - Notification" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="95" code="GAS" name="Gas Leak - Natural/LPG" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="96" code="HANG" name="911 Hang Up" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="97" code="HAZM1" name="HazMat1 - Low Risk" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="98" code="HAZM2" name="HazMat2 - Mod Risk" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="99" code="HAZM3" name="HazMat3 - High Risk" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="100" code="HYDRO" name="Hydro - Notification" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="101" code="INVEST" name="Investigation" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="102" code="ISOF" name="Isolated Fire" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="103" code="ISOITEM" name="Item Fire" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="104" code="KITAMB" name="Kitimat Ambulance" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="105" code="KITF" name="Kitchen Item Fire" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="106" code="LIFT" name="Lift Assist" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="107" code="LIFTEMG" name="Lift Assist Emergency" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="108" code="LIFTR" name="Lift Assist - Routine" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="109" code="MED" name="Medical Aid" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="110" code="MEDR" name="Medical Aid - BCAS Routine" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="111" code="MFIRE" name="Medical Emergency/Fire Emergency" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="112" code="MVI1" name="MVI1- Motor Vehicle Incident" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="113" code="MVI2" name="MVI2 - Multiple Vehicles/Patients" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="114" code="MVI3" name="MVI3 - Entrapment; Motor Vehicle Incident" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="115" code="MVI4" name="MVI4 - Entrapment; Multiple Vehicles/Patients" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="116" code="NATGAS" name="Natural Gas - Notification" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="117" code="ODOUU" name="Odour Unknown" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="118" code="OPEN" name="Open Air Fire" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="119" code="PEDSTK" name="Pedestrian Struck" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="120" code="POLICE" name="Police - Notification" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="121" code="RESC" name="Rescue - Low Risk" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="122" code="RMED" name="Routine Medical Aid" custom_tag="Test Custom Tag" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="123" code="RSC" name="Rescue - Other" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="124" code="RSCCON" name="Rescue - Confined Space" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="125" code="RSCHIG" name="Rescue - High Angle" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="126" code="RSCICE" name="Rescue - Ice" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="127" code="RSCIND" name="Rescue - Industrial" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="128" code="RSCWTR" name="Rescue - Water" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="129" code="RSCON" name="Rescue - Confined Space" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="130" code="RSHIG" name="Rescue - High Angle" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="131" code="RSICE" name="Rescue - Ice" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="132" code="RSIND" name="Rescue - Industrial" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="133" code="RSWTR" name="Rescue - Water" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="134" code="SHIPD" name="Ship/Boat Fire - At Dock" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="135" code="SHIPU" name="Ship/Boat Fire - Underway" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="136" code="SMKIN" name="Smoke Report - Inside" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="137" code="SMKOT" name="Smoke Report - Outside" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="138" code="STC" name="Structure Collapse" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="139" code="STF1" name="Structure Fire - Small" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="140" code="STF2" name="Structure Fire - Large" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="141" code="TERASEN" name="Terasen Gas - Notification" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="142" code="TRNSF" name="Transformer/Pole Fire" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="143" code="VEHF" name="Vehicle Fire" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="144" code="WILD1" name="Wildland - Small" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="145" code="WILD2" name="Wildland - Large" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="146" code="WILD3" name="Wildland - Interface" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="147" code="WILDINT" name="Wildland - Interface" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="148" code="WIRES" name="Hydro Lines Down" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+    
 </dataset>

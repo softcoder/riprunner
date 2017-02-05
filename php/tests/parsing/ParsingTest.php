@@ -40,9 +40,10 @@ class ParsingTest extends BaseDBFixture {
         Units Responding: SALGRP1<br />
         <br />";
         
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
         $html_email = new \Html2Text\Html2Text($realdata);
         
-        $callout = processFireHallText($html_email->getText());
+        $callout = processFireHallText($html_email->getText(),$FIREHALL);
         
         $this->assertEquals(true,$callout->isValid());
         $this->assertEquals('2015-01-02 09:28:10',$callout->getDateTimeAsString());
@@ -62,7 +63,7 @@ class ParsingTest extends BaseDBFixture {
                      Units Responding: SALGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-        $callout = processFireHallText($realdata);
+        $callout = processFireHallText($realdata,$FIREHALL);
         
         $this->assertEquals(true,$callout->isValid());
         $callout->setFirehall($FIREHALL);
@@ -79,7 +80,8 @@ class ParsingTest extends BaseDBFixture {
         $realdata = "Date: 2015-08-03 15:46:09
                      Hello this is not a callout email!";
     
-        $callout = processFireHallText($realdata);
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallText($realdata,$FIREHALL);
         $this->assertEquals(false,$callout->isValid());
     }
     
@@ -88,7 +90,8 @@ class ParsingTest extends BaseDBFixture {
                      Type: MVI1
                      Not enough info here!";
     
-        $callout = processFireHallText($realdata);
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallText($realdata,$FIREHALL);
         $this->assertEquals(false,$callout->isValid());
     }
 
@@ -97,7 +100,8 @@ class ParsingTest extends BaseDBFixture {
                      Type: MVI1
                      Address: 20474 HART HWY, SALMON VALLEY, BC";
     
-        $callout = processFireHallText($realdata);
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallText($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $this->assertEquals('2015-08-03 15:46:09',$callout->getDateTimeAsString());
@@ -109,7 +113,8 @@ class ParsingTest extends BaseDBFixture {
     public function testProcessFireHallTextTrigger_Valid() {
         $realdata = "Date: 2012‐10‐26 10:07:58 Type: BBQF Address: 12345 1ST AVE, PRINCE GEORGE, BC Latitude: 50.92440 Longitude: ‐120.77206 Units Responding: PRGGRP1";
     
-        $callout = processFireHallTextTrigger($realdata);
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $this->assertEquals('2012‐10‐26 10:07:58',$callout->getDateTimeAsString());
@@ -127,7 +132,8 @@ Address: 9115 SALMON VALLEY RD,SALMON VALLEY, BC
 Latitude: 54.0873847
 Longitude: -122.5898009";
     
-        $callout = processFireHallTextTrigger($realdata);
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $this->assertEquals('2015-11-21 05:32:25',$callout->getDateTimeAsString());
@@ -146,7 +152,8 @@ Latitude: 54.0873847
 Longitude: -122.5898009
 Units Responding: SALGRP1";
     
-        $callout = processFireHallTextTrigger($realdata);
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $this->assertEquals('2015-11-21 05:32:25',$callout->getDateTimeAsString());
@@ -163,7 +170,8 @@ Type: MED
 Latitude: 54.0873847
 Longitude: -122.5898009";
     
-        $callout = processFireHallTextTrigger($realdata);
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $this->assertEquals('2015-11-21 05:32:25',$callout->getDateTimeAsString());
@@ -179,7 +187,8 @@ Longitude: -122.5898009";
 Type: MED
 Address: 9115 SALMON VALLEY RD,SALMON VALLEY, BC";
     
-        $callout = processFireHallTextTrigger($realdata);
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $this->assertEquals('2015-11-21 05:32:25',$callout->getDateTimeAsString());
@@ -195,7 +204,8 @@ Address: 9115 SALMON VALLEY RD,SALMON VALLEY, BC";
 Type: MED
 Units Responding: SALGRP1";
     
-        $callout = processFireHallTextTrigger($realdata);
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $this->assertEquals('2015-11-21 05:32:25',$callout->getDateTimeAsString());
@@ -272,7 +282,7 @@ Units Responding: SALGRP1";
                      Units Responding: SALGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-        $callout = processFireHallText($realdata);
+        $callout = processFireHallText($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $callout->setFirehall($FIREHALL);
@@ -289,7 +299,7 @@ Units Responding: SALGRP1";
         $realdata = "Date: 2016-01-22 08:02:52Type: MVI3 - MVI3 - Entrapment; Motor Vehicle IncidentDepartment: Salmon Valley FireAddress: HART HWY/WRIGHT CREEK RD,SALMON VALLEYLatitude: 54.08310Longitude: -122.69719Units Responding: SALGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-        $callout = processFireHallTextTrigger($realdata);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $callout->setFirehall($FIREHALL);
@@ -312,7 +322,7 @@ Units Responding: SALGRP1";
                      Units Responding: SALGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-        $callout = processFireHallText($realdata);
+        $callout = processFireHallText($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $callout->setFirehall($FIREHALL);
@@ -329,7 +339,7 @@ Units Responding: SALGRP1";
         $realdata = "Date: 2016-01-22 08:02:52Type: FALRMR - Fire Alarms: ResidentialDepartment: Salmon Valley FireAddress: HART HWY/WRIGHT CREEK RD,SALMON VALLEYLatitude: 54.08310Longitude: -122.69719Units Responding: SALGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-        $callout = processFireHallTextTrigger($realdata);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $callout->setFirehall($FIREHALL);
@@ -352,7 +362,7 @@ Units Responding: SALGRP1";
                      Units Responding: SHLGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-        $callout = processFireHallText($realdata);
+        $callout = processFireHallText($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $callout->setFirehall($FIREHALL);
@@ -369,7 +379,7 @@ Units Responding: SALGRP1";
         $realdata = "Date: 2016-02-19 06:31:19Type: CARBM - Carbon Monoixide AlarmDepartment: Shell-Glen Fire/RescueAddress: 11850 HIGHPLAIN RD,SHELL-GLEN, BCLatitude: 53.97288Longitude: -122.54791Units Responding: SHLGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-        $callout = processFireHallTextTrigger($realdata);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
         
         $this->assertEquals(true,$callout->isValid());
         $callout->setFirehall($FIREHALL);
@@ -393,7 +403,7 @@ Units Responding: SALGRP1";
                      Units Responding: MACGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-        $callout = processFireHallText($realdata);
+        $callout = processFireHallText($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $callout->setFirehall($FIREHALL);
@@ -410,7 +420,7 @@ Units Responding: SALGRP1";
         $realdata = "Date: 2016-05-26 11:28:59Type: LIFT - Lift AssistDepartment: Mackenzie FireAddress: 308 CROOKED RIVER CRES,MACKENZIE, BCLatitude: 55.34132Longitude: -123.10563Google Maps Link: http://maps.google.com/maps?z=1&t=m&q=loc:55.3413,-123.106Units Responding: MACGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-        $callout = processFireHallTextTrigger($realdata);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $callout->setFirehall($FIREHALL);
@@ -434,7 +444,7 @@ Units Responding: SALGRP1";
                      Units Responding: SALGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-        $callout = processFireHallText($realdata);
+        $callout = processFireHallText($realdata,$FIREHALL);
     
         $this->assertEquals(true,$callout->isValid());
         $callout->setFirehall($FIREHALL);

@@ -141,9 +141,10 @@
     <body>
     
     <div class="container_center">
-        {% if gvm.auth.isAuth %}
+        {% if gvm.auth.isAuth or gvm.auth.hasAuthSpecialToken %}
+            {% if gvm.auth.isAuth %}
             {% include 'user-welcome.twig.html' %}
-        
+            {% endif %}
         <div class="menudiv_wrapper">
           <nav class="vertical">
             <ul>

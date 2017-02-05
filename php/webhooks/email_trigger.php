@@ -168,45 +168,45 @@ class EmailTriggerWebHook {
 	             
 	            if($log !== null) $log->warn("Email trigger dump contents... [$realdata]");
 	    
-	            $callout = processFireHallTextTrigger($realdata);
-	    
-	            if($log !== null) $log->warn("Email trigger processing contents signal result: " . var_export($callout->isValid(), true));
-	             
-	            if($callout->isValid() === true) {
-	                $from = $this->getRequestSender();
-	    
-	                # Loop through all Firehall email triggers
-	                foreach ($FIREHALLS as &$FIREHALL){
-	                    if($this->matchFirehallAuth($FIREHALL) === true) {
-	                        if($log !== null) $log->warn("Email trigger checking firehall: " .
-	                                $FIREHALL->WEBSITE->FIREHALL_NAME .
-	                                " google app id [" . $FIREHALL->MOBILE->GCM_APP_ID . "] sam [" .
-	                                $FIREHALL->MOBILE->GCM_SAM . "]");
-	    
-	    
-	                        $valid_email_trigger = validate_email_sender($FIREHALL, $from);
-	                        if($valid_email_trigger === true) {
-	                            if($log !== null) $log->warn("Valid sender trigger matched firehall sending signal to: " .
-	                                    $FIREHALL->WEBSITE->FIREHALL_NAME);
-	                             
-	                            $callout->setFirehall($FIREHALL);
-	                            $this->signalCallout($callout);
-	                            return true;
-	                        }
-	                        else {
-	                            if($log !== null) $log->error('FAILED trigger parsing!');
-	                            $this->dumpRequestLog();
-	                        }
-	                    }
-	                    else if($FIREHALL->ENABLED == true && isset($FIREHALL->MOBILE->GCM_APP_ID) === true &&
-	                            isset($FIREHALL->MOBILE->GCM_SAM) === true) {
+                $from = $this->getRequestSender();
+    
+                # Loop through all Firehall email triggers
+                foreach ($FIREHALLS as &$FIREHALL){
+                    $callout = processFireHallTextTrigger($realdata, $FIREHALL);
+                     
+                    if($log !== null) $log->warn("Email trigger processing contents signal result: " . var_export($callout->isValid(), true));
+                    
+                    if($callout->isValid() === true) {
+                        if($this->matchFirehallAuth($FIREHALL) === true) {
+                            if($log !== null) $log->warn("Email trigger checking firehall: " .
+                                    $FIREHALL->WEBSITE->FIREHALL_NAME .
+                                    " google app id [" . $FIREHALL->MOBILE->GCM_APP_ID . "] sam [" .
+                                    $FIREHALL->MOBILE->GCM_SAM . "]");
+        
+        
+                            $valid_email_trigger = validate_email_sender($FIREHALL, $from);
+                            if($valid_email_trigger === true) {
+                                if($log !== null) $log->warn("Valid sender trigger matched firehall sending signal to: " .
+                                        $FIREHALL->WEBSITE->FIREHALL_NAME);
+                                 
+                                $callout->setFirehall($FIREHALL);
+                                $this->signalCallout($callout);
+                                return true;
+                            }
+                            else {
+                                if($log !== null) $log->error('FAILED trigger parsing!');
+                                $this->dumpRequestLog();
+                            }
+                        }
+                        else if($FIREHALL->ENABLED == true && isset($FIREHALL->MOBILE->GCM_APP_ID) === true &&
+                                isset($FIREHALL->MOBILE->GCM_SAM) === true) {
                             if($log !== null) $log->warn("Auth did not match firehall app id[" .
                                     $FIREHALL->MOBILE->GCM_APP_ID . "] sam [" .
                                     $FIREHALL->MOBILE->GCM_SAM . "]");
                             $this->dumpRequestLog();
                         }
-	                }
-	            }
+                    }
+                }
 	        }
 	        else {
 	            if($log !== null) $log->error("Email trigger detected NO body!");

@@ -30,7 +30,7 @@ require_once 'config/config_manager.php';
 // Incident GPS Long : [-120.60831]
 // Incident Units Responding : [SALGRP1]
 //
-function processFireHallText($msgText) {
+function processFireHallText($msgText, $FIREHALL) {
 	
     $config = new \riprunner\ConfigManager();
     
@@ -52,9 +52,10 @@ function processFireHallText($msgText) {
 	}
 	if($callCode !== null && $callCode !== '') {
 		$callout->setCode($callCode);
+		$callout->setCodeType(\riprunner\CalloutType::getTypeByCode($callCode, $FIREHALL));
 	}
 	 
-	$callType = convertCallOutTypeToText($callCode);
+	$callType = convertCallOutTypeToText($callCode, $FIREHALL);
 	echo "Incident Description : [" . $callType . "]\n";
 	
 	$callAddress = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_ADDRESS_PATTERN'), 1);
@@ -96,7 +97,7 @@ function processFireHallText($msgText) {
    	return $callout;
 }
 
-function processFireHallTextTrigger($msgText) {
+function processFireHallTextTrigger($msgText, $FIREHALL) {
 
     $config = new \riprunner\ConfigManager();
     
@@ -120,9 +121,10 @@ function processFireHallTextTrigger($msgText) {
 	}
 	if($callCode !== null) {
 		$callout->setCode($callCode);
+		$callout->setCodeType(\riprunner\CalloutType::getTypeByCode($callCode, $FIREHALL));
 	}
 		
-	$callType = convertCallOutTypeToText($callCode);
+	$callType = convertCallOutTypeToText($callCode, $FIREHALL);
 	echo "Incident Description : [" . $callType . "]\n";
 
 	$callAddress = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_ADDRESS_PATTERN_GENERIC'), 1);
@@ -165,11 +167,11 @@ function processFireHallTextTrigger($msgText) {
 }
 
 
-function convertCallOutTypeToText($type) {
-	global $CALLOUT_CODES_LOOKUP;
+function convertCallOutTypeToText($type, $FIREHALL) {
+    $calloutType = \riprunner\CalloutType::getTypeByCode($type, $FIREHALL);
 	$typeText = 'UNKNOWN ['.$type.']';
-	if (isset($CALLOUT_CODES_LOOKUP) === true && array_key_exists($type, $CALLOUT_CODES_LOOKUP) === true) {
-		$typeText = $CALLOUT_CODES_LOOKUP[$type];
+	if (isset($calloutType) === true) {
+		$typeText = $calloutType->getName();
 	}
 	return $typeText;
 }

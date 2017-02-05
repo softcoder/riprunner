@@ -98,6 +98,17 @@ user_types_allowed INTEGER NOT NULL DEFAULT 0,
 updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS callout_type (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  code varchar(12) NOT NULL,
+  name varchar(100) NOT NULL,
+  description varchar(255),
+  custom_tag varchar(255),
+  effective_date datetime NULL,
+  expiration_date datetime NULL,
+  updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 
 CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);

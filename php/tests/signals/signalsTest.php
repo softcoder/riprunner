@@ -266,7 +266,7 @@ class SignalsTest extends BaseDBFixture {
 	    $signalManager = new \riprunner\SignalManager(null,null,null,$this->getTwigEnv());
 	    $result = $signalManager->getGCMCalloutMessage($callout);
 	
-	    $this->assertEquals("911-Page: UNKNOWN [MED], 9115 Salmon Valley Road, Prince George, BC @ 2015-01-02 09:28:10", $result);
+	    $this->assertEquals("911-Page: Medical Aid, 9115 Salmon Valley Road, Prince George, BC @ 2015-01-02 09:28:10", $result);
 	}
 
 	public function testSignalResponseToSMSPlugin_Valid() {

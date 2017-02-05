@@ -21,9 +21,11 @@ class AuthViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-		
 		if('isAuth' === $name) {
 			return $this->getIsAuth();
+		}
+		if('hasAuthSpecialToken' === $name) {
+		    return $this->hasAuthSpecialToken();
 		}
 		if('username' === $name) {
 			if(isset($_SESSION['user_id']) === true) {
@@ -46,7 +48,7 @@ class AuthViewModel extends BaseViewModel {
 
 	public function __isset($name) {
 		if(in_array($name, 
-			array('isAuth','username','user_id','isAdmin')) === true) {
+			array('isAuth','hasAuthSpecialToken', 'username','user_id','isAdmin')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
@@ -67,6 +69,20 @@ class AuthViewModel extends BaseViewModel {
 		    return false;
 		}
 		return $this->getAuthEntity()->login_check();
+
+	}
+		
+	private function hasAuthSpecialToken() {
+	    if($this->getGvm() === null) {
+	        throw new \Exception("Invalid null gvm var reference.");
+	    }
+	    if($this->getAuthEntity()->is_session_started() === false) {
+	        return false;
+	    }
+	    if(defined('AUTH_SPECIAL_TOKEN') && AUTH_SPECIAL_TOKEN == get_query_param('ast')) {
+	        return true;
+	    }
+	    return false;
 	}
 	
 	private function userHasAcess($access_flag) {
