@@ -68,29 +68,122 @@
             <b><font color="red">*Note: You cannot edit user info in LDAP mode.</font></b>
             {% endif %}
             <table id="box-table-a">
-            {% for user in usersmenu_vm.user_list %}
-                {% if loop.index == 1 %}
-		        <thead>
-			        <tr>
-			        <th scope="col">Record Id</th>
-			        <th scope="col">Firehall Id</th>
-			        <th scope="col">User Id</th>
-			        <th scope="col">User Type</th>
-			        {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
-			            <th scope="col">Password</th>
-			            <th scope="col">Re-type Password</th>
-			        {% endif %}
-			        <th scope="col">Mobile Phone</th>
-			        <th scope="col">Admin Access{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_ADMIN_GROUP_FILTER }}{% endif %}</th>
-			        <th scope="col">Enable SMS{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_SMS_GROUP_FILTER }}{% endif %}</th>
-			        <th scope="col">Enable Responding{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_RESPOND_SELF_GROUP_FILTER }}{% endif %}</th>
-			        <th scope="col">Enable Responding for others{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_RESPOND_OTHERS_GROUP_FILTER }}{% endif %}</th>
-			        <th scope="col" class="column_nowrap">Update Date/Time</th>
-			        <th scope="col" colspan="2" align="Center">Modify Data</th>
-			        <tr>
-		        </thead>
+                <thead>
+                    <tr>
+                    <th scope="col">Record Id</th>
+                    <th scope="col">Firehall Id</th>
+                    <th scope="col">User Id</th>
+                    <th scope="col">User Type</th>
+                    {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
+                        <th scope="col">Password</th>
+                        <th scope="col">Re-type Password</th>
+                    {% endif %}
+                    <th scope="col">Mobile Phone</th>
+                    <th scope="col">Admin Access{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_ADMIN_GROUP_FILTER }}{% endif %}</th>
+                    <th scope="col">Enable SMS{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_SMS_GROUP_FILTER }}{% endif %}</th>
+                    <th scope="col">Enable Responding{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_RESPOND_SELF_GROUP_FILTER }}{% endif %}</th>
+                    <th scope="col">Enable Responding for others{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_RESPOND_OTHERS_GROUP_FILTER }}{% endif %}</th>
+                    <th scope="col" class="column_nowrap">Update Date/Time</th>
+                    <th scope="col" colspan="2" align="Center">Modify Data</th>
+                    <tr>
+                </thead>
+            
+            
+                {% if usersmenu_ctl_insert_new is defined and usersmenu_ctl_insert_new and not usersmenu_vm.selfedit_mode %}
+                <tr>
+                <td>
+                NEW
+                </td>
+                <td>
+                    <input id="edit_firehall_id" name="edit_firehall_id" type="input" 
+                           value="" />
+                </td>
+                <td>
+                    <input id="edit_user_id_name" name="edit_user_id_name" 
+                           type="input" value=""/>
+                </td>
+                
+                <td>
+                  <select id="edit_user_type" name="edit_user_type">
+                  {% for user_type in usersmenu_vm.user_type_list %}
+                    <option value="{{ user_type.id }}">{{ user_type.name }}</option>
+                  {% endfor %}
+                  </select>
+                </td>
+                
+                <td>
+                   <input id="edit_user_password_1" 
+                           name="edit_user_password_1" type="password" 
+                           value=""/>
+                </td>
+                <td>
+                   <input id="edit_user_password_2" 
+                           name="edit_user_password_2" type="password" 
+                           value=""/>
+                </td>
+                <td>
+                    <input id="edit_mobile_phone" name="edit_mobile_phone" 
+                           type="input" value=""/>
+                </td>
+                <td>
+                    <input id="edit_admin_access" name="edit_admin_access" 
+                           type="checkbox" />
+                </td>
+                <td>
+                    <input id="edit_sms_access" name="edit_sms_access" 
+                           type="checkbox" />
+                </td>
+                <td>
+                    <input id="edit_respond_self_access" name="edit_respond_self_access" 
+                           type="checkbox" />
+                </td>
+                <td>
+                    <input id="edit_respond_others_access" name="edit_respond_others_access" 
+                           type="checkbox" />
+                </td>
+                
+                <td class="column_nowrap">
+                </td>
+                {% if not gvm.firehall.LDAP.ENABLED %}
+                <td colspan="2">
+                    <input type="button" value="Save" 
+                           onclick="save_user(this.form, -1);" />
+                    
+                    <input type="button" value="Cancel" 
+                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}controllers/users-menu-controller.php{{ usersmenu_vm.selfedit_mode ? '?se=true' : '' }}'; return false;" />
+                </td>
+                {% else %}
+                    {% if gvm.firehall.LDAP.ENABLED %}
+                <td colspan="2"></td>
+                    {% else %}
+                <td{{ usersmenu_vm.selfedit_mode ? ' colspan="2" ' : '' }}>
+                    <input type="button" value="Edit" 
+                           onclick="edit_user(this.form, -1);" />
+                </td>
+                <td>
+                    <input type="button" value="Delete" 
+                           onclick="return delete_user(this.form, {{ user.id }},'{{ user.user_id }}');" />
+                </td>
+                    {% endif %}
                 {% endif %}
-                                
+                </tr>
+                {% endif %}
+
+            
+	            {% if not gvm.firehall.LDAP.ENABLED and not usersmenu_vm.selfedit_mode %}
+	            <tr>
+	            {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
+	                <td colspan="14">
+	            {% else %}
+	                <td colspan="12">
+	            {% endif %}
+	                    <input type="button" value="Add New" onclick="edit_user(this.form, -1);" />
+	                </td>
+	            </tr>
+	            {% endif %}
+            
+            
+            {% for user in usersmenu_vm.user_list %}
                 {% set edit_current_row = 
                    (usersmenu_ctl_edit_userid is defined and 
                     usersmenu_ctl_edit_userid == user.id and 
@@ -225,98 +318,6 @@
 	            </tr>
             {% endfor %}
             
-            {% if usersmenu_ctl_insert_new is defined and usersmenu_ctl_insert_new and not usersmenu_vm.selfedit_mode %}
-                <tr>
-                <td>
-                NEW
-                </td>
-                <td>
-	                <input id="edit_firehall_id" name="edit_firehall_id" type="input" 
-	                       value="" />
-                </td>
-                <td>
-                    <input id="edit_user_id_name" name="edit_user_id_name" 
-                           type="input" value=""/>
-                </td>
-                
-                <td>
-                  <select id="edit_user_type" name="edit_user_type">
-                  {% for user_type in usersmenu_vm.user_type_list %}
-                    <option value="{{ user_type.id }}">{{ user_type.name }}</option>
-                  {% endfor %}
-                  </select>
-                </td>
-                
-                <td>
-                   <input id="edit_user_password_1" 
-                           name="edit_user_password_1" type="password" 
-                           value=""/>
-                </td>
-                <td>
-                   <input id="edit_user_password_2" 
-                           name="edit_user_password_2" type="password" 
-                           value=""/>
-                </td>
-                <td>
-                    <input id="edit_mobile_phone" name="edit_mobile_phone" 
-                           type="input" value=""/>
-                </td>
-                <td>
-                    <input id="edit_admin_access" name="edit_admin_access" 
-                           type="checkbox" />
-                </td>
-                <td>
-                    <input id="edit_sms_access" name="edit_sms_access" 
-                           type="checkbox" />
-                </td>
-                <td>
-                    <input id="edit_respond_self_access" name="edit_respond_self_access" 
-                           type="checkbox" />
-                </td>
-                <td>
-                    <input id="edit_respond_others_access" name="edit_respond_others_access" 
-                           type="checkbox" />
-                </td>
-                
-                <td class="column_nowrap">
-                </td>
-                {% if not gvm.firehall.LDAP.ENABLED %}
-                <td colspan="2">
-                    <input type="button" value="Save" 
-                           onclick="save_user(this.form, -1);" />
-                    
-                    <input type="button" value="Cancel" 
-                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}controllers/users-menu-controller.php{{ usersmenu_vm.selfedit_mode ? '?se=true' : '' }}'; return false;" />
-                </td>
-                {% else %}
-                    {% if gvm.firehall.LDAP.ENABLED %}
-                <td colspan="2"></td>
-                    {% else %}
-                <td{{ usersmenu_vm.selfedit_mode ? ' colspan="2" ' : '' }}>
-                    <input type="button" value="Edit" 
-                           onclick="edit_user(this.form, -1);" />
-                </td>
-                <td>
-                    <input type="button" value="Delete" 
-                           onclick="return delete_user(this.form, {{ user.id }},'{{ user.user_id }}');" />
-                </td>
-                    {% endif %}
-                {% endif %}
-                </tr>
-            {% endif %}
-
-            
-            {% if not gvm.firehall.LDAP.ENABLED and not usersmenu_vm.selfedit_mode %}
-            <tr>
-            {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
-                <td colspan="14">
-            {% else %}
-                <td colspan="12">
-            {% endif %}
-                    <input type="button" value="Add New" onclick="edit_user(this.form, -1);" />
-                </td>
-            </tr>
-            {% endif %}
             </table>
             </center>
             </form>
