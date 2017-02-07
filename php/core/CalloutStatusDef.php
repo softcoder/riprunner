@@ -234,7 +234,15 @@ class CalloutStatusDef implements JsonSerializable {
                 foreach($validateList as &$access) {
                     if($this->isFlagSet($userAccess, $access)) {
                         if(!($this->isFlagSet($this->accessFlags, $access))) {
-                            return false;
+                            // Means all user access flags MUST be set (inclusive)
+                            if($this->accessFlagsInclusive == true) {
+                                return false;
+                            }
+                        }
+                        else {
+                            if($this->accessFlagsInclusive == false) {
+                                return true;
+                            }
                         }
                     }
                 }
