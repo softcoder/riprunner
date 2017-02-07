@@ -231,6 +231,7 @@ class CalloutStatusDef implements JsonSerializable {
         $validateList = $this->getAccessFlagsValidateList();
         if($this->accessFlags != null && count($validateList) > 0) {
             if($userAccess != null) {
+                $foundMatch = false;
                 foreach($validateList as &$access) {
                     if($this->isFlagSet($userAccess, $access)) {
                         if(!($this->isFlagSet($this->accessFlags, $access))) {
@@ -243,9 +244,11 @@ class CalloutStatusDef implements JsonSerializable {
                             if($this->accessFlagsInclusive == false) {
                                 return true;
                             }
+                            $foundMatch = true;
                         }
                     }
                 }
+                return $foundMatch;
             }
             else {
                 return false;
