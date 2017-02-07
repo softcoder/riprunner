@@ -15,14 +15,14 @@
     <callout_status id="0" name="Paged" display_name="Paged" status_flags="0" behaviour_flags="14" access_flags="1" access_flags_inclusive="1" user_types_allowed="0" updatetime="2999-04-26 13:14:20" />
     <callout_status id="1" name="Notified" display_name="Notified" status_flags="0" behaviour_flags="14" access_flags="1" access_flags_inclusive="1" user_types_allowed="0" updatetime="2999-04-26 13:14:20" />
     <callout_status id="2" name="Responding" display_name="Respond to hall" status_flags="1" behaviour_flags="30" access_flags="29" access_flags_inclusive="0" user_types_allowed="11" updatetime="2999-04-26 13:14:20" />
-    <callout_status id="3" name="Cancelled" display_name="Cancelled" status_flags="4" behaviour_flags="14" access_flags="29" access_flags_inclusive="0" user_types_allowed="15" updatetime="2999-04-26 13:14:20" />
-    <callout_status id="4" name="NotResponding" display_name="Not Responding" status_flags="2" behaviour_flags="0" access_flags="29" access_flags_inclusive="0" user_types_allowed="11" updatetime="2999-04-26 13:14:20" />
+    <callout_status id="3" name="Cancelled" display_name="Cancelled" status_flags="4" behaviour_flags="30" access_flags="29" access_flags_inclusive="0" user_types_allowed="15" updatetime="2999-04-26 13:14:20" />
+    <callout_status id="4" name="NotResponding" display_name="Not Responding" status_flags="2" behaviour_flags="16" access_flags="29" access_flags_inclusive="0" user_types_allowed="11" updatetime="2999-04-26 13:14:20" />
     <callout_status id="5" name="Standby_in_area" display_name="Standby-In-Area" status_flags="16" behaviour_flags="14" access_flags="29" access_flags_inclusive="0" user_types_allowed="15" updatetime="2999-04-26 13:14:20" />
     <callout_status id="6" name="Responding_at_hall" display_name="Respond at hall" status_flags="1" behaviour_flags="14" access_flags="29" access_flags_inclusive="0" user_types_allowed="15" updatetime="2999-04-26 13:14:20" />
     <callout_status id="7" name="Responding_to_scene" display_name="Respond-to-scene" status_flags="1" behaviour_flags="14" access_flags="29" access_flags_inclusive="0" user_types_allowed="15" updatetime="2999-04-26 13:14:20" />
     <callout_status id="8" name="Responding_at_scene" display_name="Respond at scene" status_flags="1" behaviour_flags="14" access_flags="29" access_flags_inclusive="0" user_types_allowed="15" updatetime="2999-04-26 13:14:20" />
     <callout_status id="9" name="Responding_return_hall" display_name="Return to hall" status_flags="1" behaviour_flags="14" access_flags="29" access_flags_inclusive="0" user_types_allowed="15" updatetime="2999-04-26 13:14:20" />
-    <callout_status id="10" name="Complete" display_name="Complete" status_flags="8" behaviour_flags="14" access_flags="29" access_flags_inclusive="0" user_types_allowed="15" updatetime="2999-04-26 13:14:20" />
+    <callout_status id="10" name="Complete" display_name="Complete" status_flags="8" behaviour_flags="30" access_flags="29" access_flags_inclusive="0" user_types_allowed="15" updatetime="2999-04-26 13:14:20" />
     <callout_status id="11" name="Standby_in_town" display_name="Standby-In-Town" status_flags="16" behaviour_flags="14" access_flags="29" access_flags_inclusive="0" user_types_allowed="15" updatetime="2999-04-26 13:14:20" />
     
     <callout_type id="0" code="AIRCR" name="Aircraft Crash" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />

@@ -15,7 +15,7 @@
     </head>
     <body>
         <div class="container_center">
-        {% if gvm.auth.isAuth and (gvm.auth.isAdmin or calloutstatus_vm.selfedit_mode) %} 
+        {% if gvm.auth.isAuth and (gvm.auth.isAdmin) %} 
                 
             {% include 'user-welcome.twig.html' %}
             {% include 'live-callout-warning.twig.html' %}
@@ -61,8 +61,6 @@
             {% endif %}
 
             <table id="box-table-a">
-            {% for status in calloutstatus_vm.status_list %}
-                {% if loop.index == 1 %}
                 <thead>
                     <tr>
                     <th scope="col">Record Id</th>
@@ -80,7 +78,6 @@
                     <th scope="col">Signal Non Responders</th>
                     
                     <th scope="col">Admin Access</th>
-                    <th scope="col">SMS Access</th>
                     <th scope="col">Responding Access</th>
                     <th scope="col">Responding for others Access</th>
                     
@@ -95,8 +92,100 @@
                     <th scope="col" colspan="15" align="Center">Modify Data</th>
                     <tr>
                 </thead>
+
+                {% if statussmenu_ctl_edit_statusid is null and not statussmenu_ctl_insert_new %}
+                <tr>
+                    <td colspan="28">
+                        <input type="button" value="Add New" onclick="edit_status(this.form, -1);" />
+                    </td>
+                </tr>
                 {% endif %}
 
+                {% if statussmenu_ctl_insert_new is defined and statussmenu_ctl_insert_new %}
+                <tr>
+                <td>
+                NEW
+                </td>
+
+                <td class="column_nowrap">
+                    <input id="edit_name" name="edit_name" type="input" value=""/>
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_display_name" name="edit_display_name" type="input" value=""/>
+                </td>
+
+                <td>
+                    <input id="edit_is_responding" name="edit_is_responding" type="checkbox"/>
+                </td>
+                <td>
+                    <input id="edit_not_responding" name="edit_not_responding" type="checkbox"/>
+                </td>
+                <td>
+                    <input id="edit_cancelled" name="edit_cancelled" type="checkbox"/>
+                </td>
+                <td>
+                    <input id="edit_completed" name="edit_completed" type="checkbox"/>
+                </td>
+                <td>
+                    <input id="edit_standby" name="edit_standby" type="checkbox"/>
+                </td>
+                
+                <td>
+                    <input id="edit_default" name="edit_default" type="checkbox"/>
+                </td>
+                <td>
+                    <input id="edit_testing" name="edit_testing"  type="checkbox"/>
+                </td>
+                <td>
+                    <input id="edit_signal_all" name="edit_signal_all"  type="checkbox"/>
+                </td>
+                <td>
+                    <input id="edit_signal_responders" name="edit_signal_responders" type="checkbox"/>
+                </td>
+                <td>
+                    <input id="edit_signal_nonresponders" name="edit_signal_nonresponders" type="checkbox"/>
+                </td>
+                
+                <td>
+                    <input id="edit_admin_access" name="edit_admin_access" type="checkbox"/>
+                </td>
+                
+                <td>
+                    <input id="edit_respond_self_access" name="edit_respond_self_access" type="checkbox"/>
+                </td>
+                <td>
+                    <input id="edit_respond_others_access" name="edit_respond_others_access" type="checkbox"/>
+                </td>
+                
+                <td>
+                    <input id="edit_access_flags_inclusive" name="edit_access_flags_inclusive" type="checkbox"/>
+                </td>
+                
+                <td>
+                    <input id="edit_usertype_admin" name="edit_usertype_admin" type="checkbox"/>
+                </td>
+                <td>
+                    <input id="edit_usertype_fire_fighter" name="edit_usertype_fire_fighter" type="checkbox"/>
+                </td>
+                <td>
+                    <input id="edit_usertype_fire_apparatus" name="edit_usertype_fire_apparatus" type="checkbox"/>
+                </td>
+                <td>
+                    <input id="edit_usertype_office_staff" name="edit_usertype_office_staff" type="checkbox"/>
+                </td>
+
+                <td colspan="3">
+                <input type="button" value="Save" 
+                       onclick="save_status(this.form, -1);" />
+                
+                <input type="button" value="Cancel" 
+                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}controllers/callout-status-controller.php'; return false;" />
+                </td>
+                </tr>
+                {% endif %}
+
+            
+            {% for status in calloutstatus_vm.status_list %}
                 {% set edit_current_row = 
                    (statussmenu_ctl_edit_statusid is defined and 
                     statussmenu_ctl_edit_statusid == status.id) %}
@@ -104,15 +193,24 @@
                 <td>
                 {{ status.id }}
                 </td>
-                <td>
-                {{ status.name }}
+                
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_name" name="edit_name" type="input" value="{{ status.name }}"/>
+                {% else %}
+                    {{ status.name }}
+                {% endif %}
                 </td>
-                <td>
-                {{ status.display_name }}
+                <td class="column_nowrap">
+                    {% if edit_current_row %}
+                    <input id="edit_display_name" name="edit_display_name" type="input" value="{{ status.display_name }}"/>
+                {% else %}
+                    {{ status.display_name }}
+                {% endif %}
                 </td>
 
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_is_responding" name="edit_is_responding" 
                            type="checkbox" {{ status.statusDef.IsResponding() ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -120,7 +218,7 @@
                 {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_not_responding" name="edit_not_responding" 
                            type="checkbox" {{ status.statusDef.IsNotResponding() ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -128,7 +226,7 @@
                 {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_cancelled" name="edit_cancelled" 
                            type="checkbox" {{ status.statusDef.IsCancelled() ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -136,7 +234,7 @@
                 {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_completed" name="edit_completed" 
                            type="checkbox" {{ status.statusDef.IsCompleted() ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -144,7 +242,7 @@
                 {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_standby" name="edit_standby" 
                            type="checkbox" {{ status.statusDef.IsStandby() ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -154,7 +252,7 @@
                 
                 
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_default" name="edit_default" 
                            type="checkbox" {{ status.statusDef.IsDefaultResponse() ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -162,7 +260,7 @@
                 {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_testing" name="edit_testing" 
                            type="checkbox" {{ status.statusDef.IsTesting() ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -170,7 +268,7 @@
                 {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_signal_all" name="edit_signal_all" 
                            type="checkbox" {{ status.statusDef.IsSignalAll() ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -178,7 +276,7 @@
                 {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_signal_responders" name="edit_signal_responders" 
                            type="checkbox" {{ status.statusDef.IsSignalResponders() ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -186,7 +284,7 @@
                 {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_signal_nonresponders" name="edit_signal_nonresponders" 
                            type="checkbox" {{ status.statusDef.IsSignalNonResponders() ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -195,24 +293,16 @@
                 </td>
                 
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_admin_access" name="edit_admin_access" 
                            type="checkbox" {{ status.access_admin ? 'checked="checked"' : '' }} />
                 {% else %}
                     {{ status.access_admin ? 'yes' : 'no' }}
                 {% endif %}
                 </td>
-                <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
-                    <input id="edit_sms_access" name="edit_sms_access" 
-                           type="checkbox" {{ status.access_sms ? 'checked="checked"' : '' }} />
-                {% else %}
-                    {{ status.access_sms ? 'yes' : 'no' }}
-                {% endif %}
-                </td>
                 
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_respond_self_access" name="edit_respond_self_access" 
                            type="checkbox" {{ status.access_respond_self ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -220,7 +310,7 @@
                 {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_respond_others_access" name="edit_respond_others_access" 
                            type="checkbox" {{ status.access_respond_others ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -228,21 +318,17 @@
                 {% endif %}
                 </td>
                 
-                
-                
-                
                 <td>
-                {{ status.access_flags_inclusive ? 'yes' : 'no' }}
-                </td>
-
-
-                
-                <td>
-                {{ status.user_types_allowed }}
+                {% if edit_current_row %}
+                    <input id="edit_access_flags_inclusive" name="edit_access_flags_inclusive" 
+                           type="checkbox" {{ status.access_flags_inclusive ? 'checked="checked"' : '' }} />
+                {% else %}
+                    {{ status.access_flags_inclusive ? 'yes' : 'no' }}
+                {% endif %}
                 </td>
                 
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_usertype_admin" name="edit_usertype_admin" 
                            type="checkbox" {{ status.usertype_admin ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -250,7 +336,7 @@
                 {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_usertype_fire_fighter" name="edit_usertype_fire_fighter" 
                            type="checkbox" {{ status.usertype_fire_fighter ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -258,7 +344,7 @@
                 {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_usertype_fire_apparatus" name="edit_usertype_fire_apparatus" 
                            type="checkbox" {{ status.usertype_fire_apparatus ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -266,7 +352,7 @@
                 {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not statusmenu_vm.selfedit_mode %}
+                {% if edit_current_row %}
                     <input id="edit_usertype_office_staff" name="edit_usertype_office_staff" 
                            type="checkbox" {{ status.usertype_office_staff ? 'checked="checked"' : '' }} />
                 {% else %}
@@ -287,78 +373,21 @@
                            onclick="save_status(this.form, {{ status.id }});" />
                     
                     <input type="button" value="Cancel" 
-                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}controllers/callout-status-controller.php{{ calloutstatus_vm.selfedit_mode ? '?se=true' : '' }}'; return false;" />
+                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}controllers/callout-status-controller.php'; return false;" />
                     </td>
                 {% else %}
-                    <td{{ calloutstatus_vm.selfedit_mode ? ' colspan="2" ' : '' }}>
-                    <!--
+                    <td>
                     <input type="button" value="Edit" 
                            onclick="edit_status(this.form, {{ status.id }});" />
-                    -->
                     </td>
-                    {% if not calloutstatus_vm.selfedit_mode %}
-                        <td>
-                        <!--
-                        <input type="button" value="Delete" 
-                               onclick="return delete_status(this.form, {{ status.id }},'{{ status.display_name }}');" />
-                        -->
-                        </td>
-                    {% endif %}
+                    <td>
+                    <input type="button" value="Delete" 
+                           onclick="return delete_status(this.form, {{ status.id }},'{{ status.display_name }}');" />
+                    </td>
                 {% endif %}
                 </tr>
             {% endfor %}
             
-            {% if statussmenu_ctl_insert_new is defined and statussmenu_ctl_insert_new and not calloutstatus_vm.selfedit_mode %}
-                <tr>
-                <td>
-                NEW
-                </td>
-                <td>
-                    <input id="edit_firehall_id" name="edit_firehall_id" type="input" 
-                           value="" />
-                </td>
-                <td>
-                    <input id="edit_status_id_name" name="edit_status_id_name" 
-                           type="input" value=""/>
-                </td>
-                
-                <td>
-                  <select id="edit_user_type" name="edit_user_type">
-                  {% for user_type in calloutstatus_vm.user_type_list %}
-                    <option value="{{ user_type.id }}">{{ user_type.name }}</option>
-                  {% endfor %}
-                  </select>
-                </td>
-                
-                </td>
-
-                <td{{ calloutstatus_vm.selfedit_mode ? ' colspan="5" ' : '' }}>
-                    <input type="button" value="Edit" 
-                           onclick="edit_status(this.form, -1);" />
-                </td>
-                <td>
-                    <input type="button" value="Delete" 
-                           onclick="return delete_status(this.form, {{ status.id }},'{{ status.display_name }}');" />
-                </td>
-
-
-                </tr>
-            {% endif %}
-
-            
-            {% if not calloutstatus_vm.selfedit_mode %}
-            <tr>
-            {% if statussmenu_ctl_edit_mode is defined and statussmenu_ctl_edit_mode %}
-                <td colspan="28">
-            {% else %}
-                <td colspan="26">
-            {% endif %}
-                    <!--
-                    <input type="button" value="Add New" onclick="edit_status(this.form, -1);" />
-                    -->
-                </td>
-            </tr>
-            {% endif %}
             </table>
             </center>
             </form>
@@ -367,9 +396,6 @@
     function edit_status(form, status_id) {
        addformhiddenfield(form, 'form_action', 'edit');
        addformhiddenfield(form, 'edit_status_id', status_id);
-       {% if calloutstatus_vm.selfedit_mode %}
-       addformhiddenfield(form, 'se', 'true');
-       {% endif %}
        
        form.submit();
     }
@@ -377,9 +403,6 @@
     function save_status(form, status_id) {
        addformhiddenfield(form, 'form_action', 'save');
        addformhiddenfield(form, 'edit_status_id', status_id);
-       {% if calloutstatus_vm.selfedit_mode %}
-       addformhiddenfield(form, 'se', 'true');
-       {% endif %}
        
        form.submit();
     }
@@ -388,10 +411,6 @@
         if(confirm('Confirm DELETE for status: ' + status_id_name + '?')) {
             addformhiddenfield(form, 'form_action', 'delete');
             addformhiddenfield(form, 'edit_status_id', status_id);
-            
-            {% if calloutstatus_vm.selfedit_mode %}
-            addformhiddenfield(form, 'se', 'true');
-            {% endif %}
             
             form.submit();
             return true;

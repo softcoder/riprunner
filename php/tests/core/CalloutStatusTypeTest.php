@@ -41,5 +41,37 @@ class CalloutStatusTypeTest extends BaseDBFixture {
         $this->assertEquals(false,$statusList[$PAGED_CANCELLED_ID]->IsResponding());
         $this->assertEquals(false,$statusList[$PAGED_COMPLETED_ID]->IsResponding());
     }
+
+    public function testStatusTypes_Access_Check() {
+    
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+    
+        $statusList = \riprunner\CalloutStatusType::getStatusList($FIREHALL);
+    
+        $PAGED_STATUS_ID = 0;
+        $PAGED_RESPONDING_TO_HALL_ID = 2;
+        $PAGED_CANCELLED_ID = 3;
+        $PAGED_COMPLETED_ID = 10;
+    
+        $this->assertEquals(true,$statusList[$PAGED_STATUS_ID]->hasAccess(USER_ACCESS_ADMIN));
+        $this->assertEquals(false,$statusList[$PAGED_STATUS_ID]->hasAccess(USER_ACCESS_SIGNAL_SMS));
+        $this->assertEquals(false,$statusList[$PAGED_STATUS_ID]->hasAccess(USER_ACCESS_CALLOUT_RESPOND_SELF));
+        $this->assertEquals(false,$statusList[$PAGED_STATUS_ID]->hasAccess(USER_ACCESS_CALLOUT_RESPOND_OTHERS));
+
+        $this->assertEquals(true,$statusList[$PAGED_RESPONDING_TO_HALL_ID]->hasAccess(USER_ACCESS_ADMIN));
+        $this->assertEquals(false,$statusList[$PAGED_RESPONDING_TO_HALL_ID]->hasAccess(USER_ACCESS_SIGNAL_SMS));
+        $this->assertEquals(true,$statusList[$PAGED_RESPONDING_TO_HALL_ID]->hasAccess(USER_ACCESS_CALLOUT_RESPOND_SELF));
+        $this->assertEquals(true,$statusList[$PAGED_RESPONDING_TO_HALL_ID]->hasAccess(USER_ACCESS_CALLOUT_RESPOND_OTHERS));
+
+        $this->assertEquals(true,$statusList[$PAGED_CANCELLED_ID]->hasAccess(USER_ACCESS_ADMIN));
+        $this->assertEquals(false,$statusList[$PAGED_CANCELLED_ID]->hasAccess(USER_ACCESS_SIGNAL_SMS));
+        $this->assertEquals(true,$statusList[$PAGED_CANCELLED_ID]->hasAccess(USER_ACCESS_CALLOUT_RESPOND_SELF));
+        $this->assertEquals(true,$statusList[$PAGED_CANCELLED_ID]->hasAccess(USER_ACCESS_CALLOUT_RESPOND_OTHERS));
+
+        $this->assertEquals(true,$statusList[$PAGED_COMPLETED_ID]->hasAccess(USER_ACCESS_ADMIN));
+        $this->assertEquals(false,$statusList[$PAGED_COMPLETED_ID]->hasAccess(USER_ACCESS_SIGNAL_SMS));
+        $this->assertEquals(true,$statusList[$PAGED_COMPLETED_ID]->hasAccess(USER_ACCESS_CALLOUT_RESPOND_SELF));
+        $this->assertEquals(true,$statusList[$PAGED_COMPLETED_ID]->hasAccess(USER_ACCESS_CALLOUT_RESPOND_OTHERS));
+    }
     
 }

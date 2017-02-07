@@ -207,9 +207,9 @@ class CalloutResponseViewModel extends BaseViewModel {
 						
 						$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] useracctid: " . $this->useracctid);
 							
-						if($this->getUserStatus() === null) {
-							$this->user_status = CalloutStatusType::Responding($this->getGvm()->firehall)->getId();
-						}
+						//if($this->getUserStatus() === null) {
+						//	$this->user_status = CalloutStatusType::Responding($this->getGvm()->firehall)->getId();
+						//}
 					}
 				}
 				else {
@@ -226,9 +226,9 @@ class CalloutResponseViewModel extends BaseViewModel {
 							$this->user_authenticated = true;
 							$this->useracctid = $row->id;
 			
-							if($this->getUserStatus() === null) {
-								$this->user_status = CalloutStatusType::Responding($this->getGvm()->firehall)->getId();
-							}
+							//if($this->getUserStatus() === null) {
+							//	$this->user_status = CalloutStatusType::Responding($this->getGvm()->firehall)->getId();
+							//}
 						}
 						else {
 							$log->error("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] LDAP pwd check failed!");
@@ -239,9 +239,9 @@ class CalloutResponseViewModel extends BaseViewModel {
 							$this->user_authenticated = true;
 							$this->useracctid = $row->id;
 			
-							if($this->getUserStatus() === null) {
-								$this->user_status = CalloutStatusType::Responding($this->getGvm()->firehall)->getId();
-							}
+							//if($this->getUserStatus() === null) {
+							//	$this->user_status = CalloutStatusType::Responding($this->getGvm()->firehall)->getId();
+							//}
 						}
 						else {
 							$log->error("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] pwd check failed!");

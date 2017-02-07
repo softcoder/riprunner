@@ -122,37 +122,96 @@ class CalloutStatusDef implements JsonSerializable {
     }
     
     public function IsResponding() {
-        return ($this->statusFlags != null && ($this->statusFlags & StatusFlagType::STATUS_FLAG_RESPONDING));
+        return $this->isFlagSet($this->statusFlags,StatusFlagType::STATUS_FLAG_RESPONDING);
     }
     public function IsNotResponding() {
-        return ($this->statusFlags != null && ($this->statusFlags & StatusFlagType::STATUS_FLAG_NOT_RESPONDING));
+        return $this->isFlagSet($this->statusFlags,StatusFlagType::STATUS_FLAG_NOT_RESPONDING);
     }
     public function IsCancelled() {
-        return ($this->statusFlags != null && ($this->statusFlags & StatusFlagType::STATUS_FLAG_CANCELLED));
+        return $this->isFlagSet($this->statusFlags,StatusFlagType::STATUS_FLAG_CANCELLED);
     }
     public function IsCompleted() {
-        return ($this->statusFlags != null && ($this->statusFlags & StatusFlagType::STATUS_FLAG_COMPLETED));
+        return $this->isFlagSet($this->statusFlags,StatusFlagType::STATUS_FLAG_COMPLETED);
     }
     public function IsStandby() {
-        return ($this->statusFlags != null && ($this->statusFlags & StatusFlagType::STATUS_FLAG_STANDBY));
+        return $this->isFlagSet($this->statusFlags,StatusFlagType::STATUS_FLAG_STANDBY);
     }
     
     public function IsTesting() {
-        return ($this->behaviourFlags != null && ($this->behaviourFlags & BehaviourFlagType::BEHAVIOUR_FLAG_TESTING));
+        return $this->isFlagSet($this->behaviourFlags,BehaviourFlagType::BEHAVIOUR_FLAG_TESTING);
     }
     public function IsSignalAll() {
-        return ($this->behaviourFlags != null && ($this->behaviourFlags & BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL));
+        return $this->isFlagSet($this->behaviourFlags,BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL);
     }
     public function IsSignalResponders() {
-        return ($this->behaviourFlags != null && ($this->behaviourFlags & BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS));
+        return $this->isFlagSet($this->behaviourFlags,BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS);
     }
     public function IsSignalNonResponders() {
-        return ($this->behaviourFlags != null && ($this->behaviourFlags & BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS));
+        return $this->isFlagSet($this->behaviourFlags,BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS);
     }
     public function IsDefaultResponse() {
-        return ($this->behaviourFlags != null && ($this->behaviourFlags & BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE));
+        return $this->isFlagSet($this->behaviourFlags,BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE);
     }
-
+    
+    public function IsMatchingFlags($status_flags, $behaviour_flags) {
+        if($status_flags != null) {
+            if($this->isFlagSet($status_flags,StatusFlagType::STATUS_FLAG_RESPONDING)) {
+                if($this->IsResponding() == false) {
+                    return false;
+                }
+            }
+            if($this->isFlagSet($status_flags,StatusFlagType::STATUS_FLAG_NOT_RESPONDING)) {
+                if($this->IsNotResponding() == false) {
+                    return false;
+                }
+            }
+            if($this->isFlagSet($status_flags,StatusFlagType::STATUS_FLAG_CANCELLED)) {
+                if($this->IsCancelled() == false) {
+                    return false;
+                }
+            }
+            if($this->isFlagSet($status_flags,StatusFlagType::STATUS_FLAG_COMPLETED)) {
+                if($this->IsCompleted() == false) {
+                    return false;
+                }
+            }
+            if($this->isFlagSet($status_flags,StatusFlagType::STATUS_FLAG_STANDBY)) {
+                if($this->IsStandby() == false) {
+                    return false;
+                }
+            }
+        }
+        
+        if($behaviour_flags != null) {
+            if($this->isFlagSet($behaviour_flags,BehaviourFlagType::BEHAVIOUR_FLAG_TESTING)) {
+                if($this->IsTesting() == false) {
+                    return false;
+                }
+            }
+            if($this->isFlagSet($behaviour_flags,BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL)) {
+                if($this->IsSignalAll() == false) {
+                    return false;
+                }
+            }
+            if($this->isFlagSet($behaviour_flags,BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS)) {
+                if($this->IsSignalResponders() == false) {
+                    return false;
+                }
+            }
+            if($this->isFlagSet($behaviour_flags,BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS)) {
+                if($this->IsSignalNonResponders() == false) {
+                    return false;
+                }
+            }
+            if($this->isFlagSet($behaviour_flags,BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE)) {
+                if($this->IsDefaultResponse() == false) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
     public function getUserTypes() {
         return $this->userTypes;
     }
@@ -173,14 +232,9 @@ class CalloutStatusDef implements JsonSerializable {
         if($this->accessFlags != null && count($validateList) > 0) {
             if($userAccess != null) {
                 foreach($validateList as &$access) {
-                    if($this->accessFlags & $access) {
-                        if(!($userAccess & $access)) {
-                            if($this->accessFlagsInclusive) {
-                                return false;
-                            }
-                        }
-                        else if($this->accessFlagsInclusive == false) {
-                            return true;
+                    if($this->isFlagSet($userAccess, $access)) {
+                        if(!($this->isFlagSet($this->accessFlags, $access))) {
+                            return false;
                         }
                     }
                 }
@@ -192,8 +246,13 @@ class CalloutStatusDef implements JsonSerializable {
         return true;
     }
     private function getAccessFlagsValidateList() {
-        return array(USER_ACCESS_ADMIN,USER_ACCESS_SIGNAL_SMS,
-                              USER_ACCESS_CALLOUT_RESPOND_SELF,USER_ACCESS_CALLOUT_RESPOND_SELF,
-                              USER_ACCESS_CALLOUT_RESPOND_OTHERS);
+        return array(USER_ACCESS_ADMIN,
+                     USER_ACCESS_SIGNAL_SMS,
+                     USER_ACCESS_CALLOUT_RESPOND_SELF,
+                     USER_ACCESS_CALLOUT_RESPOND_OTHERS);
+    }
+    
+    private function isFlagSet($flags, $flag) {
+        return ($flags != null && (($flags & $flag) == $flag));
     }
 }

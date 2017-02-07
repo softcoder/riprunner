@@ -18,10 +18,6 @@ class CalloutStatusViewModel extends BaseViewModel {
 	}
 	
 	public function __get($name) {
-	    if('selfedit_mode' === $name) {
-	        //return $this->getIsSelfEditMode();
-	        return false;
-	    }
 		if('status_list' === $name) {
 			return $this->getStatusList($this->getGvm()->firehall);
 		}
@@ -34,7 +30,7 @@ class CalloutStatusViewModel extends BaseViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('selfedit_mode', 'status_list','user_type_list')) === true) {
+			array('status_list','user_type_list')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
@@ -61,7 +57,7 @@ class CalloutStatusViewModel extends BaseViewModel {
 		    $row['statusDef'] = $statusDef;
 			// Add any custom fields with values here
 		    $row['access_admin'] = $statusDef->hasAccess(USER_ACCESS_ADMIN);
-		    $row['access_sms'] = $statusDef->hasAccess(USER_ACCESS_SIGNAL_SMS);
+		    //$row['access_sms'] = $statusDef->hasAccess(USER_ACCESS_SIGNAL_SMS);
 		    $row['access_respond_self'] = $statusDef->hasAccess(USER_ACCESS_CALLOUT_RESPOND_SELF);
 		    $row['access_respond_others'] = $statusDef->hasAccess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 
@@ -102,5 +98,6 @@ class CalloutStatusViewModel extends BaseViewModel {
 	
 	    return $resultArray;
 	}
+	
 	
 }

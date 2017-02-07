@@ -336,7 +336,7 @@
 						              {% if status_def.hasAccess(callout_details_vm.getMemberAccessValue(row_no.user_id)) and 
                                             status_def.isUserType(callout_details_vm.getMemberType(row_no.user_id)) and 
  						                    (status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby()) %}
-						            <option value="{{ status_def.getId() }}" {{ status_def.IsDefaultResponse() ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
+						            <option value="{{ status_def.getId() }}" {{ (status_def.IsResponding() and status_def.IsDefaultResponse()) ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
 						              {% endif %}
 						            {% endfor %}
 	                                

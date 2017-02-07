@@ -190,6 +190,17 @@ class CalloutStatusType {
         return null;;
         
     }
+    static public function getStatusByFlags($FIREHALL, $status_flags, $behaviour_flags) {
+        $statuses = self::getStatusList($FIREHALL);
+        foreach($statuses as &$status) {
+            if($status->IsMatchingFlags($status_flags, $behaviour_flags) == true) {
+                return $status;
+            }
+        }
+        return null;
+    
+    }
+    
     static public function isValidValue($id, $FIREHALL) {
         $statuses = self::getStatusList($FIREHALL);
         return array_key_exists($id, $statuses);
@@ -211,13 +222,19 @@ class CalloutStatusType {
     
     static public function Paged($FIREHALL) { return self::getStatusById(0,$FIREHALL); }
     static public function Notified($FIREHALL) { return self::getStatusById(1,$FIREHALL); }
-    static public function Responding($FIREHALL) { return self::getStatusById(2,$FIREHALL); }
-    static public function Cancelled($FIREHALL) { return self::getStatusById(3,$FIREHALL); }
-    static public function NotResponding($FIREHALL) { return self::getStatusById(4,$FIREHALL); }
+    //static public function Responding($FIREHALL) { return self::getStatusById(2,$FIREHALL); }
+    static public function Cancelled($FIREHALL) { 
+        return self::getStatusByFlags($FIREHALL,StatusFlagType::STATUS_FLAG_CANCELLED,BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE);
+    }
+    static public function NotResponding($FIREHALL) { 
+        return self::getStatusByFlags($FIREHALL,StatusFlagType::STATUS_FLAG_NOT_RESPONDING,BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE);
+    }
     static public function Standby($FIREHALL) { return self::getStatusById(5,$FIREHALL); }
     static public function Responding_at_hall($FIREHALL) { return self::getStatusById(6,$FIREHALL); }
     static public function Responding_to_scene($FIREHALL) { return self::getStatusById(7,$FIREHALL); }
     static public function Responding_at_scene($FIREHALL) { return self::getStatusById(8,$FIREHALL); }
     static public function Responding_return_hall($FIREHALL) { return self::getStatusById(9,$FIREHALL); }
-    static public function Complete($FIREHALL) { return self::getStatusById(10,$FIREHALL); }
+    static public function Complete($FIREHALL) { 
+        return self::getStatusByFlags($FIREHALL,StatusFlagType::STATUS_FLAG_COMPLETED,BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE);
+    }
 }

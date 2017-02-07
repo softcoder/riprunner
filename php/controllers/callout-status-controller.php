@@ -43,307 +43,357 @@ class CalloutStatusMenuController {
 	private function processActions() {
 		global $log;
 		
-		$insert_new_account = false;
+		$insert_new = false;
 		$edit_status_id = null;
 		
-		$self_edit = false;
 		// Handle CRUD operations
-		$edit_status_id = $this->handleEditAccount(false);
-		$insert_new_account = $this->isInsertAccount(false, $edit_status_id);
-		$save_ok = $this->handleSaveAccount($this->global_vm->RR_DB_CONN, $self_edit);
+		$edit_status_id = $this->handleEdit(false);
+		$insert_new = $this->isInsert(false, $edit_status_id);
+		$save_ok = $this->handleSave($this->global_vm->RR_DB_CONN);
 		
-		$log->trace("Result of handleSaveAccount [$save_ok]");
+		$log->trace("Result of handleSave [$save_ok]");
 		
 		if($save_ok === false) {
-			$edit_status_id = $this->handleEditAccount(true);
-			$insert_new_account = $this->isInsertAccount(true, $edit_status_id);
+			$edit_status_id = $this->handleEdit(true);
+			$insert_new = $this->isInsert(true, $edit_status_id);
 		}
 		else {
-			$this->handleDeleteAccount($this->global_vm->RR_DB_CONN, 
-					$self_edit, $edit_status_id);
+			$this->handleDelete($this->global_vm->RR_DB_CONN, $edit_status_id);
 		}
 		$edit_mode = isset($edit_status_id);
 
 		// Setup variables from this controller for the view
 		$this->view_template_vars["statussmenu_ctl_edit_mode"] = $edit_mode;
 		$this->view_template_vars["statussmenu_ctl_edit_statusid"] = $edit_status_id;
-		$this->view_template_vars["statussmenu_ctl_insert_new"] = $insert_new_account;
+		$this->view_template_vars["statussmenu_ctl_insert_new"] = $insert_new;
 		$this->view_template_vars["statussmenu_ctl_action_error"] = $this->action_error;
 	}
 	
-	private function handleEditAccount($force_edit) {
-		$edit_status_id = null;
-		$form_action = get_query_param('form_action');
-		
-		if($force_edit === true ||
-				(isset($form_action) === true && $form_action === 'edit') ) {
-					
-			$edit_status_id = get_query_param('edit_status_id');
-		}
-		return $edit_status_id;
+	private function handleEdit($force_edit) {
+	    $edit_status_id = null;
+	    $form_action = get_query_param('form_action');
+	
+	    if($force_edit === true ||
+	            (isset($form_action) === true && $form_action === 'edit') ) {
+	                	
+	                $edit_status_id = get_query_param('edit_status_id');
+	            }
+	            return $edit_status_id;
 	}
 	
-	private function isInsertAccount($force_edit, $edit_status_id) {
-		$insert_new_account = false;
-		$form_action = get_query_param('form_action');
-		
-		if($force_edit === true ||
-				(isset($form_action) === true && $form_action === 'edit') ) {
-					
-			if(isset($edit_status_id) === true && $edit_status_id < 0) {
-				$insert_new_account = true;
-			}
-		}
-		return $insert_new_account;
+	private function isInsert($force_edit, $edit_status_id) {
+	    $insert_new = false;
+	    $form_action = get_query_param('form_action');
+	
+	    if($force_edit === true ||
+	            (isset($form_action) === true && $form_action === 'edit') ) {
+	                	
+	                if(isset($edit_status_id) === true && $edit_status_id < 0) {
+	                    $insert_new = true;
+	                }
+	            }
+	            return $insert_new;
 	}
 	
-	private function handleSaveAccount($db_connection, $self_edit) {
-		global $log;
-		
-		$result = true;
+	private function handleSave($db_connection) {
+	    global $log;
 	
-		$edit_status_id_name = get_query_param('edit_status_id_name');
-		$form_action = get_query_param('form_action');
-		
-		$log->trace("About to handle save status account for action [$form_action] self edit [$self_edit] edit status [$edit_status_id_name]");
-		
-		if(isset($form_action) === true && $form_action === 'save' ) {
-			if($self_edit === true) {
-				$edit_status_id = $_SESSION['user_db_id'];
-				$edit_firehall_id = $_SESSION['firehall_id'];
-			}
-			else {
-				$edit_status_id = get_query_param('edit_status_id');
-				$edit_firehall_id = get_query_param('edit_firehall_id');
-			}
-
-			$log->trace("About to handle save status account for edit_status_id [$edit_status_id] edit_firehall_id [$edit_firehall_id]");
-			
-			if(isset($edit_status_id) === true) {
-				$new_pwd = $this->getNewPassword($edit_firehall_id, $edit_status_id_name,
-						$result);
-				
-				if($result === true) {
-					if($edit_status_id >= 0) {
-						$this->updateAccount($db_connection, $self_edit, $new_pwd,
-								$edit_status_id);
-					}
-					else if($self_edit === false) {
-						$this->addAccount($db_connection, $self_edit, $new_pwd,
-								$edit_status_id);
-					}
-					
-					$log->trace("AFTER save status account for edit_status_id [$edit_status_id]");
-				}
-			}
-		}
-		return $result;
+	    $result = true;
+	
+	    $edit_status_id_name = get_query_param('edit_status_id_name');
+	    $form_action = get_query_param('form_action');
+	
+	    $log->trace("About to handle save for action [$form_action] edit id [$edit_status_id_name]");
+	
+	    if(isset($form_action) === true && $form_action === 'save' ) {
+	        $edit_status_id = get_query_param('edit_status_id');
+	
+	        $log->trace("About to handle save for edit_status_id [$edit_status_id]");
+	        	
+	        if(isset($edit_status_id) === true) {
+	            if($edit_status_id >= 0) {
+	                $this->update($db_connection, $edit_status_id);
+	            }
+	            else {
+	                $this->add($db_connection, $edit_status_id);
+	            }
+	
+	            $log->trace("AFTER save for edit_status_id [$edit_status_id]");
+	        }
+	    }
+	    return $result;
 	}
 	
-	private function updateAccount($db_connection, $self_edit, $new_pwd,
-			&$edit_status_id) {
-		
-		global $log;
-				
-		// UPDATE
-		if($self_edit === true) {
-			$edit_firehall_id = $_SESSION['firehall_id'];
-			$edit_user_type = $_SESSION['user_type'];
-			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
-			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
-			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
-			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
-		}
-		else {
-			$edit_firehall_id = get_query_param('edit_firehall_id');
-			$edit_user_type = get_query_param('edit_user_type');
-			$edit_admin_access = get_query_param('edit_admin_access');
-			$edit_sms_access = get_query_param('edit_sms_access');
-			$edit_respond_self_access = get_query_param('edit_respond_self_access');
-			$edit_respond_others_access = get_query_param('edit_respond_others_access');
-		}
-		$edit_status_id_name = get_query_param('edit_status_id_name');
-		$edit_mobile_phone = get_query_param('edit_mobile_phone');
-		
-		$sql_pwd = ((isset($new_pwd) === true) ? ', user_pwd = :user_pwd ' : '');
-		
-		$sql_user_access = '';
-		if($self_edit === false) {
-			if(isset($edit_admin_access) === true && $edit_admin_access === 'on') {
-				$sql_user_access .= ', access = access | ' . USER_ACCESS_ADMIN;
-			}
-			else {
-				$sql_user_access .= ', access = access & ~' . USER_ACCESS_ADMIN;
-			}
+	private function update($db_connection, &$edit_status_id) {
+	    global $log;
+	
+	    // UPDATE
+	    $edit_name = get_query_param('edit_name');
+	    $edit_display_name = get_query_param('edit_display_name');
+	    $edit_is_responding = get_query_param('edit_is_responding');
+	    $edit_not_responding = get_query_param('edit_not_responding');
+	    $edit_cancelled = get_query_param('edit_cancelled');
+	    $edit_completed = get_query_param('edit_completed');
+	    $edit_standby = get_query_param('edit_standby');
+	     
+	    $status_flags = 0;
+	    if(isset($edit_is_responding) === true && $edit_is_responding === 'on') {
+	        $status_flags |= StatusFlagType::STATUS_FLAG_RESPONDING;
+	    }
+	    if(isset($edit_not_responding) === true && $edit_not_responding === 'on') {
+	        $status_flags |= StatusFlagType::STATUS_FLAG_NOT_RESPONDING;
+	    }
+	    if(isset($edit_cancelled) === true && $edit_cancelled === 'on') {
+	        $status_flags |= StatusFlagType::STATUS_FLAG_CANCELLED;
+	    }
+	    if(isset($edit_completed) === true && $edit_completed === 'on') {
+	        $status_flags |= StatusFlagType::STATUS_FLAG_COMPLETED;
+	    }
+	    if(isset($edit_standby) === true && $edit_standby === 'on') {
+	        $status_flags |= StatusFlagType::STATUS_FLAG_STANDBY;
+	    }
+	    
+	    $edit_testing = get_query_param('edit_testing');
+	    $edit_signal_all = get_query_param('edit_signal_all');
+	    $edit_signal_responders = get_query_param('edit_signal_responders');
+	    $edit_signal_nonresponders = get_query_param('edit_signal_nonresponders');
+	    $edit_default = get_query_param('edit_default');
+	    
+	    $behaviour_flags = 0;
+	    if(isset($edit_testing) === true && $edit_testing === 'on') {
+	        $behaviour_flags |= BehaviourFlagType::BEHAVIOUR_FLAG_TESTING;
+	    }
+	    if(isset($edit_signal_all) === true && $edit_signal_all === 'on') {
+	        $behaviour_flags |= BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL;
+	    }
+	    if(isset($edit_signal_responders) === true && $edit_signal_responders === 'on') {
+	        $behaviour_flags |= BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS;
+	    }
+	    if(isset($edit_signal_nonresponders) === true && $edit_signal_nonresponders === 'on') {
+	        $behaviour_flags |= BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS;
+	    }
+	    if(isset($edit_default) === true && $edit_default === 'on') {
+	        $behaviour_flags |= BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE;
+	    }
+	    
+	    $edit_admin_access = get_query_param('edit_admin_access');
+	    //$edit_sms_access = get_query_param('edit_sms_access');
 
-			if(isset($edit_sms_access) === true && $edit_sms_access === 'on') {
-				$sql_user_access .= ', access = access | ' . USER_ACCESS_SIGNAL_SMS;
-			}
-			else {
-				$sql_user_access .= ', access = access & ~' . USER_ACCESS_SIGNAL_SMS;
-			}
-			if(isset($edit_respond_self_access) === true && $edit_respond_self_access === 'on') {
-			    $sql_user_access .= ', access = access | ' . USER_ACCESS_CALLOUT_RESPOND_SELF;
-			}
-			else {
-			    $sql_user_access .= ', access = access & ~' . USER_ACCESS_CALLOUT_RESPOND_SELF;
-			}
-			if(isset($edit_respond_others_access) === true && $edit_respond_others_access === 'on') {
-			    $sql_user_access .= ', access = access | ' . USER_ACCESS_CALLOUT_RESPOND_OTHERS;
-			}
-			else {
-			    $sql_user_access .= ', access = access & ~' . USER_ACCESS_CALLOUT_RESPOND_OTHERS;
-			}
-		}
-		
-		$sql_statement = new \riprunner\SqlStatement($db_connection);
-		$sql = $sql_statement->getSqlStatement('user_accounts_update');
-		$sql = preg_replace_callback('(:sql_pwd)', function ($m) use ($sql_pwd) { return $sql_pwd; }, $sql);
-		$sql = preg_replace_callback('(:sql_user_access)', function ($m) use ($sql_user_access) { return $sql_user_access; }, $sql);
-		
-		$log->trace("About to UPDATE user account for sql [$sql]");
-
-		$qry_bind = $db_connection->prepare($sql);
-		$qry_bind->bindParam(':fhid', $edit_firehall_id);
-		$qry_bind->bindParam(':user_name', $edit_user_id_name);
-		$qry_bind->bindParam(':user_type', $edit_user_type);
-		if(isset($new_pwd) === true) {
-			$qry_bind->bindParam(':user_pwd', $new_pwd);
-		}
-		$qry_bind->bindParam(':mobile_phone', $edit_mobile_phone);
-		$qry_bind->bindParam(':user_id', $edit_user_id);
-		$qry_bind->execute();
-			
-		$edit_user_id = null;
-	}
-
-	private function addAccount($db_connection, $self_edit, $new_pwd, 
-			&$edit_user_id) {
-		
-		global $log;
-		
-		// INSERT
-		if(isset($new_pwd) === true) {
-			//$new_pwd_value = $db_connection->real_escape_string($new_pwd);
-		    $new_pwd_value = $new_pwd;
-		}
-		else {
-			$new_pwd_value = '';
-		}
-
-		if($self_edit === true) {
-			$edit_firehall_id = $_SESSION['firehall_id'];
-			$edit_user_type = $_SESSION['user_type'];
-			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
-			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
-			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
-			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
-		}
-		else {
-			$edit_firehall_id = get_query_param('edit_firehall_id');
-			$edit_user_type = get_query_param('edit_user_type');
-			$edit_admin_access = get_query_param('edit_admin_access');
-			$edit_sms_access = get_query_param('edit_sms_access');
-			$edit_respond_self_access = get_query_param('edit_respond_self_access');
-			$edit_respond_others_access = get_query_param('edit_respond_others_access');
-		}
-		$edit_user_id_name = get_query_param('edit_user_id_name');
-		$edit_mobile_phone = get_query_param('edit_mobile_phone');
-		
-		$new_user_access = 0;
-
-		if(isset($edit_admin_access) === true && $edit_admin_access === 'on') {
-			$new_user_access |= USER_ACCESS_ADMIN;
-		}
-		if(isset($edit_sms_access) === true && $edit_sms_access === 'on') {
-			$new_user_access |= USER_ACCESS_SIGNAL_SMS;
-		}
-		if(isset($edit_respond_self_access) === true && $edit_respond_self_access === 'on') {
-		    $new_user_access |= USER_ACCESS_CALLOUT_RESPOND_SELF;
-		}
-		if(isset($edit_respond_others_access) === true && $edit_respond_others_access === 'on') {
-		    $new_user_access |= USER_ACCESS_CALLOUT_RESPOND_OTHERS;
-		}
-		
-		$sql_statement = new \riprunner\SqlStatement($db_connection);
-		$sql = $sql_statement->getSqlStatement('user_accounts_insert');
-
-		$log->trace("About to INSERT user account for sql [$sql]");
-
-		$qry_bind = $db_connection->prepare($sql);
-		$qry_bind->bindParam(':fhid', $edit_firehall_id);
-		$qry_bind->bindParam(':user_name', $edit_user_id_name);
-		$qry_bind->bindParam(':user_type', $edit_user_type);
-		$qry_bind->bindParam(':mobile_phone', $edit_mobile_phone);
-		$qry_bind->bindParam(':user_pwd', $new_pwd_value);
-		$qry_bind->bindParam(':access', $new_user_access);
-
-		$qry_bind->execute();
-
-		$edit_user_id = null;
+	    $edit_respond_self_access = get_query_param('edit_respond_self_access');
+	    $edit_respond_others_access = get_query_param('edit_respond_others_access');
+	    
+	    $access_flags = 0;
+	    if(isset($edit_admin_access) === true && $edit_admin_access === 'on') {
+	        $access_flags |= USER_ACCESS_ADMIN;
+	    }
+	    //if(isset($edit_sms_access) === true && $edit_sms_access === 'on') {
+	    //    $access_flags |= USER_ACCESS_SIGNAL_SMS;
+	    //}
+	    if(isset($edit_respond_self_access) === true && $edit_respond_self_access === 'on') {
+	        $access_flags |= USER_ACCESS_CALLOUT_RESPOND_SELF;
+	    }
+	    if(isset($edit_respond_others_access) === true && $edit_respond_others_access === 'on') {
+	        $access_flags |= USER_ACCESS_CALLOUT_RESPOND_OTHERS;
+	    }
+	    
+	    $edit_access_flags_inclusive = get_query_param('edit_access_flags_inclusive');
+	    if($edit_access_flags_inclusive == null || $edit_access_flags_inclusive == '') {
+	        $edit_access_flags_inclusive = 0;
+	    }
+	    else {
+	        $edit_access_flags_inclusive = 1;
+	    }
+	     
+	    $edit_usertype_admin = get_query_param('edit_usertype_admin');
+	    $edit_usertype_fire_fighter = get_query_param('edit_usertype_fire_fighter');
+	    $edit_usertype_fire_apparatus = get_query_param('edit_usertype_fire_apparatus');
+	    $edit_usertype_office_staff = get_query_param('edit_usertype_office_staff');
+	    
+	    $user_types_allowed = 0;
+	    if(isset($edit_usertype_admin) === true && $edit_usertype_admin === 'on') {
+	        $user_type_bit = 1 << UserType::USER_TYPE_ADMIN-1;
+	        $user_types_allowed |= $user_type_bit;
+	    }
+	    if(isset($edit_usertype_fire_fighter) === true && $edit_usertype_fire_fighter === 'on') {
+	        $user_type_bit = 1 << UserType::USER_TYPE_FIRE_FIGHTER-1;
+	        $user_types_allowed |= $user_type_bit;
+	    }
+	    if(isset($edit_usertype_fire_apparatus) === true && $edit_usertype_fire_apparatus === 'on') {
+	        $user_type_bit = 1 << UserType::USER_TYPE_FIRE_APPARATUS-1;
+	        $user_types_allowed |= $user_type_bit;
+	    }
+	    if(isset($edit_usertype_office_staff) === true && $edit_usertype_office_staff === 'on') {
+	        $user_type_bit = 1 << UserType::USER_TYPE_OFFICE_STAFF-1;
+	        $user_types_allowed |= $user_type_bit;
+	    }
+	     
+	    $sql_statement = new \riprunner\SqlStatement($db_connection);
+	    $sql = $sql_statement->getSqlStatement('callout_statuses_update');
+	
+	    $log->trace("About to UPDATE for sql [$sql]");
+	
+	    $qry_bind = $db_connection->prepare($sql);
+	    
+	    $qry_bind = $db_connection->prepare($sql);
+	    $qry_bind->bindParam(':name', $edit_name);
+	    $qry_bind->bindParam(':display_name', $edit_display_name);
+	    $qry_bind->bindParam(':status_flags', $status_flags);
+	    $qry_bind->bindParam(':behaviour_flags', $behaviour_flags);
+	    $qry_bind->bindParam(':access_flags', $access_flags);
+	    $qry_bind->bindParam(':access_flags_inclusive', $edit_access_flags_inclusive);
+	    $qry_bind->bindParam(':user_types_allowed', $user_types_allowed);
+	     
+	    $qry_bind->bindParam(':id', $edit_status_id);
+	    $qry_bind->execute();
+	    	
+	    $edit_status_id = null;
 	}
 	
-	private function getNewPassword($edit_firehall_id, $edit_user_id_name, &$result) {
-		global $log;
-		
-		// PASSWORD
-		$new_pwd = null;
-		$edit_pwd1 = get_query_param('edit_user_password_1');
-		$edit_pwd2 = get_query_param('edit_user_password_2');
-		if(isset($edit_pwd1) === true && isset($edit_pwd2) === true &&
-				(strlen($edit_pwd1) > 0 || strlen($edit_pwd2) > 0)) {
+	private function add($db_connection, &$edit_status_id) {
+	    global $log;
 	
-			if(strlen($edit_pwd1) >= 5 && $edit_pwd1 === $edit_pwd2) {
-				$new_pwd = \riprunner\Authentication::encryptPassword($edit_pwd1);
-			}
-			else {
-				$this->action_error = 100;
-				$result = false;
-			}
-		}
-		if($this->action_error === 0 && 
-			(isset($edit_firehall_id) === false || $edit_firehall_id === '')) {
-			$this->action_error = 101;
-			$result = false;
-		}
-		if($this->action_error === 0 && 
-			(isset($edit_user_id_name) === false || $edit_user_id_name === '')) {
-			$this->action_error = 102;
-			$result = false;
-		}
-		
-		$log->trace("UPDATE user password check result code [". $this->action_error ."]");
-		
-		return $new_pwd;
+	    $edit_name = get_query_param('edit_name');
+	    $edit_display_name = get_query_param('edit_display_name');
+	    $edit_is_responding = get_query_param('edit_is_responding');
+	    $edit_not_responding = get_query_param('edit_not_responding');
+	    $edit_cancelled = get_query_param('edit_cancelled');
+	    $edit_completed = get_query_param('edit_completed');
+	    $edit_standby = get_query_param('edit_standby');
+	    
+	    $status_flags = 0;
+	    if(isset($edit_is_responding) === true && $edit_is_responding === 'on') {
+	        $status_flags |= StatusFlagType::STATUS_FLAG_RESPONDING;
+	    }
+	    if(isset($edit_not_responding) === true && $edit_not_responding === 'on') {
+	        $status_flags |= StatusFlagType::STATUS_FLAG_NOT_RESPONDING;
+	    }
+	    if(isset($edit_cancelled) === true && $edit_cancelled === 'on') {
+	        $status_flags |= StatusFlagType::STATUS_FLAG_CANCELLED;
+	    }
+	    if(isset($edit_completed) === true && $edit_completed === 'on') {
+	        $status_flags |= StatusFlagType::STATUS_FLAG_COMPLETED;
+	    }
+	    if(isset($edit_standby) === true && $edit_standby === 'on') {
+	        $status_flags |= StatusFlagType::STATUS_FLAG_STANDBY;
+	    }
+
+	    $edit_testing = get_query_param('edit_testing');
+	    $edit_signal_all = get_query_param('edit_signal_all');
+	    $edit_signal_responders = get_query_param('edit_signal_responders');
+	    $edit_signal_nonresponders = get_query_param('edit_signal_nonresponders');
+	    $edit_default = get_query_param('edit_default');
+	     
+	    $behaviour_flags = 0;
+	    if(isset($edit_testing) === true && $edit_testing === 'on') {
+	        $behaviour_flags |= BehaviourFlagType::BEHAVIOUR_FLAG_TESTING;
+	    }
+	    if(isset($edit_signal_all) === true && $edit_signal_all === 'on') {
+	        $behaviour_flags |= BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL;
+	    }
+	    if(isset($edit_signal_responders) === true && $edit_signal_responders === 'on') {
+	        $behaviour_flags |= BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS;
+	    }
+	    if(isset($edit_signal_nonresponders) === true && $edit_signal_nonresponders === 'on') {
+	        $behaviour_flags |= BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS;
+	    }
+	    if(isset($edit_default) === true && $edit_default === 'on') {
+	        $behaviour_flags |= BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE;
+	    }
+
+	    $edit_admin_access = get_query_param('edit_admin_access');
+	    //$edit_sms_access = get_query_param('edit_sms_access');
+	    $edit_respond_self_access = get_query_param('edit_respond_self_access');
+	    $edit_respond_others_access = get_query_param('edit_respond_others_access');
+
+	    $access_flags = 0;
+	    if(isset($edit_admin_access) === true && $edit_admin_access === 'on') {
+	        $access_flags |= USER_ACCESS_ADMIN;
+	    }
+	    //if(isset($edit_sms_access) === true && $edit_sms_access === 'on') {
+	    //    $access_flags |= USER_ACCESS_SIGNAL_SMS;
+	    //}
+	    if(isset($edit_respond_self_access) === true && $edit_respond_self_access === 'on') {
+	        $access_flags |= USER_ACCESS_CALLOUT_RESPOND_SELF;
+	    }
+	    if(isset($edit_respond_others_access) === true && $edit_respond_others_access === 'on') {
+	        $access_flags |= USER_ACCESS_CALLOUT_RESPOND_OTHERS;
+	    }
+	     
+	    $edit_access_flags_inclusive = get_query_param('edit_access_flags_inclusive');
+	    if($edit_access_flags_inclusive == null || $edit_access_flags_inclusive == '') {
+	        $edit_access_flags_inclusive = 0;
+	    }
+	    else {
+	        $edit_access_flags_inclusive = 1;
+	    }
+	     
+	    $edit_usertype_admin = get_query_param('edit_usertype_admin');
+	    $edit_usertype_fire_fighter = get_query_param('edit_usertype_fire_fighter');
+	    $edit_usertype_fire_apparatus = get_query_param('edit_usertype_fire_apparatus');
+	    $edit_usertype_office_staff = get_query_param('edit_usertype_office_staff');
+
+	    $user_types_allowed = 0;
+	    if(isset($edit_usertype_admin) === true && $edit_usertype_admin === 'on') {
+	        $user_type_bit = 1 << UserType::USER_TYPE_ADMIN-1;
+	        $user_types_allowed |= $user_type_bit;
+	    }
+	    if(isset($edit_usertype_fire_fighter) === true && $edit_usertype_fire_fighter === 'on') {
+	        $user_type_bit = 1 << UserType::USER_TYPE_FIRE_FIGHTER-1;
+	        $user_types_allowed |= $user_type_bit;
+	    }
+	    if(isset($edit_usertype_fire_apparatus) === true && $edit_usertype_fire_apparatus === 'on') {
+	        $user_type_bit = 1 << UserType::USER_TYPE_FIRE_APPARATUS-1;
+	        $user_types_allowed |= $user_type_bit;
+	    }
+	    if(isset($edit_usertype_office_staff) === true && $edit_usertype_office_staff === 'on') {
+	        $user_type_bit = 1 << UserType::USER_TYPE_OFFICE_STAFF-1;
+	        $user_types_allowed |= $user_type_bit;
+	    }
+	     
+	    $sql_statement = new \riprunner\SqlStatement($db_connection);
+	    $sql = $sql_statement->getSqlStatement('callout_statuses_insert');
+	
+	    $log->trace("About to INSERT for sql [$sql]");
+	
+	    $qry_bind = $db_connection->prepare($sql);
+	    $qry_bind->bindParam(':name', $edit_name);
+	    $qry_bind->bindParam(':display_name', $edit_display_name);
+	    $qry_bind->bindParam(':status_flags', $status_flags);
+	    $qry_bind->bindParam(':behaviour_flags', $behaviour_flags);
+	    $qry_bind->bindParam(':access_flags', $access_flags);
+	    $qry_bind->bindParam(':access_flags_inclusive', $edit_access_flags_inclusive);
+	    $qry_bind->bindParam(':user_types_allowed', $user_types_allowed);
+	
+	    $qry_bind->execute();
+	
+	    $edit_status_id = null;
 	}
 	
-	private function handleDeleteAccount($db_connection, $self_edit, &$edit_user_id) {
-		global $log;
-		
-		$form_action = get_query_param('form_action');
-		if(isset($form_action) === true && $form_action === 'delete' && $self_edit === false) {
-			$edit_user_id = $this->handleEditAccount(true);
-			if(isset($edit_user_id) === true) {
-				// UPDATE
-				if($edit_user_id >= 0) {
-					
-				    $sql_statement = new \riprunner\SqlStatement($db_connection);
-				    $sql = $sql_statement->getSqlStatement('user_accounts_delete');
-
-					$log->trace("About to DELETE user account for sql [$sql]");
+	private function handleDelete($db_connection, &$edit_status_id) {
+	    global $log;
 	
-					$qry_bind = $db_connection->prepare($sql);
-					$qry_bind->bindParam(':id', $edit_user_id);
-					
-					$qry_bind->execute();
-						
-					$edit_user_id = null;
-				}
-			}
-		}
+	    $form_action = get_query_param('form_action');
+	    if(isset($form_action) === true && $form_action === 'delete') {
+	        $edit_status_id = $this->handleEdit(true);
+	        if(isset($edit_status_id) === true) {
+	            if($edit_status_id >= 0) {
+	                $sql_statement = new \riprunner\SqlStatement($db_connection);
+	                $sql = $sql_statement->getSqlStatement('callout_statuses_delete');
+	
+	                $log->trace("About to DELETE for sql [$sql]");
+	
+	                $qry_bind = $db_connection->prepare($sql);
+	                $qry_bind->bindParam(':id', $edit_status_id);
+	                	
+	                $qry_bind->execute();
+	
+	                $edit_status_id = null;
+	            }
+	        }
+	    }
 	}
 }
-
+	
 // Load out template
 $template = $twig->resolveTemplate(
 		array('@custom/callout-statuses-custom.twig.html',
