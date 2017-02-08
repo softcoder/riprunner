@@ -16,6 +16,7 @@ require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/live-callout-warning-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/callout-type-model.php';
+require_once __RIPRUNNER_ROOT__ . '/plugins/sms-callout/default.class.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 // Register our view and variables for the template
@@ -67,6 +68,24 @@ class CalloutTypeMenuController {
 		$this->view_template_vars["typemenu_ctl_edit_typeid"] = $edit_type_id;
 		$this->view_template_vars["typemenu_ctl_insert_new"] = $insert_new;
 		$this->view_template_vars["typemenu_ctl_action_error"] = $this->action_error;
+		$this->view_template_vars["typemenu_ctl_action_code_test_result"] = '';
+		
+		$code_test = get_query_param('display_code');
+		if($code_test != null && $code_test != '') {
+		    $callout = new \riprunner\CalloutDetails();
+		    $callout->setDateTime('2017-02-07 09:28:10');
+		    $callout->setCode(trim(strtoupper(get_query_param('display_code'))));
+		    $callout->setAddress('9115 Salmon Valley Road, Prince George, BC');
+		    $callout->setGPSLat('54.0873847');
+		    $callout->setGPSLong('-122.5898009');
+		    $callout->setUnitsResponding('SALGRP1');
+		    $callout->setFirehall($this->global_vm->firehall);
+
+		    $sms_plugin = new \riprunner\SMSCalloutDefaultPlugin();
+		    $result = $sms_plugin->getSMSCalloutMessage($callout);
+		    $this->view_template_vars["typemenu_ctl_action_code_test"] = true;
+		    $this->view_template_vars["typemenu_ctl_action_code_test_result"] = $result;
+		}
 	}
 	
 	private function handleEdit($force_edit) {
@@ -74,8 +93,7 @@ class CalloutTypeMenuController {
 		$form_action = get_query_param('form_action');
 		
 		if($force_edit === true ||
-				(isset($form_action) === true && $form_action === 'edit') ) {
-					
+			(isset($form_action) === true && $form_action === 'edit') ) {
 			$edit_type_id = get_query_param('edit_type_id');
 		}
 		return $edit_type_id;
@@ -86,8 +104,7 @@ class CalloutTypeMenuController {
 		$form_action = get_query_param('form_action');
 		
 		if($force_edit === true ||
-				(isset($form_action) === true && $form_action === 'edit') ) {
-					
+			(isset($form_action) === true && $form_action === 'edit') ) {
 			if(isset($edit_type_id) === true && $edit_type_id < 0) {
 				$insert_new = true;
 			}

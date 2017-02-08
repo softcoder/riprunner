@@ -47,19 +47,42 @@
               </nav>
             </div>
 
+
+            <button onclick="toggleVisibility('test_code');">Show/Hide Code Tester</button>            
+            <form action="{{ gvm.RR_DOC_ROOT }}controllers/callout-type-controller.php" 
+                  method="post" id="test_code" name="test_code" 
+                  style="display:{% if typemenu_ctl_action_code_test is not defined or 
+                                       typemenu_ctl_action_code_test == false %}none{% endif %}" >
+                <center>
+                <table id="box-table-a" style="width:500px; height:100px;">
+                    <tr>
+                        <td align="center">
+                        <span id="msgTitle">Display the Notification Text for a specified code:</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center">
+                        <input id="display_code" name="display_code" type="input" value=""/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center">
+                        <input type="button" value="Generate Notification Text Example" onclick="send_msg(this.form, 'code_test');" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        <span id="msgStatus" style="display:{% if typemenu_ctl_action_code_test_result is not defined %}none{% endif %}">{{ typemenu_ctl_action_code_test_result }}</span>
+                        </td>
+                    </tr>
+                </table>
+                </center>
+            </form>
             
             <form action="{{ gvm.RR_DOC_ROOT }}controllers/callout-type-controller.php" 
                   method="post" name="type_edit_form">
    
             <center>
-            {% if typemenu_ctl_action_error == 100 %}
-            <b><font color="red">Invalid password! Passwords must match and be at least 5 characters.</font></b>
-            {% elseif typemenu_ctl_action_error == 101 %}
-            <b><font color="red">You must enter a Firehall Id</font></b>
-            {% elseif typemenu_ctl_action_error == 102 %}
-            <b><font color="red">You must enter a type Id</font></b>            
-            {% endif %}
-
             <table id="box-table-a">
                 <thead>
                     <tr>
@@ -230,8 +253,8 @@
         return false;
     }
 
-    function send_msg(form, msg_type) {
-       addformhiddenfield(form, 'form_action', msg_type);
+    function send_msg(form, action_type) {
+       addformhiddenfield(form, 'form_action', action_type);
        form.submit();
     }
 

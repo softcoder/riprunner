@@ -50,15 +50,6 @@
             
             <form action="{{ gvm.RR_DOC_ROOT }}controllers/callout-status-controller.php" 
                   method="post" name="status_edit_form">
-   
-            <center>
-            {% if statussmenu_ctl_action_error == 100 %}
-            <b><font color="red">Invalid password! Passwords must match and be at least 5 characters.</font></b>
-            {% elseif statussmenu_ctl_action_error == 101 %}
-            <b><font color="red">You must enter a Firehall Id</font></b>
-            {% elseif statussmenu_ctl_action_error == 102 %}
-            <b><font color="red">You must enter a status Id</font></b>            
-            {% endif %}
 
             <table id="box-table-a">
                 <thead>
@@ -389,7 +380,7 @@
             {% endfor %}
             
             </table>
-            </center>
+            
             </form>
             
 <script type="text/javascript">
@@ -417,23 +408,8 @@
         }
         return false;
     }
-
-    function send_msg(form, msg_type) {
-       addformhiddenfield(form, 'form_action', msg_type);
-       form.submit();
-    }
-
-    function toggleVisibility(itemId) {
-        var item = document.getElementById(itemId);
-        if(item.style.display == "none") {
-            item.style.display="block";
-        }
-        else {
-            item.style.display="none";
-        }
-    }
     
-    var item = document.getElementById("edit_firehall_id");
+    var item = document.getElementById("edit_name");
     if(item) {
         item.focus();
     }

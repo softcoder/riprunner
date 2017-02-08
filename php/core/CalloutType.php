@@ -52,7 +52,7 @@ class CalloutType {
             if(array_key_exists($code, $typeList)) {
                 return $typeList[$code];
             }
-            return new CalloutTypeDef(-1,$code,'UNKNOWN CODE','UNKNOWN CODE','',null,null,null);
+            return new CalloutTypeDef(-1,$code,'UNKNOWN CODE ['.$code.']','UNKNOWN CODE','',null,null,null);
         }
         return null;
     }
