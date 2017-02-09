@@ -52,10 +52,10 @@ function processFireHallText($msgText, $FIREHALL) {
 	}
 	if($callCode !== null && $callCode !== '') {
 		$callout->setCode($callCode);
-		$callout->setCodeType(\riprunner\CalloutType::getTypeByCode($callCode, $FIREHALL));
+		//$callout->setCodeType(\riprunner\CalloutType::getTypeByCode($callCode, $FIREHALL));
 	}
 	 
-	$callType = convertCallOutTypeToText($callCode, $FIREHALL);
+	$callType = convertCallOutTypeToText($callCode, $FIREHALL, $callDateTime);
 	echo "Incident Description : [" . $callType . "]\n";
 	
 	$callAddress = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_ADDRESS_PATTERN'), 1);
@@ -121,10 +121,10 @@ function processFireHallTextTrigger($msgText, $FIREHALL) {
 	}
 	if($callCode !== null) {
 		$callout->setCode($callCode);
-		$callout->setCodeType(\riprunner\CalloutType::getTypeByCode($callCode, $FIREHALL));
+		//$callout->setCodeType(\riprunner\CalloutType::getTypeByCode($callCode, $FIREHALL));
 	}
 		
-	$callType = convertCallOutTypeToText($callCode, $FIREHALL);
+	$callType = convertCallOutTypeToText($callCode, $FIREHALL, $callDateTime);
 	echo "Incident Description : [" . $callType . "]\n";
 
 	$callAddress = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_ADDRESS_PATTERN_GENERIC'), 1);
@@ -167,8 +167,8 @@ function processFireHallTextTrigger($msgText, $FIREHALL) {
 }
 
 
-function convertCallOutTypeToText($type, $FIREHALL) {
-    $calloutType = \riprunner\CalloutType::getTypeByCode($type, $FIREHALL);
+function convertCallOutTypeToText($type, $FIREHALL, $asOfDate) {
+    $calloutType = \riprunner\CalloutType::getTypeByCode($type, $FIREHALL, $asOfDate);
 	$typeText = 'UNKNOWN ['.$type.']';
 	if (isset($calloutType) === true) {
 		$typeText = $calloutType->getName();

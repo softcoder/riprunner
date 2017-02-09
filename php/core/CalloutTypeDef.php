@@ -70,11 +70,46 @@ class CalloutTypeDef implements JsonSerializable {
     public function getEffectiveDate() {
         return $this->effective_date;
     }
+    public function getEffectiveDateAsNative() {
+        return self::getDateAsNative($this->effective_date);
+    }
+    
     public function getExpirationDate() {
         return $this->expiration_date;
     }
+    public function getExpirationDateAsNative() {
+        return self::getDateAsNative($this->expiration_date);
+    }
+    
     public function getUpdateDateTime() {
         return $this->update_datetime;
+    }
+    
+    public function isActiveForDate($asOfDate) {
+        $asOfDateNative = self::getDateAsNative($asOfDate);
+        if($asOfDateNative == null) {
+            return true;;
+        }
+        if($this->getEffectiveDateAsNative() != null && $this->getEffectiveDateAsNative() > $asOfDateNative) {
+            // skip
+            return false;
+        }
+        else if($this->getExpirationDateAsNative() != null && $this->getExpirationDateAsNative() < $asOfDateNative) {
+            // skip
+            return false;
+        }
+        return true;
+    }
+    
+    static private function getDateAsNative($asOfDate) {
+        if($asOfDate != null && $asOfDate != '') {
+            if($asOfDate instanceof \DateTime == true) {
+                return $asOfDate;
+            }
+            $asOfDateNative = \DateTime::createFromFormat('Y-m-d+', $asOfDate);
+            return $asOfDateNative;
+        }
+        return null;
     }
     
 }

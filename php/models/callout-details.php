@@ -81,7 +81,7 @@ class CalloutDetails {
 	}
 	public function getDateTimeAsNative() {
 		if(isset($this->dateTime) === true) {
-			if($this->dateTime instanceof DateTime) {
+			if($this->dateTime instanceof \DateTime) {
 				return $this->dateTime;
 			}
 			return \DateTime::createFromFormat('Y-m-d H:i:s', $this->dateTime);
@@ -111,7 +111,7 @@ class CalloutDetails {
 
 	public function getCodeType() {
 	    if($this->code_type == null) {
-	        $this->code_type = \riprunner\CalloutType::getTypeByCode($this->code, $this->getFirehall());
+	        $this->code_type = \riprunner\CalloutType::getTypeByCode($this->code, $this->getFirehall(), $this->getDateTimeAsNative());
 	    }
 	    return $this->code_type;
 	}
@@ -163,7 +163,7 @@ class CalloutDetails {
 	}
 	
 	private function convertCallOutCodeToText($code) {
-	    $calloutType = \riprunner\CalloutType::getTypeByCode($code, $this->getFirehall());
+	    $calloutType = \riprunner\CalloutType::getTypeByCode($code, $this->getFirehall(), $this->getDateTimeAsNative());
 		$codeText = 'UNKNOWN ['.$code.']';
 		if (isset($calloutType) === true) {
 			$codeText = $calloutType->getName();

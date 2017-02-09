@@ -191,7 +191,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 					if($row_ci !== null && $row_ci !== false) {
 						$this->callout->setDateTime($row_ci->calltime);
 						$this->callout->setCode($row_ci->calltype);
-						$this->callout->setCodeType(\riprunner\CalloutType::getTypeByCode($row_ci->calltype, $this->getFirehall()));
+						//$this->callout->setCodeType(\riprunner\CalloutType::getTypeByCode($row_ci->calltype, $this->getFirehall()));
 						$this->callout->setAddress($row_ci->address);
 						$this->callout->setGPSLat($row_ci->latitude);
 						$this->callout->setGPSLong($row_ci->longitude);

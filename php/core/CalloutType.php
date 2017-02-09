@@ -38,7 +38,8 @@ class CalloutType {
             $typeList = array();
             foreach($rows as $row) {
                 $typeDef = new CalloutTypeDef($row['id'],$row['code'],$row['name'],$row['description'],$row['custom_tag'],$row['effective_date'],$row['expiration_date'],$row['updatetime']);
-                $typeList[$typeDef->getCode()] = $typeDef;
+                //$typeList[$typeDef->getCode()] = $typeDef;
+                $typeList[$typeDef->getCode()][] = $typeDef;
             }
 
             $typeListFromDB = true;
@@ -46,11 +47,17 @@ class CalloutType {
         }
         return $typeList;
     }
-    static public function getTypeByCode($code, $FIREHALL) {
+    
+    static public function getTypeByCode($code, $FIREHALL, $asOfDate) {
         if($code != null) {
-            $typeList = self::getTypeList($FIREHALL);
+            $typeList = self::getTypeList($FIREHALL, $asOfDate);
             if(array_key_exists($code, $typeList)) {
-                return $typeList[$code];
+                $codeTypes = $typeList[$code];
+                foreach($codeTypes as $codeType) {
+                    if($codeType->isActiveForDate($asOfDate) == true) {
+                        return $codeType;
+                    }
+                }
             }
             return new CalloutTypeDef(-1,$code,'UNKNOWN CODE ['.$code.']','UNKNOWN CODE','',null,null,null);
         }

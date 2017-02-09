@@ -243,7 +243,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 		foreach($rows as $row) {
 			$row_result = array();
 	
-			$callTypeDesc = convertCallOutTypeToText($row->calltype,$this->getGvm()->firehall);
+			$callTypeDesc = convertCallOutTypeToText($row->calltype,$this->getGvm()->firehall, $startDate);
 			$row_result[$callTypeDesc] = ($row->count + 0);
 			array_push($data_results, $row_result);
 		}
@@ -268,7 +268,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 		$data_results = array();
 		foreach($rows as $row) {
 			$row_result = array();
-			$callTypeDesc = convertCallOutTypeToText($row->calltype,$this->getGvm()->firehall);
+			$callTypeDesc = convertCallOutTypeToText($row->calltype,$this->getGvm()->firehall, null);
 			$row_result[$callTypeDesc] = ($row->count + 0);
 			array_push($data_results, $row_result);
 		}
@@ -305,7 +305,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 		foreach($rows as $row_titles) {
 			$callTypeDesc = $row_titles->datalabel;
 			if($callTypeDesc !== $MAX_MONTHLY_LABEL) {
-				$callTypeDesc = $callTypeDesc . ' - ' . convertCallOutTypeToText($row_titles->datalabel,$this->getGvm()->firehall);
+				$callTypeDesc = $callTypeDesc . ' - ' . convertCallOutTypeToText($row_titles->datalabel,$this->getGvm()->firehall, $startDate);
 			}
 			array_push($titles_results, $callTypeDesc);
 			array_push($dynamicColumnTitles, $callTypeDesc);
@@ -341,7 +341,7 @@ where calltime between '2015-01-01' AND '2015-12-31 23:59:59' AND status in (3,1
 	   foreach($rows as $row) {
 	   		$callTypeDesc = $row->datalabel;
 	   		if($callTypeDesc !== $MAX_MONTHLY_LABEL) {
-	   			$callTypeDesc = $callTypeDesc . ' - ' . convertCallOutTypeToText($row->datalabel,$this->getGvm()->firehall);
+	   			$callTypeDesc = $callTypeDesc . ' - ' . convertCallOutTypeToText($row->datalabel,$this->getGvm()->firehall, $startDate);
 	   		}
 	
 	   		$row_result = array($row->month,$callTypeDesc,$row->count + 0);

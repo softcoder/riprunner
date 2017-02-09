@@ -327,7 +327,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 				$results = array();
 				foreach($rows as $row){
 					// Add any custom fields with values here
-	 				$row['callout_type_desc'] = convertCallOutTypeToText($row['calltype'],$this->getFirehall());
+	 				$row['callout_type_desc'] = convertCallOutTypeToText($row['calltype'],$this->getFirehall(), $row['calltime']);
 	 				$row['callout_status_desc'] = CalloutStatusType::getStatusById($row['status'],$this->getGvm()->firehall)->getDisplayName();
 	 				$row['callout_status_completed'] = CalloutStatusType::getStatusById($row['status'],$this->getGvm()->firehall)->IsCompleted();
 	 				$row['callout_status_cancelled'] = CalloutStatusType::getStatusById($row['status'],$this->getGvm()->firehall)->IsCancelled();

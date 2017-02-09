@@ -81,7 +81,7 @@
 	<callout_type id="53" code="STRHIGH" name="Structure Fire – High Life/Multi-Family" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
 	<callout_type id="54" code="STRRECALL" name="Structure Fire – Recall" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
 	<callout_type id="55" code="TRANS" name="Transformer/Pole Fire" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
-	<callout_type id="56" code="VEHF" name="Vehicle Fire" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="56" code="VEHF" name="Vehicle Fire" custom_tag="Test Custom Tag" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
 	<callout_type id="57" code="WILDINT" name="Wildland – Interface" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
 	<callout_type id="58" code="WILD2" name="Wildland – Large (Rank 4-6)" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
 	<callout_type id="59" code="WILD1" name="Wildland – Small (Rank 1-3)" effective_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
@@ -138,10 +138,10 @@
 	<callout_type id="109" code="MED" name="Medical Aid" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
 	<callout_type id="110" code="MEDR" name="Medical Aid - BCAS Routine" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
 	<callout_type id="111" code="MFIRE" name="Medical Emergency/Fire Emergency" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
-	<callout_type id="112" code="MVI1" name="MVI1- Motor Vehicle Incident" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
-	<callout_type id="113" code="MVI2" name="MVI2 - Multiple Vehicles/Patients" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
-	<callout_type id="114" code="MVI3" name="MVI3 - Entrapment; Motor Vehicle Incident" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
-	<callout_type id="115" code="MVI4" name="MVI4 - Entrapment; Multiple Vehicles/Patients" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="112" code="MVI1" name="MVI1- Motor Vehicle Incident" custom_tag="Test Custom Tag" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="113" code="MVI2" name="MVI2 - Multiple Vehicles/Patients" custom_tag="Test Custom Tag" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="114" code="MVI3" name="MVI3 - Entrapment; Motor Vehicle Incident" custom_tag="Test Custom Tag" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
+	<callout_type id="115" code="MVI4" name="MVI4 - Entrapment; Multiple Vehicles/Patients" custom_tag="Test Custom Tag" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
 	<callout_type id="116" code="NATGAS" name="Natural Gas - Notification" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
 	<callout_type id="117" code="ODOUU" name="Odour Unknown" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
 	<callout_type id="118" code="OPEN" name="Open Air Fire" expiration_date="2016-12-31" updatetime="2999-04-26 13:14:20" />
