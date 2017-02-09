@@ -19,7 +19,7 @@ class CalloutType {
         static $typeListFromDB = false;
         if($typeList == null || $typeListFromDB == false) {
 
-            $must_close_db = true;
+            //$must_close_db = true;
             $db = new \riprunner\DbConnection($FIREHALL);
             $db_connection = $db->getConnection();
 

@@ -144,7 +144,7 @@ class CalloutStatusType {
             */
                 // = getFirstActiveFireHallConfig($FIREHALLS);
     
-                $must_close_db = true;
+                //$must_close_db = true;
                 $db = new \riprunner\DbConnection($FIREHALL);
                 $db_connection = $db->getConnection();
                 
