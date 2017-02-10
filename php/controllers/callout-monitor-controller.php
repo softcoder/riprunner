@@ -28,7 +28,7 @@ else {
 $live_callout_info = new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 
 if(isset($server_mode) === true && $server_mode === 'true') {
-	if($global_vm->auth->isAuth === false) {
+	if($global_vm->auth->isAuth === false && $global_vm->auth->hasAuthSpecialToken === false) {
 	    ob_start();
 		echo 'Access Denied!';
 		ob_flush();
