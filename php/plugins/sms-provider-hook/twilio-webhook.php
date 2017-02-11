@@ -53,7 +53,7 @@ Broadcast message to all: <?php echo \riprunner\SMSCommandHandler::$SMS_AUTO_CMD
 Show contacts: any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CONTACTS) . PHP_EOL ?>
 Show help, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_HELP).PHP_EOL ?>
 <?php elseif(in_array(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CONTACTS) === true): ?>
-Contacts:
+ your Contacts:
 <?php echo $sms_cmd_handler->process_contacts_sms_command($result) ?>
 <?php else: ?>
 <?php if($sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_RESPONDING, \riprunner\CommandMatchType::StartsWith) === true && count($result->getLiveCallouts()) <= 0): ?>
