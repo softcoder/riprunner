@@ -575,7 +575,6 @@ class SignalManager {
         global $log;
         $result = '';
 
-        //$calloutInProgress = isCalloutInProgress($callout->getStatus());
         if($log !== null) $log->warn('Callout Response $userStatus value: '.$userStatus);
         
         if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
