@@ -253,9 +253,9 @@ function signalPage(callout_url) {
 }
 
 // sends messages with text/event-stream mimetype.
-var source = new EventSource('{{ gvm.RR_DOC_ROOT }}controllers/callout-monitor-controller.php?server_mode=true');
-//var source = new EventSource('');
-
+{% set authSpecialParams = (gvm.auth.hasAuthSpecialToken ? '&ast=' ~ callout_monitor_ast ~ '&fhid=' ~ callout_monitor_fhid : '') %}
+var source = new EventSource('{{ gvm.RR_DOC_ROOT }}controllers/callout-monitor-controller.php?server_mode=true{{ authSpecialParams|raw }}');
+console.info('Will try to connect to url: ' + source.url);
 
 function Logger(id) {
   this.el = document.getElementById(id);
@@ -276,12 +276,14 @@ var logger = new Logger('log');
 function closeConnection() {
   source.close();
   logger.log('> Connection was closed at: ' + new Date().toLocaleString());
+  console.info('> Connection was closed at: ' + new Date().toLocaleString());
   updateConnectionStatus('Disconnected', false);
 }
 function updateConnectionStatus(msg, connected) {
 	try {
 	  var el = document.querySelector('#connection');
 	  if (connected) {
+		console.info('Connection conencted at: ' + new Date().toLocaleString());
 	    if (el.classList) {
 	      el.classList.add('connected');
 	      el.classList.remove('disconnected');
@@ -292,6 +294,7 @@ function updateConnectionStatus(msg, connected) {
 	    }
 	  } 
 	  else {
+		console.info('Connection disconencted at: ' + new Date().toLocaleString());
 	    if (el.classList) {
 	      el.classList.remove('connected');
 	      el.classList.add('disconnected');
@@ -336,6 +339,7 @@ source.addEventListener('message', function(event) {
 }, false);
 
 source.addEventListener('open', function(event) {
+	console.info('Connection was opened at: ' + new Date().toLocaleString());
 	logger.clear();
     logger.log('> Connection was opened at: ' + new Date().toLocaleString());
     updateConnectionStatus('Connected', true);
@@ -343,8 +347,12 @@ source.addEventListener('open', function(event) {
 
 source.addEventListener('error', function(event) {
     if (event.eventPhase == 2) { //EventSource.CLOSED
+    	console.info('Connection was closed at: ' + new Date().toLocaleString());
       logger.log('> Connection was closed (2) at: ' + new Date().toLocaleString());
       updateConnectionStatus('Disconnected', false);
+    }
+    else {
+    	console.info('Connection error: ' + event.eventPhase + 'at: ' + new Date().toLocaleString());
     }
 }, false);
     
