@@ -27,6 +27,9 @@ else {
 }
 $live_callout_info = new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 
+$view_template_vars["callout_monitor_ast"] = get_query_param('ast');
+$view_template_vars["callout_monitor_fhid"] = get_query_param('fhid');
+
 if(isset($server_mode) === true && $server_mode === 'true') {
 	if($global_vm->auth->isAuth === false && $global_vm->auth->hasAuthSpecialToken === false) {
 	    ob_start();
