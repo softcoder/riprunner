@@ -253,7 +253,7 @@ function signalPage(callout_url) {
 }
 
 // sends messages with text/event-stream mimetype.
-{% set authSpecialParams = (gvm.auth.hasAuthSpecialToken ? '&ast=' ~ callout_monitor_ast ~ '&fhid=' ~ callout_monitor_fhid : '') %}
+{% set authSpecialParams = (gvm.auth.hasAuthSpecialToken ? '&ast=' ~ callout_monitor_ast ~ '&fhid=' ~ callout_monitor_fhid ~ '&member_id=' ~ callout_monitor_member_id : '') %}
 var source = new EventSource('{{ gvm.RR_DOC_ROOT }}controllers/callout-monitor-controller.php?server_mode=true{{ authSpecialParams|raw }}');
 console.info('Will try to connect to url: ' + source.url);
 
@@ -283,7 +283,7 @@ function updateConnectionStatus(msg, connected) {
 	try {
 	  var el = document.querySelector('#connection');
 	  if (connected) {
-		console.info('Connection conencted at: ' + new Date().toLocaleString());
+		console.info('Connection connected at: ' + new Date().toLocaleString());
 	    if (el.classList) {
 	      el.classList.add('connected');
 	      el.classList.remove('disconnected');
@@ -294,7 +294,7 @@ function updateConnectionStatus(msg, connected) {
 	    }
 	  } 
 	  else {
-		console.info('Connection disconencted at: ' + new Date().toLocaleString());
+		console.info('Connection disconnected at: ' + new Date().toLocaleString());
 	    if (el.classList) {
 	      el.classList.remove('connected');
 	      el.classList.add('disconnected');
@@ -321,9 +321,10 @@ source.addEventListener('message', function(event) {
 	  if(data.id > 0) {
 		  closeConnection();
 		  logger.log('Got a live page!', 'msg');
-		  
+
+		  {% set authSpecialParams_trigger = (gvm.auth.hasAuthSpecialToken ? '&member_id=' ~ callout_monitor_member_id : '') %}
 	      var callout_url = "{{ gvm.RR_DOC_ROOT }}ci/fhid={{ gvm.firehall.FIREHALL_ID }}&cid=" + data.id + 
-	                        "&ckid=" + data.keyid;
+	                        "&ckid=" + data.keyid + '{{ authSpecialParams_trigger|raw }}';
 	      // callout_url += "&member_id={{ gvm.auth.user_id }}"
 		  
 	      signalPage(callout_url);

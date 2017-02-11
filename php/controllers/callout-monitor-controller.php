@@ -29,6 +29,7 @@ $live_callout_info = new LiveCalloutWarningViewModel($global_vm, $view_template_
 
 $view_template_vars["callout_monitor_ast"] = get_query_param('ast');
 $view_template_vars["callout_monitor_fhid"] = get_query_param('fhid');
+$view_template_vars["callout_monitor_member_id"] = get_query_param('member_id');
 
 if(isset($server_mode) === true && $server_mode === 'true') {
 	if($global_vm->auth->isAuth === false && $global_vm->auth->hasAuthSpecialToken === false) {
@@ -40,6 +41,7 @@ if(isset($server_mode) === true && $server_mode === 'true') {
 	}
 	header('Content-Type: text/event-stream');
 	header('Cache-Control: no-cache');
+	header('Access-Control-Allow-Origin: *');
 	
 	/**
 	 * Constructs the SSE data format and flushes that data to the client.
@@ -75,14 +77,14 @@ if(isset($server_mode) === true && $server_mode === 'true') {
 	ob_start();
 	do {
 		// Cap connections at 10 seconds. The browser will reopen the connection on close
-		if ((time() - $startedAt) > 41) {
+		if ((time() - $startedAt) > 35) {
 			die();
 		}
 
 		$time_elapsed = (time() - $startedAt);
 		$log->trace("callout-monitor time elapsed: " . $time_elapsed . " mod 5: " . ($time_elapsed % 5));
 		
-		if($time_elapsed <= 1 || $time_elapsed === 20 || $time_elapsed === 40) {
+		if($time_elapsed <= 1 || $time_elapsed === 15 || $time_elapsed === 35) {
 			$live_callout_info = new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 			if(isset($live_callout_info) === true && isset($live_callout_info->callout->id) === true &&
 					$live_callout_info->callout->id != null && $live_callout_info->callout->id != '') {
@@ -96,14 +98,14 @@ if(isset($server_mode) === true && $server_mode === 'true') {
 		else if(($time_elapsed % 5) === 0) {
 			sendMsg(null);
 		}
-		sleep(1);
-		
+		usleep(1000000);
 		// If we didn't use a while loop, the browser would essentially do polling
 		// every ~3seconds. Using the while, we keep the connection open and only make
 		// one request.
 	} while(!connection_aborted());
 	ob_end_flush();
 	flush();
+	session_write_close();
 }
 else {
 	// Load our template
