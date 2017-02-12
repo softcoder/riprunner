@@ -477,7 +477,7 @@ class SMSCommandHandler {
         $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
         $qry_bind->closeCursor();
     
-        if($log !== null) $log->trace("Call checkForLiveCalloutModelList SQL success for sql [$sql] row count: " . count($rows));
+        if($log !== null) $log->trace("Call check_live_callouts_max SQL success for sql [$sql] row count: " . count($rows));
     
         $callout_list = array();
         foreach($rows as $row){

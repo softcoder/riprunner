@@ -33,14 +33,6 @@ class MobileUsersTest extends BaseDBFixture {
 		$mobile_phone_list = getMobilePhoneListFromDB($FIREHALL,$this->getDBConnection($FIREHALL));
 		$this->assertEquals(2, count($mobile_phone_list));
 	}
-	
-	public function testNonLDAPLiveCallout_Valid()  {
-	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-	
-	    $live_callouts = checkForLiveCallout($FIREHALL,$this->getDBConnection($FIREHALL));
-	    $this->assertContains('&ckid=abc2', $live_callouts);
-	    $this->assertNotContains('&ckid=abc1', $live_callouts);
-	}
 
 	public function testNonLDAPTriggerHashList_Valid()  {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);

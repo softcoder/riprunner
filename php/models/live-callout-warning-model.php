@@ -57,7 +57,7 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 		$qry_bind->bindParam(':max_age', $max_hours_old);
 		$qry_bind->execute();
 		
-		$log->trace("Call checkForLiveCallout SQL success for sql [$sql].");
+		$log->trace("Call check_live_callouts SQL success for sql [$sql].");
 		$row = $qry_bind->fetch(\PDO::FETCH_OBJ);
 		if($row !== false) {
 			$this->getCalloutModel()->id = $row->id;
