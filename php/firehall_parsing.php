@@ -13,27 +13,18 @@ require_once 'config.php';
 require_once 'models/callout-details.php';
 require_once 'config/config_manager.php';
 
-// The email just contains basic incident information.  Here is a sample:
-//
-// Date: 2012‐10‐26 10:07:58
-// Type: BBQF
-// Address: 12345 1ST AVE, PRINCE GEORGE, BC
-// Latitude: 50.92440
-// Longitude: ‐120.77206
-// Units Responding: PRGGRP1
-// ------------------------------------------------------
-// DateTime : [2014-07-10 16:36:30]
-// Code : [RMED]
-// Incident Description : [Routine Medical Aid]
-// Incident Address : [3333 TEST RD, SALMON VALLEY, BC]
-// Incident GPS Lat : [52.11826]
-// Incident GPS Long : [-120.60831]
-// Incident Units Responding : [SALGRP1]
-//
+function convertCallOutTypeToText($type, $FIREHALL, $asOfDate) {
+    $calloutType = \riprunner\CalloutType::getTypeByCode($type, $FIREHALL, $asOfDate);
+    $typeText = 'UNKNOWN ['.$type.']';
+    if (isset($calloutType) === true) {
+        $typeText = $calloutType->getName();
+    }
+    return $typeText;
+}
+
 function processFireHallText($msgText, $FIREHALL) {
 	
     $config = new \riprunner\ConfigManager();
-    
 	$callout = new \riprunner\CalloutDetails();
 	
 	$callDateTime = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_DATETIME_PATTERN'), 1);
@@ -52,7 +43,6 @@ function processFireHallText($msgText, $FIREHALL) {
 	}
 	if($callCode !== null && $callCode !== '') {
 		$callout->setCode($callCode);
-		//$callout->setCodeType(\riprunner\CalloutType::getTypeByCode($callCode, $FIREHALL));
 	}
 	 
 	$callType = convertCallOutTypeToText($callCode, $FIREHALL, $callDateTime);
@@ -100,7 +90,6 @@ function processFireHallText($msgText, $FIREHALL) {
 function processFireHallTextTrigger($msgText, $FIREHALL) {
 
     $config = new \riprunner\ConfigManager();
-    
 	$callout = new \riprunner\CalloutDetails();
 
 	$msgText = str_replace(array("\n", "\r"), '', $msgText);
@@ -121,7 +110,6 @@ function processFireHallTextTrigger($msgText, $FIREHALL) {
 	}
 	if($callCode !== null) {
 		$callout->setCode($callCode);
-		//$callout->setCodeType(\riprunner\CalloutType::getTypeByCode($callCode, $FIREHALL));
 	}
 		
 	$callType = convertCallOutTypeToText($callCode, $FIREHALL, $callDateTime);
@@ -164,14 +152,4 @@ function processFireHallTextTrigger($msgText, $FIREHALL) {
 	}
 	 
 	return $callout;
-}
-
-
-function convertCallOutTypeToText($type, $FIREHALL, $asOfDate) {
-    $calloutType = \riprunner\CalloutType::getTypeByCode($type, $FIREHALL, $asOfDate);
-	$typeText = 'UNKNOWN ['.$type.']';
-	if (isset($calloutType) === true) {
-		$typeText = $calloutType->getName();
-	}
-	return $typeText;
 }
