@@ -82,10 +82,18 @@ class Authentication {
             // Sets the session name to the one set above.
             session_name($session_name);
             // Start the PHP session
-            session_start();            
+            session_start();
             if(isset($skip_regeneration) === false || $skip_regeneration === false) {
                 // regenerated the session, delete the old one.
-                session_regenerate_id();    
+                try {
+                    session_regenerate_id();    
+                } 
+                catch(Exception $ex) {
+                    // Log error
+                    if($log !== null) $log->error("Error in sec_session_start_ext: ". $ex->getMessage());
+                    // deal with missing session ID
+                    session_regenerate_id(true);
+                }
             }
         }
     }
