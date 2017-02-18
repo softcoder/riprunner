@@ -56,7 +56,7 @@ class MobileAppInfoViewModel extends BaseViewModel {
 			$statusList = CalloutStatusType::getStatusList($firehall);
 			$statusListManualArray = array();
 			foreach($statusList as &$status) {
-			    array_push($statusListManualArray,$status->jsonSerialize());
+			    array_push($statusListManualArray, $status->jsonSerialize());
 			}
 			$result = array(
 					"fhid"  => urlencode($firehall->FIREHALL_ID),

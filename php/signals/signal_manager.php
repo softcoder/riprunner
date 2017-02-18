@@ -111,8 +111,8 @@ class SignalManager {
                 $recipient_list = explode(';', $recipients);
                 $recipient_list_array = $recipient_list;
                 
-                $sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY',$FIREHALL->FIREHALL_ID);
-                $recipient_list_array = array_merge($recipient_list_array,explode(';', $sms_notify));
+                $sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY', $FIREHALL->FIREHALL_ID);
+                $recipient_list_array = array_merge($recipient_list_array, explode(';', $sms_notify));
             }
             else {
                 $recipient_list_type = (($FIREHALL->SMS->SMS_RECIPIENTS_ARE_GROUP === true) ?
@@ -132,9 +132,9 @@ class SignalManager {
                 }
                 
                 //var_dump($recipient_list_array);
-                $sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY',$FIREHALL->FIREHALL_ID);
+                $sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY', $FIREHALL->FIREHALL_ID);
                 //echo "sms_notify is [$sms_notify]" . PHP_EOL;
-                $recipient_list_array = array_merge($recipient_list_array,explode(';', $sms_notify));
+                $recipient_list_array = array_merge($recipient_list_array, explode(';', $sms_notify));
                 //var_dump($recipient_list_array);
             }
         
@@ -420,7 +420,7 @@ class SignalManager {
         $view_template_vars['responding_userid'] = $userId;
         $view_template_vars['responding_userstatus'] = $userStatus;
         $view_template_vars['responding_usereta'] = $eta;
-        $view_template_vars['callout_status_entity'] = CalloutStatusType::getStatusById($userStatus,$callout->getFirehall());
+        $view_template_vars['callout_status_entity'] = CalloutStatusType::getStatusById($userStatus, $callout->getFirehall());
     
         // Load our template
         $template = $this->getTwigEnv()->resolveTemplate(
@@ -579,8 +579,8 @@ class SignalManager {
         
         if($callout->getFirehall()->SMS->SMS_SIGNAL_ENABLED === true) {
             if($log !== null) $log->warn('Callout Response SMS signal is enabled');
-            if(CalloutStatusType::isValidValue($userStatus,$callout->getFirehall()) === true) {
-                $statusDef = CalloutStatusType::getStatusById($userStatus,$callout->getFirehall());
+            if(CalloutStatusType::isValidValue($userStatus, $callout->getFirehall()) === true) {
+                $statusDef = CalloutStatusType::getStatusById($userStatus, $callout->getFirehall());
                 if($log !== null) $log->warn('Callout Response SMS signal all: '.var_export($statusDef->IsSignalAll(), true));
                 
                 if($statusDef->IsSignalAll() == true ||

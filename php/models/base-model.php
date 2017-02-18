@@ -51,7 +51,7 @@ abstract class BaseViewModel {
 	abstract protected function getVarContainerName();
 	
 	protected function getQueryParam($key) {
-	    if($this->query_params !== null &&array_key_exists($key,$this->query_params)) {
+	    if($this->query_params !== null && array_key_exists($key, $this->query_params) == true) {
 	        return $this->query_params[$key];
 	    }
 	    return get_query_param($key);

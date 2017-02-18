@@ -70,7 +70,7 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 				// Add any custom fields with values here
 				$row['responder_origin'] = urlencode($row["latitude"]) . ',' . urlencode($row["longitude"]);
 				$row['callout_address_dest'] = getAddressForMapping($this->getGvm()->firehall, $row['address']);
-				$row['callout_status_desc'] = getCallStatusDisplayText($row['status'],$this->getGvm()->firehall);
+				$row['callout_status_desc'] = getCallStatusDisplayText($row['status'], $this->getGvm()->firehall);
 				
 				$this->response_list[] = $row;
 			}

@@ -51,9 +51,9 @@ class CalloutTypeViewModel extends BaseViewModel {
 		
 		$resultArray = array();
 		foreach($rows as $row){
-		    $typeDef = new CalloutTypeDef($row['id'],$row['code'],$row['name'],$row['description'],$row['custom_tag'],$row['effective_date'],$row['expiration_date'],$row['updatetime']);
+		    $typeDef = new CalloutTypeDef($row['id'], $row['code'], $row['name'], $row['description'], 
+		                                  $row['custom_tag'], $row['effective_date'], $row['expiration_date'], $row['updatetime']);
 		    $row['typeDef'] = $typeDef;
-		    
 			$resultArray[] = $row;
 		}		
 		return $resultArray;

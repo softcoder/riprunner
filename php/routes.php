@@ -16,10 +16,9 @@ if(defined('INCLUSION_PERMITTED') === false) {
 }
 
 require_once 'config_constants.php';
-//require_once 'config.php';
 try {
     if (!file_exists('config.php' )) {
-        throw new \Exception ('Config script does not exist!');
+        throw new \Exception('Config script does not exist!');
     }
     else {
         require_once 'config.php';

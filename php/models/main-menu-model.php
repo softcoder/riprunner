@@ -51,10 +51,9 @@ class MainMenuViewModel extends BaseViewModel {
 	    # Configuration array
 	    //$ini = array('local_path' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . '.version',
 	    $ini = array('local_path' => '.check_version',
-	            'distant_path' => 'https://raw.githubusercontent.com/softcoder/riprunner/master/files/latest_version',
-	            'distant_path_notes' => 'https://github.com/softcoder/riprunner',
-	            'time_between_check' => 15*24*60*60);
-	
+    	             'distant_path' => 'https://raw.githubusercontent.com/softcoder/riprunner/master/files/latest_version',
+    	             'distant_path_notes' => 'https://github.com/softcoder/riprunner',
+    	             'time_between_check' => 15*24*60*60);
 	    return $ini;
 	}
 	

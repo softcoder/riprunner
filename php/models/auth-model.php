@@ -79,7 +79,7 @@ class AuthViewModel extends BaseViewModel {
 	    if($this->getAuthEntity()->is_session_started() === false) {
 	        return false;
 	    }
-	    if(defined('AUTH_SPECIAL_TOKEN') && AUTH_SPECIAL_TOKEN == get_query_param('ast')) {
+	    if(defined('AUTH_SPECIAL_TOKEN') == true && AUTH_SPECIAL_TOKEN == get_query_param('ast')) {
 	        return true;
 	    }
 	    return false;

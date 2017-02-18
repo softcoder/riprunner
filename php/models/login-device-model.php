@@ -208,7 +208,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 			$this->live_callout = array();
 			foreach($rows as $row){
 				// Add any custom fields with values here
-				$row['calltype_desc'] = convertCallOutTypeToText($row['calltype'],$this->getGvm()->firehall, $row['calltime']);
+				$row['calltype_desc'] = convertCallOutTypeToText($row['calltype'], $this->getGvm()->firehall, $row['calltime']);
 				$this->live_callout[] = $row;
 			}
 		}

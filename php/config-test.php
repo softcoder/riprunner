@@ -213,3 +213,4 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'EMAIL_PARSING_LONGITUDE_PATTERN_GENERIC', 	'/Longitude:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Units|Google Maps Link:)/m' );
 	define( 'EMAIL_PARSING_UNITS_PATTERN_GENERIC', 		'/Responding:(.*?)(?:$|Type:|Department:|Address:|Latitude:|Longitude:|Date:|Google Maps Link:)/m' );
 	
+	

@@ -61,10 +61,10 @@ class CalloutTrackingViewModel extends BaseViewModel {
 			return $this->getCalloutStatus();
 		}
 		if('callout_status_desc' === $name) {
-			return getCallStatusDisplayText($this->getCalloutStatus(),$this->getFirehall());
+			return getCallStatusDisplayText($this->getCalloutStatus(), $this->getFirehall());
 		}
 		if('callout_in_progress' === $name) {
-			return isCalloutInProgress($this->callout_status,$this->getFirehall());
+			return isCalloutInProgress($this->callout_status, $this->getFirehall());
 		}
 		if('responding_people' === $name) {
 			$this->getRespondingPeople();

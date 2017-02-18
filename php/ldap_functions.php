@@ -4,8 +4,6 @@
 //	Under GNU GPL v3.0
 // ==============================================================
 
-//define( 'INCLUSION_PERMITTED', true );
-
 if ( defined('INCLUSION_PERMITTED') === false ||
 ( defined('INCLUSION_PERMITTED') === true && INCLUSION_PERMITTED === false ) ) {
 	die( 'This file must not be invoked directly.' );
@@ -21,7 +19,6 @@ function extractDelimitedValueFromString($rawValue, $regularExpression, $groupRe
 	$cleanRawValue = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/u', '', $rawValue);
 	preg_match($regularExpression, $cleanRawValue, $result);
 	if(isset($result[$groupResultIndex]) === true) {
-	    //echo "regex [$regularExpression] lookup [$cleanRawValue] result [" . $result[$groupResultIndex] ."]" .PHP_EOL;
 		$result[$groupResultIndex] = str_replace(array("\n", "\r"), '', $result[$groupResultIndex]);
 		return $result[$groupResultIndex];
 	}
@@ -29,8 +26,6 @@ function extractDelimitedValueFromString($rawValue, $regularExpression, $groupRe
 }
 
 function ldap_get_user_from_db($FIREHALL, $user_id, $db_connection) {
-    //global $log;
-
     $result = null;
     if($FIREHALL->LDAP->ENABLED === true) {
         
@@ -113,7 +108,6 @@ function login_ldap($FIREHALL, $user_id, $password) {
     				}
     					
     				$userDn = $info[$i][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
-    					
     				$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
     				unset($user_id_number['count']);
 
@@ -122,19 +116,16 @@ function login_ldap($FIREHALL, $user_id, $password) {
     				
     				if($log !== null) $log->trace("Distinguised name [$userDn]");
     			}
-    	
     			$userAccess = ldap_user_access($FIREHALL, $ldap, $user_id, $userDn);
-    	
     			// Password is correct!
-    			
     			$config = new \riprunner\ConfigManager();
     			if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
-    				if($log !== null) $log->warn("Login audit for user [$user_id] userid [".($user_id_number == null ? 'null' : $user_id_number[0])."]  firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");
+    				if($log !== null) $log->warn("Login audit for user [$user_id] userid [".(($user_id_number == null) ? 'null' : $user_id_number[0])."]  firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");
     			}
     			
     			// XSS protection as we might print this value
     			//$user_id = preg_replace("/[^0-9]+/", "", $user_id);
-    			$_SESSION['user_db_id'] = ($user_id_number == null ? null : $user_id_number[0]);
+    			$_SESSION['user_db_id'] = (($user_id_number == null) ? null : $user_id_number[0]);
     			// XSS protection as we might print this value
     			//$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
     			$_SESSION['user_id'] = $user_id;
@@ -180,23 +171,23 @@ function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 
 	// Default user access to 0
 	$userAccess = 0;
-	$userAccess = ldap_user_access_attribute ( $ldap, $FIREHALL, 
-	                                           $FIREHALL->LDAP->LDAP_LOGIN_ADMIN_GROUP_FILTER,
-	                                           $user_id, $userDn, $userAccess, 
-	                                           USER_ACCESS_ADMIN, 'Admin' );
+	$userAccess = ldap_user_access_attribute($ldap, $FIREHALL, 
+            $FIREHALL->LDAP->LDAP_LOGIN_ADMIN_GROUP_FILTER,
+            $user_id, $userDn, $userAccess, 
+            USER_ACCESS_ADMIN, 'Admin' );
 
 	// Check if user has sms access
-	$userAccess = ldap_user_access_attribute ( $ldap, $FIREHALL,
+	$userAccess = ldap_user_access_attribute($ldap, $FIREHALL,
 	        $FIREHALL->LDAP->LDAP_LOGIN_SMS_GROUP_FILTER,
 	        $user_id, $userDn, $userAccess,
 	        USER_ACCESS_SIGNAL_SMS, 'Sms' );
 
-	$userAccess = ldap_user_access_attribute ( $ldap, $FIREHALL,
+	$userAccess = ldap_user_access_attribute($ldap, $FIREHALL,
 	        $FIREHALL->LDAP->LDAP_LOGIN_RESPOND_SELF_GROUP_FILTER,
 	        $user_id, $userDn, $userAccess,
 	        USER_ACCESS_CALLOUT_RESPOND_SELF, 'RespondSelf' );
 
-	$userAccess = ldap_user_access_attribute ( $ldap, $FIREHALL,
+	$userAccess = ldap_user_access_attribute($ldap, $FIREHALL,
 	        $FIREHALL->LDAP->LDAP_LOGIN_RESPOND_OTHERS_GROUP_FILTER,
 	        $user_id, $userDn, $userAccess,
 	        USER_ACCESS_CALLOUT_RESPOND_OTHERS, 'RespondOthers' );
@@ -208,25 +199,9 @@ function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 	return $userAccess;
 }
 
-
-/**
- * @param ldap
- * @param user_id
- * @param userDn
- * @param userAccess
- * @param user_found_in_group
- * @param members
- * @param userAccess
- * @param username
- * @param user_id_number
- */
-
 function ldap_user_access_attribute($ldap, $FIREHALL, $search_filter, $user_id, $userDn, $userAccess, $searchAccessValue, $userAccessTagName) {
     global $log;
     // Check if user has admin access
-	//$str_group_filter = $FIREHALL->LDAP->LDAP_LOGIN_ADMIN_GROUP_FILTER;
-	//$search_filter = $str_group_filter;
-	
 	$result = $ldap->search($FIREHALL->LDAP->LDAP_BASEDN, $search_filter, $FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
 
 	if($log !== null) $log->trace("$userAccessTagName Group results:");
@@ -236,7 +211,6 @@ function ldap_user_access_attribute($ldap, $FIREHALL, $search_filter, $user_id, 
 
 	//$log->trace("Admin sorted results:");
 	//var_dump($info);
-
 	for ($i = 0; $i < $result["count"]; $i++) {
 		//if($debug_functions) echo "Admin sorted result #:" . $i . PHP_EOL;
 		//if($debug_functions) var_dump($info[$i]);
@@ -296,22 +270,13 @@ function ldap_user_access_attribute($ldap, $FIREHALL, $search_filter, $user_id, 
 }
 
 function login_check_ldap($db_connection) {
-	//$debug_functions = false;
 	global $log;
 
 	// Check if all session variables are set
 	if (isset($_SESSION['user_db_id'], $_SESSION['user_id'], $_SESSION['login_string'],
 			$db_connection) === true) {
 
-		//$user_id = $_SESSION['user_db_id'];
-		//$login_string = $_SESSION['login_string'];
-		//$username = $_SESSION['user_id'];
-
-		// Get the user-agent string of the user.
-		//$user_browser = $_SERVER['HTTP_USER_AGENT'];
-
 		if($log !== null) $log->trace("LDAP LOGINCHECK OK");
-		
 		return true;
 	}
 	else {
@@ -349,7 +314,6 @@ function get_sms_recipients_ldap($FIREHALL, $str_group_filter) {
     		isset($info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME]) === true) {
     		
     		//if($debug_functions) echo "=====> SMS_LIST looking for SMS LDAP users using a GROUP MEMBER OF filter" . PHP_EOL;
-    		
     		$members = $info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME];
     		unset($members['count']);
     		
@@ -440,14 +404,12 @@ function get_sms_recipients_ldap($FIREHALL, $str_group_filter) {
 }
 
 function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
-	//$debug_functions = false;
 	global $log;
 	
 	if($log !== null) $log->trace("populateLDAPUsers looking for LDAP users using filter [$filter]");
 	
 	// Find all users
 	$result = $ldap->search($FIREHALL->LDAP->LDAP_BASE_USERDN, $filter, $FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
-	
 	$info = $result;
 	
 	//if($debug_functions) echo "Search results:" . PHP_EOL;

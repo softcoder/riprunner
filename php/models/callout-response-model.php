@@ -272,13 +272,13 @@ class CalloutResponseViewModel extends BaseViewModel {
 		
 		// Ensure the user has access to the callout status
 		$user_access = $this->getGvm()->auth->getAuthEntity()->getUserAccess(
-		        $this->getFirehallId(),$this->getUserId());
-		$statusDef = CalloutStatusType::getStatusById($status,$this->getGvm()->firehall);
+		        $this->getFirehallId(), $this->getUserId());
+		$statusDef = CalloutStatusType::getStatusById($status, $this->getGvm()->firehall);
 		if($statusDef->hasAccess($user_access) == false) {
 		    $log->error('Member: '.$this->getUserId().' does not have access to status code: '.$status);
 		    throw new \Exception('Invalid response request detected, contact administrator for details!');
 		}
-		$user_type = $this->getGvm()->auth->getAuthEntity()->getUserType($this->getFirehallId(),$this->getUserId());
+		$user_type = $this->getGvm()->auth->getAuthEntity()->getUserType($this->getFirehallId(), $this->getUserId());
 		if($statusDef->isUserType($user_type) == false) {
 		    $log->error('Member: '.$this->getUserId().' does not have the required user type for status code: '.$status);
 		    throw new \Exception('Invalid response request detected, contact administrator for details!');

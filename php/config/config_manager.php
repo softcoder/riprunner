@@ -104,8 +104,8 @@ class ConfigManager {
     
     private function loadConfigValuesForFirehall($firehall_id) {
         //global $log;
-        if($this->firehall_configs !== null && array_key_exists($firehall_id,
-                $this->firehall_configs) === false) {
+        //if($this->firehall_configs !== null && array_key_exists($firehall_id,
+        //        $this->firehall_configs) === false) {
             //$firehall = $this->findFireHallConfigById($firehall_id);
             // Load firehall specific config from the database
             
@@ -133,7 +133,7 @@ class ConfigManager {
             //$this->firehall_configs[$firehall_id][] = $result;
             array_push($this->firehall_configs, array($firehall_id => $result));
             */
-        }
+        //}
     }
     private function findConfigValueInConfigs($key,$firehall_id) {
         $this->loadConfigValuesForFirehall($firehall_id);
@@ -243,7 +243,7 @@ class ConfigManager {
                 foreach ($elem as $key2 => $elem2) {
                     if(is_array($elem2) === true) {
                         $elem2_count = count($elem2);
-                        for($i = 0;$i < $elem2_count; $i++) {
+                        for($i = 0; $i < $elem2_count; $i++) {
                             if(is_bool($elem2[$i]) === true) {
                                 $content .= $key2."[] = \"". (($elem2[$i] === true) ? 'true' : 'false')."\"\n";
                             }
@@ -270,7 +270,7 @@ class ConfigManager {
             foreach ($assoc_arr as $key => $elem) {
                 if(is_array($elem) === true) {
                     $elem_count = count($elem);
-                    for($i = 0;$i < $elem_count; $i++) {
+                    for($i = 0; $i < $elem_count; $i++) {
                         $content .= $key."[] = \"".$elem[$i]."\"\n";
                     }
                 }

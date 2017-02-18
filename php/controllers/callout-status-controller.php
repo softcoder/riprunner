@@ -209,7 +209,7 @@ class CalloutStatusMenuController {
 	    foreach($user_types as $user_type) {
 	        $edit_usertype = get_query_param('edit_usertype_'.$user_type->id);
 	        if(isset($edit_usertype) === true && $edit_usertype === 'on') {
-	            $user_type_bit = 1 << $user_type->id-1;
+	            $user_type_bit = (1 << ($user_type->id-1));
 	            $user_types_allowed |= $user_type_bit;
 	        }
 	    }
@@ -319,7 +319,7 @@ class CalloutStatusMenuController {
 	    foreach($user_types as $user_type) {
 	        $edit_usertype = get_query_param('edit_usertype_'.$user_type->id);
 	        if(isset($edit_usertype) === true && $edit_usertype === 'on') {
-	            $user_type_bit = 1 << $user_type->id-1;
+	            $user_type_bit = (1 << ($user_type->id-1));
 	            $user_types_allowed |= $user_type_bit;
 	        }
 	    }

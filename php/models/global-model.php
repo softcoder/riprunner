@@ -15,7 +15,7 @@ require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 if(isset($view_template_vars) === false) {
     $view_template_vars = array();
 }
-if(isset($global_vm) === false && isset($FIREHALLS)) {
+if(isset($global_vm) === false && isset($FIREHALLS) == true) {
 	$global_vm = new GlobalViewModel($FIREHALLS);
 	$view_template_vars['gvm'] = $global_vm;
 }
@@ -75,69 +75,69 @@ class GlobalViewModel {
 			return $this->getPhpInfo();
 		}
 		if('MENU_TYPE' == $name) {
-			if(defined('MENU_TYPE')) {
+			if(defined('MENU_TYPE') == true) {
 				return MENU_TYPE;
 			}
 		}
 		if('CUSTOM_MAIN_CSS' == $name) {
-			if(defined('CUSTOM_MAIN_CSS')) {
+			if(defined('CUSTOM_MAIN_CSS') == true) {
 				return CUSTOM_MAIN_CSS;
 			}
 			return '';
 		}
 		if('CUSTOM_MOBILE_CSS' == $name) {
-			if(defined('CUSTOM_MOBILE_CSS')) {
+			if(defined('CUSTOM_MOBILE_CSS') == true) {
 				return CUSTOM_MOBILE_CSS;
 			}
 			return '';
 		}
 		if('ICON_MARKERSCUSTOM_LEGEND' == $name) {
-			if(defined('ICON_MARKERSCUSTOM_LEGEND')) {
+			if(defined('ICON_MARKERSCUSTOM_LEGEND') == true) {
 				return ICON_MARKERSCUSTOM_LEGEND;
 			}
 		}
 		if('ICON_MARKERSCUSTOM' == $name) {
-			if(defined('ICON_MARKERSCUSTOM')) {
+			if(defined('ICON_MARKERSCUSTOM') == true) {
 				return ICON_MARKERSCUSTOM;
 			}
 		}
 		if('ICON_HYDRANT' == $name) {
-			if(defined('ICON_HYDRANT')) {
+			if(defined('ICON_HYDRANT') == true) {
 				return ICON_HYDRANT;
 			}
 		}
 		if('ICON_FIREHALL' == $name) {
-			if(defined('ICON_FIREHALL')) {
+			if(defined('ICON_FIREHALL') == true) {
 				return ICON_FIREHALL;
 			}
 		}
 		if('ICON_WATERTANK' == $name) {
-			if(defined('ICON_WATERTANK')) {
+			if(defined('ICON_WATERTANK') == true) {
 				return ICON_WATERTANK;
 			}
 		}
 		if('ICON_CALLORIGIN' == $name) {
-			if(defined('ICON_CALLORIGIN')) {
+			if(defined('ICON_CALLORIGIN') == true) {
 				return ICON_CALLORIGIN;
 			}
 		}
 		if('JSMAP_WIDTH' == $name) {
-			if(defined('JSMAP_WIDTH')) {
+			if(defined('JSMAP_WIDTH') == true) {
 				return JSMAP_WIDTH;
 			}
 		}
 		if('JSMAP_HEIGHT' == $name) {
-			if(defined('JSMAP_HEIGHT')) {
+			if(defined('JSMAP_HEIGHT') == true) {
 				return JSMAP_HEIGHT;
 			}
 		}
 		if('JSMAP_MOBILEWIDTH' == $name) {
-			if(defined('JSMAP_MOBILEWIDTH')) {
+			if(defined('JSMAP_MOBILEWIDTH') == true) {
 				return JSMAP_MOBILEWIDTH;
 			}
 		}
 		if('JSMAP_MOBILEHEIGHT' == $name) {
-			if(defined('JSMAP_MOBILEHEIGHT')) {
+			if(defined('JSMAP_MOBILEHEIGHT') == true) {
 				return JSMAP_MOBILEHEIGHT;
 			}
 		}

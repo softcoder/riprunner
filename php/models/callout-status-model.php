@@ -55,7 +55,9 @@ class CalloutStatusViewModel extends BaseViewModel {
 		
 		$resultArray = array();
 		foreach($rows as $row) {
-		    $statusDef = new CalloutStatusDef($row['id'],$row['name'],$row['display_name'],$row['status_flags'],$row['behaviour_flags'],$row['access_flags'],$row['access_flags_inclusive'],$row['user_types_allowed']);
+		    $statusDef = new CalloutStatusDef($row['id'], $row['name'], $row['display_name'], $row['status_flags'],
+		                                      $row['behaviour_flags'], $row['access_flags'], $row['access_flags_inclusive'],
+		                                      $row['user_types_allowed']);
 		    $row['statusDef'] = $statusDef;
 			// Add any custom fields with values here
 		    $row['access_admin'] = $statusDef->hasAccess(USER_ACCESS_ADMIN);

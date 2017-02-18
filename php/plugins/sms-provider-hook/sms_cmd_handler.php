@@ -166,7 +166,7 @@ class SMSCommandHandler {
                         $recipient_list_array = $this->get_recipients_list($FIREHALL, $db_connection);
                         
                         if($log !== null) $log->trace("Looking for matching sms command recipients list: [" . 
-                                implode(",",$recipient_list_array) . "]");
+                                implode(",", $recipient_list_array) . "]");
                         
                         $matching_sms_user = $this->find_sms_match($sms_user, $recipient_list_array);
                         if ($matching_sms_user !== null) {
@@ -188,12 +188,12 @@ class SMSCommandHandler {
                                 $result->setCmd($sms_cmd);
 
                                 if($log !== null) $log->trace("Looking for matching sms command input: [" . $sms_cmd . 
-                                        "] compare with #1 [" . implode(",",self::$SMS_AUTO_CMD_TEST) . "]" .
-                                        "] compare with #2 [" . implode(",",self::$SMS_AUTO_CMD_RESPONDING) . "]" .
-                                        "] compare with #3 [" . implode(",",self::$SMS_AUTO_CMD_STATUS_UPDATE) . "]" .
-                                        "] compare with #4 [" . implode(",",self::$SMS_AUTO_CMD_COMPLETED) . "]" .
-                                        "] compare with #5 [" . implode(",",self::$SMS_AUTO_CMD_CANCELLED) . "]" .
-                                        "] compare with #6 [" . implode(",",self::$SMS_AUTO_CMD_CANCELLED) . "]");
+                                        "] compare with #1 [" . implode(",", self::$SMS_AUTO_CMD_TEST) . "]" .
+                                        "] compare with #2 [" . implode(",", self::$SMS_AUTO_CMD_RESPONDING) . "]" .
+                                        "] compare with #3 [" . implode(",", self::$SMS_AUTO_CMD_STATUS_UPDATE) . "]" .
+                                        "] compare with #4 [" . implode(",", self::$SMS_AUTO_CMD_COMPLETED) . "]" .
+                                        "] compare with #5 [" . implode(",", self::$SMS_AUTO_CMD_CANCELLED) . "]" .
+                                        "] compare with #6 [" . implode(",", self::$SMS_AUTO_CMD_CANCELLED) . "]");
                                 
                                 if( in_array(strtoupper($sms_cmd), self::$SMS_AUTO_CMD_TEST) === true) {
                                     $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
@@ -208,12 +208,12 @@ class SMSCommandHandler {
                                     $result->setIsProcessed(true);
                                 }
                                 //else if( in_array(strtoupper($sms_cmd), self::$SMS_AUTO_CMD_RESPONDING) === true) {
-                                else if($this->commandMatch($sms_cmd,self::$SMS_AUTO_CMD_RESPONDING,
+                                else if($this->commandMatch($sms_cmd, self::$SMS_AUTO_CMD_RESPONDING,
                                         CommandMatchType::StartsWith) === true) {
                                     $this->processResponding($sms_cmd, $db_connection, 
                                             $log, $FIREHALLS_LIST, $FIREHALL, $result);
                                 }
-                                else if($this->commandMatch($sms_cmd.' ',self::$SMS_AUTO_CMD_STATUS_UPDATE, 
+                                else if($this->commandMatch($sms_cmd.' ', self::$SMS_AUTO_CMD_STATUS_UPDATE, 
                                         CommandMatchType::StartsWith) === true) {
                                     $this->processStatusUpdate($sms_cmd, $db_connection, 
                                             $log, $FIREHALLS_LIST, $FIREHALL, $result);
@@ -338,11 +338,11 @@ class SMSCommandHandler {
         
         if($log !== null) $log->trace("Looking for sms contacts list...");
         
-        $contacts = explode(';',$cmd_result->getFirehall()->SMS->getSpecialContacts());
+        $contacts = explode(';', $cmd_result->getFirehall()->SMS->getSpecialContacts());
         if($contacts != null && is_array($contacts) === true) {
             foreach ($contacts as $contact) {
-                $contact_parts = explode('|',$contact);
-                if($contact_parts != null && is_array($contact_parts) && count($contact_parts) >= 2) {
+                $contact_parts = explode('|', $contact);
+                if($contact_parts != null && is_array($contact_parts) == true && count($contact_parts) >= 2) {
                     if($result !== '') {
                         $result .= PHP_EOL;
                     }
@@ -587,7 +587,7 @@ class SMSCommandHandler {
         $result = false;
         
         if($log !== null) $log->trace("In commandMatch Looking for matching sms command for: [" . $sms_cmd
-                . "] match_type: " . $match_type . " lookup: " . (is_array($lookup_sms_cmds) ? implode(",",$lookup_sms_cmds) : $lookup_sms_cmds));
+                . "] match_type: " . $match_type . " lookup: " . (is_array($lookup_sms_cmds) ? implode(",", $lookup_sms_cmds) : $lookup_sms_cmds));
                 
         switch($match_type) {
             case CommandMatchType::Exact:
@@ -613,7 +613,7 @@ class SMSCommandHandler {
                 break;
         }
         
-        if($log !== null) $log->trace("In commandMatch result: " . var_export($result,true));
+        if($log !== null) $log->trace("In commandMatch result: " . var_export($result, true));
         
         return $result;
     }
@@ -660,26 +660,26 @@ class SMSCommandHandler {
         
             $sms_cmd_list = explode(' ', $sms_cmd);
             $updateToStatus = null;
-            if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_NOT_RESPONDING, CommandMatchType::StartsWith)) {
+            if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_NOT_RESPONDING, CommandMatchType::StartsWith) == true) {
                 $updateToStatus = CalloutStatusType::NotResponding($FIREHALL)->getId();
             }
-            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY, CommandMatchType::StartsWith)) {
+            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY, CommandMatchType::StartsWith) == true) {
                 $updateToStatus = CalloutStatusType::Standby($FIREHALL)->getId();
             }
-            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL, CommandMatchType::StartsWith)) {
+            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL, CommandMatchType::StartsWith) == true) {
                 $updateToStatus = CalloutStatusType::Responding_at_hall($FIREHALL)->getId();
             }
-            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE, CommandMatchType::StartsWith)) {
+            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE, CommandMatchType::StartsWith) == true) {
                 $updateToStatus = CalloutStatusType::Responding_to_scene($FIREHALL)->getId();
             }
-            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE, CommandMatchType::StartsWith)) {
+            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE, CommandMatchType::StartsWith) == true) {
                 $updateToStatus = CalloutStatusType::Responding_at_scene($FIREHALL)->getId();
             }
-            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RETURN_HALL, CommandMatchType::StartsWith)) {
+            else if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_RETURN_HALL, CommandMatchType::StartsWith) == true) {
                 $updateToStatus = CalloutStatusType::Responding_return_hall($FIREHALL)->getId();
             }
             
-            if(CalloutStatusType::isValidValue($updateToStatus,$FIREHALL) == false) {
+            if(CalloutStatusType::isValidValue($updateToStatus, $FIREHALL) == false) {
                 if($log !== null) $log->error("Invalid status in updatestatus [".$sms_cmd."] updateToStatus: $updateToStatus");
                 throw new \Exception("Invalid status in updatestatus [".$sms_cmd."] updateToStatus: $updateToStatus");
             }

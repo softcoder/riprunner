@@ -59,8 +59,8 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 			$recipient_list = explode(';', $recipients);
 			$recipient_list_array = $recipient_list;
 
-			$sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY',$callout->getFirehall()->FIREHALL_ID);
-			$recipient_list_array = array_merge($recipient_list_array,explode(';', $sms_notify));
+			$sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY', $callout->getFirehall()->FIREHALL_ID);
+			$recipient_list_array = array_merge($recipient_list_array, explode(';', $sms_notify));
 
 			$recipient_list_type = RecipientListType::MobileList;
 		}
@@ -85,8 +85,8 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 				$recipient_list = explode(';', $recipients);
 				$recipient_list_array = $recipient_list;
 			}
-			$sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY',$callout->getFirehall()->FIREHALL_ID);
-			$recipient_list_array = array_merge($recipient_list_array,explode(';', $sms_notify));
+			$sms_notify = $config->getFirehallConfigValue('SMS->SMS_RECIPIENTS_NOTIFY_ONLY', $callout->getFirehall()->FIREHALL_ID);
+			$recipient_list_array = array_merge($recipient_list_array, explode(';', $sms_notify));
 		}
 		
 		$smsText = self::getSMSCalloutMessage($callout);

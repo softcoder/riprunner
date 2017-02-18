@@ -50,7 +50,7 @@ if(isset($server_mode) === true && $server_mode === 'true') {
 	 * @param string $msg Line of text that should be transmitted.
 	*/
 	function sendMsg($live_callout_info) {
-		if(isset($live_callout_info) === true && isset($live_callout_info->callout) && 
+		if(isset($live_callout_info) === true && isset($live_callout_info->callout) === true && 
 		        $live_callout_info->callout != null && $live_callout_info->callout->id != null) {
 			echo "id: " . $live_callout_info->callout->id . PHP_EOL;
 			echo "data: {\n";

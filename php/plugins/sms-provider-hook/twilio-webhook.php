@@ -27,7 +27,7 @@ if($sms_cmd_handler->validateTwilioHost($FIREHALLS) === false) {
 }
 header("content-type: text/xml");
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-$result = $sms_cmd_handler->handle_sms_command($FIREHALLS,SMS_GATEWAY_TWILIO);
+$result = $sms_cmd_handler->handle_sms_command($FIREHALLS, SMS_GATEWAY_TWILIO);
 ?>
 <Response>
 <?php if($result->getFirehall() !== null && $result->getUserId() !== null): ?>
@@ -66,7 +66,7 @@ Cannot complete the callout, no callouts active!
 Cannot cancel the callout, no callouts active!
 <?php elseif($sms_cmd_handler->startsWith(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_BULK) === true): ?>
     </Message>
-<?php echo $sms_cmd_handler->process_bulk_sms_command($result,SMS_GATEWAY_TWILIO) ?>
+<?php echo $sms_cmd_handler->process_bulk_sms_command($result, SMS_GATEWAY_TWILIO) ?>
 <?php else: ?>
 Received Unknown SMS command
 From [<?php echo ((getSafeRequestValue('From') !== null) ? getSafeRequestValue('From') : '') ?>]
