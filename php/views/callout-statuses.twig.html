@@ -74,10 +74,9 @@
                     
                     <th scope="col">Access Inclusive</th>
 
-                    <th scope="col">User Type Admin Allowed</th>
-                    <th scope="col">User Type Fire Fighter Allowed</th>
-                    <th scope="col">User Type Fire Apparatus Allowed</th>
-                    <th scope="col">User Type Office STaff Allowed</th>
+                    {% for user_type in calloutstatus_vm.user_type_list %}
+                    <th scope="col">User Type {{ user_type.name }} Allowed</th>
+                    {% endfor %}
                                         
                     <th scope="col" class="column_nowrap">Update Date/Time</th>
                     <th scope="col" colspan="15" align="Center">Modify Data</th>
@@ -152,18 +151,11 @@
                     <input id="edit_access_flags_inclusive" name="edit_access_flags_inclusive" type="checkbox"/>
                 </td>
                 
+                {% for user_type in calloutstatus_vm.user_type_list %}
                 <td>
-                    <input id="edit_usertype_admin" name="edit_usertype_admin" type="checkbox"/>
+                    <input id="edit_usertype_{{ user_type.id }}" name="edit_usertype_{{ user_type.id }}" type="checkbox"/>
                 </td>
-                <td>
-                    <input id="edit_usertype_fire_fighter" name="edit_usertype_fire_fighter" type="checkbox"/>
-                </td>
-                <td>
-                    <input id="edit_usertype_fire_apparatus" name="edit_usertype_fire_apparatus" type="checkbox"/>
-                </td>
-                <td>
-                    <input id="edit_usertype_office_staff" name="edit_usertype_office_staff" type="checkbox"/>
-                </td>
+                {% endfor %}
 
                 <td colspan="3">
                 <input type="button" value="Save" 
@@ -318,40 +310,18 @@
                 {% endif %}
                 </td>
                 
+                
+                {% for user_type in calloutstatus_vm.user_type_list %}
                 <td>
                 {% if edit_current_row %}
-                    <input id="edit_usertype_admin" name="edit_usertype_admin" 
-                           type="checkbox" {{ status.usertype_admin ? 'checked="checked"' : '' }} />
+                    <input id="edit_usertype_{{ user_type.id }}" name="edit_usertype_{{ user_type.id }}" 
+                           type="checkbox" {{ attribute(status,'usertype_'~user_type.id) ? 'checked="checked"' : '' }} />
                 {% else %}
-                    {{ status.usertype_admin ? 'yes' : 'no' }}
+                    {{ attribute(status,'usertype_'~user_type.id) ? 'yes' : 'no' }}
                 {% endif %}
+                    
                 </td>
-                <td>
-                {% if edit_current_row %}
-                    <input id="edit_usertype_fire_fighter" name="edit_usertype_fire_fighter" 
-                           type="checkbox" {{ status.usertype_fire_fighter ? 'checked="checked"' : '' }} />
-                {% else %}
-                    {{ status.usertype_fire_fighter ? 'yes' : 'no' }}
-                {% endif %}
-                </td>
-                <td>
-                {% if edit_current_row %}
-                    <input id="edit_usertype_fire_apparatus" name="edit_usertype_fire_apparatus" 
-                           type="checkbox" {{ status.usertype_fire_apparatus ? 'checked="checked"' : '' }} />
-                {% else %}
-                    {{ status.usertype_fire_apparatus ? 'yes' : 'no' }}
-                {% endif %}
-                </td>
-                <td>
-                {% if edit_current_row %}
-                    <input id="edit_usertype_office_staff" name="edit_usertype_office_staff" 
-                           type="checkbox" {{ status.usertype_office_staff ? 'checked="checked"' : '' }} />
-                {% else %}
-                    {{ status.usertype_office_staff ? 'yes' : 'no' }}
-                {% endif %}
-                </td>
-
-
+                {% endfor %}
 
 
                 <td class="column_nowrap">

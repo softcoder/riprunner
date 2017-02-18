@@ -51,8 +51,10 @@ class CalloutStatusViewModel extends BaseViewModel {
 		
 		$log->trace("About to display status list for sql [$sql] result count: " . count($rows));
 		
+		$user_types = $this->getUserTypeList();
+		
 		$resultArray = array();
-		foreach($rows as $row){
+		foreach($rows as $row) {
 		    $statusDef = new CalloutStatusDef($row['id'],$row['name'],$row['display_name'],$row['status_flags'],$row['behaviour_flags'],$row['access_flags'],$row['access_flags_inclusive'],$row['user_types_allowed']);
 		    $row['statusDef'] = $statusDef;
 			// Add any custom fields with values here
@@ -61,10 +63,9 @@ class CalloutStatusViewModel extends BaseViewModel {
 		    $row['access_respond_self'] = $statusDef->hasAccess(USER_ACCESS_CALLOUT_RESPOND_SELF);
 		    $row['access_respond_others'] = $statusDef->hasAccess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 
-		    $row['usertype_admin'] = $statusDef->isUserType(UserType::USER_TYPE_ADMIN);
-		    $row['usertype_fire_fighter'] = $statusDef->isUserType(UserType::USER_TYPE_FIRE_FIGHTER);
-		    $row['usertype_fire_apparatus'] = $statusDef->isUserType(UserType::USER_TYPE_FIRE_APPARATUS);
-		    $row['usertype_office_staff'] = $statusDef->isUserType(UserType::USER_TYPE_OFFICE_STAFF);
+		    foreach($user_types as $user_type) {
+		        $row['usertype_'.$user_type['id']] = $statusDef->isUserType($user_type['id']);
+		    }
 		    
 			$resultArray[] = $row;
 		}		

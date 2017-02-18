@@ -203,28 +203,15 @@ class CalloutStatusMenuController {
 	    else {
 	        $edit_access_flags_inclusive = 1;
 	    }
-	     
-	    $edit_usertype_admin = get_query_param('edit_usertype_admin');
-	    $edit_usertype_fire_fighter = get_query_param('edit_usertype_fire_fighter');
-	    $edit_usertype_fire_apparatus = get_query_param('edit_usertype_fire_apparatus');
-	    $edit_usertype_office_staff = get_query_param('edit_usertype_office_staff');
 	    
 	    $user_types_allowed = 0;
-	    if(isset($edit_usertype_admin) === true && $edit_usertype_admin === 'on') {
-	        $user_type_bit = 1 << UserType::USER_TYPE_ADMIN-1;
-	        $user_types_allowed |= $user_type_bit;
-	    }
-	    if(isset($edit_usertype_fire_fighter) === true && $edit_usertype_fire_fighter === 'on') {
-	        $user_type_bit = 1 << UserType::USER_TYPE_FIRE_FIGHTER-1;
-	        $user_types_allowed |= $user_type_bit;
-	    }
-	    if(isset($edit_usertype_fire_apparatus) === true && $edit_usertype_fire_apparatus === 'on') {
-	        $user_type_bit = 1 << UserType::USER_TYPE_FIRE_APPARATUS-1;
-	        $user_types_allowed |= $user_type_bit;
-	    }
-	    if(isset($edit_usertype_office_staff) === true && $edit_usertype_office_staff === 'on') {
-	        $user_type_bit = 1 << UserType::USER_TYPE_OFFICE_STAFF-1;
-	        $user_types_allowed |= $user_type_bit;
+	    $user_types = $this->getUserTypeList();
+	    foreach($user_types as $user_type) {
+	        $edit_usertype = get_query_param('edit_usertype_'.$user_type->id);
+	        if(isset($edit_usertype) === true && $edit_usertype === 'on') {
+	            $user_type_bit = 1 << $user_type->id-1;
+	            $user_types_allowed |= $user_type_bit;
+	        }
 	    }
 	     
 	    $sql_statement = new \riprunner\SqlStatement($db_connection);
@@ -326,28 +313,15 @@ class CalloutStatusMenuController {
 	    else {
 	        $edit_access_flags_inclusive = 1;
 	    }
-	     
-	    $edit_usertype_admin = get_query_param('edit_usertype_admin');
-	    $edit_usertype_fire_fighter = get_query_param('edit_usertype_fire_fighter');
-	    $edit_usertype_fire_apparatus = get_query_param('edit_usertype_fire_apparatus');
-	    $edit_usertype_office_staff = get_query_param('edit_usertype_office_staff');
 
 	    $user_types_allowed = 0;
-	    if(isset($edit_usertype_admin) === true && $edit_usertype_admin === 'on') {
-	        $user_type_bit = 1 << UserType::USER_TYPE_ADMIN-1;
-	        $user_types_allowed |= $user_type_bit;
-	    }
-	    if(isset($edit_usertype_fire_fighter) === true && $edit_usertype_fire_fighter === 'on') {
-	        $user_type_bit = 1 << UserType::USER_TYPE_FIRE_FIGHTER-1;
-	        $user_types_allowed |= $user_type_bit;
-	    }
-	    if(isset($edit_usertype_fire_apparatus) === true && $edit_usertype_fire_apparatus === 'on') {
-	        $user_type_bit = 1 << UserType::USER_TYPE_FIRE_APPARATUS-1;
-	        $user_types_allowed |= $user_type_bit;
-	    }
-	    if(isset($edit_usertype_office_staff) === true && $edit_usertype_office_staff === 'on') {
-	        $user_type_bit = 1 << UserType::USER_TYPE_OFFICE_STAFF-1;
-	        $user_types_allowed |= $user_type_bit;
+	    $user_types = $this->getUserTypeList();
+	    foreach($user_types as $user_type) {
+	        $edit_usertype = get_query_param('edit_usertype_'.$user_type->id);
+	        if(isset($edit_usertype) === true && $edit_usertype === 'on') {
+	            $user_type_bit = 1 << $user_type->id-1;
+	            $user_types_allowed |= $user_type_bit;
+	        }
 	    }
 	     
 	    $sql_statement = new \riprunner\SqlStatement($db_connection);
@@ -392,6 +366,33 @@ class CalloutStatusMenuController {
 	        }
 	    }
 	}
+	private function getUserTypeList() {
+	    global $log;
+	
+	    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+	
+	    if($this->getGvm()->firehall->LDAP->ENABLED == true) {
+	        create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
+	    }
+	    $sql = $sql_statement->getSqlStatement('user_type_list_select');
+	
+	    $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+	    $qry_bind->execute();
+	
+	    $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+	    $qry_bind->closeCursor();
+	
+	    $log->trace("About to display user type list for sql [$sql] result count: " . count($rows));
+	
+	    $resultArray = array();
+	    foreach($rows as $row){
+	        // Add any custom fields with values here
+	        $resultArray[] = $row;
+	    }
+	
+	    return $resultArray;
+	}
+	
 }
 	
 // Load out template

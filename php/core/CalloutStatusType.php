@@ -62,112 +62,29 @@ class CalloutStatusType {
         global $log;
         static $statusList = null;
         static $statusListFromDB = false;
-        //$statusList = null;
         if($statusList == null || $statusListFromDB == false) {
-            // temp solution for now
+            $db = new \riprunner\DbConnection($FIREHALL);
+            $db_connection = $db->getConnection();
             
-            /*
-            if($FIREHALL == null) {
-                $statusList = array(
-                    0 => new CalloutStatusDef(0,'Paged','Paged',StatusFlagType::STATUS_FLAG_NONE,
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL | 
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS | 
-                        BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                        USER_ACCESS_ADMIN,true,array(UserType::USER_TYPE_NONE)),
-                    1 => new CalloutStatusDef(1,'Notified','Notified',StatusFlagType::STATUS_FLAG_NONE,
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                        USER_ACCESS_ADMIN,true,array(UserType::USER_TYPE_NONE)),
-                    2 => new CalloutStatusDef(2,'Responding','Respond to hall',StatusFlagType::STATUS_FLAG_RESPONDING,
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE,
-                        USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
-                        array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_OFFICE_STAFF)),
-                    3 => new CalloutStatusDef(3,'Cancelled','Cancelled',StatusFlagType::STATUS_FLAG_CANCELLED,
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                        USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
-                        array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
-                    4 => new CalloutStatusDef(4,'NotResponding','Not Responding',StatusFlagType::STATUS_FLAG_NOT_RESPONDING,
-                        BehaviourFlagType::BEHAVIOUR_FLAG_NONE,
-                        USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
-                        array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_OFFICE_STAFF)),
-                    5 => new CalloutStatusDef(5,'Standby_in_area','Standby - In Area',StatusFlagType::STATUS_FLAG_STANDBY,
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                        USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
-                        array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
-                    11 => new CalloutStatusDef(11,'Standby_in_town','Standby - In Town',StatusFlagType::STATUS_FLAG_STANDBY,
-                            BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
-                            BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
-                            BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                            USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
-                            array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
-                    6 => new CalloutStatusDef(6,'Responding_at_hall','Respond at hall',StatusFlagType::STATUS_FLAG_RESPONDING,
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                        USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
-                        array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
-                    7 => new CalloutStatusDef(7,'Responding_to_scene','Respond to scene',StatusFlagType::STATUS_FLAG_RESPONDING,
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                        USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
-                        array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
-                    8 => new CalloutStatusDef(8,'Responding_at_scene','Respond at scene',StatusFlagType::STATUS_FLAG_RESPONDING,
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                        USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
-                        array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
-                    9 => new CalloutStatusDef(9,'Responding_return_hall','Return to hall',StatusFlagType::STATUS_FLAG_RESPONDING,
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
-                        BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                        USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
-                        array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
-                    10 => new CalloutStatusDef(10,'Complete','Complete',StatusFlagType::STATUS_FLAG_COMPLETED,
-                            BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_ALL |
-                            BehaviourFlagType::BEHAVIOUR_FLAG_SIGNAL_RESPONDERS |
-                            BehaviourFlagType::BEHAVIOUR_FLAG_NON_RESPONDERS,
-                            USER_ACCESS_ADMIN | USER_ACCESS_CALLOUT_RESPOND_SELF | USER_ACCESS_CALLOUT_RESPOND_OTHERS,false,
-                            array(UserType::USER_TYPE_ADMIN,UserType::USER_TYPE_FIRE_FIGHTER,UserType::USER_TYPE_FIRE_APPARATUS,UserType::USER_TYPE_OFFICE_STAFF)),
-                );
+            $sql_statement = new \riprunner\SqlStatement($db_connection);
+            $sql = $sql_statement->getSqlStatement('status_list_select');
+            
+            $qry_bind = $db_connection->prepare($sql);
+            $qry_bind->execute();
+            
+            $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+            $qry_bind->closeCursor();
+            \riprunner\DbConnection::disconnect_db( $db_connection );
+            
+            if($log !== null) $log->trace("Call get response status codes SQL success for sql [$sql] row count: " . count($rows));
+            
+            $statusList = array();
+            foreach($rows as $row) {
+                $statusDef = new CalloutStatusDef($row['id'],$row['name'],$row['display_name'],$row['status_flags'],$row['behaviour_flags'],$row['access_flags'],$row['access_flags_inclusive'],$row['user_types_allowed']);
+                $statusList[$statusDef->getId()] = $statusDef;
             }
-            else {
-            */
-                // = getFirstActiveFireHallConfig($FIREHALLS);
-    
-                //$must_close_db = true;
-                $db = new \riprunner\DbConnection($FIREHALL);
-                $db_connection = $db->getConnection();
-                
-                $sql_statement = new \riprunner\SqlStatement($db_connection);
-                $sql = $sql_statement->getSqlStatement('status_list_select');
-                
-                $qry_bind = $db_connection->prepare($sql);
-                $qry_bind->execute();
-                
-                $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
-                $qry_bind->closeCursor();
-                \riprunner\DbConnection::disconnect_db( $db_connection );
-                
-                if($log !== null) $log->trace("Call get response status codes SQL success for sql [$sql] row count: " . count($rows));
-                
-                $statusList = array();
-                foreach($rows as $row) {
-                    $statusDef = new CalloutStatusDef($row['id'],$row['name'],$row['display_name'],$row['status_flags'],$row['behaviour_flags'],$row['access_flags'],$row['access_flags_inclusive'],$row['user_types_allowed']);
-                    $statusList[$statusDef->getId()] = $statusDef;
-                }
-                
-                $statusListFromDB = true;
-            //}
+            
+            $statusListFromDB = true;
         }
         return $statusList;
     }
@@ -222,7 +139,6 @@ class CalloutStatusType {
     
     static public function Paged($FIREHALL) { return self::getStatusById(0,$FIREHALL); }
     static public function Notified($FIREHALL) { return self::getStatusById(1,$FIREHALL); }
-    //static public function Responding($FIREHALL) { return self::getStatusById(2,$FIREHALL); }
     static public function Cancelled($FIREHALL) { 
         return self::getStatusByFlags($FIREHALL,StatusFlagType::STATUS_FLAG_CANCELLED,BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE);
     }

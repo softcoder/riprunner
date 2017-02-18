@@ -39,21 +39,8 @@ abstract class BehaviourFlagType {
 
 // Types of user types
 abstract class UserType {
-    const USER_TYPE_NONE           = 0;
-    const USER_TYPE_ADMIN          = 1;
-    const USER_TYPE_FIRE_FIGHTER   = 2;
-    const USER_TYPE_FIRE_APPARATUS = 3;
-    const USER_TYPE_OFFICE_STAFF   = 4;
+    const USER_TYPE_NONE = 0;
 }
-
-// Types of user types included
-// abstract class UserTypeIncluded {
-//     const USER_TYPE_NONE           = 0;
-//     const USER_TYPE_ADMIN          = 0x1;
-//     const USER_TYPE_FIRE_FIGHTER   = 0x2;
-//     const USER_TYPE_FIRE_APPARATUS = 0x4;
-//     const USER_TYPE_OFFICE_STAFF   = 0x8;
-// }
 
 class CalloutStatusDef implements JsonSerializable {
 
