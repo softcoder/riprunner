@@ -317,6 +317,7 @@ class CalloutStatusMenuController {
 	    $user_types_allowed = 0;
 	    $user_types = $this->getUserTypeList();
 	    foreach($user_types as $user_type) {
+	        //print_r($user_type);
 	        $edit_usertype = get_query_param('edit_usertype_'.$user_type->id);
 	        if(isset($edit_usertype) === true && $edit_usertype === 'on') {
 	            $user_type_bit = (1 << ($user_type->id-1));
@@ -369,17 +370,17 @@ class CalloutStatusMenuController {
 	private function getUserTypeList() {
 	    global $log;
 	
-	    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+	    $sql_statement = new \riprunner\SqlStatement($this->global_vm->RR_DB_CONN);
 	
-	    if($this->getGvm()->firehall->LDAP->ENABLED == true) {
-	        create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
+	    if($this->global_vm->firehall->LDAP->ENABLED == true) {
+	        create_temp_users_table_for_ldap($this->global_vm->firehall, $this->global_vm->RR_DB_CONN);
 	    }
 	    $sql = $sql_statement->getSqlStatement('user_type_list_select');
 	
-	    $qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
+	    $qry_bind = $this->global_vm->RR_DB_CONN->prepare($sql);
 	    $qry_bind->execute();
 	
-	    $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+	    $rows = $qry_bind->fetchAll(\PDO::FETCH_CLASS);
 	    $qry_bind->closeCursor();
 	
 	    $log->trace("About to display user type list for sql [$sql] result count: " . count($rows));
