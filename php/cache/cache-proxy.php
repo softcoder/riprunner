@@ -40,9 +40,12 @@ class CacheProxy {
 				$this->cacheProviderType != $this->cacheProviderTypeFallback) {
 		    $this->cacheProvider = null;
 			$this->cacheProviderType = $this->cacheProviderTypeFallback;
-			$this->getCacheProvider();
 		}
-				
+		if($this->getCacheProvider() != null &&
+		        $this->getCacheProvider()->isInstalled() == false) {
+		    $this->cacheProvider = null;
+		}
+		
 		if($log !== null) $log->trace("Cache proxy constructor will use type: " . $this->cacheProviderType);
 	}
 
@@ -67,18 +70,21 @@ class CacheProxy {
 				throw new \Exception("Invalid Cache Plugin type: [" . $this->cacheProviderType . "]");
 			}
 		}
+		if($this->cacheProvider != null && $this->cacheProvider->isInstalled() == false) {
+		    return null;
+		}
 		
 		return $this->cacheProvider;
 	}
 	
 	public function getItem($key) {
-		if($this->getCacheProvider() === null) {
+		if($this->getCacheProvider() == null) {
 			return null;
 		}
 		return $this->getCacheProvider()->getItem($key);
 	}
 	public function setItem($key, $value, $cache_seconds=null) {
-		if($this->getCacheProvider() !== null) {
+		if($this->getCacheProvider() != null) {
 			if(isset($cache_seconds) === false) {
 				$cache_seconds = (60 * 10);
 			}
@@ -86,18 +92,18 @@ class CacheProxy {
 		}
 	}
 	public function deleteItem($key) {
-		if($this->getCacheProvider() !== null) {
+		if($this->getCacheProvider() != null) {
 			$this->getCacheProvider()->deleteItem($key);
 		}
 	}
 	public function hasItem($key) {
-		if($this->getCacheProvider() === null) {
+		if($this->getCacheProvider() == null) {
 			return null;
 		}
 		return $this->getCacheProvider()->hasItem($key);
 	}
 	public function clear() {
-		if($this->getCacheProvider() === null) {
+		if($this->getCacheProvider() == null) {
 			return null;
 		}
 		return $this->getCacheProvider()->clear();

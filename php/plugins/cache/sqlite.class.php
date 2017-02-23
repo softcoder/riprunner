@@ -53,7 +53,8 @@ class SqliteCachePlugin implements ICachePlugin {
 			    if($log !== null) $log->trace("Cache plugin init FAILED cannot use sqlite on this host!");
 			}
 		}
-		catch(Exception $ex) {
+		catch(\Exception $ex) {
+		    $this->path = null;
 		    if($log !== null) $log->error("Cache proxy init error [" . $ex->getMessage() . "]");
 		}
 	}
@@ -67,7 +68,7 @@ class SqliteCachePlugin implements ICachePlugin {
 	}
 	
 	public function isInstalled() {
-		return (extension_loaded('pdo_sqlite'));
+		return (extension_loaded('pdo_sqlite') && $this->path != null);
 	}
 	
 	public function getItem($keyword) {

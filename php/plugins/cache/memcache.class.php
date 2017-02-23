@@ -41,7 +41,7 @@ class MemCachePlugin implements ICachePlugin {
 				if($log !== null) $log->trace("Cache plugin init FAILED cannot use memcached on this host!");
 			}
 		}
-		catch(Exception $ex) {
+		catch(\Exception $ex) {
 			$this->memcache = null;
 				
 			if($log !== null) $log->error("Cache proxy init error [" . $ex->getMessage() . "]");
