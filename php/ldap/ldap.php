@@ -27,7 +27,6 @@ class LDAP {
 	private $bind = null;
 	
 	private $enable_cache = false;
-	private $cache = null;
 	
 	public function __construct($adServer) {
 		$this->ad_server = $adServer;
@@ -43,10 +42,7 @@ class LDAP {
 	}
 
 	private function getCache() {
-	    if($this->cache == null) {
-	        $this->cache = new CacheProxy();	    
-	    }
-	    return $this->cache;
+	    return CacheProxy::getInstance();
 	}
 	public function setEnableCache($caching) {
 	    $this->enable_cache = $caching;

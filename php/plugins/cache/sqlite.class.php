@@ -33,23 +33,28 @@ class SqliteCachePlugin implements ICachePlugin {
 	public function __construct() {
 		global $log;
 		try {
+		    if($log !== null) $log->trace("Cache plugin check installed sqlite.");
+		    
 			if($this->isInstalled() === true) {
-
+			    if($log !== null) $log->trace("Cache plugin init about to connect to sqlite.");
+			    
 				if(file_exists($this->getCachePath()."/sqlite") === false) {
+				    if($log !== null) $log->warn("Cache plugin init about to mkdir for sqlite.");
+				    
 					if(@mkdir($this->getCachePath()."/sqlite", 0777) === false) {
 						throw new \Exception("Sqlite cache cannot create temp folder: " . $this->getCachePath()."/sqlite");
 					}
 				}
 				$this->path = $this->getCachePath() . "/sqlite";
 								
-				$log->trace("Cache plugin init SUCCESS using sqlite on this host!");
+				if($log !== null) $log->trace("Cache plugin init SUCCESS using sqlite on this host!");
 			}
 			else {
-				$log->trace("Cache plugin init FAILED cannot use sqlite on this host!");
+			    if($log !== null) $log->trace("Cache plugin init FAILED cannot use sqlite on this host!");
 			}
 		}
 		catch(Exception $ex) {
-			$log->error("Cache proxy init error [" . $ex->getMessage() . "]");
+		    if($log !== null) $log->error("Cache proxy init error [" . $ex->getMessage() . "]");
 		}
 	}
 	

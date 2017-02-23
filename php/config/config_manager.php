@@ -31,7 +31,6 @@ class ConfigManager {
 
     private $default_config_file_path = null;
     private $enable_cache = true;
-    private $cache = null;
     
     /*
     	Constructor
@@ -296,10 +295,7 @@ class ConfigManager {
     }
     
     private function getCache() {
-        if($this->cache == null) {
-            $this->cache = new CacheProxy();
-        }
-        return $this->cache;
+        return CacheProxy::getInstance();
     }
     
 }

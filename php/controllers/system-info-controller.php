@@ -31,8 +31,7 @@ if(isset($global_vm->firehall) === true && $global_vm->firehall !== null) {
 $clearCache = get_query_param('clearCache');
 if(isset($clearCache) === true && $clearCache === 'true') {
 	$log->warn('Clear cache requested by admin user.');
-	$cache = new \riprunner\CacheProxy();
-	$cache->clear();
+	\riprunner\CacheProxy::clearInstance();
 }
 
 // Load out template

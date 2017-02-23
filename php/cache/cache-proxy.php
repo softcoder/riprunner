@@ -23,6 +23,7 @@ class CacheProxy {
 	private $cacheProviderType = 'MEMCACHE';
 	private $cacheProviderTypeFallback = 'SQLITECACHE';
 	private $cacheProvider = null;
+	static private $cacheInstance = null;
 		
 	/*
 		Constructor
@@ -30,23 +31,38 @@ class CacheProxy {
 	public function __construct($cacheProviderType=null) {
 		global $log;
 		
-		if(isset($cacheProviderType) === true) {
+		if($log !== null) $log->trace("Cache proxy constructor will use type: " . $this->cacheProviderType);
+		if($cacheProviderType != null) {
 			$this->cacheProviderType = $cacheProviderType;
 		}
-		if($this->getCacheProvider() === null && 
-				$this->cacheProviderType !== $this->cacheProviderTypeFallback) {
+		if(($this->getCacheProvider() == null || 
+		    $this->getCacheProvider()->isInstalled() == false) && 
+				$this->cacheProviderType != $this->cacheProviderTypeFallback) {
+		    $this->cacheProvider = null;
 			$this->cacheProviderType = $this->cacheProviderTypeFallback;
+			$this->getCacheProvider();
 		}
 				
 		if($log !== null) $log->trace("Cache proxy constructor will use type: " . $this->cacheProviderType);
 	}
 
+	static public function getInstance() {
+	    if(self::$cacheInstance == null) {
+	        self::$cacheInstance = new CacheProxy();
+	    }
+	    return self::$cacheInstance;
+	}
+	static public function clearInstance() {
+	    self::$cacheInstance = null;
+	}
+	
 	private function getCacheProvider() {
 		global $log;
-		if(isset($this->cacheProvider) === false) {
+		if($this->cacheProvider == null) {
+		    if($log !== null) $log->trace("Looking for Cache Plugin type: [" . $this->cacheProviderType . "]");
 			$this->cacheProvider = PluginsLoader::findPlugin(
 					'riprunner\ICachePlugin', $this->cacheProviderType);
-			if($this->cacheProvider === null) {
+			if($this->cacheProvider == null) {
 				if($log !== null) $log->error("Invalid Cache Plugin type: [" . $this->cacheProviderType . "]");
 				throw new \Exception("Invalid Cache Plugin type: [" . $this->cacheProviderType . "]");
 			}

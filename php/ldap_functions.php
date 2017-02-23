@@ -159,7 +159,7 @@ function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 
 	if($FIREHALL->LDAP->ENABLED_CACHE == true) {
 		$cache_key_lookup = "RIPRUNNER_LDAP_USER_ACCESS_" . $FIREHALL->FIREHALL_ID . ((isset($user_id) === true) ? $user_id : "") . ((isset($userDn) === true) ? $userDn : "");
-		$cache = new \riprunner\CacheProxy();
+		$cache = \riprunner\CacheProxy::getInstance();
 		if ($cache->hasItem($cache_key_lookup) === true) {
 			if($log !== null) $log->trace("LDAP user access found in CACHE.");
 			return $cache->getItem($cache_key_lookup);

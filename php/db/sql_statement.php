@@ -28,7 +28,6 @@ class SqlStatement {
     static private $DEFAULT_SCHEMA_FILE = 'scheme_mysql.sql';
     
     private $enable_cache = true;
-    private $cache = null;
     private $pdo_connection;
     
     /*
@@ -199,9 +198,6 @@ class SqlStatement {
         return $sql_array;
     }
     private function getCache() {
-        if($this->cache == null) {
-            $this->cache = new CacheProxy();
-        }
-        return $this->cache;
+        return CacheProxy::getInstance();
     }
 }
