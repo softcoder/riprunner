@@ -25,7 +25,13 @@ class MemCachePlugin implements ICachePlugin {
 		try {
 			if($this->isInstalled() === true) {
 				$this->memcache = new \Memcache();
-				@$this->memcache->connect("127.0.0.1", 11211);  // connect memcahe server
+				if($log !== null) $log->warn("Cache plugin init about to connect to memcached.");
+				
+				$connect_result = @$this->memcache->connect("127.0.0.1", 11211);  // connect memcahe server
+				
+				if($connect_result === false) {
+				    if($log !== null) $log->warn("Cache plugin init FAILED cannot connect to memcached on this host!");
+				}
 	
 				if($log !== null) $log->trace("Cache plugin init SUCCESS for memcached on this host using version: ".$this->memcache->getVersion());
 			}
