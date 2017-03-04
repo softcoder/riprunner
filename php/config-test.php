@@ -33,14 +33,6 @@ define( 'GOOGLE_MAP_TYPE', 'javascript');
 define( 'DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD',	48);
 
 // ----------------------------------------------------------------------
-// Callout Codes and descriptions
-$CALLOUT_CODES_LOOKUP = array(
-			
-		"TESTONLY" => "TEST ONLY",
-		"TRAINING" => "TRAINING NIGHT"
-				);
-
-// ----------------------------------------------------------------------
 
 // Google maps street name substitution list: Original name -> Google map name
 $GOOGLE_MAP_STREET_LOOKUP = array(
