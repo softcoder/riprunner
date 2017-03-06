@@ -174,9 +174,9 @@ class EmailTriggerWebHook {
                 foreach ($FIREHALLS as &$FIREHALL){
                     $callout = processFireHallTextTrigger($realdata, $FIREHALL);
                      
-                    if($log !== null) $log->warn("Email trigger processing contents signal result: " . var_export($callout->isValid(), true));
+                    if($log !== null) $log->warn("Email trigger processing contents signal result: " . var_export($callout != null && $callout->isValid(), true));
                     
-                    if($callout->isValid() === true) {
+                    if($callout != null && $callout->isValid() === true) {
                         if($this->matchFirehallAuth($FIREHALL) === true) {
                             if($log !== null) $log->warn("Email trigger checking firehall: " .
                                     $FIREHALL->WEBSITE->FIREHALL_NAME .
