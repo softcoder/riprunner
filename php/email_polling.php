@@ -356,9 +356,9 @@ class EmailTriggerPolling {
             if($log !== null) $log->trace('Email trigger processing contents...');
     
             $callout = processFireHallText($realdata, $FIREHALL);
-            if($log !== null) $log->trace('Email trigger processing contents signal result: '.var_export($callout->isValid(), true));
+            if($log !== null) $log->trace('Email trigger processing contents signal result: '.var_export($callout != null && $callout->isValid(), true));
     
-            if ($callout->isValid() === true) {
+            if($callout != null && $callout->isValid() === true) {
                 $html    .='Signalling callout<br />';
                 if($log !== null) $log->warn("Email polling trigger dump contents... [$realdata]");
     
