@@ -228,7 +228,10 @@ class SignalManager {
                 );
                 	
                 $resultGCM .= $gcmInstance->send($message);
-                echo $resultGCM;
+                if($log != null) $log->trace("Result from GCM plugin [$resultGCM]");
+                if(isset($resultGCM) === true && $callout->getSupressEchoText() == false) {
+                    echo $resultGCM;
+                }
             }
 
             if($adhoc_db_connection === true && $db_connection !== null) {

@@ -34,11 +34,11 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 				'riprunner\ISMSPlugin', 
 				$callout->getFirehall()->SMS->SMS_GATEWAY_TYPE);
 		if($smsPlugin === null) {
-			$log->error("Invalid SMS Plugin type: [" . $callout->getFirehall()->SMS->SMS_GATEWAY_TYPE . "]");
+		    if($log != null) $log->error("Invalid SMS Plugin type: [" . $callout->getFirehall()->SMS->SMS_GATEWAY_TYPE . "]");
 			throw new \Exception("Invalid SMS Plugin type: [" . $callout->getFirehall()->SMS->SMS_GATEWAY_TYPE . "]");
 		}
 
-		$log->trace("Using SMS plugin [". $smsPlugin->getPluginType() ."]");
+		if($log != null) $log->trace("Using SMS plugin [". $smsPlugin->getPluginType() ."]");
 		
 		$config = new \riprunner\ConfigManager(array($callout->getFirehall()));
 
@@ -46,15 +46,15 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		$db_connection = $db->getConnection();
 		
 		if($callout->getFirehall()->LDAP->ENABLED == true) {
-		    $log->trace("SMS plugin resolving ldap sms recipients...");
+		    if($log != null) $log->trace("SMS plugin resolving ldap sms recipients...");
 		    
 			$recipients = get_sms_recipients_ldap($callout->getFirehall(), null);
 			
-			$log->trace("SMS plugin resolved ldap sms recipients: ".$recipients);
+			if($log != null) $log->trace("SMS plugin resolved ldap sms recipients: ".$recipients);
 			
 			$recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { $m; return ''; }, $recipients);
 			
-			$log->trace("SMS plugin resolved parsed ldap sms recipients: ".$recipients);
+			if($log != null) $log->trace("SMS plugin resolved parsed ldap sms recipients: ".$recipients);
 			
 			$recipient_list = explode(';', $recipients);
 			$recipient_list_array = $recipient_list;
@@ -65,14 +65,14 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 			$recipient_list_type = RecipientListType::MobileList;
 		}
 		else {
-		    $log->trace("SMS plugin resolving sms recipients...");
+		    if($log != null) $log->trace("SMS plugin resolving sms recipients...");
 		    
 			$recipient_list_type = (($callout->getFirehall()->SMS->SMS_RECIPIENTS_ARE_GROUP === true) ?
 					RecipientListType::GroupList : RecipientListType::MobileList);
 			if($recipient_list_type === RecipientListType::GroupList) {
 				$recipients_group = $callout->getFirehall()->SMS->SMS_RECIPIENTS;
 				
-				$log->trace("SMS plugin resolved sms group recipients: ".$recipients_group);
+				if($log != null) $log->trace("SMS plugin resolved sms group recipients: ".$recipients_group);
 				
 				$recipient_list_array = explode(';', $recipients_group);
 			}
@@ -104,7 +104,7 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		// START:
 		$resultSMS = '';
 		foreach($recipient_list_array as $recipient) {
-		    $log->trace("SMS plugin resolving sms recipient username for mobile: ".$recipient);
+		    if($log != null) $log->trace("SMS plugin resolving sms recipient username for mobile: ".$recipient);
 		    $user_id = getUserNameFromMobilePhone($callout->getFirehall(), $db_connection, $recipient);
 		    if($user_id !== null) {
     		    $recipient_array = array($recipient);
@@ -116,13 +116,13 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
     				$recipient_array, $recipient_list_type, $smsTextWithAuth);
 		    }
 		    else {
-		        $log->trace("SMS plugin resolving sms recipient username NOT FOUND for mobile: ".$recipient);
+		        if($log != null) $log->trace("SMS plugin resolving sms recipient username NOT FOUND for mobile: ".$recipient);
 		    }
 		}
 		// END:
 		
-		$log->trace("Result from SMS plugin [$resultSMS]");
-		if(isset($resultSMS) === true) {
+		if($log != null) $log->trace("Result from SMS plugin [$resultSMS]");
+		if(isset($resultSMS) === true && $callout->getSupressEchoText() == false) {
 			echo $resultSMS;
 		}
 		\riprunner\DbConnection::disconnect_db( $db_connection );

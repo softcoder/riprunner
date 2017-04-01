@@ -21,6 +21,7 @@ class CalloutDetails {
 	private $GPSLong;
 	private $unitsResponding;
 	private $status;
+	private $supress_echo_text = false;
 	
 	public function __construct() {
 	}
@@ -72,7 +73,7 @@ class CalloutDetails {
 
 	public function getDateTimeAsString() {
 		if(isset($this->dateTime) === true) {
-			if($this->dateTime instanceof DateTime) {
+			if($this->dateTime instanceof \DateTime) {
 				return $this->dateTime->format('Y-m-d H:i:s');
 			}
 			return $this->dateTime;
@@ -160,6 +161,13 @@ class CalloutDetails {
 	}
 	public function setStatus($value) {
 		$this->status = $value;
+	}
+		
+	public function getSupressEchoText() {
+	    return $this->supress_echo_text;
+	}
+	public function setSupressEchoText($value) {
+	    $this->supress_echo_text= $value;
 	}
 	
 	private function convertCallOutCodeToText($code) {

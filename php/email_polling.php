@@ -108,7 +108,7 @@ class IMapProviderDefault implements IMapProvider {
 class EmailTriggerPolling {
 
     private $imap_provider;
-     private $signalManager = null;
+    private $signalManager = null;
 
     public function __construct($imap_provider=null,$signalManager=null) {
         $this->imap_provider = $imap_provider;

@@ -74,7 +74,7 @@ class CalloutTypeMenuController {
 		if($code_test != null && $code_test != '') {
 		    $callout = new \riprunner\CalloutDetails();
 		    $callout->setDateTime(new \DateTime('now'));
-		    $callout->setCode(trim(strtoupper(get_query_param('display_code'))));
+		    $callout->setCode(trim(strtoupper($code_test)));
 		    $callout->setAddress('9115 Salmon Valley Road, Prince George, BC');
 		    $callout->setGPSLat('54.0873847');
 		    $callout->setGPSLong('-122.5898009');
