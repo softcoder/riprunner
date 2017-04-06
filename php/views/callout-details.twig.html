@@ -328,23 +328,24 @@
                                 <span class='inset-button'>{{ row_no.user_id }}</span>
                             </td>
                             <td class="ci_align_cell" colspan="2">
+                                <INPUT TYPE="button" VALUE="Notify" 
+                                       class="ci_respondnow_update" 
+                                       onclick="$('#call_no_response_{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status{{ row_no.id }}' ).val());
+                                       if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
+
                                 <select id="ui_call_set_response_status{{ row_no.id }}" class="ci_respondnow"
                                         onchange="$('#call_no_response_{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status{{ row_no.id }}' ).val());
                                                  if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();">
 
-						            {% for status_def in callout_details_vm.callout_status_defs %}
-						              {% if status_def.hasAccess(callout_details_vm.getMemberAccessValue(row_no.user_id)) and 
+                                    {% for status_def in callout_details_vm.callout_status_defs %}
+                                      {% if status_def.hasAccess(callout_details_vm.getMemberAccessValue(row_no.user_id)) and 
                                             status_def.isUserType(callout_details_vm.getMemberType(row_no.user_id)) and 
- 						                    (status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby()) %}
-						            <option value="{{ status_def.getId() }}" {{ (status_def.IsResponding() and status_def.IsDefaultResponse()) ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
-						              {% endif %}
-						            {% endfor %}
-	                                
+                                            (status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby()) %}
+                                    <option value="{{ status_def.getId() }}" {{ (status_def.IsResponding() and status_def.IsDefaultResponse()) ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
+                                      {% endif %}
+                                    {% endfor %}
+                                    
                                 </select>
-                                <INPUT TYPE="button" VALUE="SET STATUS" 
-                                       class="ci_respondnow_update" 
-                                       onclick="$('#call_no_response_{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status{{ row_no.id }}' ).val());
-                                       if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
 
                                 <form id="call_no_response_{{ row_no.id }}" 
                                   action="{{ gvm.RR_DOC_ROOT }}cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}" 
