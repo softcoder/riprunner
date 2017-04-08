@@ -242,7 +242,15 @@ function extractFirehallSettings() {
 
     $firehall_settings = '$FIREHALL_SETTINGS = new FireHallConfig();'.PHP_EOL;
     $firehall_settings .= '$FIREHALL_SETTINGS->setEnabled(true);'.PHP_EOL;
-    $firehall_settings .= "\$FIREHALL_SETTINGS->setFirehallId('$firehall_id');".PHP_EOL;
+    $firehall_settings .= "\$FIREHALL_SETTINGS->setFirehallId(";
+    if(is_numeric($firehall_id) == false) {
+        $firehall_settings .= "'";
+    }
+    $firehall_settings .= $firehall_id;
+    if(is_numeric($firehall_id) == false) {
+        $firehall_settings .= "'";
+    }
+    $firehall_settings .= ");".PHP_EOL;
     $firehall_settings .= '$FIREHALL_SETTINGS->setDBSettings($DB_SETTINGS);'.PHP_EOL;
     $firehall_settings .= '$FIREHALL_SETTINGS->setEmailSettings($EMAIL_SETTINGS);'.PHP_EOL;
     $firehall_settings .= '$FIREHALL_SETTINGS->setSMS_Settings($SMS_SETTINGS);'.PHP_EOL;

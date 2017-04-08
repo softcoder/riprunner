@@ -39,8 +39,9 @@ catch(\Exception $e) {
     '<p style="font-size:35px; color: red">'.PHP_EOL.
     'Error detected, message : ' . $e->getMessage().', '.'Code : ' . $e->getCode().
     '<br><span style="font-size:35px; color: yellow">Please create a config.php script.</span>'.PHP_EOL.
-    '<br><b><a target="_blank" href="config-builder.php">Click here to generate a config.php</a>
-        <br>Refresh this page once the config.php has been saved in the riprunner php folder of the server.</b>'.PHP_EOL.
+    '<br><b>Step #1: <a target="_blank" href="config-builder.php">Click here</a> to generate a config.php file.
+        <br>Step #2: <a target="_blank" href="install.php">Click here</a> once the config.php has been saved 
+        <br>in the riprunner php folder on the server.</b>'.PHP_EOL.
         '</p><hr>'.PHP_EOL.
         '</body>'.PHP_EOL.
         '</html>';
