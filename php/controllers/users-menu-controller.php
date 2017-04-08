@@ -154,6 +154,7 @@ class UsersMenuController {
 			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
 			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
+			$edit_user_active = 1;
 		}
 		else {
 			$edit_firehall_id = get_query_param('edit_firehall_id');
@@ -162,6 +163,13 @@ class UsersMenuController {
 			$edit_sms_access = get_query_param('edit_sms_access');
 			$edit_respond_self_access = get_query_param('edit_respond_self_access');
 			$edit_respond_others_access = get_query_param('edit_respond_others_access');
+			$edit_user_active = get_query_param('edit_user_active');
+			if(isset($edit_user_active) === true && $edit_user_active === 'on') {
+			    $edit_user_active = 1;
+			}
+			else {
+			    $edit_user_active = 0;
+			}
 		}
 		$edit_user_id_name = get_query_param('edit_user_id_name');
 		$edit_mobile_phone = get_query_param('edit_mobile_phone');
@@ -203,11 +211,14 @@ class UsersMenuController {
 		$sql = preg_replace_callback('(:sql_user_access)', function ($m) use ($sql_user_access) { return $sql_user_access; }, $sql);
 		
 		$log->trace("About to UPDATE user account for sql [$sql]");
-
+		//echo "<script>alert('$edit_user_active');</script>" .PHP_EOL;
+		
 		$qry_bind = $db_connection->prepare($sql);
 		$qry_bind->bindParam(':fhid', $edit_firehall_id);
 		$qry_bind->bindParam(':user_name', $edit_user_id_name);
 		$qry_bind->bindParam(':user_type', $edit_user_type);
+		$qry_bind->bindParam(':active', $edit_user_active);
+		
 		if(isset($new_pwd) === true) {
 			$qry_bind->bindParam(':user_pwd', $new_pwd);
 		}
@@ -239,6 +250,7 @@ class UsersMenuController {
 			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
 			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
+			$edit_user_active = 1;
 		}
 		else {
 			$edit_firehall_id = get_query_param('edit_firehall_id');
@@ -247,6 +259,13 @@ class UsersMenuController {
 			$edit_sms_access = get_query_param('edit_sms_access');
 			$edit_respond_self_access = get_query_param('edit_respond_self_access');
 			$edit_respond_others_access = get_query_param('edit_respond_others_access');
+			$edit_user_active = get_query_param('edit_user_active');
+			if(isset($edit_user_active) === true && $edit_user_active === 'on') {
+			    $edit_user_active = 1;
+			}
+			else {
+			    $edit_user_active = 0;
+			}
 		}
 		$edit_user_id_name = get_query_param('edit_user_id_name');
 		$edit_mobile_phone = get_query_param('edit_mobile_phone');
@@ -275,6 +294,7 @@ class UsersMenuController {
 		$qry_bind->bindParam(':fhid', $edit_firehall_id);
 		$qry_bind->bindParam(':user_name', $edit_user_id_name);
 		$qry_bind->bindParam(':user_type', $edit_user_type);
+		$qry_bind->bindParam(':active', $edit_user_active);
 		$qry_bind->bindParam(':mobile_phone', $edit_mobile_phone);
 		$qry_bind->bindParam(':user_pwd', $new_pwd_value);
 		$qry_bind->bindParam(':access', $new_user_access);

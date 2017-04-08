@@ -83,6 +83,7 @@
                     <th scope="col">Enable SMS{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_SMS_GROUP_FILTER }}{% endif %}</th>
                     <th scope="col">Enable Responding{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_RESPOND_SELF_GROUP_FILTER }}{% endif %}</th>
                     <th scope="col">Enable Responding for others{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_RESPOND_OTHERS_GROUP_FILTER }}{% endif %}</th>
+                    <th scope="col">User Active</th>
                     <th scope="col" class="column_nowrap">Update Date/Time</th>
                     <th scope="col" colspan="2" align="Center">Modify Data</th>
                     <tr>
@@ -141,6 +142,10 @@
                     <input id="edit_respond_others_access" name="edit_respond_others_access" 
                            type="checkbox" />
                 </td>
+                <td>
+                    <input id="edit_user_active" name="edit_user_active" 
+                           type="checkbox" checked/>
+                </td>
                 
                 <td class="column_nowrap">
                 </td>
@@ -173,9 +178,9 @@
 	            {% if not gvm.firehall.LDAP.ENABLED and not usersmenu_vm.selfedit_mode %}
 	            <tr>
 	            {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
-	                <td colspan="14">
+	                <td colspan="15">
 	            {% else %}
-	                <td colspan="12">
+	                <td colspan="13">
 	            {% endif %}
 	                    <input type="button" value="Add New" onclick="edit_user(this.form, -1);" />
 	                </td>
@@ -285,6 +290,14 @@
                            type="checkbox" {{ user.access_respond_others ? 'checked="checked"' : '' }} />
                 {% else %}
                     {{ user.access_respond_others ? 'yes' : 'no' }}
+                {% endif %}
+                </td>
+                <td>
+                {% if edit_current_row and not usersmenu_vm.selfedit_mode %}
+                    <input id="edit_user_active" name="edit_user_active" 
+                           type="checkbox" {{ user.active ? 'checked="checked"' : '' }} />
+                {% else %}
+                    {{ user.active ? 'yes' : 'no' }}
                 {% endif %}
                 </td>
 
