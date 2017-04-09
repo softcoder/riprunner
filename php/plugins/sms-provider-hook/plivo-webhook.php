@@ -57,13 +57,13 @@ Show help, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_A
 <?php echo $sms_cmd_handler->process_contacts_sms_command($result) ?>
 <?php else: ?>
 <?php if($sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_RESPONDING, \riprunner\CommandMatchType::StartsWith) === true && count($result->getLiveCallouts()) <= 0): ?>
-Cannot respond, no callouts active!
+ Cannot respond, no callouts active!
 <?php elseif($sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE, \riprunner\CommandMatchType::StartsWith) === true && count($result->getLiveCallouts()) <= 0): ?>
-Cannot update status, no callouts active!
+ Cannot update status, no callouts active!
 <?php elseif(in_array(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_COMPLETED) === true && count($result->getLiveCallouts()) <= 0): ?>
-Cannot complete the callout, no callouts active!
+ Cannot complete the callout, no callouts active!
 <?php elseif(in_array(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CANCELLED) === true && count($result->getLiveCallouts()) <= 0): ?>
-Cannot cancel the callout, no callouts active!
+ Cannot cancel the callout, no callouts active!
 <?php elseif($sms_cmd_handler->startsWith(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_BULK) === true): ?> 
     </Message>
 <?php echo $sms_cmd_handler->process_bulk_sms_command($result, SMS_GATEWAY_PLIVO) ?>
