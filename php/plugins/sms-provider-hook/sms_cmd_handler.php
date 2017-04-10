@@ -372,7 +372,9 @@ class SMSCommandHandler {
             else {
                 $sql = $sql_statement->getSqlStatement('user_list_contacts');
             }
-            
+                        
+            $sql_sms_access = USER_ACCESS_CALLOUT_RESPOND_SELF. " = ". USER_ACCESS_CALLOUT_RESPOND_SELF;
+            $sql = preg_replace_callback('(:respond_access)', function ($m) use ($sql_sms_access) { $m; return $sql_sms_access; }, $sql);
             $qry_bind = $db_connection->prepare($sql);
             $qry_bind->execute();
             
