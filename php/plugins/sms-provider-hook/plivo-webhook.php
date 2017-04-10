@@ -32,7 +32,7 @@ $result = $sms_cmd_handler->handle_sms_command($FIREHALLS, SMS_GATEWAY_PLIVO);
 <Response>
 <?php if($result->getFirehall() !== null && $result->getUserId() !== null): ?>
     <Message src="<?php echo $result->getFirehall()->SMS->SMS_PROVIDER_PLIVO_FROM ?>" dst="<?php echo getSafeRequestValue('From') ?>">
-Hello <?php echo $result->getUserId() ?> 
+Hello <?php echo $result->getUserId() ?>, 
 <?php if($result->getIsProcessed() === true): ?>
 Processed SMS CMD: [<?php echo $result->getCmd() ?>]
 Body [<?php echo ((getSafeRequestValue('Text') !== null) ? getSafeRequestValue('Text') : '') ?>]
@@ -53,17 +53,17 @@ Broadcast message to all: <?php echo \riprunner\SMSCommandHandler::$SMS_AUTO_CMD
 Show contacts: any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CONTACTS) . PHP_EOL ?>
 Show help, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_HELP).PHP_EOL ?>
 <?php elseif(in_array(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CONTACTS) === true): ?>
- your Contacts:
+Your Contacts:
 <?php echo $sms_cmd_handler->process_contacts_sms_command($result) ?>
 <?php else: ?>
 <?php if($sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_RESPONDING, \riprunner\CommandMatchType::StartsWith) === true && count($result->getLiveCallouts()) <= 0): ?>
- Cannot respond, no callouts active!
+Cannot respond, no callouts active!
 <?php elseif($sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE, \riprunner\CommandMatchType::StartsWith) === true && count($result->getLiveCallouts()) <= 0): ?>
- Cannot update status, no callouts active!
+Cannot update status, no callouts active!
 <?php elseif(in_array(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_COMPLETED) === true && count($result->getLiveCallouts()) <= 0): ?>
- Cannot complete the callout, no callouts active!
+Cannot complete the callout, no callouts active!
 <?php elseif(in_array(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CANCELLED) === true && count($result->getLiveCallouts()) <= 0): ?>
- Cannot cancel the callout, no callouts active!
+Cannot cancel the callout, no callouts active!
 <?php elseif($sms_cmd_handler->startsWith(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_BULK) === true): ?> 
     </Message>
 <?php echo $sms_cmd_handler->process_bulk_sms_command($result, SMS_GATEWAY_PLIVO) ?>

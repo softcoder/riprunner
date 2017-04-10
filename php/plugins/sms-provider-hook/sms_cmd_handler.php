@@ -350,6 +350,51 @@ class SMSCommandHandler {
                 }
             }
         }
+        
+        $result = $this->get_active_contacts($cmd_result->getFirehall(),$result);
+        return $result;
+    }
+
+    private function get_active_contacts($FIREHALL, $result) {
+        global $log;
+        $db_connection = null;
+        try {
+            $db = new \riprunner\DbConnection($FIREHALL);
+            $db_connection = $db->getConnection();
+            
+            $sql_statement = new \riprunner\SqlStatement($db_connection);
+            
+            if($FIREHALL->LDAP->ENABLED == true) {
+                create_temp_users_table_for_ldap($FIREHALL, $db_connection);
+                
+                $sql = $sql_statement->getSqlStatement('ldap_user_list_contacts');
+            }
+            else {
+                $sql = $sql_statement->getSqlStatement('user_list_contacts');
+            }
+            
+            $qry_bind = $db_connection->prepare($sql);
+            $qry_bind->execute();
+            
+            $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+            $qry_bind->closeCursor();
+            
+            if($log !== null) $log->trace("About to return user list for sql [$sql] result count: " . count($rows));
+            
+            $resultArray = array();
+            foreach($rows as $row) {
+                if($result !== '') {
+                    $result .= PHP_EOL;
+                }
+                $result .= $row['user_id']. ' - ' . $row['mobile_phone'];
+            }
+        }
+        catch (Exception $ex) {
+            \riprunner\DbConnection::disconnect_db( $db_connection );
+            $db_connection = null;
+            throw($ex);
+        }
+        \riprunner\DbConnection::disconnect_db( $db_connection );
         return $result;
     }
     
