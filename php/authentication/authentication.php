@@ -473,6 +473,7 @@ class Authentication {
         	
             if($log !== null) $log->trace("Looking for new Db schema, current version: ".$schema_db_version_get);
             
+            $error_detected_dueing_schema_update = false;
             // Now loop through all schemas looking for new entries to execute
             for($major_schema_version = 1; $major_schema_version < 999; $major_schema_version++) {
                 $found_entry_for_major_version = false;
@@ -490,9 +491,25 @@ class Authentication {
                         if(version_compare($schema_db_version_get, $sql_schema_version, '<')) {
                             if($log !== null) $log->warn('Found new schema to execute, db schema version: '.$schema_db_version_get.
                                                          ' new schema version: '.$sql_schema_version);
-                             
-                            $qry_bind = $this->getDbConnection()->prepare($sql);
-                            $qry_bind->execute();
+
+                            $schema_tag_name_skip_error = 'schema_upgrade_'.$major_schema_version.'_'.$minor_schema_version.'_skip_error';
+                            $sql_skip_error = $this->getSqlStatement($schema_tag_name_skip_error);
+                            if($sql_skip_error !== null && !empty($sql_skip_error)) {
+                                if($log !== null) $log->trace("Found sql skip error for tag: ".$schema_tag_name_skip_error. " sql: ".$sql_skip_error);
+                            }
+                            try {
+                                $qry_bind = $this->getDbConnection()->prepare($sql);
+                                $qry_bind->execute();
+                            }
+                            catch(Exception $ex) {
+                                // Log error
+                                if($log !== null) $log->error("Error updating sql schema for sql: ".$sql." msg: ". $ex->getMessage());
+                                $error_detected_dueing_schema_update = true;
+                                
+                                if($sql_skip_error == null || empty($sql_skip_error) == true) {
+                                    throw $ex;
+                                }
+                            }
                         }
                     }
                     else {
@@ -503,6 +520,9 @@ class Authentication {
                 if($found_entry_for_major_version === false) {
                     break;
                 }
+            }
+            if($error_detected_dueing_schema_update == true) {
+                throw new \Exception("An error was detected while trying to upgrade your database, please check the system log.");
             }
         }
         return false;

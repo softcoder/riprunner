@@ -52,6 +52,7 @@ CREATE TABLE  IF NOT EXISTS `user_accounts` (
 `user_pwd` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
 `mobile_phone` varchar(25) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
 `access` INT( 11 ) NOT NULL DEFAULT 0,
+`active` BOOLEAN NOT NULL DEFAULT 1,
 `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE = INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
