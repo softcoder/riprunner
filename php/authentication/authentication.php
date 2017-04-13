@@ -378,7 +378,12 @@ class Authentication {
     
     static public function encryptPassword($password) {
         $cost = 10;
-        $salt = strtr(\base64_encode(\mcrypt_create_iv(16, MCRYPT_DEV_URANDOM)), '+', '.');
+        if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
+            $salt = strtr(\base64_encode(\random_bytes(16)), '+', '.');
+        }
+        else {
+            $salt = strtr(\base64_encode(\mcrypt_create_iv(16, MCRYPT_DEV_URANDOM)), '+', '.');
+        }
         $salt = sprintf("$2a$%02d$", $cost) . $salt;
         $new_pwd = crypt($password, $salt);
     
