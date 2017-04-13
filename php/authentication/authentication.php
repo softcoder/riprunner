@@ -472,8 +472,7 @@ class Authentication {
             }
         	
             if($log !== null) $log->trace("Looking for new Db schema, current version: ".$schema_db_version_get);
-            
-            $error_detected_dueing_schema_update = false;
+
             // Now loop through all schemas looking for new entries to execute
             for($major_schema_version = 1; $major_schema_version < 999; $major_schema_version++) {
                 $found_entry_for_major_version = false;
@@ -504,7 +503,6 @@ class Authentication {
                             catch(Exception $ex) {
                                 // Log error
                                 if($log !== null) $log->error("Error updating sql schema for sql: ".$sql." msg: ". $ex->getMessage());
-                                $error_detected_dueing_schema_update = true;
                                 
                                 if($sql_skip_error == null || empty($sql_skip_error) == true) {
                                     throw $ex;
@@ -520,9 +518,6 @@ class Authentication {
                 if($found_entry_for_major_version === false) {
                     break;
                 }
-            }
-            if($error_detected_dueing_schema_update == true) {
-                throw new \Exception("An error was detected while trying to upgrade your database, please check the system log.");
             }
         }
         return false;
