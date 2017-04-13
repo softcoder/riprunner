@@ -118,6 +118,17 @@ Live Callout Screen:
 
 Installation:
 -------------
+#####Linux install summary:
+1. Install LAMP (Linux, Apache, MySQL and PHP) apps
+2. Install these dependencies:
+- sudo a2enmod rewrite
+- sudo apt install php7.1-xml
+- sudo apt-get install php7.1-mysql 
+3. Restart Apache: sudo systemctl restart apache2
+4. Configure web virtual host (if desired)
+5. Create a MySql user for rip runner (with DBA access)
+6. Copy Rip Runner (PHP folder) to the appropriate folder on the target host
+
 #####Getting started video - basic installation (click image below):
 
 [![Getting Started install](http://img.youtube.com/vi/ZyUfvYsW39Q/0.jpg)](https://youtu.be/ZyUfvYsW39Q)
