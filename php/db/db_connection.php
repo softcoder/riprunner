@@ -121,7 +121,8 @@ class DbConnection {
             if($log !== null) $log->error("DB Connect for: dsn [$dsn] user [$user] error [" . $e->getMessage() . "]");
             //throw $e;
             \handle_config_error($e);
-            throw new \Exception("Error connecting to the database, check system logs for more details.");
+            //throw new \Exception("Error connecting to the database, check system logs for more details.");
+            exit;
         }
         return $this->pdo;
     }
