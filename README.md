@@ -366,6 +366,81 @@ Special Notes:
 
 Compiling the Android application in the Eclipse IDE requires you to install the ADT plugin (http://developer.android.com/tools/sdk/eclipse-adt.html) as well as setup the Google Play Services SDK (https://developer.android.com/google/play-services/setup.html#Setup) as this is a dependency in the riprunner android app.
 
+FAQ:
+----
+- For apache virtual host support you need to enable allow override:
+sudo gedit /etc/apache2/apache2.conf
+
+and enable .htaccess by changing
+
+AllowOverride None
+to
+AllowOverride All
+
+sudo systemctl restart apache2
+
+- If after apache restart if you get errord in error.log: 
+cat /var/log/apache2/error.log
+
+Showing:
+Invalid command 'RewriteEngine', perhaps misspelled or defined by a module not included in the server configuration
+
+fix it by:
+
+sudo a2enmod rewrite && sudo systemctl restart apache2
+
+- When calling install.php if you get:
+
+Fatal error: Uncaught Error: Call to undefined function simplexml_load_file() in ...
+
+then you must install extensions in your php config:
+
+sudo apt install php7.1-xml
+sudo systemctl restart apache2
+
+- If after calling install.php you get: 
+
+Warning: fopen(/home/softcoder/www/svvfd/public_html/rr/riprunner.log): failed to open stream: Permission denied in ...
+
+then you must change access permission to riprunner.log to:
+
+-rw-rw-rw-  1 softcoder softcoder   120 Apr 13 10:15 riprunner.log
+
+- if after calling install.php you get:
+
+Error detected, message : could not find driver, Code : 0
+
+then you must check riprunner.log if you see:
+
+2017-04-13T10:15:38-07:00 ERROR DB Connect for: dsn [mysql:host=localhost;] user [myvfd] error [could not find driver] 
+
+then you must:
+
+sudo apt-get install php7.1-mysql 
+sudo systemctl restart apache2
+
+- If after calling install.php you get:
+
+Error detected, message : SQLSTATE[HY000] [1045] Access denied for user 'myvfd'@'localhost' (using password: YES), Code : 1045
+
+You need to make sure the mysql user specified exists and has access to connect to the server.
+
+- If after calling install.php you get:
+
+Fatal error: Uncaught PDOException: SQLSTATE[42000]: Syntax error or access violation: 1044 Access denied for user 'myvfd'@'%' to database 'myvfd' in ...
+
+ensure mysql user has dba access.
+
+- If after calling install.php you get:
+
+Fatal error: Uncaught PDOException: SQLSTATE[HY000] [1049] Unknown database 'myvfd' in
+
+create the database first, or goto install page: install.php
+
+- Make sure your ripr runner folder has grant execution access to scripts:
+
+sudo chmod 777 -R ~/www/svvfd/public_html/
+
 Contributions:
 --------------
 Special thanks to all who have contributed to the success of this project. We accept patches and ideas from others and priortize based on time constraints and compatibility with our future direction.
