@@ -120,7 +120,12 @@ class DbConnection {
         catch (\PDOException $e) {
             if($log !== null) $log->error("DB Connect for: dsn [$dsn] user [$user] error [" . $e->getMessage() . "]");
             //throw $e;
-            \handle_config_error($e);
+            
+            $FIREHALLS = array();
+            array_push($FIREHALLS, $this->firehall);
+            $root_url = getFirehallRootURLFromRequest(null, $FIREHALLS);
+            
+            \handle_config_error($root_url, $e);
             //throw new \Exception("Error connecting to the database, check system logs for more details.");
             exit;
         }

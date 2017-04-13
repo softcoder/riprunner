@@ -25,7 +25,7 @@ try {
     }
 }
 catch(\Exception $e) {
-    \handle_config_error($e);
+    \handle_config_error('', $e);
     return;
 }
 
