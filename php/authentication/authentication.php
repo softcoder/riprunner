@@ -88,7 +88,7 @@ class Authentication {
                 try {
                     session_regenerate_id();    
                 } 
-                catch(Exception $ex) {
+                catch(\Exception $ex) {
                     // Log error
                     if($log !== null) $log->error("Error in sec_session_start_ext: ". $ex->getMessage());
                     // deal with missing session ID
@@ -500,7 +500,7 @@ class Authentication {
                                 $qry_bind = $this->getDbConnection()->prepare($sql);
                                 $qry_bind->execute();
                             }
-                            catch(Exception $ex) {
+                            catch(\Exception $ex) {
                                 // Log error
                                 if($log !== null) $log->error("Error updating sql schema for sql: ".$sql." msg: ". $ex->getMessage());
                                 
