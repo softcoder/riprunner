@@ -118,14 +118,16 @@ Live Callout Screen:
 
 Installation:
 -------------
-Getting started video - basic installation (click image below):
+Getting started video - basic installation on Windows (click image below):
 
 [![Getting Started install](http://img.youtube.com/vi/ZyUfvYsW39Q/0.jpg)](https://youtu.be/ZyUfvYsW39Q)
 
+Getting started video - basic installation on Linux (click image below):
+
 [![Linux Host install](http://img.youtube.com/vi/ZDhPJ7qIXDc/0.jpg)](https://youtu.be/ZDhPJ7qIXDc)
 
-General install summary:
-------------------------
+General installation steps:
+---------------------------
 - Download the application either using git commands (for those who know how to use git) or download the master archive here: https://github.com/softcoder/riprunner/archive/master.zip and extract to a folder on your local PC.
 - Edit the values in [config-default.php](php/config-default.php) to suit your environment. (see Configuration section below)
 - Rename the file config-default.php to config.php
@@ -152,8 +154,8 @@ General install summary:
   This will allow users to select the Android app from the Mobile menu item for download and installation 
   on their mobile device.
 
-Linux install summary:
-----------------------
+Linux installation notes:
+-------------------------
 1. Install LAMP (Linux, Apache, MySQL and PHP) apps
 2. Install these dependencies:
 - sudo a2enmod rewrite
