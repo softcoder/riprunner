@@ -439,9 +439,24 @@ Fatal error: Uncaught PDOException: SQLSTATE[HY000] [1049] Unknown database 'myv
 
 create the database first, or goto install page: install.php
 
-- Make sure your ripr runner folder has grant execution access to scripts:
+- Make sure your rip runner folder has grant execution access to scripts:
 
 sudo chmod 777 -R ~/www/svvfd/public_html/
+
+- If you get the error:
+
+HTTP Error 404.3 - Not Found
+The page you are requesting cannot be served because of the extension configuration. If the page is a script, add a handler. If the file should be downloaded, add a MIME map.
+
+- Make sure you have installed php (7.1 x64) for iis using web platform installer
+
+- If you get the error:
+
+Call to undefined function finfo_open()
+
+- You need to add the following line your php.ini then to activate it: (C:\Program Files\IIS Express\PHP\v7.1\php.ini)
+
+extension=php_fileinfo.dll
 
 Contributions:
 --------------
