@@ -460,6 +460,15 @@ Call to undefined function finfo_open()
 
 extension=php_fileinfo.dll
 
+- If you get the error:
+
+Fatal error: Uncaught Error: Call to undefined function riprunner\curl_init()
+
+then you must:
+
+sudo apt-get install php7.1-curl
+
+
 Contributions:
 --------------
 Special thanks to all who have contributed to the success of this project. We accept patches and ideas from others and priortize based on time constraints and compatibility with our future direction.
