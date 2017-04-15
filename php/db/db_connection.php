@@ -19,6 +19,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	die( 'This file must not be invoked directly.' );
 }
 
+require_once __RIPRUNNER_ROOT__ . '/config_constants.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class DbConnection {
