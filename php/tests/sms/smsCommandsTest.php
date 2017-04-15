@@ -117,10 +117,14 @@ class SmsCommandsTest extends BaseDBFixture {
 	    ->method('setURL')
 	    ->with($this->stringContains('cr/fhid='));
 
-	    // Esnure responding DOES NOT contain setting the status explicitly
+	    // Ensure responding DOES NOT contain setting the status explicitly
+	    //$mock_http_client->expects($this->once())
+	    //->method('setURL')
+	    //->with($this->matchesRegularExpression('/^((?!\&status=).)*$/s'));
 	    $mock_http_client->expects($this->once())
 	    ->method('setURL')
-	    ->with($this->matchesRegularExpression('/^((?!\&status=).)*$/s'));
+	    ->with($this->stringContains('&status=2'));
+	    
 	     
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
@@ -162,10 +166,13 @@ class SmsCommandsTest extends BaseDBFixture {
 	    ->with($this->stringContains('cr/fhid='));
 	
 	    // Ensure responding DOES NOT contain setting the status explicitly
+	    //$mock_http_client->expects($this->once())
+	    //->method('setURL')
+	    //->with($this->matchesRegularExpression('/^((?!\&status=).)*$/s'));
 	    $mock_http_client->expects($this->once())
 	    ->method('setURL')
-	    ->with($this->matchesRegularExpression('/^((?!\&status=).)*$/s'));
-
+	    ->with($this->stringContains('&status=2'));
+	    
 	    // Ensure responding DOES contain setting the eta explicitly
 	    $mock_http_client->expects($this->once())
 	    ->method('setURL')

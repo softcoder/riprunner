@@ -678,14 +678,18 @@ class SMSCommandHandler {
         
         if($live_callout_list !== null && empty($live_callout_list) === false) {
             $most_current_callout = reset($live_callout_list);
-                        
+            
+            $updateToStatus = CalloutStatusType::getStatusByFlags($FIREHALL, 
+                    StatusFlagType::STATUS_FLAG_RESPONDING, BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE)->getId();
+            
             $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
             $URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
                                 "&cid=" . urlencode($most_current_callout['id']) .
                                 "&uid=" . urlencode($result->getUserId()) .
                                 "&ckid=" . urlencode($most_current_callout['call_key']).
+                                "&status=" . urlencode($updateToStatus) .
                                 $this->getETAFromCmd($sms_cmd);
-            
+                                
             if($log !== null) $log->warn("Calling URL for sms host Call Responding Response [$URL]");
             $httpclient = $this->getHttpClient($URL);
             $cmd_result = $httpclient->execute();
