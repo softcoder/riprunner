@@ -468,6 +468,16 @@ then you must:
 
 sudo apt-get install php7.1-curl
 
+- If you get the following error in the logs and no sms message is sent:
+
+Curl error: SSL certificate problem: self signed certificate in certificate chain
+
+- you must download: http://curl.haxx.se/ca/cacert.pem
+
+edit php.ini
+
+[curl]
+curl.cainfo=c:/cert/cacert.pem
 
 Contributions:
 --------------
