@@ -186,6 +186,9 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 // ===--------------EDIT BLOCKS BELOW TO COMPLETE THE SETUP FOR YOUR SITE--------------------===
 // =============================================================================================
 
+	// base URL for main email_trigger_check.php
+	define( 'EMAIL_TRIGGER_CHECK_BASE_URL', 'http://example.com/riprunner/');
+
     // !!! email settings start
 	// Email Settings: blank allows emails from anyone. example value: vfd@gmail.com
 	define( 'DEFAULT_EMAIL_FROM_TRIGGER', '');

@@ -1,0 +1,30 @@
+<?php
+
+// If a filter is setup in Exim (or another Mail Transfer Agent) to deliver an 
+// incoming email message normally and then pipe a copy of the message to this
+// file, this file will load email_trigger_check.php which will poll the email
+// accounts for all Firehalls and immediately process the received message from
+// the email account.
+//
+// This file serves only as a trigger to get riprunner to poll the email accounts.
+// The contents of the piped-in message copy are ignored and discareded.
+//
+// In cPanel a filter to call this file would look something like this:
+// Filter Name:
+//     Riprunner Trigger
+// Rules: 
+//     (any rule that will accept a message from FOCC such as)
+//     Subject    contains
+//         Incident
+// Actions:
+//     Deliver to folder
+//         /.INBOX
+//     Pipe to program
+//         |/usr/bin/php -q /home/vfd/public_html/riprunner/email_piped_trigger.php
+
+
+
+define('INCLUSION_PERMITTED', true);
+require_once 'config.php';
+
+$result = file_get_contents( EMAIL_TRIGGER_CHECK_BASE_URL . 'email_trigger_check.php?' . mt_rand() );
