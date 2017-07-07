@@ -56,7 +56,14 @@ Show help, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_A
 Your Contacts:
 <?php echo $sms_cmd_handler->process_contacts_sms_command($result) ?>
 <?php else: ?>
-<?php if($sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_RESPONDING, \riprunner\CommandMatchType::StartsWith) === true && count($result->getLiveCallouts()) <= 0): ?>
+<?php if(($sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_RESPONDING, \riprunner\CommandMatchType::StartsWith) === true ||
+        $sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_NOT_RESPONDING, \riprunner\CommandMatchType::StartsWith) === true ||
+        $sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY, \riprunner\CommandMatchType::StartsWith) === true ||
+        $sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL, \riprunner\CommandMatchType::StartsWith) === true ||
+        $sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE, \riprunner\CommandMatchType::StartsWith) === true ||
+        $sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE, \riprunner\CommandMatchType::StartsWith) === true ||
+        $sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RETURN_HALL, \riprunner\CommandMatchType::StartsWith) === true) && 
+        count($result->getLiveCallouts()) <= 0): ?>
 Cannot respond, no callouts active!
 <?php elseif($sms_cmd_handler->commandMatch($result->getCmd(), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE, \riprunner\CommandMatchType::StartsWith) === true && count($result->getLiveCallouts()) <= 0): ?>
 Cannot update status, no callouts active!
