@@ -120,7 +120,7 @@ class SMSCommandHandler {
     static public $SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE = array('O','ON','ONSCENE');
     static public $SMS_AUTO_CMD_STATUS_RETURN_HALL = array('B','BACK');
     
-    static public $SMS_AUTO_CMD_COMPLETED = array('D','FI','CP','COMPLETE');
+    static public $SMS_AUTO_CMD_COMPLETED = array('F','FI','CP','COMPLETE');
     static public $SMS_AUTO_CMD_CANCELLED = array('X','Q','CANCEL');
     
     static public $SMS_AUTO_CMD_TEST = array('TEST');
@@ -207,14 +207,25 @@ class SMSCommandHandler {
     
                                     $result->setIsProcessed(true);
                                 }
-                                //else if( in_array(strtoupper($sms_cmd), self::$SMS_AUTO_CMD_RESPONDING) === true) {
                                 else if($this->commandMatch($sms_cmd, self::$SMS_AUTO_CMD_RESPONDING,
                                         CommandMatchType::StartsWith) === true) {
                                     $this->processResponding($sms_cmd, $db_connection, 
                                             $log, $FIREHALLS_LIST, $FIREHALL, $result);
                                 }
                                 else if($this->commandMatch($sms_cmd.' ', self::$SMS_AUTO_CMD_STATUS_UPDATE, 
-                                        CommandMatchType::StartsWith) === true) {
+                                                CommandMatchType::StartsWith) === true ||
+                                        $this->commandMatch($sms_cmd.' ', self::$SMS_AUTO_CMD_STATUS_NOT_RESPONDING,
+                                                CommandMatchType::StartsWith) === true ||
+                                        $this->commandMatch($sms_cmd.' ', self::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY,
+                                                CommandMatchType::StartsWith) === true ||
+                                        $this->commandMatch($sms_cmd.' ', self::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL,
+                                                CommandMatchType::StartsWith) === true ||
+                                        $this->commandMatch($sms_cmd.' ', self::$SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE,
+                                                CommandMatchType::StartsWith) === true ||
+                                        $this->commandMatch($sms_cmd.' ', self::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE,
+                                                CommandMatchType::StartsWith) === true ||
+                                        $this->commandMatch($sms_cmd.' ', self::$SMS_AUTO_CMD_STATUS_RETURN_HALL,
+                                                CommandMatchType::StartsWith) === true) {
                                     $this->processStatusUpdate($sms_cmd, $db_connection, 
                                             $log, $FIREHALLS_LIST, $FIREHALL, $result);
                                 }
@@ -711,6 +722,10 @@ class SMSCommandHandler {
         
             $sms_cmd_list = explode(' ', $sms_cmd);
             $updateToStatus = null;
+            if(count($sms_cmd_list) == 1 && $this->commandMatch($sms_cmd_list[0], self::$SMS_AUTO_CMD_STATUS_UPDATE, CommandMatchType::StartsWith) == false) {
+                $sms_cmd_list = array(self::$SMS_AUTO_CMD_STATUS_UPDATE[0], $sms_cmd_list[0]);
+            }
+            
             if($this->commandMatch($sms_cmd_list[1], self::$SMS_AUTO_CMD_STATUS_NOT_RESPONDING, CommandMatchType::StartsWith) == true) {
                 $updateToStatus = CalloutStatusType::NotResponding($FIREHALL)->getId();
             }
