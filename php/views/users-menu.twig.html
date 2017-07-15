@@ -10,6 +10,7 @@
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css?version=1" />
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
         {% endif %}
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
     </head>
@@ -70,9 +71,11 @@
             <table id="box-table-a">
                 <thead>
                     <tr>
+                    <th scope="col">Select</th>
                     <th scope="col">Record Id</th>
                     <th scope="col">Firehall Id</th>
                     <th scope="col">User Id</th>
+                    <th scope="col">Email Address</th>
                     <th scope="col">User Type</th>
                     {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
                         <th scope="col">Password</th>
@@ -93,6 +96,8 @@
                 {% if usersmenu_ctl_insert_new is defined and usersmenu_ctl_insert_new and not usersmenu_vm.selfedit_mode %}
                 <tr>
                 <td>
+                </td>
+                <td>
                 NEW
                 </td>
                 <td>
@@ -101,6 +106,10 @@
                 </td>
                 <td>
                     <input id="edit_user_id_name" name="edit_user_id_name" 
+                           type="input" value=""/>
+                </td>
+                <td>
+                    <input id="edit_email_address" name="edit_email_address" 
                            type="input" value=""/>
                 </td>
                 
@@ -177,10 +186,14 @@
             
 	            {% if not gvm.firehall.LDAP.ENABLED and not usersmenu_vm.selfedit_mode %}
 	            <tr>
+                <td>
+                    <input class="select-all" id="checkbox_select_all" name="checkbox_select_all" 
+                           type="checkbox" user-id="-1" />
+                </td>
 	            {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
-	                <td colspan="15">
+	                <td colspan="16">
 	            {% else %}
-	                <td colspan="13">
+	                <td colspan="14">
 	            {% endif %}
 	                    <input type="button" value="Add New" onclick="edit_user(this.form, -1);" />
 	                </td>
@@ -195,6 +208,11 @@
                     gvm.firehall.LDAP.ENABLED == false ? true : false) %}
                     
 	            <tr>
+	            <td>
+                    <input class="select-item" id="checkbox_select{{ user.id }}" name="checkbox_select{{ user.id }}" 
+                           type="checkbox" user-id="{{ user.id }}" />
+                </td>
+	            
 	            <td>
 	            {{ user.id }}
 	            </td>
@@ -216,6 +234,14 @@
 	                {{ user.user_id }}
 	            {% endif %}
 	            </td>
+                <td>
+                {% if edit_current_row %}
+                    <input id="edit_email_address" name="edit_email_address" 
+                           type="input" value="{{ user.email }}"/>
+                {% else %}
+                    {{ user.email }}
+                {% endif %}
+                </td>
 	            
                 <td>
                 {% if edit_current_row and not usersmenu_vm.selfedit_mode %}
@@ -373,6 +399,7 @@
 
     function send_msg(form, msg_type) {
        addformhiddenfield(form, 'form_action', msg_type);
+       addformhiddenfield(form, 'selected_users', selected_users.join(','));
        form.submit();
     }
 
@@ -386,6 +413,34 @@
         }
     }
     
+    $('table td input[type=checkbox]').click(function () {
+        var checked = $(this).prop('checked');
+        var checked_class = $(this).prop('class');
+        debugger;
+        if(checked_class == 'select-all') {
+	        $(this).closest('table').find('tbody tr').each(function () {
+	            $(this).find('td input[type=checkbox]:not(:disabled)').prop('indeterminate',false).prop('checked', checked).trigger('change');
+	        });
+	    }
+        //email_selected
+    });
+    
+    $('table td input[type=checkbox]').change(function (e) {
+    	debugger;
+    
+        if ($(this).is(":checked")) { //If the checkbox is checked
+            //alert('User id is checked for: ' + $(this).attr('user-id')); 
+            //Add class on checkbox checked
+        	selected_users.push($(this).attr('user-id'));
+        } 
+        else {
+        	//alert('User id is unchecked for: ' + $(this).attr('user-id'));
+            //Remove class on checkbox uncheck
+        	selected_users.splice($.inArray($(this).attr('user-id'), selected_users),1);
+        }
+    });
+    
+    var selected_users = [];
     var item = document.getElementById("edit_firehall_id");
     if(item) {
         item.focus();

@@ -58,6 +58,7 @@ mobile_phone varchar(25) NOT NULL DEFAULT '',
 access INTEGER NOT NULL DEFAULT 0,
 user_type int(11),
 active BOOLEAN NOT NULL DEFAULT 1,
+email  varchar(255) NOT NULL DEFAULT '',
 updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

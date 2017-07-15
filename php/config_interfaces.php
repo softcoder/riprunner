@@ -26,6 +26,18 @@ class FireHallEmailAccount
 	public $EMAIL_DELETE_PROCESSED;
 	// Only examine unread emails
 	public $PROCESS_UNREAD_ONLY;
+
+	// Outbound Email Settings
+	public $ENABLE_OUTBOUND_SMTP ;
+	public $ENABLE_OUTBOUND_SENDMAIL; 
+	public $OUTBOUND_HOST;
+	public $OUTBOUND_PORT;
+	public $OUTBOUND_ENCRYPT;
+	public $OUTBOUND_AUTH;
+	public $OUTBOUND_USERNAME;
+	public $OUTBOUND_PASSWORD;
+	public $OUTBOUND_FROM_ADDRESS;
+	public $OUTBOUND_FROM_NAME;
 	
 	public function __construct($host_enabled=false, $from_trigger=null, 
 			$host_conn_str=null, $host_username=null, $host_password=null, 
@@ -74,6 +86,45 @@ class FireHallEmailAccount
 	    $this->PROCESS_UNREAD_ONLY = $unread_only;
 	}
 	
+	public function setEnableOutboundSMTP($value) {
+	    $this->ENABLE_OUTBOUND_SMTP= $value;
+	}
+	
+	public function setEnableOutboundSendmail($value) {
+	    $this->ENABLE_OUTBOUND_SENDMAIL= $value;
+	}
+	
+	public function setOutboundHost($value) {
+	    $this->OUTBOUND_HOST= $value;
+	}
+	
+	public function setOutboundPort($value) {
+	    $this->OUTBOUND_PORT= $value;
+	}
+	
+	public function setOutboundEncrypt($value) {
+	    $this->OUTBOUND_ENCRYPT= $value;
+	}
+	
+	public function setOutboundAuth($value) {
+	    $this->OUTBOUND_AUTH= $value;
+	}
+	
+	public function setOutboundUsername($value) {
+	    $this->OUTBOUND_USERNAME= $value;
+	}
+	
+	public function setOutboundPassword($value) {
+	    $this->OUTBOUND_PASSWORD= $value;
+	}
+	
+	public function setOutboundFromAddress($value) {
+	    $this->OUTBOUND_FROM_ADDRESS= $value;
+	}
+	
+	public function setOutboundFromName($value) {
+	    $this->OUTBOUND_FROM_NAME= $value;
+	}
 	
 }
 			

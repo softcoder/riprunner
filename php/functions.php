@@ -194,6 +194,41 @@ function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
 	return $result;
 }
 
+function getEmailListFromDB($FIREHALL, $db_connection) {
+    global $log;
+    
+    $must_close_db = false;
+    if(isset($db_connection) === false) {
+        $db = new \riprunner\DbConnection($FIREHALL);
+        $db_connection = $db->getConnection();
+        
+        $must_close_db = true;
+    }
+    
+    //$sql_sms_access = USER_ACCESS_SIGNAL_SMS . " = ". USER_ACCESS_SIGNAL_SMS;
+    $sql_statement = new \riprunner\SqlStatement($db_connection);
+    $sql = $sql_statement->getSqlStatement('users_email_list');
+    //$sql = preg_replace_callback('(:sms_access)', function ($m) use ($sql_sms_access) { $m; return $sql_sms_access; }, $sql);
+    
+    $qry_bind = $db_connection->prepare($sql);
+    $qry_bind->execute();
+    
+    $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+    $qry_bind->closeCursor();
+    
+    if($log !== null) $log->trace("Call getEmailListFromDB SQL success for sql [$sql] row count: " . count($rows));
+    
+//     $result = array();
+//     foreach($rows as $row) {
+//         array_push($result, $row->mobile_phone);
+//     }
+    
+    if($must_close_db === true) {
+        \riprunner\DbConnection::disconnect_db( $db_connection );
+    }
+    return $rows;
+}
+
 function getCallStatusDisplayText($dbStatus, $FIREHALL) {
 	$result = 'unknown [' . ((isset($dbStatus) === true) ? $dbStatus : 'null') . ']';
 	if(\riprunner\CalloutStatusType::isValidValue($dbStatus, $FIREHALL) == true) {

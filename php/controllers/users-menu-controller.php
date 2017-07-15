@@ -172,6 +172,7 @@ class UsersMenuController {
 			}
 		}
 		$edit_user_id_name = get_query_param('edit_user_id_name');
+		$edit_email = get_query_param('edit_email_address');
 		$edit_mobile_phone = get_query_param('edit_mobile_phone');
 		
 		$sql_pwd = ((isset($new_pwd) === true) ? ', user_pwd = :user_pwd ' : '');
@@ -216,6 +217,7 @@ class UsersMenuController {
 		$qry_bind = $db_connection->prepare($sql);
 		$qry_bind->bindParam(':fhid', $edit_firehall_id);
 		$qry_bind->bindParam(':user_name', $edit_user_id_name);
+		$qry_bind->bindParam(':email', $edit_email);
 		$qry_bind->bindParam(':user_type', $edit_user_type);
 		$qry_bind->bindParam(':active', $edit_user_active);
 		
@@ -268,6 +270,7 @@ class UsersMenuController {
 			}
 		}
 		$edit_user_id_name = get_query_param('edit_user_id_name');
+		$edit_email = get_query_param('edit_email_address');
 		$edit_mobile_phone = get_query_param('edit_mobile_phone');
 		
 		$new_user_access = 0;
@@ -293,6 +296,7 @@ class UsersMenuController {
 		$qry_bind = $db_connection->prepare($sql);
 		$qry_bind->bindParam(':fhid', $edit_firehall_id);
 		$qry_bind->bindParam(':user_name', $edit_user_id_name);
+		$qry_bind->bindParam(':email', $edit_email);
 		$qry_bind->bindParam(':user_type', $edit_user_type);
 		$qry_bind->bindParam(':active', $edit_user_active);
 		$qry_bind->bindParam(':mobile_phone', $edit_mobile_phone);

@@ -24,13 +24,15 @@ class SendMessageViewModel extends BaseViewModel {
 		if('gcm_send_mode' === $name) {
 			return $this->getGCM_SendMode();
 		}
-		
+		if('email_send_mode' === $name) {
+		    return $this->getEmail_SendMode();
+		}
 		return parent::__get($name);
 	}
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('sms_send_mode','gcm_send_mode')) === true) {
+			array('sms_send_mode','gcm_send_mode','email_send_mode')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
@@ -45,5 +47,10 @@ class SendMessageViewModel extends BaseViewModel {
 		$form_action = get_query_param('form_action');
 		$gcm_send_mode = isset($form_action) === true && $form_action === "gcm";
 		return $gcm_send_mode;
+	}
+	private function getEmail_SendMode() {
+	    $form_action = get_query_param('form_action');
+	    $email_send_mode = isset($form_action) === true && $form_action === "email";
+	    return $email_send_mode;
 	}
 }
