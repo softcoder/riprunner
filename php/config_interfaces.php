@@ -61,7 +61,17 @@ class FireHallEmailAccount
 				  "\nconnection string: " . $this->EMAIL_HOST_CONNECTION_STRING .
 				  "\nusername: " . $this->EMAIL_HOST_USERNAME .
 				  "\ndelete processed emails: " . var_export($this->EMAIL_DELETE_PROCESSED, true) .
-				  "\nonly examine unread emails: " . var_export($this->PROCESS_UNREAD_ONLY, true);
+				  "\nonly examine unread emails: " . var_export($this->PROCESS_UNREAD_ONLY, true) .
+				  "\nenable outbound mail SMTP: " . var_export($this->ENABLE_OUTBOUND_SMTP, true) .
+				  "\nenable outbound mail SENDMAIL: " . var_export($this->ENABLE_OUTBOUND_SENDMAIL, true) .
+				  "\noutbound mail host: " . $this->OUTBOUND_HOST .
+				  "\noutbound mail port: " . $this->OUTBOUND_PORT .
+				  "\noutbound mail encrypt: " . $this->OUTBOUND_ENCRYPT .
+				  "\noutbound mail auth: " . var_export($this->OUTBOUND_AUTH,true) .
+				  "\noutbound mail user: " . $this->OUTBOUND_USERNAME .
+				  "\noutbound mail password: " . $this->OUTBOUND_PASSWORD .
+				  "\noutbound mail from address: " . $this->OUTBOUND_FROM_ADDRESS .
+				  "\noutbound mail from name: " . $this->OUTBOUND_FROM_NAME;
 		return $result;
 	}
 	public function setHostEnabled($host_enabled) {

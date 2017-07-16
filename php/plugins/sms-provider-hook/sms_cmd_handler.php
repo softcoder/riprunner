@@ -399,7 +399,7 @@ class SMSCommandHandler {
                 if($result !== '') {
                     $result .= PHP_EOL;
                 }
-                $result .= $row['user_id']. ' - ' . $row['mobile_phone'];
+                $result .= $row['user_id']. ' - ' . $row['mobile_phone'] . ' - ' . $row['email'];
             }
         }
         catch (Exception $ex) {
