@@ -82,10 +82,15 @@ class SignalManager {
         return null;
     }
     
-    public function sendSMSPlugin_Message($FIREHALL, $msg) {
+    public function sendSMSPlugin_Message($FIREHALL, $msg, $force_recipients_list=null) {
         global $log;
-        if($log !== null) $log->trace("Check SMS send message for SMS Enabled [" .
+        if($log !== null) {
+            $log->trace("Check SMS send message for SMS Enabled [" .
                 var_export($FIREHALL->SMS->SMS_SIGNAL_ENABLED, true) . "]");
+            if($force_recipients_list !== null) {
+                $log->trace("force_recipients_list[".implode(',',$force_recipients_list)."]");
+            }
+        }
         
         $resultSMS = "";
         
@@ -104,7 +109,11 @@ class SignalManager {
         
             $config = new \riprunner\ConfigManager(array($FIREHALL));
             
-            if($FIREHALL->LDAP->ENABLED == true) {
+            if($force_recipients_list !== null) {
+                $recipient_list_type = \riprunner\RecipientListType::MobileList;
+                $recipient_list_array = $force_recipients_list;
+            }
+            else if($FIREHALL->LDAP->ENABLED == true) {
                 $recipients = get_sms_recipients_ldap($FIREHALL, null);
                 $recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { $m; return ''; }, $recipients);
                 	

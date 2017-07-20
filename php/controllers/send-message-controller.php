@@ -55,9 +55,18 @@ class SendMessageController {
 	
 	private function sendSMS_Message() {
 		$smsMsg = get_query_param('txtMsg');
+		$sms_users = get_query_param('selected_users');
 		
 		$signalManager = new \riprunner\SignalManager();
-		$sendMsgResult = $signalManager->sendSMSPlugin_Message($this->global_vm->firehall, $smsMsg);
+		if($sms_users !== null && $sms_users != '') {
+		    $sms_users = explode(',',$sms_users);
+		    $smsList = getMobilePhoneListFromDB($this->global_vm->firehall, $this->global_vm->RR_DB_CONN, $sms_users);
+		    
+		    $sendMsgResult = $signalManager->sendSMSPlugin_Message($this->global_vm->firehall, $smsMsg, $smsList);
+		}
+		else {
+		    $sendMsgResult = $signalManager->sendSMSPlugin_Message($this->global_vm->firehall, $smsMsg);
+		}
 		
 		$sendMsgResultStatus = "SMS Message sent to applicable recipients.";
 		

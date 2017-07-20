@@ -159,7 +159,7 @@ function getUserNameFromMobilePhone($FIREHALL, $db_connection, $matching_sms_use
     return null;
 }
 
-function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
+function getMobilePhoneListFromDB($FIREHALL, $db_connection, $filtered_sms_users=null) {
 	global $log;
 
 	$must_close_db = false;
@@ -185,6 +185,7 @@ function getMobilePhoneListFromDB($FIREHALL, $db_connection) {
 	
 	$result = array();
 	foreach($rows as $row) {
+	    if($filtered_sms_users == null || in_array($row->id,$filtered_sms_users) == true)
 		array_push($result, $row->mobile_phone);
 	}
 	
