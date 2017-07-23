@@ -103,6 +103,17 @@ CREATE TABLE IF NOT EXISTS `callout_type` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
+CREATE TABLE IF NOT EXISTS `callouts_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `address` varchar(255) COLLATE utf8_unicode_ci NULL,
+  `latitude` DECIMAL(10,6) NULL,  
+  `longitude` DECIMAL(10,6) NULL,
+  `comments` varchar(255) COLLATE utf8_unicode_ci NULL,
+  `effective_date` datetime DEFAULT NULL,
+  `expiration_date` datetime DEFAULT NULL,
+  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 
 CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);

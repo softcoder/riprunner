@@ -324,7 +324,26 @@ class CalloutDetailsViewModel extends BaseViewModel {
 				
 				$results = array();
 				foreach($rows as $row){
-					// Add any custom fields with values here
+				    
+				    if($log != null) $log->trace("Call Info callouts original address [".$row['address']."] geo: ".$row['latitude'].",".$row['longitude']);
+				    
+				    $callout = new \riprunner\CalloutDetails();
+				    $callout->setDateTime($row['calltime']);
+				    $callout->setCode($row['calltype']);
+				    $callout->setAddress($row['address']);
+				    $callout->setGPSLat($row['latitude']);
+				    $callout->setGPSLong($row['longitude']);
+				    $callout->setUnitsResponding($row['units']);
+				    $callout->setFirehall($this->getFirehall());
+				    
+				    // Add any custom fields with values here
+				    $row['address'] = $callout->getAddress();
+				    $row['latitude'] = $callout->getGPSLat();
+				    $row['longitude'] = $callout->getGPSLong();
+				    $row['callout_comments'] = $callout->getComments();
+				    
+				    if($log != null) $log->trace("Call Info callouts calculated address [".$row['address']."] geo: ".$row['latitude'].",".$row['longitude']." comments: [".$row['callout_comments']."]");
+				    					
 	 				$row['callout_type_desc'] = convertCallOutTypeToText($row['calltype'], $this->getFirehall(), $row['calltime']);
 	 				$row['callout_status_desc'] = CalloutStatusType::getStatusById($row['status'], $this->getGvm()->firehall)->getDisplayName();
 	 				$row['callout_status_completed'] = CalloutStatusType::getStatusById($row['status'], $this->getGvm()->firehall)->IsCompleted();
@@ -338,7 +357,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	 					$row['callout_address_dest'] = getAddressForMapping($this->getFirehall(), $row['address']);
 	 				}
 	 				$row['callout_geo_dest'] = $row['latitude'] . ',' . $row['longitude'];
-	 				
+	 					 				
 					$results[] = $row;
 				}
 

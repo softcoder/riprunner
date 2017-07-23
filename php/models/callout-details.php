@@ -10,7 +10,7 @@ require_once __RIPRUNNER_ROOT__ . '/core/CalloutType.php';
 // The model class containing callout information
 class CalloutDetails {
 	
-	private $firehall; 
+    private $firehall; 
 	private $id;
 	private $keyId;
 	private $dateTime;
@@ -21,6 +21,8 @@ class CalloutDetails {
 	private $GPSLong;
 	private $unitsResponding;
 	private $status;
+	private $comments;
+	private $callout_info_processed = false;
 	private $supress_echo_text = false;
 	
 	public function __construct() {
@@ -122,9 +124,11 @@ class CalloutDetails {
 	
 	
 	public function getAddress() {
+	    $this->processCalloutInfo();
 		return $this->address;
 	}
 	public function getAddressForMap() {
+	    $this->processCalloutInfo();
 		if(isset($this->address) === true) {
 			return getAddressForMapping($this->firehall, $this->address);
 		}
@@ -136,6 +140,7 @@ class CalloutDetails {
 	}
 
 	public function getGPSLat() {
+	    $this->processCalloutInfo();
 		return $this->GPSLat;
 	}
 	public function setGPSLat($value) {
@@ -143,6 +148,7 @@ class CalloutDetails {
 	}
 
 	public function getGPSLong() {
+	    $this->processCalloutInfo();
 		return $this->GPSLong;
 	}
 	public function setGPSLong($value) {
@@ -162,7 +168,15 @@ class CalloutDetails {
 	public function setStatus($value) {
 		$this->status = $value;
 	}
-		
+
+	public function getComments() {
+	    $this->processCalloutInfo();
+	    return $this->comments;
+	}
+	public function setComments($value) {
+	    $this->comments= $value;
+	}
+	
 	public function getSupressEchoText() {
 	    return $this->supress_echo_text;
 	}
@@ -177,5 +191,58 @@ class CalloutDetails {
 			$codeText = $calloutType->getName();
 		}
 		return $codeText;
+	}
+	
+	private function processCalloutInfo() {
+	    if($this->callout_info_processed == false && $this->getFirehall() != null) {
+	        $this->callout_info_processed = true;
+	        
+	        $caddress = $this->address;
+	        $lat = $this->GPSLat;
+	        $long = $this->GPSLong;
+	        
+	        if(($caddress != null && $caddress != '') || 
+	           ($lat != null && $long != null && $lat != '' && $long != '')) {
+    	        $db = new \riprunner\DbConnection($this->getFirehall());
+    	        $db_connection = $db->getConnection();
+    	        
+    	        $sql_statement = new \riprunner\SqlStatement($db_connection);
+    	        if($caddress != null && $caddress != '') {
+    	            $sql = $sql_statement->getSqlStatement('callouts_info_select_by_address');
+    	        }
+    	        else {
+    	            $sql = $sql_statement->getSqlStatement('callouts_info_select_by_geolocation');
+    	        }
+    	        
+    	        $qry_bind = $db_connection->prepare($sql);
+    	        if($caddress != null && $caddress != '') {
+    	            $qry_bind->bindParam(':caddress', $caddress);
+    	        }
+    	        else {
+        	        $qry_bind->bindParam(':lat', $lat);
+        	        $qry_bind->bindParam(':long', $long);
+    	        }
+    	        $qry_bind->execute();
+    	        
+    	        $row = $qry_bind->fetch(\PDO::FETCH_OBJ);
+    	        $qry_bind->closeCursor();
+    	        \riprunner\DbConnection::disconnect_db( $db_connection );
+    	        
+    	        if($row !== null && $row !== false) {
+    	            if($row->latitude != null && $row->latitude != 0 && $row->latitude != '') {
+    	                $this->GPSLat = $row->latitude;
+    	            }
+    	            if($row->longitude != null && $row->longitude != 0 && $row->longitude != '') {
+    	                $this->GPSLong = $row->longitude;
+    	            }
+    	            if($row->address != null && $row->address != '') {
+    	                $this->address= $row->address;
+    	            }
+    	            if($this->comments == null && $row->comments != null && $row->comments!= '') {
+    	                $this->comments = $row->comments;
+    	            }
+    	        }
+	        }	        
+	    }
 	}
 }

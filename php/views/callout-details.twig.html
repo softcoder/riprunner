@@ -37,6 +37,9 @@
 		{% else %}
 			<tr><td class="ci_header_address" colspan="3">{{ row.address }}</td></tr>
 		{% endif %}
+        {% if row.callout_comments is not empty %}
+            <tr><td class="ci_header_type" colspan="3">Comments: {{ row.callout_comments }}</td></tr>
+        {% endif %}
 		<tr><td class=ci_header_type{% if callout_pending %}_blink{% endif %}>{{ row.callout_type_desc|upper }}</td>
 		<td class=ci_header_time>{{ row.calltime }}</td><td class=ci_header_status{% if callout_pending %}_blink{% endif %}>{{ row.callout_status_desc|upper }}</td></tr>
 		{% if callout_pending %}
@@ -155,6 +158,9 @@
 		{% else %}
 			<tr><td class=ci_header_address colspan=3>{{ row.address }}</td></tr>
 		{% endif %}
+        {% if row.callout_comments is not empty %}
+            <tr><td class="ci_header_type" colspan="3">Comments: {{ row.callout_comments }}</td></tr>
+        {% endif %}
 		<tr><td class=ci_header_type{% if callout_pending %}_blink{% endif %}>{{ row.callout_type_desc|upper }}</td>
 		<td class=ci_header_time>{{ row.calltime }}</td><td class=ci_header_status{% if callout_pending %}_blink{% endif %}>{{ row.callout_status_desc|upper }}</td></tr>
 		{% if row.callout_status_desc == 'notifed' or row.callout_status_desc == 'responding' %}
@@ -422,6 +428,7 @@ function getGEOLocationCoords_callback_fn(geoAccess,param2) {
         //var geo_tag = document.getElementById('geo_tag');
         //if(typeof geo_tag != 'undefined') {
             //geo_tag.textContent = 'Your GEO Position: ' + param2.lat + ", " + param2.lng;
+            //debugger
             $( '#geo_tag' ).html( 'Your GEO Position: ' + param2.lat + ", " + param2.lng );
             //$( '#geo_tag' ).html( 'Your GEO Position: ' + param2.lat + ", " + param2.lng + " dest: " + callout_geo_dest);
             console.info('You: ' + param2.lat + ", " + param2.lng + " dest: " + callout_geo_dest);

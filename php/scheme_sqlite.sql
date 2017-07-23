@@ -111,6 +111,17 @@ CREATE TABLE IF NOT EXISTS callout_type (
   updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS callouts_info (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  address varchar(255) NOT NULL,
+  latitude DECIMAL(10,6),  
+  longitude DECIMAL(10,6),
+  comments varchar(255) NULL,
+  effective_date datetime DEFAULT NULL,
+  expiration_date datetime DEFAULT NULL,
+  updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 
 CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);

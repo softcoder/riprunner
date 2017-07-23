@@ -27,12 +27,12 @@ $appender = $log->getRootLogger()->getAppender('myAppender');
 $appender->setFile(__RIPRUNNER_ROOT__ . '/' . $appender->getFile());
 
 function throwExceptionAndLogError($ui_error_msg, $log_error_msg) {
+    global $log;
 	try {
 		throw new \Exception($log_error_msg);
 	}
 	catch(Exception $ex) {
-		global $log;
-		$log->error($ui_error_msg, $ex);
+	    if($log != null) $log->error($ui_error_msg, $ex);
 		die($ui_error_msg);
 	}
 }

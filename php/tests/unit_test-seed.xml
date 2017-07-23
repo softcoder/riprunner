@@ -11,6 +11,9 @@
 
     <trigger_history id="1" triggertime="2015-11-06 17:20:41" type="1" firehall_id="0" hash_data="11111-22222-33333" />
     <trigger_history id="2" triggertime="2015-12-06 17:20:41" type="1" firehall_id="0" hash_data="x" />
+
+    <callouts_info id="1" address="9050 Salmon Valley Road, Prince George, BC" latitude="" longitude="" comments="Test comments" updatetime="2999-04-26 13:14:20" />
+    <callouts_info id="2" address="8050 Salmon Valley Road, Prince George, BC" latitude="10.12345" longitude="20.12345" comments="Test comments blah blah" effective_date="2016-01-01" expiration_date="2017-01-01" updatetime="2999-04-26 13:14:20" />
     
     <callout_status id="0" name="Paged" display_name="Paged" status_flags="0" behaviour_flags="14" access_flags="1" access_flags_inclusive="1" user_types_allowed="0" updatetime="2999-04-26 13:14:20" />
     <callout_status id="1" name="Notified" display_name="Notified" status_flags="0" behaviour_flags="14" access_flags="1" access_flags_inclusive="1" user_types_allowed="0" updatetime="2999-04-26 13:14:20" />
