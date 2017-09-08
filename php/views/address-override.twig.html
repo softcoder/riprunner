@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Secure Login: Protected Page</title>
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css?version=1" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css?version=1" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
+        {% endif %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
+    </head>
+    <body>
+        <div class="container_center">
+        {% if gvm.auth.isAuth and (gvm.auth.isAdmin) %} 
+                
+            {% include 'user-welcome.twig.html' %}
+            {% include 'live-callout-warning.twig.html' %}
+            
+            <input type="hidden" id="se" name="se" value="true"/>
+            
+            <div class="menudiv_wrapper">
+              <nav class="vertical">
+                <ul>
+                  <li>
+                    <label for="main_page">Return to ..</label>
+                    <input type="radio" name="verticalMenu" id="main_page" />
+                    <div>
+                      <ul>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                  <li>
+                    <label for="logout">Exit</label>
+                    <input type="radio" name="verticalMenu" id="logout" />
+                    <div>
+                      <ul>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}logout.php">Logout</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+
+<!--  
+            <button onclick="toggleVisibility('test_code');">Show/Hide Address Tester</button>            
+            <form action="{{ gvm.RR_DOC_ROOT }}controllers/address-override-controller.php" 
+                  method="post" id="test_code" name="test_code" 
+                  style="display:{% if addressmenu_ctl_action_code_test is not defined or 
+                                       addressmenu_ctl_action_code_test == false %}none{% endif %}" >
+                <center>
+                <table id="box-table-a" style="width:500px; height:100px;">
+                    <tr>
+                        <td align="center">
+                        <span id="msgTitle">Display the Notification Text for a specified code:</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center">
+                        <input id="display_code" name="display_code" type="input" value=""/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center">
+                        <input type="button" value="Generate Notification Text Example" onclick="send_msg(this.form, 'code_test');" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        <span id="msgStatus" style="display:{% if addressmenu_ctl_action_code_test_result is not defined %}none{% endif %}">{{ addressmenu_ctl_action_code_test_result }}</span>
+                        </td>
+                    </tr>
+                </table>
+                </center>
+            </form>
+-->            
+            <form action="{{ gvm.RR_DOC_ROOT }}controllers/address-override-controller.php" 
+                  method="post" name="address_edit_form">
+   
+            <center>
+            <table id="box-table-a">
+                <thead>
+                    <tr>
+                    <th scope="col">Record Id</th>
+                    <th scope="col" class="column_nowrap">Address</th>
+                    <th scope="col" class="column_nowrap">GEO Latitude</th>
+                    <th scope="col" class="column_nowrap">GEO Longitude</th>
+                    <th scope="col" class="column_nowrap">Comments</th>
+                    <th scope="col" class="column_nowrap">Effective Date</th>
+                    <th scope="col" class="column_nowrap">Expiration Date</th>
+                                        
+                    <th scope="col" class="column_nowrap">Update Date/Time</th>
+                    <th scope="col" colspan="2" align="Center">Modify Data</th>
+                    <tr>
+                </thead>
+
+                {% if addressmenu_ctl_edit_addressid is null and not addressmenu_ctl_insert_new %}
+                <tr>
+                    <td colspan="14">
+                        <input type="button" value="Add New" onclick="edit_address(this.form, -1);" />
+                    </td>
+                </tr>
+                {% endif %}
+
+                {% if addressmenu_ctl_insert_new is defined and addressmenu_ctl_insert_new %}
+                <tr>
+                <td>
+                NEW
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_address" name="edit_address" type="input" value=""/>
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_latitude" name="edit_latitude" type="input" value=""/>
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_longitude" name="edit_longitude" type="input" value=""/>
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_comments" name="edit_comments" type="input" value=""/>
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_effective_date" name="edit_effective_date" type="input" value=""/>
+                </td>
+                <td class="column_nowrap">
+                    <input id="edit_expiration_date" name="edit_expiration_date" type="input" value=""/>
+                </td>
+                <td colspan="3">
+                <input type="button" value="Save" 
+                       onclick="save_address(this.form, -1);" />
+                
+                <input type="button" value="Cancel" 
+                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}controllers/address-override-controller.php'; return false;" />
+                </td>
+                </tr>
+                {% endif %}
+            
+            {% for address in addressoverride_vm.address_list %}
+
+                {% set edit_current_row = 
+                   (addressmenu_ctl_edit_addressid is defined and 
+                    addressmenu_ctl_edit_addressid == address.id) %}
+                <tr>
+                <td>
+                {{ address.id }}
+                </td>
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_address" name="edit_address" type="input" 
+                           value="{{ address.address }}"/>
+                {% else %}
+                {{ address.address }}
+                {% endif %}
+                </td>
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_latitude" name="edit_latitude" type="input" 
+                           value="{{ address.latitude }}"/>
+                {% else %}
+                {{ address.latitude }}
+                {% endif %}
+                </td>
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_longitude" name="edit_longitude" type="input" 
+                           value="{{ address.longitude }}"/>
+                {% else %}
+                {{ address.longitude }}
+                {% endif %}
+                </td>
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_comments" name="edit_comments" type="input" 
+                           value="{{ address.comments }}"/>
+                {% else %}
+                {{ address.comments }}
+                {% endif %}
+                </td>
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_effective_date" name="edit_effective_date" type="input" 
+                           value="{{ address.effective_date }}"/>
+                {% else %}
+                {{ address.effective_date }}
+                {% endif %}
+                </td>
+                <td class="column_nowrap">
+                {% if edit_current_row %}
+                    <input id="edit_expiration_date" name="edit_expiration_date" type="input" 
+                           value="{{ address.expiration_date }}"/>
+                {% else %}
+                {{ address.expiration_date }}
+                {% endif %}
+                </td>
+
+                <td class="column_nowrap">
+                   {{ address.updatetime }}
+                </td>
+                
+                {% if edit_current_row %}
+                    <td colspan="2">
+                    <input type="button" value="Save" 
+                           onclick="save_address(this.form, {{ address.id }});" />
+                    
+                    <input type="button" value="Cancel" 
+                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}controllers/address-override-controller.php'; return false;" />
+                    </td>
+                {% else %}
+                    <td>
+                    <input type="button" value="Edit" 
+                           onclick="edit_address(this.form, {{ address.id }});" />
+                    </td>
+                    <td>
+                    <input type="button" value="Delete" 
+                           onclick="return delete_address(this.form, {{ address.id }},'{{ address.address }}');" />
+                    </td>
+                {% endif %}
+                </tr>
+            {% endfor %}
+            
+            </table>
+            </center>
+            </form>
+            
+<script type="text/javascript">
+    function edit_address(form, address_id) {
+       addformhiddenfield(form, 'form_action', 'edit');
+       addformhiddenfield(form, 'edit_address_id', address_id);
+       
+       form.submit();
+    }
+
+    function save_address(form, address_id) {
+       addformhiddenfield(form, 'form_action', 'save');
+       addformhiddenfield(form, 'edit_address_id', address_id);
+       
+       form.submit();
+    }
+
+    function delete_address(form, address_id, address_id_name) {
+        if(confirm('Confirm DELETE for address: ' + address_id_name + '?')) {
+            addformhiddenfield(form, 'form_action', 'delete');
+            addformhiddenfield(form, 'edit_address_id', address_id);
+            
+            form.submit();
+            return true;
+        }
+        return false;
+    }
+
+    function send_msg(form, action_type) {
+       addformhiddenfield(form, 'form_action', action_type);
+       form.submit();
+    }
+
+    function toggleVisibility(itemId) {
+        var item = document.getElementById(itemId);
+        if(item.style.display == "none") {
+            item.style.display="block";
+        }
+        else {
+            item.style.display="none";
+        }
+    }
+    
+    var item = document.getElementById("edit_code");
+    if(item) {
+        item.focus();
+    }
+</script>
+        {% else %}
+            {% include 'access-denied.twig.html' %}
+        {% endif %}
+        </div>
+    </body>
+</html>
