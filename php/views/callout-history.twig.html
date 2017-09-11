@@ -73,6 +73,9 @@
 		                {% endif %}
 		            {% endfor %}
 	                <th scope="col">call details</th>
+	                {% if gvm.auth.isAuth and (gvm.auth.isAdmin) %}
+	                <th scope="col">override address details</th>
+	                {% endif %}
 	            </tr>
 	            </thead>
 	            
@@ -117,6 +120,15 @@
 	                      details
 	                   </a> 
 	                </td>
+
+                    {% if gvm.auth.isAuth and (gvm.auth.isAdmin) %}
+                    <td class="column_nowrap">
+                       <a target="_blank" 
+                          href="{{ gvm.RR_DOC_ROOT }}controllers/address-override-controller.php?cid={{ row.id }}">
+                          override
+                       </a> 
+                    </td>
+                    {% endif %}
 	                
 	                </tr>
 	            {% endfor %}
