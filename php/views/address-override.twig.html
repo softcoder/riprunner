@@ -220,7 +220,7 @@
                     </td>
                     <td>
                     <input type="button" value="Delete" 
-                           onclick="return delete_address(this.form, {{ address.id }},'{{ address.address }}');" />
+                           onclick="return delete_address(this.form, {{ address.id }},'{{ address.address|escape('js') }}');" />
                     </td>
                 {% endif %}
                 </tr>

@@ -217,7 +217,7 @@
                     </td>
                     <td>
                     <input type="button" value="Delete" 
-                           onclick="return delete_type(this.form, {{ type.id }},'{{ type.name }}');" />
+                           onclick="return delete_type(this.form, {{ type.id }},'{{ type.name|escape('js') }}');" />
                     </td>
                 {% endif %}
                 </tr>

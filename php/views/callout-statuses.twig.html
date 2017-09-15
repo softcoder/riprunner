@@ -343,7 +343,7 @@
                     </td>
                     <td>
                     <input type="button" value="Delete" 
-                           onclick="return delete_status(this.form, {{ status.id }},'{{ status.display_name }}');" />
+                           onclick="return delete_status(this.form, {{ status.id }},'{{ status.display_name|escape('js') }}');" />
                     </td>
                 {% endif %}
                 </tr>
