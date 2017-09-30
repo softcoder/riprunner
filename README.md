@@ -162,7 +162,12 @@ Linux installation notes:
 2. Install these dependencies:
 - sudo a2enmod rewrite
 - sudo apt install php7.1-xml
-- sudo apt-get install php7.1-mysql 
+- sudo apt install php7.1-mysql 
+- sudo apt install php7.1-imap
+- sudo apt install php7.1-mcrypt
+- sudo apt install php7.1-curl
+- sudo apt install php7.1-ldap
+- sudo apt install php7.1-sqlite3
 3. Restart Apache: sudo systemctl restart apache2
 4. Configure web virtual host (if desired)
 5. Create a MySql user for rip runner (with DBA access)
