@@ -20,6 +20,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 }
 
 require_once __RIPRUNNER_ROOT__ . '/config_constants.php';
+require_once __RIPRUNNER_ROOT__ . '/common_functions.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class DbConnection {
@@ -126,7 +127,7 @@ class DbConnection {
             array_push($FIREHALLS, $this->firehall);
             $root_url = getFirehallRootURLFromRequest(null, $FIREHALLS);
             
-            \handle_config_error($root_url, $e);
+            handle_config_error($root_url, $e);
             //throw new \Exception("Error connecting to the database, check system logs for more details.");
             exit;
         }

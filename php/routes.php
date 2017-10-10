@@ -16,6 +16,7 @@ if(defined('INCLUSION_PERMITTED') === false) {
 }
 
 require_once 'config_constants.php';
+require_once 'common_functions.php';
 try {
     if (!file_exists('config.php' )) {
         throw new \Exception('Config script does not exist!');
@@ -25,7 +26,7 @@ try {
     }
 }
 catch(\Exception $e) {
-    \handle_config_error('', $e);
+    handle_config_error('', $e);
     return;
 }
 
