@@ -134,6 +134,21 @@ function login_ldap($FIREHALL, $user_id, $password) {
     			$_SESSION['firehall_id'] = $FirehallId;
     			$_SESSION['ldap_enabled'] = true;
     			$_SESSION['user_access'] = $userAccess;
+    			$_SESSION['user_jwt'] = false;
+    			
+    			if($log !== null) $log->warn("process_login check request method: ".$_SERVER['REQUEST_METHOD']);
+    			if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST)) {
+    			    $json = file_get_contents('php://input');
+    			    if($json != null && count($json) > 0) {
+    			        if($log !== null) $log->warn("process_login found request method: ".$_SERVER['REQUEST_METHOD']." request: ".$json);
+    			        $request = json_decode($json);
+    			        if(json_last_error() == JSON_ERROR_NONE) {
+    			            $_SESSION['user_jwt'] = true;
+    			        }
+    			        
+    			    }
+    			}
+    			if($log !== null) $log->trace("process_login JWT user status: ".$_SESSION['user_jwt']);
     			
     			\riprunner\CalloutStatusType::getStatusList($FIREHALL);
     		  

@@ -33,6 +33,13 @@ catch(\Exception $e) {
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
 
+\Flight::route('GET|POST /ngui', function () {
+    global $FIREHALLS;
+    
+    $root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
+    \Flight::redirect($root_url .'ngui/index.html');
+});
+    
 \Flight::route('GET|POST /', function () {
     global $FIREHALLS;
     //$query = array();

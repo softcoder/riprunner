@@ -20,9 +20,6 @@ class MainMenuViewModel extends BaseViewModel {
 		if('hasApplicationUpdates' === $name) {
 			return $this->checkApplicationUpdatesAvailable();
 		}
-		if('hasApplicationUpdates' === $name) {
-			return $this->checkApplicationUpdatesAvailable();
-		}
 		if('LOCAL_VERSION' === $name) {
 			return CURRENT_VERSION;
 		}
@@ -50,7 +47,7 @@ class MainMenuViewModel extends BaseViewModel {
 	private function getApplicationUpdateSettings() {
 	    # Configuration array
 	    //$ini = array('local_path' => sys_get_temp_dir() . DIRECTORY_SEPARATOR . '.version',
-	    $ini = array('local_path' => '.check_version',
+	    $ini = array('local_path' => '../.check_version',
     	             'distant_path' => 'https://raw.githubusercontent.com/softcoder/riprunner/master/files/latest_version',
     	             'distant_path_notes' => 'https://github.com/softcoder/riprunner',
     	             'time_between_check' => 15*24*60*60);

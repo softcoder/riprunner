@@ -18,6 +18,8 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	die( 'This file must not be invoked directly.' );
 }
 require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
+require_once __RIPRUNNER_ROOT__ . '/third-party/JWT/jwt_helper.php';
+require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class Authentication {
@@ -195,6 +197,20 @@ class Authentication {
         if($log !== null) $log->trace("Login attempt for user [$user_id] fhid [" . 
                 $this->getFirehall()->FIREHALL_ID . "] client [" . self::getClientIPInfo() . "]");
     
+        $isAngularClient = false;
+        if($log !== null) $log->trace("Login check request method: ".$this->getServerVar('REQUEST_METHOD'));
+        if($this->getServerVar('REQUEST_METHOD') == 'POST' && empty($_POST)) {
+            $json = file_get_contents('php://input');
+            if($json != null && count($json) > 0) {
+                if($log !== null) $log->trace("Login found request method: ".$this->getServerVar('REQUEST_METHOD')." request: ".$json);
+                $request = json_decode($json);
+                if(json_last_error() == JSON_ERROR_NONE) {
+                    $isAngularClient = true;
+                    $password = \base64_decode($password);
+                }
+            }
+        }
+        
         if($this->getFirehall()->LDAP->ENABLED === true) {
             return login_ldap($this->getFirehall(), $user_id, $password);
         }
@@ -228,6 +244,7 @@ class Authentication {
                     // Account is locked
                     // Send an email to user saying their account is locked
                     if($log !== null) $log->error("LOGIN-F1");
+                    @session_destroy();
                     return false;
                 }
                 else {
@@ -260,8 +277,16 @@ class Authentication {
                         $_SESSION['firehall_id'] = $FirehallId;
                         $_SESSION['ldap_enabled'] = false;
                         $_SESSION['user_access'] = $userAccess;
+                        $_SESSION['user_jwt'] = false;
+                        if ($isAngularClient == true) {
+                            $_SESSION['user_jwt'] = true;
+                        }
+                        if($log !== null) $log->trace("process_login JWT user status: ".$_SESSION['user_jwt']);
                         
                         \riprunner\CalloutStatusType::getStatusList($this->getFirehall());
+                        
+                        if($log !== null) $log->trace('Login OK pwd check crypt($password, $userPwd) ['.crypt($password, $userPwd).'] $userPwd ['.$userPwd.']');
+                        
                         // Login successful.
                         return true;
                     }
@@ -275,8 +300,12 @@ class Authentication {
                         $qry_bind = $this->getDbConnection()->prepare($sql);
                         $qry_bind->bindParam(':uid', $dbId);  // Bind "$user_id" to parameter.
                         $qry_bind->execute();
-    
+
+                        if($log !== null) $log->error('Login FAILED pwd check crypt($password, $userPwd) ['.crypt($password, $userPwd).'] $userPwd ['.$userPwd.']');
+                        
+                        
                         if($log !== null) $log->trace("LOGIN-F2");
+                        @session_destroy();
                         return false;
                     }
                 }
@@ -286,10 +315,19 @@ class Authentication {
                 if($log !== null) $log->warn("Login attempt for user [$user_id] FAILED uid check for client [" . self::getClientIPInfo() . "]");
                  
                 if($log !== null) $log->trace("LOGIN-F3");
+                @session_destroy();
                 return false;
             }
         }
+        @session_destroy();
         return false;
+    }
+    
+    private function getServerVar($key) {
+        if($_SERVER !== null && array_key_exists($key, $_SERVER) === true) {
+            return $_SERVER[$key];
+        }
+        return null;
     }
     
     public function login_check() {
@@ -309,6 +347,10 @@ class Authentication {
             // Get the user-agent string of the user.
             $user_browser = htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
 
+            if($this->validateJWT() == false) {
+                return false;
+            }
+            
             if(isset($ldap_enabled) === true && $ldap_enabled === true) {
                 if($log !== null) $log->trace("LOGINCHECK using LDAP...");
                 return login_check_ldap($this->getDbConnection());
@@ -366,6 +408,82 @@ class Authentication {
             //}
             return false;
         }
+    }
+
+    public function getCurrentUserRoleJSon() {
+        global $log;
+        
+        $jsonRole = null;
+        $userType = $_SESSION['user_type'];
+        if($userType != null && $this->hasDbConnection() === true) {
+            if($this->getFirehall()->LDAP->ENABLED === true) {
+                create_temp_users_table_for_ldap($this->getFirehall(), $this->getDbConnection());
+            }
+            $sql = $this->getSqlStatement('user_type_list_select');
+            
+            $qry_bind= $this->getDbConnection()->prepare($sql);
+            $qry_bind->execute();
+            
+            $rows = $qry_bind->fetchAll(\PDO::FETCH_CLASS);
+            $qry_bind->closeCursor();
+            
+            if($log) $log->trace("About to build user type list for sql [$sql] result count: " . count($rows));
+            
+            //$resultArray = array();
+            foreach($rows as $row) {
+                // Add any custom fields with values here
+                //$resultArray[] = $row;
+                if($userType == $row->id) {
+                    $jsonRole = json_encode(array('role' => $row->name, 'access' => $_SESSION['user_access']), JSON_FORCE_OBJECT);
+                    break;
+                }
+            }
+        }
+        return $jsonRole;
+    }
+    
+    private function validateJWT() {
+        global $log;
+
+        $jwtEnabled = $_SESSION['user_jwt'];
+        if($log !== null) $log->trace("Login check jwtEnabled [" . $jwtEnabled. "] for session [".session_id()."]");
+        if($jwtEnabled) {
+//             while (list($var,$value) = each ($_SERVER)) {
+//                 if($log !== null) $log->warn("Login check headers are: name [$var] => value [$value]");
+//             }
+            
+            $token = $this->getServerVar('HTTP_JWT_TOKEN');
+            if($log !== null) $log->warn("Login check token [" . $token. "] #2 [" . $this->getServerVar('HTTP_jwt_token') ."]");
+            if($token == null) {
+                $token = \getSafeRequestValue('JWT_TOKEN');
+                if($log !== null) $log->warn("Login check req token [" . $token. "]");
+            }
+            
+            if($token != null && count($token)) {
+                $token = \JWT::decode($token, jwt_key);
+                if($log !== null) $log->warn("Login check token decode [" . json_encode($token). "]");
+                
+                if ($token == false) {
+                    if($log !== null) $log->error("Login check jwt token decode FAILED!");
+                    return false;
+                }
+                else if ($token->id != $_SESSION['user_db_id']) {
+                    if($log !== null) $log->error("Login check jwt token mismatch FAILURE!");
+                    return false;
+                }
+                
+                $token_handoff = \getSafeRequestValue('JWT_TOKEN_HANDOFF');
+                if($token_handoff != null) {
+                    $_SESSION['user_jwt'] = false;
+                    if($log !== null) $log->warn("Login check jwt handoff success!");
+                }
+            }
+            else {
+                if($log !== null) $log->error("Login check jwt token missing FAILED!");
+                return false;
+            }
+        }
+        return true;
     }
     
     static public function userHasAcess($access_flag) {
