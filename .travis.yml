@@ -10,13 +10,16 @@ php:
 #  - 5.6
   - 7.1.11
   - nightly
+cache:
+  directories:
+    - $HOME/.composer/cache/files
 notifications:
   email:
     on_success: change
     on_failure: always
 before_script:
   - cd php/
-  - composer install
+  - composer install --prefer-dist
 #  - composer dump-autoload -o
   - cp config-test.php config.php
 #  - cd ../
