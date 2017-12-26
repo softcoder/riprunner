@@ -17,6 +17,5 @@ before_script:
 #  - composer dump-autoload -o
   - cp config-test.php config.php
 script:
-  - cd php/
   - phpunit -d zend.enable_gc=0 --coverage-text
 #script: phpunit -d zend.enable_gc=0 --verbose --debug
