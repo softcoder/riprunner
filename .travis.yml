@@ -19,7 +19,8 @@ before_script:
 #  - cd ../
 script:
 #  - phpunit -d zend.enable_gc=0 --coverage-text
-  - phpunit --coverage-text --verbose --debug
+#  - phpunit --coverage-text --verbose --debug
+  - ./vendor/bin/phpunit --coverage-text --verbose --debug
 #  - pwd
 #  - ls -la
 #script: phpunit -d zend.enable_gc=0 --verbose --debug
