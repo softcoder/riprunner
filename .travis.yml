@@ -5,13 +5,17 @@ php:
   - 5.4
 #  - 5.5
 #  - 5.6
+  - nightly
 notifications:
   email:
     on_success: change
     on_failure: always
 before_script:
+  - cd php/
   - composer install
 #  - composer dump-autoload -o
   - cp php/config-test.php php/config.php
-script: phpunit -d zend.enable_gc=0 --coverage-text
+script:
+  - cd php/
+  - phpunit -d zend.enable_gc=0 --coverage-text
 #script: phpunit -d zend.enable_gc=0 --verbose --debug
