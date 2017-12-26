@@ -11,7 +11,7 @@ if(defined('INCLUSION_PERMITTED') === false) {
 }
 
 require_once dirname(dirname(__FILE__)).'/baseDBFixture.php';
-require_once __RIPRUNNER_ROOT__ . '/third-party/html2text/Html2Text.php';
+require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
 
 class ParsingTest extends BaseDBFixture {

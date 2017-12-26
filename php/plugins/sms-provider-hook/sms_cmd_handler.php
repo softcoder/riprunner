@@ -22,11 +22,11 @@ require_once __RIPRUNNER_ROOT__ . '/models/callout-details.php';
 require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
-require_once __RIPRUNNER_ROOT__ . '/third-party/html2text/Html2Text.php';
-require_once __RIPRUNNER_ROOT__ . '/third-party/twilio-php/Services/Twilio.php';
-require_once __RIPRUNNER_ROOT__ . '/third-party/plivo-php/plivo.php';
+require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
 require_once __RIPRUNNER_ROOT__ . '/core/CalloutStatusType.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
+
+use Twilio\Security\RequestValidator;
 
 abstract class CommandMatchType extends BasicEnum {
     const Exact = 0;
@@ -427,7 +427,7 @@ class SMSCommandHandler {
                 // Load auth token
                 $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
                 // You'll need to make sure the Twilio library is included
-                $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+                $validator = new RequestValidator($authToken[1]);
                 $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
                 $url = $site_root.self::$TWILIO_WEBHOOK_URL;
 

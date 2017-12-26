@@ -18,9 +18,11 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	die( 'This file must not be invoked directly.' );
 }
 require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
-require_once __RIPRUNNER_ROOT__ . '/third-party/JWT/jwt_helper.php';
+require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
+
+use \Firebase\JWT\JWT;
 
 class Authentication {
 
@@ -61,7 +63,6 @@ class Authentication {
         $ses_already_started = self::is_session_started();
         if ($ses_already_started === false) {
             $session_name = 'sec_session_id';   // Set a custom session name
-            //$secure = SECURE;
             $config = new \riprunner\ConfigManager();
             $secure = $config->getSystemConfigValue('SECURE');
             
@@ -460,7 +461,7 @@ class Authentication {
             }
             
             if($token != null && count($token)) {
-                $token = \JWT::decode($token, jwt_key);
+                $token = JWT::decode($token, JWT_KEY, array('HS256'));
                 if($log !== null) $log->warn("Login check token decode [" . json_encode($token). "]");
                 
                 if ($token == false) {

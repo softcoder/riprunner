@@ -1,0 +1,20 @@
+{
+    "require-dev": {
+        "phpmd/phpmd" : "@stable",
+        "phpunit/phpunit": "@stable",
+        "phpunit/dbunit": "@stable",
+        "phpunit/php-invoker": "*"
+    },
+
+    "require": {
+        "twig/twig": "@stable",
+        "twilio/sdk": "@stable",
+        "apache/log4php": "@stable",
+        "mikecao/flight": "@stable",
+        "html2text/html2text": "@stable",
+        "firebase/php-jwt": "@stable",
+        "phpmailer/phpmailer": "@stable",
+        "plivo/php-sdk": "@stable",
+        "phpsms/phpsms": "dev-master"
+  }    
+}

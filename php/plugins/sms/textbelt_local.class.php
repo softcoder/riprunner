@@ -11,7 +11,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 }
 
 require_once 'plugin_interfaces.php';
-require_once __RIPRUNNER_ROOT__.'/third-party/PHPSMS/PHPSMS.php';
+require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
 
 class SMSTextBeltLocalPlugin implements ISMSPlugin {
 

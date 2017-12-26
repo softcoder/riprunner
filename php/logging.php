@@ -15,7 +15,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 if(defined('__RIPRUNNER_ROOT__') === false) {
     define('__RIPRUNNER_ROOT__', dirname(__FILE__));
 }
-require __RIPRUNNER_ROOT__ . '/third-party/apache-log4php/Logger.php';
+require __DIR__ . '/vendor/autoload.php';
 
 // Tell log4php to use our configuration file.
 \Logger::configure(__RIPRUNNER_ROOT__ . '/config-logging.xml');

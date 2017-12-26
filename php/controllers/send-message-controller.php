@@ -18,7 +18,10 @@ require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/send-message-model.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
-require_once __RIPRUNNER_ROOT__ . '/third-party/PHPMailer/PHPMailerAutoload.php';
+require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 \riprunner\Authentication::sec_session_start();
 // Register our view and variables for the template
@@ -99,7 +102,7 @@ class SendMessageController {
     	    
     	    //echo "email_users = [$email_users] emailMsg [$emailMsg]" . PHP_EOL;
     	    
-    	    $mail = new \PHPMailer;
+    	    $mail = new PHPMailer;
     	    
     	    $email_users = explode(',',$email_users);
     	    $emailList = getEmailListFromDB($this->global_vm->firehall, $this->global_vm->RR_DB_CONN);

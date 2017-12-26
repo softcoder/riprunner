@@ -6,11 +6,7 @@
 namespace riprunner;
 
 require_once 'config_constants.php';
-require_once __RIPRUNNER_ROOT__ . '/third-party/Twig/Autoloader.php';
-//require_once __RIPRUNNER_ROOT__ . '/third-party/Twig/Extension/Twig/Extensions/Autoloader.php';
-
-\Twig_Autoloader::register();
-//\Twig_Extensions_Autoloader::register();
+require __DIR__ . '/vendor/autoload.php';
 
 class RiprunnerTwig {
     

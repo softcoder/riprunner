@@ -18,7 +18,6 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 require_once 'gcm/gcm.php';
 require_once 'ldap/ldap.php';
 require_once 'Mobile_Detect.php';
-
 require_once 'logging.php';
 
 /**

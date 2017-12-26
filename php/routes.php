@@ -31,7 +31,7 @@ catch(\Exception $e) {
 }
 
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
-require_once __RIPRUNNER_ROOT__ . '/third-party/flight/Flight.php' ;
+require __DIR__ . '/vendor/autoload.php';
 
 \Flight::route('GET|POST /ngui', function () {
     global $FIREHALLS;

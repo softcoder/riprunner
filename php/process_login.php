@@ -11,9 +11,11 @@ error_reporting(E_ALL);
 
 require_once 'config.php';
 require_once 'authentication/authentication.php';
-require_once 'third-party/JWT/jwt_helper.php';
+require __DIR__ . '/vendor/autoload.php';
 require_once 'functions.php';
 require_once 'logging.php';
+
+use \Firebase\JWT\JWT;
 
 // Our custom secure way of starting a PHP session.
 \riprunner\Authentication::sec_session_start();
@@ -63,9 +65,6 @@ if ($isAngularClient == true || isset($_POST['firehall_id'], $_POST['user_id'], 
 		    else if ($auth->login($user_id, $password) === true) {
 		        // Login success
 		        if($isAngularClient == true) {
-		            //header('rr-auth: OK');
-		            //header('rr-auth: '.JWT::encode($token, jwt_key));
-		            
 		            $token = array();
 		            $token['id'] = $_SESSION['user_db_id'];
 		            $token['acl'] = $auth->getCurrentUserRoleJSon();
@@ -76,7 +75,7 @@ if ($isAngularClient == true || isset($_POST['firehall_id'], $_POST['user_id'], 
 		            $output['expiresIn'] = 120;
 		            $output['user'] = $_SESSION['user_id'];
 		            $output['message'] = 'LOGIN: OK';
-		            $output['token'] = \JWT::encode($token, jwt_key);
+		            $output['token'] = JWT::encode($token, JWT_KEY);
 		            
 		            header('Cache-Control: no-cache, must-revalidate');
 		            header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
@@ -90,16 +89,9 @@ if ($isAngularClient == true || isset($_POST['firehall_id'], $_POST['user_id'], 
 		    else {
 		        // Login failed 
 		        if($isAngularClient == true) {
-		            //$output = array();
-		            //$output['status'] = false;
-		            //$output['user'] = null;
-		            //$output['message'] = 'LOGIN: FAILED';
-		            //$output['token'] = null;
-		            
 		            header('Cache-Control: no-cache, must-revalidate');
-		            header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-		            //header('Content-type: application/json');
-		            //echo json_encode($output);
+					header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+					
 		            header("HTTP/1.1 401 Unauthorized");
 		        }
 		        else {
@@ -111,16 +103,10 @@ if ($isAngularClient == true || isset($_POST['firehall_id'], $_POST['user_id'], 
 	        if($log) $log->error("process_login error, no db connection found for firehall id: $firehall_id");
 	    	
 	    	if($isAngularClient == true) {
-	    	    //$output = array();
-	    	    //$output['status'] = false;
-	    	    //$output['user'] = null;
-	    	    //$output['message'] = 'LOGIN: FAILED fhdb';
-	    	    //$output['token'] = null;
-	    	    
 	    	    header('Cache-Control: no-cache, must-revalidate');
 	    	    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 	    	    header('Content-type: application/json');
-	    	    //echo json_encode($output);
+
 	    	    header("HTTP/1.1 401 Unauthorized");
 	    	}
 	    	else {
@@ -132,16 +118,10 @@ if ($isAngularClient == true || isset($_POST['firehall_id'], $_POST['user_id'], 
         if($log) $log->error("process_login error, no firehall found for id: $firehall_id");
     	
     	if($isAngularClient == true) {
-    	    //$output = array();
-    	    //$output['status'] = false;
-    	    //$output['user'] = null;
-    	    //$output['message'] = 'LOGIN: FAILED fh';
-    	    //$output['token'] = null;
-    	    
     	    header('Cache-Control: no-cache, must-revalidate');
     	    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
     	    header('Content-type: application/json');
-    	    //echo json_encode($output);
+
     	    header("HTTP/1.1 401 Unauthorized");
     	}
     	else {

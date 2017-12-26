@@ -17,7 +17,6 @@ require_once __RIPRUNNER_ROOT__ . '/models/main-menu-model.php';
 
 use Vanen\Mvc\Api;
 use Vanen\Mvc\ApiController;
-//use Vanen\Net\HttpResponse;
 
 class SystemConfig {
     

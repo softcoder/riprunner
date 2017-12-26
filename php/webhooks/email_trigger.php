@@ -21,7 +21,7 @@ require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/models/callout-details.php';
 require_once __RIPRUNNER_ROOT__ . '/firehall_parsing.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
-require_once __RIPRUNNER_ROOT__ . '/third-party/html2text/Html2Text.php';
+require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 class EmailTriggerWebHook {

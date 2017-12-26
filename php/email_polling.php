@@ -20,7 +20,7 @@ require_once 'models/callout-details.php';
 require_once 'functions.php';
 require_once 'firehall_parsing.php';
 require_once 'signals/signal_manager.php';
-require_once 'third-party/html2text/Html2Text.php';
+require __DIR__ . '/vendor/autoload.php';
 require_once 'logging.php';
 
 interface IMapProvider {

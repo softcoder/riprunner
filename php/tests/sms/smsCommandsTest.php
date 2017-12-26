@@ -15,6 +15,8 @@ if(defined('INCLUSION_PERMITTED') === false) {
 
 require_once dirname(dirname(__FILE__)).'/baseDBFixture.php';
 require_once __RIPRUNNER_ROOT__ . '/plugins/sms-provider-hook/sms_cmd_handler.php';
+require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
+use Twilio\Security\RequestValidator;
 
 class SmsCommandsTest extends BaseDBFixture {
 	
@@ -38,7 +40,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	    
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
@@ -54,7 +56,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	     
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
@@ -92,7 +94,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
@@ -140,7 +142,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
@@ -192,7 +194,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
@@ -235,7 +237,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
@@ -294,7 +296,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
@@ -339,7 +341,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
@@ -384,7 +386,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
@@ -429,7 +431,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
@@ -474,7 +476,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
@@ -524,7 +526,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
@@ -569,7 +571,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
-	    $validator = new \Services_Twilio_RequestValidator($authToken[1]);
+	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
 	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
