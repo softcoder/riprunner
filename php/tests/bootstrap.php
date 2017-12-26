@@ -1,3 +1,3 @@
 <?php
-include_once 'PHPUnit/Autoload.php';
+//include_once 'PHPUnit/Autoload.php';
 ?>
