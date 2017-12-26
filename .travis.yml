@@ -6,9 +6,9 @@ php:
   - 5.6
   - 7.1.11
   - nightly
-cache:
-  directories:
-    - $HOME/.composer/cache/files
+#cache:
+#  directories:
+#    - $HOME/.composer/cache/files
 notifications:
   email:
     on_success: change
@@ -30,3 +30,5 @@ script:
 #  - pwd
 #  - ls -la
 #script: phpunit -d zend.enable_gc=0 --verbose --debug
+notifications:
+  irc: "irc.freenode.org#softhaus
