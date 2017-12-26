@@ -6,32 +6,44 @@ php:
   - 5.6
   - 7.1.11
   - nightly
+
 #cache:
 #  directories:
 #    - $HOME/.composer/cache/files
+
 notifications:
   email:
     on_success: change
     on_failure: always
-before_script:
+
+before_install:
+  - composer self-update
+
+install:
   - cd php/
+  - composer install --prefer-dist
+
+before_script:
 #  - composer install --prefer-dist
 #  - composer dump-autoload -o
 #  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "5.3" ]]; then composer global require --dev phpunit/phpunit ^4; fi
 #  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "5.6" ]]; then composer global require --dev phpunit/phpunit ^5; fi
 #  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.1" ]]; then composer global require --dev phpunit/phpunit ^6; fi
-  - composer install --prefer-dist
+#  - composer install --prefer-dist
   - ls -la
   - ls -la vendor/
   - cp config-test.php config.php
 #  - cd ../
+
 script:
 #  - phpunit -d zend.enable_gc=0 --coverage-text
 #  - phpunit --coverage-text --verbose --debug
 #  - ./vendor/bin/phpunit --coverage-text --verbose --debug
-  - phpunit --coverage-text --verbose --debug
+#  - phpunit --coverage-text --verbose --debug
+  - php vendor/bin/phpunit  --coverage-text --verbose --debug
 #  - pwd
 #  - ls -la
 #script: phpunit -d zend.enable_gc=0 --verbose --debug
+
 notifications:
   irc: "irc.freenode.org#softhaus
