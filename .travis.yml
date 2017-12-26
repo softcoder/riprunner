@@ -46,4 +46,5 @@ script:
 #script: phpunit -d zend.enable_gc=0 --verbose --debug
 
 notifications:
-  irc: "irc.freenode.org#softhaus
+  irc: "irc.freenode.org#softhaus"
+
