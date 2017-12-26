@@ -15,7 +15,7 @@ before_script:
   - cd php/
   - composer install
 #  - composer dump-autoload -o
-  - cp php/config-test.php php/config.php
+  - cp config-test.php config.php
 script:
   - cd php/
   - phpunit -d zend.enable_gc=0 --coverage-text
