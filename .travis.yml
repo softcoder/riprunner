@@ -1,9 +1,13 @@
 language: php
 sudo: false
 dist: trusty
+env:
+    globals:
+        - deps=no
 php:
 #  - 5.3
   - 5.6
+env: deps=low
   - 7.1.11
   - nightly
 
@@ -21,17 +25,20 @@ before_install:
   - composer clear-cache
 
 install:
-  - cd php/
 #  - composer install --prefer-dist
-  - composer install -n
+#  - composer install -n
 
 before_script:
+- cd php/
 #  - composer install --prefer-dist
 #  - composer dump-autoload -o
 #  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "5.3" ]]; then composer global require --dev phpunit/phpunit ^4; fi
 #  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "5.6" ]]; then composer global require --dev phpunit/phpunit ^5; fi
 #  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.1" ]]; then composer global require --dev phpunit/phpunit ^6; fi
 #  - composer install --prefer-dist
+
+  - if [ "$deps" = "low" ]; then composer --prefer-lowest --prefer-stable update; fi;
+  - if [ "$deps" = "no" ]; then composer install; fi;
   - ls -la
   - ls -la vendor/
   - cp config-test.php config.php
