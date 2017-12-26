@@ -18,5 +18,8 @@ before_script:
   - cp config-test.php config.php
   - cd ../
 script:
-  - phpunit -d zend.enable_gc=0 --coverage-text
+#  - phpunit -d zend.enable_gc=0 --coverage-text
+  - phpunit --configuration php/phpunit.xml --coverage-text
+  - pwd
+  - ls -la
 #script: phpunit -d zend.enable_gc=0 --verbose --debug
