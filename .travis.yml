@@ -18,10 +18,12 @@ notifications:
 
 before_install:
   - composer self-update
+  - composer clear-cache
 
 install:
   - cd php/
-  - composer install --prefer-dist
+#  - composer install --prefer-dist
+  - composer install -n
 
 before_script:
 #  - composer install --prefer-dist
