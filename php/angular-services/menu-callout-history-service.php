@@ -12,7 +12,7 @@ if(defined('__RIPRUNNER_ROOT__') === false) {
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
-require_once __RIPRUNNER_ROOT__ . '/third-party/rest/WebApi.php';
+require_once __RIPRUNNER_ROOT__ . '/rest/WebApi.php';
 require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/callout-history-model.php';

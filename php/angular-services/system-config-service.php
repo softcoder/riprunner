@@ -12,7 +12,7 @@ if(defined('__RIPRUNNER_ROOT__') === false) {
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
-require_once __RIPRUNNER_ROOT__ . '/third-party/rest/WebApi.php';
+require_once __RIPRUNNER_ROOT__ . '/rest/WebApi.php';
 require_once __RIPRUNNER_ROOT__ . '/models/main-menu-model.php';
 
 use Vanen\Mvc\Api;
