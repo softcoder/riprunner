@@ -1,4 +1,21 @@
 {
+    "name": "vsoft/riprunner-php",
+    "description": "A Firehall dispatching communication suite.",
+    "homepage": "https://github.com/softcoder/riprunner",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Mark Vejvoda",
+            "email": "mark_vejvoda@hotmail.com",
+            "homepage": "http://www.vsoft.solutions",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "mark@vsoft.solutions",
+        "irc": "irc://irc.freenode.org/composer"
+    },
+
     "require-dev": {
         "phpmd/phpmd" : "@stable",
         "phpunit/phpunit": "@stable",
@@ -7,14 +24,14 @@
     },
 
     "require": {
-        "twig/twig": "@stable",
-        "twilio/sdk": "@stable",
         "apache/log4php": "@stable",
-        "mikecao/flight": "@stable",
-        "html2text/html2text": "@stable",
         "firebase/php-jwt": "@stable",
+        "html2text/html2text": "@stable",
+        "mikecao/flight": "@stable",
         "phpmailer/phpmailer": "@stable",
         "plivo/php-sdk": "@stable",
-        "phpsms/phpsms": "dev-master"
-  }    
+        "phpsms/phpsms": "dev-master",
+        "twilio/sdk": "@stable",
+        "twig/twig": "@stable"
+    }    
 }
