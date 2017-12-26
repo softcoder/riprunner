@@ -19,12 +19,11 @@
     "require-dev": {
         "phpmd/phpmd" : "@stable",
         "phpunit/phpunit": "@stable",
-        "phpunit/dbunit": "@stable",
-        "phpunit/php-invoker": "*"
+        "phpunit/dbunit": "@stable"
     },
 
     "require": {
-        "php": "^5.6 || ^7.0",
+        "php": "^5.6 || ^7.1",
         "apache/log4php": "@stable",
         "firebase/php-jwt": "@stable",
         "html2text/html2text": "@stable",
