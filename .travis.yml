@@ -16,10 +16,10 @@ before_script:
   - composer install
 #  - composer dump-autoload -o
   - cp config-test.php config.php
-  - cd ../
+#  - cd ../
 script:
 #  - phpunit -d zend.enable_gc=0 --coverage-text
-  - phpunit --configuration php/phpunit.xml --coverage-text
-  - pwd
-  - ls -la
+  - phpunit --coverage-text --verbose --debug
+#  - pwd
+#  - ls -la
 #script: phpunit -d zend.enable_gc=0 --verbose --debug
