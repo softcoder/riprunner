@@ -42,8 +42,8 @@ before_script:
 #  - composer install --prefer-dist
 - if [ "$deps" = "low" ]; then composer --prefer-lowest --prefer-stable update; fi;
 - if [ "$deps" = "no" ]; then composer install; fi;
-- ls -la
-- ls -la vendor/
+# - ls -la
+# - ls -la vendor/
 - cp config-test.php config.php
 #  - cd ../
 
@@ -52,7 +52,7 @@ script:
 #  - phpunit --coverage-text --verbose --debug
 #  - ./vendor/bin/phpunit --coverage-text --verbose --debug
 #  - phpunit --coverage-text --verbose --debug
-  - php vendor/bin/phpunit  --coverage-text --verbose --debug
+  - php vendor/bin/phpunit --coverage-text --verbose --debug
 #  - pwd
 #  - ls -la
 #script: phpunit -d zend.enable_gc=0 --verbose --debug
