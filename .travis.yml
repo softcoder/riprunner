@@ -5,8 +5,7 @@ sudo: false
 dist: trusty
 
 env:
-    globals:
-        - deps=no
+  - deps=default
 
 matrix:
     include:
@@ -41,7 +40,7 @@ before_script:
 #  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.1" ]]; then composer global require --dev phpunit/phpunit ^6; fi
 #  - composer install --prefer-dist
 - if [ "$deps" = "low" ]; then composer --prefer-lowest --prefer-stable update; fi;
-- if [ "$deps" = "no" ]; then composer install; fi;
+- if [ "$deps" = "default" ]; then composer install; fi;
 # - ls -la
 # - ls -la vendor/
 - cp config-test.php config.php
