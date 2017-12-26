@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "6ad2e3de2c888f2aba6e53e8aea26c7f",
+    "content-hash": "2bdb1e5f377034c07ebd1b3e57b6df86",
     "packages": [
         {
             "name": "apache/log4php",
@@ -2441,9 +2441,7 @@
         "plivo/php-sdk": 0,
         "phpsms/phpsms": 20,
         "twilio/sdk": 0,
-        "twig/twig": 0,
-        "phpmd/phpmd": 0,
-        "phpunit/dbunit": 0
+        "phpmd/phpmd": 0
     },
     "prefer-stable": false,
     "prefer-lowest": false,

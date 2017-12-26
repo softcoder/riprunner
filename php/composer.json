@@ -19,7 +19,7 @@
     "require-dev": {
         "phpmd/phpmd" : "@stable",
         "phpunit/phpunit": "^5.7 || ^7.0",
-        "phpunit/dbunit": "@stable"
+        "phpunit/dbunit": ">=2.0.3"
     },
 
     "require": {
@@ -32,6 +32,6 @@
         "plivo/php-sdk": "@stable",
         "phpsms/phpsms": "dev-master",
         "twilio/sdk": "@stable",
-        "twig/twig": "@stable"
+        "twig/twig": ">=1.35"
     }    
 }
