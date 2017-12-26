@@ -1,15 +1,19 @@
 language: php
+
 sudo: false
+
 dist: trusty
+
 env:
     globals:
         - deps=no
-php:
-#  - 5.3
-  - 5.6
-env: deps=low
-  - 7.1.11
-  - nightly
+
+matrix:
+    include:
+        - php: 5.6
+          env: deps=low
+        - php: 7.1
+    fast_finish: true
 
 #cache:
 #  directories:
