@@ -82,7 +82,12 @@ function getGEOCoordinatesFromAddress($FIREHALL, $address) {
 									$geoloc['results'][0]['geometry']['location']['lng']);
 	}
 	else {
-		if($log !== null) $log->warn("GEO MAP JSON response error google geo api url [$url] result [$result]");
+		if($log !== null) {
+            $log->warn("GEO MAP JSON response error google geo api url [$url] result [$result]");
+        }
+        else {
+            echo "GEO MAP JSON response error google geo api url [$url] result [$result]".PHPEOL;
+        }
 	}
 
 	return $result_geo_coords;

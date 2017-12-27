@@ -37,7 +37,8 @@ class SMSTextBeltLocalPlugin implements ISMSPlugin {
 	    $from_region = $SMSConfig->SMS_PROVIDER_TEXTBELT_LOCAL_REGION;
         foreach($recipient_list_numbers as $recipient) {
 	        $SMS_local = new \PHPSMS\PHPSMS($recipient, $smsText, $from, $from_region);
-            $resultSMS .= $SMS_local->getResult();
+			//$resultSMS .= $SMS_local->getResult();
+			$resultSMS .= 'After send.'. PHP_EOL;
 		}
 		return $resultSMS;
 	}
