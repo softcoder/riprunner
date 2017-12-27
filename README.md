@@ -142,6 +142,8 @@ General installation steps:
 -  5. On the right, in the Actions pane, click 'Open Feature'.
 -  6. On the right, in the Actions pane, click 'Import Rules'.
 -  7. Select the file IIS_import.htaccess using the ... elipses and import, then click apply.
+- extract the contents of the appropriate third party archive into your rip runner root installation folder:
+   ie: vendor-php-5.6.zip or vendor-php-X.X.zip (check for other supported versions where filename exists in repo)
 - Open the url: http://www.yourwebserver.com/uploadlocation/install.php (substitute your root riprunner host://uploadpath/install.php)
 - If everything was done correctly you should see an install page offering to install one the firehall's 
   you configured in config.php (we support more than 1 firehall if desired). Select the firehall and click install.
@@ -483,6 +485,20 @@ edit php.ini
 
 [curl]
 curl.cainfo=c:/cert/cacert.pem
+
+Development:
+--------------
+Rip Runner uses composer for dependency management (the existing third-party folder is now deprecated and will eventually be deleted). Currently php 5.6 and 7.1 are directly support and our continuous integration system (travis) runs automated tests on those versions. If you want to contribute to rip runner as a developer checkout the repo from github and from the php folder of the repo on your local system run:
+
+composer install
+
+This will download all runtime and automated tests dependencies. If compser compelted successfully you shoudl be able to run the automated tests by running this command from the php folder:
+
+phpunit
+
+The travis CI automation results can be found here:
+
+https://travis-ci.org/softcoder/riprunner
 
 Contributions:
 --------------
