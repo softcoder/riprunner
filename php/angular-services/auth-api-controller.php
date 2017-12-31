@@ -16,9 +16,11 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
+require_once __RIPRUNNER_ROOT__ . '/logging.php';
 require_once __RIPRUNNER_ROOT__ . '/rest/WebApi.php';
 require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
+
 
 use Vanen\Mvc\Api;
 use Vanen\Mvc\ApiController;
@@ -30,12 +32,17 @@ class AuthApiController extends ApiController {
     private $lastError = null;
     
     public function __controller() {
+        global $log;
+        if ($log !== null) $log->trace("API controller startup.");
+
         $this->JSON_OPTIONS = JSON_PRETTY_PRINT;
         $this->RESPONSE_TYPE = 'JSON';
         $this->isXml = strcasecmp($this->RESPONSE_TYPE, 'xml') === 0;
         
         $this->lastError = null;
         \riprunner\Authentication::sec_session_start();
+
+        if ($log !== null) $log->trace("API controller startup session.");
     }
     
     protected function getLastError() {
@@ -57,7 +64,7 @@ class AuthApiController extends ApiController {
         if($fhid != null) {
             $FIREHALL = findFireHallConfigById($fhid, $FIREHALLS);
             if($FIREHALL == null) {
-                if($log !== null) $log-trace("Login check firehall: [$fhid] not found in list");
+                if($log !== null) $log->trace("Login check firehall: [$fhid] not found in list");
                 while (list($var,$value) = each ($FIREHALLS)) {
                     if($log !== null) $log->trace("Login check firehall: name [$var] => value [$value]");
                 }

@@ -12,7 +12,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 
 require_once 'JsonSerializable.php';
 
-class CalloutTypeDef implements JsonSerializable {
+class CalloutTypeDef implements \JsonSerializable {
 
     private $id;
     private $code;

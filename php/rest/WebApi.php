@@ -1,6 +1,14 @@
 <?php
 namespace Vanen\Net;
 
+function getRequestSetting($type, $variable_name) {
+    $result = filter_input($type, $variable_name);
+    if ($result === FALSE || $result === null && !empty($_SERVER[$variable_name])) {
+        return htmlspecialchars($_SERVER[$variable_name]);
+    }
+    return $result;
+}
+
 class HttpResponse
 {
     public $object;
@@ -9,7 +17,7 @@ class HttpResponse
 
     public function __construct($statusCode = 200, $message = 'Ok', $object = null)
     {
-        $serverProtocol = filter_input(INPUT_SERVER, 'SERVER_PROTOCOL');
+        $serverProtocol = getRequestSetting(INPUT_SERVER, 'SERVER_PROTOCOL');
 
         $this->statusCode = $statusCode;
         $this->message = "$serverProtocol $statusCode $message";
@@ -77,7 +85,7 @@ final class Api
         if ($version) {
             $this->version = trim($version, '/\\');
         }
-        $this->mHttpMethod = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
+        $this->mHttpMethod = \Vanen\Net\getRequestSetting(INPUT_SERVER, 'REQUEST_METHOD');
     }
 
     /**
@@ -210,7 +218,7 @@ final class Api
                         strcasecmp(substr($controller, 0, -10), $uriInfo->controller) !== 0) {
                     break;
                 }
-
+                
                 // Skip this method if it was not requested.
                 if (property_exists($uriInfo, 'method') && $uriInfo->method !== null &&
                         strcasecmp($method->name, $uriInfo->method) !== 0) {
@@ -362,8 +370,8 @@ final class Api
 
         // Get the part after the file name.
         // Also handles the case of .htaccess usage where the file name might be missing.
-        $requestUri = filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_STRING);
-        $parts = explode(dirname(filter_input(INPUT_SERVER, 'SCRIPT_NAME')), $requestUri);
+        $requestUri = \Vanen\Net\getRequestSetting(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_STRING);
+        $parts = explode(dirname(\Vanen\Net\getRequestSetting(INPUT_SERVER, 'SCRIPT_NAME')), $requestUri);
         $temp = end($parts);
         $last = substr($temp, strpos($temp, '/', strpos($temp, '/') + 1));
 

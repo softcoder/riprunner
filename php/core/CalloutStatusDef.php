@@ -42,7 +42,7 @@ abstract class UserType {
     const USER_TYPE_NONE = 0;
 }
 
-class CalloutStatusDef implements JsonSerializable {
+class CalloutStatusDef implements \JsonSerializable {
 
     private $id;
     private $name;
@@ -70,13 +70,14 @@ class CalloutStatusDef implements JsonSerializable {
     
     public function jsonSerialize() {
         return array(
-            'id' => $this->id,
-            'name' => $this->name,
-            'displayName' => $this->displayName,
+           'id' => $this->id,
+           'name' => $this->name,
+           'displayName' => $this->displayName,
                 
-            //'statusFlags' => $this->statusFlags,
-            //'behaviourFlags' => $this->behaviourFlags,
-            //'accessFlags' => $this->accessFlags
+           //'statusFlags' => $this->statusFlags,
+           //'behaviourFlags' => $this->behaviourFlags,
+           'accessFlags' => ($this->accessFlags + 0),
+           'accessFlagsInclusive' => ($this->accessFlagsInclusive == true),
             
            'is_responding' => $this->IsResponding(),
            'is_not_responding' => $this->IsNotResponding(),
@@ -89,7 +90,7 @@ class CalloutStatusDef implements JsonSerializable {
            'is_signall_non_responders' => $this->IsSignalNonResponders(),
            'is_default_response' => $this->IsDefaultResponse(),
                 
-           'user_types' => $this->userTypes,
+           'user_types' => ($this->userTypes + 0),
                 
         );
     }

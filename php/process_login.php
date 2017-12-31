@@ -72,7 +72,7 @@ if ($isAngularClient == true || isset($_POST['firehall_id'], $_POST['user_id'], 
 		            
 		            $output = array();
 		            $output['status'] = true;
-		            $output['expiresIn'] = 120;
+		            $output['expiresIn'] = 60 * 30; // expires in 30 mins
 		            $output['user'] = $_SESSION['user_id'];
 		            $output['message'] = 'LOGIN: OK';
 		            $output['token'] = JWT::encode($token, JWT_KEY);

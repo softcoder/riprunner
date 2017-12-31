@@ -39,7 +39,7 @@ require __DIR__ . '/vendor/autoload.php';
     $root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
     \Flight::redirect($root_url .'ngui/index.html');
 });
-    
+
 \Flight::route('GET|POST /', function () {
     global $FIREHALLS;
     //$query = array();

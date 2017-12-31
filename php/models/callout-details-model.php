@@ -42,10 +42,10 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			return $this->getMemberId();
 		}
 		if('member_type' === $name) {
-		    return $this->getMemberType();
+		    return $this->getMemberType($this->getMemberId());
 		}
 		if('member_access' === $name) {
-		    return $this->getMemberAccessValue();
+		    return $this->getMemberAccessValue($this->getMemberId());
 		}
 		if('member_access_respond_self' === $name) {
 		    return $this->getMemberAccess(USER_ACCESS_CALLOUT_RESPOND_SELF);
