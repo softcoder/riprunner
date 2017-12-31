@@ -1,0 +1,142 @@
+    <head>
+        <meta charset="UTF-8">
+        <title>Secure Login: Protected Page</title>
+    </head>
+
+    <div class="container_center">
+    <div *ngxPermissionsOnly="['USER-AUTHENTICATED']">
+<!--    
+        {% if gvm.auth.isAuth %}
+            {% include 'user-welcome.twig.html' %}
+            {% include 'live-callout-warning.twig.html' %}
+-->
+        <div class="menudiv_wrapper">
+          <nav class="vertical">
+            <ul>
+              <li>
+                <label for="main_page">Return to ..</label>
+                <input type="radio" name="verticalMenu" id="main_page" />
+                <div>
+                  <ul>
+                    <li><a [routerLink]="['/main-menu']">Main Menu</a></li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <label for="logout">Exit</label>
+                <input type="radio" name="verticalMenu" id="logout" />
+                <div>
+                  <ul>
+                    <li><a [routerLink]="['/login']">Logout</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        
+        <button mat-icon-button (click)="reloadData()">
+            <mat-icon>refresh</mat-icon>
+        </button>
+                
+		<div class="table-container mat-elevation-z8">
+		  <div class="loading-shade" *ngIf="(isLoadingResults | async)">
+		    <mat-spinner *ngIf="(isLoadingResults | async)"></mat-spinner>
+		  </div>
+		
+		  <mat-table #table [dataSource]="dataSource" 
+		             matSort matSortDirection="asc">
+		
+		    <ng-container matColumnDef="id">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>#</mat-header-cell>
+		      <mat-cell *matCellDef="let row">{{ row.id }}</mat-cell>
+		    </ng-container>
+		
+		    <ng-container matColumnDef="calltime">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Start Time</mat-header-cell>
+		      <mat-cell *matCellDef="let row">{{ row.calltime }}</mat-cell>
+		    </ng-container>
+		
+		    <ng-container matColumnDef="calltype">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Call Type</mat-header-cell>
+		      <mat-cell *matCellDef="let row" title="{{ row.callout_type_desc }}">{{ row.callout_type_desc }}</mat-cell>
+		    </ng-container>
+		
+		    <ng-container matColumnDef="address">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Addres</mat-header-cell>
+		      <mat-cell *matCellDef="let row">
+		      <a target="_blank" href="http://maps.google.com/maps?saddr={{ row.callout_address_origin }}&daddr={{ row.callout_address_dest }} ({{ row.address }})&dirflg=d">
+		      {{ row.address }}
+		      </a>
+		      </mat-cell>
+		    </ng-container>
+		
+		    <ng-container matColumnDef="latitude">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Geo Latitude</mat-header-cell>
+		      <mat-cell *matCellDef="let row">{{ row.latitude }}</mat-cell>
+		    </ng-container>
+		
+		    <ng-container matColumnDef="longitude">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Geo Longitude</mat-header-cell>
+		      <mat-cell *matCellDef="let row">{{ row.longitude }}</mat-cell>
+		    </ng-container>
+		                   
+		    <ng-container matColumnDef="units">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Responding Units</mat-header-cell>
+		      <mat-cell *matCellDef="let row">{{ row.units }}</mat-cell>
+		    </ng-container>
+		 
+		    <ng-container matColumnDef="status">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Call Status</mat-header-cell>
+		      <mat-cell *matCellDef="let row">{{ row.callout_status_desc }}</mat-cell>
+		    </ng-container>
+		 
+		    <ng-container matColumnDef="updatetime">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Last Update Time</mat-header-cell>
+		      <mat-cell *matCellDef="let row">{{ row.updatetime }}</mat-cell>
+		    </ng-container>
+		 
+		    <ng-container matColumnDef="call_key">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Callout Key</mat-header-cell>
+		      <mat-cell *matCellDef="let row">{{ row.call_key }}</mat-cell>
+		    </ng-container>
+		 
+		    <ng-container matColumnDef="responders">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Responders</mat-header-cell>
+		      <mat-cell *matCellDef="let row">
+		        <a target="_blank" href="{{ getExternalUrl('controllers/callout-history-response-controller.php?cid='+row.id) }}">{{ row.responders }}</a>
+		      </mat-cell>
+		    </ng-container>
+		 
+		    <ng-container matColumnDef="hours_spent">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Duration (hours)</mat-header-cell>
+		      <mat-cell *matCellDef="let row">{{ row.hours_spent }}</mat-cell>
+		    </ng-container>
+		
+		    <ng-container matColumnDef="call_details">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Call Details</mat-header-cell>
+		      <mat-cell *matCellDef="let row">
+<!--						
+						<a target="_blank" href="{{ getExternalUrl('controllers/callout-details-controller.php?cid='+row.id+'&fhid='+getFirehallId()+'&ckid='+row.call_key) }}">details</a>
+						<br><a [routerLink]="['/common/call-details']" [queryParams]="{cid:row.id,ckid:row.call_key}">>NEW Details</a>
+-->						
+						<br><a target="_blank" href="{{ getExternalUrl('ngui/index.html?page=call-details&cid='+row.id+'&fhid='+getFirehallId()+'&ckid='+row.call_key, false) }}">details</a>
+		      </mat-cell>
+		    </ng-container>
+		
+		    <ng-container matColumnDef="override_address">
+		      <mat-header-cell *matHeaderCellDef mat-sort-header>Override Address</mat-header-cell>
+		      <mat-cell *matCellDef="let row">
+		        <a target="_blank" href="{{ getExternalUrl('controllers/address-override-controller.php?cid='+row.id) }}">override</a>
+		      </mat-cell>
+		    </ng-container>
+		    
+		    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>        
+		  </mat-table>
+		
+		  <mat-paginator #paginator [length]="resultsLength" [pageSize]="30">
+		  </mat-paginator>
+		</div>
+   </div>
+   </div>

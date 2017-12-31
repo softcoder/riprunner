@@ -1,0 +1,89 @@
+<div class="container_center">
+<div *ngxPermissionsOnly="['USER-AUTHENTICATED']">
+    
+<!-- 
+    {% include 'user-welcome.twig.html' %}
+    {% include 'live-callout-warning.twig.html' %}
+    
+-->
+    <div *ngxPermissionsOnly="['ROLE-admin']">
+        <div *ngIf="(systemConfig | async)?.hasUpdate">
+        <br />
+        <span class='notice'>Current Version {{(systemConfig | async)?.localVersion}} 
+        New Version {{(systemConfig | async)?.remoteVersion}}</span>
+        <br />
+        <a target='_blank' href='{{(systemConfig | async)?.remoteVersionNotes}}' 
+           class='notice'>Click here for update information</a>
+        </div>
+    </div>
+    <div class="menudiv_wrapper">
+      <nav class="vertical">
+        <ul>
+          <li *ngxPermissionsOnly="['ROLE-admin']">
+            <label for="admin">Admin</label>
+            <input type="radio" name="verticalMenu" id="admin" />
+            <div>
+              <ul>
+                <li><a href="{{ getExternalUrl('controllers/users-menu-controller.php') }}">User Accounts</a></li>
+                <li><a href="{{ getExternalUrl('controllers/callout-type-controller.php') }}">Callout Codes</a></li>
+                <li><a href="{{ getExternalUrl('controllers/callout-status-controller.php') }}">Response Codes</a></li>
+                <li><a href="{{ getExternalUrl('controllers/address-override-controller.php') }}">Callout Address Overrides</a></li>
+                <li><a href="{{ getExternalUrl('controllers/system-config-controller.php') }}">System Settings</a></li>
+                <li><a href="{{ getExternalUrl('controllers/system-info-controller.php') }}">System Information</a></li>
+                <li><a href="{{ getExternalUrl('controllers/system-test-controller.php') }}">System Testing</a></li>
+                <li><a href="{{ getExternalUrl('controllers/view-logs-controller.php') }}">View Logs</a></li>
+              </ul>
+            </div>
+          </li>
+          
+          <li>
+            <label for="call_history">Calls</label>
+            <input type="radio" name="verticalMenu" id="call_history" />
+            <div>
+              <ul>
+                <li><a [routerLink]="['/call-history-menu']">Callouts and Responders</a></li>
+                <li><a href="{{ getExternalUrl('controllers/callout-monitor-controller.php?server_mode=false') }}">Monitor Live Callouts</a></li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <label for="reports">Reports</label>
+            <input type="radio" name="verticalMenu" id="reports" />
+            <div>
+              <ul>
+                <li><a href="{{ getExternalUrl('controllers/reports-charts-controller.php') }}">Charts</a></li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <label for="mobile_app">Mobile</label>
+            <input type="radio" name="verticalMenu" id="mobile_app" />
+            <div>
+              <ul>
+                <li><a href="{{ getExternalUrl('apk/RipRunnerApp.apk') }}">Install Android App</a></li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <label for="my_account">My Profile</label>
+            <input type="radio" name="verticalMenu" id="my_account" />
+            <div>
+              <ul>
+                <li><a href="{{ getExternalUrl('controllers/users-menu-controller.php?se=true') }}">My Account</a></li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <label for="logout">Exit</label>
+            <input type="radio" name="verticalMenu" id="logout" />
+            <div>
+              <ul>
+                <li><a [routerLink]="['/login']">Logout</a></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+</div>
+</div>

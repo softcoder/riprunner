@@ -1,0 +1,38 @@
+<head>
+    <title>Secure Login: Log In</title>
+</head>
+
+<div class="container_center">
+<div class="container">
+    <section id="content">
+    <form accept-charset="utf-8" id="login_form" name="login_form">    
+        <h1>Login User</h1>
+        <img src="./assets/images/logo.png" onerror="this.style.display='none'" />
+        
+        <div>
+            <label for="firehall_id">Firehall Id</label>
+            <input [(ngModel)]="login.fhid" type="text" name="firehall_id" id="firehall_id" 
+                   placeholder="your firehall id" required />
+        </div>
+        <div class="loading-shade" *ngIf="(isLoadingResults | async)">
+          <mat-spinner *ngIf="(isLoadingResults | async)"></mat-spinner>
+        </div>
+        <div>
+            <label for="user_id">User Id</label>
+            <input [(ngModel)]="login.username" type="text" name="user_id" id="user_id"
+                   placeholder="your user id" required />
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input [(ngModel)]="login.password" type="password" name="password" id="password" 
+                   placeholder="password" required />
+        </div>
+        <div >
+            <input (click)="loginUser()" type="button" id="btnLogin" value="Login" />
+        </div>
+        <div *ngIf="errorMessage" [ngClass]="'error'">{{errorMessage}}</div>
+    </form> 
+    </section>
+</div>
+</div>
+<router-outlet></router-outlet>
