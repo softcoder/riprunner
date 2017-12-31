@@ -500,6 +500,30 @@ The travis CI automation results can be found here:
 
 https://travis-ci.org/softcoder/riprunner
 
+Experimental Work:
+------------------
+We have begun porting the user interface to Angular (v5 and above). Currently this UI is partially ported from the
+legacy twig UI, in order to build and deploy to your server:
+
+- Install Node.js® and npm (https://nodejs.org/en/download/) if they are not already on your machine.
+- Install the Angular CLI globally: 
+
+npm install -g @angular/cli
+
+- Compile and Build the angular project:
+
+cd angular
+ng build --base-href=/~softcoder/svvfd1/php/ngui/ --output-path=../php/ngui/ --aot
+
+Notice above the base-href which is the document root path on your webserver where rip runner is installed.
+Also notice the compiled javascript project will be placed into rip runner php/ngui folder.
+
+- Copy the ngui fodler to your web server's Root Rip Runner folder (same folder as config.php)
+- visit the SPA (single page application) login page and try it out:
+  
+  /~softcoder/svvfd1/php/ngui/index.html
+
+
 Contributions:
 --------------
 Special thanks to all who have contributed to the success of this project. We accept patches and ideas from others and priortize based on time constraints and compatibility with our future direction.
