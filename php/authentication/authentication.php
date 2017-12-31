@@ -454,15 +454,15 @@ class Authentication {
 //             }
             
             $token = $this->getServerVar('HTTP_JWT_TOKEN');
-            if($log !== null) $log->warn("Login check token [" . $token. "] #2 [" . $this->getServerVar('HTTP_jwt_token') ."]");
+            if($log !== null) $log->trace("Login check token [" . $token. "] #2 [" . $this->getServerVar('HTTP_jwt_token') ."]");
             if($token == null) {
                 $token = \getSafeRequestValue('JWT_TOKEN');
-                if($log !== null) $log->warn("Login check req token [" . $token. "]");
+                if($log !== null) $log->trace("Login check req token [" . $token. "]");
             }
             
             if($token != null && count($token)) {
                 $token = JWT::decode($token, JWT_KEY, array('HS256'));
-                if($log !== null) $log->warn("Login check token decode [" . json_encode($token). "]");
+                if($log !== null) $log->trace("Login check token decode [" . json_encode($token). "]");
                 
                 if ($token == false) {
                     if($log !== null) $log->error("Login check jwt token decode FAILED!");
