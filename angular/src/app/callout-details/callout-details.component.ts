@@ -146,6 +146,85 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
       }
       this.ngAfterViewInit();
     }
+
+    isRequestValid(callout): boolean {
+      return callout.firehall_id !== undefined && callout.details !== undefined &&
+             callout.details.call_key !== undefined && callout.details.id !== -1;
+    }
+
+    isAllowedToEditResponse(callout, row_responding): boolean {
+      return ((callout.member_access_respond_self && row_responding.user_id === callout.member_id) ||
+              (callout.member_access_respond_others && row_responding.user_id !== callout.member_id)) &&
+             ((callout.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED && !row_responding.callout_status_entity.is_cancelled &&
+               !row_responding.callout_status_entity.is_completed) ||
+               (!callout.details.callout_status_completed && !callout.details.callout_status_cancelled &&
+                !row_responding.callout_status_entity.is_cancelled && !row_responding.callout_status_entity.is_completed &&
+                !row_responding.callout_status_entity.is_not_responding));
+    }
+
+    onChangeResponse($event, responder_id, callout) {
+      // debugger;
+      const index = $event.target.selectedIndex;
+      const text = $event.target[index].text;
+      const value = $event.target[index].value.split(' ')[1];
+      this.updateResponderStatus(callout, responder_id, value, text);
+    }
+
+    setResponse(row_no, callout) {
+      // debugger;
+      const status: HTMLSelectElement = <HTMLSelectElement>document.getElementById('ui_call_set_response_status' + row_no.id);
+      const status_id = status.value.split(' ')[1];
+      const statusDef = this.findStatusByCriteria(callout, status_id, false, false);
+      const status_name = statusDef.displayName;
+      return this.updateResponderStatus(callout, row_no.user_id, status_id, status_name);
+    }
+
+    setResponseCompleted(row_yes, callout) {
+      // debugger;
+      const status = this.findStatusByCriteria(callout, null, true, false);
+      const status_name = status.displayName;
+      const status_id = status.id;
+      return this.updateResponderStatus(callout, row_yes.user_id, status_id, status_name);
+    }
+
+    setResponseCancelled(row_yes, callout) {
+      // debugger;
+      const status = this.findStatusByCriteria(callout, null, false, true);
+      const status_name = status.displayName;
+      const status_id = status.id;
+      return this.updateResponderStatus(callout, row_yes.user_id, status_id, status_name);
+    }
+
+    updateResponderStatus(callout, responder_id, status_id, status_name) {
+      // debugger;
+      if (confirm(`Confirm that ${responder_id}'s status should be changed to ${status_name} ?`)) {
+          return this.calloutDetailsService.updateResponse(callout.details.id,
+            callout.details.call_key, callout.member_id, responder_id, status_id).subscribe( response => {
+            this.reloadData();
+            return true;
+          });
+      }
+      return false;
+    }
+
+    private findStatusByCriteria(callout, id, completed, cancelled) {
+      const statusFound = callout.callout_status_defs.filter(function(statusDef) {
+        if (id !== null) {
+          return statusDef.id === id;
+        }
+        if (completed) {
+          return statusDef.is_completed && statusDef.is_default_response;
+        }
+        if (cancelled) {
+          return statusDef.is_cancelled && statusDef.is_default_response;
+        }
+      });
+      if (statusFound != null && statusFound.length >= 1) {
+        return statusFound[0];
+      }
+      return null;
+    }
+
     getFirehallId(): string {
       return this.authService.getFirehallId();
     }
