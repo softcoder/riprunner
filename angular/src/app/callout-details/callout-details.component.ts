@@ -9,11 +9,8 @@ import {startWith} from 'rxjs/operators/startWith';
 import {switchMap} from 'rxjs/operators/switchMap';
 import {Location} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
-import {AgmMap, AgmMarker} from '@agm/core';
-import {AgmDirectionModule} from 'agm-direction';
 
-import { AuthService } from '@app/auth';
-import { CalloutDetailsService, CalloutDetailsItem } from './callout-details.service';
+import { CalloutDetailsService } from './callout-details.service';
 import { GoogleApiService } from '../common/google-api.service';
 
 import {
@@ -44,13 +41,12 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
     markers$: Observable<MapMarker[]>;
     defaultStatusResponse$: Observable<any>;
 
-    constructor(private location: Location, private authService: AuthService,
+    constructor(private location: Location,
                 private calloutDetailsService: CalloutDetailsService,
                 private route: ActivatedRoute, private router: Router,
                 private googleApiService: GoogleApiService) {
-      // debugger;
-      // if (this.authService.hasPermission('ROLE-admin')) {
     }
+
     ngOnInit() {
       // debugger;
       this.sub = this.route
@@ -61,6 +57,7 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
           this.member_id = params['member_id'] || '';
       });
     }
+
     ngOnDestroy() {
       // debugger;
       if (this.sub !== undefined) {
@@ -225,13 +222,9 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
       return null;
     }
 
-    getFirehallId(): string {
-      return this.authService.getFirehallId();
-    }
-    getExternalUrl(url: string, handOffJWT: boolean = true): string {
-      // debugger;
-      url = this.getRootPath() + url;
-      return this.authService.injectJWTtoken(url, handOffJWT);
+    getUrl(url: string): string {
+      const newUrl = window.location.origin + this.getRootPath() + url;
+      return newUrl;
     }
 
     getMapMarkers(data) {
@@ -261,11 +254,11 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
       markers.push.apply(markers, this.getRespondersMapMarkers(data));
 
       Promise.resolve(null).then(() => {
+        this.markers$ = Observable.of(markers);
         this.direction$ = Observable.of({
           origin: { lat: data.firehall_latitude, lng: data.firehall_longitude },
           destination: { lat: data.details.latitude, lng: data.details.longitude }
         });
-        this.markers$ = Observable.of(markers);
       });
     }
 

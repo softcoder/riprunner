@@ -7,12 +7,12 @@
     
 -->
     <div *ngxPermissionsOnly="['ROLE-admin']">
-        <div *ngIf="(systemConfig | async)?.hasUpdate">
+        <div *ngIf="systemConfig?.hasUpdate">
         <br />
-        <span class='notice'>Current Version {{(systemConfig | async)?.localVersion}} 
-        New Version {{(systemConfig | async)?.remoteVersion}}</span>
+        <span class='notice'>Current Version {{systemConfig?.localVersion}} 
+        New Version {{systemConfig?.remoteVersion}}</span>
         <br />
-        <a target='_blank' href='{{(systemConfig | async)?.remoteVersionNotes}}' 
+        <a target='_blank' href='{{systemConfig?.remoteVersionNotes}}' 
            class='notice'>Click here for update information</a>
         </div>
     </div>

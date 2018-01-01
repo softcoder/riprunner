@@ -15,7 +15,21 @@ export class SystemConfigService {
       // console.log('BaseHref: '+this.url);
     }
 
-    getSystemConfig(): Observable<any> {
-      return this.http.get<any>(this.url);
+    getSystemConfig() {
+      //debugger;
+
+      const config = localStorage.getItem('rr-config');
+      if (config !== null) {
+        console.log('getSystemConfig() returing cached result.');
+        return JSON.parse(config);
+      }
+      const promise = new Promise((resolve, reject) => {
+        return this.http.get<any>(this.url).toPromise()
+        .then(data => {
+          localStorage.setItem('rr-config', JSON.stringify(data));
+          return data;
+        });
+      });
+      return promise;
     }
 }

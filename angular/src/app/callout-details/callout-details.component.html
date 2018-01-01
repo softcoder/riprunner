@@ -103,7 +103,7 @@
                     (dragEnd)="markerDragEnd(m, $event)">
         </agm-marker>
         <agm-direction *ngIf="direction$ | async; let dir" [origin]="dir.origin" [destination]="dir.destination"></agm-direction>
-        <agm-kml-layer [url]="getExternalUrl('kml/boundaries.kml?version=1',false)" [zIndex]="2"></agm-kml-layer>
+        <agm-kml-layer [url]="getUrl('kml/boundaries.kml')" [zIndex]="2"></agm-kml-layer>
     </agm-map>
 
     <table width="100%" align="center">
@@ -137,7 +137,7 @@
             </td>
         </tr>
     </table>
-    
+
   </div>
 </div>
 </ng-template>

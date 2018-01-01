@@ -12,7 +12,7 @@ import { SystemConfigService } from '@app/common';
 })
 export class MenuMainComponent implements OnInit {
 
-  public systemConfig: Observable<any>;
+  public systemConfig;
 
   constructor(private location: Location, private authService: AuthService,
     private systemConfigService: SystemConfigService) {

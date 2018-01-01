@@ -145,6 +145,7 @@ export class AuthService {
         localStorage.removeItem('acl');
         localStorage.removeItem('expires_at');
         localStorage.removeItem('fhid');
+        localStorage.removeItem('rr-config');
         this.permissionsService.loadPermissions([]);
     }
 

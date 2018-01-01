@@ -39,16 +39,7 @@ export class CalloutDetailsService {
   }
 
   updateResponse(cid, ckid, member_id, responder_id, status_id) {
-//          $('#form_call_update_response_status_' + row_id).
-//            attr('action','{{ gvm.RR_DOC_ROOT }}
-// cr/fhid={{ callout_details_vm.firehall_id }}
-// &cid={{ callout_details_vm.callout_id }}
-// &uid='+user_id+'
-// &ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}
-// &member_id={{ callout_details_vm.member_id }}{% endif %}
-// &status='+$( '#ui_call_update_response_status'+row_id ).val());
-// $('form#form_call_update_response_status_' + row_id).submit();
-    debugger;
+    // debugger;
 
     const fhid = this.authService.getFirehallId();
     const href = this.location.prepareExternalUrl('../cr');

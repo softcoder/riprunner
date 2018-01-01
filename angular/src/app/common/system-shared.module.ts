@@ -37,7 +37,8 @@ import { CdkTableModule } from '@angular/cdk/table';
 import { RouterModule, Routes } from '@angular/router';
 import { NgxPermissionsModule, NgxPermissionsGuard } from 'ngx-permissions';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AgmCoreModule, LAZY_MAPS_API_CONFIG , LazyMapsAPILoaderConfigLiteral } from '@agm/core';
+import { environment } from '../../environments/environment';
+import { AgmCoreModule } from '@agm/core';
 import { AgmDirectionModule } from 'agm-direction';
 
 import { AuthService } from '@app/auth';
@@ -53,22 +54,6 @@ const menuRoutes: Routes = [
   { path: 'call-details', component: CalloutDetailsComponent },
 ];
 
-@Injectable()
-export class GoogleMapsConfig implements LazyMapsAPILoaderConfigLiteral {
-  public apiKey: string;
-
-  constructor(configService: SystemConfigService) {
-    // debugger;
-    // console.log('INSIDE MAPs'); //This is not displayed in console
-    configService.getSystemConfig().subscribe(config => {
-      // debugger;
-      // console.log('Google config: ' + config);
-      this.apiKey = config.google.maps_api_key;
-      // console.log('Google maps API key: ' + this.apiKey);
-    });
-  }
-}
-
 @NgModule({
   imports: [
     CommonModule,
@@ -79,7 +64,7 @@ export class GoogleMapsConfig implements LazyMapsAPILoaderConfigLiteral {
     MatPaginatorModule, MatSortModule, MatTableModule, MatProgressSpinnerModule,
     MatNativeDateModule, MatIconModule,
     FormsModule, ReactiveFormsModule,
-    AgmCoreModule.forRoot(),
+    AgmCoreModule.forRoot({ apiKey: environment.google_api_key }),
     AgmDirectionModule,
   ],
   exports: [
@@ -117,7 +102,6 @@ export class GoogleMapsConfig implements LazyMapsAPILoaderConfigLiteral {
     MatTooltipModule,
 
     CalloutDetailsComponent,
-    AgmCoreModule
   ],
   declarations: [
     CalloutDetailsComponent
@@ -128,11 +112,11 @@ export class SystemSharedModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: SystemSharedModule,
-      providers: [AuthService,
+      providers: [
+                  AuthService,
                   SystemConfigService,
                   CalloutDetailsService,
                   GoogleApiService,
-                  { provide: LAZY_MAPS_API_CONFIG, useClass: GoogleMapsConfig }
                 ]
     };
   }
