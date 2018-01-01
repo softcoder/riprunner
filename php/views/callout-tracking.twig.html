@@ -15,7 +15,7 @@
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" /> 
   <title>Google Maps - Callout Responders GEO Locations</title> 
 
-  <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+  <script src="https://maps.google.com/maps/api/js?sensor=false"></script>
   <script type="text/javascript" src="{{ gvm.RR_DOC_ROOT }}js/markerwithlabel_packed.js"></script>
   <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
   <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
@@ -45,7 +45,7 @@
     var locations = [{{ callout_tracking_vm.responding_people|raw }}];
     
     // Setup the different icons and shadows
-    var iconURLPrefix = 'http://maps.google.com/mapfiles/ms/icons/';
+    var iconURLPrefix = 'ss.google.com/mapfiles/ms/icons/';
     
     var icons = [{{ callout_tracking_vm.responding_people_icons|raw }}];
     

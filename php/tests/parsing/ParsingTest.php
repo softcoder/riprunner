@@ -399,7 +399,7 @@ Units Responding: SALGRP1";
                      Address: 308 CROOKED RIVER CRES,MACKENZIE, BC
                      Latitude: 55.34132
                      Longitude: -123.10563
-                     Google Maps Link: http://maps.google.com/maps?z=1&t=m&q=loc:55.3413,-123.106
+                     Google Maps Link: https://maps.google.com/maps?z=1&t=m&q=loc:55.3413,-123.106
                      Units Responding: MACGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
@@ -417,7 +417,7 @@ Units Responding: SALGRP1";
     }
 
     public function testProcessFireHallText_TEXT_new_gae_link_format_Valid() {
-        $realdata = "Date: 2016-05-26 11:28:59Type: LIFT - Lift AssistDepartment: Mackenzie FireAddress: 308 CROOKED RIVER CRES,MACKENZIE, BCLatitude: 55.34132Longitude: -123.10563Google Maps Link: http://maps.google.com/maps?z=1&t=m&q=loc:55.3413,-123.106Units Responding: MACGRP1";
+        $realdata = "Date: 2016-05-26 11:28:59Type: LIFT - Lift AssistDepartment: Mackenzie FireAddress: 308 CROOKED RIVER CRES,MACKENZIE, BCLatitude: 55.34132Longitude: -123.10563Google Maps Link: https://maps.google.com/maps?z=1&t=m&q=loc:55.3413,-123.106Units Responding: MACGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
         $callout = processFireHallTextTrigger($realdata,$FIREHALL);
@@ -440,7 +440,7 @@ Units Responding: SALGRP1";
                      Address: 9115 SALMON VALLEY ROAD, PRINCE GEORGE, BC
                      Latitude: 55.34132
                      Longitude: -123.10563
-                     Google Maps Link: http://maps.google.com/maps?z=1&t=m&q=loc:55.3413,-123.106
+                     Google Maps Link: https://maps.google.com/maps?z=1&t=m&q=loc:55.3413,-123.106
                      Units Responding: SALGRP1";
     
         $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);

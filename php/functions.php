@@ -64,7 +64,8 @@ function getGEOCoordinatesFromAddress($FIREHALL, $address) {
 
 	$result_address = getAddressForMapping($FIREHALL, $address);
 		
-	$url = DEFAULT_GOOGLE_MAPS_API_URL . 'json?address=' . urlencode($result_address) . '&sensor=false';
+    $url = DEFAULT_GOOGLE_MAPS_API_URL . 'json?address=' . urlencode($result_address) . '&sensor=false&key='. 
+            urlencode($FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY);
 		
 	$httpclient = new \riprunner\HTTPCli($url);
 	$result = $httpclient->execute(true);
@@ -73,9 +74,9 @@ function getGEOCoordinatesFromAddress($FIREHALL, $address) {
 		
 	if ( isset($geoloc['results']) === true &&
 		 isset($geoloc['results'][0]) === true &&
-		 isset($geoloc['results'][0]['geometry']) === true && 
+		 isset($geoloc['results'][0]['geometry']) === true &&
 		 isset($geoloc['results'][0]['geometry']['location']) === true &&
-		 isset($geoloc['results'][0]['geometry']['location']['lat']) === true && 
+		 isset($geoloc['results'][0]['geometry']['location']['lat']) === true &&
 		 isset($geoloc['results'][0]['geometry']['location']['lng']) === true) {
 			
 		$result_geo_coords = array( $geoloc['results'][0]['geometry']['location']['lat'],
@@ -84,9 +85,10 @@ function getGEOCoordinatesFromAddress($FIREHALL, $address) {
 	else {
 		if($log !== null) {
             $log->warn("GEO MAP JSON response error google geo api url [$url] result [$result]");
+            echo "GEO #1 MAP JSON response error google geo api url [$url] result [$result]".PHP_EOL;
         }
         else {
-            echo "GEO MAP JSON response error google geo api url [$url] result [$result]".PHPEOL;
+            echo "GEO #2 MAP JSON response error google geo api url [$url] result [$result]".PHP_EOL;
         }
 	}
 

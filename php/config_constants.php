@@ -53,7 +53,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 
 	// ----------------------------------------------------------------------
 	// Website Settings
-	define( 'DEFAULT_GOOGLE_MAPS_API_URL',	'http://maps.googleapis.com/maps/api/geocode/');
+	define( 'DEFAULT_GOOGLE_MAPS_API_URL',	'https://maps.googleapis.com/maps/api/geocode/');
 	
 	// The current versions of the Rip Runner Android app
 	define( 'CURRENT_ANDROID_VERSIONCODE',	9);

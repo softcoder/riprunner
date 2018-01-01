@@ -520,9 +520,9 @@ MarkerLabel_.prototype.setVisible = function () {
  * @property {boolean} [optimized] A flag indicating whether rendering is to be optimized for the
  *  marker. <b>Important: The optimized rendering technique is not supported by MarkerWithLabel,
  *  so the value of this parameter is always forced to <code>false</code>.
- * @property {string} [crossImage="http://maps.gstatic.com/intl/en_us/mapfiles/drag_cross_67_16.png"]
+ * @property {string} [crossImage="https://maps.gstatic.com/intl/en_us/mapfiles/drag_cross_67_16.png"]
  *  The URL of the cross image to be displayed while dragging a marker.
- * @property {string} [handCursor="http://maps.gstatic.com/intl/en_us/mapfiles/closedhand_8_8.cur"]
+ * @property {string} [handCursor="https://maps.gstatic.com/intl/en_us/mapfiles/closedhand_8_8.cur"]
  *  The URL of the cursor to be displayed while dragging a marker.
  */
 /**

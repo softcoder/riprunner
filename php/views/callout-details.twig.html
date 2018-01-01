@@ -84,7 +84,7 @@
 		  {% block callout_responding_details_mobile %}
 		   <tr><td>
 		   {% if row_responding.latitude is defined and row_responding.latitude != 0.0 and row_responding.longitude is defined and row_responding.longitude != 0.0 %}
-			<span class=ci_responders_members><a target="_blank" href="http://maps.google.com/maps?saddr={{ row_responding.responder_location }}&daddr={{ row_responding.firehall_location }} ({{ row_responding.firehall_location }})">{{ row_responding.user_id|upper }}</a></span>
+			<span class=ci_responders_members><a target="_blank" href="https://maps.google.com/maps?saddr={{ row_responding.responder_location }}&daddr={{ row_responding.firehall_location }} ({{ row_responding.firehall_location }})">{{ row_responding.user_id|upper }}</a></span>
 		   {% else %}
 			<span class="ci_responders_members">{{ row_responding.user_id|upper }}</span>
 		   {% endif %}
@@ -206,7 +206,7 @@
 		  {% block callout_responding_details %}
            <tr><td>
 		   {% if row_responding.latitude is defined and row_responding.latitude != 0.0 and row_responding.longitude is defined and row_responding.longitude != 0.0 %}
-			<span class=ci_responders_members><a target="_blank" href="http://maps.google.com/maps?saddr={{ row_responding.responder_location }}&daddr={{ row_responding.firehall_location }} ({{ row_responding.firehall_location }})">{{ row_responding.user_id|upper }}</a></span>
+			<span class=ci_responders_members><a target="_blank" href="https://maps.google.com/maps?saddr={{ row_responding.responder_location }}&daddr={{ row_responding.firehall_location }} ({{ row_responding.firehall_location }})">{{ row_responding.user_id|upper }}</a></span>
 		   {% else %}
 			<span class="ci_responders_members">{{ row_responding.user_id|upper }}</span>
 		   {% endif %}
