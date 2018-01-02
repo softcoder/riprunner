@@ -58,6 +58,13 @@ The diagram above shows all of the possible features enabled and the communicati
 - Map services via google maps.
 - Android communication using google app engine.
 
+Technology:
+-------------------------
+Rip Runner was written using PHP for its backend server operations and html5 + javascript and angular 5 for the frontend.
+The design of this application allows for the use of any database backend supported by PHP's PDO layer but currently
+MySQL is preferred. Currently most of the user interface is rendered using a server side framework called 'twig' but work
+has started to replace that using angular 5. Communications options include email, SMS (via a provider such as Twilio) and Google Cloud Messaging for the Android client. Numerous google services are used like google maps which require a free API Key. The selection of PHP and javascript were made to allow this application to run on most free (or more offordable) hosting providers. This project makes use of test automation and Continuous Intregration via travis CI.
+
 Why is Rip Runner a good choice for me?:
 --------------------
 - It's written by firefighters for firefighters.
