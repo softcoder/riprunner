@@ -35,8 +35,6 @@ class ReportsChartsViewModel extends BaseViewModel {
 	        return $this->getReportYearsWithData();
 	    }
 		if('calltypes_currentmonth' === $name) {
-			//$current_month_start = date('Y-m-01');
-			//$current_month_end = date('Y-m-t');
 		    $current_month_start = $this->getReportStartDateMonth();
 		    $current_month_end = $this->getReportEndDateMonth();
 		    
@@ -44,12 +42,6 @@ class ReportsChartsViewModel extends BaseViewModel {
 					$current_month_start, $current_month_end);
 		}
 		if('calltypes_currentyear' === $name) {
-			//$year_start = strtotime('first day of January', time());
-            //$year_end = strtotime('last day of December', time());
-                                
-            //$current_year_start = date('Y-m-d', $year_start);
-            //$current_year_end = date('Y-m-d', $year_end);
-					
 			return $this->getCallTypeStatsForDateRange(
 						$this->getReportStartDate(), $this->getReportEndDate());
 		}
@@ -119,39 +111,25 @@ class ReportsChartsViewModel extends BaseViewModel {
 	}
 
 	public function getReportStartDate() {
-	    //$year_start = strtotime('first day of January '.$this->getReportYear());
-	    //$report_year_start = date('Y-m-d', $year_start);
-	    $report_year_start = date($this->getReportYear().'-01-01');
-	    return $report_year_start;
+	    return date($this->getReportYear().'-01-01');
 	}
 
 	public function getReportEndDate() {
-	    //$year_end = strtotime('last day of December '.$this->getReportYear());
-	    //$report_year_end = date('Y-m-d', $year_end);
-	    $report_year_end = date($this->getReportYear().'-12-31');
-	    return $report_year_end;
+	    return date($this->getReportYear().'-12-31 23:59:59');
 	}
 
 	private function getReportStartDateMonth() {
-	    $report_year_start = date($this->getReportYear().'-m-01');
-	    return $report_year_start;
+	    return date($this->getReportYear().'-m-01');
 	}
 	
 	private function getReportEndDateMonth() {
-	    $report_year_end = date($this->getReportYear().'-m-t');
-	    return $report_year_end;
+	    return date($this->getReportYear().'-m-t 23:59:59');
 	}
 	
 	private function getCallResponseVolCurrentyear() {
 		if(isset($this->callresponsevol_currentyear) === false) {
-			//$year_start = strtotime('first day of January', time());
-			//$year_end = strtotime('last day of December', time());
-	
-			//$current_year_start = date('Y-m-d', $year_start);
-			//$current_year_end = date('Y-m-d', $year_end);
 		    $current_year_start = $this->getReportStartDate();
 		    $current_year_end = $this->getReportEndDate();
-		    //echo "getCallResponseVolCurrentyear start [$current_year_start] end [$current_year_end]" .PHP_EOL;
 		    
 			$this->callresponsevol_currentyear_cols = array();
 	
@@ -160,17 +138,10 @@ class ReportsChartsViewModel extends BaseViewModel {
 							$current_year_start, $current_year_end, 
 							$this->callresponsevol_currentyear_cols);
 		}
-	
 	}
-	
 	
 	private function getCallResponseHoursCurrentyear() {
 	    if(isset($this->callresponse_hours_currentyear) === false) {
-	        //$year_start = strtotime('first day of January', time());
-	        //$year_end = strtotime('last day of December', time());
-	
-	        //$current_year_start = date('Y-m-d', $year_start);
-	        //$current_year_end = date('Y-m-d', $year_end);
 	        $current_year_start = $this->getReportStartDate();
 	        $current_year_end = $this->getReportEndDate();
 	         
@@ -181,17 +152,11 @@ class ReportsChartsViewModel extends BaseViewModel {
 	                $current_year_start, $current_year_end, 
 	                $this->callresponse_hours_currentyear_cols);
 	    }
-	
 	}
 	
 	
 	private function getCallVolTypesCurrentyear() {
 		if(isset($this->callvoltypes_currentyear) === false) {
-			//$year_start = strtotime('first day of January', time());
-			//$year_end = strtotime('last day of December', time());
-			 
-			//$current_year_start = date('Y-m-d', $year_start);
-			//$current_year_end = date('Y-m-d', $year_end);
 		    $current_year_start = $this->getReportStartDate();
 		    $current_year_end = $this->getReportEndDate();
 		    
