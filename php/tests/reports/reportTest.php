@@ -30,6 +30,6 @@ class ReportTest extends BaseDBFixture {
 	    
 	    $this->assertEquals(date("Y"), $model->getReportYear());
 	    $this->assertEquals(date("Y").'-01-01', $model->getReportStartDate());
-	    $this->assertEquals(date("Y").'-12-31', $model->getReportEndDate());
+	    $this->assertEquals(date("Y").'-12-31 23:59:59', $model->getReportEndDate());
 	}
 }
