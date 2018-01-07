@@ -517,9 +517,13 @@ legacy twig UI, in order to build and deploy to your server:
 
 npm install -g @angular/cli
 
-- Compile and Build the angular project:
+- Install project dependencies:
 
 cd angular
+npm install
+
+- Compile and Build the angular project:
+
 ng build --base-href=/~softcoder/svvfd1/php/ngui/ --output-path=../php/ngui/ --aot
 
 Notice above the base-href which is the document root path on your webserver where rip runner is installed.
