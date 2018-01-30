@@ -13,10 +13,12 @@ import { LogoffModule, LogoffService } from '@app/logoff';
 import { LoginComponent } from '@app/login';
 import { LoginService } from '@app/login';
 
+
 const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'main-menu', loadChildren: './menu-main/menu-main.module#MenuMainModule' },
   { path: 'call-history-menu', loadChildren: './menu-callout-history/menu-callout-history.module#MenuCalloutHistoryModule' },
+  { path: 'call-monitor-menu', loadChildren: './menu-callout-monitor/menu-callout-monitor.module#MenuCalloutMonitorModule' },
   { path: 'common', loadChildren: './common/system-shared.module#SystemSharedModule' },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login', pathMatch: 'full' },

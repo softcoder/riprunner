@@ -1,0 +1,111 @@
+@-webkit-keyframes glowGreen {
+    from {
+      -webkit-box-shadow: rgba(0, 255, 0, 0) 0 0 0;
+    }
+    50% {
+      -webkit-box-shadow: rgba(0, 255, 0, 1) 0 0 10px;
+    }
+    to {
+      -webkit-box-shadow: rgba(0, 255, 0, 0) 0 0 0;
+    }
+  }
+  @-webkit-keyframes glowRed {
+    from {
+      -webkit-box-shadow: rgba(255, 0, 0, 0) 0 0 0;
+    }
+    50% {
+      -webkit-box-shadow: rgba(255, 0, 0, 1) 0 0 10px;
+    }
+    to {
+      -webkit-box-shadow: rgba(255, 0, 0, 0) 0 0 0;
+    }
+  }
+  body {
+    font: 12px Arial, sans-serif;
+    background-color: #eee;
+    color: #444;
+  }
+  #connection {
+    font: 14px Arial, sans-serif;
+    font-weight: bold;
+    vertical-align: middle;
+    color: black;
+  }
+  #connection div {
+    background-color: orange;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    border-radius: 10px;
+    margin-left: 5px;
+    -webkit-animation-duration: 2s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+  }
+  #connection.connected div {
+    background-color: green;
+    -webkit-box-shadow: rgba(0, 255, 0, 0.5) 0px 0px 5px;
+    -webkit-animation-name: glowGreen;
+  }
+  #connection.disconnected div {
+    background-color: red;
+    -webkit-box-shadow: rgba(255, 0, 0, 0.5) 0px 0px 5px;
+    -webkit-animation-name: glowRed;
+  }
+  #log {
+    overflow: auto;
+    width: 300px;
+    height: 350px;
+    margin-right: 20px;
+    #float: left;
+  }
+  #log p {
+    margin: 0;
+    padding: 0;
+  }
+  #log .info {
+    color: navy;
+    font-weight: bold;
+  }
+  #log .msg {
+    margin-left: 11px;
+  }
+  .border {
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: white;
+  }
+  #right-panel div {
+    text-align: left;
+  }
+  #right-panel {
+    height: 350px;
+    width: 585px;
+    #float: left;
+    font-size: 14px;
+    text-align: center;
+  }
+  button {
+    background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#F9F9F9), to(#E3E3E3));
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    margin: 0 8px 0 0;
+    color: black;
+    padding: 5px 8px;
+    outline: none;
+    white-space: nowrap;
+    vertical-align: middle;
+    -webkit-user-select:none;
+    user-select: none;
+    cursor: pointer;
+  }
+  button:not([disabled]):hover {
+    border: 1px solid #939393;
+  }
+  button:not([disabled]):active {
+    background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#E3E3E3), to(#F9F9F9));
+  }
+  button[disabled] {
+    color: #ccc;
+  }

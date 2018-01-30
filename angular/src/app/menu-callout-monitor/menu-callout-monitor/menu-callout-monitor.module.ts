@@ -1,15 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { RouterModule, Routes } from '@angular/router';
 import { NgxPermissionsModule, NgxPermissionsGuard } from 'ngx-permissions';
 
-import { MenuCalloutHistoryComponent } from './menu-callout-history.component';
-import { MenuCalloutHistoryService } from './menu-callout-history.service';
+import { MenuCalloutMonitorComponent } from './menu-callout-monitor.component';
 import { SystemSharedModule } from '@app/common';
 
 const menuRoutes: Routes = [
-  { path: '', component: MenuCalloutHistoryComponent,
+  { path: '', component: MenuCalloutMonitorComponent,
     canActivate: [NgxPermissionsGuard],
       data: {
         permissions: {
@@ -28,11 +26,9 @@ const menuRoutes: Routes = [
     SystemSharedModule,
   ],
   providers: [
-    MenuCalloutHistoryService
   ],
   declarations: [
-    MenuCalloutHistoryComponent,
+    MenuCalloutMonitorComponent
   ]
 })
-
-export class MenuCalloutHistoryModule { }
+export class MenuCalloutMonitorModule { }

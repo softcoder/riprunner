@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { URLSearchParams } from '@angular/http';
+
 import { LoginService } from '@app/login';
 import { LogoffService } from '@app/logoff';
 
@@ -27,6 +28,10 @@ export class AppComponent implements OnInit {
         this.routeToCallDetails(params);
         return;
       }
+      if (page === 'call-monitor') {
+        this.routeToCallMonitor(params);
+        return;
+      }
     }
     this.logoffService.logoff();
   }
@@ -47,6 +52,15 @@ export class AppComponent implements OnInit {
     const member_id = params.get('member_id') || '';
     if (cid > 0) {
       this.router.navigateByUrl(`/common/call-details?cid=${cid}&ckid=${ckid}&member_id=${member_id}`);
+    }
+  }
+
+  private routeToCallMonitor(params: URLSearchParams) {
+    const ast = +params.get('ast') || '';
+    const fhid = params.get('fhid') || '';
+    const member_id = params.get('member_id') || '';
+    if (ast !== '') {
+      this.router.navigateByUrl(`/common/call-monitor-menu?ast=${ast}&fhid=${fhid}&member_id=${member_id}`);
     }
   }
 }

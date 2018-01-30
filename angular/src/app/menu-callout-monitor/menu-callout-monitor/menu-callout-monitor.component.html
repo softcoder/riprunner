@@ -1,0 +1,61 @@
+<div class="container_center">
+  <div *ngxPermissionsOnly="['USER-AUTHENTICATED']">
+      
+  <!-- 
+      {% include 'user-welcome.twig.html' %}
+      {% include 'live-callout-warning.twig.html' %}
+      
+  -->
+      <div class="menudiv_wrapper">
+        <nav class="vertical">
+          <ul>
+              <li>
+                <label for="main_page">Return to ..</label>
+                <input type="radio" name="verticalMenu" id="main_page" />
+                <div>
+                  <ul>
+                    <li><a [routerLink]="['/main-menu']">Main Menu</a></li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <label for="logout">Exit</label>
+                <input type="radio" name="verticalMenu" id="logout" />
+                <div>
+                  <ul>
+                    <li><a [routerLink]="['/login']">Logout</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+        </nav>
+      </div>
+  </div>
+  
+  <div #dialogMessage title="Error" style="display:none" role="dialog">
+      <p>
+        <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>
+        CANNOT Open popups as you have a popup blocker for this website!
+      </p>
+      <p>
+        Please allow this website to open popups.
+      </p>
+  </div>
+  <button onclick="logger.clear()">Clear log</button>
+  <button onclick="closeConnection()">Stop reconnections</button>
+  <span #connection>Connecting...<div></div></span>
+  
+  <table>
+    <tr>
+        <td>
+          <div class="border" id="log"></div>
+      </td>
+      <td>
+          <div class="border" id="right-panel">
+              <div>Waiting for callouts...</div>
+          </div>
+      </td>
+  </tr>
+  </table>
+
+</div>
