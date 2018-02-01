@@ -513,11 +513,11 @@ We have begun porting the user interface to Angular (v5 and above). Currently th
 legacy twig UI, in order to build and deploy to your server:
 
 - Install Node.js® and npm (https://nodejs.org/en/download/) if they are not already on your machine.
-- Install the Angular CLI globally: 
+- Install the Angular CLI globally, open a console prompt: 
 
 npm install -g @angular/cli
 
-- Install project dependencies:
+- Install project dependencies (the angular folder below is the folder you get from the git source tree):
 
 cd angular
 npm install
@@ -526,10 +526,9 @@ npm install
 
 ng build --base-href=/~softcoder/svvfd1/php/ngui/ --output-path=../php/ngui/ --aot
 
-Notice above the base-href which is the document root path on your webserver where rip runner is installed.
-Also notice the compiled javascript project will be placed into rip runner php/ngui folder.
+Notice above the base-href which is the document root path on your webserver where rip runner is installed (same folder where config.php exists). Also notice the compiled javascript project will be placed into the rip runner php/ngui folder.
 
-- Copy the ngui fodler to your web server's Root Rip Runner folder (same folder as config.php)
+- Copy the ngui folder to your web server's Root Rip Runner folder (same folder as config.php)
 - visit the SPA (single page application) login page and try it out:
   
   /~softcoder/svvfd1/php/ngui/index.html
