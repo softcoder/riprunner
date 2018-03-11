@@ -8,10 +8,10 @@ import {map} from 'rxjs/operators/map';
 import {startWith} from 'rxjs/operators/startWith';
 import {switchMap} from 'rxjs/operators/switchMap';
 import {Location} from '@angular/common';
-import { Router } from '@angular/router';
+import {Router} from '@angular/router';
 
-import { AuthService } from '@app/auth';
-import { MenuCalloutHistoryService, CalloutHistoryItem } from './menu-callout-history.service';
+import {AuthService} from '@app/auth';
+import {MenuCalloutHistoryService, CalloutHistoryItem} from './menu-callout-history.service';
 
 @Component({
   selector: 'app-menu-callout-history',
@@ -30,8 +30,9 @@ export class MenuCalloutHistoryComponent implements AfterViewInit {
   @ViewChild(MatSort) sort: MatSort;
 
   constructor(private location: Location, private authService: AuthService,
-              private calloutHistoryService: MenuCalloutHistoryService, private router: Router) {
-    //debugger;
+              private calloutHistoryService: MenuCalloutHistoryService, 
+              private router: Router) {
+    // debugger;
     if (this.authService.hasPermission('ROLE-admin')) {
       this.displayedColumns = ['id', 'calltime', 'calltype', 'address', 'latitude', 'longitude',
                         'units', 'status', 'updatetime', 'call_key', 'responders', 'hours_spent',
@@ -46,6 +47,11 @@ export class MenuCalloutHistoryComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
+    // debugger;
+    if (this.sort === undefined) {
+      setTimeout(() => { this.ngAfterViewInit(); }, 25);
+      return;
+    }
     // If the user changes the sort order, reset back to the first page.
     this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
 
@@ -89,7 +95,7 @@ export class MenuCalloutHistoryComponent implements AfterViewInit {
     return this.authService.getFirehallId();
   }
   getExternalUrl(url: string, handOffJWT: boolean = true): string {
-    //debugger;
+    // debugger;
     url = this.getRootPath() + url;
     return this.authService.injectJWTtoken(url, handOffJWT);
   }
