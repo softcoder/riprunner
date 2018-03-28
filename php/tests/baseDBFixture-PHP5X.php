@@ -17,20 +17,8 @@ define('__RIPRUNNER_ROOT_TEST__', dirname(dirname(__FILE__)));
 require_once __RIPRUNNER_ROOT_TEST__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/db/sql_statement.php';
-use PHPUnit\Framework\TestCase;
-use PHPUnit\DbUnit\TestCaseTrait;
 
-if (version_compare(PHP_VERSION, '7.0', '>=')) {
-
-   // ported to post phpunit 5
-   abstract class BaseDBFixture extends TestCase {
-    
-    //use TestCaseTrait;
-    // Rename TestCaseTrait::setUp() to traitSetUp (and teardown)
-    use TestCaseTrait { 
-        setUp as protected traitSetUp; 
-        tearDown as protected traitTearDown; 
-    }
+abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
 
     // only instantiate pdo once for test clean-up/fixture load
     static private $pdo = null;
@@ -166,7 +154,7 @@ if (version_compare(PHP_VERSION, '7.0', '>=')) {
         );
         return $GOOGLE_MAP_CITY_LOOKUP;
     }
-
+    
     protected function setUp() {
         
         $LOCAL_DEBUG_EMAIL = new FireHallEmailAccount();
@@ -239,8 +227,7 @@ if (version_compare(PHP_VERSION, '7.0', '>=')) {
         $this->FIREHALLS = $FIREHALLS;
 
         // Below does not trigger dbunits setup for calling getDataSet()
-        // parent::setUp();
-        $this->traitSetUp();
+        parent::setUp();
     }
     
     protected function tearDown() {
@@ -251,8 +238,7 @@ if (version_compare(PHP_VERSION, '7.0', '>=')) {
         self::$pdo = null;
 
         // Below does not trigger dbunits setup for calling getDataSet()
-        // parent::tearDown();
-        $this->traitTearDown();
+        parent::tearDown();
     }
     
     protected function getDBConnection($FIREHALL) {
@@ -287,8 +273,4 @@ if (version_compare(PHP_VERSION, '7.0', '>=')) {
      protected function getMockUserAccountsFile() {
          return dirname(__FILE__).'/unit_test-seed.xml';
      }
- }
-}
-else {
-    include 'baseDBFixture-PHP5X.php';
 }
