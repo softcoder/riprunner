@@ -22,7 +22,7 @@
         "phpunit/dbunit": ">=2.0.3 || ^4.0",
         "phpunit/php-code-coverage": "^4.0 || >= 5.3",
         "ext-xdebug" : "*",
-        "phpunit/php-invoker": "^2.0"
+        "phpunit/php-invoker": ">=1.1.4 || ^2.0"
     },
 
     "require": {
