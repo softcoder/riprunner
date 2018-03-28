@@ -48,7 +48,12 @@ import { User } from '@app/auth';
 import { CalloutDetailsComponent } from '../callout-details/callout-details.component';
 import { CalloutDetailsService } from '../callout-details/callout-details.service';
 import { GoogleApiService } from './google-api.service';
+import { DeleteDialogComponent } from './dialogs/delete/delete-dialog.component';
+import { DeleteDataService } from './dialogs/data-service';
+import { SendMessageComponent } from './views/send-message/send-message.component';
+import { MessageContext, SendMessageService } from './send-message.service';
 
+export * from './dialogs/data-service';
 const menuRoutes: Routes = [
   //{ path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'call-details', component: CalloutDetailsComponent },
@@ -66,6 +71,8 @@ const menuRoutes: Routes = [
     FormsModule, ReactiveFormsModule,
     AgmCoreModule.forRoot({ apiKey: environment.google_api_key }),
     AgmDirectionModule,
+    MatDialogModule,
+
   ],
   exports: [
     CdkTableModule,
@@ -102,10 +109,18 @@ const menuRoutes: Routes = [
     MatTooltipModule,
 
     CalloutDetailsComponent,
+    DeleteDialogComponent,
+    SendMessageComponent,
   ],
   declarations: [
-    CalloutDetailsComponent
-  ]
+    CalloutDetailsComponent,
+    DeleteDialogComponent,
+    SendMessageComponent
+  ],
+  entryComponents: [
+    DeleteDialogComponent,
+    SendMessageComponent
+  ],
 })
 
 export class SystemSharedModule {
@@ -117,6 +132,7 @@ export class SystemSharedModule {
                   SystemConfigService,
                   CalloutDetailsService,
                   GoogleApiService,
+                  SendMessageService
                 ]
     };
   }

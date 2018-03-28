@@ -30,7 +30,7 @@
         <div >
             <input (click)="loginUser()" type="button" id="btnLogin" value="Login" />
         </div>
-        <div *ngIf="errorMessage" [ngClass]="'error'">{{errorMessage}}</div>
+        <div *ngIf="errorMessage" [ngClass]="'error'">The following error was detected: {{errorMessage}}</div>
     </form> 
     </section>
 </div>

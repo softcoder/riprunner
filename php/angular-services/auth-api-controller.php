@@ -49,7 +49,7 @@ class AuthApiController extends ApiController {
         return $this->lastError;
     }
     
-    protected function validateAuth($fhid=null) {
+    protected function validateAuth($fhid=null,$checkAccess=null) {
         global $log;
         global $FIREHALLS;
         
@@ -73,6 +73,10 @@ class AuthApiController extends ApiController {
             $userAuthorized = $auth->login_check();
             
             if($log !== null) $log->trace("API validateAuth fhid: $fhid userAuthorized: $userAuthorized [".session_id()."]");
+
+            if($checkAccess !== null) {
+                $userAuthorized = $auth->userHasAcess($checkAccess);
+            }
         }
         
         if ($userAuthorized === false) {
@@ -88,4 +92,26 @@ class AuthApiController extends ApiController {
         }
         return $userAuthorized;
     }
+
+    protected function createTemplateVars() {
+        global $FIREHALLS;
+        $view_template_vars = array();
+        $view_template_vars['gvm'] = new \riprunner\GlobalViewModel($FIREHALLS);
+        return $view_template_vars;
+    }
+
+    protected function getJSonObject() {
+        global $log;
+        $entity = null;
+        $json = file_get_contents('php://input');
+        if($json != null && strlen($json) > 0) {
+            if($log !== null) $log->trace("Found Json data: ".$json);
+            $entity = json_decode($json);
+            // if(json_last_error() == JSON_ERROR_NONE) {
+                //$isAngularClient = true;
+            // }
+        }
+        return $entity;
+    }
+    
  }

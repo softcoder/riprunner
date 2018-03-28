@@ -1,0 +1,68 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~@angular/material/theming';
+@import url('//fonts.googleapis.com/icon?family=Material+Icons');
+
+@include mat-core();
+
+$primary: mat-palette($mat-indigo, 500);
+$accent:  mat-palette($mat-pink, 500, A200, A400);
+$warn:    mat-palette($mat-red, 500);
+
+$theme: mat-light-theme($primary, $accent, $warn);
+
+@include angular-material-theme($theme);
+
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.container > * {
+  width: 50%;
+}
+
+body {
+  font-family: $mat-font-family;
+  font-weight: normal;    
+  margin: 0;
+}
+
+button {
+    background: #aabcfe;
+    background: -moz-linear-gradient(top,  #aabcfe 0%, #e8edff 100%);
+    background: -webkit-linear-gradient(top,  #aabcfe 0%,#e8edff 100%);
+    background: -o-linear-gradient(top,  #aabcfe 0%,#e8edff 100%);
+    background: -ms-linear-gradient(top,  #aabcfe 0%,#e8edff 100%);
+    background: linear-gradient(to bottom,  #aabcfe 0%,#e8edff 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#aabcfe', endColorstr='#e8edff',GradientType=0 );
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    border-radius: 30px;
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -moz-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -ms-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    -o-box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+    border: 1px solid #aabcfe;
+    color: #00246B;
+    cursor: pointer;
+    float: left;
+    font: bold 15px Helvetica, Arial, sans-serif;
+    height: 35px;
+    margin: 20px 0 35px 15px;
+    position: relative;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    width: 150px;
+}
+
+button:hover {
+    background: #e8edff;
+    background: -moz-linear-gradient(top,  #e8edff 0%, #aabcfe 100%);
+    background: -webkit-linear-gradient(top,  #e8edff 0%,#aabcfe 100%);
+    background: -o-linear-gradient(top,  #e8edff 0%,#aabcfe 100%);
+    background: -ms-linear-gradient(top,  #e8edff 0%,#aabcfe 100%);
+    background: linear-gradient(to bottom,  #e8edff 0%,#aabcfe 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fec151', endColorstr='#aabcfe',GradientType=0 );
+}

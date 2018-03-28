@@ -1,0 +1,18 @@
+.mat-column-grid_update_row {
+    flex: 0 0 140px;
+}
+.mat-column-id {
+    flex: 0 0 40px;
+}
+.mat-column-firehall_id {
+    flex: 0 0 60px;
+}
+.mat-column-user_id {
+    flex: 0 0 200px;
+}
+.mat-column-email {
+    flex: 0 0 200px;
+}
+.hidden-item {
+    display: none;
+}

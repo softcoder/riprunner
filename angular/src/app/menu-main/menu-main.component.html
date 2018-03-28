@@ -24,7 +24,7 @@
             <input type="radio" name="verticalMenu" id="admin" />
             <div>
               <ul>
-                <li><a href="{{ getExternalUrl('controllers/users-menu-controller.php') }}">User Accounts</a></li>
+                <li><a [routerLink]="['/user-accounts-menu']">User Accounts</a></li>
                 <li><a href="{{ getExternalUrl('controllers/callout-type-controller.php') }}">Callout Codes</a></li>
                 <li><a href="{{ getExternalUrl('controllers/callout-status-controller.php') }}">Response Codes</a></li>
                 <li><a href="{{ getExternalUrl('controllers/address-override-controller.php') }}">Callout Address Overrides</a></li>
@@ -69,7 +69,7 @@
             <input type="radio" name="verticalMenu" id="my_account" />
             <div>
               <ul>
-                <li><a href="{{ getExternalUrl('controllers/users-menu-controller.php?se=true') }}">My Account</a></li>
+                <li><a [routerLink]="['/user-accounts-menu']" [queryParams]="{se: 'true'}">My Account</a></li>
               </ul>
             </div>
           </li>

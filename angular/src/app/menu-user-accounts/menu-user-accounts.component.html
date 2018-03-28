@@ -1,0 +1,205 @@
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Login: Protected Page</title>
+</head>
+
+<div class="container_center">
+    <div *ngxPermissionsOnly="['USER-AUTHENTICATED']">
+    
+<!--
+    {% include 'user-welcome.twig.html' %}
+    {% include 'live-callout-warning.twig.html' %}
+-->
+    
+    <div class="menudiv_wrapper">
+      <nav class="vertical">
+        <ul>
+          <li>
+            <label for="main_page">Return to ..</label>
+            <input type="radio" name="verticalMenu" id="main_page" />
+            <div>
+              <ul>
+                  <li><a [routerLink]="['/main-menu']">Main Menu</a></li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            <label for="logout">Exit</label>
+            <input type="radio" name="verticalMenu" id="logout" />
+            <div>
+              <ul>
+                  <li><a [routerLink]="['/login']">Logout</a></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <app-send-message *ngIf="!selfEditMode" [users]='getSelectedUsers()' ></app-send-message>
+<!--    
+    {% if usersmenu_ctl_action_error == 100 %}
+    <b><font color="red">Invalid password! Passwords must match and be at least 5 characters.</font></b>
+    {% elseif usersmenu_ctl_action_error == 101 %}
+    <b><font color="red">You must enter a Firehall Id</font></b>
+    {% elseif usersmenu_ctl_action_error == 102 %}
+    <b><font color="red">You must enter a User Id</font></b>            
+    {% endif %}
+
+    {% if gvm.firehall.LDAP.ENABLED == true %}
+    <b><font color="red">*Note: You cannot edit user info in LDAP mode.</font></b>
+    {% endif %}
+-->
+
+<button mat-icon-button (click)="reloadData()">
+    <mat-icon>refresh</mat-icon>
+</button>
+<div *ngIf="errorMessage" [ngClass]="'error'">The following error was detected: {{errorMessage}}</div>
+
+<div class="table-container mat-elevation-z8">
+    <div class="loading-shade" *ngIf="(isLoadingResults | async)">
+      <mat-spinner *ngIf="(isLoadingResults | async)"></mat-spinner>
+    </div>
+    <mat-table #table [dataSource]="dataSource" matSort matSortDirection="asc">
+
+     <ng-container matColumnDef="grid_update_row">
+        <mat-header-cell *matHeaderCellDef>
+            <input #selectAllUsers *ngIf="!selfEditMode" type="checkbox" (change)="select_all_users($event)">
+            <button *ngIf="!isEditing()" mat-icon-button value="add box" (click)="add_user()">
+                <mat-icon>add box</mat-icon>
+            </button>
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+            <input *ngIf="!selfEditMode" type="checkbox" [checked]="check_user_selected(row)" (change)="select_user($event, row)">
+            <button *ngIf="!isEditing() && !editingRow(row.id)" mat-icon-button value="Edit" (click)="edit_user(row)">
+                <mat-icon>edit</mat-icon>
+            </button>
+            <button *ngIf="!selfEditMode && !isEditing() && !editingRow(row.id)" mat-icon-button value="Delete" (click)="delete_user(row)">
+                <mat-icon>delete</mat-icon>
+            </button>
+            <button *ngIf="editingRow(row.id)" mat-icon-button value="Cancel" (click)="cancel_user($event, row)">
+                <mat-icon>cancel</mat-icon>
+            </button>
+            <button *ngIf="editingRow(row.id)" mat-icon-button value="Save" (click)="save_user($event, row)">
+                <mat-icon>save</mat-icon>
+            </button>
+        </mat-cell>
+     </ng-container>
+                    
+      <ng-container matColumnDef="id">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>#</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.id }}</mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="firehall_id">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Firehall</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+            <input *ngIf="!selfEditMode && editingRow(row.id)" type="text" [(ngModel)]="row.firehall_id">
+            <span *ngIf="selfEditMode || !editingRow(row.id)">{{ row.firehall_id }}</span> 
+        </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="user_id">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>User Id</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+            <input *ngIf="editingRow(row.id)" type="text" [(ngModel)]="row.user_id">
+            <span *ngIf="!editingRow(row.id)">{{ row.user_id }}</span> 
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="new_password_1">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>New Password</mat-header-cell>
+            <mat-cell *matCellDef="let row">
+                <input *ngIf="editingRow(row.id)" type="text" [(ngModel)]="new_password_1">
+            </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="new_password_2">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Re-enter Password</mat-header-cell>
+            <mat-cell *matCellDef="let row">
+                <input *ngIf="editingRow(row.id)" type="text" [(ngModel)]="new_password_2">
+            </mat-cell>
+      </ng-container>
+        
+      <ng-container matColumnDef="email">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Email Address</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+            <input *ngIf="editingRow(row.id)" type="text" [(ngModel)]="row.email">
+            <span *ngIf="!editingRow(row.id)">{{ row.email }}</span> 
+        </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="user_type">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>User Type</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+            <select *ngIf="!selfEditMode && editingRow(row.id)" [(ngModel)]="row.user_type">
+                <option *ngFor="let userType of getUserAccountTypes()" 
+                        [ngValue]="userType.id" [selected]="userType.id === row.user_type">{{ userType.name }}</option>
+            </select>
+            <span *ngIf="selfEditMode ||!editingRow(row.id)">{{ getUserAccountType(row)?.name }}</span>
+        </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="mobile_phone">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Mobile Phone</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+            <input *ngIf="editingRow(row.id)" type="text" [(ngModel)]="row.mobile_phone">
+            <span *ngIf="!editingRow(row.id)">{{ row.mobile_phone }}</span> 
+        </mat-cell>
+      </ng-container>
+                    
+      <ng-container matColumnDef="access_admin">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Admin Access</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+            <input *ngIf="!selfEditMode && editingRow(row.id)" type="checkbox" [(ngModel)]="row.access_admin" [checked]="row.access_admin">
+            <span *ngIf="selfEditMode || !editingRow(row.id)">{{ row.access_admin }}</span>
+        </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="access_sms">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Enabled SMS</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+            <input *ngIf="!selfEditMode && editingRow(row.id)" type="checkbox" [(ngModel)]="row.access_sms" [checked]="row.access_sms">
+            <span *ngIf="selfEditMode || !editingRow(row.id)">{{ row.access_sms }}</span>
+        </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="access_respond_self">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Enabled Responding</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+            <input *ngIf="!selfEditMode && editingRow(row.id)" type="checkbox" [(ngModel)]="row.access_respond_self" [checked]="row.access_respond_self">
+            <span *ngIf="selfEditMode || !editingRow(row.id)">{{ row.access_respond_self }}</span>
+        </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="access_respond_others">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Enabled Responding for others</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+            <input *ngIf="!selfEditMode && editingRow(row.id)" type="checkbox" [(ngModel)]="row.access_respond_others" [checked]="row.access_respond_others">
+            <span *ngIf="selfEditMode || !editingRow(row.id)">{{ row.access_respond_others }}</span>
+        </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="active">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>User Active</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+            <input *ngIf="!selfEditMode && editingRow(row.id)" type="checkbox" [(ngModel)]="row.active" [checked]="row.active">
+            <span *ngIf="selfEditMode || !editingRow(row.id)">{{ row.active }}</span>
+        </mat-cell>
+      </ng-container>
+  
+      <ng-container matColumnDef="updatetime">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Update Date/Time</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.updatetime }}</mat-cell>
+      </ng-container>
+      
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>        
+    </mat-table>
+  
+    <mat-paginator #paginator [length]="resultsLength" [pageSize]="30">
+    </mat-paginator>
+  </div>
+
+  </div>
+</div>

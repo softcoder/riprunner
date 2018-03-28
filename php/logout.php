@@ -18,7 +18,7 @@ global $log;
 $request = null;
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST)) {
     $json = file_get_contents('php://input');
-    if($json != null && count($json) > 0) {
+    if($json != null && strlen($json) > 0) {
         $request = json_decode($json);
         if(json_last_error() != JSON_ERROR_NONE) {
             $request = null;

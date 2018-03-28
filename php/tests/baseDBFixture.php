@@ -17,10 +17,20 @@ define('__RIPRUNNER_ROOT_TEST__', dirname(dirname(__FILE__)));
 require_once __RIPRUNNER_ROOT_TEST__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/db/sql_statement.php';
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
 
-//class LoginTest extends PHPUnit_Framework_TestCase {
-abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
+//abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
+// ported to post phpunit 5
+abstract class BaseDBFixture extends TestCase {
     
+    //use TestCaseTrait;
+    // Rename TestCaseTrait::setUp() to traitSetUp (and teardown)
+    use TestCaseTrait { 
+        setUp as protected traitSetUp; 
+        tearDown as protected traitTearDown; 
+    }
+
     // only instantiate pdo once for test clean-up/fixture load
     static private $pdo = null;
     protected $pdoConn = null;
@@ -77,7 +87,7 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
                 "MUD RIVER," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
                 "NESS LAKE," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
                 "NORTH KELLY," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
-                //"PARSNIP," => "PARSNIP,",
+                //"PARSNIP," => "PARSNIP,",        }
                 "PINE PASS," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
                 "PINEVIEW FFG," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
                 "PINEVIEW," => $GOOGLE_MAP_CITY_DEFAULT_UNIT_TEST,
@@ -227,7 +237,9 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
         $FIREHALLS = array(	$LOCAL_DEBUG_FIREHALL);
         $this->FIREHALLS = $FIREHALLS;
 
-        parent::setUp();
+        // Below does not trigger dbunits setup for calling getDataSet()
+        // parent::setUp();
+        $this->traitSetUp();
     }
     
     protected function tearDown() {
@@ -236,8 +248,10 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
         $this->DBCONNECTION = null;
         $this->pdoConn = null;
         self::$pdo = null;
-        
-        parent::tearDown();
+
+        // Below does not trigger dbunits setup for calling getDataSet()
+        // parent::tearDown();
+        $this->traitTearDown();
     }
     
     protected function getDBConnection($FIREHALL) {

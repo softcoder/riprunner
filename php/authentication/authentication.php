@@ -202,7 +202,7 @@ class Authentication {
         if($log !== null) $log->trace("Login check request method: ".$this->getServerVar('REQUEST_METHOD'));
         if($this->getServerVar('REQUEST_METHOD') == 'POST' && empty($_POST)) {
             $json = file_get_contents('php://input');
-            if($json != null && count($json) > 0) {
+            if($json != null && strlen($json) > 0) {
                 if($log !== null) $log->trace("Login found request method: ".$this->getServerVar('REQUEST_METHOD')." request: ".$json);
                 $request = json_decode($json);
                 if(json_last_error() == JSON_ERROR_NONE) {
@@ -460,7 +460,7 @@ class Authentication {
                 if($log !== null) $log->trace("Login check req token [" . $token. "]");
             }
             
-            if($token != null && count($token)) {
+            if($token != null && strlen($token)) {
                 $token = JWT::decode($token, JWT_KEY, array('HS256'));
                 if($log !== null) $log->trace("Login check token decode [" . json_encode($token). "]");
                 

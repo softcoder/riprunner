@@ -13,10 +13,16 @@ require_once __RIPRUNNER_ROOT__ . '/models/base-model.php';
 // The model class handling variable requests dynamically
 class UsersMenuViewModel extends BaseViewModel {
 	
+	private $selfedit_mode;
+
 	protected function getVarContainerName() { 
 		return "usersmenu_vm";
 	}
 	
+	public function setSelfEditMode($value) {
+		$this->selfedit_mode = $value;
+	}
+
 	public function __get($name) {
 		if('selfedit_mode' === $name) {
 			return $this->getIsSelfEditMode();
@@ -40,9 +46,11 @@ class UsersMenuViewModel extends BaseViewModel {
 	}
 	
 	private function getIsSelfEditMode() {
-		$self_edit = get_query_param('se');
-		$self_edit = (isset($self_edit) === true && $self_edit != null && $self_edit == true);
-		return $self_edit;
+		if($this->selfedit_mode == null) {
+			$this->selfedit_mode = get_query_param('se');
+			$this->selfedit_mode = (isset($this->selfedit_mode) === true && $this->selfedit_mode != null && $this->selfedit_mode == true);
+		}
+		return $this->selfedit_mode;
 	}
 	
 	private function getUserList() {

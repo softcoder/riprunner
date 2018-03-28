@@ -139,7 +139,7 @@ function login_ldap($FIREHALL, $user_id, $password) {
     			if($log !== null) $log->warn("process_login check request method: ".$_SERVER['REQUEST_METHOD']);
     			if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST)) {
     			    $json = file_get_contents('php://input');
-    			    if($json != null && count($json) > 0) {
+    			    if($json != null && strlen($json) > 0) {
     			        if($log !== null) $log->warn("process_login found request method: ".$_SERVER['REQUEST_METHOD']." request: ".$json);
     			        $request = json_decode($json);
     			        if(json_last_error() == JSON_ERROR_NONE) {

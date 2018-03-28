@@ -24,7 +24,7 @@ global $log;
 $request = null;
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST)) {
     $json = file_get_contents('php://input');
-    if($json != null && count($json) > 0) {
+    if($json != null && strlen($json) > 0) {
         $request = json_decode($json);
         if(json_last_error() != JSON_ERROR_NONE) {
             $request = null;
@@ -68,7 +68,8 @@ if ($isAngularClient == true || isset($_POST['firehall_id'], $_POST['user_id'], 
 		            $token = array();
 		            $token['id'] = $_SESSION['user_db_id'];
 		            $token['acl'] = $auth->getCurrentUserRoleJSon();
-		            $token['fhid'] = $firehall_id;
+					$token['fhid'] = $firehall_id;
+					$token['uid'] = '';
 		            
 		            $output = array();
 		            $output['status'] = true;

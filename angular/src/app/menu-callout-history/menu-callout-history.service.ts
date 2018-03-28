@@ -27,12 +27,13 @@ export interface CalloutHistoryItem {
 @Injectable()
 export class MenuCalloutHistoryService {
 
-  constructor(private http: HttpClient, private location: Location, private authService: AuthService) {
+  constructor(private http: HttpClient, private location: Location,
+              private authService: AuthService) {
   }
 
   getCalloutHistory(sort: string, order: string, page: number): Observable<CalloutHistoryItem[]> {
-    var fhid = this.authService.getFirehallId();
-    const href = this.location.prepareExternalUrl("../angular-services/menu-callout-history-service.php");
+    const fhid = this.authService.getFirehallId();
+    const href = this.location.prepareExternalUrl('../angular-services/menu-callout-history-service.php');
     const requestUrl = `${href}/history?fhid=${fhid}`;
     return this.http.get<CalloutHistoryItem[]>(requestUrl);
   }

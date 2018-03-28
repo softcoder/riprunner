@@ -20,6 +20,8 @@ import {MenuCalloutHistoryService, CalloutHistoryItem} from './menu-callout-hist
 })
 export class MenuCalloutHistoryComponent implements AfterViewInit {
 
+  errorMessage: string;
+
   displayedColumns: Array<string>;
   dataSource = new MatTableDataSource();
 
@@ -30,7 +32,7 @@ export class MenuCalloutHistoryComponent implements AfterViewInit {
   @ViewChild(MatSort) sort: MatSort;
 
   constructor(private location: Location, private authService: AuthService,
-              private calloutHistoryService: MenuCalloutHistoryService, 
+              private calloutHistoryService: MenuCalloutHistoryService,
               private router: Router) {
     // debugger;
     if (this.authService.hasPermission('ROLE-admin')) {
@@ -39,7 +41,7 @@ export class MenuCalloutHistoryComponent implements AfterViewInit {
                         'call_details', 'override_address'
                       ];
     } else {
-      this.displayedColumns = ['id', 'calltime', 'calltype', 'address', 'latitude', 'longitude', 
+      this.displayedColumns = ['id', 'calltime', 'calltype', 'address', 'latitude', 'longitude',
                         'units', 'status', 'updatetime', 'call_key', 'responders', 'hours_spent',
                         'call_details'
                       ];
@@ -74,7 +76,9 @@ export class MenuCalloutHistoryComponent implements AfterViewInit {
         catchError((err) => {
           debugger;
 
-          console.log('Error getting grid data: ' + err);
+          this.errorMessage = err.error.text;
+          console.log('Error getting grid data: ' + err.error.text);
+
           Promise.resolve(null).then(() =>
             this.isLoadingResults = Observable.of(false)
           );

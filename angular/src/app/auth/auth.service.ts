@@ -21,6 +21,8 @@ interface TokenObject {
   id: number;
   acl: string;
   fhid: string;
+  uid: string;
+  fcmTokens?: { [token: string]: true };
 }
 
 @Injectable()
@@ -89,6 +91,13 @@ export class AuthService {
       return null;
     }
 
+    public getId(): string {
+      if (this.isLoggedIn()) {
+        return localStorage.getItem('id');
+      }
+      return null;
+    }
+
     public getLastErrorMsg(): string {
       return this.lastErrorMsg;
     }
@@ -131,6 +140,7 @@ export class AuthService {
           localStorage.setItem('acl', acl);
           permissions.push('ROLE-' + acl.role);
           localStorage.setItem('fhid', jwtToken.fhid);
+          localStorage.setItem('id', String(jwtToken.id));
         }
         const expiresAt = moment().add(authResult.expiresIn, 'second');
         localStorage.setItem('expires_at', JSON.stringify(expiresAt.valueOf()) );
@@ -145,6 +155,7 @@ export class AuthService {
         localStorage.removeItem('acl');
         localStorage.removeItem('expires_at');
         localStorage.removeItem('fhid');
+        localStorage.removeItem('id');
         localStorage.removeItem('rr-config');
         this.permissionsService.loadPermissions([]);
     }

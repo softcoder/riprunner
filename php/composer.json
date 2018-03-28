@@ -18,14 +18,15 @@
 
     "require-dev": {
         "phpmd/phpmd" : "@stable",
-        "phpunit/phpunit": "^5.7 || ^7.0",
-        "phpunit/dbunit": "^2.0 || >= 2.0",
+        "phpunit/phpunit": "^5.7 || >=7.0",
+        "phpunit/dbunit": "^4.0",
         "phpunit/php-code-coverage": "^4.0 || >= 5.3",
-        "ext-xdebug" : "*"
+        "ext-xdebug" : "*",
+        "phpunit/php-invoker": "^2.0"
     },
 
     "require": {
-        "php": "^5.6 || ^7.1",
+        "php": "^5.6 || >=7.1",
         "apache/log4php": ">=2.3",
         "firebase/php-jwt": ">=5.0",
         "html2text/html2text": ">=4.1",

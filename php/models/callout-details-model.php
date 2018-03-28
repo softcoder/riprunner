@@ -254,7 +254,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	        $row = $qry_bind->fetch(\PDO::FETCH_OBJ);
 	        $qry_bind->closeCursor();
 	        	
-	        $log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getMemberId() ."] got count: " . count($row));
+	        $log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getMemberId() ."] got count: " . (is_array($row) ? count($row) : ''));
 	
 	        $this->useracctid = null;
 	        $this->user_authenticated = false;
