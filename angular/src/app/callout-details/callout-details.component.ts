@@ -1,12 +1,6 @@
 import {Component, AfterViewInit, ViewChild, OnDestroy, OnInit} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/add/observable/interval';
-import {merge} from 'rxjs/observable/merge';
-import {of as observableOf} from 'rxjs/observable/of';
-import {catchError} from 'rxjs/operators/catchError';
-import {map} from 'rxjs/operators/map';
-import {startWith} from 'rxjs/operators/startWith';
-import {switchMap} from 'rxjs/operators/switchMap';
+import {Observable, merge, of, interval } from 'rxjs';
+import {catchError, map, startWith, switchMap} from 'rxjs/operators';
 import {Location} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 
@@ -26,7 +20,7 @@ import {
 
 export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy {
 
-    isLoadingResults: Observable<boolean> = Observable.of(true);
+    isLoadingResults: Observable<boolean> = of(true);
 
     private calloutDetails: Observable<any> = null;
     private sub: any;
@@ -37,7 +31,7 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
     private autoRefreshTimer;
     private countDownTimer;
 
-    direction$: Observable<any>;
+    direction: Observable<any>;
     markers$: Observable<MapMarker[]>;
     defaultStatusResponse$: Observable<any>;
 
@@ -79,18 +73,18 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
           startWith({}),
           switchMap(() => {
             // debugger;
-            Promise.resolve(null).then(() => this.isLoadingResults = Observable.of(true));
+            Promise.resolve(null).then(() => this.isLoadingResults = of(true));
             return this.calloutDetailsService.getDetails(this.cid, this.ckid, this.member_id);
           }),
           map(data => {
             // debugger;
 
-            this.calloutDetails = Observable.of(data);
+            this.calloutDetails = of(data);
             // console.log('Got callout details: ' + this.calloutDetails);
             this.getMapMarkers(data);
             Promise.resolve(null).then(() => {
               this.defaultStatusResponse$ = this.getDefaultResponseStatus(data);
-              this.isLoadingResults = Observable.of(false);
+              this.isLoadingResults = of(false);
             });
             return data;
           }),
@@ -99,9 +93,9 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
 
             console.log('Error getting grid data: ' + err);
             Promise.resolve(null).then(() =>
-              this.isLoadingResults = Observable.of(false)
+              this.isLoadingResults = of(false)
             );
-            return observableOf([]);
+            return of([]);
           })
         ).subscribe(data => {
           // debugger;
@@ -118,11 +112,11 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
       if (this.isCalloutPending(callout)) {
         // debugger;
         let MAP_AUTO_REFRESH_SECONDS = 60;
-        this.autoRefreshTimer = Observable.interval(MAP_AUTO_REFRESH_SECONDS * 1000)
+        this.autoRefreshTimer = interval(MAP_AUTO_REFRESH_SECONDS * 1000)
         .subscribe(i => {
             currentInstance.reloadData();
         });
-        this.countDownTimer = Observable.interval(1000)
+        this.countDownTimer = interval(1000)
         .subscribe(i => {
             const ui_refresh = document.getElementById('reload_timer_ui');
             if (ui_refresh !== undefined) {
@@ -254,8 +248,8 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
       markers.push.apply(markers, this.getRespondersMapMarkers(data));
 
       Promise.resolve(null).then(() => {
-        this.markers$ = Observable.of(markers);
-        this.direction$ = Observable.of({
+        this.markers$ = of(markers);
+        this.direction = of({
           origin: { lat: data.firehall_latitude, lng: data.firehall_longitude },
           destination: { lat: data.details.latitude, lng: data.details.longitude }
         });

@@ -102,7 +102,7 @@
                     [iconUrl]="m.icon" [markerDraggable]="m.draggable"
                     (dragEnd)="markerDragEnd(m, $event)">
         </agm-marker>
-        <agm-direction *ngIf="direction$ | async; let dir" [origin]="dir.origin" [destination]="dir.destination"></agm-direction>
+        <agm-direction *ngIf="direction | async as dir" [origin]="dir?.origin" [destination]="dir?.destination"></agm-direction>
         <agm-kml-layer [url]="getUrl('kml/boundaries.kml')" [zIndex]="2"></agm-kml-layer>
     </agm-map>
 
