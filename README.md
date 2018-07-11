@@ -524,7 +524,7 @@ npm install
 
 - Compile and Build the angular project:
 
-ng build --base-href=/~softcoder/svvfd1/php/ngui/ --output-path=../php/ngui/
+ng build --base-href=/~softcoder/svvfd1/php/ngui/ --output-path=../php/ngui/ --aot
 
 Notice above the base-href which is the document root path on your webserver where rip runner is installed (same folder where config.php exists). Also notice the compiled javascript project will be placed into the rip runner php/ngui folder.
 
