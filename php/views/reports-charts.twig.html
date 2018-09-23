@@ -4,20 +4,20 @@
         <meta charset="UTF-8">
         <title>Secure Login: Protected Page</title>
         {% if gvm.isMobile %}
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles-mobile.css" />
         
         {% else %}
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
-		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/custom-main.css" />
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
+		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/custom-main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles.css" />
         {% endif %}
         
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/d3.min.js"></script>
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/smartresize.js"></script>
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/d3.min.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/spin.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/smartresize.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
         
     </head>
     <body>
@@ -43,7 +43,7 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php">Main Menu</a></li>
                       </ul>
                     </div>
                   </li>
@@ -52,7 +52,7 @@
                     <input type="radio" name="verticalMenu" id="call_history" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/callout-history-controller.php">Callouts and Responders</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-history-controller.php">Callouts and Responders</a></li>
                       </ul>
                     </div>
                   </li>
@@ -61,7 +61,7 @@
                     <input type="radio" name="verticalMenu" id="logout" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}logout.php">Logout</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/logout.php">Logout</a></li>
                       </ul>
                     </div>
                   </li>
@@ -286,7 +286,7 @@
 						  {% endfor %}
 						</select>
 						<input type="button" id="load_report" 
-						onclick="location.href='{{ gvm.RR_DOC_ROOT }}controllers/reports-charts-controller.php?report_year='+document.getElementById('select_report_year').value;return false;"
+						onclick="location.href='{{ gvm.RR_DOC_ROOT }}/controllers/reports-charts-controller.php?report_year='+document.getElementById('select_report_year').value;return false;"
 						class="report_submit" value="Run Reports">
 					</td>
                 </tr>

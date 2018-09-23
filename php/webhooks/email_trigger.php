@@ -151,10 +151,17 @@ class EmailTriggerWebHook {
     }
     private function dumpRequestLog() {
 		global $log;
-		if($log !== null) $log->error("Request Headers:");
-		foreach ($this->getAllServerVars() as $name => $value){
-			if($log !== null) $log->error("Name [$name] Value [$value]");
-		}
+		if($log !== null) {
+            $log->error("Request Headers:");
+            foreach ($this->getAllServerVars() as $name => $value) {
+                if (is_array($value)) {
+                    $log->error("Name [$name] Value [".implode(',', $value)."]");
+                }
+                else {
+                    $log->error("Name [$name] Value [$value]");
+                }
+            }
+        }
 	}
 	
 	public function executeTriggerCheck($FIREHALLS) {

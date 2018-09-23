@@ -1,5 +1,10 @@
 <?php
 namespace Vanen\Net;
+if(defined('__RIPRUNNER_ROOT__') === false) {
+    define('__RIPRUNNER_ROOT__', dirname(dirname(__FILE__)));
+}
+
+require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 function getRequestSetting($type, $variable_name) {
     $result = filter_input($type, $variable_name);
@@ -18,6 +23,9 @@ class HttpResponse
     public function __construct($statusCode = 200, $message = 'Ok', $object = null)
     {
         $serverProtocol = getRequestSetting(INPUT_SERVER, 'SERVER_PROTOCOL');
+        //if(!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == on) {
+        //    $serverProtocol = 'HTTPS';
+        //}
 
         $this->statusCode = $statusCode;
         $this->message = "$serverProtocol $statusCode $message";
@@ -82,10 +90,14 @@ final class Api
 
     public function __construct($version = null)
     {
+        global $log;
+
         if ($version) {
             $this->version = trim($version, '/\\');
         }
         $this->mHttpMethod = \Vanen\Net\getRequestSetting(INPUT_SERVER, 'REQUEST_METHOD');
+
+        if ($log !== null) $log->trace('Web API Controller constructor using method: '.$this->mHttpMethod);
     }
 
     /**
@@ -94,6 +106,9 @@ final class Api
      */
     public function handle()
     {
+        global $log;
+        if ($log !== null) $log->trace('Web API Controller handle method start.');
+
         $parsedInfo = $this->parseRequest();
 
         $_httpResponse = "Vanen\\Net\\HttpResponse";
@@ -196,37 +211,51 @@ final class Api
     //
     private function parseRequest()
     {
+        global $log;
         $methodNotAllowed = false;
 
+        $failReason = 0;
         // Get information about all controllers.
         foreach ($this->getControllerInfo() ?: [] as $controller => $methods) {
             foreach ($methods as $method) {
                 // Skip this method if it doesn't accept this request method.
                 if (!in_array($this->mHttpMethod, $method->http_verbs)) {
                     $methodNotAllowed = true;
+
+                    $failReason = 1;
+                    if ($log !== null) $log->trace('Web API Controller lookup fail reason: '.$failReason. ' for: '.$this->mHttpMethod);
+                    
                     continue;
                 }
 
                 // Filter all information from the URI using the pattern of this method.
                 $uriInfo = $this->filterUri($method->uri_pattern);
                 if (!$uriInfo) {
+                    $failReason = 2;
                     continue;
                 }
 
                 // Skip this controller if it was not requested.
                 if (property_exists($uriInfo, 'controller') && $uriInfo->controller !== null &&
                         strcasecmp(substr($controller, 0, -10), $uriInfo->controller) !== 0) {
+                    
+                    $failReason = 3;
+                    if ($log !== null) $log->trace('Web API Controller lookup fail reason: '.$failReason. ' for: '.$controller);
                     break;
                 }
                 
                 // Skip this method if it was not requested.
                 if (property_exists($uriInfo, 'method') && $uriInfo->method !== null &&
                         strcasecmp($method->name, $uriInfo->method) !== 0) {
+                    $failReason = 4;
+                    if ($log !== null) $log->trace('Web API Controller lookup fail reason: '.$failReason. ' for: '.$method->name.' URI Info: '.$uriInfo->method);
                     continue;
                 }
 
                 // Skip this method if more parameters were passed than it takes.
                 if (count($uriInfo->parameters) > count($method->parameters)) {
+                    $failReason = 5;
+                    if ($log !== null) $log->trace('Web API Controller lookup fail reason: '.$failReason. ' for: '.$method->parameters);
                     continue;
                 }
 
@@ -244,6 +273,8 @@ final class Api
                             $parameters[$param->name] = $param->default;
                         } else {
                             $parameters = false;
+                            $failReason = 6;
+                            if ($log !== null) $log->trace('Web API Controller lookup fail reason: '.$failReason. ' for: '.$param->name);
                             break;
                         }
                     }
@@ -267,8 +298,10 @@ final class Api
             // Resource was found but the method is not allowed.
             return new \Vanen\Net\HttpResponse(405, 'Method Not Allowed');
         }
-        return new \Vanen\Net\HttpResponse(404, 'Not Found');
+        
+        if ($log !== null) $log->trace('Web API Controller lookup returning 404 reason: '.$failReason);
 
+        return new \Vanen\Net\HttpResponse(404, 'Not Found reason:');
     }
 
     //

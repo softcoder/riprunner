@@ -3,15 +3,15 @@
     <head>
         <title>Secure Login: Log In</title>
         {% if gvm.isMobile %}
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
         {% else %}
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
         {% endif %}
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/sha512.js"></script>
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script> 
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/spin.js"></script>
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script> 
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/common-utils.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/sha512.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script> 
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/spin.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/forms.js"></script> 
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
     </head>
     <body>
     
@@ -29,7 +29,7 @@
         {% else %}
 		<div class="container">
 			<section id="content">
-	        <form action="{{ gvm.RR_DOC_ROOT }}process_login.php" method="post" 
+	        <form action="{{ gvm.RR_DOC_ROOT }}/process_login.php" method="post" 
 	               accept-charset="utf-8" id="login_form" name="login_form">
 	        	<h1>Login User</h1>
 	        	{% include 'display-logo.twig.html' %}
@@ -62,7 +62,7 @@
 			</div>
 	
 	        {% if gvm.auth.isAuth %}
-	        <p>If you are done browsing, please <a href="{{ gvm.RR_DOC_ROOT }}logout.php">log out</a>.</p>
+	        <p>If you are done browsing, please <a href="{{ gvm.RR_DOC_ROOT }}/logout.php">log out</a>.</p>
 	        {% endif %}
 	        <p>You are currently logged {{ gvm.auth.isAuth ? 'in' : 'out' }}.</p>
         {% endif %}

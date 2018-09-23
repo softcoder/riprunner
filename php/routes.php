@@ -37,7 +37,7 @@ require __DIR__ . '/vendor/autoload.php';
     global $FIREHALLS;
     
     $root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
-    \Flight::redirect($root_url .'ngui/index.html');
+    \Flight::redirect($root_url .'/ngui/index.html');
 });
 
 \Flight::route('GET|POST /', function () {
@@ -46,8 +46,8 @@ require __DIR__ . '/vendor/autoload.php';
     //parse_str($params, $query);
 
     $root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
-    //\Flight::redirect($root_url .'controllers/login-controller.php?' . $params);
-    \Flight::redirect($root_url .'controllers/login-controller.php');
+    //\Flight::redirect($root_url .'/controllers/login-controller.php?' . $params);
+    \Flight::redirect($root_url .'/controllers/login-controller.php');
 });
 
 \Flight::route('GET|POST /login|/logon(/@params)', function ($params) {
@@ -56,7 +56,7 @@ require __DIR__ . '/vendor/autoload.php';
 	parse_str($params, $query);
 
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
-	\Flight::redirect($root_url .'controllers/login-controller.php?' . $params);
+	\Flight::redirect($root_url .'/controllers/login-controller.php?' . $params);
 });
 
 \Flight::route('GET|POST /mobile-login/(@params)', function ($params) {
@@ -64,7 +64,7 @@ require __DIR__ . '/vendor/autoload.php';
 	$query = array();
 	parse_str($params, $query);
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
-	\Flight::redirect($root_url .'controllers/login-device-controller.php?' . $params);
+	\Flight::redirect($root_url .'/controllers/login-device-controller.php?' . $params);
 });
 
 \Flight::route('GET|POST /test/(@params)', function ($params) {
@@ -78,7 +78,7 @@ require __DIR__ . '/vendor/autoload.php';
 	parse_str($params, $query);
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 
-	\Flight::redirect($root_url .'controllers/callout-details-controller.php?' . $params);
+	\Flight::redirect($root_url .'/controllers/callout-details-controller.php?' . $params);
 });
 
 \Flight::route('GET|POST /cr/(@params)', function ($params) {
@@ -90,8 +90,8 @@ require __DIR__ . '/vendor/autoload.php';
 	parse_str($params, $query);
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 
-	$log->warn("Route got CR about to redirect to: ".$root_url .'controllers/callout-response-controller.php?' . $params);
-	\Flight::redirect($root_url .'controllers/callout-response-controller.php?' . $params);
+	$log->warn("Route got CR about to redirect to: ".$root_url .'/controllers/callout-response-controller.php?' . $params);
+	\Flight::redirect($root_url .'/controllers/callout-response-controller.php?' . $params);
 });
 
 \Flight::route('GET|POST /ct/(@params)', function ($params) {
@@ -100,7 +100,7 @@ require __DIR__ . '/vendor/autoload.php';
 	parse_str($params, $query);
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 
-	\Flight::redirect($root_url .'controllers/callout-tracking-controller.php?' . $params);
+	\Flight::redirect($root_url .'/controllers/callout-tracking-controller.php?' . $params);
 });
 
 \Flight::route('GET|POST /android-error/(@params)', function ($params) {

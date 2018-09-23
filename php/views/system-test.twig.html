@@ -4,13 +4,13 @@
         <meta charset="UTF-8">
         <title>Secure Login: Protected Page</title>
         {% if gvm.isMobile %}
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/mobile.css" />
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles-mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles-mobile.css" />
         {% else %}
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/main.css" />
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/table-styles.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles.css" />
         {% endif %}
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}styles/freeze-header.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/freeze-header.css" />
         <style>
             .current-row{background-color:#B24926;color:#FFF;}
             .current-col{background-color:#1b1b1b;color:#FFF;}
@@ -18,8 +18,8 @@
             .tbl-qa th.table-header {padding: 5px;text-align: left;padding:10px;}
             .tbl-qa .table-row td {padding:10px;background-color: #FDFDFD;}
         </style>
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-2.1.1.min.js"></script>
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/forms.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/forms.js"></script>
     </head>
     <body>
         <div class="container_center">
@@ -36,7 +36,7 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}controllers/main-menu-controller.php">Main Menu</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php">Main Menu</a></li>
                       </ul>
                     </div>
                   </li>
@@ -45,7 +45,7 @@
                     <input type="radio" name="verticalMenu" id="logout" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}logout.php">Logout</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/logout.php">Logout</a></li>
                       </ul>
                     </div>
                   </li>
@@ -58,7 +58,7 @@
             <center>
             
             <button onclick="toggleVisibility('test_code');">Show/Hide Test Page</button>            
-            <form action="{{ gvm.RR_DOC_ROOT }}controllers/system-test-controller.php" 
+            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/system-test-controller.php" 
                   method="post" id="test_code" name="test_code" 
                   style="display:{% if testmenu_ctl_action_code_test is not defined or 
                                        testmenu_ctl_action_code_test == false %}none{% endif %}" >

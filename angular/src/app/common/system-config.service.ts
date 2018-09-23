@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class SystemConfigService {
 
-    url_action = '/../angular-services/system-config-service.php/config';
+    url_action = '/../angular-services/system-config-service.php?/config';
     url = '';
 
     constructor(private http: HttpClient, private location: Location) {

@@ -1,6 +1,6 @@
-<script type="text/javascript" src="{{ gvm.RR_DOC_ROOT }}js/savemapview.js"></script>
-<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}js/jquery-ui-themes-1.11.4/themes/smoothness/jquery-ui.min.css">
-<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{{ gvm.RR_DOC_ROOT }}/js/savemapview.js"></script>
+<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/js/jquery-ui-themes-1.11.4/themes/smoothness/jquery-ui.min.css">
+<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
 
 {% if gvm.isMobile %}
 <table id="map_container" width="{{ gvm.JSMAP_MOBILEWIDTH }}" align="center" class="ui-widget-content">
@@ -45,13 +45,13 @@ function ZoomControl(controlDiv, map) {
     var zoomInButton = document.createElement('div');
     zoomInButton.style.width = '80px'; 
     zoomInButton.style.height = '80px';
-    zoomInButton.style.backgroundImage = 'url("{{ gvm.RR_DOC_ROOT }}images/plus.png")';
+    zoomInButton.style.backgroundImage = 'url("{{ gvm.RR_DOC_ROOT }}/images/plus.png")';
     controlWrapper.appendChild(zoomInButton);
     // Set CSS for the zoomOut
     var zoomOutButton = document.createElement('div');
     zoomOutButton.style.width = '80px'; 
     zoomOutButton.style.height = '80px';
-    zoomOutButton.style.backgroundImage = 'url("{{ gvm.RR_DOC_ROOT }}images/minus.png")';
+    zoomOutButton.style.backgroundImage = 'url("{{ gvm.RR_DOC_ROOT }}/images/minus.png")';
     controlWrapper.appendChild(zoomOutButton);
     map.controls[google.maps.ControlPosition.RIGHT_TOP].push(controlWrapper);
     // -----------------------------------------------------------------------------
@@ -73,7 +73,7 @@ function map_initialize() {
     // Load js files that need google imports
     var js = document.createElement("script");
     js.type = "text/javascript";
-    js.src = "{{ gvm.RR_DOC_ROOT }}js/markerwithlabel.js";
+    js.src = "{{ gvm.RR_DOC_ROOT }}/js/markerwithlabel.js";
     document.body.appendChild(js);
 
     var directionsService = new google.maps.DirectionsService();
@@ -109,11 +109,11 @@ function map_initialize() {
     {% block map_legend_icons %}
     // Create Icons for Legend here
     var icons = {
-         waterTank: { name: 'Water Source', icon: '{{ gvm.RR_DOC_ROOT }}images/icons/water.png' },
-         Origin_GPS: { name: 'Origin GPS', icon: '{{ gvm.RR_DOC_ROOT }}images/icons/phone.png' },
-         FireHall: { name: 'Fire Station', icon: '{{ gvm.RR_DOC_ROOT }}images/icons/firedept.png' },
-         waterHydrant: { name: 'Fire Hydrant', icon: '{{ gvm.RR_DOC_ROOT }}images/icons/redhydrant_small.png' },
-         responderToHall: { name: 'Responder', icon: '{{ gvm.RR_DOC_ROOT }}images/icons/respond_to_hall.png' }
+         waterTank: { name: 'Water Source', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/water.png' },
+         Origin_GPS: { name: 'Origin GPS', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/phone.png' },
+         FireHall: { name: 'Fire Station', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/firedept.png' },
+         waterHydrant: { name: 'Fire Hydrant', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/redhydrant_small.png' },
+         responderToHall: { name: 'Responder', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/respond_to_hall.png' }
     };
     {% endblock %}
 
@@ -164,7 +164,7 @@ function map_initialize() {
         position: new google.maps.LatLng({{ CALLORIGIN }}), 
         title: "CALL ORIGIN",
         clickable: true,
-        icon: '{{ gvm.RR_DOC_ROOT }}images/icons/phone.png',
+        icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/phone.png',
         map: map
     });
     // -----------------------------------------------------------------------------
@@ -174,7 +174,7 @@ function map_initialize() {
     for (i = 0; i < waterTank.length; i++) {
         marker = new google.maps.Marker({
         position: new google.maps.LatLng(waterTank[i][1], waterTank[i][2]),
-        icon: '{{ gvm.RR_DOC_ROOT }}images/icons/water.png',
+        icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/water.png',
         map: map
         });
         google.maps.event.addListener(marker, 'click', (function(marker, i) {
@@ -192,7 +192,7 @@ function map_initialize() {
     for (i = 0; i < fireHydrant.length; i++) {
         marker = new google.maps.Marker({
             position: new google.maps.LatLng(fireHydrant[i][1], fireHydrant[i][2]),
-            icon: '{{ gvm.RR_DOC_ROOT }}images/icons/redhydrant_small.png',
+            icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/redhydrant_small.png',
             map: map
         });
         google.maps.event.addListener(marker, 'click', (function(marker, i) {
@@ -210,7 +210,7 @@ function map_initialize() {
     for (i = 0; i < fireHalls.length; i++) {  
         marker = new google.maps.Marker({
             position: new google.maps.LatLng(fireHalls[i][1], fireHalls[i][2]),
-            icon: '{{ gvm.RR_DOC_ROOT }}images/icons/firedept.png',
+            icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/firedept.png',
             map: map
         });
         google.maps.event.addListener(marker, 'click', (function(marker, i) {

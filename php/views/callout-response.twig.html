@@ -10,7 +10,7 @@
 <head>
 <script type="text/javascript">
     var result = "{{ response_vm.respond_result|escape('js') }}";
-    {% set redirect_url = gvm.RR_DOC_ROOT ~ 'ci/' ~ 
+    {% set redirect_url = gvm.RR_DOC_ROOT ~ '/ci/' ~ 
         'fhid=' ~ response_vm.firehall_id ~ '&cid=' ~ response_vm.callout_id ~
         '&ckid=' ~ response_vm.calloutkey_id ~
         (response_vm.member_id is not null ? '&member_id=' ~ response_vm.member_id : '') %}

@@ -17,8 +17,8 @@ class WebHook(InboundMailHandler):
         logging.info("Body of message: " + body[1].decode())
         
         # Point to the Main Email trigger URL which will poll for all Firehalls
-        # Example replace: http://soft-haus.com/svvfd/riprunner/ with the root of you installation
-        url = "http://soft-haus.com/svvfd/riprunner/webhooks/email_trigger_webhook.php"
+        # Example replace: https://svvfd.soft-haus.com/ with the root of you installation
+        url = "https://svvfd.soft-haus.com/webhooks/email_trigger_webhook.php"
         form_fields = {
             "sender": mail_message.sender,
             "subject": mail_message.subject,

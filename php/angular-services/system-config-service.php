@@ -14,16 +14,22 @@ error_reporting(E_ALL);
 
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 require_once __RIPRUNNER_ROOT__ . '/rest/WebApi.php';
+require_once __RIPRUNNER_ROOT__ . '/config.php';
+require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/main-menu-model.php';
 
 use Vanen\Mvc\Api;
 use Vanen\Mvc\ApiController;
+use Vanen\Net\HttpResponse;
 
 class SystemConfigController extends ApiController {
     
     private $isXml = false;
-    
+
     public function __controller() {
+        global $log;
+        if ($log !== null) $log->trace("System Config controller startup.");
+        
         $this->JSON_OPTIONS = JSON_PRETTY_PRINT;
         $this->RESPONSE_TYPE = 'JSON';
         $this->isXml = strcasecmp($this->RESPONSE_TYPE, 'xml') === 0;
@@ -31,6 +37,9 @@ class SystemConfigController extends ApiController {
 
     /** :GET :{method} */
     public function config($fhid=null) {
+        global $log;
+        if ($log !== null) $log->trace("System Config controller config method.");
+
         $systemConfigModel = new \riprunner\MainMenuViewModel();
         $systemConfig = array();
         //$systemConfig['hasUpdate'] = true;

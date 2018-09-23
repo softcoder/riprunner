@@ -44,7 +44,7 @@ array("http"=>
 );
 $context = stream_context_create($context);
 
-$url = "http://soft-haus.com/svvfd/riprunner/webhooks/email_trigger_webhook.php";
+$url = "https://svvfd.soft-haus.com/webhooks/email_trigger_webhook.php";
 $result = file_get_contents($url, false, $context);
 
 syslog(LOG_INFO,"PHP Result of calling webhook url: ". $result);
