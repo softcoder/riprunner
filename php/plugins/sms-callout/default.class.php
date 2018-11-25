@@ -111,7 +111,8 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
     		    
     		    //&authvalue=x
     		    //$smsTextWithAuth = str_replace('&authvalue=x', '&member_id='.$user_id, $smsText);
-    		    $smsTextWithAuth = $this->getSMSForRecipient($user_id, $smsText);
+				//$smsTextWithAuth = $this->getSMSForRecipient($user_id, $smsText);
+				$smsTextWithAuth = $this->getSMSForRecipientWithShortURL($user_id, $smsText, $db_connection);
     		    $resultSMS .= $smsPlugin->signalRecipients($callout->getFirehall()->SMS,  
     				$recipient_array, $recipient_list_type, $smsTextWithAuth);
 		    }
@@ -138,6 +139,38 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
             $smsTextWithAuth = str_replace('&authvalue=x', '&member_id='.$user_id, $smsText);
         }
         return $smsTextWithAuth;
+	}
+
+	public function getSMSForRecipientWithShortURL($user_id, $smsText, $db_connection) {
+	    global $log;
+		
+		$smsText = $this->getSMSForRecipient($user_id, $smsText);
+
+		$shortenStartTag = '[shorten-start]';
+		$shortenEndTag = '[shorten-end]';
+
+		$longUrlStart = strpos($smsText, $shortenStartTag);
+		$longUrlEnd = strpos($smsText, $shortenEndTag);
+		$longUrlLen = $longUrlEnd-($longUrlStart+strlen($shortenStartTag));
+		$longUrl = substr($smsText,$longUrlStart+strlen($shortenStartTag),$longUrlLen);
+		$shortUrl = gen_uuid();
+		
+		if($log !== null) $log->trace("Callout URL shorten old [$longUrl] new [$shortUrl]");
+		
+		$smsText = substr_replace($smsText, "prxy/$shortUrl", $longUrlStart, $longUrlLen+strlen($shortenStartTag)+strlen($shortenEndTag));
+
+		// Insert the new callout
+		if($db_connection !== null) {
+			$sql_statement = new \riprunner\SqlStatement($db_connection);
+			$sql = $sql_statement->getSqlStatement('url_proxy_insert');
+
+			$qry_bind = $db_connection->prepare($sql);
+			$qry_bind->bindParam(':shorturl', $shortUrl);
+			$qry_bind->bindParam(':longurl', $longUrl);
+			$qry_bind->execute();
+		}
+
+		return $smsText;
 	}
 	
 	private function getTwigEnv() {

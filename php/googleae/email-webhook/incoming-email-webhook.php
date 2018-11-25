@@ -38,7 +38,7 @@ array("http"=>
         "content" => $data
     ),
     "ssl" => array(
-            "allow_self_signed" => true,
+//            "allow_self_signed" => true,
             "verify_peer" => false
     )        
 );

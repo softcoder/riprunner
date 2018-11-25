@@ -435,3 +435,25 @@ function validate_email_sender($FIREHALL, $from) {
     
     return $valid_email_trigger;
 }
+
+function gen_uuid($len=8) {
+    $hex = md5(JWT_KEY . uniqid("", true));
+    //$hex = uniqid('', true);
+
+    $pack = pack('H*', $hex);
+
+    $uid = base64_encode($pack);        // max 22 chars
+
+    $uid = preg_replace("#(*UTF8)[^A-Za-z0-9]#", "", $uid);    // mixed case
+    //$uid = ereg_replace("[^A-Z0-9]", "", strtoupper($uid));    // uppercase only
+
+    if ($len<4)
+        $len=4;
+    if ($len>128)
+        $len=128;                       // prevent silliness, can remove
+
+    while (strlen($uid)<$len)
+        $uid = $uid . gen_uuid(22);     // append until length achieved
+
+    return substr($uid, 0, $len);
+}

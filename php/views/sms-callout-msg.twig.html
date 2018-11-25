@@ -8,5 +8,5 @@
 {{ callout.comments is not null ? 'Comments: ' ~ callout.comments ~ ' ' : '' }}{# This comment removes the newline that follows #}
 {% endblock %}
 {% block sms_url %}
-{{ callout.firehall.WEBSITE.WEBSITE_ROOT_URL }}ci/cid={{ callout.id }}&fhid={{ callout.firehall.FIREHALL_ID }}&ckid={{ callout.keyId }}&authvalue=x{# This comment removes the newline that follows #}
+{{ callout.firehall.WEBSITE.WEBSITE_ROOT_URL }}[shorten-start]ci/cid={{ callout.id }}&fhid={{ callout.firehall.FIREHALL_ID }}&ckid={{ callout.keyId }}&authvalue=x[shorten-end]{# This comment removes the newline that follows #}
 {% endblock %}
