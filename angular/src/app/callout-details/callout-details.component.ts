@@ -73,35 +73,46 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
           startWith({}),
           switchMap(() => {
             // debugger;
-            Promise.resolve(null).then(() => this.isLoadingResults = of(true));
+            // console.log('About to get grid data for cid: ' + this.cid);
+            //Promise.resolve(null).then(() => this.isLoadingResults = of(true));
+            this.isLoadingResults = Observable.of(true);
             return this.calloutDetailsService.getDetails(this.cid, this.ckid, this.member_id);
           }),
           map(data => {
             // debugger;
-
-            this.calloutDetails = of(data);
+            // console.log('GOT grid data: ' + data);
+            this.calloutDetails = Observable.of(data);
             // console.log('Got callout details: ' + this.calloutDetails);
             this.getMapMarkers(data);
-            Promise.resolve(null).then(() => {
-              this.defaultStatusResponse$ = this.getDefaultResponseStatus(data);
-              this.isLoadingResults = of(false);
-            });
+            //Promise.resolve(null).then(() => {
+            //  this.defaultStatusResponse$ = this.getDefaultResponseStatus(data);
+            //  this.isLoadingResults = of(false);
+            //});
+            this.defaultStatusResponse$ = Observable.of(this.getDefaultResponseStatus(data));
+            this.isLoadingResults = Observable.of(false);
             return data;
           }),
           catchError((err) => {
             debugger;
 
-            console.log('Error getting grid data: ' + err);
-            Promise.resolve(null).then(() =>
-              this.isLoadingResults = of(false)
-            );
+            //console.log('Error getting grid data: ' + err);
+            //this.errorMessage = err.error.text;
+            console.log('Error getting grid data error: ' + err.error.text);
+
+            //Promise.resolve(null).then(() =>
+            //  this.isLoadingResults = of(false)
+            //);
+            this.isLoadingResults = Observable.of(false);
             return of([]);
           })
         ).subscribe(data => {
           // debugger;
-          this.calloutDetails.subscribe(callout => {
-            this.setupAutoRefresh(callout);
-          });
+          // console.log('Subscribing to grid data: ' + data + ' callout: ' + this.calloutDetails);
+          // if (this.calloutDetails !== null) {
+            this.calloutDetails.subscribe(callout => {
+              this.setupAutoRefresh(callout);
+            });
+          // }
         }
       );
     }

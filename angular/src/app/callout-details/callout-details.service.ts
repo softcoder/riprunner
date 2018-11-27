@@ -35,6 +35,8 @@ export class CalloutDetailsService {
     const fhid = this.authService.getFirehallId();
     const href = this.location.prepareExternalUrl('../angular-services/callout-details-service.php');
     const requestUrl = `${href}/details?fhid=${fhid}&cid=${cid}&ckid=${ckid}&member_id=${member_id}`;
+
+    // console.log('About to call details for: ' + requestUrl);
     return this.http.get<CalloutDetailsItem>(requestUrl);
   }
 
