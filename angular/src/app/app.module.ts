@@ -20,8 +20,8 @@ const appRoutes: Routes = [
   { path: 'call-monitor-menu', loadChildren: './menu-callout-monitor/menu-callout-monitor.module#MenuCalloutMonitorModule' },
   { path: 'user-accounts-menu', loadChildren: './menu-user-accounts/menu-user-accounts.module#MenuUserAccountsModule' },
   { path: 'common', loadChildren: './common/system-shared.module#SystemSharedModule' },
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/login', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '**', redirectTo: 'login', pathMatch: 'full' },
 ];
 
 @NgModule({

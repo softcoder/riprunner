@@ -21,8 +21,8 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     //debugger;
+    const params = this.extractParams();
     if (this.loginService.isLoggedIn()) {
-      const params = this.extractParams();
       const page = params.get('page') || '';
       if (page === 'call-details') {
         this.routeToCallDetails(params);
@@ -43,6 +43,7 @@ export class AppComponent implements OnInit {
     } else {
       normalizedQueryString = window.location.search;
     }
+    console.log('App component params: ' + normalizedQueryString);
     return new URLSearchParams(normalizedQueryString);
   }
 

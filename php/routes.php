@@ -33,11 +33,42 @@ catch(\Exception $e) {
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require __DIR__ . '/vendor/autoload.php';
 
-\Flight::route('GET|POST /ngui', function () {
+\Flight::route('GET|POST /tenant/(@tenant)/*', function ($tenant) {
+	
+	//echo "TENANT ${tenant} URL got params: " . PHP_EOL;
+
+	$request = \Flight::request();
+	//echo "TENANT ${tenant} URL: ". $request->url . " PARAMS: ";
+	//print_r($request->query) . PHP_EOL;
+	//echo "TENANT ${tenant} URL: ". $request->url;
+	$new_url = str_replace("/tenant/${tenant}","",$request->url);
+	if($tenant != null && $tenant != '') {
+		if (strpos($new_url,'?') == false) {
+			$new_url .= '?';
+		}
+		else {
+			$new_url .= '&';
+		}
+		$new_url .= 'fhid='.$tenant;
+	}
+	//echo "\nTENANT ${tenant} NEW URL: ". $new_url;
+
+	\Flight::redirect($new_url);
+});
+
+\Flight::route('GET|POST /ngui/*', function () {
     global $FIREHALLS;
     
-    $root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
-    \Flight::redirect($root_url .'/ngui/index.html');
+	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
+	$fhid = '';
+	$request = \Flight::request();
+	if ($request !== null && $request->query !== null && $request->query->fhid != null) {
+		$fhid = '?fhid='.$request->query->fhid;
+	}
+
+	//echo "NGUI URL: [$fhid] ";
+	//print_r($request->query);
+    \Flight::redirect($root_url .'/ngui/index.html'.$fhid);
 });
 
 \Flight::route('GET|POST /prxy(/@lnk)', function ($lnk) {
@@ -48,14 +79,12 @@ require __DIR__ . '/vendor/autoload.php';
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 
 	$shortUrl = '';
-	//if(in_array('lnk',$query)) {
 	if($lnk !== null && $lnk !== '') {
-		//$shortUrl = $query['lnk'];
 		$shortUrl = $lnk;
 	}
-	else {
-		echo "Got params\n${params}" . PHP_EOL;
-	}
+	//else {
+	//	echo "Got params\n${params}" . PHP_EOL;
+	//}
 	$longUrl = '';
 
 	$firehall = getFirstActiveFireHallConfig($FIREHALLS);
@@ -77,26 +106,15 @@ require __DIR__ . '/vendor/autoload.php';
 			//$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 			$qry_bind->closeCursor();
-			
+			\riprunner\DbConnection::disconnect_db( $db_connection );
+
 			if($log !== null) $log->trace("Call /prxy/ SQL success for sql [$sql] row count: " . count($rows));
 			
-			$result = array();
-			//foreach($rows as $row) {
-			//	if($filtered_sms_users == null || in_array($row->id,$filtered_sms_users) == true)
-			//	array_push($result, $row->mobile_phone);
-			//}
-			
-			//$call_rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
-			//$qry_bind->closeCursor();
 			if(count($rows) > 0) {
 				//echo 'Proxy SQL found long url [' .$rows[0]['longurl'] . ']' . PHP_EOL;
 				//print_r($rows[0]);
 				$longUrl = $rows[0]['longurl'];
 			}
-		}
-
-		if($db_connection !== null) {
-			\riprunner\DbConnection::disconnect_db( $db_connection );
 		}
 	}
 
