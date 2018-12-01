@@ -14,6 +14,7 @@ require_once 'plugin_interfaces.php';
 require_once __RIPRUNNER_ROOT__ . '/template.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
+require_once __RIPRUNNER_ROOT__ . '/plugins/sms-provider-hook/sms_cmd_handler.php';
 
 class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 
