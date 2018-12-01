@@ -386,3 +386,13 @@
     height:0;
     width:0
 }
+
+.maps-link {
+    margin: 0 auto;
+    width: 150px;
+    padding: 20px 0;
+}
+  
+.maps-link img {
+    width: 100px;
+}

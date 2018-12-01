@@ -27,15 +27,43 @@
     
         {% set callout_pending = row.callout_status_completed == false and 
                                  row.callout_status_cancelled == false %}
-            
+        
+        <script type="text/javascript">
+            function mapsSelector(callout_address_origin, callout_address_dest) {
+            if /* if we're on iOS, open in Apple Maps */
+                ((navigator.platform.indexOf("iPhone") != -1) || 
+                (navigator.platform.indexOf("iPod") != -1) || 
+                (navigator.platform.indexOf("iPad") != -1)) {
+                //window.open("maps://maps.google.com/maps?sdaddr="+callout_address_origin+",&amp;daddr="+callout_address_dest+"dirflg=d");
+                window.open("https://www.google.com/maps/dir/?api=1" +
+                            //"&origin="+callout_address_origin+
+                            "&destination="+callout_address_dest+
+                            "&travelmode=driving&dir_action=navigate");
+            }
+            else {/* else use Google */
+                //window.open("https://maps.google.com/maps?sdaddr="+callout_address_origin+",&amp;daddr="+callout_address_dest+"dirflg=d");
+                window.open("https://www.google.com/maps/dir/?api=1" +
+                            //"&origin="+callout_address_origin+
+                            "&destination="+callout_address_dest+
+                            "&travelmode=driving&dir_action=navigate");
+            }
+        }
+        </script>
+                        
 	{% if gvm.isMobile %}
 	{% block callout_header_mobile %}
 		<div id="callContent{{ loop.index }}">
 		<table class="box-table-a" width="100%">
 		{% if row.address is empty %}
-			<tr><td class="ci_header_address" colspan="3">NO ADDRESS RECIVED FROM FOCC</td></tr>
+			<tr><td class="ci_header_address" colspan="3">NO ADDRESS FROM FOCC</td></tr>
 		{% else %}
-			<tr><td class="ci_header_address" colspan="3">{{ row.address }}</td></tr>
+            <tr><td class="ci_header_address" colspan="3">{{ row.address }}</td>
+                <td><div class="maps-link">
+                    <img style="cursor: pointer;" onclick="mapsSelector('{{ row.callout_geo_dest }}','{{ row.callout_address_dest }}')" 
+                    src="{{ gvm.RR_DOC_ROOT }}/images/icons/maps-icon.png" />
+                    </div>
+                </td>
+            </tr>
 		{% endif %}
         {% if row.callout_comments is not empty %}
             <tr><td class="ci_header_type" colspan="3">Comments: {{ row.callout_comments }}</td></tr>
@@ -69,8 +97,8 @@
         </script>
 		
 		<table class="box-table-a" width="100%">
-		<tr><td><span class="ci_header_units">CALCULATED TRAVEL: </span><span class="ci_header_units_list" id="geo_tag"></span></td></tr>
-		<tr><td><span class="ci_header_units">UNITS:</span><span class=ci_header_units_list>{{ row.units }} </span></td></tr>
+		<tr><td><span class="ci_header_units">YOUR ARRIVAL TIME: </span><span class="ci_header_units_list" id="geo_tag"></span></td></tr>
+		<tr><td><span class="ci_header_units">UNITS RESPONDING:</span><span class=ci_header_units_list>{{ row.units }} </span></td></tr>
 		<tr><td>
         
 
@@ -217,7 +245,13 @@
 		{% if row.address is empty %}
 			<tr><td class=ci_header_address colspan=3>NO ADDRESS FROM FOCC</td></tr>
 		{% else %}
-			<tr><td class=ci_header_address colspan=3>{{ row.address }}</td></tr>
+            <tr><td class=ci_header_address colspan=3>{{ row.address }}</td>
+                <td><div class="maps-link">
+                    <img style="cursor: pointer;" onclick="mapsSelector('{{ row.callout_geo_dest }}','{{ row.callout_address_dest }}')" 
+                    src="{{ gvm.RR_DOC_ROOT }}/images/icons/maps-icon.png" />
+                  </div>
+                </td>
+            </tr>
 		{% endif %}
         {% if row.callout_comments is not empty %}
             <tr><td class="ci_header_type" colspan="3">Comments: {{ row.callout_comments }}</td></tr>
@@ -251,8 +285,8 @@
         </script>
 		
 		<table class="box-table-a" border="0" width="100%">
-		<tr><td><span class="ci_header_units">CALCULATED TRAVEL: </span><span class="ci_header_units_list" id="geo_tag"></span></td></tr>
-		<tr><td><span class="ci_header_units">UNITS: </span><span class="ci_header_units_list">{{ row.units }} </span></td></tr>
+		<tr><td><span class="ci_header_units">YOUR ARRIVAL TIME: </span><span class="ci_header_units_list" id="geo_tag"></span></td></tr>
+		<tr><td><span class="ci_header_units">UNITS RESPONDING: </span><span class="ci_header_units_list">{{ row.units }} </span></td></tr>
 		
 		<tr><td>
         
