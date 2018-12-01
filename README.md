@@ -13,6 +13,8 @@ Description:
 
 This application suite was designed by volunteer fire fighters to enhance the experience of First Responders during an emergency 911 callout. The main goal of this application is to provide a completely free suite of applications which help fire fighters receive timely information and communicate activities with one another as incidents progress. This software is currently in use by some firehalls in the Prince George, BC Canada, Regional District. For contact information see the contact section at the bottom of this page.
 
+*NOTE: For any halls wanting a monthly cloud subscription service where we host the software and maintain updates, contact us below under the section Contact Info.
+
 Key Features:
 -------------
 - Real-time Email trigger (using Google App Engine) or polling to check for an emergency 911 callout (or page) received from your FOCC (Fire Operations Command Center). Easily adaptable to other callout trigger mechanisms.
@@ -550,7 +552,7 @@ Contributors currently include:
 
 Contact Info:
 --------------
-- Email: mark_vejvoda@hotmail.com
+- Email: mark@vsoft.solutions
 - Join our IRC channel `#softhaus` on FreeNode.
 - Webchat IRC channel: http://webchat.freenode.net/?channels=softhaus
 
