@@ -27,6 +27,7 @@ require_once __RIPRUNNER_ROOT__ . '/core/CalloutStatusType.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 use Twilio\Security\RequestValidator;
+use Plivo\RestAPI;
 
 abstract class CommandMatchType extends BasicEnum {
     const Exact = 0;
@@ -475,7 +476,7 @@ class SMSCommandHandler {
                 $get_auth_token = $FIREHALL->SMS->SMS_PROVIDER_PLIVO_AUTH_TOKEN;
                 
                 //Signature Match Returns TRUE (1) - Mismatch Returns FALSE (0)
-                $validate_signature = validate_signature($get_uri, $get_post_params, $get_signature, $get_auth_token);                    
+                $validate_signature = RestAPI::validate_signature($get_uri, $get_post_params, $get_signature, $get_auth_token);                    
                 if ($validate_signature === true) {
                     // This request definitely came from Plivo
                     return true;
