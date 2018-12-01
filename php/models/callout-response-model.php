@@ -159,7 +159,8 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$row = $qry_bind->fetch(\PDO::FETCH_OBJ);
 			$qry_bind->closeCursor();
 			
-			$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . count($row));
+			//$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . count($row));
+			$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."]");
 
 			$this->useracctid = null;
 			$this->user_authenticated = false;
@@ -182,24 +183,23 @@ class CalloutResponseViewModel extends BaseViewModel {
 				$row_ci = $qry_bind2->fetch(\PDO::FETCH_OBJ);
 				$qry_bind2->closeCursor();
 				
-				$result_count = count($row_ci);
+				//$result_count = count($row_ci);
 
-				$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation count: " . $result_count);
+				//$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation count: " . $result_count);
+				$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation.");
 				
-				if( $result_count > 0) {
+				if($row_ci !== null && $row_ci !== false) {
 
-					if($row_ci !== null && $row_ci !== false) {
-						$this->callout->setDateTime($row_ci->calltime);
-						$this->callout->setCode($row_ci->calltype);
-						//$this->callout->setCodeType(\riprunner\CalloutType::getTypeByCode($row_ci->calltype, $this->getFirehall()));
-						$this->callout->setAddress($row_ci->address);
-						$this->callout->setGPSLat($row_ci->latitude);
-						$this->callout->setGPSLong($row_ci->longitude);
-						$this->callout->setUnitsResponding($row_ci->units);
-						$this->callout->setId($row_ci->id);
-						$this->callout->setKeyId($row_ci->call_key);
-						$this->callout->setStatus($row_ci->status);
-					}
+					$this->callout->setDateTime($row_ci->calltime);
+					$this->callout->setCode($row_ci->calltype);
+					//$this->callout->setCodeType(\riprunner\CalloutType::getTypeByCode($row_ci->calltype, $this->getFirehall()));
+					$this->callout->setAddress($row_ci->address);
+					$this->callout->setGPSLat($row_ci->latitude);
+					$this->callout->setGPSLong($row_ci->longitude);
+					$this->callout->setUnitsResponding($row_ci->units);
+					$this->callout->setId($row_ci->id);
+					$this->callout->setKeyId($row_ci->call_key);
+					$this->callout->setStatus($row_ci->status);
 											
 					if($this->getUserPassword() === null) {
 						$this->user_authenticated = true;
@@ -213,7 +213,8 @@ class CalloutResponseViewModel extends BaseViewModel {
 					}
 				}
 				else {
-					$log->error("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got unexpected callout validation count: " . $result_count);
+					//$log->error("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got unexpected callout validation count: " . $result_count);
+					$log->error("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got unexpected callout validation result.");
 				}
 				
 				if($this->getUserPassword() !== null) {

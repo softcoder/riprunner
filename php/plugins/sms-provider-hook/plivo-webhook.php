@@ -38,20 +38,20 @@ Processed SMS CMD: [<?php echo $result->getCmd() ?>]
 Body [<?php echo ((getSafeRequestValue('Text') !== null) ? getSafeRequestValue('Text') : '') ?>]
 <?php elseif(in_array(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_HELP) === true): ?>
 Available commands:
-Respond to live callout, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_RESPONDING) . PHP_EOL ?>
-Update status, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE) ?>, followed by a space and one of:
-Not Responding: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_NOT_RESPONDING) . PHP_EOL ?>
-Standby: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY) . PHP_EOL ?>
-Respond to hall: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL) . PHP_EOL ?>
-Respond to scene: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE) . PHP_EOL ?>
-On scene: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE) . PHP_EOL ?>
-Return to hall: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RETURN_HALL) . PHP_EOL ?>
-ie: update to standby: <?php echo \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE[0].' '.\riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY[0].PHP_EOL ?>
-Complete current callout, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_COMPLETED) . PHP_EOL ?>
-Cancel current callout, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CANCELLED) . PHP_EOL ?>
-Broadcast message to all: <?php echo \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_BULK.PHP_EOL ?>
-Show contacts: any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CONTACTS) . PHP_EOL ?>
-Show help, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_HELP).PHP_EOL ?>
+1. Respond to live callout, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_RESPONDING) . PHP_EOL ?>
+2. Update status, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE) ?>, followed by a space and one of:
+   ->Not Responding: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_NOT_RESPONDING) . PHP_EOL ?>
+   ->Standby: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY) . PHP_EOL ?>
+   ->Respond to hall: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL) . PHP_EOL ?>
+   ->Respond to scene: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE) . PHP_EOL ?>
+   ->On scene: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE) . PHP_EOL ?>
+   ->Return to hall: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RETURN_HALL) . PHP_EOL ?>
+     ie: update to standby: <?php echo \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_UPDATE[0].' '.\riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY[0].PHP_EOL ?>
+3. Complete current callout, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_COMPLETED) . PHP_EOL ?>
+4. Cancel current callout, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CANCELLED) . PHP_EOL ?>
+5. Send group text: <?php echo \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_BULK ?> text message here.
+6. Show contacts, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CONTACTS) . PHP_EOL ?>
+7. Show help, any of: <?php echo implode(', ', \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_HELP).PHP_EOL ?>
 <?php elseif(in_array(strtoupper($result->getCmd()), \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_CONTACTS) === true): ?>
 Your Contacts:
 <?php echo $sms_cmd_handler->process_contacts_sms_command($result) ?>

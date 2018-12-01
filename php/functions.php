@@ -268,7 +268,7 @@ function getFirehallRootURLFromRequest($request_url, $firehalls) {
 	
 	if(count($firehalls) === 1) {
 		//$log->trace("#1 Looking for website root URL req [$request_url] firehall root [" . $firehalls[0]->WEBSITE->WEBSITE_ROOT_URL . "]");
-		return $firehalls[0]->WEBSITE->WEBSITE_ROOT_URL;
+		return rtrim($firehalls[0]->WEBSITE->WEBSITE_ROOT_URL, '/');
 	}
 	else {
 		if(isset($request_url) === false && isset($_SERVER['REQUEST_URI']) === true) {
@@ -279,7 +279,7 @@ function getFirehallRootURLFromRequest($request_url, $firehalls) {
 			
 			if($firehall->ENABLED == true && 
 					strpos($request_url, $firehall->WEBSITE->WEBSITE_ROOT_URL) === 0) {
-				return $firehall->WEBSITE->WEBSITE_ROOT_URL;
+				return rtrim($firehall->WEBSITE->WEBSITE_ROOT_URL, '/');
 			}
 		}
 		
@@ -302,7 +302,7 @@ function getFirehallRootURLFromRequest($request_url, $firehalls) {
 								$fh_parts[$index_fh] === $url_parts[$index]) {
 
 								//$log->trace("#3 website matched!");
-								return $firehall->WEBSITE->WEBSITE_ROOT_URL;
+								return rtrim($firehall->WEBSITE->WEBSITE_ROOT_URL, '/');
 							}
 						}
 					}
