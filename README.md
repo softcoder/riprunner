@@ -25,16 +25,16 @@ Key Features:
   - Sendhub (sendhub.com)
   - EzTexting (eztexting.com)
   - TextBelt (textbelt.com -> a free service but not as reliable and not available everywhere)
+- Ability for members to indicate a response to callouts allowing other members to know who is responding
+- 'SMS command mode' allows SMS users to respond to calls (useful if radios don't work or data is unreliable)
+- Google Maps showing Distance from Firehall to Incident
 - Self Installation
 - User Account management (LDAP support optional)
 - Callout history with responding members
-- 'SMS command mode' allows SMS only users to respond to call
-- Google Maps showing Distance from Firehall to Incident
 - Google charts shows statistical view of data.
-- Ability for members to indicate a response to callouts allowing other members to know who is responding
 - Customizable user interface using twig templates (http://twig.sensiolabs.org/)
-- Experimental Android App which interfaces to the web application (does not require SMS Gateway, uses free GCM)
-- Makes a great backup system in case of power outages at your firehall, still get callouts via cell phone when radio backup battery system fails.
+- Experimental Android App which integrates with the web application.
+- Makes a great backup system in case of power outages at your firehall (if installed offsite / cloud), still get callouts via cell phone when radio backup battery system fails.
 
 Key Android App Features:
 -------------------------
