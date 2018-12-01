@@ -186,6 +186,8 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 
 		$view_template_vars = array();
 		$view_template_vars['callout'] = $callout;
+		$view_template_vars['smsrespondhall'] = \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_RESPONDING[0];
+		$view_template_vars['smsnotresponding'] = \riprunner\SMSCommandHandler::$SMS_AUTO_CMD_STATUS_NOT_RESPONDING[0];
 
 		$callout_templates = array();
 		$calloutCode = $callout->getCode();
