@@ -23,6 +23,12 @@
             </tr>
             <tr *ngIf="callout.details.address !== ''">
                 <td class=ci_header_address colspan=3>{{ callout.details.address }}</td>
+                <td>
+                    <div class="maps-link">
+                        <img style="cursor: pointer;" (click)="mapsSelector(callout)" 
+                        [src]="getUrl('/images/icons/maps-icon.png')" />
+                    </div>
+                </td>
             </tr>
             <tr *ngIf="callout.details.callout_comments !== ''">
                 <td class="ci_header_type" colspan="3">Comments: {{ callout.details.callout_comments }}</td>
@@ -43,6 +49,39 @@
             <tr>
                 <td><span class="ci_header_units">UNITS: </span><span class="ci_header_units_list">{{ callout.details.units }}</span></td>
             </tr>
+
+
+
+<!--
+!!!
+-->
+            <tr *ngIf="callout.member_id !== ''">
+                <td>
+                <table width="100%" align="center">
+                    <tr *ngFor="let row_no of getNoRespondersList(callout)">
+                        <td *ngIf="callout.member_id == row_no.user_id" class="ci_align_cell">
+                            <span class='inset-button'>{{ row_no.user_id }}</span>
+                        </td>
+                        <td *ngIf="callout.member_id == row_no.user_id" class="ci_align_cell" colspan="2">
+                            <INPUT TYPE="button" VALUE="Update" class="ci_respondnow_update" 
+                                (click)="setResponse(row_no, callout,'ui_call_set_response_status_me')" /> 
+                            <select id="ui_call_set_response_status_me{{ row_no.id }}" class="ci_respondnow" [ngModel]="defaultStatusResponse$">
+                                <option *ngFor="let status_def of getValidRespondingStatuses(callout.callout_status_defs,callout.member_access,callout.member_type)" 
+                                        [ngValue]="status_def.id">
+                                {{ status_def.displayName }}
+                                </option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+                </td>
+            </tr>
+<!--
+!!!
+-->
+
+
+
             <tr>
                 <td>
                     <table cellpadding="2" border="1" width="95%">
@@ -95,7 +134,8 @@
         <span *ngIf="isCalloutPending(callout)" id='reload_timer_ui' class='ci_reload_timer'></span><br>
     </div>
 
-    <agm-map [latitude]="callout.details.latitude" [longitude]="callout.details.longitude" [zoom]="12">
+    <agm-map [latitude]="callout.details.latitude" [longitude]="callout.details.longitude" [zoom]="12" 
+             [mapTypeControl]="true" mapTypeId= "hybrid" >
         <agm-marker *ngFor="let m of markers$ | async; let idx = index"
                     (markerClick)="clickedMarker(m.label, idx)"
                     [latitude]="m.lat" [longitude]="m.lng" [label]="m.label" [title]="m.title"
@@ -112,8 +152,8 @@
                 <span class='inset-button'>{{ row_no.user_id }}</span>
             </td>
             <td class="ci_align_cell" colspan="2">
-                <INPUT TYPE="button" VALUE="Notify" class="ci_respondnow_update" 
-                       (click)="setResponse(row_no, callout)" /> 
+                <INPUT TYPE="button" VALUE="Update" class="ci_respondnow_update" 
+                       (click)="setResponse(row_no, callout, 'ui_call_set_response_status')" /> 
                 <select id="ui_call_set_response_status{{ row_no.id }}" class="ci_respondnow" [ngModel]="defaultStatusResponse$">
                     <option *ngFor="let status_def of getValidRespondingStatuses(callout.callout_status_defs,callout.member_access,callout.member_type)" 
                             [ngValue]="status_def.id">

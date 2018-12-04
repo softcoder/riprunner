@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class GoogleApiService {
@@ -10,10 +12,12 @@ export class GoogleApiService {
 
   getGEOCoordinatesFromAddress(address): Observable<Array<number>> {
     let result_geo_coords = null;
-    const url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + encodeURI(address) + '&sensor=false';
-    return this.http.get<any>(url).
+    //debugger;
+    const url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' +
+                encodeURI(address) + '&sensor=false&key=' + environment.google_api_key;
+    return this.http.get<any>(url).pipe(
       map(geoloc => {
-        // debugger;
+        //debugger;
         if ( geoloc.results !== undefined &&
              geoloc.results[0] !== undefined &&
              geoloc.results[0].geometry !== undefined &&
@@ -25,10 +29,10 @@ export class GoogleApiService {
             geoloc.results[0].geometry.location.lng);
         }
         else {
-          console.log('GEO MAP JSON response error google geo api url [$url] result [$result]');
+          console.log('GOOGLE GEO MAP JSON returned an ERROR, response url [' + url + '] result [' + geoloc + ']');
         }
         return result_geo_coords;
-    });
+    }));
   }
 
 }

@@ -7,10 +7,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import { CalloutDetailsService } from './callout-details.service';
 import { GoogleApiService } from '../common/google-api.service';
 
-import {
-  MatButtonModule,
-  MatIconModule,
-} from '@angular/material';
+import {  MatButtonModule,  MatIconModule } from '@angular/material';
 
 @Component({
   selector: 'app-callout-details',
@@ -79,17 +76,15 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
             return this.calloutDetailsService.getDetails(this.cid, this.ckid, this.member_id);
           }),
           map(data => {
-            // debugger;
+            //debugger;
             // console.log('GOT grid data: ' + data);
             this.calloutDetails = Observable.of(data);
             // console.log('Got callout details: ' + this.calloutDetails);
             this.getMapMarkers(data);
-            //Promise.resolve(null).then(() => {
-            //  this.defaultStatusResponse$ = this.getDefaultResponseStatus(data);
-            //  this.isLoadingResults = of(false);
-            //});
-            this.defaultStatusResponse$ = Observable.of(this.getDefaultResponseStatus(data));
-            this.isLoadingResults = Observable.of(false);
+            Promise.resolve(null).then(() => {
+              this.defaultStatusResponse$ = this.getDefaultResponseStatus(data);
+              this.isLoadingResults = of(false);
+            });
             return data;
           }),
           catchError((err) => {
@@ -99,10 +94,10 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
             //this.errorMessage = err.error.text;
             console.log('Error getting grid data error: ' + err.error.text);
 
-            //Promise.resolve(null).then(() =>
-            //  this.isLoadingResults = of(false)
-            //);
-            this.isLoadingResults = Observable.of(false);
+            Promise.resolve(null).then(() =>
+              this.isLoadingResults = of(false)
+            );
+            //this.isLoadingResults = Observable.of(false);
             return of([]);
           })
         ).subscribe(data => {
@@ -172,9 +167,9 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
       this.updateResponderStatus(callout, responder_id, value, text);
     }
 
-    setResponse(row_no, callout) {
-      // debugger;
-      const status: HTMLSelectElement = <HTMLSelectElement>document.getElementById('ui_call_set_response_status' + row_no.id);
+    setResponse(row_no, callout, controlName) {
+      //debugger;
+      const status: HTMLSelectElement = <HTMLSelectElement>document.getElementById(controlName + row_no.id);
       const status_id = status.value.split(' ')[1];
       const statusDef = this.findStatusByCriteria(callout, status_id, false, false);
       const status_name = statusDef.displayName;
@@ -240,9 +235,11 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
           this.googleApiService.getGEOCoordinatesFromAddress(data.details.callout_address_dest).
             subscribe(result => {
               // debugger;
-              data.details.latitude = result[0];
-              data.details.longitude = result[1];
-              this.assignObservables(data);
+              if (result != null && Array.isArray(result)) {
+                data.details.latitude = result[0];
+                data.details.longitude = result[1];
+                this.assignObservables(data);
+              }
           });
         }
         else {
@@ -389,6 +386,31 @@ export class CalloutDetailsComponent implements AfterViewInit, OnInit, OnDestroy
                currentInstance.hasAccess(member_access, statusDef, currentInstance) &&
                currentInstance.isUserType(+userType, +statusDef);
       });
+    }
+
+    mapsSelector(callout) {
+      // debugger;
+      let callout_address_dest = callout.details.callout_geo_dest;
+      if (callout_address_dest == '0.000000,0.000000') {
+        callout_address_dest = callout.details.callout_address_dest;
+      }
+      if /* if we're on iOS, open in Apple Maps */
+          ((navigator.platform.indexOf("iPhone") != -1) || 
+          (navigator.platform.indexOf("iPod") != -1) || 
+          (navigator.platform.indexOf("iPad") != -1)) {
+          //window.open("maps://maps.google.com/maps?sdaddr="+callout_address_origin+",&amp;daddr="+callout_address_dest+"dirflg=d");
+          window.open("https://www.google.com/maps/dir/?api=1" +
+                      //"&origin="+callout_address_origin+
+                      "&destination="+callout_address_dest+
+                      "&travelmode=driving&dir_action=navigate");
+      }
+      else {/* else use Google */
+          //window.open("https://maps.google.com/maps?sdaddr="+callout_address_origin+",&amp;daddr="+callout_address_dest+"dirflg=d");
+          window.open("https://www.google.com/maps/dir/?api=1" +
+                      //"&origin="+callout_address_origin+
+                      "&destination="+callout_address_dest+
+                      "&travelmode=driving&dir_action=navigate");
+      }
     }
 
     private isUserType(userType, statusDef) {
