@@ -147,7 +147,16 @@ class SMSCommandHandler {
         return '';
     }
 
-    public function handle_sms_command($FIREHALLS_LIST,$SMS_GateWay) {
+    public function getMessageHeaderForCommand($result) {
+        return '';
+    }
+    public function getBodyText() {
+        return '';
+    }
+    public function getUnknownCommandResult() {
+        return '';        
+    }
+    public function handle_sms_command($FIREHALLS_LIST) {
         global $log;
         $result = new \riprunner\SmSCommandResult();
         $result->setIsProcessed(false);
@@ -297,7 +306,10 @@ class SMSCommandHandler {
         return $result;
     }
     
-    public function process_bulk_sms_command($cmd_result,$SMS_GateWay) {
+    protected function buildAutoBulkResult($cmd_result) {
+        return '';
+    }
+    public function process_bulk_sms_command($cmd_result) {
         global $log;
         $result = '';
         
@@ -305,36 +317,8 @@ class SMSCommandHandler {
                 "] compare with #1 [" . self::$SMS_AUTO_CMD_BULK . "]");
         
         if ($this->startsWith(strtoupper($cmd_result->getCmd()), self::$SMS_AUTO_CMD_BULK) === true) {
-            $recipient_list = $cmd_result->getSmsRecipients();
-            
-            if($SMS_GateWay === SMS_GATEWAY_PLIVO) {
-				$dst_sms = '';
-				foreach ($recipient_list as &$sms_user) {
-				    if(trim($sms_user) == '') {
-				        continue;
-				    }
-					if($dst_sms !== '') {
-						$dst_sms .= '<';
-					}
-					$dst_sms .= self::$SPECIAL_MOBILE_PREFIX2.$sms_user;
-				}
-                $result .= "<Message src='" . $cmd_result->getFirehall()->SMS->SMS_PROVIDER_PLIVO_FROM . 
-                "' dst='".$dst_sms."'>Group SMS from " . htmlspecialchars($cmd_result->getUserId()) .
-                //"' dst='".self::$SPECIAL_MOBILE_PREFIX2."2503018904'>Group SMS from " . htmlspecialchars($cmd_result->getUserId()) . " recipients woudl be: " . htmlspecialchars($dst_sms) .
-                ": " . htmlspecialchars(substr($cmd_result->getCmd(), strlen(self::$SMS_AUTO_CMD_BULK))) . "</Message>";
-            }
-            else {
-                foreach ($recipient_list as &$sms_user) {
-                    if(trim($sms_user) == '') {
-                        continue;
-                    }
-                    
-                    $result .= "<Message to='".self::$SPECIAL_MOBILE_PREFIX.$sms_user."'>Group SMS from " . 
-                    htmlspecialchars($cmd_result->getUserId()) .
-                    ": " . htmlspecialchars(substr($cmd_result->getCmd(), strlen(self::$SMS_AUTO_CMD_BULK))) . "</Message>";
-                }
-            }
-            
+            $result = $this->buildAutoBulkResult($cmd_result);
+
             if($log !== null) $log->warn("Sending bulk message to sms users [".$cmd_result->getCmd()."]");
             return $result;
         }

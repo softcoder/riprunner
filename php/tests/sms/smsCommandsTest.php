@@ -297,7 +297,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $result->setUserId('test.user');
 	    
 	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler();
-	    $result = $sms_cmd_handler->process_bulk_sms_command($result,SMS_GATEWAY_TWILIO);
+	    $result = $sms_cmd_handler->process_bulk_sms_command($result);
 	    $this->assertEquals("<Message to='+12505551212'>Group SMS from test.user: </Message><Message to='+12505551213'>Group SMS from test.user: </Message>", $result);
 	}
 

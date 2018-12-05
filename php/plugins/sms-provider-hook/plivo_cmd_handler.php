@@ -34,6 +34,44 @@ class PlivoSMSCommandHandler extends SMSCommandHandler {
         $sms_cmd = trim(($this->getRequestVar('Text') !== null) ? $this->getRequestVar('Text') : '');
         return $sms_cmd;
     }
+    public function getUnknownCommandResult() {
+        $output = 
+        "From [" .(($this->getRequestVar('From') !== null) ? $this->getRequestVar('From') : '') . "]" . PHP_EOL .
+        "To [". (($this->getRequestVar('To') !== null) ? $this->getRequestVar('To') : '') . "]" . PHP_EOL .
+        "Type [" . (($this->getRequestVar('Type') !== null) ? $this->getRequestVar('Type') : '') . "]" . PHP_EOL .
+        "MessageUUID [" . (($this->getRequestVar('MessageUUID') !== null) ? $this->getRequestVar('MessageUUID') : '') . "]" . PHP_EOL .
+        "Text [" . (($this->getRequestVar('Text') !== null) ? $this->getRequestVar('Text') : '') . "]" . PHP_EOL;
+        return $output;
+    }
+
+    public function getMessageHeaderForCommand($result) {
+        $output = '<Message src="' . $result->getFirehall()->SMS->SMS_PROVIDER_PLIVO_FROM .'" dst="' . $this->getRequestVar('From') . '">';
+        return $output;
+    }
+    public function getBodyText() {
+        $output = (($this->getRequestVar('Text') !== null) ? $this->getRequestVar('Text') : '');
+        return $output;
+    }
+
+    protected function buildAutoBulkResult($cmd_result) {
+        $result = '';
+        $recipient_list = $cmd_result->getSmsRecipients();
+        $dst_sms = '';
+        foreach ($recipient_list as &$sms_user) {
+            if(trim($sms_user) == '') {
+                continue;
+            }
+            if($dst_sms !== '') {
+                $dst_sms .= '<';
+            }
+            $dst_sms .= self::$SPECIAL_MOBILE_PREFIX2.$sms_user;
+        }
+        $result .= "<Message src='" . $cmd_result->getFirehall()->SMS->SMS_PROVIDER_PLIVO_FROM . 
+        "' dst='".$dst_sms."'>Group SMS from " . htmlspecialchars($cmd_result->getUserId()) .
+        //"' dst='".self::$SPECIAL_MOBILE_PREFIX2."2503018904'>Group SMS from " . htmlspecialchars($cmd_result->getUserId()) . " recipients woudl be: " . htmlspecialchars($dst_sms) .
+        ": " . htmlspecialchars(substr($cmd_result->getCmd(), strlen(self::$SMS_AUTO_CMD_BULK))) . "</Message>";
+        return $result;
+    }
 
     public function validateHost($FIREHALLS_LIST) {
         //return true;

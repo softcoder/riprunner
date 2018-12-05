@@ -33,6 +33,39 @@ class TwilioSMSCommandHandler extends SMSCommandHandler {
         return $sms_cmd;
     }
 
+    public function getMessageHeaderForCommand($result) {
+        $output = "<Message>";
+        return $output;
+    }
+    public function getBodyText() {
+        $output = (($this->getRequestVar('Body') !== null) ? $this->getRequestVar('Body') : '');
+        return $output;
+    }
+    public function getUnknownCommandResult() {
+        $output = 
+        "From [" .(($this->getRequestVar('From') !== null) ? $this->getRequestVar('From') : '') . "]" . PHP_EOL .
+        "To [". (($this->getRequestVar('To') !== null) ? $this->getRequestVar('To') : '') . "]" . PHP_EOL .
+        "MessageSid [" . (($this->getRequestVar('MessageSid') !== null) ? $this->getRequestVar('MessageSid') : '') . "]" . PHP_EOL .
+        "SmsSid [" . (($this->getRequestVar('SmsSid') !== null) ? $this->getRequestVar('SmsSid') : '') . "]" . PHP_EOL .
+        "NumMedia [" . (($this->getRequestVar('NumMedia') !== null) ? $this->getRequestVar('NumMedia') : '') . "]" . PHP_EOL .
+        "Body [" . (($this->getRequestVar('Body') !== null) ? $this->getRequestVar('Body') : '') . "]" . PHP_EOL;
+        return $output;
+    }
+
+    protected function buildAutoBulkResult($cmd_result) {
+        $result = '';
+        $recipient_list = $cmd_result->getSmsRecipients();
+        foreach ($recipient_list as &$sms_user) {
+            if(trim($sms_user) == '') {
+                continue;
+            }
+            
+            $result .= "<Message to='".self::$SPECIAL_MOBILE_PREFIX.$sms_user."'>Group SMS from " . 
+            htmlspecialchars($cmd_result->getUserId()) .
+            ": " . htmlspecialchars(substr($cmd_result->getCmd(), strlen(self::$SMS_AUTO_CMD_BULK))) . "</Message>";
+        }
+        return $result;
+    }
     public function validateHost($FIREHALLS_LIST) {
         //return true;
         global $log;
