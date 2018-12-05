@@ -3,18 +3,21 @@ import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { SystemConfigService } from './system-config.service';
 
 @Injectable()
 export class GoogleApiService {
 
-  constructor(private http: HttpClient, private location: Location) { }
+  constructor(private http: HttpClient, private location: Location,
+    private systemConfigService: SystemConfigService) { }
 
   getGEOCoordinatesFromAddress(address): Observable<Array<number>> {
     let result_geo_coords = null;
-    //debugger;
+    debugger;
+    const config = this.systemConfigService.getSystemConfig();
     const url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' +
-                encodeURI(address) + '&sensor=false&key=' + environment.google_api_key;
+                //encodeURI(address) + '&sensor=false&key=' + environment.google_api_key;
+                encodeURI(address) + '&sensor=false&key=' + config.google.maps_api_key;
     return this.http.get<any>(url).pipe(
       map(geoloc => {
         //debugger;
