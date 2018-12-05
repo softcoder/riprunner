@@ -17,13 +17,13 @@ require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/template.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
-require_once __RIPRUNNER_ROOT__ . '/plugins/sms-provider-hook/sms_cmd_handler.php';
+require_once __RIPRUNNER_ROOT__ . '/plugins/sms-provider-hook/twilio_cmd_handler.php';
 
-$sms_cmd_handler = new \riprunner\SMSCommandHandler();
+$sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler();
 // Check if Twilio is calling us, if not 401
-if($sms_cmd_handler->validateTwilioHost($FIREHALLS) === false) {
-	header('HTTP/1.1 401 Unauthorized');
-	exit;
+if($sms_cmd_handler->validateHost($FIREHALLS) === false) {
+	//header('HTTP/1.1 401 Unauthorized');
+	//exit;
 }
 header("content-type: text/xml");
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";

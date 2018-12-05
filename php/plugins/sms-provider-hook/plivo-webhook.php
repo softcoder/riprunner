@@ -17,11 +17,12 @@ require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/template.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
-require_once __RIPRUNNER_ROOT__ . '/plugins/sms-provider-hook/sms_cmd_handler.php';
+//require_once __RIPRUNNER_ROOT__ . '/plugins/sms-provider-hook/sms_cmd_handler.php';
+require_once __RIPRUNNER_ROOT__ . '/plugins/sms-provider-hook/plivo_cmd_handler.php';
 
-$sms_cmd_handler = new \riprunner\SMSCommandHandler();
+$sms_cmd_handler = new \riprunner\PlivoSMSCommandHandler();
 // Check if Plivo is calling us, if not 401
-if($sms_cmd_handler->validatePlivoHost($FIREHALLS) === false) {
+if($sms_cmd_handler->validateHost($FIREHALLS) === false) {
 	header('HTTP/1.1 401 Unauthorized');
 	exit;
 }

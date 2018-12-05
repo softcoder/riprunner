@@ -16,6 +16,8 @@ if(defined('INCLUSION_PERMITTED') === false) {
 require_once dirname(dirname(__FILE__)).'/baseDBFixture.php';
 require_once __RIPRUNNER_ROOT__ . '/plugins/sms-provider-hook/sms_cmd_handler.php';
 require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
+require_once __RIPRUNNER_ROOT__ . '/plugins/sms-provider-hook/twilio_cmd_handler.php';
+require_once __RIPRUNNER_ROOT__ . '/plugins/sms-provider-hook/plivo_cmd_handler.php';
 use Twilio\Security\RequestValidator;
 
 class SmsCommandsTest extends BaseDBFixture {
@@ -29,26 +31,33 @@ class SmsCommandsTest extends BaseDBFixture {
         // Add special fixture teardown here
         parent::tearDown();
     }
-    
-	public function testSMSCommand_InvalidAuth()  {
-		$sms_cmd_handler = new \riprunner\SMSCommandHandler();
+
+	public function testSMSCommand_InvalidAuthTwilio()  {
+		$sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler();
 		// Check if Twilio is calling us, if not 401
-		$result = $sms_cmd_handler->validateTwilioHost($this->FIREHALLS);
+		$result = $sms_cmd_handler->validateHost($this->FIREHALLS);
 		$this->assertEquals(false, $result);
 	}
-	public function testSMSCommand_ValidAuth()  {
+	public function testSMSCommand_InvalidAuthPlivo()  {
+		$sms_cmd_handler = new \riprunner\PlivoSMSCommandHandler();
+		// Check if Plivo is calling us, if not 401
+		$result = $sms_cmd_handler->validateHost($this->FIREHALLS);
+		$this->assertEquals(false, $result);
+	}
+
+	public function testSMSCommand_ValidAuthTwilio()  {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	    
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root . \riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
 	    
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars);
-	    $result = $sms_cmd_handler->validateTwilioHost($this->FIREHALLS);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars);
+	    $result = $sms_cmd_handler->validateHost($this->FIREHALLS);
 	    $this->assertEquals(true, $result);
 	}
 
@@ -58,7 +67,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root . \riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
@@ -83,7 +92,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
 	     
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
 	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
@@ -96,7 +105,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root.\riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
@@ -131,7 +140,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
 	    
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
 	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
@@ -144,7 +153,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root.\riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
@@ -183,7 +192,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
 	     
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
 	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
@@ -196,7 +205,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root.\riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
@@ -226,7 +235,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
 	     
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
 	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
@@ -239,7 +248,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root.\riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
@@ -269,7 +278,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
 	
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
 	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
@@ -287,7 +296,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $result->setSmsRecipients(array('2505551212','2505551213'));
 	    $result->setUserId('test.user');
 	    
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler();
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler();
 	    $result = $sms_cmd_handler->process_bulk_sms_command($result,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals("<Message to='+12505551212'>Group SMS from test.user: </Message><Message to='+12505551213'>Group SMS from test.user: </Message>", $result);
 	}
@@ -298,7 +307,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root.\riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
@@ -330,7 +339,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
 	     
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
 	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
@@ -343,7 +352,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root.\riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
@@ -375,7 +384,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
 	
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
 	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
@@ -388,7 +397,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root.\riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
@@ -420,7 +429,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
 	
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
 	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
@@ -433,7 +442,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root.\riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
@@ -465,7 +474,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
 	
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
 	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
@@ -478,7 +487,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root.\riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
@@ -515,7 +524,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
 	
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
 	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
@@ -528,7 +537,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root.\riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
@@ -560,7 +569,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
 	
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
 	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
@@ -573,7 +582,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    $authToken = explode(":", $FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN);
 	    $validator = new RequestValidator($authToken[1]);
 	    $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
-	    $url = $site_root.\riprunner\SMSCommandHandler::getTwilioWebhookUrl();
+	    $url = $site_root.\riprunner\TwilioSMSCommandHandler::getTwilioWebhookUrl();
 	    $post_vars = array();
 	    $validate_result = $validator->computeSignature($url, $post_vars);
 	    $server_variables = array('HTTP_X_TWILIO_SIGNATURE' => $validate_result);
@@ -605,7 +614,7 @@ class SmsCommandsTest extends BaseDBFixture {
 	    // Stub in dummy db connection for this test
 	    $this->getDBConnection($FIREHALL);
 	
-	    $sms_cmd_handler = new \riprunner\SMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
+	    $sms_cmd_handler = new \riprunner\TwilioSMSCommandHandler($server_variables, $post_vars, $request_vars, $mock_http_client);
 	    $result = $sms_cmd_handler->handle_sms_command($this->FIREHALLS,SMS_GATEWAY_TWILIO);
 	    $this->assertEquals(true, $result->getIsProcessed());
 	    $this->assertEquals('2505551212', $result->getSmsCaller());
