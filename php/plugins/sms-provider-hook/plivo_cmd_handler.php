@@ -67,9 +67,10 @@ class PlivoSMSCommandHandler extends SMSCommandHandler {
             $dst_sms .= self::$SPECIAL_MOBILE_PREFIX2.$sms_user;
         }
         $result .= "<Message src='" . $cmd_result->getFirehall()->SMS->SMS_PROVIDER_PLIVO_FROM . 
-        "' dst='".$dst_sms."'>Group SMS from " . htmlspecialchars($cmd_result->getUserId()) .
-        //"' dst='".self::$SPECIAL_MOBILE_PREFIX2."2503018904'>Group SMS from " . htmlspecialchars($cmd_result->getUserId()) . " recipients woudl be: " . htmlspecialchars($dst_sms) .
-        ": " . htmlspecialchars(substr($cmd_result->getCmd(), strlen(self::$SMS_AUTO_CMD_BULK))) . "</Message>";
+                   "' dst='".$dst_sms."'>Group SMS from " . htmlspecialchars($cmd_result->getUserId()) .
+                   //"' dst='".self::$SPECIAL_MOBILE_PREFIX2."2503018904'>Group SMS from " . htmlspecialchars($cmd_result->getUserId()) . " recipients woudl be: " . htmlspecialchars($dst_sms) .
+                   ": " . htmlspecialchars(substr($cmd_result->getCmd(), strlen(self::$SMS_AUTO_CMD_BULK))) . 
+                   "</Message>";
         return $result;
     }
 
@@ -80,16 +81,9 @@ class PlivoSMSCommandHandler extends SMSCommandHandler {
             if($FIREHALL->ENABLED == true && $FIREHALL->SMS->SMS_SIGNAL_ENABLED == true &&
                 isset($FIREHALL->SMS->SMS_PROVIDER_PLIVO_AUTH_TOKEN) === true) {
                     
-                //Get Page URI - Change to "https://" if Needed
-                //$get_uri = "http://" . $_SERVER[HTTP_HOST] . $_SERVER[REQUEST_URI];
                 $site_root = $FIREHALL->WEBSITE->WEBSITE_ROOT_URL;
                 $get_uri = $site_root . $this->getWebhookUrl();
-                
                 $raw_post_array = $this->getAllPostVars();
-                $get_post_params = array();
-                foreach ($raw_post_array as $key => $value) {
-                    $get_post_params[$key] = urldecode($value);
-                }
                 
                 //Get Valid Signature from Plivo
                 //$get_signature = (($this->getServerVar('HTTP_X_PLIVO_SIGNATURE') !== null) ? $this->getServerVar('HTTP_X_PLIVO_SIGNATURE') : null);
@@ -97,7 +91,6 @@ class PlivoSMSCommandHandler extends SMSCommandHandler {
                 $get_signature_nonce = (($this->getServerVar('HTTP_X_PLIVO_SIGNATURE_V2_NONCE') !== null) ? $this->getServerVar('HTTP_X_PLIVO_SIGNATURE_V2_NONCE') : null);
                 $get_auth_token = $FIREHALL->SMS->SMS_PROVIDER_PLIVO_AUTH_TOKEN;
 
-                //Signature Match Returns TRUE (1) - Mismatch Returns FALSE (0)
                 $validate_signature = signatureValidation::validateSignature($get_uri, $get_signature_nonce, $get_signature, $get_auth_token);                    
                 if ($validate_signature === true) {
                     // This request definitely came from Plivo
@@ -106,8 +99,8 @@ class PlivoSMSCommandHandler extends SMSCommandHandler {
 
                 $sms_user = (($this->getRequestVar('From') !== null) ? $this->getRequestVar('From') : '');
                 if($log !== null) $log->error("Validate plivo host failed for client [" . \riprunner\Authentication::getClientIPInfo().
-                        "] sms user [$sms_user], returned [$validate_signature] url [$get_uri] vars [" . implode(', ', $raw_post_array) .
-                        "] signature [" . $get_signature . "] nonce [" . $get_signature_nonce . "]");
+                                              "] sms user [$sms_user], returned [$validate_signature] url [$get_uri] vars [" . implode(', ', $raw_post_array) .
+                                              "] signature [" . $get_signature . "] nonce [" . $get_signature_nonce . "]");
             }
         }
         return false;
