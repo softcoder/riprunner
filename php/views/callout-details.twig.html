@@ -55,7 +55,13 @@
 		<div id="callContent{{ loop.index }}">
 		<table class="box-table-a" width="100%">
 		{% if row.address is empty %}
-			<tr><td class="ci_header_address" colspan="3">NO ADDRESS FROM FOCC</td></tr>
+            <tr><td class="ci_header_address" colspan="3">NO ADDRESS FROM FOCC</td>
+                <td><div class="maps-link">
+                    <img style="cursor: pointer;" onclick="mapsSelector('{{ row.callout_geo_dest }}','{{ row.callout_address_dest }}')" 
+                    src="{{ gvm.RR_DOC_ROOT }}/images/icons/maps-icon.png" />
+                    </div>
+                </td>
+            </tr>
 		{% else %}
             <tr><td class="ci_header_address" colspan="3">{{ row.address }}</td>
                 <td><div class="maps-link">
@@ -243,7 +249,13 @@
 		<div id="callContent{{ loop.index }}">
 		<table class="box-table-a" border="0" width="100%">
 		{% if row.address is empty %}
-			<tr><td class=ci_header_address colspan=3>NO ADDRESS FROM FOCC</td></tr>
+            <tr><td class=ci_header_address colspan=3>NO ADDRESS FROM FOCC</td>
+                <td><div class="maps-link">
+                    <img style="cursor: pointer;" onclick="mapsSelector('{{ row.callout_geo_dest }}','{{ row.callout_address_dest }}')" 
+                    src="{{ gvm.RR_DOC_ROOT }}/images/icons/maps-icon.png" />
+                  </div>
+                </td>
+            </tr>
 		{% else %}
             <tr><td class=ci_header_address colspan=3>{{ row.address }}</td>
                 <td><div class="maps-link">

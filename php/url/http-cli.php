@@ -92,7 +92,10 @@ class HTTPCli {
 		return $result;
 	}
 	
-	private function error($ui_msg, $log_msg) {
+	private function error($ui_msg, $log_msg=null) {
+		if($log_msg == null) {
+			$log_msg = $ui_msg;
+		}
 		throwExceptionAndLogError($ui_msg, $log_msg);
 	}
 }

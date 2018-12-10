@@ -255,7 +255,12 @@ final class Api
                 // Skip this method if more parameters were passed than it takes.
                 if (count($uriInfo->parameters) > count($method->parameters)) {
                     $failReason = 5;
-                    if ($log !== null) $log->trace('Web API Controller lookup fail reason: '.$failReason. ' for: '.$method->parameters);
+
+                    $debug_params = $method->parameters;
+                    if(is_array($method->parameters)) {
+                        $debug_params = implode(', ',$method->parameters);
+                    }
+                    if ($log !== null) $log->error('Web API Controller lookup fail reason: '.$failReason. ' for: '.$debug_params);
                     continue;
                 }
 

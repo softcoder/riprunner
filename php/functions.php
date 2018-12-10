@@ -263,19 +263,25 @@ function validateDate($date, $format='Y-m-d H:i:s') {
 	return $date_format && $date_format->format($format) == $date;
 }
 
-function getFirehallRootURLFromRequest($request_url, $firehalls) {
-	//global $log;
+function getFirehallRootURLFromRequest($request_url, $firehalls, $use_firehall=null) {
+	global $log;
 	
-	if(count($firehalls) === 1) {
-		//$log->trace("#1 Looking for website root URL req [$request_url] firehall root [" . $firehalls[0]->WEBSITE->WEBSITE_ROOT_URL . "]");
-		return rtrim($firehalls[0]->WEBSITE->WEBSITE_ROOT_URL, '/');
+    if (count($firehalls) === 1 || $use_firehall !== null) {
+        if ($use_firehall !== null) {
+            if ($log !== null) $log->trace("#1 Looking for website root URL req [$request_url] use_firehall root [" . $use_firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
+            return rtrim($use_firehall->WEBSITE->WEBSITE_ROOT_URL, '/');
+        } 
+        else {
+            if ($log !== null) $log->trace("#1 Looking for website root URL req [$request_url] firehall root [" . $firehalls[0]->WEBSITE->WEBSITE_ROOT_URL . "]");
+            return rtrim($firehalls[0]->WEBSITE->WEBSITE_ROOT_URL, '/');
+        }
 	}
 	else {
 		if(isset($request_url) === false && isset($_SERVER['REQUEST_URI']) === true) {
 			$request_url = htmlspecialchars($_SERVER['REQUEST_URI']);
 		}
 		foreach ($firehalls as &$firehall) {
-			//$log->trace("#2 Looking for website root URL req [$request_url] firehall root [" . $firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
+			if($log !== null) $log->trace("#2 Looking for website root URL req [$request_url] firehall root [" . $firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
 			
 			if($firehall->ENABLED == true && 
 					strpos($request_url, $firehall->WEBSITE->WEBSITE_ROOT_URL) === 0) {
@@ -288,7 +294,7 @@ function getFirehallRootURLFromRequest($request_url, $firehalls) {
 			$url_parts_count = count($url_parts);
 			
 			foreach ($firehalls as &$firehall) {
-				//$log->trace("#3 Looking for website root URL req [$request_url] firehall root [" . $firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
+				if($log !== null) $log->trace("#3 Looking for website root URL req [$request_url] firehall root [" . $firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
 				
 				$fh_parts = explode('/', $firehall->WEBSITE->WEBSITE_ROOT_URL);
 				if(isset($fh_parts)  === true && count($fh_parts) > 0) {
@@ -296,12 +302,12 @@ function getFirehallRootURLFromRequest($request_url, $firehalls) {
 					
 					for($index_fh = 0; $index_fh < $fh_parts_count; $index_fh++) {
 						for($index = 0; $index < $url_parts_count; $index++) {
-							//$log->trace("#3 fhpart [" .  $fh_parts[$index_fh] . "] url part [" . $url_parts[$index] . "]");
+							if($log !== null) $log->trace("#3 fhpart [" .  $fh_parts[$index_fh] . "] url part [" . $url_parts[$index] . "]");
 							
 							if($fh_parts[$index_fh] !== '' && $url_parts[$index] !== '' &&
 								$fh_parts[$index_fh] === $url_parts[$index]) {
 
-								//$log->trace("#3 website matched!");
+                                    if($log !== null) $log->trace("#3 website matched!");
 								return rtrim($firehall->WEBSITE->WEBSITE_ROOT_URL, '/');
 							}
 						}

@@ -203,8 +203,8 @@ class SMSCommandHandler {
                                         "] compare with #6 [" . implode(",", self::$SMS_AUTO_CMD_CANCELLED) . "]");
                                 
                                 if( in_array(strtoupper($sms_cmd), self::$SMS_AUTO_CMD_TEST) === true) {
-                                    $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
-                                    $URL = $site_root . "test/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
+                                    $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST, $FIREHALL);
+                                    $URL = $site_root . "/test/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
                                     "&uid=" . urlencode($result->getUserId());
                                      
                                     if($log !== null) $log->warn("Calling URL for sms host TESTING [$URL]");
@@ -242,8 +242,8 @@ class SMSCommandHandler {
                                     	
                                     if($live_callout_list !== null && empty($live_callout_list) === false) {
                                         $most_current_callout = reset($live_callout_list);
-                                        $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
-                                        $URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
+                                        $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST, $FIREHALL);
+                                        $URL = $site_root . "/cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
                                         "&cid=" . urlencode($most_current_callout['id']) .
                                         "&uid=" . urlencode($result->getUserId()) .
                                         "&ckid=" . urlencode($most_current_callout['call_key']) .
@@ -266,8 +266,8 @@ class SMSCommandHandler {
                                     	
                                     if($live_callout_list !== null && empty($live_callout_list) === false) {
                                         $most_current_callout = reset($live_callout_list);
-                                        $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
-                                        $URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
+                                        $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST, $FIREHALL);
+                                        $URL = $site_root . "/cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
                                         "&cid=" . urlencode($most_current_callout['id']) .
                                         "&uid=" . urlencode($result->getUserId()) .
                                         "&ckid=" . urlencode($most_current_callout['call_key']) .
@@ -596,8 +596,8 @@ class SMSCommandHandler {
             $updateToStatus = CalloutStatusType::getStatusByFlags($FIREHALL, 
                     StatusFlagType::STATUS_FLAG_RESPONDING, BehaviourFlagType::BEHAVIOUR_FLAG_DEFAULT_RESPONSE)->getId();
             
-            $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
-            $URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
+            $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST, $FIREHALL);
+            $URL = $site_root . "/cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
                                 "&cid=" . urlencode($most_current_callout['id']) .
                                 "&uid=" . urlencode($result->getUserId()) .
                                 "&ckid=" . urlencode($most_current_callout['call_key']).
@@ -653,8 +653,8 @@ class SMSCommandHandler {
                 throw new \Exception("Invalid status in updatestatus [".$sms_cmd."] updateToStatus: $updateToStatus");
             }
             else {
-                $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST);
-                $URL = $site_root . "cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
+                $site_root = getFirehallRootURLFromRequest(null, $FIREHALLS_LIST, $FIREHALL);
+                $URL = $site_root . "/cr/fhid=" . urlencode($FIREHALL->FIREHALL_ID) .
                                     "&cid=" . urlencode($most_current_callout['id']) .
                                     "&uid=" . urlencode($result->getUserId()) .
                                     "&ckid=" . urlencode($most_current_callout['call_key']) .
