@@ -330,7 +330,7 @@
 }
 
 .ci_responderTable    {
-        display: table;
+    display: table;
 
     }
 .ci_responderCell    {
@@ -366,8 +366,6 @@
 	width: 100% !important;
 	height: 100% !important;
 }
-
-
 @-moz-keyframes blinker {  
     0% { background-color: none; }
     50% { background-color: red }

@@ -1,11 +1,11 @@
 @CHARSET "UTF-8";
 
 @mixin vertical-align {
-    position: relative;
-    top: 50%;
-    -webkit-transform: translateY(-50%);
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
+  position: relative;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
 }
 #legend {
     font-size:25px;
@@ -63,7 +63,7 @@
 }
 
 .ci_body_error {
-    background-color:white;
+  background-color:white;
 }
 
 .ci_header {
@@ -91,7 +91,7 @@
     color:yellow;
     font-size:45px;
     font-weight: bold;
-    width: 33%;
+#    width: 33%;
 }
 .ci_header_type_blink {
     text-align: center;
@@ -128,6 +128,7 @@
     font-weight: bold;
     width: 33%;
 }
+
 .ci_header_status {
     padding: 0px;
     text-align: center;
@@ -273,6 +274,7 @@
     box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
 }
 
+
 .ci_finish_now_user {
     color:white;
     background-color:blue;
@@ -351,7 +353,7 @@
 .google-maps {
     margin: auto;
 	position: relative;
-	#padding-bottom: 40%; // This is the aspect ratio
+	#padding-bottom: 10%; // This is the aspect ratio
 	overflow: hidden;
 	width: {{ gvm.JSMAP_MOBILEWIDTH }} !important;
 	height: {{ gvm.JSMAP_MOBILEHEIGHT }} !important;
@@ -394,5 +396,5 @@
 }
   
 .maps-link img {
-    width: 100px;
+    width: 80px;
 }
