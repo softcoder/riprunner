@@ -496,6 +496,43 @@ edit php.ini
 [curl]
 curl.cainfo=c:/cert/cacert.pem
 
+- If some of your users mobile devices do not show a clickable URL in the sms callout:
+
+then your newer website domain name may not be recognized for exampel some phones dont 
+understand the following link:
+
+https://vsoft.solutions/
+
+- you must find a host that you may access that uses an older format example:
+
+https://vejvoda.com
+
+create a folder on that host for example a folder named 'rr' and create an .htaccess file 
+in the rr folder with the following content (notice rr matches the folder name you created, 
+and the part to the right tells the webserver where to forward to, $1 copies url parameters):
+
+RedirectMatch 301 /rr(.*) https://svvfd.vsoft.solutions$1
+
+Next create a custom sms twig file in the root folder where config.php exists, inside a new folder 
+you wil lcreated named:
+
+views-custom
+
+and name this file:
+
+sms-callout-msg-custom.twig.html
+
+with the following contents:
+
+{% extends "sms-callout-msg.twig.html" %}
+
+{% block sms_url_webroot %}
+https://vejvoda.com/rr/
+{% endblock %}
+
+This will use the website: https://vejvoda.com/rr/ as a proxy to forward requests to: https://svvfd.vsoft.solutions
+which all phones would recognize because it uses the well known .com format
+
 Development:
 --------------
 Rip Runner uses composer for dependency management (the existing third-party folder is now deprecated and will eventually be deleted). Currently php 7.x is supported and our continuous integration system (travis) runs automated tests on those versions. If you want to contribute to rip runner as a developer checkout the repo from github and from the php folder of the repo on your local system run:
