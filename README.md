@@ -498,17 +498,17 @@ curl.cainfo=c:/cert/cacert.pem
 
 - If some of your users mobile devices do not show a clickable URL in the sms callout:
 
-then your newer website domain name may not be recognized for exampel some phones dont 
-understand the following link:
+then your newer website domain name may not be recognized. For example some phones don't 
+understand the following link because it uses a newer .solutions format:
 
 https://vsoft.solutions/
 
-- you must find a host that you may access that uses an older format example:
+- you must find a host that you have access to, which has a well known format example:
 
-https://vejvoda.com
+https://vejvoda.com/
 
-create a folder on that host for example a folder named 'rr' and create an .htaccess file 
-in the rr folder with the following content (notice rr matches the folder name you created, 
+create a folder on that host for example a folder named 'rr' and create a file name '.htaccess' 
+in the 'rr' folder with the following content (notice rr matches the folder name you created, 
 and the part to the right tells the webserver where to forward to, $1 copies url parameters):
 
 RedirectMatch 301 /rr(.*) https://svvfd.vsoft.solutions$1
