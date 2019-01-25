@@ -28,24 +28,35 @@
                                  row.callout_status_cancelled == false %}
         <script type="text/javascript">
             function mapsSelector(callout_address_origin, callout_address_dest) {
-            if /* if we're on iOS, open in Apple Maps */
-                ((navigator.platform.indexOf("iPhone") != -1) || 
-                (navigator.platform.indexOf("iPod") != -1) || 
-                (navigator.platform.indexOf("iPad") != -1)) {
-                //window.open("maps://maps.google.com/maps?sdaddr="+callout_address_origin+",&amp;daddr="+callout_address_dest+"dirflg=d");
-                window.open("https://www.google.com/maps/dir/?api=1" +
-                            //"&origin="+callout_address_origin+
-                            "&destination="+callout_address_dest+
-                            "&travelmode=driving&dir_action=navigate");
+                if /* if we're on iOS, open in Apple Maps */
+                    ((navigator.platform.indexOf("iPhone") != -1) || 
+                    (navigator.platform.indexOf("iPod") != -1) || 
+                    (navigator.platform.indexOf("iPad") != -1)) {
+                    //window.open("maps://maps.google.com/maps?sdaddr="+callout_address_origin+",&amp;daddr="+callout_address_dest+"dirflg=d");
+                    window.open("https://www.google.com/maps/dir/?api=1" +
+                                //"&origin="+callout_address_origin+
+                                "&destination="+callout_address_dest+
+                                "&travelmode=driving&dir_action=navigate");
+                }
+                else {/* else use Google */
+                    //window.open("https://maps.google.com/maps?sdaddr="+callout_address_origin+",&amp;daddr="+callout_address_dest+"dirflg=d");
+                    window.open("https://www.google.com/maps/dir/?api=1" +
+                                //"&origin="+callout_address_origin+
+                                "&destination="+callout_address_dest+
+                                "&travelmode=driving&dir_action=navigate");
+                }
             }
-            else {/* else use Google */
-                //window.open("https://maps.google.com/maps?sdaddr="+callout_address_origin+",&amp;daddr="+callout_address_dest+"dirflg=d");
-                window.open("https://www.google.com/maps/dir/?api=1" +
-                            //"&origin="+callout_address_origin+
-                            "&destination="+callout_address_dest+
-                            "&travelmode=driving&dir_action=navigate");
+            function updateResponderStatus(user_id, row_id) {
+                //debugger; 
+                if(confirm('Confirm that '+user_id+' status should be '+
+                            $( '#ui_call_update_response_status'+row_id+' option:selected' ).text()+'?')) { 
+                    $('#form_call_update_response_status_'+row_id).attr('action',
+                    '{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid='+user_id+'&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_update_response_status'+row_id ).val());
+                    $('form#form_call_update_response_status_'+row_id).submit();
+                    return true;
+                } 
+                return false;
             }
-        }
         </script>
 
 	{% block callout_header %}
@@ -67,41 +78,25 @@
                 <td class=ci_header_time>{{ row.calltime }}</td>
                 <td class=ci_header_status{% if callout_pending %}_blink{% endif %}>{{ row.callout_status_desc|upper }}</td>
             </tr>
-            {% if callout_pending %}
-                {% if callout_details_vm.STREAM_AUDIO_ENABLED == 'yes' %}
-                <tr>
-                    <td colspan="3">
-                {% if gvm.isMobile and callout_details_vm.STREAM_MOBILE == 'yes' %}
-                        <audio src='{{ callout_details_vm.STREAM_URL }}' id="player" {% if callout_details_vm.STREAM_AUTOPLAY_MOBILE == 'yes' %}autoplay{% endif %}>
-                {% elseif gvm.isMobile == false and callout_details_vm.STREAM_DESKTOP == 'yes' %}
-                        <audio src='{{ callout_details_vm.STREAM_URL }}' id="player" {% if callout_details_vm.STREAM_AUTOPLAY_DESKTOP == 'yes' %}autoplay{% endif %}></audio>
-                {% endif %}
-                        <source type="{{ callout_details_vm.STREAM_TYPE }}" /></audio>
-                        <INPUT TYPE="button" VALUE="PLAY/PAUSE RADIO-(15/s DELAY)" class="ci_audio_feed" onclick="aud_play_pause()"></div>
-                    </td>
-                </tr>
-                {% endif %}
+            {% if callout_pending and callout_details_vm.STREAM_AUDIO_ENABLED == 'yes' %}
+            <tr>
+                <td colspan="3">
+                    {% if gvm.isMobile and callout_details_vm.STREAM_MOBILE == 'yes' %}
+                    <audio src='{{ callout_details_vm.STREAM_URL }}' id="player" {% if callout_details_vm.STREAM_AUTOPLAY_MOBILE == 'yes' %}autoplay{% endif %}>
+                    {% elseif gvm.isMobile == false and callout_details_vm.STREAM_DESKTOP == 'yes' %}
+                    <audio src='{{ callout_details_vm.STREAM_URL }}' id="player" {% if callout_details_vm.STREAM_AUTOPLAY_DESKTOP == 'yes' %}autoplay{% endif %}></audio>
+                    {% endif %}
+                    <source type="{{ callout_details_vm.STREAM_TYPE }}" /></audio>
+                    <INPUT TYPE="button" VALUE="PLAY/PAUSE RADIO-(15/s DELAY)" class="ci_audio_feed" onclick="aud_play_pause()"></div>
+                </td>
+            </tr>
             {% endif %}
 		</table>
 		<hr>
 		
-        <script type="text/javascript">         
-         function updateResponderStatus(user_id, row_id) {
-             //debugger; 
-             if(confirm('Confirm that '+user_id+' status should be '+
-                        $( '#ui_call_update_response_status'+row_id+' option:selected' ).text()+'?')) { 
-                 $('#form_call_update_response_status_'+row_id).attr('action',
-                   '{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid='+user_id+'&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_update_response_status'+row_id ).val());
-                 $('form#form_call_update_response_status_'+row_id).submit();
-                 return true;
-             } 
-             return false;
-         }
-        </script>
-		
 		<table class="box-table-a" border="1" width="100%">
             <tr><td><span class="ci_header_units">YOUR ARRIVAL TIME: </span><span class="ci_header_units_list" id="geo_tag"></span></td></tr>
-            <tr><td><span class="ci_header_units">UNITS RESPONDING: </span><span class="ci_header_units_list">{{ row.units }} </span></td></tr>
+            <tr><td><span class="ci_header_units">UNITS RESPONDING: </span><span class="ci_header_units_list">{{ row.units }}</span></td></tr>
             <tr>
                 <td>
             {% if callout_details_vm.member_id is not null and callout_pending %}
@@ -128,16 +123,14 @@
 
                                 <select id="ui_call_set_response_status_me{{ row_no.id }}" class="ci_respondnow"
                                         onchange="$('#call_no_response_me{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status_me{{ row_no.id }}' ).val());
-                                                    if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status_me{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_me{{ row_no.id }}'))) document.getElementById('call_no_response_me{{ row_no.id }}').submit();">
-
+                                                  if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status_me{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_me{{ row_no.id }}'))) document.getElementById('call_no_response_me{{ row_no.id }}').submit();">
                                     {% for status_def in callout_details_vm.callout_status_defs %}
                                         {% if status_def.hasAccess(callout_details_vm.getMemberAccessValue(row_no.user_id)) and 
                                             status_def.isUserType(callout_details_vm.getMemberType(row_no.user_id)) and 
                                             (status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby()) %}
-                                    <option value="{{ status_def.getId() }}" {{ (status_def.IsResponding() and status_def.IsDefaultResponse()) ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
+                                        <option value="{{ status_def.getId() }}" {{ (status_def.IsResponding() and status_def.IsDefaultResponse()) ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
                                         {% endif %}
                                     {% endfor %}
-                                    
                                 </select>
 
                                 <form id="call_no_response_me{{ row_no.id }}" 
@@ -191,11 +184,12 @@
                         <select id="ui_call_update_response_status{{ row_responding.id }}" class="ci_header_type_blink_response_status">
                         
                         {% for status_def in callout_details_vm.callout_status_defs %}
-                        {% if status_def.hasAccess(callout_details_vm.getMemberAccessValue(row_responding.user_id)) and 
-                                status_def.isUserType(callout_details_vm.getMemberType(row_responding.user_id)) and 
-                            (status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby()) %}
-                        <option value="{{ status_def.getId() }}" {{ row_responding.status == status_def.getId() ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
-                        {% endif %}
+                            {% if status_def.hasAccess(callout_details_vm.getMemberAccessValue(row_responding.user_id)) and 
+                                    status_def.isUserType(callout_details_vm.getMemberType(row_responding.user_id)) and 
+                                (status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby() or
+                                 status_def.IsCancelled() or status_def.IsCompleted()) %}
+                            <option value="{{ status_def.getId() }}" {{ row_responding.status == status_def.getId() ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
+                            {% endif %}
                         {% endfor %}
                         
                         </select>
