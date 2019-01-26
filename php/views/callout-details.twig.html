@@ -187,7 +187,7 @@
                             {% if status_def.hasAccess(callout_details_vm.getMemberAccessValue(row_responding.user_id)) and 
                                     status_def.isUserType(callout_details_vm.getMemberType(row_responding.user_id)) and 
                                 (status_def.IsResponding() or status_def.IsNotResponding() or status_def.IsStandby() or
-                                 status_def.IsCancelled() or status_def.IsCompleted()) %}
+                                 (callout_pending and (status_def.IsCancelled() or status_def.IsCompleted()))) %}
                             <option value="{{ status_def.getId() }}" {{ row_responding.status == status_def.getId() ? 'selected="selected"' : '' }}>{{ status_def.getDisplayName() }}</option>
                             {% endif %}
                         {% endfor %}
