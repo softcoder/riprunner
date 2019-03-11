@@ -128,7 +128,9 @@
                 var data_allyears = new google.visualization.DataTable();
                 data_allyears.addColumn('string', 'Call Type');
                 data_allyears.addColumn('number', 'Call Count');
-                var json_data_allyears = jQuery.parseJSON('{{ reportscharts_vm.calltypes_allyears|json_encode()|raw }}');
+
+                var json_data_allyears_encoded = '{{ reportscharts_vm.calltypes_allyears|json_encode()|raw }}';
+                var json_data_allyears = (json_data_allyears_encoded != '' ? jQuery.parseJSON(json_data_allyears_encoded) : []);
 
                 addJSONDataToChartData(json_data_allyears, data_allyears);
                 
@@ -154,7 +156,9 @@
                 var data_year = new google.visualization.DataTable();
                 data_year.addColumn('string', 'Call Type');
                 data_year.addColumn('number', 'Call Count');
-                var json_data_year = jQuery.parseJSON('{{ reportscharts_vm.calltypes_currentyear|json_encode()|raw }}');
+
+                var json_data_year_encoded = '{{ reportscharts_vm.calltypes_currentyear|json_encode()|raw }}';
+                var json_data_year = (json_data_year_encoded != '' ? jQuery.parseJSON(json_data_year_encoded) : []);
 
                 addJSONDataToChartData(json_data_year, data_year);
                 
@@ -181,7 +185,8 @@
                 data.addColumn('string', 'Call Type');
                 data.addColumn('number', 'Call Count');
 
-                var json_data_month = jQuery.parseJSON('{{ reportscharts_vm.calltypes_currentmonth|json_encode()|raw }}');
+                var json_data_month_encoded = '{{ reportscharts_vm.calltypes_currentmonth|json_encode()|raw }}';
+                var json_data_month = (json_data_month_encoded != '' ? jQuery.parseJSON(json_data_month_encoded) : []);
 
                 addJSONDataToChartData(json_data_month, data);
                 
@@ -208,7 +213,8 @@
                 var data_year_volume = new google.visualization.DataTable();
                 data_year_volume.addColumn('string', 'Month');
 
-                var json_data_year_volume = jQuery.parseJSON('{{ reportscharts_vm.callvoltypes_currentyear|json_encode()|raw }}');
+                var json_data_year_volume_encoded = '{{ reportscharts_vm.callvoltypes_currentyear|json_encode()|raw }}';
+                var json_data_year_volume = (json_data_year_volume_encoded != '' ? jQuery.parseJSON(json_data_year_volume_encoded) : []);
                 
                 {% for title in reportscharts_vm.callvoltypes_currentyear_cols %} 
                 data_year_volume.addColumn('number', '{{ title }}');
@@ -244,7 +250,10 @@
                 // Create the data table.
                 var data_year_response_volume = new google.visualization.DataTable();
                 data_year_response_volume.addColumn('string', 'Month');
-                var json_data_year_response_volume = jQuery.parseJSON('{{ reportscharts_vm.callresponsevol_currentyear|json_encode()|raw }}');
+
+                var json_data_year_response_volume_encoded = '{{ reportscharts_vm.callresponsevol_currentyear|json_encode()|raw }}';
+                var json_data_year_response_volume = (json_data_year_response_volume_encoded != '' ? jQuery.parseJSON(json_data_year_response_volume_encoded) : []);
+
                 var max_data_year_response_volume_value = d3.max(json_data_year_response_volume, function(array) {
                     return d3.max(array.filter(function(value) {
                         return typeof value === "number";
