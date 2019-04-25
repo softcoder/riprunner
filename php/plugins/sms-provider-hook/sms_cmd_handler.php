@@ -119,7 +119,7 @@ class SMSCommandHandler {
     static public $SMS_AUTO_CMD_STATUS_RETURN_HALL = array('B','BACK');
 
     static public $SMS_AUTO_CMD_COMPLETED = array('F','FI','CP','COMPLETE');
-    static public $SMS_AUTO_CMD_CANCELLED = array('X','Q','CANCEL');
+    static public $SMS_AUTO_CMD_CANCELLED = array('X','Q','CANCELLED');
     
     static public $SMS_AUTO_CMD_TEST = array('TEST');
     static public $SMS_AUTO_CMD_HELP = array('?', 'LIST');
