@@ -112,7 +112,7 @@ class SMSCommandHandler {
     static public $SMS_AUTO_CMD_STATUS_UPDATE = array('U','UP','UPDATE');
 
     static public $SMS_AUTO_CMD_STATUS_NOT_RESPONDING = array('N','NO');
-    static public $SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY = array('S','SB','STANDBY');
+    static public $SMS_AUTO_CMD_STATUS_RESPONDING_STANDBY = array('STBY','SB','STANDBY');
     static public $SMS_AUTO_CMD_STATUS_RESPONDING_AT_HALL = array('H','HALL');
     static public $SMS_AUTO_CMD_STATUS_RESPONDING_TO_SCENE = array('D','DIRECT');
     static public $SMS_AUTO_CMD_STATUS_RESPONDING_AT_SCENE = array('O','ON','ONSCENE');
