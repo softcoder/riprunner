@@ -520,6 +520,63 @@ Units Responding: SALGRP1";
         $this->assertEquals('-122.53909',$callout->getGPSLong());
         $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
     }
+       
     
+    public function testProcessFireHallText_EMAIL_new_format2_April2019() {
+        $realdata = "Date:  2019-04-29 17:04:33
+        Dept:  Shell-Glen Fire/Rescue
+        Type:  TESTONLY
+         
+        Address:  12370 BERTSCHI RD, SHELL-GLEN
+        Unit: 
+        Suite: 
+        1st Cross Street:  GRASSLAND RD, SHELL-GLEN 2nd Cross Street:  CRANBERRY RD, SHELL-GLEN
+        
+        Building: 
+        Common Place Name: 
+        Pre-Incident Plan: 
+         
+        Latitude: 53.98061
+        Longitude: -122.53909
+        Google Maps Link:  http://maps.google.com/maps?z=1&t=m&q=53.9806,-122.539
+        
+        Units Responding: SHLGRP1";
+    
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallText($realdata,$FIREHALL);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2019-04-29 17:04:33',$callout->getDateTimeAsString());
+        $this->assertEquals('TESTONLY',$callout->getCode());
+        $this->assertEquals('12370 BERTSCHI RD, SHELL-GLEN',$callout->getAddress());
+        $this->assertEquals('12370 BERTSCHI RD, SHELL-GLEN',$callout->getAddressForMap());
+        $this->assertEquals('53.98061',$callout->getGPSLat());
+        $this->assertEquals('-122.53909',$callout->getGPSLong());
+        $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
+    }
+         
+    public function testProcessFireHallText_EMAIL_new_email_format2_April2019() {
+        $realdata = "Date: 2019-04-30 01:01:01 Dept: Shell-Glen Fire/Rescue Type: TESTONLY
+        Address: 12370 BERTSCHI RD, SHELL-GLEN Unit: Suite: 1st Cross Street:
+        GRASSLAND RD, SHELL-GLEN 2nd Cross Street: CRANBERRY RD, SHELL-GLEN
+        Building: Common Place Name: Pre-Incident Plan: Latitude: 53.98061
+        Longitude: -122.53909 Google Maps Link:
+        http://maps.google.com/maps?z=1&t=m&q=53.9806,-122.539 Units
+        Responding: SHLGRP1";
+    
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
+    
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2019-04-30 01:01:01',$callout->getDateTimeAsString());
+        $this->assertEquals('TESTONLY',$callout->getCode());
+        $this->assertEquals('12370 BERTSCHI RD, SHELL-GLEN',$callout->getAddress());
+        $this->assertEquals('12370 BERTSCHI RD, SHELL-GLEN',$callout->getAddressForMap());
+        $this->assertEquals('53.98061',$callout->getGPSLat());
+        $this->assertEquals('-122.53909',$callout->getGPSLong());
+        $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
+    }
 
 }
