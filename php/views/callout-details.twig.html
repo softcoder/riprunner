@@ -527,6 +527,84 @@ function calculateRoute(directionsService,request,index, callout_geo_src, map) {
     });
 }
 
+var startTime = null;
+var elapsedReload = 0;
+var lastReloadError = '';
+var reloadSuccess = false;
+var inReloadEvent = false;
+
+function reloadPageOnConnectionExist() {
+    if(startTime == null) {
+        startTime = new Date();
+        elapsedReload = (new Date() - startTime);
+    }
+    inReloadEvent = true;
+    if(reloadSuccess == false && (elapsedReload <= 300000)) {
+        var file = "{{ gvm.RR_DOC_ROOT }}/js/spin.js";
+        //var file = "http://10.100.100.100/js/spin.js";
+        var randomNum = Math.round(Math.random() * 10000);
+        file += "?rand=" + randomNum;
+        console.info("Check if a connection exists elapsed time: " + elapsedReload + " url: " + file);
+
+        if(lastReloadError == '') {
+            lastReloadError = 'connecting...';
+        }
+        var xhr = new XMLHttpRequest();
+        xhr.open('HEAD', file, true);
+        xhr.send();
+        xhr.addEventListener("readystatechange", processRequest, false);
+    
+        function processRequest(e) {
+            console.info("In processRequest state: " + xhr.readyState);
+            if (xhr.readyState == 4) {
+                if (xhr.status >= 200 && xhr.status < 304) {
+                    lastReloadError = xhr.statusText;
+                    console.info("SUCCESS - Connection exists elapsed time: " + elapsedReload);
+                    reloadPage();
+                } 
+                else {
+                    if(xhr.statusText != '') {
+                        lastReloadError = xhr.statusText;
+                    }
+                    else {
+                        lastReloadError = xhr.responseText;
+                    }
+                    console.info("FAIL - Connection DOES NOT exist status: " + lastReloadError + " elapsed time: " + elapsedReload);
+                    reloadPageOnConnectionExist();
+                }
+            }
+        }
+    }
+}
+
+function reloadPage() {
+    try {
+        SaveView(riprunner_js_map);
+    }
+    catch(e) {
+        console.info('Error calling SaveView msg: ' + e.message);
+    }
+    try {
+        console.info('About to reload page, elapsed time ms: ' + elapsedReload);
+        //throw "Test reload error!";
+        
+        location.reload(true); 
+        reloadSuccess = true;
+    }
+    catch(e) {
+        if(e.message) {
+            console.info('Error reloading page msg: ' + e.message);
+        }
+        else {
+            console.info('Error reloading page msg: ' + e);
+        }
+    }
+    elapsedReload = (new Date() - startTime);
+    if(reloadSuccess == false) {
+        alert('Unable to automatically reload the page please refresh the page manually!');
+    }
+}
+
 $( document ).ready(function() {
     // Handle any responder tracking
     {% if callout_details_vm.firehall is defined and
@@ -556,44 +634,7 @@ $( document ).ready(function() {
         var MAP_AUTO_REFRESH_SECONDS = 60;
         // This reloads the page
         setTimeout(function () {
-               try {
-                   SaveView(riprunner_js_map);
-               }
-               catch(e) {
-                   console.info('Error calling SaveView msg: ' + e.message);
-               }
-               var startTime = new Date();
-               var elapsedReload = (new Date() - startTime);
-               var lastReload = -1;
-               var reloadSuccess = false;
-               // Try to reload the page for 5 minutes
-               for(;reloadSuccess == false && (elapsedReload <= 300000);) {
-                    try {
-                        if(elapsedReload != lastReload) {
-                            if((elapsedReload / 1000) % 2 == 0) {
-                                lastReload = elapsedReload;
-                                console.info('About to reload page, elapsed time ms: ' + elapsedReload);
-                                //throw "Test reload error!";
-                                
-                                location.reload(true); 
-                                //window.location.href = 'http://172.100.0.100';
-                                reloadSuccess = true;
-                            }
-                        }
-                    }
-                    catch(e) {
-                        if(e.message) {
-                            console.info('Error reloading page msg: ' + e.message);
-                        }
-                        else {
-                            console.info('Error reloading page msg: ' + e);
-                        }
-                    }
-                    elapsedReload = (new Date() - startTime);
-                }
-                if(reloadSuccess == false) {
-                    alert('Unable to automatically reload the page please refresh the page manually!');
-                }
+            reloadPageOnConnectionExist();
         }, MAP_AUTO_REFRESH_SECONDS * 1000);
         //}, 5 * 1000);
         // This counts down to 0
@@ -601,7 +642,13 @@ $( document ).ready(function() {
             var ui_refresh = document.getElementById('reload_timer_ui');
             if(typeof ui_refresh != 'undefined') {
                 MAP_AUTO_REFRESH_SECONDS--;
-                ui_refresh.textContent = MAP_AUTO_REFRESH_SECONDS + ' seconds until auto refresh';
+                if(inReloadEvent == true) {
+                    elapsedReload = (new Date() - startTime);
+                    ui_refresh.textContent = 'Trying to reload: ' + (elapsedReload > 1000 ? (elapsedReload / 1000)+0 : 0) + ' status: ' + lastReloadError;
+                }
+                else {
+                    ui_refresh.textContent = MAP_AUTO_REFRESH_SECONDS + ' seconds until auto refresh';
+                }
             }
          }, 1000);
         
