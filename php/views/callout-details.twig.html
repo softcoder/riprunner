@@ -557,14 +557,45 @@ $( document ).ready(function() {
         // This reloads the page
         setTimeout(function () {
                try {
-                    SaveView(riprunner_js_map);
+                   SaveView(riprunner_js_map);
                }
                catch(e) {
-                   console.info('Error calling SaveView msg: ' + e.message);            
+                   console.info('Error calling SaveView msg: ' + e.message);
                }
-                    
-               location.reload(true); 
+               var startTime = new Date();
+               var elapsedReload = (new Date() - startTime);
+               var lastReload = -1;
+               var reloadSuccess = false;
+               // Try to reload the page for 5 minutes
+               for(;reloadSuccess == false && (elapsedReload <= 300000);) {
+                    try {
+                        if(elapsedReload != lastReload) {
+                            if((elapsedReload / 1000) % 2 == 0) {
+                                lastReload = elapsedReload;
+                                console.info('About to reload page, elapsed time ms: ' + elapsedReload);
+                                //throw "Test reload error!";
+                                
+                                location.reload(true); 
+                                //window.location.href = 'http://172.100.0.100';
+                                reloadSuccess = true;
+                            }
+                        }
+                    }
+                    catch(e) {
+                        if(e.message) {
+                            console.info('Error reloading page msg: ' + e.message);
+                        }
+                        else {
+                            console.info('Error reloading page msg: ' + e);
+                        }
+                    }
+                    elapsedReload = (new Date() - startTime);
+                }
+                if(reloadSuccess == false) {
+                    alert('Unable to automatically reload the page please refresh the page manually!');
+                }
         }, MAP_AUTO_REFRESH_SECONDS * 1000);
+        //}, 5 * 1000);
         // This counts down to 0
         setInterval(function () { 
             var ui_refresh = document.getElementById('reload_timer_ui');
