@@ -82,7 +82,11 @@ class CalloutTypeMenuController {
 		    $callout->setFirehall($this->global_vm->firehall);
 
 		    $sms_plugin = new \riprunner\SMSCalloutDefaultPlugin();
-		    $result = $sms_plugin->getSMSCalloutMessage($callout);
+			$result = $sms_plugin->getSMSCalloutMessage($callout);
+			
+			$result = $sms_plugin->getSMSForRecipientWithShortURL($this->global_vm->auth->user_id, $result, null);
+			$result = $sms_plugin->getSMSForRecipientWithCustomWebRootURL($this->global_vm->auth->user_id, $result, $callout->getFirehall()->SMS->getRecipientsWebRootOverride());
+
 		    $this->view_template_vars["typemenu_ctl_action_code_test"] = true;
 		    $this->view_template_vars["typemenu_ctl_action_code_test_result"] = $result;
 		}

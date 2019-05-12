@@ -191,6 +191,10 @@ if (version_compare(PHP_VERSION, '7.0', '>=')) {
         $LOCAL_DEBUG_SMS->setTwilioAuthToken(DEFAULT_SMS_PROVIDER_TWILIO_AUTH_TOKEN);
         $LOCAL_DEBUG_SMS->setTwilioFromNumber(DEFAULT_SMS_PROVIDER_TWILIO_FROM);
 
+        $LOCAL_DEBUG_SMS->setRecipientsWebRootOverride(array(
+            "vickie.vejvoda" => "https://vejvoda.com/"
+        ));
+    
         $LOCAL_DEBUG_MOBILE = new FireHallMobile();
         $LOCAL_DEBUG_MOBILE->setSignalEnabled(true);
         $LOCAL_DEBUG_MOBILE->setTrackingEnabled(true);

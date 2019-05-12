@@ -114,6 +114,7 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
     		    //$smsTextWithAuth = str_replace('&authvalue=x', '&member_id='.$user_id, $smsText);
 				//$smsTextWithAuth = $this->getSMSForRecipient($user_id, $smsText);
 				$smsTextWithAuth = $this->getSMSForRecipientWithShortURL($user_id, $smsText, $db_connection);
+				$smsTextWithAuth = $this->getSMSForRecipientWithCustomWebRootURL($user_id, $smsTextWithAuth, $callout->getFirehall()->SMS->getRecipientsWebRootOverride());
     		    $resultSMS .= $smsPlugin->signalRecipients($callout->getFirehall()->SMS,  
     				$recipient_array, $recipient_list_type, $smsTextWithAuth);
 		    }
@@ -171,6 +172,33 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 			$qry_bind->execute();
 		}
 
+		return $smsText;
+	}
+
+	public function getSMSForRecipientWithCustomWebRootURL($user_id, $smsText, $smsWebRootOverride) {
+	    global $log;
+
+		$shortUrl = '';
+		$shortenStartTag = '[webroot-start]';
+		$shortenEndTag = '[webroot-end]';
+
+		$longUrlStart = strpos($smsText, $shortenStartTag);
+		$longUrlEnd = strpos($smsText, $shortenEndTag);
+		$longUrlLen = $longUrlEnd-($longUrlStart+strlen($shortenStartTag));
+		$longUrl = substr($smsText, $longUrlStart+strlen($shortenStartTag), $longUrlLen);
+		
+		if($smsWebRootOverride !== null && array_key_exists($user_id, $smsWebRootOverride)) {
+			$shortUrl = $smsWebRootOverride[$user_id];
+		}
+		else {
+			$shortUrl = $longUrl;
+		}
+		
+		if ($log !== null) {
+			$log->trace("Callout URL webroot old [$longUrl] new [$shortUrl]");
+		}
+		
+		$smsText = substr_replace($smsText, $shortUrl, $longUrlStart, $longUrlLen+strlen($shortenStartTag)+strlen($shortenEndTag));
 		return $smsText;
 	}
 	

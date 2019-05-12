@@ -11,5 +11,5 @@
 {{ '\n' }}Respond: {{ smsrespondhall }}, Not Responding: {{ smsnotresponding }}
 {% endblock %}
 {% block sms_url %}
-Web: {% block sms_url_webroot %}{{ callout.firehall.WEBSITE.WEBSITE_ROOT_URL }}{% endblock %}[shorten-start]ci/cid={{ callout.id }}&fhid={{ callout.firehall.FIREHALL_ID }}&ckid={{ callout.keyId }}&authvalue=x[shorten-end]{# This comment removes the newline that follows #}
+Web: {% block sms_url_webroot %}[webroot-start]{{ callout.firehall.WEBSITE.WEBSITE_ROOT_URL }}[webroot-end]{% endblock %}[shorten-start]ci/cid={{ callout.id }}&fhid={{ callout.firehall.FIREHALL_ID }}&ckid={{ callout.keyId }}&authvalue=x[shorten-end]{# This comment removes the newline that follows #}
 {% endblock %}

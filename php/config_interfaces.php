@@ -316,8 +316,10 @@ class FireHallSMS
 	public $SMS_RECIPIENTS_ARE_GROUP;
 	// If the recipient list should be dynamically built from the database set this value to true
 	public $SMS_RECIPIENTS_FROM_DB;
-	// The recipients to send an SMS during communications (but only for notification purpsoes, they cannot respond)
+	// The recipients to send an SMS during communications (but only for notification purposes, they cannot respond)
 	public $SMS_RECIPIENTS_NOTIFY_ONLY;
+	// The recipients with a customer webroot (some phones cannot handle new domain styles like vsoft.solutions and need common vejvoda.com style)
+	public $SMS_RECIPIENTS_WEBSITE_ROOT_URL_OVERRIDE;
 	// A list of special contacts to use in the application (like poison control etc)
 	public $SMS_SPECIAL_CONTACTS;
 	// The Base API URL for sending SMS messages using sendhub.com
@@ -364,6 +366,7 @@ class FireHallSMS
 		
 		$this->SMS_RECIPIENTS = $recipients;
 		$this->SMS_RECIPIENTS_NOTIFY_ONLY = '';
+		$this->SMS_RECIPIENTS_WEBSITE_ROOT_URL_OVERRIDE = array();
 		$this->SMS_SPECIAL_CONTACTS = '';
 		$this->SMS_RECIPIENTS_ARE_GROUP = $recipients_are_group;
 		$this->SMS_RECIPIENTS_FROM_DB = $recipients_from_db;
@@ -397,7 +400,8 @@ class FireHallSMS
 				"\nrecipients list: " . $this->SMS_RECIPIENTS .
 				"\nrecipients are a group name: " . var_export($this->SMS_RECIPIENTS_ARE_GROUP, true) .
 				"\nGet recipients from DB: " . var_export($this->SMS_RECIPIENTS_FROM_DB, true) .
-				"\nRecipients notify only list: " . $this->SMS_RECIPIENTS_NOTIFY_ONLY .
+				"\nRecipients notify only list: " . var_export($this->SMS_RECIPIENTS_NOTIFY_ONLY, true) .
+				"\nRecipients webroot override list: " . $this->SMS_RECIPIENTS_WEBSITE_ROOT_URL_OVERRIDE .
 				"\nSpecial contacts list: " . $this->SMS_SPECIAL_CONTACTS .
 				"\nSendhub url: " . $this->SMS_PROVIDER_SENDHUB_BASE_URL .
 				"\nTextbelt url: " . $this->SMS_PROVIDER_TEXTBELT_BASE_URL .
@@ -436,6 +440,13 @@ class FireHallSMS
 	    $this->SMS_RECIPIENTS_NOTIFY_ONLY = $recipients;
 	}
 	
+	public function getRecipientsWebRootOverride() {
+	    return $this->SMS_RECIPIENTS_WEBSITE_ROOT_URL_OVERRIDE;
+	}
+	public function setRecipientsWebRootOverride($override) {
+	    $this->SMS_RECIPIENTS_WEBSITE_ROOT_URL_OVERRIDE = $override;
+	}
+
 	public function getSpecialContacts() {
 	    return $this->SMS_SPECIAL_CONTACTS;
 	}

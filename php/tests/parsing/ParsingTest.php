@@ -579,4 +579,40 @@ Units Responding: SALGRP1";
         $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
     }
 
+
+    public function testProcessFireHallText_EMAIL_new_email_format3_April2019() {
+        $realdata = "Date:  2019-04-30 14:50:36
+        Dept:  Shell-Glen Fire/Rescue
+        Type:  DISPTEST - Dispatcher Test
+        
+        Address:  3985 SHELLEY RD, SHELL-GLEN
+        Unit:  
+        Suite:  
+        1st Cross Street:  EAGLE VIEW RD, SHELL-GLEN 2nd Cross Street:  CARLSON RD,
+        SHELL-GLEN
+        
+        Building:  Shell-Glen Fire Hall
+        Common Place Name:  
+        Pre-Incident Plan:  
+        
+        Latitude: 53.96516
+        Longitude: -122.59286
+        Google Maps Link:  http://maps.google.com/maps?z=1&t=m&q=53.9652,-122.593
+        
+        Units Responding: SHLGRP1";
+
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallText($realdata,$FIREHALL);
+
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2019-04-30 14:50:36',$callout->getDateTimeAsString());
+        $this->assertEquals('DISPTEST',$callout->getCode());
+        $this->assertEquals('3985 SHELLEY RD, SHELL-GLEN',$callout->getAddress());
+        $this->assertEquals('3985 SHELLEY RD, SHELL-GLEN',$callout->getAddressForMap());
+        $this->assertEquals('53.96516',$callout->getGPSLat());
+        $this->assertEquals('-122.59286',$callout->getGPSLong());
+        $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
+    }
+
 }
