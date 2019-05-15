@@ -44,11 +44,11 @@ define('JSMAP_MOBILEHEIGHT','1000px');
 // === CAPABLE OF STREAMING AN MP3 AND/OR OOG AUDIO STREAM TO DEVICES OUTSIDE OF YOUR NETWORK       ===
 // === TESTING KNOWN SERVERS ARE ICECAST AND VLC PLAYER WITH A CONFIGURED HTTP STREAM               ===
 // ====================================================================================================
-define('STREAM_AUDIO_ENABLED', 'no');
-define('STREAM_MOBILE', 'no');
-define('STREAM_DESKTOP', 'no');
+//define('STREAM_AUDIO_ENABLED', 'no');
+//define('STREAM_MOBILE', 'no');
+//define('STREAM_DESKTOP', 'no');
 //define('STREAM_URL', 'http://radiostream.sgvfr.com:65432/call.mp3');
-define('STREAM_URL', '');
+//define('STREAM_URL', '');
 define('STREAM_TYPE', 'audio/mp3');
 define('STREAM_AUTOPLAY_DESKTOP', 'no');  //almost always works on desktop devices.
 define('STREAM_AUTOPLAY_MOBILE', 'no');  //may not work on all devices, especially iPhone.

@@ -607,6 +607,15 @@ class FireHallWebsite
 	// Maximum number of invalid login attempts before user is locked out
 	public $MAX_INVALID_LOGIN_ATTEMPTS;
 	
+	// The indicator that enables or disables radio audio streaming
+	public $STREAM_AUDIO_ENABLED;
+	// The indicator that enables or disables radio audio streaming for mobile devices
+	public $STREAM_MOBILE;
+	// The indicator that enables or disables radio audio streaming for desktop devices
+	public $STREAM_DESKTOP;
+	// The URL that streams radio audio
+	public $STREAM_URL;
+	
 	public function __construct($name=null, $home_address=null, $home_geo_coord_lat=null,
 			$home_geo_coord_long=null, $root_url=null, 
 			$google_map_api_key=null, $city_name_substition=null, $tz=null,$max_logins=3) {
@@ -620,6 +629,10 @@ class FireHallWebsite
 		$this->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION = $city_name_substition;
 		$this->FIREHALL_TIMEZONE = $tz;
 		$this->MAX_INVALID_LOGIN_ATTEMPTS = $max_logins;
+		$this->STREAM_AUDIO_ENABLED = false;
+		$this->STREAM_MOBILE = false;
+		$this->STREAM_DESKTOP = false;
+		$this->STREAM_URL = '';
 	}
 
 	public function __toString() {
@@ -633,7 +646,12 @@ class FireHallWebsite
 				"\nFirehall GEO coords: " . $this->FIREHALL_GEO_COORD_LATITUDE . "," . $this->FIREHALL_GEO_COORD_LONGITUDE .
 				"\nBase URL: " . $this->WEBSITE_ROOT_URL .
 				"\nGoogle Map API Key: " . $this->WEBSITE_GOOGLE_MAP_API_KEY .
-		        "\nMaximum login attempts: " . $this->MAX_INVALID_LOGIN_ATTEMPTS;
+				"\nMaximum login attempts: " . $this->MAX_INVALID_LOGIN_ATTEMPTS .
+				"\nEnable radio audio streaming: " . var_export($this->STREAM_AUDIO_ENABLED) .
+				"\nEnable radio audio streaming for mobile devices: " . var_export($this->STREAM_MOBILE) .
+				"\nEnable radio audio streaming for desktop devices: " . var_export($this->STREAM_DESKTOP) .
+				"\nURL for radio audio streaming: " . $this->STREAM_URL;
+						;
 		return $result;
 	}
 	
@@ -666,6 +684,18 @@ class FireHallWebsite
 	}
 	public function setMaxLoginAttempts($max_logins) {
 	    $this->MAX_INVALID_LOGIN_ATTEMPTS = $max_logins;
+	}
+    public function setStreamAudioEnabled($value) {
+		$this->STREAM_AUDIO_ENABLED = $value;
+	}
+	public function setStreamMobile($value) {
+		$this->STREAM_MOBILE = $value;
+	}
+	public function setStreamDesktop($value) {
+		$this->STREAM_DESKTOP = $value;
+	}
+	public function setStreamUrl($value) {
+		$this->STREAM_URL = $value;
 	}
 }
 

@@ -86,18 +86,18 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		    $config = new \riprunner\ConfigManager();
 		    return $config->getSystemConfigValue('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED');
 		}
-        if('STREAM_AUDIO_ENABLED' === $name) {
-            return STREAM_AUDIO_ENABLED;
-        }
-        if('STREAM_MOBILE' === $name) {
-            return STREAM_MOBILE;
-        }
-        if('STREAM_DESKTOP' === $name) {
-            return STREAM_DESKTOP;
-        }
-        if('STREAM_URL' === $name) {
-            return STREAM_URL;
-        }
+        // if('STREAM_AUDIO_ENABLED' === $name) {
+        //     return STREAM_AUDIO_ENABLED;
+        // }
+        // if('STREAM_MOBILE' === $name) {
+        //     return STREAM_MOBILE;
+        // }
+        // if('STREAM_DESKTOP' === $name) {
+        //     return STREAM_DESKTOP;
+        // }
+        // if('STREAM_URL' === $name) {
+        //     return STREAM_URL;
+        // }
         if('STREAM_TYPE' === $name) {
             return STREAM_TYPE;
         }
@@ -139,8 +139,8 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			      'callout_details_list','callout_details_responding_list',
                   'callout_details_not_responding_list','callout_details_end_responding_list','google_map_type',
                   'MAP_REFRESH_TIMER',
-                  'STREAM_AUDIO_ENABLED','STREAM_MOBILE','STREAM_DESKTOP','STREAM_URL','STREAM_TYPE',
-			      'STREAM_AUTOPLAY_MOBILE','STREAM_AUTOPLAY_DESKTOP',
+				  //'STREAM_AUDIO_ENABLED','STREAM_MOBILE','STREAM_DESKTOP','STREAM_URL',
+				  'STREAM_TYPE', 'STREAM_AUTOPLAY_MOBILE','STREAM_AUTOPLAY_DESKTOP',
                   'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED',
                   'map_callout_geo_dest','map_callout_address_dest','map_fh_geo_lat','map_fh_geo_long','map_webroot',
 			      'isCalloutAuth', 'member_access','member_access_respond_self', 'member_access_respond_others', 'callout_status_defs'
