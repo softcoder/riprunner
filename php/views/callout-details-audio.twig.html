@@ -1,8 +1,5 @@
 <html>
 <head>
-    <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script>
-    <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/spin.js"></script>
-	<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
 	{% if gvm.isMobile %}
 	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/callout-mobile.css?version=1" />
 	{% else %}
@@ -15,35 +12,33 @@
         {% if callout_details_vm.callout_id != -1 and callout_details_vm.calloutkey_id is defined %}
         
     {% if callout_details_vm.isCalloutAuth %}
-    <body class="ci_body">
+    <body style="align-items: top">
         {% for row in callout_details_vm.callout_details_list %}
 
         {% set callout_pending = row.callout_status_completed == false and 
                                     row.callout_status_cancelled == false %}
     
         {% block callout_header_title %}
-        <div style="text-align: center;">
-        <table>
+        <table style="height: 50px; display:block; vertical-align: top">
             <tr>
                 {% block callout_header_welcome %}
-                <td valign="top">
+                <td valign="center" align="center" style="height: 50px; display:block;">
                     <span class="ci_header">Welcome {{ callout_details_vm.member_id }} - Call Details:</span>
                 </td>
                 {% endblock %}
                 {% if callout_pending and callout_details_vm.firehall.WEBSITE.STREAM_AUDIO_ENABLED == true %}
                 {% block callout_audio_stream %}
-                <td valign="top">
+                <td valign="top" align="center" style="height: 50px; display:block;">
                     {% if gvm.isMobile and callout_details_vm.firehall.WEBSITE.STREAM_MOBILE == true %}
-                    <iframe src="{{ callout_details_vm.firehall.WEBSITE.STREAM_URL }}" frameborder="0" allowtransparency="true" style="width: 100%; min-height: 50px; border: 0;"></iframe>
+                    <iframe src="{{ callout_details_vm.firehall.WEBSITE.STREAM_URL }}" frameborder="0" allowtransparency="true" style="width: 100%; border: 0; height: 50px; display:block;"></iframe>
                     {% elseif gvm.isMobile == false and callout_details_vm.firehall.WEBSITE.STREAM_DESKTOP == true %}
-                    <iframe src="{{ callout_details_vm.firehall.WEBSITE.STREAM_URL }}" frameborder="0" allowtransparency="true" style="width: 100%; min-height: 50px; border: 0;"></iframe>
+                    <iframe src="{{ callout_details_vm.firehall.WEBSITE.STREAM_URL }}" frameborder="0" allowtransparency="true" style="width: 100%; border: 0; height: 50px; display:block;"></iframe>
                     {% endif %}
                 </td>
                 {% endblock %}
                 {% endif %}
             </tr>
         </table>
-        </div>
         {% endblock %}
 
         {% endfor %}
