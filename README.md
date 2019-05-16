@@ -29,6 +29,7 @@ Fire Operations Command Center. Easily adaptable to other callout trigger mechan
 - Ability for members to indicate a response to callouts allowing other members to know who is responding
 - 'SMS command mode' allows SMS users to respond to calls (useful if radios don't work or data is unreliable)
 - Google Maps showing Distance from Firehall to Incident
+- Support for Streaming audio of radio dispatch communications (using open source azuracast or any other standard streaming audio platform)
 - Self Installation available (see videos below)
 - User Account management (LDAP support optional)
 - Callout history with responding members
