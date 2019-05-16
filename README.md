@@ -6,7 +6,7 @@ Rip Runner
 =========
 
 <img src="/files/riprunner-small.png?raw=true" align="left" >
-<br>
+
 A Firehall dispatching communication suite. 
 Current Version: 1.0.0
 
