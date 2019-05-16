@@ -5,7 +5,7 @@ To see detailed unit test and code coverage stats visit: https://travis-ci.org/s
 Rip Runner
 =========
 
-A Firehall dispatching communication suite.
+A Firehall dispatching communication suite. (https://raw.githubusercontent.com/softcoder/riprunner/master/files/riprunner.png)
 
 Current Version: 1.0.0
 
