@@ -7,288 +7,301 @@
 {% else %}
 <table id="map_container" width="{{ gvm.JSMAP_WIDTH }}" align="center" class="ui-widget-content">
 {% endif %}
-<tr><td>
-<input id="toggle_map_drag" type="checkbox" onclick="toggleMapDragable(this.checked);"><label for="toggle_map_drag" class="ci_map_toggle">Enable map drag</span>
-<input id="toggle_map_scrollwheel" type="checkbox" onclick="toggleMapScrollWheel(this.checked);"><label for="toggle_map_scrollwheel" class="ci_map_toggle">Enable map zoom</span>
-</td></tr>
-<tr><td>
+    <tr>
+        <td>
+            <input id="toggle_map_drag" type="checkbox" onclick="toggleMapDragable(this.checked);">
+            <label for="toggle_map_drag" class="ci_map_toggle">Enable map drag</span>
+            <input id="toggle_map_scrollwheel" type="checkbox" onclick="toggleMapScrollWheel(this.checked);">
+            <label for="toggle_map_scrollwheel" class="ci_map_toggle">Enable map zoom</span>
+        </td>
+    </tr>
+    <tr>
+        <td>
 {% if gvm.isMobile %}
-     <div class="google-maps" id="map" style="height: {{ gvm.JSMAP_MOBILEHEIGHT }};"></div> 
+            <div class="google-maps" id="map" style="height: {{ gvm.JSMAP_MOBILEHEIGHT }};"></div> 
 {% else %}
-     <div class="google-maps" id="map" style="height: {{ gvm.JSMAP_HEIGHT}};"></div> 
+            <div class="google-maps" id="map" style="height: {{ gvm.JSMAP_HEIGHT}};"></div> 
 {% endif %}
-    <div id="map-canvas"></div>
-    <div id="legend"></div>
-</td></tr></table>
-   <script type="text/javascript">
-   $(function() {
+            <div id="map-canvas"></div>
+            <div id="legend"></div>
+        </td>
+    </tr>
+</table>
+<script type="text/javascript">
+    var riprunner_js_map = null;
+    $(function() {
        $( "#map_container" ).resizable();
-   });        
-   
-var riprunner_js_map = null;
+    });        
 	
-function ZoomControl(controlDiv, map) {
-    // Creating divs & styles for custom zoom control
-    controlDiv.style.padding = '0px';
-    // Set CSS for the control wrapper
-    var controlWrapper = document.createElement('div');
-    controlWrapper.style.borderStyle = 'solid';
-    controlWrapper.style.borderColor = 'black';
-    controlWrapper.style.borderWidth = '1px';  
-    controlWrapper.style.cursor = 'pointer';
-    controlWrapper.style.backgroundColor = 'white';
-    controlWrapper.style.opacity = '0.5';
-    controlWrapper.style.width = '80px'; 
-    controlWrapper.style.height = '160px';
-    controlDiv.appendChild(controlWrapper);
-    // Set CSS for the zoomIn
-    var zoomInButton = document.createElement('div');
-    zoomInButton.style.width = '80px'; 
-    zoomInButton.style.height = '80px';
-    zoomInButton.style.backgroundImage = 'url("{{ gvm.RR_DOC_ROOT }}/images/plus.png")';
-    controlWrapper.appendChild(zoomInButton);
-    // Set CSS for the zoomOut
-    var zoomOutButton = document.createElement('div');
-    zoomOutButton.style.width = '80px'; 
-    zoomOutButton.style.height = '80px';
-    zoomOutButton.style.backgroundImage = 'url("{{ gvm.RR_DOC_ROOT }}/images/minus.png")';
-    controlWrapper.appendChild(zoomOutButton);
-    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(controlWrapper);
-    // -----------------------------------------------------------------------------
-    // Setup the click event listener - zoomIn
-    google.maps.event.addDomListener(zoomInButton, 'click', function() {
-    map.setZoom(map.getZoom() + 1);
-    });
-    // -----------------------------------------------------------------------------
-    // Setup the click event listener - zoomOut
-    google.maps.event.addDomListener(zoomOutButton, 'click', function() {
-    map.setZoom(map.getZoom() - 1);
-    });  
-    // -----------------------------------------------------------------------------
-}
-
-function map_initialize() {
-    //debugger;
-
-    // Load js files that need google imports
-    var js = document.createElement("script");
-    js.type = "text/javascript";
-    js.src = "{{ gvm.RR_DOC_ROOT }}/js/markerwithlabel.js";
-    document.body.appendChild(js);
-
-    var directionsService = new google.maps.DirectionsService();
-    var directionsDisplay = new google.maps.DirectionsRenderer();
-	
-    {% block map_water_sources %}
-    var waterTank = [
-        //
-        // Set water sources here
-        //
-        //['LOCATION1 - WATER AMOUNT', lattitude, longtitude, 1],
-        //['LOCATION2 - WATER AMOUNT', lattitude, longtitude, 2],
-    ];
-    {% endblock %}
-	
-    {% block map_hydrants %}
-    var fireHydrant = [
-        //    ["Graves Road Hydrant", 53.920154, -122.641328, 1],
-        //    ["Lheidli Tenneh Hydrant 1", 54.006149, -122.618457, 2],
-        //    ["Lheidli Tenneh Hydrant 2", 54.006999, -122.617446, 3],
-        //    ["Lheidli Tenneh Hydrant 4", 54.008627, -122.613950, 4]
-    ];
-    {% endblock %}
-
-    {% block map_firehalls %}
-    // Set other RDFFG Firehall locations here
-    var fireHalls = [
-           //["PILOT MTN FIRE DEPARTMENT", 54.011258, -122.854466, 5],
-           //["SALMON VALLEY FIRE DEPARTMENT", 54.091680, -122.653749, 7]
-    ];
-    {% endblock %}
-
-    {% block map_legend_icons %}
-    // Create Icons for Legend here
-    var icons = {
-         waterTank: { name: 'Water Source', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/water.png' },
-         Origin_GPS: { name: 'Origin GPS', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/phone.png' },
-         FireHall: { name: 'Fire Station', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/firedept.png' },
-         waterHydrant: { name: 'Fire Hydrant', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/redhydrant_small.png' },
-         responderToHall: { name: 'Responder', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/respond_to_hall.png' }
-    };
-    {% endblock %}
-
-    //debugger;
-    var initialZoom = true;
-
-    // -----------------------------------------------------------------------------
-    // Create the actual map here
-    var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 14
-            ,center: new google.maps.LatLng({{ CALLORIGIN }})
-            ,streetViewControl: true
-            ,draggable: false
-            ,scrollwheel: false
-            ,overviewMapControl:true
-            ,panControl: true
-            ,disableDefaultUI: false
-            ,zoomControl: true
-            ,mapTypeId: 'hybrid'
-            ,styles: [
-	            { "featureType": "landscape.man_made", "elementType": "geometry", "stylers": [ { "color": "#ff3300" } ] },
-	            { "featureType": "water", "stylers": [ { "color": "#0080ff" } ] },
-	            { "featureType": "road.highway", "elementType": "geometry.fill", "stylers": [ { "color": "#ffff00" } ] },
-	            { "featureType": "road", "elementType": "geometry.stroke", "stylers": [ { "color": "#b1bcbf" } ] }
-            ]            
-            ,mapTypeControlOptions: {
-                style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
-                position: google.maps.ControlPosition.TOP_RIGHT,
-                mapTypeIds: [
-                    google.maps.MapTypeId.HYBRID,
-                    google.maps.MapTypeId.ROADMAP
-              	]
-            }
-    });
-    //------------------------------------------------------------------------------
-    
-    //debugger;
-    // -----------------------------------------------------------------------------
-    // Create the driving route to the 911 call
-    directionsDisplay.setMap(map);
-    var request = {
-        destination: "{{ DESTINATION }}", 
-        origin: "{{ FDLOCATION }}",
-        travelMode: google.maps.DirectionsTravelMode.DRIVING
-    };
-    // -----------------------------------------------------------------------------
-    // Create the Marker for the Call Origin - obtained by FOCC GPS pull or CAD property info
-    var callOriginMarker = new google.maps.Marker({
-        position: new google.maps.LatLng({{ CALLORIGIN }}), 
-        title: "CALL ORIGIN",
-        clickable: true,
-        icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/phone.png',
-        map: map
-    });
-    // -----------------------------------------------------------------------------
-    // Create and place markers for waterTanks
-    var infowindow = new google.maps.InfoWindow();
-    var marker, i;
-    for (i = 0; i < waterTank.length; i++) {
-        marker = new google.maps.Marker({
-        position: new google.maps.LatLng(waterTank[i][1], waterTank[i][2]),
-        icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/water.png',
-        map: map
-        });
-        google.maps.event.addListener(marker, 'click', (function(marker, i) {
-            return function() {
-                infowindow.setContent(waterTank[i][0]);
-                infowindow.open(map, marker);
-            }
-        })
-        (marker, i));
-    }
-    // -----------------------------------------------------------------------------
-    // Create and place markers for fireHydrant
-    var infowindow = new google.maps.InfoWindow();
-    var marker, i;
-    for (i = 0; i < fireHydrant.length; i++) {
-        marker = new google.maps.Marker({
-            position: new google.maps.LatLng(fireHydrant[i][1], fireHydrant[i][2]),
-            icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/redhydrant_small.png',
-            map: map
-        });
-        google.maps.event.addListener(marker, 'click', (function(marker, i) {
-            return function() {
-                infowindow.setContent(fireHydrant[i][0]);
-                infowindow.open(map, marker);
-            }
-        })
-        (marker, i));
-    }
-    // -----------------------------------------------------------------------------
-    // Create and place markers for Firehalls
-    var infowindow = new google.maps.InfoWindow();
-    var marker, i;
-    for (i = 0; i < fireHalls.length; i++) {  
-        marker = new google.maps.Marker({
-            position: new google.maps.LatLng(fireHalls[i][1], fireHalls[i][2]),
-            icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/firedept.png',
-            map: map
-        });
-        google.maps.event.addListener(marker, 'click', (function(marker, i) {
-            return function() {
-                infowindow.setContent(fireHalls[i][0]);
-                infowindow.open(map, marker);
-            }
-        })(marker, i));
-    }
-    // -----------------------------------------------------------------------------
-    // Create Large Zoom Controls
-    var zoomControlDiv = document.createElement('div');
-    var zoomControl = new ZoomControl(zoomControlDiv, map);
-    zoomControlDiv.index = 1;
-    map.controls[google.maps.ControlPosition.LEFT_TOP].push(zoomControlDiv);
-
-    // -----------------------------------------------------------------------------
-    // Set Driving Directions
-    //debugger;
-    directionsService.route(request, function(response, status) {
-        if (status == google.maps.DirectionsStatus.OK) {
-            directionsDisplay.setDirections(response);
-        }
+    function ZoomControl(controlDiv, map) {
+        // Creating divs & styles for custom zoom control
+        controlDiv.style.padding = '0px';
+        // Set CSS for the control wrapper
+        var controlWrapper = document.createElement('div');
+        controlWrapper.style.borderStyle = 'solid';
+        controlWrapper.style.borderColor = 'black';
+        controlWrapper.style.borderWidth = '1px';  
+        controlWrapper.style.cursor = 'pointer';
+        controlWrapper.style.backgroundColor = 'white';
+        controlWrapper.style.opacity = '0.5';
+        controlWrapper.style.width = '80px'; 
+        controlWrapper.style.height = '160px';
+        controlDiv.appendChild(controlWrapper);
+        // Set CSS for the zoomIn
+        var zoomInButton = document.createElement('div');
+        zoomInButton.style.width = '80px'; 
+        zoomInButton.style.height = '80px';
+        zoomInButton.style.backgroundImage = 'url("{{ gvm.RR_DOC_ROOT }}/images/plus.png")';
+        controlWrapper.appendChild(zoomInButton);
+        // Set CSS for the zoomOut
+        var zoomOutButton = document.createElement('div');
+        zoomOutButton.style.width = '80px'; 
+        zoomOutButton.style.height = '80px';
+        zoomOutButton.style.backgroundImage = 'url("{{ gvm.RR_DOC_ROOT }}/images/minus.png")';
+        controlWrapper.appendChild(zoomOutButton);
+        map.controls[google.maps.ControlPosition.RIGHT_TOP].push(controlWrapper);
         // -----------------------------------------------------------------------------
-        // Set map bounds here
-        var boundaryLayer = new google.maps.KmlLayer({
-            url: '{{ WEB_ROOT }}kml/boundaries.kml?version=1',
-            preserveViewport: true,
-            supressInfoWindows: true
+        // Setup the click event listener - zoomIn
+        google.maps.event.addDomListener(zoomInButton, 'click', function() {
+        map.setZoom(map.getZoom() + 1);
         });
-        boundaryLayer.setMap(map);
-        if(marker != null) {
-            marker.setMap(map);
-        }
+        // -----------------------------------------------------------------------------
+        // Setup the click event listener - zoomOut
+        google.maps.event.addDomListener(zoomOutButton, 'click', function() {
+        map.setZoom(map.getZoom() - 1);
+        });  
+        // -----------------------------------------------------------------------------
+    }
+
+    function map_initialize() {
+        //debugger;
+
+        // Load js files that need google imports
+        var js = document.createElement("script");
+        js.type = "text/javascript";
+        js.src = "{{ gvm.RR_DOC_ROOT }}/js/markerwithlabel.js";
+        document.body.appendChild(js);
+
+        var directionsService = new google.maps.DirectionsService();
+        var directionsDisplay = new google.maps.DirectionsRenderer();
+        
+        {% block map_water_sources %}
+        var waterTank = [
+            //
+            // Set water sources here
+            //
+            //['LOCATION1 - WATER AMOUNT', lattitude, longtitude, 1],
+            //['LOCATION2 - WATER AMOUNT', lattitude, longtitude, 2],
+        ];
+        {% endblock %}
+        
+        {% block map_hydrants %}
+        var fireHydrant = [
+            //    ["Graves Road Hydrant", 53.920154, -122.641328, 1],
+            //    ["Lheidli Tenneh Hydrant 1", 54.006149, -122.618457, 2],
+            //    ["Lheidli Tenneh Hydrant 2", 54.006999, -122.617446, 3],
+            //    ["Lheidli Tenneh Hydrant 4", 54.008627, -122.613950, 4]
+        ];
+        {% endblock %}
+
+        {% block map_firehalls %}
+        // Set other RDFFG Firehall locations here
+        var fireHalls = [
+            //["PILOT MTN FIRE DEPARTMENT", 54.011258, -122.854466, 5],
+            //["SALMON VALLEY FIRE DEPARTMENT", 54.091680, -122.653749, 7]
+        ];
+        {% endblock %}
+
+        {% block map_legend_icons %}
+        // Create Icons for Legend here
+        var icons = {
+            waterTank: { name: 'Water Source', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/water.png' },
+            Origin_GPS: { name: 'Origin GPS', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/phone.png' },
+            FireHall: { name: 'Fire Station', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/firedept.png' },
+            waterHydrant: { name: 'Fire Hydrant', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/redhydrant_small.png' },
+            responderToHall: { name: 'Responder', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/respond_to_hall.png' }
+        };
+        {% endblock %}
+
+        //debugger;
+        var initialZoom = true;
 
         // -----------------------------------------------------------------------------
-        // Create legend for Icons
-        var legend = document.getElementById('legend');
-            for (var key in icons) {
-            var type = icons[key];
-            var name = type.name;
-            var icon = type.icon;
-            var div = document.createElement('div');
-            div.innerHTML = '<img src="' + icon + '"> ' + name;
-            legend.appendChild(div);
-        }
-        map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
-    });
-	// Restore previous map settings if they exist
-    google.maps.event.addListener(map, 'zoom_changed', function () {
-    	console.info('In zoom_changed');
-        zoomChangeBoundsListener = google.maps.event.addListener(map, 'bounds_changed', function (event) {
-        	console.info('In zoom_changed + bounds_changed');
-        	try {
-	            if (initialZoom == true) {
-	            	initialZoom = false;
-	            	console.info('Updating zoom...');
-	                LoadView(this);
-	            }
-        	}
-            catch(e) {
-                console.info('Error calling LoadView msg: ' + e.message);            
-            }
-        	
-            google.maps.event.removeListener(zoomChangeBoundsListener);
+        // Create the actual map here
+        var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 14
+                ,center: new google.maps.LatLng({{ CALLORIGIN }})
+                ,streetViewControl: true
+                ,draggable: false
+                ,scrollwheel: false
+                ,overviewMapControl:true
+                ,panControl: true
+                ,disableDefaultUI: false
+                ,zoomControl: true
+                ,mapTypeId: 'hybrid'
+                ,styles: [
+                    { "featureType": "landscape.man_made", "elementType": "geometry", "stylers": [ { "color": "#ff3300" } ] },
+                    { "featureType": "water", "stylers": [ { "color": "#0080ff" } ] },
+                    { "featureType": "road.highway", "elementType": "geometry.fill", "stylers": [ { "color": "#ffff00" } ] },
+                    { "featureType": "road", "elementType": "geometry.stroke", "stylers": [ { "color": "#b1bcbf" } ] }
+                ]            
+                ,mapTypeControlOptions: {
+                    style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+                    position: google.maps.ControlPosition.TOP_RIGHT,
+                    mapTypeIds: [
+                        google.maps.MapTypeId.HYBRID,
+                        google.maps.MapTypeId.ROADMAP
+                    ]
+                }
         });
-    });
-    
-    try {
-  	    getGEOLocationCoords_initialize(map);
-    }
-    catch(e) {
-        console.info('Error calling getGEOLocationCoords_initialize msg: ' + e.message);            
-    }
+        //------------------------------------------------------------------------------
+        
+        //debugger;
+        // -----------------------------------------------------------------------------
+        // Create the driving route to the 911 call
+        directionsDisplay.setMap(map);
+        var request = {
+            destination: "{{ DESTINATION }}", 
+            origin: "{{ FDLOCATION }}",
+            travelMode: google.maps.DirectionsTravelMode.DRIVING
+        };
+        // -----------------------------------------------------------------------------
+        // Create the Marker for the Call Origin - obtained by FOCC GPS pull or CAD property info
+        var callOriginMarker = new google.maps.Marker({
+            position: new google.maps.LatLng({{ CALLORIGIN }}), 
+            title: "CALL ORIGIN",
+            clickable: true,
+            icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/phone.png',
+            map: map
+        });
 
-	riprunner_js_map = map;
-}
+        // -----------------------------------------------------------------------------
+        // Create and place markers for waterTanks
+        var infowindow = new google.maps.InfoWindow();
+        var marker, i;
+        for (i = 0; i < waterTank.length; i++) {
+            marker = new google.maps.Marker({
+            position: new google.maps.LatLng(waterTank[i][1], waterTank[i][2]),
+            icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/water.png',
+            map: map
+            });
+            google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                return function() {
+                    infowindow.setContent(waterTank[i][0]);
+                    infowindow.open(map, marker);
+                }
+            })
+            (marker, i));
+        }
+        // -----------------------------------------------------------------------------
+        // Create and place markers for fireHydrant
+        var infowindow = new google.maps.InfoWindow();
+        var marker, i;
+        for (i = 0; i < fireHydrant.length; i++) {
+            marker = new google.maps.Marker({
+                position: new google.maps.LatLng(fireHydrant[i][1], fireHydrant[i][2]),
+                icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/redhydrant_small.png',
+                map: map
+            });
+            google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                return function() {
+                    infowindow.setContent(fireHydrant[i][0]);
+                    infowindow.open(map, marker);
+                }
+            })
+            (marker, i));
+        }
+        // -----------------------------------------------------------------------------
+        // Create and place markers for Firehalls
+        var infowindow = new google.maps.InfoWindow();
+        var marker, i;
+        for (i = 0; i < fireHalls.length; i++) {  
+            marker = new google.maps.Marker({
+                position: new google.maps.LatLng(fireHalls[i][1], fireHalls[i][2]),
+                icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/firedept.png',
+                map: map
+            });
+            google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                return function() {
+                    infowindow.setContent(fireHalls[i][0]);
+                    infowindow.open(map, marker);
+                }
+            })(marker, i));
+        }
+        // -----------------------------------------------------------------------------
+        // Create Large Zoom Controls
+        var zoomControlDiv = document.createElement('div');
+        var zoomControl = new ZoomControl(zoomControlDiv, map);
+        zoomControlDiv.index = 1;
+        map.controls[google.maps.ControlPosition.LEFT_TOP].push(zoomControlDiv);
+
+        // -----------------------------------------------------------------------------
+        // Set Driving Directions
+        //debugger;
+        directionsService.route(request, function(response, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+                directionsDisplay.setDirections(response);
+            }
+            // -----------------------------------------------------------------------------
+            // Set map bounds here
+            var boundaryLayer = new google.maps.KmlLayer({
+                url: '{{ WEB_ROOT }}kml/boundaries.kml?version=1',
+                preserveViewport: true,
+                supressInfoWindows: true
+            });
+            boundaryLayer.setMap(map);
+            if(marker != null) {
+                marker.setMap(map);
+            }
+
+            // -----------------------------------------------------------------------------
+            // Create legend for Icons
+            var legend = document.getElementById('legend');
+                for (var key in icons) {
+                var type = icons[key];
+                var name = type.name;
+                var icon = type.icon;
+                var div = document.createElement('div');
+                div.innerHTML = '<img src="' + icon + '"> ' + name;
+                legend.appendChild(div);
+            }
+            map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
+        });
+        // Restore previous map settings if they exist
+        google.maps.event.addListener(map, 'zoom_changed', function () {
+            console.info('In zoom_changed');
+            zoomChangeBoundsListener = google.maps.event.addListener(map, 'bounds_changed', function (event) {
+                console.info('In zoom_changed + bounds_changed');
+                try {
+                    if (initialZoom == true) {
+                        initialZoom = false;
+                        console.info('Updating zoom...');
+                        LoadView(this);
+                    }
+                }
+                catch(e) {
+                    console.info('Error calling LoadView msg: ' + e.message);            
+                }
+                
+                google.maps.event.removeListener(zoomChangeBoundsListener);
+            });
+        });
+        
+        try {
+            getGEOLocationCoords_initialize(map);
+        }
+        catch(e) {
+            console.info('Error calling getGEOLocationCoords_initialize msg: ' + e.message);            
+        }
+
+        google.maps.event.addListener(map, 'tilesloaded', function() {
+            //clear the listener, we only need it once
+            google.maps.event.clearListeners(map, 'tilesloaded');
+            mapTilesLoaded(map);
+        });        
+
+        riprunner_js_map = map;
+    }
 
 	function toggleMapDragable(enabled) {
 	    riprunner_js_map.setOptions({
@@ -310,7 +323,8 @@ function map_initialize() {
 	   document.getElementsByTagName("head")[0].appendChild(script);
 	   script.src = src;
    }
+
    $( document ).ready(function() {
-      loadScript('https://maps.googleapis.com/maps/api/js?v=3.exp&key={{ callout_details_vm.firehall.WEBSITE.WEBSITE_GOOGLE_MAP_API_KEY }}&alternatives=true&callback=map_initialize' );
+       loadScript('https://maps.googleapis.com/maps/api/js?v=3.exp&key={{ callout_details_vm.firehall.WEBSITE.WEBSITE_GOOGLE_MAP_API_KEY }}&alternatives=true&callback=map_initialize' );
    });
 </script>

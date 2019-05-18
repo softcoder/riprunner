@@ -90,9 +90,9 @@
         
 		<!-- Tab links -->
         <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'Responders')" id="defaultOpen">Current Activity</button>
-            <button class="tablinks" onclick="openTab(event, 'Map')">Map</button>
-            <button class="tablinks" onclick="openTab(event, 'UnknownResponders')">Responder Actions</button>
+            <button class="tablinks" onclick="openTab(event, 'Responders')" id="tabResponders">Current Activity</button>
+            <button class="tablinks" onclick="openTab(event, 'Map');" id="tabMap">Map</button>
+            <button class="tablinks" onclick="openTab(event, 'UnknownResponders')" id="tabUnknownResponders">Responder Actions</button>
         </div>
         <!-- Tab content -->
         <div id="Responders" class="tabcontent">
@@ -394,7 +394,11 @@
     </div>
 
 <script type="text/javascript">
-  
+
+function mapTilesLoaded(map) {
+    document.getElementById("tabResponders").click();
+}
+
 function getGEOLocationCoords_callback_fn(geoAccess,param2) {
     //alert('In getGEOLocationCoords_callback_fn' + geoAccess);
     //alert(param2);
@@ -449,7 +453,15 @@ function setResponderETAs(map) {
                 
                 var origin = callout_geo_src;
                 var destination = callout_geo_dest; // using string
-    
+
+                //debugger;
+                var geo_check = callout_geo_src.split(",");
+                if(geo_check == null || (geo_check.length == 2 && 
+                    parseFloat(geo_check[0]) == 0.0 && parseFloat(geo_check[1]) == 0.0)) {
+                    console.info('Skip geo route in setResponderETAs() for index: ' + index);
+                    continue;
+                }
+
                 //debugger;
                 var directionsService = new google.maps.DirectionsService();
                 var request = {
@@ -662,7 +674,8 @@ $( document ).ready(function() {
     {% endif %}
     
     // Get the element with id="defaultOpen" and click on it
-    document.getElementById("defaultOpen").click();
+    //document.getElementById("tabMap").click();
+    document.getElementById("tabMap").click();
 });     
 </script>
 

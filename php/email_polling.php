@@ -280,7 +280,10 @@ class EmailTriggerPolling {
         if (array_key_exists('parts', $structure) === true) {
             $multi = $structure->parts;
         }
-        $nparts = count($multi);
+        $nparts = 0;
+        if ($multi != null) {
+            $nparts = count($multi);
+        }
     
         if($log !== null) $log->trace('Email trigger check Email contains ['.$nparts.'] parts.');
         $html .='Email contains ['.$nparts.'] parts<br>';
