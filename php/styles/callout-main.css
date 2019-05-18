@@ -230,6 +230,11 @@
     font-weight: bold;
 }
 
+input.ci_map_checkbox {
+    width:25px;
+    height:25px;
+}
+
 .ci_responders_map_link {
     color:yellow;
     font-size:25px;

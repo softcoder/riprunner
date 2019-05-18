@@ -5,11 +5,12 @@
     <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
     <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/tabs.js"></script>
 	{% if gvm.isMobile %}
-	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/callout-mobile.css?version=1" />
+    <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/callout-mobile.css?version=1" />
+    <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/tabs-mobile.css?version=1" />
 	{% else %}
-	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/callout-main.css?version=1" />
-    {% endif %}
+    <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/callout-main.css?version=1" />
     <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/tabs.css?version=1" />
+    {% endif %}
 </head>
 
 {% if callout_details_vm.firehall_id is defined %}
@@ -119,7 +120,7 @@
                                 <span class='inset-button'>{{ row_no.user_id }}</span>
                             </td>
                             <td class="ci_align_cell" colspan="2">
-                                <INPUT TYPE="button" VALUE="Update" 
+                                <INPUT TYPE="button" VALUE="Send" 
                                         class="ci_respondnow_update" 
                                         onclick="$('#call_no_response_me{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status_me{{ row_no.id }}' ).val());
                                         if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status_me{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_me{{ row_no.id }}'))) document.getElementById('call_no_response_me{{ row_no.id }}').submit();"/>
@@ -307,7 +308,7 @@
                             <span class='inset-button'>{{ row_no.user_id }}</span>
                         </td>
                         <td class="ci_align_cell" colspan="2">
-                            <INPUT TYPE="button" VALUE="Update" 
+                            <INPUT TYPE="button" VALUE="Send" 
                                     class="ci_respondnow_update" 
                                     onclick="$('#call_no_response_{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status{{ row_no.id }}' ).val());
                                     if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
@@ -459,6 +460,7 @@ function setResponderETAs(map) {
                 if(geo_check == null || (geo_check.length == 2 && 
                     parseFloat(geo_check[0]) == 0.0 && parseFloat(geo_check[1]) == 0.0)) {
                     console.info('Skip geo route in setResponderETAs() for index: ' + index);
+                    $( '#responder_eta_' + index ).html( 'unknown' );
                     continue;
                 }
 
@@ -682,18 +684,18 @@ $( document ).ready(function() {
     
     {% else %}
     <body class="ci_body_error">
-    <h2><b>Invalid Auth.</b></h2>
+    <h2><b>Invalid Auth. cdm1</b></h2>
     
     {% endif %}
              
     {% else %}
     <body class="ci_body_error">
-    <h2><b>Invalid Request(1)</b></h2>
+    <h2><b>Invalid Request(1) cdm2</b></h2>
            
         {% endif %}
     {% else %}
     <body class="ci_body_error">
-    <h2><b>Invalid Request(2)</b></h2>
+    <h2><b>Invalid Request(2) cdm3</b></h2>
     
         <div id="error">
             <h2>
@@ -703,7 +705,7 @@ $( document ).ready(function() {
     {% endif %}
 {% else %}
     <body class="ci_body_error">
-    <h2><b>Invalid Request(3)</b></h2>
+    <h2><b>Invalid Request(3) cdm4</b></h2>
     <div id="error">
         <h2>
         <b><font color="white">ERROR loading page, invalid identifier!</font></b>

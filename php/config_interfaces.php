@@ -401,7 +401,7 @@ class FireHallSMS
 				"\nrecipients are a group name: " . var_export($this->SMS_RECIPIENTS_ARE_GROUP, true) .
 				"\nGet recipients from DB: " . var_export($this->SMS_RECIPIENTS_FROM_DB, true) .
 				"\nRecipients notify only list: " . var_export($this->SMS_RECIPIENTS_NOTIFY_ONLY, true) .
-				"\nRecipients webroot override list: " . $this->SMS_RECIPIENTS_WEBSITE_ROOT_URL_OVERRIDE .
+				"\nRecipients webroot override list: " . ($this->SMS_RECIPIENTS_WEBSITE_ROOT_URL_OVERRIDE == null ? '' :  implode('',$this->SMS_RECIPIENTS_WEBSITE_ROOT_URL_OVERRIDE)) .
 				"\nSpecial contacts list: " . $this->SMS_SPECIAL_CONTACTS .
 				"\nSendhub url: " . $this->SMS_PROVIDER_SENDHUB_BASE_URL .
 				"\nTextbelt url: " . $this->SMS_PROVIDER_TEXTBELT_BASE_URL .

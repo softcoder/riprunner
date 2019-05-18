@@ -16,22 +16,24 @@
         
     {% if callout_details_vm.isCalloutAuth %}
     <body class="ci_body">
-        <iframe id="callout-audio" style="border-style: none; border-color: inherit; border-width: 0px; height:50px; width:100%;" scrolling="no" src="{{ gvm.RR_DOC_ROOT }}/controllers/callout-details-controller.php?special_view=callout-audio&cid={{ callout_details_vm.callout_id }}&fhid={{ callout_details_vm.firehall_id }}&ckid={{ callout_details_vm.calloutkey_id }}"></iframe>
-        <iframe id="callout-detail" style="border-style: none; border-color: inherit; border-width: 0px; height:100%; width:100%;" src="{{ gvm.RR_DOC_ROOT }}/controllers/callout-details-controller.php?special_view=callout-details&cid={{ callout_details_vm.callout_id }}&fhid={{ callout_details_vm.firehall_id }}&ckid={{ callout_details_vm.calloutkey_id }}"></iframe>
+        <iframe id="callout-audio" style="border-style: none; border-color: inherit; border-width: 0px; height:50px; width:100%;" 
+                scrolling="no" src="{{ gvm.RR_DOC_ROOT }}/ci/special_view=callout-audio&cid={{ callout_details_vm.callout_id }}&fhid={{ callout_details_vm.firehall_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}"></iframe>
+        <iframe id="callout-detail" style="border-style: none; border-color: inherit; border-width: 0px; height:100%; width:100%;" 
+                src="{{ gvm.RR_DOC_ROOT }}/ci/special_view=callout-details&cid={{ callout_details_vm.callout_id }}&fhid={{ callout_details_vm.firehall_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}"></iframe>
     {% else %}
     <body class="ci_body_error">
-    <h2><b>Invalid Auth.</b></h2>
+    <h2><b>Invalid Auth. cd1</b></h2>
     
     {% endif %}
              
     {% else %}
     <body class="ci_body_error">
-    <h2><b>Invalid Request(1)</b></h2>
+    <h2><b>Invalid Request(1) cd2</b></h2>
            
         {% endif %}
     {% else %}
     <body class="ci_body_error">
-    <h2><b>Invalid Request(2)</b></h2>
+    <h2><b>Invalid Request(2) cd3</b></h2>
     
         <div id="error">
             <h2>
@@ -41,7 +43,7 @@
     {% endif %}
 {% else %}
     <body class="ci_body_error">
-    <h2><b>Invalid Request(3)</b></h2>
+    <h2><b>Invalid Request(3) cd4</b></h2>
     <div id="error">
         <h2>
         <b><font color="white">ERROR loading page, invalid identifier!</font></b>
