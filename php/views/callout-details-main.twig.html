@@ -232,6 +232,7 @@
                     <td>
                         <input type="hidden" id="responder_geo_{{ loop.index }}" value="{{ row_responding.responder_location }}">
                         <input type="hidden" id="responder_name_{{ loop.index }}" value="{{ row_responding.user_id }}">
+                        <input type="hidden" id="responder_status_{{ loop.index }}" value="{{ row_responding.status }}">
                         <span class="ci_header_response_eta" id="responder_eta_{{ loop.index }}">?</span>
                     </td>
                 </tr>
@@ -443,6 +444,7 @@ function getGEOLocationCoords_initialize(map) {
 function setResponderETAs(map) {
     console.info('In setResponderETAs() START');
     //debugger;
+    var firehall_geo = '{{ callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE }},{{ callout_details_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE }}';
     var responder_count = {{ callout_details_vm.callout_details_responding_list|length }};    
     for(index = 1; index <= responder_count; ++index) {
         try {
@@ -454,6 +456,7 @@ function setResponderETAs(map) {
                 
                 var origin = callout_geo_src;
                 var destination = callout_geo_dest; // using string
+                var callout_status_src = $( '#responder_status_'+index).attr('value');
 
                 //debugger;
                 var geo_check = callout_geo_src.split(",");
@@ -462,6 +465,15 @@ function setResponderETAs(map) {
                     console.info('Skip geo route in setResponderETAs() for index: ' + index);
                     $( '#responder_eta_' + index ).html( 'unknown' );
                     continue;
+                }
+                
+                // Responding to hall
+                if(callout_status_src == '2') {
+                    destination = firehall_geo;
+                }
+                // Not responding
+                if(callout_status_src == '4') {
+                    continue
                 }
 
                 //debugger;
