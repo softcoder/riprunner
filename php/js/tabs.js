@@ -18,3 +18,12 @@ function openTab(evt, tabName) {
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
   }
+  function getOpenTab() {
+    // Get all elements with class="tablinks" and find the class "active"
+    var tablinks = document.getElementsByClassName("tablinks");
+    for (var i = 0; i < tablinks.length; i++) {
+      if(tablinks[i].classList.contains("active")) {
+        return tablinks[i];
+      }
+    }
+  }

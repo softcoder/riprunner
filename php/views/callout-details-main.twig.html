@@ -398,7 +398,13 @@
 <script type="text/javascript">
 
 function mapTilesLoaded(map) {
-    document.getElementById("tabResponders").click();
+    var defaultTab = getURLParameterByName('defaultTab');
+    if(defaultTab != null && defaultTab != '') {
+        document.getElementById(defaultTab).click();    
+    }
+    else {
+        document.getElementById("tabResponders").click();
+    }
 }
 
 function getGEOLocationCoords_callback_fn(geoAccess,param2) {
@@ -620,7 +626,16 @@ function reloadPage() {
         console.info('About to reload page, elapsed time ms: ' + elapsedReload);
         //throw "Test reload error!";
         
-        location.reload(true); 
+        //debugger;
+        
+        var url = location.href;
+        var openTab = getOpenTab();
+        if(openTab != null) {
+            url = removeURLParameterName(url,'defaultTab');
+            url = addURLParameterName(url, 'defaultTab', openTab.id);
+        }
+        location.href = url;
+        //location.reload(true); 
         reloadSuccess = true;
     }
     catch(e) {
