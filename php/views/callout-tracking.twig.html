@@ -134,7 +134,41 @@
         var div = document.getElementById("call_tracking_refresh_counter");
         div.innerHTML="<b>Refreshing map now!</b>";
         var form = document.getElementById("call_tracking");
-        form.submit();
+        //form.submit();
+
+        var file = "{{ gvm.RR_DOC_ROOT }}/js/spin.js";
+        //var file = "http://10.100.100.100/js/spin.js";
+        var randomNum = Math.round(Math.random() * 10000);
+        file += "?rand=" + randomNum;
+        console.info("Tracking Check if a connection exists url: " + file);
+
+        var lastReloadError = '';
+        var xhr = new XMLHttpRequest();
+        xhr.open('HEAD', file, true);
+        xhr.send();
+        xhr.addEventListener("readystatechange", processTrackingRequest, false);
+    
+        function processTrackingRequest(e) {
+            console.info("In processTrackingRequest state: " + xhr.readyState);
+            if (xhr.readyState == 4) {
+                if (xhr.status >= 200 && xhr.status < 304) {
+                    lastReloadError = xhr.statusText;
+                    console.info("Tracking SUCCESS - Connection exists submitting form.");
+                    form.submit();
+                } 
+                else {
+                    if(xhr.statusText != '') {
+                        lastReloadError = xhr.statusText;
+                    }
+                    else {
+                        lastReloadError = xhr.responseText;
+                    }
+                    console.info("Tracking FAIL - Connection DOES NOT exist status: " + lastReloadError);
+                    trackResponder();
+                }
+            }
+        }
+
     }
 
     function trackResponderCounter() {
@@ -181,14 +215,52 @@
                         var delay_seconds={{ callout_tracking_vm.tracking_delay }};
                         var trackResponderTimer=null;
                         var trackResponderTimerCounter=null;
+                        var lastReloadError = '';
                         function trackResponder() {
                           //debugger;
                           window.clearInterval(trackResponderTimerCounter);
                           var div1 = document.getElementById("call_tracking_response_counter");
 	                          div1.innerHTML="<b>Tracking GEO coords now!</b>";
 	                          var form1 = document.getElementById("call_tracking_response");
-	                          appendGeoCoordinates(form1);
-	                          //  form.submit();
+	                          //appendGeoCoordinates(form1);
+                            //  form.submit();
+
+                            var file = "{{ gvm.RR_DOC_ROOT }}/js/spin.js";
+                            //var file = "http://10.100.100.100/js/spin.js";
+                            var randomNum = Math.round(Math.random() * 10000);
+                            file += "?rand=" + randomNum;
+                            console.info("Check if a connection exists url: " + file);
+
+                            if(lastReloadError == '') {
+                                lastReloadError = 'connecting...';
+                            }
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('HEAD', file, true);
+                            xhr.send();
+                            xhr.addEventListener("readystatechange", processTrackingRequest, false);
+                        
+                            function processTrackingRequest(e) {
+                                //debugger;
+                                console.info("In processTrackingRequest state: " + xhr.readyState);
+                                if (xhr.readyState == 4) {
+                                    if (xhr.status >= 200 && xhr.status < 304) {
+                                        lastReloadError = xhr.statusText;
+                                        console.info("SUCCESS - Connection exists submitting page...");
+                                        //form1.submit();
+                                        appendGeoCoordinates(form1);
+                                    } 
+                                    else {
+                                        if(xhr.statusText != '') {
+                                            lastReloadError = xhr.statusText;
+                                        }
+                                        else {
+                                            lastReloadError = xhr.responseText;
+                                        }
+                                        console.info("FAIL - Connection DOES NOT exist status: " + lastReloadError);
+                                        trackResponder();
+                                    }
+                                }
+                            }
                         }
                         function trackResponderCounter() {
                           var div1 = document.getElementById("call_tracking_response_counter");
@@ -203,7 +275,7 @@
                         
                         $( document ).ready(function() {
                           //debugger;
-                          setInterval(function () {trackResponder()}, {{ callout_tracking_vm.tracking_delay }}000);
+                          setTimeout(function () {trackResponder()}, {{ callout_tracking_vm.tracking_delay }}000);
                           setInterval(function () {trackResponderCounter()}, 1000);
 
                           {% if callout_tracking_vm.user_lat is null or callout_tracking_vm.user_long is null %}
