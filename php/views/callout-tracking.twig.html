@@ -22,6 +22,7 @@
   <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
 </head> 
 <body>
+  <!-- GEO Tracking MONITOR -->
   <form id="call_tracking" action="{{ gvm.RR_DOC_ROOT }}/ct/fhid={{ callout_tracking_vm.firehall_id }}&cid={{ callout_tracking_vm.callout_id }}&delay=45&ta=mr&ckid={{ callout_tracking_vm.calloutkey_id }}" 
           method="POST">
 
@@ -156,9 +157,8 @@
     
             {% if callout_tracking_vm.user_authenticated %}
                 {% if callout_tracking_vm.callout_in_progress %}
-                    {% if callout_tracking_vm.user_lat is not null and
-                          callout_tracking_vm.user_long is not null %}
-                        {{ callout_tracking_vm.track_geo }}                    
+                    {% if callout_tracking_vm.user_lat is not null and callout_tracking_vm.user_long is not null %}
+                        {{ callout_tracking_vm.track_geo }}
                     {% endif %}
                     
                     {% if callout_tracking_vm.tracking_delay is defined and callout_tracking_vm.tracking_delay > 0 %}
@@ -169,8 +169,7 @@
                             <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
                         </head>
                         <body>
-                        
-
+                        <!-- GEO Tracking INSERT: {{ callout_tracking_vm.user_lat }} : {{ callout_tracking_vm.user_long }} -->
                         <div id="call_tracking_response_counter" style="font-size: 25px; color:cyan"></div>
                         <form id="call_tracking_response" action="{{ gvm.RR_DOC_ROOT }}/ct/fhid={{ callout_tracking_vm.firehall_id }}&cid={{ callout_tracking_vm.callout_id }}&delay=45&uid={{ callout_tracking_vm.user_id }}&ckid={{ callout_tracking_vm.calloutkey_id }}" 
                               method="POST" onsubmit="return appendGeoCoordinates(document.getElementById('call_tracking_response'));">
@@ -186,27 +185,43 @@
                           //debugger;
                           window.clearInterval(trackResponderTimerCounter);
                           var div1 = document.getElementById("call_tracking_response_counter");
-                          //if(div1) {
 	                          div1.innerHTML="<b>Tracking GEO coords now!</b>";
 	                          var form1 = document.getElementById("call_tracking_response");
 	                          appendGeoCoordinates(form1);
 	                          //  form.submit();
-	                      //}
                         }
                         function trackResponderCounter() {
-                        // debugger;
                           var div1 = document.getElementById("call_tracking_response_counter");
-                          //if(div1) {
-                        	  div1.innerHTML="<b>Tracking GEO in " + delay_seconds + " secs.</b>";
-                        	  delay_seconds -= 1;
-                          //}
+                       	  div1.innerHTML="<b>Tracking GEO in " + delay_seconds + " secs.</b>";
+                       	  delay_seconds -= 1;
                         }
-                        
+                        function handleLocationError(err) {
+                          // alert(`ERROR(${err.code}): ${err.message}`);
+                          console.warn(`ERROR(${err.code}): ${err.message}`);
+                        }                        
                         //$html_output .= '  debugger;
-                        //$( document ).ready(function() {
-                            setInterval(function () {trackResponder()}, {{ callout_tracking_vm.tracking_delay }}000);
-                            setInterval(function () {trackResponderCounter()}, 1000);
-                        //});
+                        
+                        $( document ).ready(function() {
+                          //debugger;
+                          setInterval(function () {trackResponder()}, {{ callout_tracking_vm.tracking_delay }}000);
+                          setInterval(function () {trackResponderCounter()}, 1000);
+
+                          {% if callout_tracking_vm.user_lat is null or callout_tracking_vm.user_long is null %}
+                          // Try HTML5 geolocation.
+                          if (navigator.geolocation) {
+                              navigator.geolocation.getCurrentPosition(function(position) {
+                                debugger;
+                                var coords = {
+                                  lat: position.coords.latitude,
+                                  lng: position.coords.longitude
+                                };
+
+                                var form = document.getElementById('call_tracking_response');
+                                form.action = form.action + '&lat=' + coords[0] + '&long=' + coords[1];
+                              }, handleLocationError);
+                          }
+                          {% endif %}
+                        });
                         </script>
                         
                         </body>
