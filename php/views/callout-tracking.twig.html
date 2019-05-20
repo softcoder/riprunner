@@ -22,20 +22,20 @@
   <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
 </head> 
 <body>
-  <form id="call_tracking" action="{{ gvm.RR_DOC_ROOT }}/ct/fhid={{ callout_tracking_vm.firehall_id }}&cid={{ callout_tracking_vm.callout_id }}&delay=60&ta=mr&ckid={{ callout_tracking_vm.calloutkey_id }}" 
+  <form id="call_tracking" action="{{ gvm.RR_DOC_ROOT }}/ct/fhid={{ callout_tracking_vm.firehall_id }}&cid={{ callout_tracking_vm.callout_id }}&delay=45&ta=mr&ckid={{ callout_tracking_vm.calloutkey_id }}" 
           method="POST">
 
     {% if callout_tracking_vm.responding_people == '' %}
-        <div id="call_tracking_empty">No members have responded yet.</div>
+        <div id="call_tracking_empty" style="font-size: 25px; color:cyan">No members have responded yet.</div>
     {% endif %}
     {% if callout_tracking_vm.callout_in_progress %}
         {% if callout_tracking_vm.firehall.MOBILE.MOBILE_TRACKING_ENABLED %}
-            <div id="call_tracking_refresh_counter"></div>
+            <div id="call_tracking_refresh_counter" style="font-size: 25px; color:cyan"></div>
         {% endif %}
         <INPUT TYPE="submit" VALUE="Refresh Map Now'" 
                style="font-size: 25px; background-color:yellow" />
     {% else %}
-        <div id="call_tracking_refresh_counter"><h2>Call is: {{ callout_tracking_vm.callout_status_desc }}</h2></div>
+        <div id="call_tracking_refresh_counter" style="font-size: 25px; color:cyan"><h2>Call is: {{ callout_tracking_vm.callout_status_desc }}</h2></div>
     {% endif %}
   </form>
   <div id="map" style="width: 1024px; height: 768px;"></div>
@@ -123,7 +123,7 @@
     	callout_tracking_vm.callout_in_progress %}
     
     // Trigger countdown for refresh of page
-    var delay_seconds=60;
+    var delay_seconds=45;
     var trackResponderTimer=null;
     var trackResponderTimerCounter=null;
     
@@ -171,8 +171,8 @@
                         <body>
                         
 
-                        <div id="call_tracking_response_counter"></div>
-                        <form id="call_tracking_response" action="{{ gvm.RR_DOC_ROOT }}/ct/fhid={{ callout_tracking_vm.firehall_id }}&cid={{ callout_tracking_vm.callout_id }}&delay=60&uid={{ callout_tracking_vm.user_id }}&ckid={{ callout_tracking_vm.calloutkey_id }}" 
+                        <div id="call_tracking_response_counter" style="font-size: 25px; color:cyan"></div>
+                        <form id="call_tracking_response" action="{{ gvm.RR_DOC_ROOT }}/ct/fhid={{ callout_tracking_vm.firehall_id }}&cid={{ callout_tracking_vm.callout_id }}&delay=45&uid={{ callout_tracking_vm.user_id }}&ckid={{ callout_tracking_vm.calloutkey_id }}" 
                               method="POST" onsubmit="return appendGeoCoordinates(document.getElementById('call_tracking_response'));">
                                 <INPUT TYPE="submit" VALUE="GEO Track Now - {{ callout_tracking_vm.user_id }}" 
                                        style="font-size: 25px; background-color:yellow" />
@@ -197,7 +197,7 @@
                         // debugger;
                           var div1 = document.getElementById("call_tracking_response_counter");
                           //if(div1) {
-                        	  div1.innerHTML="<b>Tracking GEO coords in " + delay_seconds + " seconds.</b>";
+                        	  div1.innerHTML="<b>Tracking GEO in " + delay_seconds + " secs.</b>";
                         	  delay_seconds -= 1;
                           //}
                         }
@@ -220,7 +220,7 @@
                             <head>
                             </head>
                         <body>
-                            <div id="call_tracking_response_counter">
+                            <div id="call_tracking_response_counter" style="font-size: 25px; color:cyan">
                             <b>Finished tracking responder: {{ callout_tracking_vm.user_id }}</b>
                             </div>
                             <script type="text/javascript">
