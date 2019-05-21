@@ -647,9 +647,9 @@ class FireHallWebsite
 				"\nBase URL: " . $this->WEBSITE_ROOT_URL .
 				"\nGoogle Map API Key: " . $this->WEBSITE_GOOGLE_MAP_API_KEY .
 				"\nMaximum login attempts: " . $this->MAX_INVALID_LOGIN_ATTEMPTS .
-				"\nEnable radio audio streaming: " . var_export($this->STREAM_AUDIO_ENABLED) .
-				"\nEnable radio audio streaming for mobile devices: " . var_export($this->STREAM_MOBILE) .
-				"\nEnable radio audio streaming for desktop devices: " . var_export($this->STREAM_DESKTOP) .
+				"\nEnable radio audio streaming: " . var_export($this->STREAM_AUDIO_ENABLED, true) .
+				"\nEnable radio audio streaming for mobile devices: " . var_export($this->STREAM_MOBILE, true) .
+				"\nEnable radio audio streaming for desktop devices: " . var_export($this->STREAM_DESKTOP, true) .
 				"\nURL for radio audio streaming: " . $this->STREAM_URL;
 						;
 		return $result;
