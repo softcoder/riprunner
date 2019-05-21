@@ -55,27 +55,30 @@ class SMSTwilioPlugin implements ISMSPlugin {
 		
 			curl_multi_add_handle($mh, $curly[$recipient]);
 		}
+
 		// execute the mutiple connections
 		$running = null;
 		do {
 		  curl_multi_exec($mh, $running);
 		} while($running > 0);
 
+		$result = '';
 		// get content and remove handles
 		foreach($curly as $id => $c) {
-			$result = curl_multi_getcontent($c);
+			try {			
+				$result = curl_multi_getcontent($c);
+				$this->logTrace('Twilio: curl_multi_getcontent for id: '.$id.' returned: '.$result);
 
-			$resultSMS .= 'RESPONSE: ' . $result .PHP_EOL;
-		
-			if(curl_errno($c) === 0) {
-				$info = curl_getinfo($c);
-				$resultSMS .= 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
-			}
-			else {
-				$resultSMS .= 'Curl error: ' . curl_error($c) . PHP_EOL;
-			}
-		
-			try {
+				$resultSMS .= 'RESPONSE: ' . $result .PHP_EOL;
+			
+				if(curl_errno($c) === 0) {
+					$info = curl_getinfo($c);
+					$resultSMS .= 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . PHP_EOL;
+				}
+				else {
+					$resultSMS .= 'Curl error: ' . curl_error($c) . PHP_EOL;
+				}
+			
 		 		$xml = new \SimpleXMLElement($result);
 		 		
 		 		if ( isset($xml->RestException)  === true) {
@@ -86,6 +89,7 @@ class SMSTwilioPlugin implements ISMSPlugin {
 		 		}
 			}
 		 	catch(Excepton $oException) {
+				$this->logError('Twilio: ERROR curl_multi_getcontent for id: '.$id.' returned: '.$result . ' exception: '. $oException->getMessage());
 		 		$resultSMS .= "TWILIO XML ERROR RESPONSE: [$result]" . PHP_EOL;
 		 	}		 		
 
@@ -97,4 +101,20 @@ class SMSTwilioPlugin implements ISMSPlugin {
 
 		return $resultSMS;
 	}
+
+	protected function logError($text) {
+		global $log;
+		if($log != null) $log->error($text);
+	}
+
+	protected function logWarning($text) {
+		global $log;
+		if($log != null) $log->warn($text);
+	}
+
+	protected function logTrace($text) {
+		global $log;
+		if($log != null) $log->trace($text);
+	}
+
 }

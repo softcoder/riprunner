@@ -69,9 +69,10 @@ class SMSPlivoPlugin implements ISMSPlugin {
 			        );
 				
 			//echo '<br>PLIVO SMS URL to call: ' . $url . '<br>using JSON: ' . $data_string . PHP_EOL;
-			
 			$result = curl_exec($s);
-		
+
+			$this->logTrace('Plivo curl_exec for id: '.$dst_sms.' returned: '.$result);
+
 			$resultSMS_current = '<br>RESPONSE: ' . $result .PHP_EOL;
 		
 			if(curl_errno($s) === 0) {
@@ -95,4 +96,19 @@ class SMSPlivoPlugin implements ISMSPlugin {
 				
 		return $resultSMS;
 	}
+	protected function logError($text) {
+		global $log;
+		if($log != null) $log->error($text);
+	}
+
+	protected function logWarning($text) {
+		global $log;
+		if($log != null) $log->warn($text);
+	}
+
+	protected function logTrace($text) {
+		global $log;
+		if($log != null) $log->trace($text);
+	}
+
 }
