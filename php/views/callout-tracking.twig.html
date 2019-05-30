@@ -218,10 +218,10 @@
                         var trackResponderTimerCounter=null;
                         var lastReloadError = '';
                         function trackResponder() {
-                          //debugger;
-                          window.clearInterval(trackResponderTimerCounter);
-                          var div1 = document.getElementById("call_tracking_response_counter");
-	                          div1.innerHTML="<b>Tracking GEO coords now!</b>";
+                            //debugger;
+                            window.clearInterval(trackResponderTimerCounter);
+                            var div1 = document.getElementById("call_tracking_response_counter");
+	                          div1.innerHTML="<b>Recording GEO now...</b>";
 	                          var form1 = document.getElementById("call_tracking_response");
 	                          //appendGeoCoordinates(form1);
                             //  form.submit();
@@ -234,6 +234,7 @@
 
                             if(lastReloadError == '') {
                                 lastReloadError = 'connecting...';
+                                div1.innerHTML='<b>'+lastReloadError+'</b>';
                             }
                             var xhr = new XMLHttpRequest();
                             xhr.open('HEAD', file, true);
@@ -246,6 +247,7 @@
                                 if (xhr.readyState == 4) {
                                     if (xhr.status >= 200 && xhr.status < 304) {
                                         lastReloadError = xhr.statusText;
+                                        div1.innerHTML='<b>SUCCESS: '+lastReloadError+'</b>';
                                         console.info("SUCCESS - Connection exists submitting page...");
                                         //form1.submit();
                                         appendGeoCoordinates(form1);
@@ -257,6 +259,7 @@
                                         else {
                                             lastReloadError = xhr.responseText;
                                         }
+                                        div1.innerHTML='<b>ERROR: '+lastReloadError+'</b>';
                                         console.info("FAIL - Connection DOES NOT exist status: " + lastReloadError);
                                         trackResponder();
                                     }
