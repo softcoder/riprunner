@@ -38,12 +38,12 @@
                 {% endblock %}
                 {% endif %}
 
-                {% if callout_details_vm.firehall.MOBILE.MOBILE_TRACKING_ENABLED and
-                    callout_details_vm.member_id is not null and callout_pending %}
+                {% if callout_pending and callout_details_vm.firehall.MOBILE.MOBILE_TRACKING_ENABLED and
+                      callout_details_vm.member_id is not null %}
                   {% for row_responding in callout_details_vm.callout_details_responding_list %}
                       {% if row_responding.user_id == callout_details_vm.member_id %}
-                      <!-- <td valign="top" style="height: 50px; width: 300px;"> -->
-                      <td valign="top" style="display: none">
+                      <td valign="top" style="height: 50px; width: 300px;">
+                      <!-- <td valign="top" style="display: none"> -->
                           <iframe src="{{ gvm.RR_DOC_ROOT }}/ct/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&delay=45&uid={{ callout_details_vm.member_id }}&ckid={{ callout_details_vm.calloutkey_id }}"
                                   id="callout-tracking" scrolling="no" frameborder="0" allowtransparency="true" style="width: 100%; border: 0; height: 50px; display:block;"></iframe>
                       </td>

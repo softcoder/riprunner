@@ -412,32 +412,28 @@ function getGEOLocationCoords_callback_fn(geoAccess,param2) {
     //alert(param2);
     console.info('In getGEOLocationCoords_callback_fn: access = ' + geoAccess);
     if(geoAccess && typeof callout_geo_dest != 'undefined') {
-        //var geo_tag = document.getElementById('geo_tag');
-        //if(typeof geo_tag != 'undefined') {
-            //geo_tag.textContent = 'Your GEO Position: ' + param2.lat + ", " + param2.lng;
-            //debugger
-            $( '#geo_tag' ).html( 'Your GEO Position: ' + param2.lat + ", " + param2.lng );
-            //$( '#geo_tag' ).html( 'Your GEO Position: ' + param2.lat + ", " + param2.lng + " dest: " + callout_geo_dest);
-            console.info('You: ' + param2.lat + ", " + param2.lng + " dest: " + callout_geo_dest);
-            
-            var origin = new google.maps.LatLng( param2.lat, param2.lng );
-            var destination = callout_geo_dest; // using string
+        //debugger
+        $( '#geo_tag' ).html( 'Your geo: ' + (param2 != null && param2.lat != null ? param2.lat.toFixed(5) : '') + ", " + (param2 != null && param2.lng != null ? param2.lng.toFixed(5) : '') );
+        console.info('You: ' + (param2 != null && param2.lat != null ? param2.lat.toFixed(5) : '') + '', ',' + (param2 != null && param2.lng != null ? param2.lng.toFixed(5) : '') + 
+                      ' dest: ' + (callout_geo_dest != null ? callout_geo_dest : ''));
+        
+        var origin = new google.maps.LatLng( param2.lat, param2.lng );
+        var destination = callout_geo_dest; // using string
 
-            var directionsService = new google.maps.DirectionsService();
-            var request = {
-                origin: origin, // LatLng|string
-                destination: destination, // LatLng|string
-                travelMode: google.maps.DirectionsTravelMode.DRIVING
-            };
+        var directionsService = new google.maps.DirectionsService();
+        var request = {
+            origin: origin, // LatLng|string
+            destination: destination, // LatLng|string
+            travelMode: google.maps.DirectionsTravelMode.DRIVING
+        };
 
-            directionsService.route( request, function( response, status ) {
-                if ( status === 'OK' ) {
-                    var point = response.routes[ 0 ].legs[ 0 ];
-                    $( '#geo_tag' ).html( point.duration.text + ' (' + point.distance.text + ')' );
-                    console.info('Estimated time to scene: ' + point.duration.text + ' (' + point.distance.text + ')');
-                }
-            } );            
-        //}
+        directionsService.route( request, function( response, status ) {
+            if ( status === 'OK' ) {
+                var point = response.routes[ 0 ].legs[ 0 ];
+                $( '#geo_tag' ).html( point.duration.text + ' (' + point.distance.text + ')' + ' - geo: ' + (param2 != null && param2.lat != null ? param2.lat.toFixed(5) : '') + ", " + (param2 != null && param2.lng != null ? param2.lng.toFixed(5) : ''));
+                console.info('Estimated time to scene: ' + point.duration.text + ' (' + point.distance.text + ')');
+            }
+        } );            
     }
 }
 
@@ -457,7 +453,6 @@ function setResponderETAs(map) {
             var callout_geo_src = $( '#responder_geo_'+index).attr('value');
             if(callout_geo_src != 'undefined' && callout_geo_dest != 'undefined') {
                 $( '#responder_eta_' + index ).html( 'calculating...' );
-                //$( '#geo_tag' ).html( 'Your GEO Position: ' + param2.lat + ", " + param2.lng + " dest: " + callout_geo_dest);
                 console.info('You: ' + callout_geo_src + " dest: " + callout_geo_dest);
                 
                 var origin = callout_geo_src;
@@ -534,7 +529,6 @@ function calculateRoute(directionsService,request,index, callout_geo_src, map) {
         //debugger;
         if ( status === 'OK' ) {
             var point = response.routes[ 0 ].legs[ 0 ];
-            //$( '#geo_tag' ).html( point.duration.text + ' (' + point.distance.text + ')' );
             $( '#responder_eta_' + index ).html( point.duration.text + ' (' + point.distance.text + ')' );
             console.info('*SUCCESS* index: ' + index + ' callout_geo_src: ' + callout_geo_src + ' Estimated time to scene: ' + point.duration.text + ' (' + point.distance.text + ')');
             

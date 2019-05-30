@@ -192,6 +192,7 @@
             {% if callout_tracking_vm.user_authenticated %}
                 {% if callout_tracking_vm.callout_in_progress %}
                     {% if callout_tracking_vm.user_lat is not null and callout_tracking_vm.user_long is not null %}
+                        <!-- this variable triggers geo insert -->
                         {{ callout_tracking_vm.track_geo }}
                     {% endif %}
                     
@@ -207,7 +208,7 @@
                         <div id="call_tracking_response_counter" style="font-size: 25px; color:cyan"></div>
                         <form id="call_tracking_response" action="{{ gvm.RR_DOC_ROOT }}/ct/fhid={{ callout_tracking_vm.firehall_id }}&cid={{ callout_tracking_vm.callout_id }}&delay=45&uid={{ callout_tracking_vm.user_id }}&ckid={{ callout_tracking_vm.calloutkey_id }}" 
                               method="POST" onsubmit="return appendGeoCoordinates(document.getElementById('call_tracking_response'));">
-                                <INPUT TYPE="submit" VALUE="GEO Track Now - {{ callout_tracking_vm.user_id }}" 
+                                <INPUT TYPE="submit" VALUE="Track {{ callout_tracking_vm.user_id }}" 
                                        style="font-size: 25px; background-color:yellow" />
                         </form>
                         
@@ -264,7 +265,7 @@
                         }
                         function trackResponderCounter() {
                           var div1 = document.getElementById("call_tracking_response_counter");
-                       	  div1.innerHTML="<b>Tracking GEO in " + delay_seconds + " secs.</b>";
+                       	  div1.innerHTML="<b>Track GEO: " + delay_seconds + " secs.</b>";
                        	  delay_seconds -= 1;
                         }
                         function handleLocationError(err) {

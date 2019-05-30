@@ -67,7 +67,8 @@ class SMSTwilioPlugin implements ISMSPlugin {
 		foreach($curly as $id => $c) {
 			try {			
 				$result = curl_multi_getcontent($c);
-				$this->logTrace('Twilio: curl_multi_getcontent for id: '.$id.' returned: '.$result);
+				$this->logTrace('Twilio: curl_multi_getcontent for id: '.$id.' input was: '. 
+				                http_build_query($data) .'returned: '.$result);
 
 				$resultSMS .= 'RESPONSE: ' . $result .PHP_EOL;
 			
@@ -89,7 +90,8 @@ class SMSTwilioPlugin implements ISMSPlugin {
 		 		}
 			}
 		 	catch(Excepton $oException) {
-				$this->logError('Twilio: ERROR curl_multi_getcontent for id: '.$id.' returned: '.$result . ' exception: '. $oException->getMessage());
+				$this->logError('Twilio: ERROR curl_multi_getcontent for id: '.$id.' input was: '. http_build_query($data) . 
+				                ' returned: '.$result . ' exception: '. $oException->getMessage());
 		 		$resultSMS .= "TWILIO XML ERROR RESPONSE: [$result]" . PHP_EOL;
 		 	}		 		
 
