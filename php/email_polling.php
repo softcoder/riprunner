@@ -164,7 +164,7 @@ class EmailTriggerPolling {
             $mail = $this->getIMapProvider()->imap_open( $FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING,
                                 $FIREHALL->EMAIL->EMAIL_HOST_USERNAME,
                                 $FIREHALL->EMAIL->EMAIL_HOST_PASSWORD,
-                                OP_SILENT,
+                                (defined('OP_SILENT') ? OP_SILENT : 0),
                                 2);
 
             //echo 'After imap_open firehall: '.$FIREHALL->WEBSITE->FIREHALL_NAME.PHP_EOL;
