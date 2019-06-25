@@ -88,6 +88,18 @@ System Requirements:
 - A Google Maps API key: https://developers.google.com/maps/documentation/javascript/tutorial#api_key (one key for server applications and one for android apps)
 - Optional: If using the experimental Android app, you need a Google Apps Engine (GAE) Project Number (see http://developer.android.com/google/gcm/gs.html) and Browser API Key.
 
+Docker Image:
+-------------
+We provide a sample docker image with the basic environment installed here:
+https://cloud.docker.com/repository/docker/softcoder/riprunner
+
+Goto the root url where you install the docker iamge and login using:
+web username: admin
+web password: riprunner
+db name: riprunner
+db username: riprunner
+db password: riprunner
+
 Screenshots:
 ------------
 
