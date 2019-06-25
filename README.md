@@ -63,9 +63,9 @@ The diagram above shows all of the possible features enabled and the communicati
 
 Technology:
 -------------------------
-Rip Runner was written using PHP for its backend server operations and html5 + javascript and angular 6+ for the frontend.
+Rip Runner was written using PHP for its backend server operations and html5 + javascript and angular 8+ for the frontend.
 The design of this application allows for the use of any database backend supported by PHP's PDO layer but currently
-MySQL is preferred (sql is abstracted into a file for each DB type). Currently most of the user interface is rendered using a server side framework called 'twig' but work has started to replace that using angular 6. Communications options include email, SMS (via a provider such as Twilio) and Google Cloud Messaging / Web Push for the Android client. Numerous google services are used like google maps which require a free API Key. The selection of PHP and javascript were made to allow this application to run on most free (or more offordable) hosting providers. This project makes use of test automation and Continuous Intregration via travis CI.
+MySQL is preferred (sql is abstracted into a file for each DB type). Currently most of the user interface is rendered using a server side framework called 'twig' but work has started to replace that using angular 8. Communications options include email, SMS (via a provider such as Twilio) and Google Cloud Messaging / Web Push for the Android client. Numerous google services are used like google maps which require a free API Key. The selection of PHP and javascript were made to allow this application to run on most free (or more offordable) hosting providers. This project makes use of test automation and Continuous Intregration via travis CI.
 
 Why is Rip Runner a good choice for me?:
 --------------------
@@ -561,7 +561,7 @@ https://travis-ci.org/softcoder/riprunner
 
 Experimental Work:
 ------------------
-We have begun porting the user interface to Angular (v6+). Currently this UI is partially ported from the
+We have begun porting the user interface to Angular (v8+). Currently this UI is partially ported from the
 legacy twig UI, in order to build and deploy to your server:
 
 - Install Node.js® and npm (https://nodejs.org/en/download/) if they are not already on your machine.
