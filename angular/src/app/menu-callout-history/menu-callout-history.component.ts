@@ -1,12 +1,7 @@
 import {Component, AfterViewInit, ViewChild} from '@angular/core';
 import {MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
-import {Observable} from 'rxjs/Observable';
-import {merge} from 'rxjs/observable/merge';
-import {of as observableOf} from 'rxjs/observable/of';
-import {catchError} from 'rxjs/operators/catchError';
-import {map} from 'rxjs/operators/map';
-import {startWith} from 'rxjs/operators/startWith';
-import {switchMap} from 'rxjs/operators/switchMap';
+import {Observable, merge, of } from 'rxjs';
+import {catchError, map, startWith, switchMap} from 'rxjs/operators';
 import {Location} from '@angular/common';
 import {Router} from '@angular/router';
 
@@ -26,10 +21,10 @@ export class MenuCalloutHistoryComponent implements AfterViewInit {
   dataSource = new MatTableDataSource();
 
   resultsLength = 0;
-  isLoadingResults: Observable<boolean> = Observable.of(false);
+  isLoadingResults: Observable<boolean> = of(false);
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator,{static:false}) paginator: MatPaginator;
+  @ViewChild(MatSort,{static:false}) sort: MatSort;
 
   constructor(private location: Location, private authService: AuthService,
               private calloutHistoryService: MenuCalloutHistoryService,
@@ -61,14 +56,14 @@ export class MenuCalloutHistoryComponent implements AfterViewInit {
       .pipe(
         startWith({}),
         switchMap(() => {
-          Promise.resolve(null).then(() => this.isLoadingResults = Observable.of(true));
+          Promise.resolve(null).then(() => this.isLoadingResults = of(true));
           return this.calloutHistoryService.getCalloutHistory(
             this.sort.active, this.sort.direction, this.paginator.pageIndex);
         }),
         map(data => {
           // Flip flag to show that loading has finished.
           Promise.resolve(null).then(() =>
-            this.isLoadingResults = Observable.of(false)
+            this.isLoadingResults = of(false)
           );
           this.resultsLength = data.length;
           return data;
@@ -80,9 +75,9 @@ export class MenuCalloutHistoryComponent implements AfterViewInit {
           console.log('Error getting grid data: ' + err.error.text);
 
           Promise.resolve(null).then(() =>
-            this.isLoadingResults = Observable.of(false)
+            this.isLoadingResults = of(false)
           );
-          return observableOf([]);
+          return of([]);
         })
       ).subscribe(data => {
         this.dataSource.data = data;

@@ -158,6 +158,8 @@ class SendMessageController {
     	    //$mail->addAttachment('images/phpmailer_mini.png');
     	    //send the message, check for errors
     	    
+            //$mail->SMTPDebug = 3;
+
     	    if (!$mail->send()) {
     	        $sendMsgResultStatus = "Error sending Email Message: " . $mail->ErrorInfo;
     	    }
@@ -169,5 +171,4 @@ class SendMessageController {
     	    $this->view_template_vars["sendmsg_ctl_result_status"] = $sendMsgResultStatus;
        }
 	}
-	
 }

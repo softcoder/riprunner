@@ -13,8 +13,8 @@ import { SystemConfigService } from '@app/common';
 
 export class MenuCalloutMonitorComponent implements OnInit {
 
-  @ViewChild('connection') public connection: ElementRef;
-  @ViewChild('dialogMessage') public dialogMessage: ElementRef;
+  @ViewChild('connection',{static:false}) public connection: ElementRef;
+  @ViewChild('dialogMessage',{static:false}) public dialogMessage: ElementRef;
 
   lastCalloutURL: string;
   source;

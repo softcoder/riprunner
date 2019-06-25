@@ -24,11 +24,20 @@
             <input type="button" value="Send using Email" onclick="send_msg(this.form, 'email');" />
             </td>
         </tr>
+        {% if sendmsg_ctl_result_status is defined %}
         <tr>
             <td>
-            <span id="msgStatus" style="display:{% if sendmsg_ctl_result_status is defined %}{{ sendmsg_ctl_result_status }}{% endif %}"></span>
+            <span id="msgStatus">{{ sendmsg_ctl_result_status }}</span>
             </td>
         </tr>
+        {% endif %}
     </table>
     </center>
 </form>
+{% if sendmsg_ctl_result_status is defined %}
+<script type="text/javascript">
+$( document ).ready(function() {
+    toggleVisibility('user_send_msg');
+}); 
+</script>
+{% endif %}

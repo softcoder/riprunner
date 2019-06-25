@@ -1,12 +1,7 @@
 import {Component, AfterViewInit, ElementRef, ViewChild} from '@angular/core';
 import {MatDialog, MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
-import {Observable} from 'rxjs/Observable';
-import {merge} from 'rxjs/observable/merge';
-import {of as observableOf} from 'rxjs/observable/of';
-import {catchError} from 'rxjs/operators/catchError';
-import {map} from 'rxjs/operators/map';
-import {startWith} from 'rxjs/operators/startWith';
-import {switchMap} from 'rxjs/operators/switchMap';
+import {Observable, merge, of} from 'rxjs';
+import {catchError, map, startWith, switchMap} from 'rxjs/operators';
 import {Location} from '@angular/common';
 import {Router} from '@angular/router';
 
@@ -29,7 +24,7 @@ export class MenuUserAccountsComponent implements AfterViewInit {
   selectedUsers: Array<string> = new Array<string>();
 
   resultsLength = 0;
-  isLoadingResults: Observable<boolean> = Observable.of(false);
+  isLoadingResults: Observable<boolean> = of(false);
 
   userAccountTypes: Array<UserAccountType>;
   editRowId: string = null;
@@ -37,9 +32,9 @@ export class MenuUserAccountsComponent implements AfterViewInit {
   new_password_2: string;
   selfEditMode: boolean;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild('selectAllUsers') public selectAllUsers: ElementRef;
+  @ViewChild(MatPaginator,{static:false}) paginator: MatPaginator;
+  @ViewChild(MatSort,{static:false}) sort: MatSort;
+  @ViewChild('selectAllUsers',{static:false}) public selectAllUsers: ElementRef;
 
   constructor(private location: Location, private authService: AuthService,
               private userAccountService: UserAccountsService,
@@ -63,14 +58,14 @@ export class MenuUserAccountsComponent implements AfterViewInit {
       .pipe(
         startWith({}),
         switchMap(() => {
-          Promise.resolve(null).then(() => this.isLoadingResults = Observable.of(true));
+          Promise.resolve(null).then(() => this.isLoadingResults = of(true));
           return this.userAccountService.getUserAccounts(
             this.sort.active, this.sort.direction, this.paginator.pageIndex);
         }),
         map(data => {
           // Flip flag to show that loading has finished.
           Promise.resolve(null).then(() =>
-            this.isLoadingResults = Observable.of(false)
+            this.isLoadingResults = of(false)
           );
           this.resultsLength = data.length;
           return data;
@@ -81,9 +76,9 @@ export class MenuUserAccountsComponent implements AfterViewInit {
           this.errorMessage = err.error.text;
           console.log('Error getting grid data: ' + err.error.text);
           Promise.resolve(null).then(() =>
-            this.isLoadingResults = Observable.of(false)
+            this.isLoadingResults = of(false)
           );
-          return observableOf([]);
+          return of([]);
         })
       ).subscribe(data => {
         // debugger;
