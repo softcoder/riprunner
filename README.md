@@ -25,6 +25,7 @@ Fire Operations Command Center. Easily adaptable to other callout trigger mechan
   - Sendhub (sendhub.com)
   - EzTexting (eztexting.com)
   - TextBelt (textbelt.com -> a free service but not as reliable and not available everywhere)
+- Streaming audio broadcasting of radio traffic support (using any free icecast or shoutcast server like: https://github.com/AzuraCast/AzuraCast)
 - Ability for members to indicate a response to callouts allowing other members to know who is responding
 - 'SMS command mode' allows SMS users to respond to calls (useful if radios don't work or data is unreliable)
 - Google Maps showing Distance from Firehall to Incident
