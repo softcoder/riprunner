@@ -31,7 +31,8 @@ function handle_config_error($root_path, \Exception $e) {
     PRODUCT_NAME.' v'.CURRENT_VERSION.' - '.PRODUCT_URL.'<br>'.
     '<hr></p>'.PHP_EOL.
     '<p style="font-size:35px; color: red">'.PHP_EOL.
-    'Error detected, message : ' . $e->getMessage().', '.'Code : ' . $e->getCode().
+    'Error detected, message : ' . $e->getMessage().', '.'Code : ' . $e->getCode().PHP_EOL.
+    'trace : ' . $e-> getTraceAsString().PHP_EOL.
     '<br><span style="font-size:35px; color: yellow">Please create a config.php script.</span>'.PHP_EOL.
     '<br><b>Step #1: <a target="_blank" href="'.$root_path.'config-builder.php">Click here</a> to generate a config.php file.
     <br>Step #2: <a target="_blank" href="'.$root_path.'install.php">Click here</a> once the config.php has been saved

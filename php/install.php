@@ -72,6 +72,10 @@ function install($FIREHALL, &$db_connection) {
 		echo '<p style="font-size:35px; color: lime"><b>SCHEMA Import Information, Success: ' . $schema_results["success"] . ' Total: ' . $schema_results["total"] . '</b></p><br />' . PHP_EOL;
 
 		$random_password = uniqid('', true);
+        $forced_pwd = get_query_param('adminpwd');
+        if (isset($forced_pwd) === true) {
+            $random_password = $forced_pwd;
+        }
 		$new_pwd = \riprunner\Authentication::encryptPassword($random_password);
 		
 		$sql = $sql_statement->getSqlStatement('admin_user_create');

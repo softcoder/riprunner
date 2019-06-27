@@ -53,6 +53,8 @@ class DbConnection {
     	    if($masterdb === true) {
     	        // Strip the dbname as it wont exist yet
     	        $masterDsn = preg_replace_callback('(dbname=\w+)', function ($m) { $m; return ''; }, $this->firehall->MYSQL->DSN);
+
+                
     	        //echo "masterDsn [$masterDsn] orignal [".$this->firehall->MYSQL->DSN."]" . PHP_EOL;
     	        
     	        $this->db_connect(
@@ -116,11 +118,19 @@ class DbConnection {
     
         try {
             //echo "DB DSN [$dsn]" . PHP_EOL;
-            $this->pdo = new \PDO($dsn, $user, $password);
+            $localIP = getHostByName(getHostName());
+            $conn_dsn = preg_replace_callback('(\$HOST-IP)', function ($m) { $m; return getHostByName(getHostName());; }, $dsn);
+
+            $this->pdo = new \PDO($conn_dsn, $user, $password);
             $this->pdo->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
         }
         catch (\PDOException $e) {
-            if($log !== null) $log->error("DB Connect for: dsn [$dsn] user [$user] error [" . $e->getMessage() . "]");
+            if($log !== null) {
+                $log->error("DB Connect for: dsn [$dsn] user [$user] error [" . $e->getMessage() . "]");
+            }
+//            else {
+//                echo "DB Connect for: dsn [$dsn] user [$user] pw [$password] error [" . $e->getMessage() . "]".PHP_EOL;
+//            }
             //throw $e;
             
             $FIREHALLS = array();
