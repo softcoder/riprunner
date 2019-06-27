@@ -101,13 +101,35 @@ Example deployment to digitalocean.com (xxxxx is your API key):
 	eval $(docker-machine env riprunner)
 	docker run -d -p "80:80" --name riprunner-demo softcoder/riprunner:latest
 
-Goto the root url where you installed the docker image and login using:
+Discover the ip address of the droplet for example:
 
+        docker-machine ip riprunner
+        138.197.70.45
+
+Goto the web url where you installed the docker image and login:
+
+        http://138.197.70.45/
+	
 	web login username: admin
 	web login password: riprunner
 	db name:            riprunner
 	db username:        riprunner
 	db password:        riprunner
+
+Test out the angular web url where you installed the docker image and login:
+
+        http://138.197.70.45/ngui/
+
+In order to persist the changes that you make in this container run using volumes:
+
+        docker run -d -p "80:80" --name riprunner-demo -v ${PWD}/app:/app -v ${PWD}/mysql:/var/lib/mysql softcoder/riprunner:latest
+
+This assumes that the host (outside of the docker container) has a folder named:
+
+        app/    <-- containing all the php files for riprunner
+	mysql/  <-- containing all the mysql files for riprunner
+
+If you only need to save the changes to the database do not specify the /app volume mapping.
 
 Screenshots:
 ------------
