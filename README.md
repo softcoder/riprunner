@@ -101,13 +101,13 @@ Example deployment to digitalocean.com (xxxxx is your API key):
 	eval $(docker-machine env riprunner)
 	docker run -d -p "80:80" --name riprunner-demo softcoder/riprunner:latest
 
-Goto the root url where you installed the docker iamge and login using:
+Goto the root url where you installed the docker image and login using:
 
-	web username: admin
-	web password: riprunner
-	db name: riprunner
-	db username: riprunner
-	db password: riprunner
+	web login username: admin
+	web login password: riprunner
+	db name:            riprunner
+	db username:        riprunner
+	db password:        riprunner
 
 Screenshots:
 ------------
