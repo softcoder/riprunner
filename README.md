@@ -94,7 +94,13 @@ Docker Image:
 We provide a sample docker image with the basic environment installed here:
 https://cloud.docker.com/repository/docker/softcoder/riprunner
 
-Goto the root url where you install the docker iamge and login using:
+Example delpoyment to digitalocean.com:
+docker-machine create --driver digitalocean --digitalocean-access-token xxxxx riprunner
+docker-machine env riprunner
+eval $(docker-machine env riprunner)
+docker run -d -p "80:80" --name riprunner-demo softcoder/riprunner:latest
+
+Goto the root url where you installed the docker iamge and login using:
 web username: admin
 web password: riprunner
 db name: riprunner
