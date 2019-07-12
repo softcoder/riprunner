@@ -24,7 +24,7 @@
             </head> 
             <body>
             <!-- GEO Tracking MONITOR -->
-            <form id="call_tracking" action="{{ gvm.RR_DOC_ROOT }}/ct/fhid={{ callout_tracking_vm.firehall_id }}&cid={{ callout_tracking_vm.callout_id }}&delay=45&ta=mr&ckid={{ callout_tracking_vm.calloutkey_id }}" 
+            <form id="call_tracking" action="{{ gvm.RR_DOC_ROOT }}/ct/fhid={{ callout_tracking_vm.firehall_id }}&cid={{ callout_tracking_vm.callout_id }}&delay={{ callout_tracking_vm.tracking_delay }}&ta=mr&ckid={{ callout_tracking_vm.calloutkey_id }}" 
                     method="POST">
 
                 {% if callout_tracking_vm.responding_people == '' %}
@@ -124,7 +124,7 @@
                 {% if callout_tracking_vm.firehall.MOBILE.MOBILE_TRACKING_ENABLED and callout_tracking_vm.callout_in_progress %}
                 
                 // Trigger countdown for refresh of page
-                var delay_seconds=45;
+                var delay_seconds={{ callout_tracking_vm.tracking_delay }};
                 var trackResponderTimer=null;
                 var trackResponderTimerCounter=null;
                 
@@ -202,7 +202,7 @@
                         <body>
                         <!-- GEO Tracking INSERT: {{ callout_tracking_vm.user_lat }} : {{ callout_tracking_vm.user_long }} -->
                         <div id="call_tracking_response_counter" style="font-size: 25px; color:cyan"></div>
-                        <form id="call_tracking_response" action="{{ gvm.RR_DOC_ROOT }}/ct/fhid={{ callout_tracking_vm.firehall_id }}&cid={{ callout_tracking_vm.callout_id }}&delay=45&uid={{ callout_tracking_vm.user_id }}&ckid={{ callout_tracking_vm.calloutkey_id }}" 
+                        <form id="call_tracking_response" action="{{ gvm.RR_DOC_ROOT }}/ct/fhid={{ callout_tracking_vm.firehall_id }}&cid={{ callout_tracking_vm.callout_id }}&delay={{ callout_tracking_vm.tracking_delay }}&uid={{ callout_tracking_vm.user_id }}&ckid={{ callout_tracking_vm.calloutkey_id }}" 
                               method="POST">
                                 <INPUT TYPE="submit" onclick="trackResponder(); return true;" VALUE="Track {{ callout_tracking_vm.user_id }}" 
                                        style="font-size: 25px; background-color:yellow" />

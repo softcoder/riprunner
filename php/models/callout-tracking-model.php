@@ -152,6 +152,13 @@ class CalloutTrackingViewModel extends BaseViewModel {
 	}
 	private function getTrackingDelay() {
 		$tracking_delay = get_query_param('delay');
+		if($tracking_delay == null && defined('MAP_TRACKING_TIMER')) {
+			$tracking_delay = MAP_TRACKING_TIMER;
+		}
+		if($tracking_delay == null) {
+			// Default map geo tracking time interval for responders
+			$tracking_delay = 40;
+		}
 		return $tracking_delay;
 	}
 	private function getCalloutStatus() {

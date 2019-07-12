@@ -32,6 +32,8 @@ define('GOOGLE_MAP_TYPE', 'javascript');
 
 define('MAP_REFRESH_TIMER', '60');
 
+define('MAP_TRACKING_TIMER', '40');
+
 // these will only work with the javascript map
 define('JSMAP_WIDTH','100%');
 define('JSMAP_HEIGHT','550px');
