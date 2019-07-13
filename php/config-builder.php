@@ -3,30 +3,31 @@
 //	Copyright (C) 2016 Mark Vejvoda
 //	Under GNU GPL v3.0
 // ==============================================================
+ini_set('display_errors', 'On');
+error_reporting(E_ALL);
+//
+// This file manages routing of requests
+//
+if(defined('INCLUSION_PERMITTED') === false) {
+    define( 'INCLUSION_PERMITTED', true);
+}
+require_once 'config_constants.php';
+$isAuth = false;
+$FIREHALL = null;
 
-function getSafeRequestValue($key) {
-    $request_list = array_merge($_GET, $_POST);
-    if(array_key_exists($key, $request_list) === true) {
-        //return htmlspecialchars($request_list[$key]);
-		return $request_list[$key];
+if (file_exists('config.php' )) {
+    require_once 'config.php';
+    require_once 'authentication/authentication.php';
+    global $FIREHALLS;
+
+    $FIREHALL = getFirstActiveFireHallConfig($FIREHALLS);
+    $authEntity = new \riprunner\Authentication($FIREHALL);
+    if($authEntity->is_session_started() === false) {
+        $authEntity->sec_session_start();
     }
-    return null;
+    
+    $isAuth = $authEntity->login_check() && \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
 }
-
-function get_query_param($param_name) {
-    return getSafeRequestValue($param_name);
-}
-
-// function extractDelimitedValueFromString($rawValue, $regularExpression, $groupResultIndex) {
-//     $cleanRawValue = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/u', '', $rawValue);
-//     preg_match($regularExpression, $cleanRawValue, $result);
-//     if(isset($result[$groupResultIndex]) === true) {
-//         //echo "regex [$regularExpression] lookup [$cleanRawValue] result [" . $result[$groupResultIndex] ."]" .PHP_EOL;
-//         $result[$groupResultIndex] = str_replace(array("\n", "\r"), '', $result[$groupResultIndex]);
-//         return $result[$groupResultIndex];
-//     }
-//     return null;
-// }
 
 function extractEmailSettings() {
     $email_settings = '';
@@ -311,10 +312,7 @@ if(isset($generate_config) === true && $generate_config === 'true') {
 
 <html>
 <head>
-    <script type="text/JavaScript" src="js/jquery-2.1.1.min.js"></script>
-    <link rel="stylesheet" href="js/jquery-ui-themes-1.11.4/themes/smoothness/jquery-ui.min.css">
-    <script type="text/JavaScript" src="js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
-
+    <script type="text/JavaScript" src="js/jquery-3.4.1.min.js"></script>
     <script type="text/JavaScript" src="js/spin.js"></script>
 	<script type="text/JavaScript" src="js/common-utils.js"></script>
 	<link rel="stylesheet" href="styles/table-styles-main.css?version=1" />
@@ -323,45 +321,49 @@ if(isset($generate_config) === true && $generate_config === 'true') {
 <body class="ci_body">
 <h1>Rip Runner Configuration Generator</h1>
 <hr>
-
+<?php
+if ($FIREHALL !== null && $isAuth) {
+    echo "<h2><font color='blue'>Found config.php and populated values below.</font></h2>".PHP_EOL;    
+}
+?>
 <form action="config-builder.php?generate=true" method="post">
 
 	<h3>Database Settings (required):</h3>
-	Connection string: <input type="text" name="db_connection" value="mysql:host=localhost;dbname=myvfd" style="width:100%;"><br>
-	Username: <input type="text" name="db_user" value="" style="width:100%;"><br>
-	Password: <input type="text" name="db_pwd" value="" style="width:100%;"><br>
-    Database name: <input type="text" name="db_name" value="myvfd" style="width:100%;"><br>
+	Connection string: <input type="text" name="db_connection" id="db_connection" value="mysql:host=localhost;dbname=myvfd" style="width:100%;"><br>
+	Username: <input type="text" name="db_user" id="db_user" value="" style="width:100%;"><br>
+	Password: <input type="text" name="db_pwd" id="db_pwd" value="" style="width:100%;"><br>
+    Database name: <input type="text" name="db_name" id="db_name" value="myvfd" style="width:100%;"><br>
 
 	<hr>
 
 	<h3>Website Settings (required):</h3>
-	Firehall name: <input type="text" name="website_name" value="My Volunteer Fire Department" style="width:100%;"><br>
-    Firehall address: <input type="text" name="website_address" value="5155 Fire Fighter Road, Prince George, BC" style="width:100%;"><br>
-    Firehall geo coordinates latitude: <input type="text" name="website_lat" value="54.0918642">
-    longitutde: <input type="text" name="website_long" value="-122.6544671"><br>
-    Root url: <input type="text" name="website_url" value="http://www.example.com/rr/" style="width:100%;"><br>
-    Google map api key: <input type="text" name="website_google_map_apikey" value="" style="width:100%;"><br>
-    Timezone: <input type="text" name="website_timezone" value="America/Vancouver" style="width:100%;"><br>
+	Firehall name: <input type="text" name="website_name" id="website_name" value="My Volunteer Fire Department" style="width:100%;"><br>
+    Firehall address: <input type="text" name="website_address" id="website_address" value="5155 Fire Fighter Road, Prince George, BC" style="width:100%;"><br>
+    Firehall geo coordinates latitude: <input type="text" name="website_lat" id="website_lat" value="54.0918642">
+    longitutde: <input type="text" name="website_long" id="website_long" value="-122.6544671"><br>
+    Root url: <input type="text" name="website_url" id="website_url" value="http://www.example.com/rr/" style="width:100%;"><br>
+    Google map api key: <input type="text" name="website_google_map_apikey" id="website_google_map_apikey" value="" style="width:100%;"><br>
+    Timezone: <input type="text" name="website_timezone" id="website_timezone" value="America/Vancouver" style="width:100%;"><br>
     
 	<hr>
 	    
 	<h3>Firehall Settings (required):</h3>
-    Firehall id: <input type="text" name="fh_id" value="100" style="width:100%;"><br>
+    Firehall id: <input type="text" name="fh_id" id="fh_id" value="100" style="width:100%;"><br>
 
 	<hr>
 	
 	<h3>Email Settings:</h3>
-	Enabled: <input type="checkbox" name="email_enabled"><br>
-	Connection string: <input type="text" name="email_connection" value="{pop.secureserver.net:995/pop3/ssl/novalidate-cert}INBOX" style="width:100%;"><br>
-	Username: <input type="text" name="email_user" value="" style="width:100%;"><br>
-	Password: <input type="text" name="email_pwd" value="" style="width:100%;"><br>
-    From email address trigger: <input type="text" name="email_from" value="" style="width:100%;"><br>
-    Delete email after processing: <input type="checkbox" name="email_delete"><br>
+	Enabled: <input type="checkbox" name="email_enabled" id="email_enabled"><br>
+	Connection string: <input type="text" name="email_connection" id="email_connection" value="{pop.secureserver.net:995/pop3/ssl/novalidate-cert}INBOX" style="width:100%;"><br>
+	Username: <input type="text" name="email_user" id="email_user" value="" style="width:100%;"><br>
+	Password: <input type="text" name="email_pwd" id="email_pwd" value="" style="width:100%;"><br>
+    From email address trigger: <input type="text" name="email_from" id="email_from" value="" style="width:100%;"><br>
+    Delete email after processing: <input type="checkbox" name="email_delete" id="email_delete"><br>
 
 	<hr>
 	    
 	<h3>SMS Settings:</h3>
-	Enabled: <input type="checkbox" name="sms_enabled"><br>
+	Enabled: <input type="checkbox" name="sms_enabled" id="sms_enabled"><br>
 	<label for="sms_gateway_type">Gateway type:</label>
 	<select name="sms_gateway_type" id="sms_gateway_type">
 		<option value="TEXTBELT">Textbelt</option>
@@ -375,15 +377,15 @@ if(isset($generate_config) === true && $generate_config === 'true') {
 	</select>
 	<br>
 	Callout provider type: 
-	<select name="sms_callout_provider_type">
+	<select name="sms_callout_provider_type" id="sms_callout_provider_type">
 		<option value="DEFAULT">Default</option>
 	</select>
 	<br>
 	<div name="sms_gateway_type_textbelt" id="sms_gateway_type_textbelt" style="display: none;">
-	Base URL: <input type="text" name="sms_textbelt_base" style="width:100%;" value="http://textbelt.com/canada"><br>
+	Base URL: <input type="text" name="sms_textbelt_base" id="sms_textbelt_base" style="width:100%;" value="http://textbelt.com/canada"><br>
 	</div>
 	<div name="sms_gateway_type_textbelt-local" id="sms_gateway_type_textbelt-local" style="display: none;">
-	Email From Address: <input type="text" name="sms_textbelt-local_from" value="" style="width:100%;"><br>
+	Email From Address: <input type="text" name="sms_textbelt-local_from" id="sms_textbelt-local_from" value="" style="width:100%;"><br>
 	<label for="sms_textbelt-local_region">Region:</label>
 	<select name="sms_textbelt-local_region" id="sms_textbelt-local_region">
 		<option value="canada" selected>Canada</option>
@@ -392,47 +394,47 @@ if(isset($generate_config) === true && $generate_config === 'true') {
 	</select>
 	</div>
 	<div name="sms_gateway_type_twilio" id="sms_gateway_type_twilio">
-	Base URL: <input type="text" name="sms_base" style="width:100%;" value="https://api.twilio.com/2010-04-01/Accounts/XXXX/Messages.xml"><br>
-    Authorization Token: <input type="text" name="sms_auth_token" value="" style="width:100%;"><br>
-    Send from phone number: <input type="text" name="sms_from" value="" style="width:100%;"><br>
+	Base URL: <input type="text" name="sms_base" id="sms_base" style="width:100%;" value="https://api.twilio.com/2010-04-01/Accounts/XXXX/Messages.xml"><br>
+    Authorization Token: <input type="text" name="sms_auth_token" id="sms_auth_token" value="" style="width:100%;"><br>
+    Send from phone number: <input type="text" name="sms_from" id="sms_from" value="" style="width:100%;"><br>
 	</div>
 	<div name="sms_gateway_type_plivo" id="sms_gateway_type_plivo" style="display: none;">
-	Base URL: <input type="text" name="sms_plivo_base" style="width:100%;" value="https://api.plivo.com/v1/"><br>
-    Authorization Id: <input type="text" name="sms_plivo_auth_id" value="" style="width:100%;"><br>
-    Authorization Token: <input type="text" name="sms_plivo_auth_token" value="" style="width:100%;"><br>
-    Send from phone number: <input type="text" name="sms_plivo_from" value="" style="width:100%;"><br>
+	Base URL: <input type="text" name="sms_plivo_base" id="sms_plivo_base" style="width:100%;" value="https://api.plivo.com/v1/"><br>
+    Authorization Id: <input type="text" name="sms_plivo_auth_id" id="sms_plivo_auth_id" value="" style="width:100%;"><br>
+    Authorization Token: <input type="text" name="sms_plivo_auth_token" id="sms_plivo_auth_token" value="" style="width:100%;"><br>
+    Send from phone number: <input type="text" name="sms_plivo_from" id="sms_plivo_from" value="" style="width:100%;"><br>
 	</div>
-	Special contacts info list: <input type="text" name="sms_special_contacts" value="" style="width:100%;"><br>
+	Special contacts info list: <input type="text" name="sms_special_contacts" id="sms_special_contacts" value="" style="width:100%;"><br>
 	
 	<hr>
 	    
 	<h3>Mobile Settings:</h3>
-	Enabled: <input type="checkbox" name="mobile_enabled"><br>
-	Tracking enabled: <input type="checkbox" name="mobile_enabled_tracking"><br>
-	Google cloud messaging (GCM) enabled: <input type="checkbox" name="mobile_enabled_gcm"><br>
-	Signal GCM url: <input type="text" name="mobile_url" value="https://android.googleapis.com/gcm/send" style="width:100%;"><br>
-	GCM api key: <input type="text" name="mobile_gcm_api_key" value="" style="width:100%;"><br>
-	GCM project number: <input type="text" name="mobile_gcm_project" value="" style="width:100%;"><br>
-	GCM application id: <input type="text" name="mobile_gcm_app_id" value="" style="width:100%;"><br>
-	GCM service account manager: <input type="text" name="mobile_gcm_sam" value="" style="width:100%;"><br>
+	Enabled: <input type="checkbox" name="mobile_enabled" id="mobile_enabled"><br>
+	Tracking enabled: <input type="checkbox" name="mobile_enabled_tracking" id="mobile_enabled_tracking"><br>
+	Google cloud messaging (GCM) enabled: <input type="checkbox" name="mobile_enabled_gcm" id="mobile_enabled_gcm"><br>
+	Signal GCM url: <input type="text" name="mobile_url" id="mobile_url" value="https://android.googleapis.com/gcm/send" style="width:100%;"><br>
+	GCM api key: <input type="text" name="mobile_gcm_api_key" id="mobile_gcm_api_key" value="" style="width:100%;"><br>
+	GCM project number: <input type="text" name="mobile_gcm_project" id="mobile_gcm_project" value="" style="width:100%;"><br>
+	GCM application id: <input type="text" name="mobile_gcm_app_id" id="mobile_gcm_app_id" value="" style="width:100%;"><br>
+	GCM service account manager: <input type="text" name="mobile_gcm_sam" id="mobile_gcm_sam" value="" style="width:100%;"><br>
 
 	<hr>
 	    
 	<h3>LDAP Settings:</h3>
-	Enabled: <input type="checkbox" name="ldap_enabled"><br>
-	Enable caching: <input type="checkbox" name="ldap_enable_caching"><br>
-    Hostname: <input type="text" name="ldap_host" value="" style="width:100%;"><br>
-    Bind RDN: <input type="text" name="ldap_bindrdn" value="" style="width:100%;"><br>
-    Bind Password: <input type="text" name="ldap_bind_pwd" value="" style="width:100%;"><br>
-    Base DN: <input type="text" name="ldap_basedn" value="" style="width:100%;"><br>
-    User DN: <input type="text" name="ldap_userdn" value="" style="width:100%;"><br>
-    Login filter: <input type="text" name="ldap_login_filter" value="" style="width:100%;"><br>
-    Login all users filter: <input type="text" name="ldap_login_all_filter" value="" style="width:100%;"><br>
-    Login admin group filter: <input type="text" name="ldap_login_admin_filter" value="" style="width:100%;"><br>
-    Login sms group filter: <input type="text" name="ldap_login_sms_filter" value="" style="width:100%;"><br>
-    Login respond self group filter: <input type="text" name="ldap_login_respond_self_filter" value="" style="width:100%;"><br>
-    Login respond others group filter: <input type="text" name="ldap_login_respond_others_filter" value="" style="width:100%;"><br>
-    Member of group attribute: <input type="text" name="ldap_member_group_attribute" value="" style="width:100%;"><br>
+	Enabled: <input type="checkbox" name="ldap_enabled" id="ldap_enabled"><br>
+	Enable caching: <input type="checkbox" name="ldap_enable_caching" id="ldap_enable_caching"><br>
+    Hostname: <input type="text" name="ldap_host" id="ldap_host" value="" style="width:100%;"><br>
+    Bind RDN: <input type="text" name="ldap_bindrdn" id="ldap_bindrdn" value="" style="width:100%;"><br>
+    Bind Password: <input type="text" name="ldap_bind_pwd" id="ldap_bind_pwd" value="" style="width:100%;"><br>
+    Base DN: <input type="text" name="ldap_basedn" id="ldap_basedn" value="" style="width:100%;"><br>
+    User DN: <input type="text" name="ldap_userdn" id="ldap_userdn" value="" style="width:100%;"><br>
+    Login filter: <input type="text" name="ldap_login_filter" id="ldap_login_filter" value="" style="width:100%;"><br>
+    Login all users filter: <input type="text" name="ldap_login_all_filter" id="ldap_login_all_filter" value="" style="width:100%;"><br>
+    Login admin group filter: <input type="text" name="ldap_login_admin_filter" id="ldap_login_admin_filter" value="" style="width:100%;"><br>
+    Login sms group filter: <input type="text" name="ldap_login_sms_filter" id="ldap_login_sms_filter" value="" style="width:100%;"><br>
+    Login respond self group filter: <input type="text" name="ldap_login_respond_self_filter" id="ldap_login_respond_self_filter" value="" style="width:100%;"><br>
+    Login respond others group filter: <input type="text" name="ldap_login_respond_others_filter" id="ldap_login_respond_others_filter" value="" style="width:100%;"><br>
+    Member of group attribute: <input type="text" name="ldap_member_group_attribute" id="ldap_member_group_attribute" value="" style="width:100%;"><br>
     
     <br>
     <input type="Submit" value="Generate Configuration">
@@ -440,21 +442,99 @@ if(isset($generate_config) === true && $generate_config === 'true') {
 
 <script type="text/javascript">
 $(function() {
-	var previous_sms_gateway_type='TWILIO';
-    $( "#sms_gateway_type" ).selectmenu({
-         change: function( event, ui ) {
-             console.log(ui);
-             var selected_value = ui.item.value;
-             //debugger;
-             $( "#sms_gateway_type_"+selected_value.toLowerCase() ).show();
-             $( "#sms_gateway_type_"+previous_sms_gateway_type.toLowerCase() ).hide();
-             previous_sms_gateway_type = selected_value;
-         },
+    var previous_sms_gateway_type='TWILIO';
+    $("#sms_gateway_type").change(function () {
+        //debugger;
+        console.log('In SMS Change type: '+this.value);
+        var selected_value = this.value;
+        $( "#sms_gateway_type_"+selected_value.toLowerCase() ).show();
+        $( "#sms_gateway_type_"+previous_sms_gateway_type.toLowerCase() ).hide();
+        previous_sms_gateway_type = selected_value;
     });
 });
 
 $( document ).ready(function() {
-	
+<?php
+//echo "debugger".PHP_EOL;
+echo "// Have active firehall config: ".var_export($FIREHALL !== null,true).PHP_EOL;
+echo "// IsAuth: : ".var_export($isAuth,true).PHP_EOL;
+if ($FIREHALL !== null && $isAuth) {
+    echo "$( '#db_connection').val('".$FIREHALL->DB->DSN."');".PHP_EOL;
+    echo "$( '#db_user').val('".$FIREHALL->DB->USER."');".PHP_EOL;
+    echo "$( '#db_pwd').val('".$FIREHALL->DB->PASSWORD."');".PHP_EOL;
+    echo "$( '#db_name').val('".$FIREHALL->DB->DATABASE."');".PHP_EOL;
+
+    echo "$( '#website_name').val('".$FIREHALL->WEBSITE->FIREHALL_NAME."');".PHP_EOL;
+    echo "$( '#website_address').val('".$FIREHALL->WEBSITE->FIREHALL_HOME_ADDRESS."');".PHP_EOL;
+    echo "$( '#website_lat').val('".$FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LATITUDE."');".PHP_EOL;
+    echo "$( '#website_long').val('".$FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LONGITUDE."');".PHP_EOL;
+    echo "$( '#website_url').val('".$FIREHALL->WEBSITE->WEBSITE_ROOT_URL."');".PHP_EOL;
+    echo "$( '#website_google_map_apikey').val('".$FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY."');".PHP_EOL;
+    echo "$( '#website_timezone').val('".$FIREHALL->WEBSITE->FIREHALL_TIMEZONE."');".PHP_EOL;
+
+    echo "$( '#fh_id').val('".$FIREHALL->FIREHALL_ID."');".PHP_EOL;
+
+    echo "$( '#email_enabled').prop('checked',".var_export($FIREHALL->EMAIL->EMAIL_HOST_ENABLED,true).");".PHP_EOL;
+    echo "$( '#email_connection').val('".$FIREHALL->EMAIL->EMAIL_HOST_CONNECTION_STRING."');".PHP_EOL;
+    echo "$( '#email_user').val('".$FIREHALL->EMAIL->EMAIL_HOST_USERNAME."');".PHP_EOL;
+    echo "$( '#email_pwd').val('".$FIREHALL->EMAIL->EMAIL_HOST_PASSWORD."');".PHP_EOL;
+    echo "$( '#email_from').val('".$FIREHALL->EMAIL->EMAIL_FROM_TRIGGER."');".PHP_EOL;
+    echo "$( '#email_delete').prop('checked',".var_export($FIREHALL->EMAIL->EMAIL_DELETE_PROCESSED,true).");".PHP_EOL;
+
+    echo "$( '#sms_enabled').prop('checked',".var_export($FIREHALL->SMS->SMS_SIGNAL_ENABLED,true).");".PHP_EOL;
+    echo "$( '#sms_gateway_type').val('".$FIREHALL->SMS->SMS_GATEWAY_TYPE."');".PHP_EOL;
+    echo "$('#sms_gateway_type').on('change', function() {
+        if ($(this).find('option').length === 1 && !$(this).find('option:selected').length) {
+          $(this).find('option').prop('selected', true);
+        }
+      }).trigger('change');".PHP_EOL;
+
+    echo "$( '#sms_textbelt_base').val('".$FIREHALL->SMS->SMS_PROVIDER_TEXTBELT_BASE_URL."');".PHP_EOL;
+    
+    echo "$( '#sms_textbelt-local_from').val('".$FIREHALL->SMS->SMS_PROVIDER_TEXTBELT_LOCAL_FROM."');".PHP_EOL;
+    echo "$( '#sms_textbelt-local_region').val('".$FIREHALL->SMS->SMS_PROVIDER_TEXTBELT_LOCAL_REGION."');".PHP_EOL;
+    echo "$('#sms_textbelt-local_region').on('change', function() {
+        if ($(this).find('option').length === 1 && !$(this).find('option:selected').length) {
+          $(this).find('option').prop('selected', true);
+        }
+      }).trigger('change');".PHP_EOL;
+
+    echo "$( '#sms_base').val('".$FIREHALL->SMS->SMS_PROVIDER_TWILIO_BASE_URL."');".PHP_EOL;
+    echo "$( '#sms_auth_token').val('".$FIREHALL->SMS->SMS_PROVIDER_TWILIO_AUTH_TOKEN."');".PHP_EOL;
+    echo "$( '#sms_from').val('".$FIREHALL->SMS->SMS_PROVIDER_TWILIO_FROM."');".PHP_EOL;
+    
+    echo "$( '#sms_plivo_base').val('".$FIREHALL->SMS->SMS_PROVIDER_PLIVO_BASE_URL."');".PHP_EOL;
+    echo "$( '#sms_plivo_auth_id').val('".$FIREHALL->SMS->SMS_PROVIDER_PLIVO_AUTH_ID."');".PHP_EOL;
+    echo "$( '#sms_plivo_auth_token').val('".$FIREHALL->SMS->SMS_PROVIDER_PLIVO_AUTH_TOKEN."');".PHP_EOL;
+    echo "$( '#sms_plivo_from').val('".$FIREHALL->SMS->SMS_PROVIDER_PLIVO_FROM."');".PHP_EOL;
+
+    echo "$( '#sms_special_contacts').val('".$FIREHALL->SMS->SMS_SPECIAL_CONTACTS."');".PHP_EOL;
+
+    echo "$( '#mobile_enabled').prop('checked',".var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED,true).");".PHP_EOL;
+    echo "$( '#mobile_enabled_tracking').prop('checked',".var_export($FIREHALL->MOBILE->MOBILE_TRACKING_ENABLED,true).");".PHP_EOL;
+    echo "$( '#mobile_enabled_gcm').prop('checked',".var_export($FIREHALL->MOBILE->GCM_SIGNAL_ENABLED,true).");".PHP_EOL;
+    echo "$( '#mobile_url').val('".$FIREHALL->MOBILE->GCM_SEND_URL."');".PHP_EOL;
+    echo "$( '#mobile_gcm_api_key').val('".$FIREHALL->MOBILE->GCM_API_KEY."');".PHP_EOL;
+    echo "$( '#mobile_gcm_project').val('".$FIREHALL->MOBILE->GCM_PROJECTID."');".PHP_EOL;
+    echo "$( '#mobile_gcm_app_id').val('".$FIREHALL->MOBILE->GCM_APP_ID."');".PHP_EOL;
+    echo "$( '#mobile_gcm_sam').val('".$FIREHALL->MOBILE->GCM_SAM."');".PHP_EOL;
+
+    echo "$( '#ldap_enabled').prop('checked',".var_export($FIREHALL->LDAP->ENABLED,true).");".PHP_EOL;
+    echo "$( '#ldap_enable_caching').prop('checked',".var_export($FIREHALL->LDAP->ENABLED_CACHE,true).");".PHP_EOL;
+    echo "$( '#ldap_host').val('".$FIREHALL->LDAP->LDAP_SERVERNAME."');".PHP_EOL;
+    echo "$( '#ldap_bindrdn').val('".$FIREHALL->LDAP->LDAP_BIND_RDN."');".PHP_EOL;
+    echo "$( '#ldap_bind_pwd').val('".$FIREHALL->LDAP->LDAP_BIND_PASSWORD."');".PHP_EOL;
+    echo "$( '#ldap_basedn').val('".$FIREHALL->LDAP->LDAP_BASEDN."');".PHP_EOL;
+    echo "$( '#ldap_userdn').val('".$FIREHALL->LDAP->LDAP_BASE_USERDN."');".PHP_EOL;
+    echo "$( '#ldap_login_filter').val('".$FIREHALL->LDAP->LDAP_LOGIN_FILTER."');".PHP_EOL;
+    echo "$( '#ldap_login_all_filter').val('".$FIREHALL->LDAP->LDAP_LOGIN_ALL_USERS_FILTER."');".PHP_EOL;
+    echo "$( '#ldap_login_admin_filter').val('".$FIREHALL->LDAP->LDAP_LOGIN_ADMIN_GROUP_FILTER."');".PHP_EOL;
+    echo "$( '#ldap_login_sms_filter').val('".$FIREHALL->LDAP->LDAP_LOGIN_SMS_GROUP_FILTER."');".PHP_EOL;
+    echo "$( '#ldap_login_respond_self_filter').val('".$FIREHALL->LDAP->LDAP_LOGIN_RESPOND_SELF_GROUP_FILTER."');".PHP_EOL;
+    echo "$( '#ldap_login_respond_others_filter').val('".$FIREHALL->LDAP->LDAP_LOGIN_RESPOND_OTHERS_GROUP_FILTER."');".PHP_EOL;
+    echo "$( '#ldap_member_group_attribute').val('".$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME."');".PHP_EOL;
+}
+?>
 });     
 </script>
 </body>
