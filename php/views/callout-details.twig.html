@@ -32,14 +32,20 @@
         };
 
         function reloadIframe(iframeName, frame, url) {
-            //debugger;
             if(frame.loaded == false) {
                 //alert("IFrame needs to be reloaded: "+iframeName);
+                //debugger;
                 var iframe = document.getElementById(iframeName);
-                var tmp_src = iframe.src; 
-                iframe.src = ''; 
-                iframe.src = tmp_src;
-                checkIframeLoaded(iframeName, frame, url);
+                var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                var isLoaded = iframeDoc.getElementById('IFrameLoaded');
+                
+                if(isLoaded == null || isLoaded.value == "false") {
+                    debugger;
+                    var tmp_src = iframe.src; 
+                    iframe.src = ''; 
+                    iframe.src = tmp_src;
+                    checkIframeLoaded(iframeName, frame, url);
+                }
             }
         }
         function checkIframeLoaded(iframeName, frame, url) {
@@ -54,13 +60,19 @@
                 //iframe.contentWindow.alert("Hello");
                 iframe.onload = function() {
                     //debugger;
-                    frame.loaded = true;
+                    //var isIFrameLoaded = iframeDoc.getElementById('IFrameLoaded');
+                    //frame.loaded = isIFrameLoaded != null ? isIFrameLoaded.value : false;
+                    var isLoaded = iframeDoc.getElementById('IFrameLoaded');
+                    if(isLoaded !== null && isLoaded.value !== null) {
+                        frame.loaded = true;
+                    }
                     //alert("IFrame loaded: "+iframeName);
                 };
                 // The loading is complete, call the function we want executed once the iframe is loaded
                 //afterLoading();
                 //return;
             }
+            
         
             // If we are here, it is not loaded. Set things up so we check the status again in 100 milliseconds
             window.setTimeout(function() {

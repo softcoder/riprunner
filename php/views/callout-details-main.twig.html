@@ -19,6 +19,7 @@
         
     {% if callout_details_vm.isCalloutAuth %}
     <body class="ci_body">
+        <input type="hidden" id="IFrameLoaded" value="false">
         {% set callkey_validated = false %}
         {% set callout_pending = false %}
         {% for row in callout_details_vm.callout_details_list %}
@@ -647,6 +648,16 @@ function reloadPage() {
 }
 
 $( document ).ready(function() {
+    // debugger;
+    //window.frameElement.IFrameLoaded = true;
+    $( '#IFrameLoaded').val(true); 
+    // var input = document.createElement("IFrameLoaded");
+    // input.setAttribute("type", "hidden");
+    // input.setAttribute("name", "IFrameLoaded");
+    // input.setAttribute("value", true);
+    // document.body.appendChild(input);
+
+
     {% if callout_pending is defined and callout_pending %}
         // Handle refresh of the page
         {% block callout_refresh_script %}

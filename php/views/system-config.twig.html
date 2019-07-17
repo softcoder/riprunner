@@ -113,6 +113,7 @@
             <div id="riprunner_config" style="font-size:20px; color: white; height: 400px; overflow: auto;border: 2px solid #555;">
             <center>
             <input type='button' value='Reset All system settings to defaults' onclick="if(confirm('Are you sure that you want to reset all values to their defaults?')) saveToDatabase(this,'default_value','revertall','all'); return false;">
+            <br>
             <table id="box-table-a">
             {% for config in systemconfig_vm.constants_list %}
                 {% if loop.index == 1 %}

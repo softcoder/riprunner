@@ -1,5 +1,6 @@
 <html>
 <head>
+    <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script>
 	{% if gvm.isMobile %}
 	<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/callout-mobile.css?version=1" />
 	{% else %}
@@ -13,6 +14,7 @@
         
     {% if callout_details_vm.isCalloutAuth %}
     <body style="align-items: top">
+        <input type="hidden" id="IFrameLoaded" value="false">
         {% for row in callout_details_vm.callout_details_list %}
 
         {% set callout_pending = row.callout_status_completed == false and 
@@ -56,6 +58,20 @@
         {% endblock %}
 
         {% endfor %}
+
+<script type="text/javascript">
+$( document ).ready(function() {
+    //debugger;
+    //window.frameElement.IFrameLoaded = true;
+    $( '#IFrameLoaded').val(true); 
+    // var input = document.createElement("IFrameLoaded");
+    // input.setAttribute("type", "hidden");
+    // input.setAttribute("name", "IFrameLoaded");
+    // input.setAttribute("value", true);
+    // document.body.appendChild(input);
+});     
+</script>
+
     {% else %}
     <body class="ci_body_error">
     <h2><b>Invalid Auth. cda1</b></h2>
