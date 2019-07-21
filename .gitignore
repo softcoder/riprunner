@@ -230,3 +230,9 @@ pip-log.txt
 ## Composer working folder
 ##########################
 php/vendor/
+
+##########################
+## Flutter private files
+##########################
+flutter/riprunner/android/key.properties
+flutter/riprunner/android/app/src
