@@ -429,8 +429,11 @@ Special Notes:
 --------------
 
 A newer mobile app is being developed using google's 'Flutter' framework which can be found i nthe flutter folder.
+Visual Studio Code is the IDE being used to develop this mobile app but command line compiling using flutter
+works fine too.
 
-[Old information below regarding mobile app]
+Old information below regarding mobile app:
+--------------
 Compiling the Android application in the Eclipse IDE requires you to install the ADT plugin (http://developer.android.com/tools/sdk/eclipse-adt.html) as well as setup the Google Play Services SDK (https://developer.android.com/google/play-services/setup.html#Setup) as this is a dependency in the riprunner android app.
 
 FAQ:
