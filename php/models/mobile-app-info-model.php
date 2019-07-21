@@ -72,7 +72,8 @@ class MobileAppInfoViewModel extends BaseViewModel {
 					"kml_page_uri" => "kml/boundaries.kml",
 					"android_error_page_uri" => "android-error.php",
 			        
-			        "status_list" => json_encode($statusListManualArray)  
+					"status_list" => json_encode($statusListManualArray),
+					"audio_stream_raw" => urlencode($firehall->WEBSITE->STREAM_URL_RAW)
 			);
 		}
 		else {

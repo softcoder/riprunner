@@ -61,6 +61,13 @@ class LiveCalloutWarningViewModel extends BaseViewModel {
 		$row = $qry_bind->fetch(\PDO::FETCH_OBJ);
 		if($row !== false) {
 			$this->getCalloutModel()->id = $row->id;
+			$this->getCalloutModel()->time = $row->calltime;
+			$this->getCalloutModel()->type = $row->calltype;
+			$this->getCalloutModel()->address = $row->address;
+			$this->getCalloutModel()->lat = $row->latitude;
+			$this->getCalloutModel()->long = $row->longitude;
+			$this->getCalloutModel()->units = $row->units;
+			$this->getCalloutModel()->status = $row->status;
 			$this->getCalloutModel()->callkey = $row->call_key;
 		}
 		$qry_bind->closeCursor();

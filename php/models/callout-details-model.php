@@ -108,19 +108,19 @@ class CalloutDetailsViewModel extends BaseViewModel {
             return STREAM_AUTOPLAY_DESKTOP;
         }
 		if('map_callout_geo_dest' === $name) {
-		    return get_query_param('map_callout_geo_dest');
+		    return $this->getQueryParam('map_callout_geo_dest');
 		}
 		if('map_callout_address_dest' === $name) {
-		    return get_query_param('map_callout_address_dest');
+		    return $this->getQueryParam('map_callout_address_dest');
 		}
 		if('map_fh_geo_lat' === $name) {
-		    return get_query_param('map_fh_geo_lat');
+		    return $this->getQueryParam('map_fh_geo_lat');
 		}
 		if('map_fh_geo_long' === $name) {
-		    return get_query_param('map_fh_geo_long');
+		    return $this->getQueryParam('map_fh_geo_long');
 		}
 		if('map_webroot' === $name) {
-		    return get_query_param('map_webroot');
+		    return $this->getQueryParam('map_webroot');
 		}
 		if('isCalloutAuth' === $name) {
 		    return $this->getIsCalloutAuth();
@@ -151,7 +151,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	}
 	
 	private function getFirehallId() {
-		$firehall_id = get_query_param('fhid');
+		$firehall_id = $this->getQueryParam('fhid');
 		return $firehall_id;
 	}
 	
@@ -165,7 +165,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	}
 
 	private function getCalloutId() {
-		$callout_id = get_query_param('cid');
+		$callout_id = $this->getQueryParam('cid');
 		if ( isset($callout_id) === true && $callout_id !== null ) {
 			$callout_id = (int)$callout_id;
 		}
@@ -176,7 +176,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	}
 	
 	private function getCalloutKeyId() {
-		$callkey_id = get_query_param('ckid');
+		$callkey_id = $this->getQueryParam('ckid');
 		return $callkey_id;
 	}
 
@@ -184,7 +184,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	    if($this->getGvm()->auth->isAuth === true) {
 	        return $this->getGvm()->auth->username;
 	    }
-		$member_id = get_query_param('member_id');
+		$member_id = $this->getQueryParam('member_id');
 		return $member_id;
 	}
 
@@ -214,7 +214,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	}
 	
 	private function getCalloutRespondingId() {
-		$cruid = get_query_param('cruid');
+		$cruid = $this->getQueryParam('cruid');
 		return $cruid;
 	}
 
@@ -279,10 +279,10 @@ class CalloutDetailsViewModel extends BaseViewModel {
 		if(isset($this->callout_details_list) === false) {
 			global $log;
 			
-			$firehall_id = get_query_param('fhid');
-			$callkey_id = get_query_param('ckid');
-			$user_id = get_query_param('member_id');
-			$callout_id = get_query_param('cid');
+			$firehall_id = $this->getQueryParam('fhid');
+			$callkey_id = $this->getQueryParam('ckid');
+			$user_id = $this->getQueryParam('member_id');
+			$callout_id = $this->getQueryParam('cid');
 			
 			if(isset($callout_id) === true && $callout_id !== null) {
 				$callout_id = (int)$callout_id;
@@ -380,31 +380,33 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			}
 				
 			$callouts = $this->getCalloutDetailsList();
-			foreach($callouts as $row) {
-				if($this->getFirehall()->LDAP->ENABLED == true) {
-					create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
+			if($callouts != null) {
+				foreach($callouts as $row) {
+					if($this->getFirehall()->LDAP->ENABLED == true) {
+						create_temp_users_table_for_ldap($this->getFirehall(), $this->getGvm()->RR_DB_CONN);
+					}
+
+					$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_response);
+					$qry_bind->bindParam(':cid', $row['id']);
+					$qry_bind->execute();
+
+					$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
+					$qry_bind->closeCursor();
+
+					$log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . count($rows));
+					
+					$results = array();
+					foreach($rows as $row_r){
+						// Add any custom fields with values here
+						$row_r['responder_location'] = urlencode($row_r['latitude']) . ',' . urlencode($row_r['longitude']);
+						$row_r['firehall_location'] = urlencode($this->getGvm()->firehall->WEBSITE->FIREHALL_HOME_ADDRESS);
+						$row_r['responder_display_status'] = CalloutStatusType::getStatusById($row_r['status'], $this->getGvm()->firehall)->getDisplayName();
+						$row_r['callout_status_entity'] = CalloutStatusType::getStatusById($row_r['status'], $this->getGvm()->firehall);
+
+						$results[] = $row_r;
+					}
+					$this->callout_details_responding_list = $results;
 				}
-
-				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_response);
-				$qry_bind->bindParam(':cid', $row['id']);
-				$qry_bind->execute();
-
-				$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
-				$qry_bind->closeCursor();
-
-				$log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . count($rows));
-				
-				$results = array();
-				foreach($rows as $row_r){
-					// Add any custom fields with values here
-					$row_r['responder_location'] = urlencode($row_r['latitude']) . ',' . urlencode($row_r['longitude']);
-					$row_r['firehall_location'] = urlencode($this->getGvm()->firehall->WEBSITE->FIREHALL_HOME_ADDRESS);
-					$row_r['responder_display_status'] = CalloutStatusType::getStatusById($row_r['status'], $this->getGvm()->firehall)->getDisplayName();
-					$row_r['callout_status_entity'] = CalloutStatusType::getStatusById($row_r['status'], $this->getGvm()->firehall);
-
-					$results[] = $row_r;
-				}
-				$this->callout_details_responding_list = $results;
 			}
 		}
 		return $this->callout_details_responding_list;

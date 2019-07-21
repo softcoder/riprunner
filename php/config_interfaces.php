@@ -615,6 +615,8 @@ class FireHallWebsite
 	public $STREAM_DESKTOP;
 	// The URL that streams radio audio
 	public $STREAM_URL;
+	// The URL that streams the RAW audio Stream
+	public $STREAM_URL_RAW;
 	
 	public function __construct($name=null, $home_address=null, $home_geo_coord_lat=null,
 			$home_geo_coord_long=null, $root_url=null, 
@@ -633,6 +635,7 @@ class FireHallWebsite
 		$this->STREAM_MOBILE = false;
 		$this->STREAM_DESKTOP = false;
 		$this->STREAM_URL = '';
+		$this->STREAM_URL_RAW = '';
 	}
 
 	public function __toString() {
@@ -650,7 +653,8 @@ class FireHallWebsite
 				"\nEnable radio audio streaming: " . var_export($this->STREAM_AUDIO_ENABLED, true) .
 				"\nEnable radio audio streaming for mobile devices: " . var_export($this->STREAM_MOBILE, true) .
 				"\nEnable radio audio streaming for desktop devices: " . var_export($this->STREAM_DESKTOP, true) .
-				"\nURL for radio audio streaming: " . $this->STREAM_URL;
+				"\nURL for radio audio streaming: " . $this->STREAM_URL .
+				"\nURL for radio RAW audio streaming: " . $this->STREAM_URL_RAW;
 						;
 		return $result;
 	}
@@ -696,6 +700,9 @@ class FireHallWebsite
 	}
 	public function setStreamUrl($value) {
 		$this->STREAM_URL = $value;
+	}
+	public function setStreamUrlRaw($value) {
+		$this->STREAM_URL_RAW = $value;
 	}
 }
 
