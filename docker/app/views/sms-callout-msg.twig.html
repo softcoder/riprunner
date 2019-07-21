@@ -1,0 +1,15 @@
+{% block sms_header %}
+911-Page: {{ callout.codeDescription }}, {{ callout.address }}, {# This comment removes the newline that follows #}
+{% endblock %}
+{% block sms_footer %}
+{{ callout.codeType is not null ? callout.codeType.customTag : '???' }} {# This comment removes the newline that follows #}
+{% endblock %}
+{% block sms_comments %}
+{{ callout.comments is not null ? 'Comments: ' ~ callout.comments ~ ' ' : '' }}{# This comment removes the newline that follows #}
+{% endblock %}
+{% block sms_cmds %}
+{{ '\n' }}Respond: {{ smsrespondhall }}, Not Responding: {{ smsnotresponding }}
+{% endblock %}
+{% block sms_url %}
+Web: {% block sms_url_webroot %}[webroot-start]{{ callout.firehall.WEBSITE.WEBSITE_ROOT_URL }}[webroot-end]{% endblock %}[shorten-start]ci/cid={{ callout.id }}&fhid={{ callout.firehall.FIREHALL_ID }}&ckid={{ callout.keyId }}&authvalue=x[shorten-end]{# This comment removes the newline that follows #}
+{% endblock %}

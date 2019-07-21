@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    
+        <meta charset="UTF-8">
+        <title>Secure Login: Protected Page</title>
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles-mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles.css" />
+        {% endif %}
+        
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/freeze-header.css" />
+          
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/spin.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/forms.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/freeze-header.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script>
+
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/js/jquery-ui-themes-1.11.4/themes/smoothness/jquery-ui.min.css">
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
+        
+		<style>
+		@-webkit-keyframes glowGreen {
+		  from {
+		    -webkit-box-shadow: rgba(0, 255, 0, 0) 0 0 0;
+		  }
+		  50% {
+		    -webkit-box-shadow: rgba(0, 255, 0, 1) 0 0 10px;
+		  }
+		  to {
+		    -webkit-box-shadow: rgba(0, 255, 0, 0) 0 0 0;
+		  }
+		}
+		@-webkit-keyframes glowRed {
+		  from {
+		    -webkit-box-shadow: rgba(255, 0, 0, 0) 0 0 0;
+		  }
+		  50% {
+		    -webkit-box-shadow: rgba(255, 0, 0, 1) 0 0 10px;
+		  }
+		  to {
+		    -webkit-box-shadow: rgba(255, 0, 0, 0) 0 0 0;
+		  }
+		}
+		body {
+		  font: 12px Arial, sans-serif;
+		  background-color: #eee;
+		  color: #444;
+		}
+		#connection {
+		  font: 14px Arial, sans-serif;
+		  font-weight: bold;
+		  vertical-align: middle;
+		  color: black;
+		}
+		#connection div {
+		  background-color: orange;
+		  width: 10px;
+		  height: 10px;
+		  display: inline-block;
+		  border-radius: 10px;
+		  margin-left: 5px;
+		  -webkit-animation-duration: 2s;
+		  -webkit-animation-iteration-count: infinite;
+		  -webkit-animation-timing-function: linear;
+		}
+		#connection.connected div {
+		  background-color: green;
+		  -webkit-box-shadow: rgba(0, 255, 0, 0.5) 0px 0px 5px;
+		  -webkit-animation-name: glowGreen;
+		}
+		#connection.disconnected div {
+		  background-color: red;
+		  -webkit-box-shadow: rgba(255, 0, 0, 0.5) 0px 0px 5px;
+		  -webkit-animation-name: glowRed;
+		}
+		#log {
+		  overflow: auto;
+		  width: 300px;
+		  height: 350px;
+		  margin-right: 20px;
+		  #float: left;
+		}
+		#log p {
+		  margin: 0;
+		  padding: 0;
+		}
+		#log .info {
+		  color: navy;
+		  font-weight: bold;
+		}
+		#log .msg {
+		  margin-left: 11px;
+		}
+		.border {
+		  border: 2px solid black;
+		  border-radius: 5px;
+		  padding: 10px;
+		  background-color: white;
+		}
+		#right-panel div {
+		  text-align: left;
+		}
+		#right-panel {
+		  height: 350px;
+		  width: 585px;
+		  #float: left;
+		  font-size: 14px;
+		  text-align: center;
+		}
+		button {
+		  background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#F9F9F9), to(#E3E3E3));
+		  border: 1px solid #ccc;
+		  border-radius: 3px;
+		  margin: 0 8px 0 0;
+		  color: black;
+		  padding: 5px 8px;
+		  outline: none;
+		  white-space: nowrap;
+		  vertical-align: middle;
+		  -webkit-user-select:none;
+		  user-select: none;
+		  cursor: pointer;
+		}
+		button:not([disabled]):hover {
+		  border: 1px solid #939393;
+		}
+		button:not([disabled]):active {
+		  background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#E3E3E3), to(#F9F9F9));
+		}
+		button[disabled] {
+		  color: #ccc;
+		}
+		</style>        
+    </head>
+    
+    <body>
+    
+    <div class="container_center">
+        {% if gvm.auth.isAuth or gvm.auth.hasAuthSpecialToken %}
+            {% if gvm.auth.isAuth %}
+            {% include 'user-welcome.twig.html' %}
+            {% endif %}
+        <div class="menudiv_wrapper">
+          <nav class="vertical">
+            <ul>
+              <li>
+                <label for="main_page">Return to ..</label>
+                <input type="radio" name="verticalMenu" id="main_page" />
+                <div>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php" onclick="javascript:closeConnection(); return true;">Main Menu</a></li>
+                  </ul>
+                </div>
+              </li>
+              <li>
+                <label for="logout">Exit</label>
+                <input type="radio" name="verticalMenu" id="logout" />
+                <div>
+                  <ul>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}/logout.php" onclick="javascript:closeConnection(); return true;">Logout</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        
+    <p>
+	  <div id="dialog-message" title="Error" style="display:none">
+		  <p>
+		    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>
+		    CANNOT Open popups as you have a popup blocker for this website!
+		  </p>
+		  <p>
+		    Please allow this website to open popups.
+		  </p>
+  	  </div>
+      <button onclick="logger.clear()">Clear log</button>
+      <button onclick="closeConnection()">Stop reconnections</button>
+      <span id="connection">Connecting...<div></div></span>
+    </p>
+    <center>
+    <table>
+        <tr>
+            <td>
+	           <div class="border" id="log"></div>
+	       </td>
+	       <td>
+	           <div class="border" id="right-panel">
+        	        <div>Waiting for callouts...</div>
+     	       </div>
+	       </td>
+	    </tr>
+    </table>
+    </center>
+    
+<script type="text/javascript">
+
+var lastCalloutURL = null;
+function signalPage(callout_url) {
+	try {
+		console.info('In signalPage start for url: ' + callout_url);
+		
+		if(lastCalloutURL == null && lastCalloutURL != callout_url) {
+			lastCalloutURL = callout_url;
+		    var mp3 = $('<audio id="soundHandle" style="display:none;"></audio>').attr('src','{{ gvm.RR_DOC_ROOT }}/sounds/pager_tone_pg.mp3');
+		    	    
+		    $(mp3)[0].addEventListener('ended', function(){
+		    	console.info('In signalPage playing tones ENDED shows call details for url: ' + callout_url);
+		        {% if gvm.enabled_asynch_mode %}
+		        //openAjaxUrl(callout_url,false,10,30000);
+		        {% else %}
+		        //window.location = callout_url;
+		        {% endif %}
+                var win = window.open(callout_url);
+                if(win == null) {
+                    console.info('In window.open ERROR!!! cannot popup page likely blocked from popup blocker!.');
+
+                    //var error_div="<div class='container_center' id='error_msg'><h3>CANNOT Open popups as you have a popup blocker for this website!</h3></div>";
+                    //$(document.body).prepend(error_div);
+                    
+                    $(function() {
+                        $( "#dialog-message" ).dialog({
+                          modal: true,
+                          buttons: {
+                            Ok: function() {
+                              $( this ).dialog( "close" );
+                            }
+                          }
+                        });
+                    });                    
+                }
+		        console.info('In signalPage playing tones ENDED complete');
+		    }, false);
+		    
+		    $(mp3)[0].play();
+		    console.info('In signalPage playing tones: sounds/pager_tone_pg.mp3');
+		}
+		else {
+			console.info('In signalPage callout already signalled, doing nothing.');
+		}
+	}
+	catch(ex) {
+		console.info('ERROR In signalPage start for url: ' + callout_url + ' error: ' + ex.message);
+		alert('Pager tone error: ' + ex.message);
+		window.location = callout_url;
+	}
+}
+
+// sends messages with text/event-stream mimetype.
+{% set authSpecialParams = (gvm.auth.hasAuthSpecialToken ? '&ast=' ~ callout_monitor_ast ~ '&fhid=' ~ callout_monitor_fhid ~ '&member_id=' ~ callout_monitor_member_id : '') %}
+var source = new EventSource('{{ gvm.RR_DOC_ROOT }}/controllers/callout-monitor-controller.php?server_mode=true{{ authSpecialParams|raw }}');
+console.info('Will try to connect to url: ' + source.url);
+
+function Logger(id) {
+  this.el = document.getElementById(id);
+}
+Logger.prototype.log = function(msg, opt_class) {
+  var fragment = document.createDocumentFragment();
+  var p = document.createElement('p');
+  p.className = opt_class || 'info';
+  p.textContent = msg;
+  fragment.appendChild(p);
+  this.el.appendChild(fragment);
+};
+Logger.prototype.clear = function() {
+  this.el.textContent = '';
+};
+var logger = new Logger('log');
+
+function closeConnection() {
+  source.close();
+  logger.log('> Connection was closed at: ' + new Date().toLocaleString());
+  console.info('> Connection was closed at: ' + new Date().toLocaleString());
+  updateConnectionStatus('Disconnected', false);
+}
+function updateConnectionStatus(msg, connected) {
+	try {
+	  var el = document.querySelector('#connection');
+	  if (connected) {
+		console.info('Connection connected at: ' + new Date().toLocaleString());
+	    if (el.classList) {
+	      el.classList.add('connected');
+	      el.classList.remove('disconnected');
+	    } 
+	    else {
+	      el.addClass('connected');
+	      el.removeClass('disconnected');
+	    }
+	  } 
+	  else {
+		console.info('Connection disconnected at: ' + new Date().toLocaleString());
+	    if (el.classList) {
+	      el.classList.remove('connected');
+	      el.classList.add('disconnected');
+	    } 
+	    else {
+	      el.removeClass('connected');
+	      el.addClass('disconnected');
+	    }
+	  }
+	  el.innerHTML = msg + '<div></div>';
+    }
+    catch(ex) {
+        console.info('ERROR In updateConnectionStatus error: ' + ex.message);
+    }
+	  
+}
+
+source.addEventListener('message', function(event) {
+	try {
+	  var data = JSON.parse(event.data);
+	  //var d = new Date(data.msg * 1e3);
+	  //var timeStr = [d.getHours(), d.getMinutes(), d.getSeconds()].join(':');
+	  //coolclock.render(d.getHours(), d.getMinutes(), d.getSeconds());
+	  if(data.id > 0) {
+		  closeConnection();
+		  logger.log('Got a live page!', 'msg');
+
+		  {% set authSpecialParams_trigger = (gvm.auth.hasAuthSpecialToken ? '&member_id=' ~ callout_monitor_member_id : '') %}
+	      var callout_url = "{{ gvm.RR_DOC_ROOT }}/ci/fhid={{ gvm.firehall.FIREHALL_ID }}&cid=" + data.id + 
+	                        "&ckid=" + data.keyid + '{{ authSpecialParams_trigger|raw }}';
+	      // callout_url += "&member_id={{ gvm.auth.user_id }}"
+		  
+	      signalPage(callout_url);
+		  logger.log('Playing page tone!', 'msg');
+	  }
+	  logger.log('lastEventID: ' + event.lastEventId +
+	             ', server msg: ' + data.keyid + ' id = ' + data.id, 'msg');
+	}
+    catch(ex) {
+        console.info('ERROR In addEventListener(message) error: ' + ex.message);
+    }
+	
+}, false);
+
+source.addEventListener('open', function(event) {
+	console.info('Connection was opened at: ' + new Date().toLocaleString());
+	logger.clear();
+    logger.log('> Connection was opened at: ' + new Date().toLocaleString());
+    updateConnectionStatus('Connected', true);
+}, false);
+
+source.addEventListener('error', function(event) {
+    if (event.eventPhase == 2) { //EventSource.CLOSED
+    	console.info('Connection was closed at: ' + new Date().toLocaleString());
+      logger.log('> Connection was closed (2) at: ' + new Date().toLocaleString());
+      updateConnectionStatus('Disconnected', false);
+    }
+    else {
+    	console.info('Connection error: ' + event.eventPhase + 'at: ' + new Date().toLocaleString());
+    }
+}, false);
+    
+</script>
+        {% else %}
+            {% include 'access-denied.twig.html' %}
+        {% endif %}
+      </div>
+</body>
+</html>

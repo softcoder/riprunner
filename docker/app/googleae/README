@@ -1,0 +1,50 @@
+Introduction:
+=============
+
+There are two seperate services available for which only 1 should be selected
+for use.
+
+Option #1: Setup a Google App engine app to receives live emails and trigger
+           Rip Runner automatically with callout information.
+           (This option takes less resources and triggers callouts more quickly)
+           *NOTE: Make sure you edit app.yaml and incoming-email-webhook.py
+           The email address for the google email forwarder should be the format:
+           <any name>@<your project name>.appspotmail.com
+           example: riprunner@app-riprunner.appspotmail.com
+           This is the email address that callout information should be sent to.
+
+Option #2: Setup a Google App engine app to trigger Rip Runner to poll for 
+           a new email that should trigger a new callout.
+           (This option takes more resouces [polling every minute] and has a time
+           lag to trigger callouts of up to 2 minutes)
+           *NOTE: Make sure you edit app.yaml and riprunner-trigger.php
+
+In order to use Google App Engine (GAE) to trigger notifications
+you should edit the *.yaml files to point to your GAE Account info, and
+edit the URL in the PHP or PY file to point to the location where you installed 
+Rip Runner application
+
+Example Installtion:
+====================
+Below is a sample deployment to GAE:
+
+softcoder@softcoder-linux:/media/dlinknas/websites/svvfd.ca/php$ ../google_appengine/appcfg.py update googleae/email-webhook
+
+08:54 PM Application: app-riprunner; version: 1
+08:54 PM Host: appengine.google.com
+08:54 PM 
+Starting update of app: app-riprunner, version: 1
+08:54 PM Getting current resource limits.
+Email: X@gmail.com
+Password for X@gmail.com: 
+08:55 PM Scanning files on local disk.
+08:55 PM Cloning 2 application files.
+08:55 PM Uploading 1 files and blobs.
+08:55 PM Uploaded 1 files and blobs
+08:55 PM Compilation starting.
+08:55 PM Compilation completed.
+08:55 PM Starting deployment.
+08:55 PM Checking if deployment succeeded.
+08:55 PM Deployment successful.
+08:55 PM Checking if updated app version is serving.
+08:55 PM Completed update of app: app-riprunner, version: 1

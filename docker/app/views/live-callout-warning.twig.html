@@ -1,0 +1,4 @@
+{% if livecall_vm.callout.id is not null %}
+<a target="_blank" href="{{ gvm.RR_DOC_ROOT }}/ci/fhid={{ gvm.firehall.FIREHALL_ID }}&cid={{ livecall_vm.callout.id }}&ckid={{ livecall_vm.callout.callkey }}" 
+   class="alert">A Callout is in progress, CLICK HERE for details</a>
+{% endif %}   

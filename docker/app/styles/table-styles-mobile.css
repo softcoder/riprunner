@@ -1,0 +1,116 @@
+/* ------------------
+ styling for the tables 
+   ------------------   */
+
+
+body
+{
+    line-height: 1.6em;
+}
+
+#box-table-a
+{
+    font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+    font-size: 25px;
+    margin: 45px;
+	#width: 90%;
+    text-align: left;
+    border-collapse: collapse;
+}
+
+#box-table-a thead tr th
+{
+	padding: 2px 10px 2px 10px;
+	text-decoration: underline;
+	text-transform: uppercase;
+	font-size: 30px;
+}
+#box-table-a th
+{
+    font-size: 20px;
+    font-weight: normal;
+    padding: 2px 10px 2px 10px;
+    background: #b9c9fe;
+    border-top: 1px solid #aabcfe;
+    border-bottom: 1px solid #fff;
+    color: #669;
+	text-decoration: none !important;
+}
+#box-table-a td
+{
+#	font-size: 12px;
+    padding: 2px 10px 2px 10px;
+    background: #e8edff; 
+    border-bottom: 0px solid #fff;
+    color: #669;
+    border-top: 0px solid transparent;
+	vertical-align: top;
+	text-align: left;
+}
+#box-table-a tr:hover td
+{
+    background: #d0dafd;
+    color: #339;
+}
+#box-table-a tr td.totals
+{
+	background: #b9c9fe;
+	color: #339;
+	text-align: left;
+}
+
+#box-table-a tr td.months
+{
+	#background: #b9c9fe;
+	color: #669;
+	text-align: left;
+}
+#background-image
+{
+    font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+    font-size: 12px;
+    margin: 45px;
+    width: 480px;
+    text-align: left;
+    border-collapse: collapse;
+    background: url('table-images/blurry.jpg') 330px 59px no-repeat;
+}
+#background-image th
+{
+    padding: 12px;
+    font-weight: normal;
+    font-size: 14px;
+    color: #339;
+}
+#background-image td
+{
+    padding: 9px 12px;
+    color: #669;
+    border-top: 1px solid #fff;
+}
+#background-image tfoot td
+{
+    font-size: 11px;
+}
+#background-image tbody td
+{
+    background: url('table-images/back.png');
+}
+* html #background-image tbody td
+{
+    /* 
+       ----------------------------
+        PUT THIS ON IE6 ONLY STYLE 
+        AS THE RULE INVALIDATES
+        YOUR STYLESHEET
+       ----------------------------
+    */
+    filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='table-images/back.png',sizingMethod='crop');
+    background: none;
+}   
+#background-image tbody tr:hover td
+{
+    color: #339;
+    background: none;
+}
+

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Secure Login: Protected Page</title>
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles-mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles.css" />
+        {% endif %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/freeze-header.css" />
+        <style>
+            .current-row{background-color:#B24926;color:#FFF;}
+            .current-col{background-color:#1b1b1b;color:#FFF;}
+            .tbl-qa{width: 100%;font-size:0.9em;background-color: #f5f5f5;}
+            .tbl-qa th.table-header {padding: 5px;text-align: left;padding:10px;}
+            .tbl-qa .table-row td {padding:10px;background-color: #FDFDFD;}
+        </style>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/forms.js"></script>
+    </head>
+    <body>
+        <div class="container_center">
+        {% if gvm.auth.isAuth and (gvm.auth.isAdmin) %} 
+                
+            {% include 'user-welcome.twig.html' %}
+            {% include 'live-callout-warning.twig.html' %}
+            
+            <div class="menudiv_wrapper">
+              <nav class="vertical">
+                <ul>
+                  <li>
+                    <label for="main_page">Return to ..</label>
+                    <input type="radio" name="verticalMenu" id="main_page" />
+                    <div>
+                      <ul>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php">Main Menu</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                  <li>
+                    <label for="logout">Exit</label>
+                    <input type="radio" name="verticalMenu" id="logout" />
+                    <div>
+                      <ul>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/logout.php">Logout</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+
+            <h2>Rip Runner Testing</h2>
+            <div id="riprunner_config" style="font-size:20px; color: white; height: 400px; overflow: auto;border: 2px solid #555;">
+            <center>
+            
+            <button onclick="toggleVisibility('test_code');">Show/Hide Test Page</button>            
+            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/system-test-controller.php" 
+                  method="post" id="test_code" name="test_code" 
+                  style="display:{% if testmenu_ctl_action_code_test is not defined or 
+                                       testmenu_ctl_action_code_test == false %}none{% endif %}" >
+                <center>
+                <table id="box-table-a" style="width:500px; height:100px;">
+                    <tr>
+                        <td align="center" colspan="2">
+                        <span id="msgTitle">Create a Test Page</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <span id="title_callout_code">Callout Code:</span> 
+ 		                    <select id="callout_code" name="callout_code">
+		                    {% for callout_type in systemtest_vm.callout_type_list %}
+		                      <option value="{{ callout_type.code }}">{{ callout_type.name }}</option>
+		                    {% endfor %}
+		                    </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <span id="title_callout_address">Address:</span>
+                            <input id="test_address" name="test_address" type="input" size="60" value=""/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <span id="title_callout_geo_lat">Geo Coordinates Latitude:</span>
+                            <input id="test_geo_lat" name="test_geo_lat" type="input" size="18" value=""/>
+                            <span id="title_callout_geo_long"> Longitude:</span>
+                            <input id="test_geo_long" name="test_geo_long" type="input" size="18" value=""/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                        <span id="title_callout_units">Units Responding:</span>
+                        <input id="test_units" name="test_units" type="input" size="52" value=""/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" colspan="2">
+                        <input type="button" value="Trigger Test Page" onclick="send_msg(this.form, 'code_test');" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                        <span id="msgStatus" style="display:{% if testmenu_ctl_action_code_test_result is not defined %}none{% endif %}">{{ testmenu_ctl_action_code_test_result }}</span>
+                        </td>
+                    </tr>
+                </table>
+                </center>
+            </form>
+            
+            
+            </center>
+            </div>
+       
+            <script type="text/javascript">
+    function edit_type(form, type_id) {
+       addformhiddenfield(form, 'form_action', 'edit');
+       addformhiddenfield(form, 'edit_type_id', type_id);
+       
+       form.submit();
+    }
+
+    function save_type(form, type_id) {
+       addformhiddenfield(form, 'form_action', 'save');
+       addformhiddenfield(form, 'edit_type_id', type_id);
+       
+       form.submit();
+    }
+
+    function delete_type(form, type_id, type_id_name) {
+        if(confirm('Confirm DELETE for type: ' + type_id_name + '?')) {
+            addformhiddenfield(form, 'form_action', 'delete');
+            addformhiddenfield(form, 'edit_type_id', type_id);
+            
+            form.submit();
+            return true;
+        }
+        return false;
+    }
+
+    function send_msg(form, action_type) {
+       addformhiddenfield(form, 'form_action', action_type);
+       form.submit();
+    }
+
+    function toggleVisibility(itemId) {
+        var item = document.getElementById(itemId);
+        if(item.style.display == "none") {
+            item.style.display="block";
+        }
+        else {
+            item.style.display="none";
+        }
+    }
+    
+    var item = document.getElementById("edit_code");
+    if(item) {
+        item.focus();
+    }
+</script>
+            
+        {% else %}
+            {% include 'access-denied.twig.html' %}
+        {% endif %}
+        </div>
+    </body>
+</html>
