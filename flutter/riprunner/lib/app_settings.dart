@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 import 'app_constants.dart';
 import 'common/utils.dart';
@@ -56,11 +57,9 @@ class _AppSettingsState extends State<AppSettingsPage> {
   void processLoadResult(String result) {
     Map<String, dynamic> config = json.decode(result);
     setState(() {
-      //website_url_str = config['fhid'];
       websiteUrlStr = textCtlWebsiteUrl.text;
       gcmProjectStr = config['gcm-projectid'];
       trackingGeo = config['tracking-enabled'] == '1' || config['tracking-enabled'] == 'true' ? true : false;
-      //deviceid_str = config['fhid'];
       audioStreamRawUrl = config['audio_stream_raw'];
 
       textCtlGCMProject.text = gcmProjectStr;
@@ -69,6 +68,8 @@ class _AppSettingsState extends State<AppSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    final BuildContext builCtx = context;
 
     final logo = Hero(
       tag: 'hero',
@@ -156,7 +157,7 @@ class _AppSettingsState extends State<AppSettingsPage> {
     );
 
     final customPagerSoundButton = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
+      padding: EdgeInsets.symmetric(vertical: 1.0),
       child: Material(
         borderRadius: BorderRadius.circular(30.0),
         shadowColor: Colors.lightBlueAccent.shade100,
@@ -177,7 +178,7 @@ class _AppSettingsState extends State<AppSettingsPage> {
     );
 
     final loadButton = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
+      padding: EdgeInsets.symmetric(vertical: 1.0),
       child: Material(
         borderRadius: BorderRadius.circular(30.0),
         shadowColor: Colors.lightBlueAccent.shade100,
@@ -186,15 +187,7 @@ class _AppSettingsState extends State<AppSettingsPage> {
           minWidth: 200.0,
           height: 42.0,
           onPressed: () {
-            String url = textCtlWebsiteUrl.text + (!textCtlWebsiteUrl.text.endsWith('/') ? '/' : '') + 'controllers/mobile-app-info-controller.php';
-            Utils.apiRequest(url, null, APIRequestType.GET,false).then((data) {
-              processLoadResult(data);
-              Utils.setConfigItem<String>(AppConstants.PROPERTY_WEBSITE_URL, textCtlWebsiteUrl.text);
-              Utils.setConfigItem<String>(AppConstants.PROPERTY_SENDER_ID, textCtlGCMProject.text);
-              Utils.setConfigItem<bool>(AppConstants.PROPERTY_TRACKING_ENABLED, trackingGeo);
-              Utils.setConfigItem<String>(AppConstants.PROPERTY_REG_ID, deviceidStr);
-              Utils.setConfigItem<String>(AppConstants.PROPERTY_AUDIO_STREAM_RAW_URL, audioStreamRawUrl);
-            });
+            loadWebsiteSettings(builCtx);
           },
           color: Colors.lightBlueAccent,
           child: Text('Load settings from Website',style: TextStyle(color: Colors.white)),
@@ -203,7 +196,7 @@ class _AppSettingsState extends State<AppSettingsPage> {
     );
 
     final closeButton = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
+      padding: EdgeInsets.symmetric(vertical: 1.0),
       child: Material(
         borderRadius: BorderRadius.circular(30.0),
         shadowColor: Colors.lightBlueAccent.shade100,
@@ -228,23 +221,23 @@ class _AppSettingsState extends State<AppSettingsPage> {
           padding: EdgeInsets.only(left: 24.0, right: 24.0),
           children: <Widget>[
             logo,
-            SizedBox(height: 8.0),
+            //SizedBox(height: 2.0),
             websiteLabel,
             websiteUrl,
-            SizedBox(height: 2.0),
+            //SizedBox(height: 2.0),
             gcmLabel,
             gcmProject,
-            SizedBox(height: 2.0),
+            //SizedBox(height: 2.0),
             Row(children: <Widget>[
               geoTrackingLabel,
               enabledGeoTracking,
             ],),
-            SizedBox(height: 2.0),
+            //SizedBox(height: 2.0),
             Row(children: <Widget>[
               deviceIdLabelTitle,
               deviceIdLabel,
             ],),
-            SizedBox(height: 2.0),
+            //SizedBox(height: 2.0),
             customPagerSoundButton,
             loadButton,
             closeButton,
@@ -252,5 +245,38 @@ class _AppSettingsState extends State<AppSettingsPage> {
         ),
       ),
     );
+  }
+
+  void loadWebsiteSettings(BuildContext builCtx) {
+    String url = textCtlWebsiteUrl.text + (!textCtlWebsiteUrl.text.endsWith('/') ? '/' : '') + 'controllers/mobile-app-info-controller.php';
+    Utils.apiRequest(url, null, APIRequestType.GET,false).then((data) {
+      processLoadResult(data);
+      Utils.setConfigItem<String>(AppConstants.PROPERTY_WEBSITE_URL, textCtlWebsiteUrl.text);
+      Utils.setConfigItem<String>(AppConstants.PROPERTY_SENDER_ID, textCtlGCMProject.text);
+      Utils.setConfigItem<bool>(AppConstants.PROPERTY_TRACKING_ENABLED, trackingGeo);
+      Utils.setConfigItem<String>(AppConstants.PROPERTY_REG_ID, deviceidStr);
+      Utils.setConfigItem<String>(AppConstants.PROPERTY_AUDIO_STREAM_RAW_URL, audioStreamRawUrl);
+    }).catchError((onError) {
+    
+      print("In loadWebsiteSettings $onError");
+      Alert(
+        context: builCtx,
+        type: AlertType.error,
+        title: "Error",
+        desc: onError.toString(),
+        buttons: [
+          DialogButton(
+            child: Text(
+              "Ok",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () {
+              Navigator.of(builCtx, rootNavigator: true).pop();
+            },
+            color: Color.fromRGBO(0, 179, 134, 1.0),
+          ),
+        ],
+      ).show();
+    });
   }
 }

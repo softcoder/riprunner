@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:package_info/package_info.dart';
 
 import 'app_constants.dart';
 import 'auth/auth.dart';
@@ -25,6 +27,7 @@ class _LoginState extends State<LoginPage> {
   bool launchSettings = false;
   bool _inProgress = false;
   String loginStatus = 'Waiting for credentials...';
+  String appVersion = 'v?';
 
   TextEditingController textCtlFHID = new TextEditingController();
   TextEditingController textCtlUser = new TextEditingController();
@@ -67,6 +70,16 @@ class _LoginState extends State<LoginPage> {
   void initState() {
     super.initState();
     Authentication.logout();
+
+    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+      String appName = packageInfo.appName;
+      //String packageName = packageInfo.packageName;
+      String version = packageInfo.version;
+      String buildNumber = packageInfo.buildNumber;
+
+      appVersion = appName + ' v' + version + '-' + buildNumber;
+    });    
+
     loadState();
   }  
 
@@ -83,30 +96,97 @@ class _LoginState extends State<LoginPage> {
     }
     else {
       setState(() {
-        loginStatus = 'Login Error: ' + auth.message;  
+        loginStatus = 'Login Error: ' + auth.message;
       });
+
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "Warning",
+        desc: auth.message,
+        buttons: [
+          DialogButton(
+            child: Text(
+              "Ok",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop();
+            },
+            color: Color.fromRGBO(0, 179, 134, 1.0),
+          ),
+        ],
+      ).show();
     }
   }
 
   void login() {
-    setState(() {
-      _inProgress = true;
-    });
-    String pwd = textCtlPwd.text;
-    textCtlPwd.text = '';
-    Authentication.login(textCtlFHID.text, textCtlUser.text, pwd).
-      then((auth) => processLoginResult(auth)).
-      catchError((e) {
-        setState(() {
-          loginStatus = 'Login Error: ' + e.toString();
-        });
-      }).
-      whenComplete(() {
-        setState(() {
-          SoundUtils.playSound(audioPlayer, 'assets/sounds/login.mp3',ResourceType.LocalAsset);
-          _inProgress = false;
-        });
+    try {
+      setState(() {
+        _inProgress = true;
       });
+      String pwd = textCtlPwd.text;
+      if(pwd == null || pwd.isEmpty || pwd.length < 4) {
+        throw Exception("Password must contain more than 4 characters!");
+      }
+      textCtlPwd.text = '';
+      Authentication.login(textCtlFHID.text, textCtlUser.text, pwd).
+        then((auth) => processLoginResult(auth)).
+        catchError((e) {
+          setState(() {
+            _inProgress = false;
+            loginStatus = 'Login Error: ' + e.toString();
+          });
+          Alert(
+            context: context,
+            type: AlertType.error,
+            title: "Error",
+            desc: e.toString(),
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "Ok",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                color: Color.fromRGBO(0, 179, 134, 1.0),
+              ),
+            ],
+          ).show();
+        }).
+        whenComplete(() {
+          setState(() {
+            SoundUtils.playSound(audioPlayer, 'assets/sounds/login.mp3',ResourceType.LocalAsset);
+          });
+        });
+    }
+    catch(e) {
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "Error",
+        desc: e.toString(),
+        buttons: [
+          DialogButton(
+            child: Text(
+              "Ok",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop();
+            },
+            color: Color.fromRGBO(0, 179, 134, 1.0),
+          ),
+        ],
+      ).show();
+    }
+    finally {
+      setState(() {
+        _inProgress = false;
+      });
+    }
   }
 
   @override
@@ -117,7 +197,7 @@ class _LoginState extends State<LoginPage> {
       tag: 'hero',
       child: CircleAvatar(
         backgroundColor: Colors.transparent,
-        radius: 100.0,
+        radius: 80.0,
         child: Image.asset('assets/generic_logo3.png'),
         ),
     );
@@ -140,7 +220,7 @@ class _LoginState extends State<LoginPage> {
         hintText: 'Firehall Id',
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(32.0)
+          borderRadius: BorderRadius.circular(22.0)
         ),
       ),
     );
@@ -164,7 +244,7 @@ class _LoginState extends State<LoginPage> {
         hintText: 'Username',
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(32.0)
+          borderRadius: BorderRadius.circular(22.0)
         ),
       ),
     );
@@ -181,16 +261,17 @@ class _LoginState extends State<LoginPage> {
       controller: textCtlPwd,
       obscureText: true,
       decoration: InputDecoration(
+        prefixIcon: Icon(Icons.lock_open, color: Colors.grey),
         hintText: 'Password',
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(32.0)
+          borderRadius: BorderRadius.circular(22.0)
         ),
       ),
     );
 
     final loginButton = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
+      padding: EdgeInsets.symmetric(vertical: 1.0),
       child: Material(
         borderRadius: BorderRadius.circular(30.0),
         shadowColor: Colors.lightBlueAccent.shade100,
@@ -216,24 +297,20 @@ class _LoginState extends State<LoginPage> {
 
     widgets = <Widget>[
           logo,
-          SizedBox(height: 4.0),
           firehallLabel,
           firehall,
-          SizedBox(height: 4.0),
           userLabel,
           email,
-          SizedBox(height: 4.0),
           passwordLabel,
           password,
-          SizedBox(height: 4.0),
           loginButton,
           statusLabel
-          ];
+    ];
   
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-          title: const Text('Rip Runner'),
+          title: Text(appVersion),
           actions: <Widget>[
             PopupMenuButton<Choice>(
               onSelected: _select,

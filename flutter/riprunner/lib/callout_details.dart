@@ -7,13 +7,18 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter_radio/flutter_radio.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 import 'app_constants.dart';
+import 'common/data_container.dart';
 import 'common/sounds.dart';
 import 'common/utils.dart';
 
 class CalloutDetailsPage extends StatefulWidget {
   static String tag = 'callout-details';
+  final DataContainer dataContainer;
+
+  const CalloutDetailsPage({Key key, this.dataContainer}): super(key: key);
 
   @override
   _CalloutDetailsPageState createState() => new _CalloutDetailsPageState();
@@ -25,10 +30,10 @@ const double ResponderDefaultFontDroppedSize = 18.0;
 //double ResponderDefaultWidth = 95;
 const double ResponderDefaultHeight = 30;
 
-const double ResponderNameWidth = 165;
-const double ResponderStatusWidth = 180;
+const double ResponderNameWidth = 130;
+const double ResponderStatusWidth = 175;
 //double ResponderTimeWidth = 100;
-const double ResponderETAWidth = 60;
+const double ResponderETAWidth = 50;
 
 const int UNSELECTED_STATUS_ID = -1;
 
@@ -40,7 +45,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
   String websiteUrlStr;
   String firehallId;
   String userId='';
-  Map<String, dynamic> liveCallout = {};
+
   String audioStreamRawUrl;
   bool _inProgress = false;
   Timer pollCallouts;
@@ -65,6 +70,10 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
     super.dispose();
   }
 
+  DataContainer getDataContainer() {
+    return widget.dataContainer;
+  }
+
   Future<void> trackGeo() async {
     try {
       bool trackingGeo = await Utils.getConfigItem<bool>(AppConstants.PROPERTY_TRACKING_ENABLED);
@@ -77,17 +86,16 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
         String long = (geoPosition != null && geoPosition.longitude != null ? geoPosition.longitude.toString() : '');
 
         String url = websiteUrlStr + (!websiteUrlStr.endsWith('/') ? '/' : '') + 
-          'ct/cid='+liveCallout['id']+
-          '&fhid='+firehallId+'&ckid='+liveCallout['callkey']+'&uid='+userId+
-          '&lat='+lat+
-          '&long='+long;
+          'ct/cid=' + getDataContainer().getData()['id'] +
+          '&fhid='  + firehallId + '&ckid=' + getDataContainer().getData()['callkey'] + '&uid=' + userId+
+          '&lat='   + lat +
+          '&long='  + long;
         Utils.apiRequest(url, null, APIRequestType.GET,false).
         then((data) {
           
         }).
         catchError((e) {
           print(e.toString());
-        }).whenComplete(() {
         });
       }
     }
@@ -120,11 +128,11 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
       String long = (geoPosition != null && geoPosition.longitude != null ? geoPosition.longitude.toString() : '');
 
       String url = websiteUrlStr + (!websiteUrlStr.endsWith('/') ? '/' : '') + 
-        'controllers/callout-response-controller.php?cid='+callout['id']+
-        '&fhid='+firehallId+'&ckid='+callout['callkey']+'&uid='+responder['user_id']+
-        '&lat='+lat+
-        '&long='+long+
-        '&member_id='+responder['user_id']+'&status='+status;
+        'controllers/callout-response-controller.php?cid=' + callout['id'] +
+        '&fhid=' + firehallId + '&ckid=' + callout['callkey'] + '&uid=' + responder['user_id'] +
+        '&lat='  + lat +
+        '&long=' + long +
+        '&member_id=' + responder['user_id'] + '&status=' + status;
       Utils.apiRequest(url, null, APIRequestType.GET,false).
       then((data) {
         loadCalloutData().then((X) {
@@ -133,6 +141,26 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
         catchError((e) {
           print(e.toString());
           endInProgress(updateInProgress);
+
+          Alert(
+            context: context,
+            type: AlertType.error,
+            title: "Warning",
+            desc: e.toString(),
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "Ok",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                color: Color.fromRGBO(0, 179, 134, 1.0),
+              ),
+            ],
+          ).show();
+
         }).whenComplete(() {
           endInProgress(updateInProgress);
         });
@@ -140,6 +168,26 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
       catchError((e) {
         print(e.toString());
         endInProgress(updateInProgress);
+
+        Alert(
+          context: context,
+          type: AlertType.error,
+          title: "Warning",
+          desc: e.toString(),
+          buttons: [
+            DialogButton(
+              child: Text(
+                "Ok",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+              color: Color.fromRGBO(0, 179, 134, 1.0),
+            ),
+          ],
+        ).show();
+
       }).whenComplete(() {
         endInProgress(updateInProgress);
       });
@@ -158,9 +206,9 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
     audioStreamRawUrl = await Utils.getConfigItem<String>(AppConstants.PROPERTY_AUDIO_STREAM_RAW_URL);
     String customPagerAudioFile = await Utils.getConfigItem<String>(AppConstants.PROPERTY_CUSTOM_PAGER_AUDIO_FILE);
     
-    String previousCalloutId = (liveCallout != null ? liveCallout['id'] : '');
+    String previousCalloutId = (getDataContainer().getData() != null ? getDataContainer().getData()['id'] : '');
     String url = websiteUrlStr + (!websiteUrlStr.endsWith('/') ? '/' : '') + 
-      'angular-services/live-callout-service.php/details?fhid='+firehallId;
+                  'angular-services/live-callout-service.php/details?fhid=' + firehallId;
     Utils.apiRequest(url, null, APIRequestType.GET,false).
       then((responseString) {
         Map<String, dynamic> responseMap = processLoadResult(responseString);
@@ -168,19 +216,20 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
           websiteUrlStr = websiteUrlStr;
           firehallId = firehallId;
           userId = userId;
-          liveCallout = responseMap;
-
-          if(isCalloutActive() && previousCalloutId != liveCallout['id']) {
-            if(customPagerAudioFile != null && customPagerAudioFile != '' && io.File(customPagerAudioFile).existsSync()) {
-              SoundUtils.playSound(audioPlayer,customPagerAudioFile, ResourceType.LocalFile);
-            }
-            else {
-              String url = websiteUrlStr + (!websiteUrlStr.endsWith('/') ? '/' : '') + 
-                'sounds/pager_tone_pg.mp3';
-              SoundUtils.playSound(audioPlayer,url, ResourceType.URL);
-            }
-          }
+          getDataContainer().setData(responseMap);
         });
+
+        if(isCalloutActive() && previousCalloutId != getDataContainer().getData()['id']) {
+          if(customPagerAudioFile != null && customPagerAudioFile != '' && io.File(customPagerAudioFile).existsSync()) {
+            SoundUtils.playSound(audioPlayer,customPagerAudioFile, ResourceType.LocalFile);
+          }
+          else {
+            String url = websiteUrlStr + (!websiteUrlStr.endsWith('/') ? '/' : '') + 
+              'sounds/pager_tone_pg.mp3';
+            SoundUtils.playSound(audioPlayer,url, ResourceType.URL);
+          }
+        }
+
         endInProgress(updateInProgress);
       }).
       catchError((e) {
@@ -214,6 +263,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
     super.initState();
 
     FlutterRadio.audioStart();
+    getDataContainer().setData({});
     Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((position) {
       geoPosition = position;
       var geolocator = Geolocator();
@@ -254,28 +304,28 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
     calloutWidgetParts.add(Padding(
       padding: EdgeInsets.all(2.0),
       child: Text(
-        liveCallout['address'],
+        getDataContainer().getData()['address'],
         style: TextStyle(fontSize: 25.0, color: Colors.cyan),
       ),
     ));
     calloutWidgetParts.add(Padding(
       padding: EdgeInsets.all(2.0),
       child: Text(
-        liveCallout['type'] + ' - ' + liveCallout['type_desc'],
+        getDataContainer().getData()['type'] + ' - ' + getDataContainer().getData()['type_desc'],
         style: TextStyle(fontSize: 20.0, color: Colors.yellow),
       ),
     ));
     calloutWidgetParts.add(Padding(
       padding: EdgeInsets.all(2.0),
       child: Text(
-        liveCallout['time'],
+        getDataContainer().getData()['time'],
         style: TextStyle(fontSize: 16.0, color: Colors.white),
       ),
     ));
     calloutWidgetParts.add(Padding(
       padding: EdgeInsets.all(2.0),
       child: Text(
-        liveCallout['status_desc'],
+        getDataContainer().getData()['status_desc'],
         style: TextStyle(fontSize: 20.0, color: Colors.redAccent),
       ),
     ));
@@ -336,8 +386,8 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
   }
 
   bool hasCurrentUserResponded(bool checkUnselectedStatus) {
-    if(liveCallout != null && liveCallout.isNotEmpty) {
-      List responses = liveCallout['callout_details_responding_list'];
+    if(getDataContainer().getData() != null && getDataContainer().getData().isNotEmpty) {
+      List responses = getDataContainer().getData()['callout_details_responding_list'];
       // Check if the current user responded yet
       for (var responder in responses ?? []) {
         if((responder['user_id'] ?? '') == userId) {
@@ -353,7 +403,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
   }
 
   List buildResponderList() {
-    List responses = liveCallout['callout_details_responding_list'];
+    List responses = getDataContainer().getData()['callout_details_responding_list'];
     bool currentUserIsResponding = hasCurrentUserResponded(false);
 
     // Add the current user to the list so they can respond
@@ -382,7 +432,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
       noneSelected['displayName'] = '';
       statuses.add(noneSelected);
     }
-    statuses.addAll(liveCallout['callout_status_defs']);
+    statuses.addAll(getDataContainer().getData()['callout_status_defs']);
     
     List<DropdownMenuItem<String>> statusList = [];
     for (var status in statuses) {
@@ -408,9 +458,34 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
             items: statusList,
             onChanged: (status) {
               if(status != responder['status']) {
-                updateStatus(liveCallout, responder, status).
+                bool updateInProgress = startInProgress();
+
+                updateStatus(getDataContainer().getData(), responder, status).
                   catchError((e) {
                     print(e.toString());
+                    endInProgress(updateInProgress);
+
+                    Alert(
+                      context: context,
+                      type: AlertType.error,
+                      title: "Warning",
+                      desc: e.toString(),
+                      buttons: [
+                        DialogButton(
+                          child: Text(
+                            "Ok",
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context, rootNavigator: true).pop();
+                          },
+                          color: Color.fromRGBO(0, 179, 134, 1.0),
+                        ),
+                      ],
+                    ).show();
+
+                  }).whenComplete(() {
+                    endInProgress(updateInProgress);
                   });
               }
             }
@@ -468,7 +543,8 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
   }
 
   bool isCalloutActive() {
-    return (liveCallout != null && liveCallout.isNotEmpty && liveCallout.containsKey('id') && liveCallout['id'] != null);
+    return (getDataContainer().getData() != null && getDataContainer().getData().isNotEmpty && 
+            getDataContainer().getData().containsKey('id') && getDataContainer().getData()['id'] != null);
   }
 
   @override
@@ -528,7 +604,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
       allWidgetParts.addAll(responders);
     }
 
-    final body = ModalProgressHUD(
+    return ModalProgressHUD(
       child: new Container(
         padding: EdgeInsets.all(2.0),
         decoration: BoxDecoration(
@@ -549,7 +625,5 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
       )),
       inAsyncCall: _inProgress
     );
-
-    return body;
   }
 }

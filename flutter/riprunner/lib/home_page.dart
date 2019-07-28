@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:riprunner/callout_details.dart';
 
 import 'auth/auth.dart';
+import 'common/data_container.dart';
 import 'common/utils.dart';
 import 'app_constants.dart';
 import 'app_settings.dart';
 import 'common/choice.dart';
 import 'login_page.dart';
+import 'callout_details.dart';
+import 'callout_map.dart';
 
 class HomePage extends StatefulWidget {
   static String tag = 'home-page';
@@ -18,6 +20,8 @@ const String LOGOUT_ACTION = "Logout";
 const String SETTINGS_ACTION = "Settings";
 
 class _HomePageState extends State<HomePage> {
+
+  DataContainer dataContainer = new DataContainer();
   String firehallId;
   String userId;
 
@@ -47,7 +51,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
 
-    final tabs = DefaultTabController(
+    return DefaultTabController(
         length: 3,
         child: Scaffold(
           appBar: AppBar(
@@ -73,25 +77,21 @@ class _HomePageState extends State<HomePage> {
             ],
             bottom: TabBar(
               tabs: [
-                Tab(text: 'Current Activity'),
+                Tab(text: 'Live Activity'),
                 Tab(text: 'Map'),
                 Tab(text: 'More Actions'),
-                //Tab(icon: Icon(Icons.directions_transit)),
-                //Tab(icon: Icon(Icons.directions_bike)),
               ],
             ),
           ),
           body: TabBarView(
             children: [
-              CalloutDetailsPage(),
-              Icon(Icons.map),
+              CalloutDetailsPage(dataContainer: dataContainer),
+              CalloutMapPage(dataContainer: dataContainer),
               Icon(Icons.more),
             ],
           ),
         )
     );
-
-    return tabs;
   }
   
   void _select(Choice choice) {

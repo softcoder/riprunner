@@ -49,5 +49,7 @@
 	<string>Always And In Use Permission</string>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>Allow custom notifications sounds</string>	
+	<key>io.flutter.embedded_views_preview</key>
+	<string>YES</string>	
 </dict>
 </plist>
