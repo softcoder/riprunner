@@ -136,7 +136,10 @@ Screenshots:
 
 Call out example (SMS sent to responders with a link to this page):
 
-![Callout Example](/screenshots/riprunner-callou1.png?raw=true "Callout Example")
+![Callout Example](/screenshots/riprunner-call-details1.png?raw=true "Callout Example")
+![Callout Map](/screenshots/riprunner-call-details2.png?raw=true "Callout Map")
+
+![Callout History](/screenshots/riprunner-callout-history1.png?raw=true "Callout History")
 
 System administration:
 
@@ -150,21 +153,21 @@ Android App:
 <tr>
 <td>
 Login Screen:
-<a href="/screenshots/android-login.png?raw=true"><img src="/screenshots/android-login.png?raw=true" align="left" height="713" width="401" ></a>
+<a href="/screenshots/riprunner-callout-history1.png?raw=true"><img src="/screenshots/riprunner-callout-history1.png?raw=true" align="left" height="713" width="401" ></a>
 </td>
 <td>
 Options:
-<a href="/screenshots/android-settings.png?raw=true"><img src="/screenshots/android-settings.png?raw=true" align="left" height="713" width="401" ></a>
+<a href="/screenshots/flutter-settings1.png?raw=true"><img src="/screenshots/flutter-settings1.png?raw=true" align="left" height="713" width="401" ></a>
 </td>
 </tr>
 <tr>
 <td>
 Main Screen:
-<a href="/screenshots/android-main.png?raw=true"><img src="/screenshots/android-main.png?raw=true" align="left" height="713" width="401" ></a>
+<a href="/screenshots/flutter-call-details1.png?raw=true"><img src="/screenshots/flutter-call-details1.png?raw=true" align="left" height="713" width="401" ></a>
 </td>
 <td>
 Live Callout Screen:
-<a href="/screenshots/android-callout.png?raw=true"><img src="/screenshots/android-callout.png?raw=true" align="left" height="713" width="401" ></a>
+<a href="/screenshots/flutter-call-details2.png?raw=true"><img src="/screenshots/flutter-call-details2.png?raw=true" align="left" height="713" width="401" ></a>
 </td>
 </tr>
 </table>
