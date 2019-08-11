@@ -149,7 +149,7 @@ System administration:
 
 Android App:
 
-<table border="1">
+<table>
   <tr>
 	<td>
 	Login Screen:
@@ -171,9 +171,13 @@ Android App:
 	</td>
   </tr>
   <tr>
-	<td border="1">
+	<td>
+	<table border="1">
+		<tr><td>
 	Messages:
 	<a href="/screenshots/flutter-call-details3.png?raw=true"><img src="/screenshots/flutter-call-details3.png?raw=true" align="left" height="713" width="401"></a>
+		</td></tr>
+	</table>
 	</td>
   </tr>
 </table>
