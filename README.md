@@ -171,9 +171,9 @@ Live Callout Screen:
 </td>
 </tr>
 <tr>
-<td>
+<td style="border: 1px solid #ff0000;">
 Messages:
-<a href="/screenshots/flutter-call-details3.png?raw=true"><img src="/screenshots/flutter-call-details3.png?raw=true" align="left" style="border: 1px solid #000000;" height="713" width="401" ></a>
+<a href="/screenshots/flutter-call-details3.png?raw=true"><img src="/screenshots/flutter-call-details3.png?raw=true" align="left" height="713" width="401" ></a>
 </td>
 </tr>
 </table>
