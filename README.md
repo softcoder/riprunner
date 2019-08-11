@@ -149,7 +149,7 @@ System administration:
 
 Android App:
 
-<table>
+<table border="1">
 <tr>
 <td>
 Login Screen:
@@ -171,7 +171,7 @@ Live Callout Screen:
 </td>
 </tr>
 <tr>
-<td bgcolor="black">
+<td>
 Messages:
 <a href="/screenshots/flutter-call-details3.png?raw=true"><img src="/screenshots/flutter-call-details3.png?raw=true" align="left" height="713" width="401"></a>
 </td>
