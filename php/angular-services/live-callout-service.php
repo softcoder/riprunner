@@ -38,6 +38,7 @@ class LiveCalloutController extends AuthApiController {
         global $FIREHALLS;
 
         if (!isset($_SESSION) && !isset($_SESSION['firehall_id'])) {
+            if ($log !== null) $log->error("API invalid session fhid: $fhid UNAUTHORIZED [".session_id()."]");
             return new HttpResponse(422, 'Missing Session', (object)[
                 'exception' => (object)[
                         'type' => 'MissingParameterApiException',
@@ -47,11 +48,12 @@ class LiveCalloutController extends AuthApiController {
         ]);
         }
         if($this->validateAuth() == false) {
+            if ($log !== null) $log->error("API validateAuth failed fhid: $fhid UNAUTHORIZED [".session_id()."]");
             return $this->getLastError();
         }
         
         if ($fhid == null) {
-            if ($log !== null) $log->trace("API validateAuth fhid: $fhid UNAUTHORIZED [".session_id()."]");
+            if ($log !== null) $log->error("API validateAuth fhid: $fhid UNAUTHORIZED [".session_id()."]");
         
             return new HttpResponse(422, 'Missing Parameter', (object)[
                     'exception' => (object)[

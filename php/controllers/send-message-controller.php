@@ -48,8 +48,8 @@ class SendMessageController {
 		if($this->sendmsg_mv->sms_send_mode === true) {
 			$this->sendSMS_Message();
 		}
-		else if($this->sendmsg_mv->gcm_send_mode === true) {
-			$this->sendGCM_Message();
+		else if($this->sendmsg_mv->fcm_send_mode === true) {
+			$this->sendFCM_Message();
 		}
 		else if($this->sendmsg_mv->email_send_mode === true) {
 		    $this->sendEmail_Message();
@@ -76,14 +76,14 @@ class SendMessageController {
 		$this->view_template_vars["sendmsg_ctl_result"] = $sendMsgResult;
 		$this->view_template_vars["sendmsg_ctl_result_status"] = $sendMsgResultStatus;
 	}
-	private function sendGCM_Message() {
-		$gcmMsg = get_query_param('txtMsg');
+	private function sendFCM_Message() {
+		$fcmMsg = get_query_param('txtMsg');
 		
 		$signalManager = new \riprunner\SignalManager();
-		$sendMsgResult = $signalManager->sendGCM_Message($this->global_vm->firehall, 
-		        $gcmMsg, $this->global_vm->RR_DB_CONN);
+		$sendMsgResult = $signalManager->sendFCM_Message($this->global_vm->firehall, 
+		        $fcmMsg, $this->global_vm->RR_DB_CONN);
 		
-        if(strpos($sendMsgResult, "|GCM_ERROR:") !== false) {
+        if(strpos($sendMsgResult, "|FCM_ERROR:") !== false) {
             $sendMsgResultStatus = "Error sending Android Message: " . $sendMsgResult;
         }
         else {

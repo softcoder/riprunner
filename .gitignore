@@ -235,4 +235,5 @@ php/vendor/
 ## Flutter private files
 ##########################
 flutter/riprunner/android/key.properties
-flutter/riprunner/android/app/src
+flutter/riprunner/android/app/src/debug
+flutter/riprunner/android/app/google-services.json

@@ -64,6 +64,7 @@ class MobileAppInfoViewModel extends BaseViewModel {
 					"tracking-enabled"  => urlencode($firehall->MOBILE->MOBILE_TRACKING_ENABLED),
 					"android:versionCode"  => urlencode(CURRENT_ANDROID_VERSIONCODE),
 					"android:versionName"  => urlencode(CURRENT_ANDROID_VERSIONNAME),
+					
 					"login_page_uri" => "mobile-login/",
 					"callout_page_uri" => "ci/",
 					"respond_page_uri" => "cr/",

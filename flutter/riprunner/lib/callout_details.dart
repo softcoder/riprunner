@@ -8,11 +8,13 @@ import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter_radio/flutter_radio.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:riprunner/auth/auth.dart';
 
 import 'app_constants.dart';
 import 'common/data_container.dart';
 import 'common/sounds.dart';
 import 'common/utils.dart';
+import 'login_page.dart';
 
 class CalloutDetailsPage extends StatefulWidget {
   static String tag = 'callout-details';
@@ -234,6 +236,9 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
       }).
       catchError((e) {
         print(e.toString());
+        if(!Authentication.isLoggedIn()) {
+          Navigator.of(context).popAndPushNamed(LoginPage.tag);
+        }
         endInProgress(updateInProgress);
       }).whenComplete(() {
         endInProgress(updateInProgress);
@@ -263,7 +268,6 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
     super.initState();
 
     FlutterRadio.audioStart();
-    getDataContainer().setData({});
     Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((position) {
       geoPosition = position;
       var geolocator = Geolocator();

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'actions_page.dart';
 import 'auth/auth.dart';
 import 'common/data_container.dart';
 import 'common/utils.dart';
@@ -12,6 +14,10 @@ import 'callout_map.dart';
 
 class HomePage extends StatefulWidget {
   static String tag = 'home-page';
+  //final DataContainer dataContainer;
+
+  //const HomePage({Key key, this.dataContainer}): super(key: key);
+
   @override
   _HomePageState createState() => new _HomePageState();
 }
@@ -21,7 +27,7 @@ const String SETTINGS_ACTION = "Settings";
 
 class _HomePageState extends State<HomePage> {
 
-  DataContainer dataContainer = new DataContainer();
+  
   String firehallId;
   String userId;
 
@@ -29,6 +35,10 @@ class _HomePageState extends State<HomePage> {
     const Choice(title: SETTINGS_ACTION, icon: Icons.settings_applications),
     const Choice(title: LOGOUT_ACTION, icon: Icons.exit_to_app),
   ];
+
+  // DataContainer getDataContainer() {
+  //   return widget.dataContainer;
+  // }
 
   Future<void> loadState() async {
     bool launchSettings = await Utils.hasConfigItem<String>(AppConstants.PROPERTY_WEBSITE_URL) == false;
@@ -50,9 +60,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    const int TAB_COUNT = 4;
 
     return DefaultTabController(
-        length: 3,
+        length: TAB_COUNT,
         child: Scaffold(
           appBar: AppBar(
             title: const Text('Rip Runner'),
@@ -77,16 +88,19 @@ class _HomePageState extends State<HomePage> {
             ],
             bottom: TabBar(
               tabs: [
-                Tab(text: 'Live Activity'),
+                Tab(text: 'Live Call'),
                 Tab(text: 'Map'),
-                Tab(text: 'More Actions'),
+                Tab(text: 'Messages'),
+                Tab(text: 'More...'),
               ],
             ),
           ),
           body: TabBarView(
             children: [
-              CalloutDetailsPage(dataContainer: dataContainer),
-              CalloutMapPage(dataContainer: dataContainer),
+              CalloutDetailsPage(dataContainer: Provider.of<DataContainer>(context)),
+              CalloutMapPage(dataContainer: Provider.of<DataContainer>(context)),
+              //ActionsPage(dataContainer: Provider.of<DataContainer>(context)),
+              ActionsPage(),
               Icon(Icons.more),
             ],
           ),

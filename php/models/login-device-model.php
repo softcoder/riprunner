@@ -102,6 +102,8 @@ class LoginDeviceViewModel extends BaseViewModel {
 			$log->trace("device register registration_id = [". $this->getRegistrationId() ."] firehall_id = [". $this->getFirehallId() ."] user_id = [". $this->getUserId() ."] user_pwd = [". $this->getUserPassword() . "]");
 			
 			$this->user_account_id = null;
+
+/*			
 			if($this->getFirehall()->LDAP->ENABLED == true) {
 				$this->user_authenticated = login_ldap($this->getFirehall(), $this->getUserId(), $this->getUserPassword());
 			}
@@ -135,6 +137,41 @@ class LoginDeviceViewModel extends BaseViewModel {
 					$log->error("device register invalid user_id [". $this->getUserId() ."]");
 				}
 			}
+*/
+
+			//$db_connection = null;
+			//$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
+			//if(isset($FIREHALL) === true) {
+			$auth = new\riprunner\Authentication($this->getFirehall());
+            if ($auth->login($this->getUserId(), $this->getUserPassword()) === true) {
+				// Login success
+				$this->user_account_id = $_SESSION['user_db_id'];
+				$this->user_authenticated = true;
+		
+                //if ($isAngularClient == true) {
+                    // $token = array();
+                    // $token['id'] = $_SESSION['user_db_id'];
+                    // $token['acl'] = $auth->getCurrentUserRoleJSon();
+                    // $token['fhid'] = $firehall_id;
+                    // $token['uid'] = '';
+                    
+                    // $output = array();
+                    // $output['status'] = true;
+                    // $output['expiresIn'] = 60 * 30; // expires in 30 mins
+                    // $output['user'] = $_SESSION['user_id'];
+                    // $output['message'] = 'LOGIN: OK';
+                    // $output['token'] = JWT::encode($token, JWT_KEY);
+                    
+                    // header('Cache-Control: no-cache, must-revalidate');
+                    // header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+                    // header('Content-type: application/json');
+                    // echo json_encode($output);
+                //}
+            }
+			else {
+				$log->error("device register invalid userid or password for user_id [" . $this->getUserId() . "]");
+			}
+
 		}
 		
 		return $this->user_authenticated;
@@ -247,10 +284,10 @@ class LoginDeviceViewModel extends BaseViewModel {
 
 		$signalManager = new \riprunner\SignalManager();
 		// Send Callout details to logged in user only
-		$gcmMsg = $signalManager->getGCMCalloutMessage($callout);
-		$result .= $signalManager->signalCallOutRecipientsUsingGCM($callout,
+		$fcmMsg = $signalManager->getFCMCalloutMessage($callout);
+		$result .= $signalManager->signalCallOutRecipientsUsingFCM($callout,
 		        $this->getRegistrationId(),
-		        $gcmMsg,
+		        $fcmMsg,
 		        $this->getGvm()->RR_DB_CONN);
 		
 		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
@@ -279,12 +316,12 @@ class LoginDeviceViewModel extends BaseViewModel {
 				$row = $rows[0];
 				$userStatus = $row->status;
 				
-				$gcmResponseMsg = $signalManager->getSMSCalloutResponseMessage($callout,
+				$fcmResponseMsg = $signalManager->getSMSCalloutResponseMessage($callout,
 				        $this->getUserId(), $userStatus, null);
 				
-				$result .= $signalManager->signalResponseRecipientsUsingGCM($callout, 
+				$result .= $signalManager->signalResponseRecipientsUsingFCM($callout, 
 										$this->getUserId(), $userStatus, 
-										$gcmResponseMsg,
+										$fcmResponseMsg,
 										$this->getRegistrationId(),
 										$this->getGvm()->RR_DB_CONN);
 			}
@@ -293,10 +330,10 @@ class LoginDeviceViewModel extends BaseViewModel {
 	}
 	
 	private function getSignalLogin() {
-		$loginMsg = 'GCM_LOGINOK';
+		$loginMsg = 'FCM_LOGINOK';
 		
 		$signalManager = new \riprunner\SignalManager();
-		$signalManager->signalLoginStatusUsingGCM($this->getFirehall(), 
+		$signalManager->signalLoginStatusUsingFCM($this->getFirehall(), 
 		        $this->getRegistrationId(), $loginMsg, $this->getGvm()->RR_DB_CONN);
 	}
 }

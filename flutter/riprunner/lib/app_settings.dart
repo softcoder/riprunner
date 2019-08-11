@@ -60,6 +60,16 @@ class _AppSettingsState extends State<AppSettingsPage> {
       websiteUrlStr = textCtlWebsiteUrl.text;
       gcmProjectStr = config['gcm-projectid'];
       trackingGeo = config['tracking-enabled'] == '1' || config['tracking-enabled'] == 'true' ? true : false;
+
+      // "android:versionCode":"9",
+      // "android:versionName":"1.8",
+      // "login_page_uri":"mobile-login\/",
+      // "callout_page_uri":"ci\/",
+      // "respond_page_uri":"cr\/",
+      // "tracking_page_uri":"ct\/",
+      // "kml_page_uri":"kml\/boundaries.kml",
+      // "android_error_page_uri":"android-error.php"
+
       audioStreamRawUrl = config['audio_stream_raw'];
 
       textCtlGCMProject.text = gcmProjectStr;

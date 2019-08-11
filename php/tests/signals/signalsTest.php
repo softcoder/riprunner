@@ -92,7 +92,7 @@ class SignalsTest extends BaseDBFixture {
 	    $this->assertEquals('TEST SUCCESS!', $result);
 	}
 
-	public function testSignalCallOutRecipientsUsingGCM_Valid() {
+	public function testSignalCallOutRecipientsUsingFCM_Valid() {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 
 	    $callout = new \riprunner\CalloutDetails();
@@ -105,7 +105,7 @@ class SignalsTest extends BaseDBFixture {
 	    $callout->setFirehall($FIREHALL);
 	     
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
+	    $mock_gcm = $this->getMockBuilder('\riprunner\FCM')
 	    ->disableOriginalConstructor()
 	    ->getMock(array('send','getDeviceCount'));
 
@@ -131,12 +131,12 @@ class SignalsTest extends BaseDBFixture {
 	    // Call the test
 	    $device_id = 'ABC123-XXX';
 	    $signalManager = new \riprunner\SignalManager(null,null,$mock_gcm,$this->getTwigEnv());
-	    $result = $signalManager->signalCallOutRecipientsUsingGCM($callout, $device_id, 'Test SMS Message.', $this->getDBConnection($FIREHALL));
+	    $result = $signalManager->signalCallOutRecipientsUsingFCM($callout, $device_id, 'Test SMS Message.', $this->getDBConnection($FIREHALL));
 	
 	    $this->assertEquals('TEST SUCCESS!', $result);
 	}
 
-	public function testSignalResponseRecipientsUsingGCM_Valid() {
+	public function testSignalResponseRecipientsUsingFCM_Valid() {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $callout = new \riprunner\CalloutDetails();
@@ -149,7 +149,7 @@ class SignalsTest extends BaseDBFixture {
 	    $callout->setFirehall($FIREHALL);
 	
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
+	    $mock_gcm = $this->getMockBuilder('\riprunner\FCM')
 	    ->disableOriginalConstructor()
 	    ->getMock(array('send','getDeviceCount'));
 	
@@ -177,16 +177,16 @@ class SignalsTest extends BaseDBFixture {
 	    $user_status = 'RESPONDING';
 	    $device_id = 'ABC123-XXX';
 	    $signalManager = new \riprunner\SignalManager(null,null,$mock_gcm,$this->getTwigEnv());
-	    $result = $signalManager->signalResponseRecipientsUsingGCM($callout, $user_id, $user_status, 'Test SMS Message.', $device_id, $this->getDBConnection($FIREHALL));
+	    $result = $signalManager->signalResponseRecipientsUsingFCM($callout, $user_id, $user_status, 'Test SMS Message.', $device_id, $this->getDBConnection($FIREHALL));
 	
 	    $this->assertEquals('TEST SUCCESS!', $result);
 	}
 
-	public function testSignalLoginStatusUsingGCM_Valid() {
+	public function testSignalLoginStatusUsingFCM_Valid() {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
+	    $mock_gcm = $this->getMockBuilder('\riprunner\FCM')
 	    ->disableOriginalConstructor()
 	    ->getMock(array('send','getDeviceCount'));
 	
@@ -212,16 +212,16 @@ class SignalsTest extends BaseDBFixture {
 	    // Call the test
 	    $device_id = 'ABC123-XXX';
 	    $signalManager = new \riprunner\SignalManager(null,null,$mock_gcm,$this->getTwigEnv());
-	    $result = $signalManager->signalLoginStatusUsingGCM($FIREHALL, $device_id, 'Test SMS Message.', $this->getDBConnection($FIREHALL));
+	    $result = $signalManager->signalLoginStatusUsingFCM($FIREHALL, $device_id, 'Test SMS Message.', $this->getDBConnection($FIREHALL));
 	
 	    $this->assertEquals('TEST SUCCESS!', $result);
 	}
 
-	public function testSendGCM_Message_Valid() {
+	public function testSendFCM_Message_Valid() {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
+	    $mock_gcm = $this->getMockBuilder('\riprunner\FCM')
 	    ->disableOriginalConstructor()
 	    ->getMock(array('send','getDeviceCount'));
 	
@@ -246,12 +246,12 @@ class SignalsTest extends BaseDBFixture {
 	
 	    // Call the test
 	    $signalManager = new \riprunner\SignalManager(null,null,$mock_gcm,$this->getTwigEnv());
-	    $result = $signalManager->sendGCM_Message($FIREHALL, 'Test SMS Message.', $this->getDBConnection($FIREHALL));
+	    $result = $signalManager->sendFCM_Message($FIREHALL, 'Test SMS Message.', $this->getDBConnection($FIREHALL));
 	
-	    $this->assertEquals("START Send message using GCM.\nTEST SUCCESS!", $result);
+	    $this->assertEquals("START Send message using FCM.\nTEST SUCCESS!", $result);
 	}
 
-	public function testGetGCMCalloutMessage_Valid() {
+	public function testGetFCMCalloutMessage_Valid() {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 
 	    $callout = new \riprunner\CalloutDetails();
@@ -264,7 +264,7 @@ class SignalsTest extends BaseDBFixture {
 	    $callout->setFirehall($FIREHALL);
 	     
 	    $signalManager = new \riprunner\SignalManager(null,null,null,$this->getTwigEnv());
-	    $result = $signalManager->getGCMCalloutMessage($callout);
+	    $result = $signalManager->getFCMCalloutMessage($callout);
 	
 	    $this->assertEquals("911-Page: Medical Aid, 9115 Salmon Valley Road, Prince George, BC @ 2015-01-02 09:28:10", $result);
 	}
@@ -394,7 +394,7 @@ class SignalsTest extends BaseDBFixture {
 	    ->with($this->equalTo($callout),$this->equalTo(''));
 
 	    // Create a stub for the ISMSCalloutPlugin class.
-	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
+	    $mock_gcm = $this->getMockBuilder('\riprunner\FCM')
 	    ->disableOriginalConstructor()
 	    ->getMock(array('send','getDeviceCount'));
 	    
@@ -450,7 +450,7 @@ class SignalsTest extends BaseDBFixture {
 	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda set their status to Respond to hall for the callout: MED.'));
 	
 	    // Create a stub for the GCM class.
-	    $mock_gcm = $this->getMockBuilder('\riprunner\GCM')
+	    $mock_gcm = $this->getMockBuilder('\riprunner\FCM')
 	    ->disableOriginalConstructor()
 	    ->getMock(array('send','getDeviceCount'));
 	     
@@ -466,7 +466,7 @@ class SignalsTest extends BaseDBFixture {
 	    // Set up mock return value when signalRecipients is called
 	    $mock_gcm->expects($this->any())
 	    ->method('send')
-	    ->will($this->returnValue('TEST SUCCESS GCM!'));
+	    ->will($this->returnValue('TEST SUCCESS FCM!'));
 	     
 	    // Ensure signalRecipients is called
 	    $mock_gcm->expects($this->once())
@@ -482,6 +482,6 @@ class SignalsTest extends BaseDBFixture {
 	    $signalManager = new \riprunner\SignalManager(null,$mock_sms_plugin,$mock_gcm,$this->getTwigEnv());
 	    $result = $signalManager->signalFireHallResponse($callout,$user_id,$userGPSLat,$userGPSLong,$user_status,null,true);
 	
-	    $this->assertEquals('TEST SUCCESS SMS!TEST SUCCESS GCM!', $result);
+	    $this->assertEquals('TEST SUCCESS SMS!TEST SUCCESS FCM!', $result);
 	}
 }

@@ -4,7 +4,12 @@ import 'package:flutter/material.dart';
 
 import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:provider/provider.dart';
 
+import 'app_constants.dart';
+import 'common/data_container.dart';
+import 'common/utils.dart';
 import 'login_page.dart';
 import 'home_page.dart';
 import 'app_settings.dart';
@@ -27,18 +32,18 @@ void backgroundFetchHeadlessTask() async {
 }
 
 class MyApp extends StatefulWidget {
-@override
+  @override
   _MyAppState createState() => new _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  //bool _enabled = true;
   int _status = 0;
   List<DateTime> _events = [];
 
-@override
+  @override
   void initState() {
     super.initState();
+
     initPlatformState();
   }
 
@@ -82,48 +87,31 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
   }
 
-  // void _onClickEnable(enabled) {
-  //   setState(() {
-  //     _enabled = enabled;
-  //   });
-  //   if (enabled) {
-  //     BackgroundFetch.start().then((int status) {
-  //       print('[BackgroundFetch] start success: $status');
-  //     }).catchError((e) {
-  //       print('[BackgroundFetch] start FAILURE: $e');
-  //     });
-  //   } else {
-  //     BackgroundFetch.stop().then((int status) {
-  //       print('[BackgroundFetch] stop success: $status');
-  //     });
-  //   }
-  // }
-
-  // void _onClickStatus() async {
-  //   int status = await BackgroundFetch.status;
-  //   print('[BackgroundFetch] status: $status');
-  //   setState(() {
-  //     _status = status;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       title: 'Rip Runner',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Rip Runner Home Page'),
+      home: Provider<DataContainer>(
+        builder: (context) => DataContainer(data: {}, dataMap: { 'CHAT_MESSAGES': [] }),
+        //dispose: (context, value) => value.dispose(),
+        child: MyHomePage(title: 'Rip Runner Home Page'),
+      )
     );
   }
 }
+
+
+
 
 class MyHomePage extends StatefulWidget {
 
   static String tag = 'main-page';
   final String title;
-  
+
   MyHomePage({Key key, this.title}) : super(key: key);
 
   @override
@@ -131,7 +119,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //var _androidAppRetain = MethodChannel("android_app_retain");
+
+  FirebaseMessaging firebaseMessaging = FirebaseMessaging();
+  String _message = '';
+
   var _androidAppRetain = MethodChannel("riprinner_android_app_retain");
   
   final routes = <String, WidgetBuilder> {
@@ -144,7 +135,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-
+    
+    firebaseCloudMessagingListeners();
     _androidAppRetain.setMethodCallHandler((call) {
       print("In _androidAppRetain.setMethodCallHandler: $call.method");
     });
@@ -160,6 +152,93 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       });
     }
+  }
+
+  void registerDevice() async {
+    firebaseMessaging.getToken().then((token) { 
+      print(token);
+
+      //Log.i(Utils.TAG, "GCM Registration Token: " + token);
+      Utils.setConfigItem<String>(AppConstants.PROPERTY_REG_ID, token);
+      Utils.setConfigItem<bool>(AppConstants.GOT_TOKEN_FROM_SERVER, true);
+    });
+  }
+
+  void setupFCMRegistration(bool forceReg) async {
+      if (forceReg || 
+              ((await Utils.hasConfigItem<bool>(AppConstants.GOT_TOKEN_FROM_SERVER) == false) ||
+               (await Utils.hasConfigItem<String>(AppConstants.PROPERTY_REG_ID) == false) ||
+               (await Utils.getConfigItem<String>(AppConstants.PROPERTY_REG_ID)).isEmpty)) {
+          if ((await Utils.hasConfigItem<String>(AppConstants.PROPERTY_SENDER_ID)) &&
+                  (await Utils.getConfigItem<String>(AppConstants.PROPERTY_SENDER_ID)).isEmpty == false) {
+              registerDevice();
+          }
+      }
+  }
+
+  void iosPermission() {
+    if (Platform.isIOS) {
+      firebaseMessaging.requestNotificationPermissions(
+          IosNotificationSettings(sound: true, badge: true, alert: true)
+      );
+      firebaseMessaging.onIosSettingsRegistered
+          .listen((IosNotificationSettings settings)
+      {
+        print("Settings registered: $settings");
+      });
+    }
+  }
+
+  void firebaseCloudMessagingListeners() {
+    iosPermission();
+    setupFCMRegistration(false);
+
+    firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print('on message $message');
+        processFCMMessageEvent(message);
+    }, 
+      onResume: (Map<String, dynamic> message) async {
+        print('on resume $message');
+        setState(() => _message = message["notification"]["title"]);
+    }, 
+      onLaunch: (Map<String, dynamic> message) async {
+        print('on launch $message');
+        setState(() => _message = message["notification"]["title"]);
+    });
+  }
+
+  void processFCMMessageEvent(Map<String, dynamic> message) {
+    try {
+      var messageMap = Map<String, dynamic>.from(message['data']);
+      processFCMMessage(messageMap);
+      setState(() => _message = message["notification"]["title"]);
+    }
+    catch(e) {
+      print(e.toString());
+      int ii = 0;
+    }
+  }
+
+  void processFCMMessage(Map<String, dynamic> messageMap) {
+    print("Start processFCMMessage: " + messageMap.toString());
+
+    if(messageMap.containsKey("DEVICE_MSG")) {
+        Utils.processDeviceMsgTrigger(messageMap);
+    } 
+    else if(messageMap.containsKey("CALLOUT_MSG")) {
+        Utils.processCalloutTrigger(messageMap);
+    } 
+    else if(messageMap.containsKey("CALLOUT_RESPONSE_MSG")) {
+        Utils.processCalloutResponseTrigger(messageMap);
+    } 
+    else if(messageMap.containsKey("ADMIN_MSG")) {
+        DataContainer data = Provider.of<DataContainer>(context);
+        Utils.processAdminMsgTrigger(messageMap, data);
+    } 
+    else {
+        print(": Broadcaster got UNKNOWN callout message type: " + messageMap.toString());
+    }    
   }
 
   Widget activityGotKilledDialog() {

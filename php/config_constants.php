@@ -50,6 +50,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	// ----------------------------------------------------------------------
 	// Mobile App Settings
 	define( 'DEFAULT_GCM_SEND_URL',	'https://android.googleapis.com/gcm/send');
+	define( 'DEFAULT_FCM_SEND_URL',	'https://fcm.googleapis.com/fcm/send');
 
 	// ----------------------------------------------------------------------
 	// Website Settings

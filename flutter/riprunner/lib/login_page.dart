@@ -2,11 +2,13 @@ import 'dart:async';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:package_info/package_info.dart';
 
 import 'app_constants.dart';
 import 'auth/auth.dart';
+import 'common/data_container.dart';
 import 'common/sounds.dart';
 import 'common/utils.dart';
 import 'home_page.dart';
@@ -15,6 +17,9 @@ import 'common/choice.dart';
 
 class LoginPage extends StatefulWidget {
   static String tag = 'login-page';
+  //final DataContainer dataContainer;
+
+  //const LoginPage({Key key, this.dataContainer}): super(key: key);
 
   @override
   _LoginState createState() => new _LoginState();
@@ -28,6 +33,7 @@ class _LoginState extends State<LoginPage> {
   bool _inProgress = false;
   String loginStatus = 'Waiting for credentials...';
   String appVersion = 'v?';
+  String deviceidStr = '';
 
   TextEditingController textCtlFHID = new TextEditingController();
   TextEditingController textCtlUser = new TextEditingController();
@@ -46,7 +52,12 @@ class _LoginState extends State<LoginPage> {
     super.dispose();
   }
 
+  // DataContainer getDataContainer() {
+  //   return widget.dataContainer;
+  // }
+
   Future<void> loadState() async {
+      deviceidStr = await Utils.getConfigItem<String>(AppConstants.PROPERTY_REG_ID);
       launchSettings = await Utils.hasConfigItem<String>(AppConstants.PROPERTY_WEBSITE_URL) == false;
       if(launchSettings == false) {
         websiteUrlStr = await Utils.getConfigItem<String>(AppConstants.PROPERTY_WEBSITE_URL);
@@ -63,6 +74,7 @@ class _LoginState extends State<LoginPage> {
         websiteUrlStr = websiteUrlStr;
         firehallId = firehallId;
         userId = userId;
+        deviceidStr = deviceidStr;
       });
   }
 
@@ -91,6 +103,25 @@ class _LoginState extends State<LoginPage> {
         Utils.setConfigItem<String>(AppConstants.PROPERTY_FIREHALL_ID,firehallId);
         Utils.setConfigItem<String>(AppConstants.PROPERTY_USER_ID,userId);
         Utils.setConfigItem<String>(AppConstants.PROPERTY_AUTH,auth.token);
+
+        //getDataContainer().setData({});
+        //getDataContainer().setDataInMap('CHAT_MESSAGES',[]);
+        
+        // Provider<DataContainer>.value(value: DataContainer(
+        //   data: {}, 
+        //   dataMap: { 
+        //     'CHAT_MESSAGES': [], 
+        //     'FIREHALL_ID': firehallId,
+        //     'USER_ID': userId,
+        //     'AUTH_TOKEN': auth.token
+        //     }));
+        DataContainer data = Provider.of<DataContainer>(context);
+        data.setData({});
+        data.setDataInMap('CHAT_MESSAGES', []);
+        data.setDataInMap('FIREHALL_ID', firehallId);
+        data.setDataInMap('USER_ID', userId);
+        data.setDataInMap('AUTH_TOKEN', auth.token);
+
         Navigator.of(context).popAndPushNamed(HomePage.tag);
       });
     }
@@ -130,7 +161,8 @@ class _LoginState extends State<LoginPage> {
         throw Exception("Password must contain more than 4 characters!");
       }
       textCtlPwd.text = '';
-      Authentication.login(textCtlFHID.text, textCtlUser.text, pwd).
+      
+      Authentication.login(textCtlFHID.text, textCtlUser.text, pwd, deviceidStr).
         then((auth) => processLoginResult(auth)).
         catchError((e) {
           setState(() {
