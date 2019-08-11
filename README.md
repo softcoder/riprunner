@@ -143,7 +143,7 @@ Call out example (SMS sent to responders with a link to this page):
 
 System administration:
 
-![Login](/screenshots/riprunner-admin1.png?raw=true "Login") ![Main Menu](/screenshots/riprunner-admin2.png?raw=true "Main Menu")
+![Login](/screenshots/flutter-login1.png?raw=true "Login") ![Main Menu](/screenshots/riprunner-admin1.png?raw=true "Main Menu")
 
 ![Charts Menu](/screenshots/riprunner-charts1.png?raw=true "Charts Menu")
 
