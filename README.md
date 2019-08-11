@@ -143,7 +143,7 @@ Call out example (SMS sent to responders with a link to this page):
 
 System administration:
 
-![Login](/screenshots/flutter-login1.png?raw=true "Login") ![Main Menu](/screenshots/riprunner-admin1.png?raw=true "Main Menu")
+![Login](/screenshots/riprunner-admin1.png?raw=true "Login") ![Main Menu](/screenshots/riprunner-admin2.png?raw=true "Main Menu")
 
 ![Charts Menu](/screenshots/riprunner-charts1.png?raw=true "Charts Menu")
 
@@ -153,7 +153,7 @@ Android App:
 <tr>
 <td>
 Login Screen:
-<a href="/screenshots/riprunner-callout-history1.png?raw=true"><img src="/screenshots/riprunner-callout-history1.png?raw=true" align="left" height="713" width="401" ></a>
+<a href="/screenshots/riprunner-admin1.png?raw=true"><img src="/screenshots/riprunner-admin1.png?raw=true" align="left" height="713" width="401" ></a>
 </td>
 <td>
 Options:
