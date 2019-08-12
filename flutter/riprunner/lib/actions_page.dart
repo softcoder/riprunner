@@ -114,7 +114,7 @@ class _ActionsPageState extends State<ActionsPage> with AutomaticKeepAliveClient
             child: FittedBox(
               fit: BoxFit.contain,
               child: Text(
-                'Currently there are no messages...',
+                'Currently no messages...',
                 style: TextStyle(fontSize: 20.0, color: Colors.lightGreenAccent),
               ),
             ),

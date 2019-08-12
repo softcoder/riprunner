@@ -7,6 +7,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter_radio/flutter_radio.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:riprunner/auth/auth.dart';
 
@@ -18,9 +19,6 @@ import 'login_page.dart';
 
 class CalloutDetailsPage extends StatefulWidget {
   static String tag = 'callout-details';
-  final DataContainer dataContainer;
-
-  const CalloutDetailsPage({Key key, this.dataContainer}): super(key: key);
 
   @override
   _CalloutDetailsPageState createState() => new _CalloutDetailsPageState();
@@ -72,8 +70,8 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
     super.dispose();
   }
 
-  DataContainer getDataContainer() {
-    return widget.dataContainer;
+  DataContainer getDataContainer({ bool listenValue = true}) {
+    return Provider.of<DataContainer>(context, listen: listenValue);
   }
 
   Future<void> trackGeo() async {
@@ -89,7 +87,9 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
 
         String url = websiteUrlStr + (!websiteUrlStr.endsWith('/') ? '/' : '') + 
           'ct/cid=' + getDataContainer().getData()['id'] +
-          '&fhid='  + firehallId + '&ckid=' + getDataContainer().getData()['callkey'] + '&uid=' + userId+
+          '&fhid='  + firehallId + 
+          '&ckid='  + getDataContainer().getData()['callkey'] + 
+          '&uid='   + userId+
           '&lat='   + lat +
           '&long='  + long;
         Utils.apiRequest(url, null, APIRequestType.GET,false).
@@ -131,10 +131,13 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
 
       String url = websiteUrlStr + (!websiteUrlStr.endsWith('/') ? '/' : '') + 
         'controllers/callout-response-controller.php?cid=' + callout['id'] +
-        '&fhid=' + firehallId + '&ckid=' + callout['callkey'] + '&uid=' + responder['user_id'] +
+        '&fhid=' + firehallId + 
+        '&ckid=' + callout['callkey'] + 
+        '&uid='  + responder['user_id'] +
         '&lat='  + lat +
         '&long=' + long +
-        '&member_id=' + responder['user_id'] + '&status=' + status;
+        '&member_id=' + responder['user_id'] + 
+        '&status='    + status;
       Utils.apiRequest(url, null, APIRequestType.GET,false).
       then((data) {
         loadCalloutData().then((X) {
@@ -199,7 +202,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
     }
   }
 
-  Future loadCalloutData() async {
+  Future loadCalloutData({ bool listenValue = true}) async {
     bool updateInProgress = startInProgress();
 
     websiteUrlStr = await Utils.getConfigItem<String>(AppConstants.PROPERTY_WEBSITE_URL);
@@ -208,20 +211,19 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
     audioStreamRawUrl = await Utils.getConfigItem<String>(AppConstants.PROPERTY_AUDIO_STREAM_RAW_URL);
     String customPagerAudioFile = await Utils.getConfigItem<String>(AppConstants.PROPERTY_CUSTOM_PAGER_AUDIO_FILE);
     
-    String previousCalloutId = (getDataContainer().getData() != null ? getDataContainer().getData()['id'] : '');
+    String previousCalloutId = (getDataContainer(listenValue: listenValue).getData() != null ? getDataContainer(listenValue: listenValue).getData()['id'] : '');
     String url = websiteUrlStr + (!websiteUrlStr.endsWith('/') ? '/' : '') + 
                   'angular-services/live-callout-service.php/details?fhid=' + firehallId;
-    Utils.apiRequest(url, null, APIRequestType.GET,false).
-      then((responseString) {
+    Utils.apiRequest(url, null, APIRequestType.GET,false).then((responseString) {
         Map<String, dynamic> responseMap = processLoadResult(responseString);
         setState(() {
           websiteUrlStr = websiteUrlStr;
           firehallId = firehallId;
           userId = userId;
-          getDataContainer().setData(responseMap);
+          getDataContainer(listenValue: listenValue).setData(responseMap);
         });
 
-        if(isCalloutActive() && previousCalloutId != getDataContainer().getData()['id']) {
+        if(isCalloutActive(listenValue: listenValue) && previousCalloutId != getDataContainer(listenValue: listenValue).getData()['id']) {
           if(customPagerAudioFile != null && customPagerAudioFile != '' && io.File(customPagerAudioFile).existsSync()) {
             SoundUtils.playSound(audioPlayer,customPagerAudioFile, ResourceType.LocalFile);
           }
@@ -277,7 +279,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
         geoPosition = position;
       });      
     });
-    loadCalloutData();
+    loadCalloutData(listenValue: false);
     pollCallouts = new Timer.periodic(Duration(seconds: 20), (Timer timer) => this.loadCalloutData());
     trackCallouts = new Timer.periodic(Duration(seconds: 30), (Timer timer) => this.trackGeo());
   }  
@@ -309,6 +311,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
       padding: EdgeInsets.all(2.0),
       child: Text(
         getDataContainer().getData()['address'],
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(fontSize: 25.0, color: Colors.cyan),
       ),
     ));
@@ -316,6 +319,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
       padding: EdgeInsets.all(2.0),
       child: Text(
         getDataContainer().getData()['type'] + ' - ' + getDataContainer().getData()['type_desc'],
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(fontSize: 20.0, color: Colors.yellow),
       ),
     ));
@@ -323,6 +327,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
       padding: EdgeInsets.all(2.0),
       child: Text(
         getDataContainer().getData()['time'],
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(fontSize: 16.0, color: Colors.white),
       ),
     ));
@@ -330,6 +335,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
       padding: EdgeInsets.all(2.0),
       child: Text(
         getDataContainer().getData()['status_desc'],
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(fontSize: 20.0, color: Colors.redAccent),
       ),
     ));
@@ -354,7 +360,9 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
                 border: new Border.all(color: Colors.blueAccent),
                 color: Colors.blueGrey
               ),
-              child: Text('Responder',style: TextStyle(fontSize: ResponderDefaultFontSize, color: Colors.white))
+              child: Text(
+                'Responder',
+                style: TextStyle(fontSize: ResponderDefaultFontSize, color: Colors.white))
               ),
           new Container(
               width: ResponderStatusWidth,
@@ -364,7 +372,9 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
                 border: new Border.all(color: Colors.blueAccent),
                 color: Colors.blueGrey
               ),
-              child: Text('Status',style: TextStyle(fontSize: ResponderDefaultFontSize, color: Colors.white))),
+              child: Text(
+                'Status',
+                style: TextStyle(fontSize: ResponderDefaultFontSize, color: Colors.white))),
           // new Container(
           //     width: ResponderTimeWidth,
           //     height: ResponderDefaultHeight,
@@ -382,7 +392,9 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
                 border: new Border.all(color: Colors.blueAccent),
                 color: Colors.blueGrey
               ),
-              child: Text('ETA',style: TextStyle(fontSize: ResponderDefaultFontSize, color: Colors.white)))
+              child: Text(
+                'ETA',
+                style: TextStyle(fontSize: ResponderDefaultFontSize, color: Colors.white)))
         ],
       ),
     ];
@@ -497,6 +509,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
     }
     else {
       return Text(responder['responder_display_status'] ?? '?',
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: ResponderDefaultFontSize, color: Colors.white));
     }
   }
@@ -513,6 +526,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
                 border: new Border.all(color: Colors.blueAccent)
               ),
               child: Text(responder['user_id'] ?? '?',
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontSize: ResponderDefaultFontSize, color: Colors.white))),
             new Container(
               width: ResponderStatusWidth,
@@ -539,6 +553,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
                 border: new Border.all(color: Colors.blueAccent)
               ),
               child: Text(responder['eta'] ?? '?',
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: ResponderDefaultFontSize, color: Colors.white)))
           ]
           )
@@ -546,9 +561,9 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
     }
   }
 
-  bool isCalloutActive() {
-    return (getDataContainer().getData() != null && getDataContainer().getData().isNotEmpty && 
-            getDataContainer().getData().containsKey('id') && getDataContainer().getData()['id'] != null);
+  bool isCalloutActive({ bool listenValue = true}) {
+    return (getDataContainer(listenValue: listenValue).getData() != null && getDataContainer(listenValue: listenValue).getData().isNotEmpty && 
+            getDataContainer(listenValue: listenValue).getData().containsKey('id') && getDataContainer(listenValue: listenValue).getData()['id'] != null);
   }
 
   @override
@@ -561,6 +576,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
         fit: BoxFit.contain,
         child: Text(
           'Welcome: ' + userId ?? 'User',
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(fontSize: 20.0, color: Colors.white),
         ),
       ),
@@ -587,7 +603,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
         child: FittedBox(
           fit: BoxFit.contain,
           child: Text(
-            'Currently there are no active calls...',
+            'Currently no active calls...',
             style: TextStyle(fontSize: 20.0, color: Colors.lightGreenAccent),
           ),
         ),

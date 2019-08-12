@@ -104,9 +104,6 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-
-
-
 class MyHomePage extends StatefulWidget {
 
   static String tag = 'main-page';
@@ -215,8 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() => _message = message["notification"]["title"]);
     }
     catch(e) {
-      print(e.toString());
-      int ii = 0;
+      print("In processFCMMessageEvent" + e.toString());
     }
   }
 

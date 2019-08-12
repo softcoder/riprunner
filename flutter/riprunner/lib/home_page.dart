@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'actions_page.dart';
 import 'auth/auth.dart';
-import 'common/data_container.dart';
 import 'common/utils.dart';
 import 'app_constants.dart';
 import 'app_settings.dart';
@@ -14,9 +12,6 @@ import 'callout_map.dart';
 
 class HomePage extends StatefulWidget {
   static String tag = 'home-page';
-  //final DataContainer dataContainer;
-
-  //const HomePage({Key key, this.dataContainer}): super(key: key);
 
   @override
   _HomePageState createState() => new _HomePageState();
@@ -35,10 +30,6 @@ class _HomePageState extends State<HomePage> {
     const Choice(title: SETTINGS_ACTION, icon: Icons.settings_applications),
     const Choice(title: LOGOUT_ACTION, icon: Icons.exit_to_app),
   ];
-
-  // DataContainer getDataContainer() {
-  //   return widget.dataContainer;
-  // }
 
   Future<void> loadState() async {
     bool launchSettings = await Utils.hasConfigItem<String>(AppConstants.PROPERTY_WEBSITE_URL) == false;
@@ -97,9 +88,8 @@ class _HomePageState extends State<HomePage> {
           ),
           body: TabBarView(
             children: [
-              CalloutDetailsPage(dataContainer: Provider.of<DataContainer>(context)),
-              CalloutMapPage(dataContainer: Provider.of<DataContainer>(context)),
-              //ActionsPage(dataContainer: Provider.of<DataContainer>(context)),
+              CalloutDetailsPage(),
+              CalloutMapPage(),
               ActionsPage(),
               Icon(Icons.more),
             ],

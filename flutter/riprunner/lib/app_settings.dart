@@ -159,12 +159,14 @@ class _AppSettingsState extends State<AppSettingsPage> {
         onPressed: () {  },
     );
 
-   final deviceIdLabel = FlatButton(
+   final deviceIdLabel =  new Flexible(
+     child: FlatButton(
       child: Text(
         deviceidStr ?? 'n/a',
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(color: Colors.black54)),
         onPressed: () {   },
-    );
+    ));
 
     final customPagerSoundButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 1.0),
