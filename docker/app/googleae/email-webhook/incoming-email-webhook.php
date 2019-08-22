@@ -44,7 +44,11 @@ array("http"=>
 );
 $context = stream_context_create($context);
 
-$url = "https://svvfd.soft-haus.com/webhooks/email_trigger_webhook.php";
+//$url = "https://svvfd.soft-haus.com/webhooks/email_trigger_webhook.php";
+$url = "https://svvfd.vsoft.solutions/webhooks/email_trigger_webhook.php";
+
+syslog(LOG_INFO,"PHP calling URL: ".$url);
+
 $result = file_get_contents($url, false, $context);
 
 syslog(LOG_INFO,"PHP Result of calling webhook url: ". $result);

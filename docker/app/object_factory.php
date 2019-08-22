@@ -15,28 +15,28 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once 'gcm/gcm.php';
+require_once 'fcm/fcm.php';
 require_once 'ldap/ldap.php';
 require_once 'Mobile_Detect.php';
 require_once 'logging.php';
 
 /**
- * Factory class to instantiate Google Cloud Messaging (GCM) class instances
+ * Factory class to instantiate Firebase Cloud Messaging (FCM) class instances
  */
-class GCM_Factory {
+class FCM_Factory {
 	public static function create($type, $param) {
 		if(isset($type) === false) {
-			throwExceptionAndLogError('No gcm type specified.', "Invalid gcm type specified [$type] param [$param]!");
+			throwExceptionAndLogError('No fcm type specified.', "Invalid fcm type specified [$type] param [$param]!");
 		}
 
 		switch($type) {
-			case 'gcm':
-				return new GCM($param);
+			case 'fcm':
+				return new FCM($param);
 			default:
-			    if($type instanceof GCM) {
+			    if($type instanceof FCM) {
 			        return $type;
 			    } 
-				throwExceptionAndLogError('Invalid gcm type specified.', "Invalid gcm type specified [$type] param [$param]!");
+				throwExceptionAndLogError('Invalid fcm type specified.', "Invalid fcm type specified [$type] param [$param]!");
 		}
 	}
 }

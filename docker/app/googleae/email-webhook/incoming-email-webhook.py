@@ -18,7 +18,8 @@ class WebHook(InboundMailHandler):
         
         # Point to the Main Email trigger URL which will poll for all Firehalls
         # Example replace: https://svvfd.soft-haus.com/ with the root of you installation
-        url = "https://svvfd.soft-haus.com/webhooks/email_trigger_webhook.php"
+        # url = "https://svvfd.soft-haus.com/webhooks/email_trigger_webhook.php"
+        url = "https://svvfd.vsoft.solutions/webhooks/email_trigger_webhook.php"
         form_fields = {
             "sender": mail_message.sender,
             "subject": mail_message.subject,

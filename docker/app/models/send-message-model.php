@@ -21,8 +21,8 @@ class SendMessageViewModel extends BaseViewModel {
 		if('sms_send_mode' === $name) {
 			return $this->getSMS_SendMode();
 		}
-		if('gcm_send_mode' === $name) {
-			return $this->getGCM_SendMode();
+		if('fcm_send_mode' === $name) {
+			return $this->getFCM_SendMode();
 		}
 		if('email_send_mode' === $name) {
 		    return $this->getEmail_SendMode();
@@ -32,7 +32,7 @@ class SendMessageViewModel extends BaseViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('sms_send_mode','gcm_send_mode','email_send_mode')) === true) {
+			array('sms_send_mode','fcm_send_mode','email_send_mode')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
@@ -43,10 +43,10 @@ class SendMessageViewModel extends BaseViewModel {
 		$sms_send_mode = isset($form_action) === true && $form_action === "sms";
 		return $sms_send_mode;
 	}
-	private function getGCM_SendMode() {
+	private function getFCM_SendMode() {
 		$form_action = get_query_param('form_action');
-		$gcm_send_mode = isset($form_action) === true && $form_action === "gcm";
-		return $gcm_send_mode;
+		$fcm_send_mode = isset($form_action) === true && $form_action === "fcm";
+		return $fcm_send_mode;
 	}
 	private function getEmail_SendMode() {
 	    $form_action = get_query_param('form_action');

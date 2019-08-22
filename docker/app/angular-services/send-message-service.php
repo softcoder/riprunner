@@ -54,8 +54,8 @@ class SendMessageController extends AuthApiController {
         if($msgContext->type == 'sms') {
             return $this->sendSMS_Message($msgContext->msg, $msgContext->users, $gvm);
         }
-        else if($msgContext->type == 'gcm') {
-            return $this->sendGCM_Message($msgContext->msg, $msgContext->users, $gvm);
+        else if($msgContext->type == 'fcm') {
+            return $this->sendFCM_Message($msgContext->msg, $msgContext->users, $gvm);
         }
         else if($msgContext->type == 'email') {
             return $this->sendEmail_Message($msgContext->msg, $msgContext->users, $gvm);
@@ -90,14 +90,12 @@ class SendMessageController extends AuthApiController {
         $result['status'] = $sendMsgResultStatus;
         return $result;
     }
-    private function sendGCM_Message($msg, $users, $gvm) {
-        // $gcmMsg = get_query_param('txtMsg');
-        
+    private function sendFCM_Message($msg, $users, $gvm) {
         $signalManager = new \riprunner\SignalManager();
-        $sendMsgResult = $signalManager->sendGCM_Message($gvm->firehall, 
+        $sendMsgResult = $signalManager->sendFCM_Message($gvm->firehall, 
                 $msg, $gvm->RR_DB_CONN);
         
-        if(strpos($sendMsgResult, "|GCM_ERROR:") !== false) {
+        if(strpos($sendMsgResult, "|FCM_ERROR:") !== false) {
             $sendMsgResultStatus = "Error sending Android Message: " . $sendMsgResult;
         }
         else {
