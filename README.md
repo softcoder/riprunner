@@ -127,9 +127,12 @@ In order to persist the changes that you make in this container run using volume
 This assumes that the host (outside of the docker container) has a folder named:
 
         app/    <-- containing all the php files for riprunner
-	mysql/  <-- containing all the mysql files for riprunner
+        mysql/  <-- containing all the mysql files for riprunner
 
 If you only need to save the changes to the database do not specify the /app volume mapping.
+
+There is also a Dockerfile for deployment to Google Cloud Run full details:
+https://github.com/softcoder/riprunner/tree/master/docker
 
 Screenshots:
 ------------
