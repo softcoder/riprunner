@@ -31,6 +31,10 @@ Environment variables
 Name: APP_DSN  
 Value: mysql:unix_socket=/cloudsql/<your instance connection name>;dbname=riprunner  
 
+Name: APP_GOOGLE_MAP_API_KEY  
+Value: <your api key>  
+
+
 Open a terminal and navigate to the app folder  
 
 # Build the docker Image in google cloud run  
@@ -42,7 +46,8 @@ ID                CREATE_TIME               DURATION SOURCE                     
 e53b2c57-697b-... 2019-08-22T07:10:32+00:00 2M60S    gs://pgtg-container-demo_cloudbuild/source/1566..tgz gcr.io/pgtg-container-demo/riprunner (+1 more)  SUCCESS  
 
 # Deploy the image to make it live (notice the last parameter shows how you can pass the env var via commandline)  
-gcloud beta run deploy --image gcr.io/pgtg-container-demo/riprunner --platform managed --update-env-vars APP_DSN='mysql:unix_socket=/cloudsql/<your instance connection name>;dbname=riprunner'  
+gcloud beta run deploy --image gcr.io/pgtg-container-demo/riprunner --platform managed \
+       --update-env-vars APP_DSN='mysql:unix_socket=/cloudsql/<your instance connection name>;dbname=riprunner' APP_GOOGLE_MAP_API_KEY=<your api key>  
 
 To login to the image visit this link to install the database tables and user accounts for Riprunner:  
 
