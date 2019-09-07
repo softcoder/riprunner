@@ -262,6 +262,8 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'DEFAULT_GCM_PROJECTID', 'X');
 	// The Google Project Id
 	define( 'DEFAULT_GCM_APPLICATIONID', 'X');
+	// The Google Email Project Id
+	define( 'DEFAULT_GCM_EMAIL_APPLICATIONID', 'X');
 	// The Google Service Account Name
 	define( 'DEFAULT_GCM_SAM', 'applicationid@appspot.gserviceaccount.com');
 	
@@ -273,6 +275,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_MOBILE->setGCM_ApiKey(DEFAULT_GCM_API_KEY);
 	$LOCAL_DEBUG_MOBILE->setGCM_ProjectNumber(DEFAULT_GCM_PROJECTID);
 	$LOCAL_DEBUG_MOBILE->setGCM_APP_ID(DEFAULT_GCM_APPLICATIONID);
+	$LOCAL_DEBUG_MOBILE->setGCM_EMAIL_APP_ID(DEFAULT_GCM_EMAIL_APPLICATIONID);
 	$LOCAL_DEBUG_MOBILE->setGCM_SAM(DEFAULT_GCM_SAM);
 	// !!! mobile settings end
 	

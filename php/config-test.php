@@ -181,12 +181,14 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'DEFAULT_GCM_PROJECTID', 'X');
 	// The Google Project Id
 	define( 'DEFAULT_GCM_APPLICATIONID', 'X');
+	// The Google Email Project Id
+	define( 'DEFAULT_GCM_EMAIL_APPLICATIONID', 'X');
 	// The Google Service Account Name
 	define( 'DEFAULT_GCM_SAM', 'applicationid@appspot.gserviceaccount.com');
 	
 	// ----------------------------------------------------------------------
 	// Website and Location Settings
-	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY', 'X' );
+	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY', 'AIzaSyCy8uwfS_I2Iruqm1h8vczV8L_llgDirPk' );
 
 	// ----------------------------------------------------------------------
 	// Email parser lookup patterns for email triggers

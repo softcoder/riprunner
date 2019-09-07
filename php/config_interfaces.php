@@ -524,6 +524,8 @@ class FireHallMobile
 	public $GCM_PROJECTID;
 	// The Application id
 	public $GCM_APP_ID;
+	// The Email Application id
+	public $GCM_EMAIL_APP_ID;
 	// The Service Account Name
 	public $GCM_SAM;
 	// The Google Services JSON file relative to the root path
@@ -531,7 +533,8 @@ class FireHallMobile
 	
 	public function __construct($mobile_enabled=false, $mobile_tracking_enabled=false, 
 			$gcm_enabled=false, $gcm_send_url=null, $gcm_api_key=null, 
-			$gcm_projectid=null, $gcm_appid=null, $gcm_sam=null, $fcm_services_json=null) {
+			$gcm_projectid=null, $gcm_appid=null, $gcm_sam=null, $fcm_services_json=null,
+			$gcm_email_appid=null) {
 		
 		$this->MOBILE_SIGNAL_ENABLED = $mobile_enabled;
 		$this->MOBILE_TRACKING_ENABLED = $mobile_tracking_enabled;
@@ -542,6 +545,7 @@ class FireHallMobile
 		$this->GCM_APP_ID = $gcm_appid;
 		$this->GCM_SAM = $gcm_sam;
 		$this->FCM_SERVICES_JSON = $fcm_services_json;
+		$this->GCM_EMAIL_APP_ID = $gcm_email_appid;
 	}
 
 	public function __toString() {
@@ -556,6 +560,7 @@ class FireHallMobile
 				"\nGCM API Key: " . $this->GCM_API_KEY .
 				"\nGCM Project Number: " . $this->GCM_PROJECTID .
 				"\nGCM Application ID: " . $this->GCM_APP_ID .
+				"\nGCM Email Application ID: " . $this->GCM_EMAIL_APP_ID .
 				"\nGCM Service Account Name: " . $this->GCM_SAM .
 				"\nFCM Services JSON: " . $this->FCM_SERVICES_JSON;
 		return $result;
@@ -581,6 +586,9 @@ class FireHallMobile
 	}
 	public function setGCM_APP_ID($gcm_appid) {
 		$this->GCM_APP_ID = $gcm_appid;
+	}
+	public function setGCM_EMAIL_APP_ID($gcm_appid) {
+		$this->GCM_EMAIL_APP_ID = $gcm_appid;
 	}
 	public function setGCM_SAM($gcm_sam) {
 		$this->GCM_SAM = $gcm_sam;
