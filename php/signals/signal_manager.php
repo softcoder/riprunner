@@ -532,14 +532,19 @@ class SignalManager {
     		
     		$sql = $sql_statement->getSqlStatement('callout_insert');
     
-    		$cdatetime = $callout->getDateTimeAsString();
+            //$cdatetime = $callout->getDateTimeAsString();
+            $cdatetime = $callout->getDateTimeAsNative();
+            $cdatetime = $cdatetime->format('Y-m-d H:i:s');
+
     		$ctype = (($callout->getCode() !== null) ? $callout->getCode() : "");
     		$caddress = (($callout->getAddress() !== null) ? $callout->getAddress() : "");
     		$lat = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLat()));
     		$long = floatval(preg_replace("/[^-0-9\.]/", "", $callout->getGPSLong()));
     		$units = (($callout->getUnitsResponding() !== null) ? $callout->getUnitsResponding() : "");
     		$ckid = $callout->getKeyId();
-    		
+
+            //if($log !== null) $log->warn('Callout signal cdatetime: '. $cdatetime. ' ctype: '. $ctype);
+
     		$qry_bind = $db_connection->prepare($sql);
     		$qry_bind->bindParam(':cdatetime', $cdatetime);
     		$qry_bind->bindParam(':ctype', $ctype);
