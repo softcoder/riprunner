@@ -532,9 +532,9 @@ class SignalManager {
     		
     		$sql = $sql_statement->getSqlStatement('callout_insert');
     
-            //$cdatetime = $callout->getDateTimeAsString();
-            $cdatetime = $callout->getDateTimeAsNative();
-            $cdatetime = $cdatetime->format('Y-m-d H:i:s');
+            $cdatetime = $callout->getDateTimeAsString();
+            //$cdatetime = $callout->getDateTimeAsNative();
+            //$cdatetime = $cdatetime->format('Y-m-d H:i:s');
 
     		$ctype = (($callout->getCode() !== null) ? $callout->getCode() : "");
     		$caddress = (($callout->getAddress() !== null) ? $callout->getAddress() : "");
