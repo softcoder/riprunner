@@ -40,7 +40,7 @@ class TriggersTest extends BaseDBFixture {
 	    ->method('signalFireHallCallout')
 	    ->with($this->anything());
 	
-        $server_variables = array('HTTP_X_RIPRUNNER_AUTH_APPID' => $FIREHALL->MOBILE->GCM_APP_ID,
+        $server_variables = array('HTTP_X_RIPRUNNER_AUTH_APPID' => $FIREHALL->MOBILE->GCM_EMAIL_APP_ID,
                 'HTTP_X_RIPRUNNER_AUTH_ACCOUNTNAME' => $FIREHALL->MOBILE->GCM_SAM
         );
         

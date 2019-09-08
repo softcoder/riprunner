@@ -84,8 +84,8 @@ class EmailTriggerWebHook {
         $auth_appid = $this->getRequestAuthAppId();
         $auth_accountname = $this->getRequestAuthAppAccountName();
         
-        if($FIREHALL->ENABLED == true && isset($FIREHALL->MOBILE->GCM_APP_ID) === true &&
-           $FIREHALL->MOBILE->GCM_APP_ID == $auth_appid &&
+        if($FIREHALL->ENABLED == true && isset($FIREHALL->MOBILE->GCM_EMAIL_APP_ID) === true &&
+           $FIREHALL->MOBILE->GCM_EMAIL_APP_ID == $auth_appid &&
            isset($FIREHALL->MOBILE->GCM_SAM) === true &&
            $FIREHALL->MOBILE->GCM_SAM == $auth_accountname) {        
             return true;
@@ -187,7 +187,7 @@ class EmailTriggerWebHook {
                         if($this->matchFirehallAuth($FIREHALL) === true) {
                             if($log !== null) $log->warn("Email trigger checking firehall: " .
                                     $FIREHALL->WEBSITE->FIREHALL_NAME .
-                                    " google app id [" . $FIREHALL->MOBILE->GCM_APP_ID . "] sam [" .
+                                    " google app id [" . $FIREHALL->MOBILE->GCM_EMAIL_APP_ID . "] sam [" .
                                     $FIREHALL->MOBILE->GCM_SAM . "]");
         
         
@@ -205,10 +205,10 @@ class EmailTriggerWebHook {
                                 $this->dumpRequestLog();
                             }
                         }
-                        else if($FIREHALL->ENABLED == true && isset($FIREHALL->MOBILE->GCM_APP_ID) === true &&
+                        else if($FIREHALL->ENABLED == true && isset($FIREHALL->MOBILE->GCM_EMAIL_APP_ID) === true &&
                                 isset($FIREHALL->MOBILE->GCM_SAM) === true) {
                             if($log !== null) $log->warn("Auth did not match firehall app id[" .
-                                    $FIREHALL->MOBILE->GCM_APP_ID . "] sam [" .
+                                    $FIREHALL->MOBILE->GCM_EMAIL_APP_ID . "] sam [" .
                                     $FIREHALL->MOBILE->GCM_SAM . "]");
                             $this->dumpRequestLog();
                         }

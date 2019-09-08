@@ -181,6 +181,8 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'DEFAULT_GCM_PROJECTID', 'X');
 	// The Google Project Id
 	define( 'DEFAULT_GCM_APPLICATIONID', 'X');
+	// The Google Email Project Id
+	define( 'DEFAULT_GCM_EMAIL_APPLICATIONID', 'X');
 	// The Google Service Account Name
 	define( 'DEFAULT_GCM_SAM', 'applicationid@appspot.gserviceaccount.com');
 	
