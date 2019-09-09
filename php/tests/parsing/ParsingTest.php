@@ -724,5 +724,61 @@ Units Responding: SALGRP1";
         $this->assertEquals('-122.54077',$callout->getGPSLong());
         $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
     }
+
+    public function testProcessFireHallText_EMAIL_new_email_trigger_format5_Sept2019() {
+        $realdata = " 
+        Date:  2019-09-07 10:51:59
+        
+        Dept:  Shell-Glen Fire/Rescue
+        
+        TYPE:  WIRESFIRE - LINES DOWN - FIRE
+        
+         
+        
+        Address:  12305 BERTSCHI RD, SHELL-GLEN
+        
+        Unit: 
+        
+        Suite: 
+        
+        1st Cross Street:  GRASSLAND RD, SHELL-GLEN 2nd Cross Street: 
+        CRANBERRY RD, SHELL-GLEN
+        
+         
+        
+        Building: 
+        
+        Common Place Name: 
+        
+        Pre-Incident Plan: 
+        
+         
+        
+        Latitude: 53.97897
+        
+        Longitude: -122.54077
+        
+        Google Maps Link: 
+        http://maps.google.com/maps?z=1&t=m&q=53.979,-122.541
+        [http://maps.google.com/maps?z=1&t=m&q=53.979,-122.541]
+        
+         
+        
+        Units Responding: SHLGRP1
+         ";
+
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
+
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2019-09-07 10:51:59',$callout->getDateTimeAsString());
+        $this->assertEquals('WIRESFIRE',$callout->getCode());
+        $this->assertEquals('12305 BERTSCHI RD, SHELL-GLEN',$callout->getAddress());
+        $this->assertEquals('12305 BERTSCHI RD, SHELL-GLEN',$callout->getAddressForMap());
+        $this->assertEquals('53.97897',$callout->getGPSLat());
+        $this->assertEquals('-122.54077',$callout->getGPSLong());
+        $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
+    }
     
 }
