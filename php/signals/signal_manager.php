@@ -234,8 +234,9 @@ class SignalManager {
                             "call-units"       => urlencode($callUnitsResponding),
                             "call-status"      => urlencode($callout->getStatus())
                 );
-                	
-                $resultFCM .= $fcmInstance->send($message);
+                   
+                
+                $resultFCM .= $fcmInstance->send($message, getFirehallRootURLFromRequest(null, null, $callout->getFirehall()));
                 if($log != null) $log->trace("Result from FCM plugin [$resultFCM]");
                 if(isset($resultFCM) === true && $callout->getSupressEchoText() == false) {
                     echo $resultFCM;
@@ -303,7 +304,7 @@ class SignalManager {
                                     "user-status"       => urlencode($userStatus)
                 );
 
-                $resultFCM .= $fcmInstance->send($message);
+                $resultFCM .= $fcmInstance->send($message, getFirehallRootURLFromRequest(null, null, $callout->getFirehall()));
             }
 
             if($adhoc_db_connection === true && $db_connection !== null) {
@@ -339,7 +340,7 @@ class SignalManager {
                                 "device-status" => urlencode("Login OK")
                 );
 
-                $resultFCM .= $fcmInstance->send($message);
+                $resultFCM .= $fcmInstance->send($message, getFirehallRootURLFromRequest(null, null, $FIREHALL));
                 echo $resultFCM;
             }
         }
@@ -381,7 +382,7 @@ class SignalManager {
             if($fcmInstance->getDeviceCount() > 0) {
                 $message = array("ADMIN_MSG" => urlencode($msg));
 
-                $resultFCM .= $fcmInstance->send($message);
+                $resultFCM .= $fcmInstance->send($message, getFirehallRootURLFromRequest(null, null, $FIREHALL));
             }
 
             if($adhoc_db_connection === true && $db_connection !== null) {
