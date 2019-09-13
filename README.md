@@ -342,8 +342,12 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	define( 'DEFAULT_GCM_PROJECTID','X');
 	// The Google Project Id
 	define( 'DEFAULT_GCM_APPLICATIONID','X');
+	// The Google Email Project Id
+	define( 'DEFAULT_GCM_EMAIL_APPLICATIONID', 'X');
 	// The Google Service Account Name
 	define( 'DEFAULT_GCM_SAM','applicationid@appspot.gserviceaccount.com');
+	// The Firebase services account json file path to support firebase push notifications
+	define( 'DEFAULT_FCM_SERVICES_JSON', __DIR__.'/fcm/google-service-account.json');
 
 	// Below we create a Mobile structure for our firehall.
 	// See the class FireHallMobile in config_interfaces.php
@@ -356,7 +360,9 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	    DEFAULT_GCM_API_KEY,
 	    DEFAULT_GCM_PROJECTID,
 	    DEFAULT_GCM_APPLICATIONID,
-	    DEFAULT_GCM_SAM);
+	    DEFAULT_GCM_SAM,
+	    DEFAULT_FCM_SERVICES_JSON,
+	    DEFAULT_GCM_EMAIL_APPLICATIONID);
 	
 	// ----------------------------------------------------------------------
 	// Website and Location Settings
