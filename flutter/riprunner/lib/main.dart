@@ -14,10 +14,10 @@ import 'login_page.dart';
 import 'home_page.dart';
 import 'app_settings.dart';
 
-
 void main() {
   // Enable integration testing with the Flutter Driver extension.
   // See https://flutter.io/testing/ for more info.
+  Utils.getLogger().i("Rip Runner starting...");
   runApp(new MyApp());
 
   // Register to receive BackgroundFetch events after app is terminated.
@@ -28,6 +28,7 @@ void main() {
 /// This "Headless Task" is run when app is terminated.
 void backgroundFetchHeadlessTask() async {
   print('[BackgroundFetch] Headless event received.');
+  Utils.getLogger().i('[BackgroundFetch] Headless event received.');
   BackgroundFetch.finish();
 }
 
@@ -37,13 +38,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  
   int _status = 0;
   List<DateTime> _events = [];
 
   @override
   void initState() {
     super.initState();
-
+    
     initPlatformState();
   }
 
@@ -57,6 +59,7 @@ class _MyAppState extends State<MyApp> {
     ), () async {
       // This is the fetch-event callback.
       print('[BackgroundFetch] Event received');
+      Utils.getLogger().i('[BackgroundFetch] Event received');
       setState(() {
         _events.insert(0, new DateTime.now());
       });
@@ -65,11 +68,13 @@ class _MyAppState extends State<MyApp> {
       BackgroundFetch.finish();
     }).then((int status) {
       print('[BackgroundFetch] SUCCESS: $status');
+      Utils.getLogger().i('[BackgroundFetch] SUCCESS: $status');
       setState(() {
         _status = status;
       });
     }).catchError((e) {
       print('[BackgroundFetch] ERROR: $e');
+      Utils.getLogger().i('[BackgroundFetch] ERROR: $e');
       setState(() {
         _status = e;
       });
@@ -89,7 +94,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-
+    Utils.getLogger().i('In Main.dart build method start...');
     return MaterialApp(
       title: 'Rip Runner',
       theme: ThemeData(
@@ -108,15 +113,16 @@ class MyHomePage extends StatefulWidget {
 
   static String tag = 'main-page';
   final String title;
-
+  
   MyHomePage({Key key, this.title}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
+  //AppLifecycleState appState;
   FirebaseMessaging firebaseMessaging = FirebaseMessaging();
   String _message = '';
 
@@ -129,13 +135,36 @@ class _MyHomePageState extends State<MyHomePage> {
     AppSettingsPage.tag:    (context)=>AppSettingsPage(),
   };
   
+  DataContainer getDataContainer({ bool listenValue = true}) {
+    return Provider.of<DataContainer>(context, listen: listenValue);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    setState(() {
+      // Then when you want to know what is the state, check _notification.index property. 
+      // notification == null => no state changes happened, 0 - resumed, 1 - inactive, 2 - paused.
+      //appState = state;
+      getDataContainer().setDataInMap('APP_STATE', state);
+      Utils.getLogger().i('didChangeAppLifecycleState state: $state');
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
     
+    WidgetsBinding.instance.addObserver(this);
     firebaseCloudMessagingListeners();
     _androidAppRetain.setMethodCallHandler((call) {
       print("In _androidAppRetain.setMethodCallHandler: $call.method");
+      Utils.getLogger().i("In _androidAppRetain.setMethodCallHandler: $call.method");
     });
 
     if (Platform.isAndroid) {
@@ -154,8 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void registerDevice() async {
     firebaseMessaging.getToken().then((token) { 
       print(token);
-
-      //Log.i(Utils.TAG, "GCM Registration Token: " + token);
+      Utils.getLogger().i("In registerDevice.getToken: $token");
       Utils.setConfigItem<String>(AppConstants.PROPERTY_REG_ID, token);
       Utils.setConfigItem<bool>(AppConstants.GOT_TOKEN_FROM_SERVER, true);
     });
@@ -186,6 +214,22 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  // Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
+  //   if (message.containsKey('data')) {
+  //     // Handle data message
+  //     final dynamic data = message['data'];
+
+  //     print("In BG Firebase handler for DATA!");
+  //   }
+
+  //   if (message.containsKey('notification')) {
+  //     // Handle notification message
+  //     final dynamic notification = message['notification'];
+
+  //     print("In BG Firebase handler for NOTIF!");
+  //   }
+  // }
+
   void firebaseCloudMessagingListeners() {
     iosPermission();
     setupFCMRegistration(false);
@@ -193,14 +237,19 @@ class _MyHomePageState extends State<MyHomePage> {
     firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         print('on message $message');
+        Utils.getLogger().i('on message $message');
         processFCMMessageEvent(message);
-    }, 
+      }, 
+      //onBackgroundMessage: myBackgroundMessageHandler,
       onResume: (Map<String, dynamic> message) async {
         print('on resume $message');
-        setState(() => _message = message["notification"]["title"]);
+        Utils.getLogger().i('on resume $message');
+        //setState(() => _message = message["notification"]["title"]);
+        processFCMMessageEvent(message);
     }, 
       onLaunch: (Map<String, dynamic> message) async {
         print('on launch $message');
+        Utils.getLogger().i('on launch $message');
         setState(() => _message = message["notification"]["title"]);
     });
   }
@@ -213,11 +262,13 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     catch(e) {
       print("In processFCMMessageEvent" + e.toString());
+      Utils.getLogger().i("In processFCMMessageEvent" + e.toString());
     }
   }
 
   void processFCMMessage(Map<String, dynamic> messageMap) {
     print("Start processFCMMessage: " + messageMap.toString());
+    Utils.getLogger().i("Start processFCMMessage: " + messageMap.toString());
 
     if(messageMap.containsKey("DEVICE_MSG")) {
         Utils.processDeviceMsgTrigger(messageMap);
@@ -238,6 +289,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget activityGotKilledDialog() {
+    Utils.getLogger().i("Start activityGotKilledDialog");
     return AlertDialog(
             title: Text('Material Dialog - activityGotKilledDialog'),
             content: Text('This is the content of the material dialog - activityGotKilledDialog'),

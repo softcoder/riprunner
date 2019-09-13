@@ -104,15 +104,13 @@ class FCM {
 		$msgBody = null;
 		// 'notification' => [
 		// 	// https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#notification
-		// 	'title' => 'Notification title',
-		// 	'body' => 'Notification body',
-		// 	'image' => 'http://lorempixel.com/400/200/',
 		// ],
 		if(array_key_exists('CALLOUT_MSG', $message)) {
 			$msgBody = [
                 'title' => 'Emergency Page.',
 				'body' => 'Callout type: '.urldecode($message['call-type']).' location: '.urldecode($message['call-address']),
-				//'image' => $rootURL.'/images/logo.png',
+				//'image' => 'notification_icon.png',
+				'image' => $rootURL.'/images/logo.png',
 				//'tag' => 'rr-callout-notification',
 			];
 		}
@@ -120,7 +118,8 @@ class FCM {
 			$msgBody = [
                 'title' => 'Responder Status Updated.',
 				'body' => 'Responder: '.urldecode($message['user-id']).' is: '.urldecode($message['user-status']),
-				//'image' => $rootURL.'/images/logo.png',
+				//'image' => 'notification_icon.png',
+				'image' => $rootURL.'/images/logo.png',
 				//'image' => 'http://lorempixel.com/400/200/',
 				//'tag' => 'rr-callout-notification',
 			];
@@ -129,7 +128,8 @@ class FCM {
 			$msgBody = [
                 'title' => 'Responder Message Received:',
 				'body' => urldecode($message['ADMIN_MSG']),
-				//'image' => $rootURL.'/images/logo.png',
+				//'image' => 'notification_icon.png',
+				'image' => $rootURL.'/images/logo.png',
 				//'image' => 'http://lorempixel.com/400/200/',
 				//'tag' => 'rr-callout-notification',
 			];
@@ -139,8 +139,28 @@ class FCM {
 			// Background message
 			if($rootURL != null && $rootURL != '') {
 				$msgBody['image'] = $rootURL.'/images/logo.png';
+				//$msgBody['image'] = 'notification_icon.png';
 			}
-			return [ 'notification' => $msgBody ];
+			
+			$msgBodyAndroid = $msgBody;
+			// Red notification icon for Android
+			$msgBodyAndroid['color'] = '#8B0000';
+			if(array_key_exists('CALLOUT_MSG', $message)) {
+				$msgBodyAndroid['sound'] = 'pager_notify.mp3';
+			}
+			else if(array_key_exists('ADMIN_MSG', $message)) {
+				$msgBodyAndroid['sound'] = 'message.mp3';
+			}
+
+			return [ 
+				'notification' => $msgBody,
+				'android' => [
+					'priority' => 'normal',
+					'notification' => $msgBodyAndroid,
+				],
+			];
+
+
 		}
 		return null;
 	}
@@ -166,6 +186,7 @@ class FCM {
 			// Foreground message
 			if($rootURL != null && $rootURL != '') {
 				$message['image'] = $rootURL.'/images/logo.png';
+				//$message['image'] = 'notification_icon.png';
 			}
 
 			$jsonNotifMessage = json_encode($notificationBody);

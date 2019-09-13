@@ -1,8 +1,11 @@
+import 'dart:ui';
+
 import 'package:riprunner/auth/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
+import 'package:logger/logger.dart';
 
 import '../app_constants.dart';
 import 'chat_message.dart';
@@ -11,6 +14,7 @@ import 'data_container.dart';
 enum APIRequestType {GET, POST}
 
 class Utils {
+  static Logger logger = Logger();
   static Type typeOf<T>() => T;
 
   static Future<bool> hasConfigItem<T>(String keyName) async {
@@ -110,7 +114,6 @@ class Utils {
           request.write(body);
         }
         
-        //String temp = request.headers.toString();
         HttpClientResponse response = await request.close();
         if(response.statusCode != HttpStatus.ok) {
           if(response.statusCode == HttpStatus.unauthorized) {
@@ -142,20 +145,13 @@ class Utils {
 	static bool hasDelimitedValueFromString(String rawValue, String regularExpression, int groupResultIndex, bool isMultiLine) {
 		String result;
 		if(rawValue != null && rawValue.isNotEmpty) {
-			//Pattern p;
       RegExp exp;
 			if(isMultiLine) {
-				//exp = Pattern.compile(regularExpression,Pattern.MULTILINE);
         exp = new RegExp(regularExpression,multiLine: true);
 			}
 			else {
-				//exp = Pattern.compile(regularExpression);
         exp = new RegExp(regularExpression,multiLine: false);
 			}
-			//Matcher m = p.matcher(rawValue);
-			//if(m.find()) {
-			//	result = m.group(groupResultIndex);
-			//}
       if(exp.hasMatch(rawValue)) {
         RegExpMatch match = exp.firstMatch(rawValue);
         if(match != null && match.groupCount-1 >= groupResultIndex) {
@@ -167,36 +163,9 @@ class Utils {
 		return result != null;
 	}
 
-
-
-  // static String extractDelimitedValueFromString(String rawValue, String regularExpression, int groupResultIndex, bool isMultiLine) {
-  //   String result = "";
-  //   if(rawValue != null && rawValue.isNotEmpty) {
-  //       //Pattern p;
-  //       RegExp exp;
-  //       if(isMultiLine) {
-  //         //p = Pattern.compile(regularExpression,Pattern.MULTILINE);
-  //         exp = new RegExp(regularExpression,multiLine: true);
-  //       }
-  //       else {
-  //         //p = Pattern.compile(regularExpression);
-  //         exp = new RegExp(regularExpression,multiLine: false);
-  //       }
-  //       if(exp.hasMatch(rawValue)) {
-  //         RegExpMatch match = exp.firstMatch(rawValue);
-  //         if(match != null && match.groupCount-1 >= groupResultIndex) {
-  //           result = match.group(groupResultIndex);
-  //         }
-  //       }
-  //   }
-  //   return result;
-  // }
-
 	static Map<String, String> extractMapFromNameValueString(String str, String listDelimiter, String nameValueDelimiter) {
-		//Map<String, String> map = Splitter.on( "::" ).withKeyValueSeparator( ':' ).split( calloutMsgRaw );
 		Map<String, String> nameValueMap = new Map<String, String>();
 		List<String> arr = str.split(listDelimiter);
-		//for(String s : arr){
     for (String s in arr ?? []) {
 			List<String> keyValuePair = s.split(nameValueDelimiter);
 			nameValueMap.putIfAbsent(keyValuePair[0],() => keyValuePair[1]);
@@ -227,50 +196,32 @@ class Utils {
   static void processCalloutTrigger(Map<String, dynamic> messageMap) {
       try {
           Map<String, dynamic> calloutMsgMap = Map<String, dynamic>.from(messageMap);
-
-          // String gpsLatStr;
-          // String gpsLongStr;
-
-          // try {
-          //     gpsLatStr = Uri.decodeQueryComponent(calloutMsgMap["call-gps-lat"]);
-          //     gpsLongStr = Uri.decodeQueryComponent(calloutMsgMap["call-gps-long"]);
-          // }
-          // catch (e) {
-          //     throw new Exception("Could not parse callback FCM intent data: " + e);
-          // }
-
           String callKeyId = Uri.decodeQueryComponent(calloutMsgMap["call-key-id"]);
           if (callKeyId == null || callKeyId == "?") {
               callKeyId = "";
           }
-          //String callAddress = Uri.decodeQueryComponent(calloutMsgMap["call-address"]);
-          //if (callAddress == null || callAddress == "?") {
-          //    callAddress = "";
-          //}
-          //String callMapAddress = Uri.decodeQueryComponent(calloutMsgMap["call-map-address"]);
-          //if (callMapAddress == null || callMapAddress == "?") {
-          //    callMapAddress = "";
-          //}
-          //String callType = "?";
-          //if (calloutMsgMap.containsKey("call-type")) {
-          //    callType = Uri.decodeQueryComponent(calloutMsgMap["call-type"]);
-          //}
 
           String callId = Uri.decodeQueryComponent(calloutMsgMap["call-id"]);
-          //String callUnits = Uri.decodeQueryComponent(calloutMsgMap["call-units"]);
-          //String callStatus = Uri.decodeQueryComponent(calloutMsgMap["call-status"]);
           String callMsg = Uri.decodeQueryComponent(calloutMsgMap["CALLOUT_MSG"]);
 
           print("In processCalloutTrigger callId = $callId callKeyId = $callKeyId callMsg = $callMsg");
-      } catch (e) {
-          // should never happen
-          print("Rip Runner Error"+ e.toString());
+      } 
+      catch (e) {
+           print("Rip Runner Error: "+ e.toString());
           throw new Exception("Error processing callout trigger: " + e);
       }
   }
 
   static void processAdminMsgTrigger(Map<String, dynamic> messageMap, DataContainer container) {
-        container.getDataFromMap('CHAT_MESSAGES').add(
+    AppLifecycleState state = container.getDataFromMap('APP_STATE');
+    if(state.index != AppLifecycleState.resumed.index) {
+
+    }
+    container.getDataFromMap('CHAT_MESSAGES').add(
        ChatMessage('Administrator', '', Uri.decodeQueryComponent(messageMap['ADMIN_MSG']), ChatMessageType.admin, DateTime.now()));
+  }
+
+  static Logger getLogger() {
+    return logger;
   }
 }

@@ -52,10 +52,6 @@ class _LoginState extends State<LoginPage> {
     super.dispose();
   }
 
-  // DataContainer getDataContainer() {
-  //   return widget.dataContainer;
-  // }
-
   Future<void> loadState() async {
       deviceidStr = await Utils.getConfigItem<String>(AppConstants.PROPERTY_REG_ID);
       launchSettings = await Utils.hasConfigItem<String>(AppConstants.PROPERTY_WEBSITE_URL) == false;
@@ -104,17 +100,6 @@ class _LoginState extends State<LoginPage> {
         Utils.setConfigItem<String>(AppConstants.PROPERTY_USER_ID,userId);
         Utils.setConfigItem<String>(AppConstants.PROPERTY_AUTH,auth.token);
 
-        //getDataContainer().setData({});
-        //getDataContainer().setDataInMap('CHAT_MESSAGES',[]);
-        
-        // Provider<DataContainer>.value(value: DataContainer(
-        //   data: {}, 
-        //   dataMap: { 
-        //     'CHAT_MESSAGES': [], 
-        //     'FIREHALL_ID': firehallId,
-        //     'USER_ID': userId,
-        //     'AUTH_TOKEN': auth.token
-        //     }));
         DataContainer data = Provider.of<DataContainer>(context);
         data.setData({});
         data.setDataInMap('CHAT_MESSAGES', []);

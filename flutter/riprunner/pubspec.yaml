@@ -37,9 +37,15 @@ dependencies:
   rflutter_alert: ^1.0.3
   package_info: ^0.4.0+6
   provider: ^3.0.0+1
-  firebase_messaging: ^5.1.2
+  firebase_messaging:
+    git:
+      url: https://github.com/kroikie/plugins.git
+      ref: fcm_background
+      path: packages/firebase_messaging
   cached_network_image: ^1.1.1
   intl: ^0.15.8
+  logger: ^0.7.0+2
+  logger_flutter: ^0.7.1
 
   
   # The following adds the Cupertino Icons font to your application.
