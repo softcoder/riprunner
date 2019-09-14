@@ -113,7 +113,6 @@ class ProcessLogin {
 			$user_id 	 = ($jsonRequest != null ? $jsonRequest->username : $request_uid);
 			$password 	 = ($jsonRequest != null ? $jsonRequest->p : $request_p);
 		
-			$db_connection = null;
 			$FIREHALL = findFireHallConfigById($firehall_id, $this->FIREHALLS);
 			if(isset($FIREHALL) === true) {
 				$auth = new\riprunner\Authentication($FIREHALL);
@@ -138,41 +137,67 @@ class ProcessLogin {
 							$this->print('Your database schema version is not up to date, please contact your system admin!');
 						}
 					}
-					else if ($auth->login($user_id, $password) === true) {
-						// Login success
-						if($isAngularClient == true) {
-							$token = array();
-							$token['id'] = $_SESSION['user_db_id'];
-							$token['acl'] = $auth->getCurrentUserRoleJSon();
-							$token['fhid'] = $firehall_id;
-							$token['uid'] = '';
-							
-							$output = array();
-							$output['status'] = true;
-							$output['expiresIn'] = 60 * 30; // expires in 30 mins
-							$output['user'] = $_SESSION['user_id'];
-							$output['message'] = 'LOGIN: OK';
-							$output['token'] = JWT::encode($token, JWT_KEY);
-							
-							$this->header('Cache-Control: no-cache, must-revalidate');
-							$this->header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-							$this->header('Content-type: application/json');
-							$this->print(json_encode($output));
-						}
-						else {
-							$this->header('Location: controllers/main-menu-controller.php');
-						}
-					} 
 					else {
-						// Login failed 
-						if($isAngularClient == true) {
-							$this->header('Cache-Control: no-cache, must-revalidate');
-							$this->header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-							
-							$this->header("HTTP/1.1 401 Unauthorized");
-						}
+						$loginResult = $auth->login($user_id, $password);
+						if (count($loginResult) > 0) {
+							// Login success
+							if($isAngularClient == true) {
+								$token = array();
+								$token['id'] 		= $loginResult['user_db_id'];
+								$token['username'] 	= $loginResult['user_id'];
+								$token['usertype']	= $loginResult['user_type'];
+								$token['acl'] 		= $auth->getCurrentUserRoleJSon($loginResult);
+								$token['fhid'] 		= $firehall_id;
+								$token['uid'] 		= '';
+								
+								$output = array();
+								$output['status'] 		= true;
+								$output['expiresIn'] 	= 60 * 30; // expires in 30 mins
+								$output['user'] 		= $loginResult['user_id'];
+								$output['message'] 		= 'LOGIN: OK';
+								$output['token'] 		= JWT::encode($token, JWT_KEY);
+
+								if($log !== null) $log->trace("#1 json login execute loginResult vars [".print_r($loginResult, TRUE)."] token vars [".print_r($token, TRUE)."] output vars [".print_r($output, TRUE)."]");
+
+								$sessionless = getSafeRequestValue('SESSIONLESS_LOGIN',$this->request_variables);
+								if($sessionless == null || $sessionless == false) {
+									foreach ($loginResult as $key => $value) {
+										$_SESSION[$key] = $value;
+									}
+									if($log !== null) $log->trace("#2 json login execute session vars [".print_r($_SESSION, TRUE)."]");
+								}
+								
+								$this->header('Cache-Control: no-cache, must-revalidate');
+								$this->header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+								$this->header('Content-type: application/json');
+
+								$this->print(json_encode($output));
+							}
+							else {
+								if($log !== null) $log->trace("#1 login execute loginResult vars [".print_r($loginResult, TRUE)."]");
+
+								$sessionless = getSafeRequestValue('SESSIONLESS_LOGIN',$this->request_variables);
+								if($sessionless == null || $sessionless == false) {
+									foreach ($loginResult as $key => $value) {
+										$_SESSION[$key] = $value;
+									}
+									if($log !== null) $log->trace("#2 login execute session vars [".print_r($_SESSION, TRUE)."]");
+								}
+
+								$this->header('Location: controllers/main-menu-controller.php');
+							}
+						} 
 						else {
-							$this->print('Login FAILED.' . PHP_EOL);
+							// Login failed 
+							if($isAngularClient == true) {
+								$this->header('Cache-Control: no-cache, must-revalidate');
+								$this->header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+								
+								$this->header("HTTP/1.1 401 Unauthorized");
+							}
+							else {
+								$this->print('Login FAILED.' . PHP_EOL);
+							}
 						}
 					}
 				}

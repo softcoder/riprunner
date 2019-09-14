@@ -28,16 +28,10 @@ class AuthViewModel extends BaseViewModel {
 		    return $this->hasAuthSpecialToken();
 		}
 		if('username' === $name) {
-			if(isset($_SESSION['user_id']) === true) {
-				return $_SESSION['user_id'];
-			}
-			return null;
+			return Authentication::getAuthVar('user_id');
 		}
 		if('user_id' === $name) {
-		    if(isset($_SESSION['user_id']) === true) {
-		        return $_SESSION['user_id'];
-		    }
-		    return null;
+		    return Authentication::getAuthVar('user_id');
 		}
 		if('isAdmin' === $name) {
 			return $this->userHasAcess(USER_ACCESS_ADMIN);

@@ -187,10 +187,7 @@ class GlobalViewModel {
 	}
 
 	private function getUserFirehallId() {
-		if (isset($_SESSION['firehall_id']) === true) {
-			return $_SESSION['firehall_id'];
-		}
-		return null;
+		return Authentication::getAuthVar('firehall_id');
 	}
 	
 	private function getDBConnection() {

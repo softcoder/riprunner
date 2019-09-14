@@ -142,8 +142,8 @@ class UserAccountsController extends AuthApiController {
 		}
 
 		if($self_edit === true) {
-			$edit_firehall_id = $_SESSION['firehall_id'];
-			$edit_user_type = $_SESSION['user_type'];
+			$edit_firehall_id = \riprunner\Authentication::getAuthVar('firehall_id');
+			$edit_user_type = \riprunner\Authentication::getAuthVar('user_type');
 			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
 			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
@@ -202,8 +202,8 @@ class UserAccountsController extends AuthApiController {
         $edit_user_id = $user->id;
 		// UPDATE
 		if($self_edit === true) {
-			$edit_firehall_id = $_SESSION['firehall_id'];
-			$edit_user_type = $_SESSION['user_type'];
+			$edit_firehall_id = \riprunner\Authentication::getAuthVar('firehall_id');
+			$edit_user_type = \riprunner\Authentication::getAuthVar('user_type');
 			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
 			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);

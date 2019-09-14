@@ -82,7 +82,8 @@ class UsersMenuViewModel extends BaseViewModel {
 		
 		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
 		if($self_edit === true) {
-			$qry_bind->bindParam(':id', $_SESSION['user_db_id']);
+			$uid = Authentication::getAuthVar('user_db_id');
+			$qry_bind->bindParam(':id', $uid);
 		}
 		$qry_bind->execute();
 		

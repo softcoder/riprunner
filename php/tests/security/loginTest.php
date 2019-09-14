@@ -34,7 +34,7 @@ class LoginTest extends BaseDBFixture {
 
 		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
 		$login_result = $auth->login($user_id, $password);
-		$this->assertEquals(true, $login_result);
+		$this->assertEquals($user_id, $login_result['user_id']);
 	}
 	public function testNonLDAPLogin_InValid_Username()  {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
@@ -43,7 +43,7 @@ class LoginTest extends BaseDBFixture {
 	
 	    $auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
 	    $login_result = $auth->login($user_id, $password);
-	    $this->assertEquals(false, $login_result);
+	    $this->assertEmpty($login_result);
 	}
 	
 	public function testNonLDAPLogin_InValid_Password()  {
@@ -54,7 +54,7 @@ class LoginTest extends BaseDBFixture {
 	    $auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
 	    $login_result = $auth->login($user_id, $password);
 	    
-	    $this->assertEquals(false, $login_result);
+	    $this->assertEmpty($login_result);
 	}
 
 	public function testValidLogin() {
