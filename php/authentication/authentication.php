@@ -339,7 +339,36 @@ class Authentication {
     private function getServerVar($key) {
         return getServerVar($key, $this->server_variables);
     }
-    
+
+    static public function getJWTToken($request_variables=null, $server_variables=null) {
+        global $log;
+
+        $token = getServerVar('HTTP_JWT_TOKEN', $server_variables);
+        if($log !== null) $log->trace("getJWTToken #1 check srv token [$token]");
+
+        if($token == null) {
+            $token = getSafeRequestValue('JWT_TOKEN', $request_variables);
+            if($log !== null) $log->trace("getJWTToken #2 check req token [$token]");
+        }
+        if ($token != null && strlen($token)) {
+            return $token;
+        }
+        else {
+            if($log !== null) $log->trace("In getJWTToken SERVER vars [".print_r($_SERVER, TRUE)."]");
+            if($log !== null) $log->trace("In getJWTToken REQ vars [".print_r(array_merge($_GET, $_POST), TRUE)."]");
+        }
+        return null;
+    }
+
+    static public function deployJWTToken($request_variables=null, $server_variables=null) {
+        global $log;
+
+        $token = self::getJWTToken($request_variables,$server_variables);
+        if ($token != null && strlen($token)) {
+            header('JWT_TOKEN: '.$token);
+        }
+    }
+
     static private function decodeJWTToken($request_variables=null, $server_variables=null) {
         global $log;
 
@@ -380,6 +409,7 @@ class Authentication {
             }
             $authCache['user_id']    = $token->username;
             $authCache['user_type']  = $token->usertype;
+            $authCache['login_string']  = $token->login_string;
             $authCache['user_db_id'] = $token->id;
             //if($log !== null) $log->warn("In getJWTAuthCache authCache vars [".print_r($authCache, TRUE)."]");
         }
@@ -403,7 +433,11 @@ class Authentication {
     }
 
     static private function getAuthCacheList($request_variables) {
-        $authCache = [];
+        global $log;
+        // Read from request the JWT info
+        $authCache = self::getJWTAuthCache($request_variables);
+        if($log !== null) $log->trace("In getAuthCacheList authCache vars [".print_r($authCache, TRUE)."]");
+
         $sessionless = getSafeRequestValue('SESSIONLESS_LOGIN',$request_variables);
         if($sessionless == null || $sessionless == false) {
             if(isset($_SESSION)) {
@@ -411,10 +445,6 @@ class Authentication {
                     $authCache[$key] = $value;
                 }
             }
-        }
-        else {
-            // Read from request the JWT info
-            $authCache = self::getJWTAuthCache($request_variables);
         }
         return $authCache;        
     }
@@ -451,6 +481,7 @@ class Authentication {
             $user_browser = htmlspecialchars(getServerVar('HTTP_USER_AGENT'));
 
             if($this->validateJWT($authCache) == false) {
+                if($log !== null) $log->warn("login_check validateJWT false for session [".session_id()."]");
                 return false;
             }
             
@@ -501,6 +532,7 @@ class Authentication {
             }
         }
         else {
+            if($log !== null) $log->trace("login_check vars not set for session [".session_id()."]");
             return false;
         }
     }

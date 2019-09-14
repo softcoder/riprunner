@@ -32,7 +32,7 @@
                 <input type="radio" name="verticalMenu" id="main_page" />
                 <div>
                   <ul>
-                    <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php">Main Menu</a></li>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Main Menu</a></li>
                   </ul>
                 </div>
               </li>
@@ -107,7 +107,7 @@
                             <td>{{ row.hours_spent }}</td>
 	                    {% elseif col_name == 'responders' %}
 	                        <td>
-	                            <a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-history-response-controller.php?cid={{ row.id }}">{{ row[col_name] }}</a>
+	                            <a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-history-response-controller.php?cid={{ row.id }}&{{ gvm.RR_JWT_TOKEN_PARAM }}">{{ row[col_name] }}</a>
 	                        </td>
 	                    {% else %}
 	                        <td>{{ row[col_name] }}</td>
@@ -116,7 +116,7 @@
 	                
 	                <td class="column_nowrap">
 	                   <a target="_blank" 
-	                      href="{{ gvm.RR_DOC_ROOT }}/ci/cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}">
+	                      href="{{ gvm.RR_DOC_ROOT }}/ci/cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}&{{ gvm.RR_JWT_TOKEN_PARAM }}">
 	                      details
 	                   </a> 
 	                </td>
@@ -124,7 +124,7 @@
                     {% if gvm.auth.isAuth and (gvm.auth.isAdmin) %}
                     <td class="column_nowrap">
                        <a target="_blank" 
-                          href="{{ gvm.RR_DOC_ROOT }}/controllers/address-override-controller.php?cid={{ row.id }}">
+                          href="{{ gvm.RR_DOC_ROOT }}/controllers/address-override-controller.php?cid={{ row.id }}&{{ gvm.RR_JWT_TOKEN_PARAM }}">
                           override
                        </a> 
                     </td>

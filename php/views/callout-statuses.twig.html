@@ -30,7 +30,7 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php">Main Menu</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Main Menu</a></li>
                       </ul>
                     </div>
                   </li>
@@ -48,7 +48,7 @@
             </div>
 
             
-            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/callout-status-controller.php" 
+            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/callout-status-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}" 
                   method="post" name="status_edit_form">
 
             <table id="box-table-a">
@@ -162,7 +162,7 @@
                        onclick="save_status(this.form, -1);" />
                 
                 <input type="button" value="Cancel" 
-                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/callout-status-controller.php'; return false;" />
+                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/callout-status-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}'; return false;" />
                 </td>
                 </tr>
                 {% endif %}
@@ -334,7 +334,7 @@
                            onclick="save_status(this.form, {{ status.id }});" />
                     
                     <input type="button" value="Cancel" 
-                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/callout-status-controller.php'; return false;" />
+                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/callout-status-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}'; return false;" />
                     </td>
                 {% else %}
                     <td>

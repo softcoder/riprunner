@@ -81,13 +81,11 @@ class LoginTest extends BaseDBFixture {
 			$FIREHALLS,
 			(isset($request_variables) ? $request_variables : null),
 			(isset($server_variables) ? $server_variables : null),
-			(isset($header_callback) ? $header_callback : null),
-			(isset($print_callback) ? $print_callback : null),
-			(isset($getfile_callback) ? $getfile_callback : null)
+			(isset($header_callback) ? $header_callback : null)
 			);
 		$processLogin->execute();
 		
-	    $this->assertEquals('Location: controllers/main-menu-controller.php', $assertHeader);
+	    $this->assertContains('Location: controllers/main-menu-controller.php?JWT_TOKEN=', $assertHeader);
 	}
 
 	public function testInValidLogin_fhid() {

@@ -141,21 +141,24 @@ class ProcessLogin {
 						$loginResult = $auth->login($user_id, $password);
 						if (count($loginResult) > 0) {
 							// Login success
+							$token = array();
+							$token['id'] 		= $loginResult['user_db_id'];
+							$token['username'] 	= $loginResult['user_id'];
+							$token['usertype']	= $loginResult['user_type'];
+							$token['login_string']	= $loginResult['login_string'];
+							$token['acl'] 		= $auth->getCurrentUserRoleJSon($loginResult);
+							$token['fhid'] 		= $firehall_id;
+							$token['uid'] 		= '';
+							$jwt = JWT::encode($token, JWT_KEY);
+
 							if($isAngularClient == true) {
-								$token = array();
-								$token['id'] 		= $loginResult['user_db_id'];
-								$token['username'] 	= $loginResult['user_id'];
-								$token['usertype']	= $loginResult['user_type'];
-								$token['acl'] 		= $auth->getCurrentUserRoleJSon($loginResult);
-								$token['fhid'] 		= $firehall_id;
-								$token['uid'] 		= '';
 								
 								$output = array();
 								$output['status'] 		= true;
 								$output['expiresIn'] 	= 60 * 30; // expires in 30 mins
 								$output['user'] 		= $loginResult['user_id'];
 								$output['message'] 		= 'LOGIN: OK';
-								$output['token'] 		= JWT::encode($token, JWT_KEY);
+								$output['token'] 		= $jwt;
 
 								if($log !== null) $log->trace("#1 json login execute loginResult vars [".print_r($loginResult, TRUE)."] token vars [".print_r($token, TRUE)."] output vars [".print_r($output, TRUE)."]");
 
@@ -179,12 +182,16 @@ class ProcessLogin {
 								$sessionless = getSafeRequestValue('SESSIONLESS_LOGIN',$this->request_variables);
 								if($sessionless == null || $sessionless == false) {
 									foreach ($loginResult as $key => $value) {
+										//!!! Play with this (comment out) to eventually not require session state 
+										// vars for serverless operation
 										$_SESSION[$key] = $value;
 									}
 									if($log !== null) $log->trace("#2 login execute session vars [".print_r($_SESSION, TRUE)."]");
 								}
 
-								$this->header('Location: controllers/main-menu-controller.php');
+								//$this->header('JWT_TOKEN: '.$jwt);
+								$this->header('Location: controllers/main-menu-controller.php?JWT_TOKEN='.$jwt);
+								//$this->header('Location: controllers/main-menu-controller.php');
 							}
 						} 
 						else {

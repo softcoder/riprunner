@@ -30,7 +30,7 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php">Main Menu</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Main Menu</a></li>
                       </ul>
                     </div>
                   </li>
@@ -49,7 +49,7 @@
 
 
             <button onclick="toggleVisibility('test_code');">Show/Hide Code Tester</button>            
-            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/callout-type-controller.php" 
+            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/callout-type-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}" 
                   method="post" id="test_code" name="test_code" 
                   style="display:{% if typemenu_ctl_action_code_test is not defined or 
                                        typemenu_ctl_action_code_test == false %}none{% endif %}" >
@@ -79,7 +79,7 @@
                 </center>
             </form>
             
-            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/callout-type-controller.php" 
+            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/callout-type-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}" 
                   method="post" name="type_edit_form">
    
             <center>
@@ -135,7 +135,7 @@
                        onclick="save_type(this.form, -1);" />
                 
                 <input type="button" value="Cancel" 
-                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/callout-type-controller.php'; return false;" />
+                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/callout-type-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}'; return false;" />
                 </td>
                 </tr>
                 {% endif %}
@@ -208,7 +208,7 @@
                            onclick="save_type(this.form, {{ type.id }});" />
                     
                     <input type="button" value="Cancel" 
-                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/callout-type-controller.php'; return false;" />
+                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/callout-type-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}'; return false;" />
                     </td>
                 {% else %}
                     <td>
