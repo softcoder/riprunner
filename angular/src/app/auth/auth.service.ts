@@ -134,8 +134,12 @@ export class AuthService {
 
         const permissions: Array<string> = [ 'USER-AUTHENTICATED' ];
         localStorage.setItem('token', authResult.token);
+        //console.log('SetSession authResult: ' + JSON.stringify(authResult));
+
         const jwtToken: TokenObject = JWT(authResult.token);
         if (jwtToken && jwtToken.acl && jwtToken.acl !== '') {
+
+          //console.log('SetSession jwtToken: ' + JSON.stringify(jwtToken));
           const acl = JSON.parse(jwtToken.acl);
           localStorage.setItem('acl', acl);
           permissions.push('ROLE-' + acl.role);
