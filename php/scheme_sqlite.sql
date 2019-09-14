@@ -122,6 +122,14 @@ CREATE TABLE IF NOT EXISTS callouts_info (
   updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS user_types (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  firehall_id varchar(80) NOT NULL,
+  name varchar(255) NOT NULL,
+  default_access INTEGER NOT NULL DEFAULT 0,
+  updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 
 CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);

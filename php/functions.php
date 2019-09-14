@@ -17,10 +17,23 @@ require_once 'config/config_manager.php';
 require_once 'core/CalloutStatusType.php';
 require_once 'logging.php';
 
-function getSafeRequestValue($key) {
+function getSafeRequestValue($key, $request_variables=null) {
+    if($request_variables !== null && array_key_exists($key, $request_variables) === true) {
+        return htmlspecialchars($request_variables[$key]);
+    }
     $request_list = array_merge($_GET, $_POST);
     if(array_key_exists($key, $request_list) === true) {
         return htmlspecialchars($request_list[$key]);
+    }
+    return null;
+}
+
+function getServerVar($key, $server_variables=null) {
+    if($server_variables !== null && array_key_exists($key, $server_variables) === true) {
+        return htmlspecialchars($server_variables[$key]);
+    }
+    if($_SERVER !== null && array_key_exists($key, $_SERVER) === true) {
+        return htmlspecialchars($_SERVER[$key]);
     }
     return null;
 }

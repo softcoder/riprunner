@@ -29,6 +29,9 @@ class Authentication {
     private $firehall = null;
     private $db_connection = null;
     private $sql_statement = null;
+    private $GET_FILE_CONTENTS_FUNC;
+	private $request_variables;
+	private $server_variables;
     
     /*
     	Constructor
@@ -49,7 +52,30 @@ class Authentication {
 //     		throwExceptionAndLogError('Firehall and/or db is not set!', 'Firehall and/or db is not set!');
 //     	}
     }
-    
+
+    public function setFileContentsFunc($func) {
+        $this->GET_FILE_CONTENTS_FUNC = $func;
+    }
+    public function setRequestVars($vars) {
+        $this->request_variables = $vars;
+    }
+    public function setServerVars($vars) {
+        $this->server_variables = $vars;
+    }
+
+    //$request_method = getServerVar('REQUEST_METHOD', $this->server_variables);
+
+	private function file_get_contents(string $url) {
+		if($this->GET_FILE_CONTENTS_FUNC != null) {
+			$cb = $this->GET_FILE_CONTENTS_FUNC;
+			return $cb($url);
+		}
+		else if(empty($_POST)) {
+			return file_get_contents($url);
+		}
+		return null;
+	}
+
     static public function is_session_started() {
         return (isset($_SESSION) === true);
     }
@@ -103,20 +129,20 @@ class Authentication {
     
     static public function getClientIPInfo() {
         $ip_address = '';
-        if (empty($_SERVER['HTTP_CLIENT_IP']) === false) {
-            $ip_address .= 'HTTP_CLIENT_IP: '.htmlspecialchars($_SERVER['HTTP_CLIENT_IP']);
+        if (empty(getServerVar('HTTP_CLIENT_IP')) === false) {
+            $ip_address .= 'HTTP_CLIENT_IP: '.htmlspecialchars(getServerVar('HTTP_CLIENT_IP'));
         }
-        if (empty($_SERVER['HTTP_X_FORWARDED_FOR']) === false) {
+        if (empty(getServerVar('HTTP_X_FORWARDED_FOR')) === false) {
             if (empty($ip_address) === false) {
                 $ip_address .= ' ';
             }
-            $ip_address .= 'HTTP_X_FORWARDED_FOR: '.htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']);
+            $ip_address .= 'HTTP_X_FORWARDED_FOR: '.htmlspecialchars(getServerVar('HTTP_X_FORWARDED_FOR'));
         }
-        if (empty($_SERVER['REMOTE_ADDR']) === false) {
+        if (empty(getServerVar('REMOTE_ADDR')) === false) {
             if (empty($ip_address) === false) {
                 $ip_address .= ' ';
             }
-            $ip_address .= 'REMOTE_ADDR: '.htmlspecialchars($_SERVER['REMOTE_ADDR']);
+            $ip_address .= 'REMOTE_ADDR: '.htmlspecialchars(getServerVar('REMOTE_ADDR'));
         }
         return $ip_address;
     }
@@ -192,7 +218,24 @@ class Authentication {
         }
         return $userType;
     }
-    
+
+	private function getJSONLogin($request_method) {
+		global $log;
+		$json = null;
+		$jsonObject = null;
+		if ($request_method != null && $request_method == 'POST') {
+			$json = $this->file_get_contents('php://input');
+		}
+		if($json != null && strlen($json) > 0) {
+			$jsonObject = json_decode($json);
+			if(json_last_error() != JSON_ERROR_NONE) {
+				$jsonObject = null;
+			}
+			if($log) $log->trace("process_login found request method: ".$request_method." request: ".$json);
+		}
+		return $jsonObject;
+	}
+
     public function login($user_id, $password) {
         global $log;
         if($log !== null) $log->trace("Login attempt for user [$user_id] fhid [" . 
@@ -200,16 +243,11 @@ class Authentication {
     
         $isAngularClient = false;
         if($log !== null) $log->trace("Login check request method: ".$this->getServerVar('REQUEST_METHOD'));
-        if($this->getServerVar('REQUEST_METHOD') == 'POST' && empty($_POST)) {
-            $json = file_get_contents('php://input');
-            if($json != null && strlen($json) > 0) {
-                if($log !== null) $log->trace("Login found request method: ".$this->getServerVar('REQUEST_METHOD')." request: ".$json);
-                $request = json_decode($json);
-                if(json_last_error() == JSON_ERROR_NONE) {
-                    $isAngularClient = true;
-                    $password = \base64_decode($password);
-                }
-            }
+
+        $jsonObject = $this->getJSONLogin($this->getServerVar('REQUEST_METHOD'));
+        if($jsonObject != null) {
+            $isAngularClient = true;
+            $password = \base64_decode($password);
         }
         
         if($this->getFirehall()->LDAP->ENABLED === true) {
@@ -256,8 +294,8 @@ class Authentication {
                     if (crypt($password, $userPwd) === $userPwd ) {
                         // Password is correct!
                         // Get the user-agent string of the user.
-                        if(isset($_SERVER['HTTP_USER_AGENT']) === true) {
-                            $user_browser = htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
+                        if(getServerVar('HTTP_USER_AGENT') != null) {
+                            $user_browser = htmlspecialchars(getServerVar('HTTP_USER_AGENT'));
                         }
                         else {
                             $user_browser = 'UNKNONW user agent.';
@@ -325,10 +363,7 @@ class Authentication {
     }
     
     private function getServerVar($key) {
-        if($_SERVER !== null && array_key_exists($key, $_SERVER) === true) {
-            return $_SERVER[$key];
-        }
-        return null;
+        return getServerVar($key, $this->server_variables);
     }
     
     public function login_check() {
@@ -346,7 +381,7 @@ class Authentication {
             $ldap_enabled = $_SESSION['ldap_enabled'];
 
             // Get the user-agent string of the user.
-            $user_browser = htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
+            $user_browser = htmlspecialchars(getServerVar('HTTP_USER_AGENT'));
 
             if($this->validateJWT() == false) {
                 return false;
