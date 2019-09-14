@@ -201,7 +201,7 @@ class LoginTest extends BaseDBFixture {
 		
 		$this->assertEquals('Content-type: application/json', $assertHeader);
 		$this->assertEquals('php://input', $assertURL);
-		$this->assertEquals('{"status":true,"expiresIn":1800,"user":"mark.vejvoda","message":"LOGIN: OK","token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEiLCJhY2wiOiJ7XCJyb2xlXCI6XCJhZG1pblwiLFwiYWNjZXNzXCI6XCIzXCJ9IiwiZmhpZCI6IjAiLCJ1aWQiOiIifQ.7f0UOb4ym2SUnrkSmKhwoh3ZbhPVBjqffLUE9c1iFmc"}', $assertText);
+		$this->assertContains('{"status":true,"expiresIn":1800,"user":"mark.vejvoda","message":"LOGIN: OK","token":', $assertText);
 	}
 
 	public function testInValidLoginJSON() {
