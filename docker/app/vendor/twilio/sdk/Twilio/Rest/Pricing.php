@@ -15,11 +15,11 @@ use Twilio\Rest\Pricing\V1;
 use Twilio\Rest\Pricing\V2;
 
 /**
- * @property \Twilio\Rest\Pricing\V1 v1
- * @property \Twilio\Rest\Pricing\V2 v2
- * @property \Twilio\Rest\Pricing\V1\MessagingList messaging
- * @property \Twilio\Rest\Pricing\V1\PhoneNumberList phoneNumbers
- * @property \Twilio\Rest\Pricing\V2\VoiceList voice
+ * @property \Twilio\Rest\Pricing\V1 $v1
+ * @property \Twilio\Rest\Pricing\V2 $v2
+ * @property \Twilio\Rest\Pricing\V1\MessagingList $messaging
+ * @property \Twilio\Rest\Pricing\V1\PhoneNumberList $phoneNumbers
+ * @property \Twilio\Rest\Pricing\V2\VoiceList $voice
  */
 class Pricing extends Domain {
     protected $_v1 = null;
@@ -27,7 +27,7 @@ class Pricing extends Domain {
 
     /**
      * Construct the Pricing Domain
-     * 
+     *
      * @param \Twilio\Rest\Client $client Twilio\Rest\Client to communicate with
      *                                    Twilio
      * @return \Twilio\Rest\Pricing Domain for Pricing
@@ -60,10 +60,10 @@ class Pricing extends Domain {
 
     /**
      * Magic getter to lazy load version
-     * 
+     *
      * @param string $name Version to return
      * @return \Twilio\Version The requested version
-     * @throws \Twilio\Exceptions\TwilioException For unknown versions
+     * @throws TwilioException For unknown versions
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -76,11 +76,11 @@ class Pricing extends Domain {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $method = 'context' . ucfirst($name);
@@ -92,21 +92,21 @@ class Pricing extends Domain {
     }
 
     /**
-     * @return \Twilio\Rest\Pricing\V1\MessagingList 
+     * @return \Twilio\Rest\Pricing\V1\MessagingList
      */
     protected function getMessaging() {
         return $this->v1->messaging;
     }
 
     /**
-     * @return \Twilio\Rest\Pricing\V1\PhoneNumberList 
+     * @return \Twilio\Rest\Pricing\V1\PhoneNumberList
      */
     protected function getPhoneNumbers() {
         return $this->v1->phoneNumbers;
     }
 
     /**
-     * @return \Twilio\Rest\Pricing\V2\VoiceList 
+     * @return \Twilio\Rest\Pricing\V2\VoiceList
      */
     protected function getVoice() {
         return $this->v2->voice;
@@ -114,7 +114,7 @@ class Pricing extends Domain {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

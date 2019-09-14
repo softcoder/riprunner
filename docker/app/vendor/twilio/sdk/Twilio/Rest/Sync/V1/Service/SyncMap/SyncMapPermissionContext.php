@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Sync\V1\Service\SyncMap;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Serialize;
 use Twilio\Values;
@@ -20,13 +21,16 @@ use Twilio\Version;
 class SyncMapPermissionContext extends InstanceContext {
     /**
      * Initialize the SyncMapPermissionContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $serviceSid Sync Service Instance SID or unique name.
-     * @param string $mapSid Sync Map SID or unique name.
-     * @param string $identity Identity of the user to whom the Sync Map Permission
-     *                         applies.
-     * @return \Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapPermissionContext 
+     * @param string $serviceSid The SID of the Sync Service with the Sync Map
+     *                           Permission resource to fetch
+     * @param string $mapSid The SID of the Sync Map with the Sync Map Permission
+     *                       resource to fetch
+     * @param string $identity The application-defined string that uniquely
+     *                         identifies the User's Sync Map Permission resource
+     *                         to fetch
+     * @return \Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapPermissionContext
      */
     public function __construct(Version $version, $serviceSid, $mapSid, $identity) {
         parent::__construct($version);
@@ -39,7 +43,7 @@ class SyncMapPermissionContext extends InstanceContext {
 
     /**
      * Fetch a SyncMapPermissionInstance
-     * 
+     *
      * @return SyncMapPermissionInstance Fetched SyncMapPermissionInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -63,7 +67,7 @@ class SyncMapPermissionContext extends InstanceContext {
 
     /**
      * Deletes the SyncMapPermissionInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -73,10 +77,10 @@ class SyncMapPermissionContext extends InstanceContext {
 
     /**
      * Update the SyncMapPermissionInstance
-     * 
-     * @param boolean $read Read access.
-     * @param boolean $write Write access.
-     * @param boolean $manage Manage access.
+     *
+     * @param bool $read Read access
+     * @param bool $write Write access
+     * @param bool $manage Manage access
      * @return SyncMapPermissionInstance Updated SyncMapPermissionInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -105,7 +109,7 @@ class SyncMapPermissionContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

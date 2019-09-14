@@ -15,14 +15,14 @@ use Twilio\Rest\Pricing\V2\VoiceList;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Pricing\V2\VoiceList voice
+ * @property \Twilio\Rest\Pricing\V2\VoiceList $voice
  */
 class V2 extends Version {
     protected $_voice = null;
 
     /**
      * Construct the V2 version of Pricing
-     * 
+     *
      * @param \Twilio\Domain $domain Domain that contains the version
      * @return \Twilio\Rest\Pricing\V2 V2 version of Pricing
      */
@@ -32,7 +32,7 @@ class V2 extends Version {
     }
 
     /**
-     * @return \Twilio\Rest\Pricing\V2\VoiceList 
+     * @return \Twilio\Rest\Pricing\V2\VoiceList
      */
     protected function getVoice() {
         if (!$this->_voice) {
@@ -43,10 +43,10 @@ class V2 extends Version {
 
     /**
      * Magic getter to lazy load root resources
-     * 
+     *
      * @param string $name Resource to return
      * @return \Twilio\ListResource The requested resource
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -59,11 +59,11 @@ class V2 extends Version {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -76,7 +76,7 @@ class V2 extends Version {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -31,7 +31,7 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php">Main Menu</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Main Menu</a></li>
                       </ul>
                     </div>
                   </li>
@@ -53,7 +53,7 @@
                 {% include 'send-message.twig.html' %}
             {% endif %}
             
-            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php" 
+            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}" 
                   method="post" name="user_edit_form">
    
             <center>
@@ -164,7 +164,7 @@
                            onclick="save_user(this.form, -1);" />
                     
                     <input type="button" value="Cancel" 
-                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php{{ usersmenu_vm.selfedit_mode ? '?se=true' : '' }}'; return false;" />
+                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}{{ usersmenu_vm.selfedit_mode ? '&se=true' : '' }}'; return false;" />
                 </td>
                 {% else %}
                     {% if gvm.firehall.LDAP.ENABLED %}
@@ -338,7 +338,7 @@
 	                       onclick="save_user(this.form, {{ user.id }});" />
 	                
 	                <input type="button" value="Cancel" 
-	                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php{{ usersmenu_vm.selfedit_mode ? '?se=true' : '' }}'; return false;" />
+	                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}{{ usersmenu_vm.selfedit_mode ? '&se=true' : '' }}'; return false;" />
 	                </td>
 	            {% else %}
 	                {% if gvm.firehall.LDAP.ENABLED %}

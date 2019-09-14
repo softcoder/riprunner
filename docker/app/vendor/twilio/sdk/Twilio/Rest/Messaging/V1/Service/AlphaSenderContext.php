@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Messaging\V1\Service;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -19,11 +20,11 @@ use Twilio\Version;
 class AlphaSenderContext extends InstanceContext {
     /**
      * Initialize the AlphaSenderContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $serviceSid The service_sid
      * @param string $sid The sid
-     * @return \Twilio\Rest\Messaging\V1\Service\AlphaSenderContext 
+     * @return \Twilio\Rest\Messaging\V1\Service\AlphaSenderContext
      */
     public function __construct(Version $version, $serviceSid, $sid) {
         parent::__construct($version);
@@ -36,7 +37,7 @@ class AlphaSenderContext extends InstanceContext {
 
     /**
      * Fetch a AlphaSenderInstance
-     * 
+     *
      * @return AlphaSenderInstance Fetched AlphaSenderInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -59,7 +60,7 @@ class AlphaSenderContext extends InstanceContext {
 
     /**
      * Deletes the AlphaSenderInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -69,7 +70,7 @@ class AlphaSenderContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -15,10 +15,10 @@ use Twilio\Rest\IpMessaging\V1;
 use Twilio\Rest\IpMessaging\V2;
 
 /**
- * @property \Twilio\Rest\IpMessaging\V1 v1
- * @property \Twilio\Rest\IpMessaging\V2 v2
- * @property \Twilio\Rest\IpMessaging\V2\CredentialList credentials
- * @property \Twilio\Rest\IpMessaging\V2\ServiceList services
+ * @property \Twilio\Rest\IpMessaging\V1 $v1
+ * @property \Twilio\Rest\IpMessaging\V2 $v2
+ * @property \Twilio\Rest\IpMessaging\V2\CredentialList $credentials
+ * @property \Twilio\Rest\IpMessaging\V2\ServiceList $services
  * @method \Twilio\Rest\IpMessaging\V2\CredentialContext credentials(string $sid)
  * @method \Twilio\Rest\IpMessaging\V2\ServiceContext services(string $sid)
  */
@@ -28,7 +28,7 @@ class IpMessaging extends Domain {
 
     /**
      * Construct the IpMessaging Domain
-     * 
+     *
      * @param \Twilio\Rest\Client $client Twilio\Rest\Client to communicate with
      *                                    Twilio
      * @return \Twilio\Rest\IpMessaging Domain for IpMessaging
@@ -36,7 +36,7 @@ class IpMessaging extends Domain {
     public function __construct(Client $client) {
         parent::__construct($client);
 
-        $this->baseUrl = 'https://ip-messaging.twilio.com';
+        $this->baseUrl = 'https://chat.twilio.com';
     }
 
     /**
@@ -61,10 +61,10 @@ class IpMessaging extends Domain {
 
     /**
      * Magic getter to lazy load version
-     * 
+     *
      * @param string $name Version to return
      * @return \Twilio\Version The requested version
-     * @throws \Twilio\Exceptions\TwilioException For unknown versions
+     * @throws TwilioException For unknown versions
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -77,11 +77,11 @@ class IpMessaging extends Domain {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $method = 'context' . ucfirst($name);
@@ -93,30 +93,30 @@ class IpMessaging extends Domain {
     }
 
     /**
-     * @return \Twilio\Rest\IpMessaging\V2\CredentialList 
+     * @return \Twilio\Rest\IpMessaging\V2\CredentialList
      */
     protected function getCredentials() {
         return $this->v2->credentials;
     }
 
     /**
-     * @param string $sid The sid
-     * @return \Twilio\Rest\IpMessaging\V2\CredentialContext 
+     * @param string $sid The SID of the Credential resource to fetch
+     * @return \Twilio\Rest\IpMessaging\V2\CredentialContext
      */
     protected function contextCredentials($sid) {
         return $this->v2->credentials($sid);
     }
 
     /**
-     * @return \Twilio\Rest\IpMessaging\V2\ServiceList 
+     * @return \Twilio\Rest\IpMessaging\V2\ServiceList
      */
     protected function getServices() {
         return $this->v2->services;
     }
 
     /**
-     * @param string $sid The sid
-     * @return \Twilio\Rest\IpMessaging\V2\ServiceContext 
+     * @param string $sid The SID of the Service resource to fetch
+     * @return \Twilio\Rest\IpMessaging\V2\ServiceContext
      */
     protected function contextServices($sid) {
         return $this->v2->services($sid);
@@ -124,7 +124,7 @@ class IpMessaging extends Domain {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

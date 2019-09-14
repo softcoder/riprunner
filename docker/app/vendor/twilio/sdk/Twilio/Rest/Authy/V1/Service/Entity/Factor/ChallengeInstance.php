@@ -18,29 +18,29 @@ use Twilio\Version;
 
 /**
  * PLEASE NOTE that this class contains preview products that are subject to change. Use them with caution. If you currently do not have developer preview access, please contact help@twilio.com.
- * 
- * @property string sid
- * @property string accountSid
- * @property string serviceSid
- * @property string entitySid
- * @property string identity
- * @property string factorSid
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property \DateTime dateResponded
- * @property \DateTime expirationDate
- * @property string verificationSid
- * @property string status
- * @property string reason
- * @property string details
- * @property string hiddenDetails
- * @property string type
- * @property string url
+ *
+ * @property string $sid
+ * @property string $accountSid
+ * @property string $serviceSid
+ * @property string $entitySid
+ * @property string $identity
+ * @property string $factorSid
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property \DateTime $dateResponded
+ * @property \DateTime $expirationDate
+ * @property string $status
+ * @property string $respondedReason
+ * @property string $details
+ * @property string $hiddenDetails
+ * @property string $factorType
+ * @property string $factorStrength
+ * @property string $url
  */
 class ChallengeInstance extends InstanceResource {
     /**
      * Initialize the ChallengeInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
      * @param string $serviceSid Service Sid.
@@ -48,7 +48,7 @@ class ChallengeInstance extends InstanceResource {
      * @param string $factorSid Factor Sid.
      * @param string $sid A string that uniquely identifies this Challenge, or
      *                    `latest`.
-     * @return \Twilio\Rest\Authy\V1\Service\Entity\Factor\ChallengeInstance 
+     * @return \Twilio\Rest\Authy\V1\Service\Entity\Factor\ChallengeInstance
      */
     public function __construct(Version $version, array $payload, $serviceSid, $identity, $factorSid, $sid = null) {
         parent::__construct($version);
@@ -65,12 +65,12 @@ class ChallengeInstance extends InstanceResource {
             'dateUpdated' => Deserialize::dateTime(Values::array_get($payload, 'date_updated')),
             'dateResponded' => Deserialize::dateTime(Values::array_get($payload, 'date_responded')),
             'expirationDate' => Deserialize::dateTime(Values::array_get($payload, 'expiration_date')),
-            'verificationSid' => Values::array_get($payload, 'verification_sid'),
             'status' => Values::array_get($payload, 'status'),
-            'reason' => Values::array_get($payload, 'reason'),
+            'respondedReason' => Values::array_get($payload, 'responded_reason'),
             'details' => Values::array_get($payload, 'details'),
             'hiddenDetails' => Values::array_get($payload, 'hidden_details'),
-            'type' => Values::array_get($payload, 'type'),
+            'factorType' => Values::array_get($payload, 'factor_type'),
+            'factorStrength' => Values::array_get($payload, 'factor_strength'),
             'url' => Values::array_get($payload, 'url'),
         );
 
@@ -85,7 +85,7 @@ class ChallengeInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Authy\V1\Service\Entity\Factor\ChallengeContext Context
      *                                                                      for
      *                                                                      this
@@ -107,7 +107,7 @@ class ChallengeInstance extends InstanceResource {
 
     /**
      * Deletes the ChallengeInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -117,7 +117,7 @@ class ChallengeInstance extends InstanceResource {
 
     /**
      * Fetch a ChallengeInstance
-     * 
+     *
      * @return ChallengeInstance Fetched ChallengeInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -127,7 +127,7 @@ class ChallengeInstance extends InstanceResource {
 
     /**
      * Update the ChallengeInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return ChallengeInstance Updated ChallengeInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -138,7 +138,7 @@ class ChallengeInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -158,7 +158,7 @@ class ChallengeInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

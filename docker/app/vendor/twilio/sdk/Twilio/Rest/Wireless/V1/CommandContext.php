@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Wireless\V1;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,10 +17,10 @@ use Twilio\Version;
 class CommandContext extends InstanceContext {
     /**
      * Initialize the CommandContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Wireless\V1\CommandContext 
+     * @param string $sid The SID that identifies the resource to fetch
+     * @return \Twilio\Rest\Wireless\V1\CommandContext
      */
     public function __construct(Version $version, $sid) {
         parent::__construct($version);
@@ -32,7 +33,7 @@ class CommandContext extends InstanceContext {
 
     /**
      * Fetch a CommandInstance
-     * 
+     *
      * @return CommandInstance Fetched CommandInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -49,8 +50,18 @@ class CommandContext extends InstanceContext {
     }
 
     /**
+     * Deletes the CommandInstance
+     *
+     * @return boolean True if delete succeeds, false otherwise
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    public function delete() {
+        return $this->version->delete('delete', $this->uri);
+    }
+
+    /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

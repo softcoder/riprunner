@@ -16,29 +16,18 @@ use Symfony\Component\DependencyInjection\ParameterBag\FrozenParameterBag;
  */
 class ProjectServiceContainer extends Container
 {
-    private $parameters;
-    private $targetDirs = array();
-
-    /**
-     * @internal but protected for BC on cache:clear
-     */
-    protected $privates = array();
+    private $parameters = [];
+    private $targetDirs = [];
 
     public function __construct()
     {
-        $this->services = $this->privates = array();
-        $this->methodMap = array(
+        $this->services = $this->privates = [];
+        $this->methodMap = [
             'App\\Bus' => 'getBusService',
             'App\\Db' => 'getDbService',
-        );
+        ];
 
-        $this->aliases = array();
-    }
-
-    public function reset()
-    {
-        $this->privates = array();
-        parent::reset();
+        $this->aliases = [];
     }
 
     public function compile()
@@ -53,7 +42,7 @@ class ProjectServiceContainer extends Container
 
     public function getRemovedIds()
     {
-        return array(
+        return [
             'App\\Handler1' => true,
             'App\\Handler2' => true,
             'App\\Processor' => true,
@@ -61,7 +50,7 @@ class ProjectServiceContainer extends Container
             'App\\Schema' => true,
             'Psr\\Container\\ContainerInterface' => true,
             'Symfony\\Component\\DependencyInjection\\ContainerInterface' => true,
-        );
+        ];
     }
 
     /**
@@ -71,19 +60,18 @@ class ProjectServiceContainer extends Container
      */
     protected function getBusService()
     {
-        $a = ($this->services['App\Db'] ?? $this->getDbService());
+        $a = ($this->services['App\\Db'] ?? $this->getDbService());
 
-        $this->services['App\Bus'] = $instance = new \App\Bus($a);
+        $this->services['App\\Bus'] = $instance = new \App\Bus($a);
 
-        $b = ($this->privates['App\Schema'] ?? $this->getSchemaService());
+        $b = ($this->privates['App\\Schema'] ?? $this->getSchemaService());
+        $c = new \App\Registry();
+        $c->processor = [0 => $a, 1 => $instance];
 
-        $d = new \App\Registry();
+        $d = new \App\Processor($c, $a);
 
-        $d->processor = array(0 => $a, 1 => $instance);
-        $c = new \App\Processor($d, $a);
-
-        $instance->handler1 = new \App\Handler1($a, $b, $c);
-        $instance->handler2 = new \App\Handler2($a, $b, $c);
+        $instance->handler1 = new \App\Handler1($a, $b, $d);
+        $instance->handler2 = new \App\Handler2($a, $b, $d);
 
         return $instance;
     }
@@ -95,9 +83,9 @@ class ProjectServiceContainer extends Container
      */
     protected function getDbService()
     {
-        $this->services['App\Db'] = $instance = new \App\Db();
+        $this->services['App\\Db'] = $instance = new \App\Db();
 
-        $instance->schema = ($this->privates['App\Schema'] ?? $this->getSchemaService());
+        $instance->schema = ($this->privates['App\\Schema'] ?? $this->getSchemaService());
 
         return $instance;
     }
@@ -109,12 +97,12 @@ class ProjectServiceContainer extends Container
      */
     protected function getSchemaService()
     {
-        $a = ($this->services['App\Db'] ?? $this->getDbService());
+        $a = ($this->services['App\\Db'] ?? $this->getDbService());
 
-        if (isset($this->privates['App\Schema'])) {
-            return $this->privates['App\Schema'];
+        if (isset($this->privates['App\\Schema'])) {
+            return $this->privates['App\\Schema'];
         }
 
-        return $this->privates['App\Schema'] = new \App\Schema($a);
+        return $this->privates['App\\Schema'] = new \App\Schema($a);
     }
 }

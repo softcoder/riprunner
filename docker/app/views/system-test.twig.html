@@ -36,7 +36,7 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php">Main Menu</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Main Menu</a></li>
                       </ul>
                     </div>
                   </li>
@@ -58,7 +58,7 @@
             <center>
             
             <button onclick="toggleVisibility('test_code');">Show/Hide Test Page</button>            
-            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/system-test-controller.php" 
+            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/system-test-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}" 
                   method="post" id="test_code" name="test_code" 
                   style="display:{% if testmenu_ctl_action_code_test is not defined or 
                                        testmenu_ctl_action_code_test == false %}none{% endif %}" >

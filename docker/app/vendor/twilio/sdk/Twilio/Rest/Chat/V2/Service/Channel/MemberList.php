@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Chat\V2\Service\Channel;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Serialize;
@@ -18,12 +19,12 @@ use Twilio\Version;
 class MemberList extends ListResource {
     /**
      * Construct the MemberList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @param string $serviceSid The unique id of the Service this member belongs
-     *                           to.
-     * @param string $channelSid The unique id of the Channel for this member.
-     * @return \Twilio\Rest\Chat\V2\Service\Channel\MemberList 
+     * @param string $serviceSid The SID of the Service that the resource is
+     *                           associated with
+     * @param string $channelSid The SID of the Channel for the member
+     * @return \Twilio\Rest\Chat\V2\Service\Channel\MemberList
      */
     public function __construct(Version $version, $serviceSid, $channelSid) {
         parent::__construct($version);
@@ -36,9 +37,9 @@ class MemberList extends ListResource {
 
     /**
      * Create a new MemberInstance
-     * 
-     * @param string $identity A unique string identifier for this User in this
-     *                         Service. See the access tokens docs for more details.
+     *
+     * @param string $identity The `identity` value that identifies the new
+     *                         resource's User
      * @param array|Options $options Optional Arguments
      * @return MemberInstance Newly created MemberInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -53,6 +54,7 @@ class MemberList extends ListResource {
             'LastConsumptionTimestamp' => Serialize::iso8601DateTime($options['lastConsumptionTimestamp']),
             'DateCreated' => Serialize::iso8601DateTime($options['dateCreated']),
             'DateUpdated' => Serialize::iso8601DateTime($options['dateUpdated']),
+            'Attributes' => $options['attributes'],
         ));
 
         $payload = $this->version->create(
@@ -77,7 +79,7 @@ class MemberList extends ListResource {
      * is reached.
      * The results are returned as a generator, so this operation is memory
      * efficient.
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @param int $limit Upper limit for the number of records to return. stream()
      *                   guarantees to never return more than limit.  Default is no
@@ -101,7 +103,7 @@ class MemberList extends ListResource {
      * Reads MemberInstance records from the API as a list.
      * Unlike stream(), this operation is eager and will load `limit` records into
      * memory before returning.
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @param int $limit Upper limit for the number of records to return. read()
      *                   guarantees to never return more than limit.  Default is no
@@ -120,7 +122,7 @@ class MemberList extends ListResource {
     /**
      * Retrieve a single page of MemberInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @param mixed $pageSize Number of records to return, defaults to 50
      * @param string $pageToken PageToken provided by the API
@@ -148,7 +150,7 @@ class MemberList extends ListResource {
     /**
      * Retrieve a specific page of MemberInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param string $targetUrl API-generated URL for the requested results page
      * @return \Twilio\Page Page of MemberInstance
      */
@@ -163,9 +165,9 @@ class MemberList extends ListResource {
 
     /**
      * Constructs a MemberContext
-     * 
-     * @param string $sid Key that uniquely defines the member to fetch.
-     * @return \Twilio\Rest\Chat\V2\Service\Channel\MemberContext 
+     *
+     * @param string $sid The SID of the Member resource to fetch
+     * @return \Twilio\Rest\Chat\V2\Service\Channel\MemberContext
      */
     public function getContext($sid) {
         return new MemberContext(
@@ -178,7 +180,7 @@ class MemberList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

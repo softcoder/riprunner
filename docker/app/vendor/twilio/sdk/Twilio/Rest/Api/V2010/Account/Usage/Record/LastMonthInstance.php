@@ -16,30 +16,31 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string accountSid
- * @property string apiVersion
- * @property string category
- * @property string count
- * @property string countUnit
- * @property string description
- * @property \DateTime endDate
- * @property string price
- * @property string priceUnit
- * @property \DateTime startDate
- * @property array subresourceUris
- * @property string uri
- * @property string usage
- * @property string usageUnit
+ * @property string $accountSid
+ * @property string $apiVersion
+ * @property string $asOf
+ * @property string $category
+ * @property string $count
+ * @property string $countUnit
+ * @property string $description
+ * @property \DateTime $endDate
+ * @property string $price
+ * @property string $priceUnit
+ * @property \DateTime $startDate
+ * @property array $subresourceUris
+ * @property string $uri
+ * @property string $usage
+ * @property string $usageUnit
  */
 class LastMonthInstance extends InstanceResource {
     /**
      * Initialize the LastMonthInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
      * @param string $accountSid A 34 character string that uniquely identifies
      *                           this resource.
-     * @return \Twilio\Rest\Api\V2010\Account\Usage\Record\LastMonthInstance 
+     * @return \Twilio\Rest\Api\V2010\Account\Usage\Record\LastMonthInstance
      */
     public function __construct(Version $version, array $payload, $accountSid) {
         parent::__construct($version);
@@ -48,6 +49,7 @@ class LastMonthInstance extends InstanceResource {
         $this->properties = array(
             'accountSid' => Values::array_get($payload, 'account_sid'),
             'apiVersion' => Values::array_get($payload, 'api_version'),
+            'asOf' => Values::array_get($payload, 'as_of'),
             'category' => Values::array_get($payload, 'category'),
             'count' => Values::array_get($payload, 'count'),
             'countUnit' => Values::array_get($payload, 'count_unit'),
@@ -67,7 +69,7 @@ class LastMonthInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -87,7 +89,7 @@ class LastMonthInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

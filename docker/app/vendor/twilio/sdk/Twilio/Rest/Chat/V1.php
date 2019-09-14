@@ -16,8 +16,8 @@ use Twilio\Rest\Chat\V1\ServiceList;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Chat\V1\CredentialList credentials
- * @property \Twilio\Rest\Chat\V1\ServiceList services
+ * @property \Twilio\Rest\Chat\V1\CredentialList $credentials
+ * @property \Twilio\Rest\Chat\V1\ServiceList $services
  * @method \Twilio\Rest\Chat\V1\CredentialContext credentials(string $sid)
  * @method \Twilio\Rest\Chat\V1\ServiceContext services(string $sid)
  */
@@ -27,7 +27,7 @@ class V1 extends Version {
 
     /**
      * Construct the V1 version of Chat
-     * 
+     *
      * @param \Twilio\Domain $domain Domain that contains the version
      * @return \Twilio\Rest\Chat\V1 V1 version of Chat
      */
@@ -37,7 +37,7 @@ class V1 extends Version {
     }
 
     /**
-     * @return \Twilio\Rest\Chat\V1\CredentialList 
+     * @return \Twilio\Rest\Chat\V1\CredentialList
      */
     protected function getCredentials() {
         if (!$this->_credentials) {
@@ -47,7 +47,7 @@ class V1 extends Version {
     }
 
     /**
-     * @return \Twilio\Rest\Chat\V1\ServiceList 
+     * @return \Twilio\Rest\Chat\V1\ServiceList
      */
     protected function getServices() {
         if (!$this->_services) {
@@ -58,10 +58,10 @@ class V1 extends Version {
 
     /**
      * Magic getter to lazy load root resources
-     * 
+     *
      * @param string $name Resource to return
      * @return \Twilio\ListResource The requested resource
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -74,11 +74,11 @@ class V1 extends Version {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -91,7 +91,7 @@ class V1 extends Version {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

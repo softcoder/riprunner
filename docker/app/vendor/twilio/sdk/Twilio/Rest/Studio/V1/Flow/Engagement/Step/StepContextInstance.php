@@ -15,23 +15,23 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string accountSid
- * @property array context
- * @property string engagementSid
- * @property string flowSid
- * @property string stepSid
- * @property string url
+ * @property string $accountSid
+ * @property array $context
+ * @property string $engagementSid
+ * @property string $flowSid
+ * @property string $stepSid
+ * @property string $url
  */
 class StepContextInstance extends InstanceResource {
     /**
      * Initialize the StepContextInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $flowSid Flow Sid.
-     * @param string $engagementSid Engagement Sid.
-     * @param string $stepSid Step Sid.
-     * @return \Twilio\Rest\Studio\V1\Flow\Engagement\Step\StepContextInstance 
+     * @param string $flowSid The SID of the Flow
+     * @param string $engagementSid The SID of the Engagement
+     * @param string $stepSid Step SID
+     * @return \Twilio\Rest\Studio\V1\Flow\Engagement\Step\StepContextInstance
      */
     public function __construct(Version $version, array $payload, $flowSid, $engagementSid, $stepSid) {
         parent::__construct($version);
@@ -56,7 +56,7 @@ class StepContextInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Studio\V1\Flow\Engagement\Step\StepContextContext Context for this StepContextInstance
      */
     protected function proxy() {
@@ -74,7 +74,7 @@ class StepContextInstance extends InstanceResource {
 
     /**
      * Fetch a StepContextInstance
-     * 
+     *
      * @return StepContextInstance Fetched StepContextInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -84,7 +84,7 @@ class StepContextInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -104,7 +104,7 @@ class StepContextInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

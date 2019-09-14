@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Notify\V1\Service;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Serialize;
@@ -21,10 +22,11 @@ use Twilio\Version;
 class NotificationList extends ListResource {
     /**
      * Construct the NotificationList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @param string $serviceSid The service_sid
-     * @return \Twilio\Rest\Notify\V1\Service\NotificationList 
+     * @param string $serviceSid The SID of the Service that the resource is
+     *                           associated with
+     * @return \Twilio\Rest\Notify\V1\Service\NotificationList
      */
     public function __construct(Version $version, $serviceSid) {
         parent::__construct($version);
@@ -37,7 +39,7 @@ class NotificationList extends ListResource {
 
     /**
      * Create a new NotificationInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return NotificationInstance Newly created NotificationInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -77,7 +79,7 @@ class NotificationList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

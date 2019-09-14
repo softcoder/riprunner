@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Preview\Understand\Assistant;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Options;
 use Twilio\Serialize;
@@ -21,10 +22,10 @@ use Twilio\Version;
 class AssistantInitiationActionsContext extends InstanceContext {
     /**
      * Initialize the AssistantInitiationActionsContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $assistantSid The assistant_sid
-     * @return \Twilio\Rest\Preview\Understand\Assistant\AssistantInitiationActionsContext 
+     * @return \Twilio\Rest\Preview\Understand\Assistant\AssistantInitiationActionsContext
      */
     public function __construct(Version $version, $assistantSid) {
         parent::__construct($version);
@@ -37,7 +38,7 @@ class AssistantInitiationActionsContext extends InstanceContext {
 
     /**
      * Fetch a AssistantInitiationActionsInstance
-     * 
+     *
      * @return AssistantInitiationActionsInstance Fetched
      *                                            AssistantInitiationActionsInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -60,7 +61,7 @@ class AssistantInitiationActionsContext extends InstanceContext {
 
     /**
      * Update the AssistantInitiationActionsInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return AssistantInitiationActionsInstance Updated
      *                                            AssistantInitiationActionsInstance
@@ -89,7 +90,7 @@ class AssistantInitiationActionsContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

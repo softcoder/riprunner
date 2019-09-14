@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
@@ -17,11 +18,11 @@ use Twilio\Version;
 class NewKeyList extends ListResource {
     /**
      * Construct the NewKeyList
-     * 
+     *
      * @param Version $version Version that contains the resource
      * @param string $accountSid A 34 character string that uniquely identifies
      *                           this resource.
-     * @return \Twilio\Rest\Api\V2010\Account\NewKeyList 
+     * @return \Twilio\Rest\Api\V2010\Account\NewKeyList
      */
     public function __construct(Version $version, $accountSid) {
         parent::__construct($version);
@@ -34,7 +35,7 @@ class NewKeyList extends ListResource {
 
     /**
      * Create a new NewKeyInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return NewKeyInstance Newly created NewKeyInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -56,7 +57,7 @@ class NewKeyList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -17,8 +17,8 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionStepList steps
- * @property \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionContextList executionContext
+ * @property \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionStepList $steps
+ * @property \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionContextList $executionContext
  * @method \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionStepContext steps(string $sid)
  * @method \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionContextContext executionContext()
  */
@@ -28,11 +28,11 @@ class ExecutionContext extends InstanceContext {
 
     /**
      * Initialize the ExecutionContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $flowSid Flow Sid.
-     * @param string $sid Execution Sid.
-     * @return \Twilio\Rest\Studio\V1\Flow\ExecutionContext 
+     * @param string $flowSid The SID of the Flow
+     * @param string $sid The SID of the Execution resource to fetch
+     * @return \Twilio\Rest\Studio\V1\Flow\ExecutionContext
      */
     public function __construct(Version $version, $flowSid, $sid) {
         parent::__construct($version);
@@ -45,7 +45,7 @@ class ExecutionContext extends InstanceContext {
 
     /**
      * Fetch a ExecutionInstance
-     * 
+     *
      * @return ExecutionInstance Fetched ExecutionInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -68,7 +68,7 @@ class ExecutionContext extends InstanceContext {
 
     /**
      * Deletes the ExecutionInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -78,8 +78,8 @@ class ExecutionContext extends InstanceContext {
 
     /**
      * Access the steps
-     * 
-     * @return \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionStepList 
+     *
+     * @return \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionStepList
      */
     protected function getSteps() {
         if (!$this->_steps) {
@@ -95,8 +95,8 @@ class ExecutionContext extends InstanceContext {
 
     /**
      * Access the executionContext
-     * 
-     * @return \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionContextList 
+     *
+     * @return \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionContextList
      */
     protected function getExecutionContext() {
         if (!$this->_executionContext) {
@@ -112,10 +112,10 @@ class ExecutionContext extends InstanceContext {
 
     /**
      * Magic getter to lazy load subresources
-     * 
+     *
      * @param string $name Subresource to return
      * @return \Twilio\ListResource The requested subresource
-     * @throws \Twilio\Exceptions\TwilioException For unknown subresources
+     * @throws TwilioException For unknown subresources
      */
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
@@ -128,11 +128,11 @@ class ExecutionContext extends InstanceContext {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -145,7 +145,7 @@ class ExecutionContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Taskrouter\V1\Workspace;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Options;
 use Twilio\Serialize;
@@ -18,10 +19,10 @@ use Twilio\Version;
 class WorkspaceStatisticsContext extends InstanceContext {
     /**
      * Initialize the WorkspaceStatisticsContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $workspaceSid The workspace_sid
-     * @return \Twilio\Rest\Taskrouter\V1\Workspace\WorkspaceStatisticsContext 
+     * @return \Twilio\Rest\Taskrouter\V1\Workspace\WorkspaceStatisticsContext
      */
     public function __construct(Version $version, $workspaceSid) {
         parent::__construct($version);
@@ -34,7 +35,7 @@ class WorkspaceStatisticsContext extends InstanceContext {
 
     /**
      * Fetch a WorkspaceStatisticsInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return WorkspaceStatisticsInstance Fetched WorkspaceStatisticsInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -61,7 +62,7 @@ class WorkspaceStatisticsContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

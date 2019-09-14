@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Messaging\V1\Service;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -19,11 +20,11 @@ use Twilio\Version;
 class PhoneNumberContext extends InstanceContext {
     /**
      * Initialize the PhoneNumberContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $serviceSid The service_sid
      * @param string $sid The sid
-     * @return \Twilio\Rest\Messaging\V1\Service\PhoneNumberContext 
+     * @return \Twilio\Rest\Messaging\V1\Service\PhoneNumberContext
      */
     public function __construct(Version $version, $serviceSid, $sid) {
         parent::__construct($version);
@@ -36,7 +37,7 @@ class PhoneNumberContext extends InstanceContext {
 
     /**
      * Deletes the PhoneNumberInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -46,7 +47,7 @@ class PhoneNumberContext extends InstanceContext {
 
     /**
      * Fetch a PhoneNumberInstance
-     * 
+     *
      * @return PhoneNumberInstance Fetched PhoneNumberInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -69,7 +70,7 @@ class PhoneNumberContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

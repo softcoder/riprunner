@@ -14,8 +14,8 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Fax\V1;
 
 /**
- * @property \Twilio\Rest\Fax\V1 v1
- * @property \Twilio\Rest\Fax\V1\FaxList faxes
+ * @property \Twilio\Rest\Fax\V1 $v1
+ * @property \Twilio\Rest\Fax\V1\FaxList $faxes
  * @method \Twilio\Rest\Fax\V1\FaxContext faxes(string $sid)
  */
 class Fax extends Domain {
@@ -23,7 +23,7 @@ class Fax extends Domain {
 
     /**
      * Construct the Fax Domain
-     * 
+     *
      * @param \Twilio\Rest\Client $client Twilio\Rest\Client to communicate with
      *                                    Twilio
      * @return \Twilio\Rest\Fax Domain for Fax
@@ -46,10 +46,10 @@ class Fax extends Domain {
 
     /**
      * Magic getter to lazy load version
-     * 
+     *
      * @param string $name Version to return
      * @return \Twilio\Version The requested version
-     * @throws \Twilio\Exceptions\TwilioException For unknown versions
+     * @throws TwilioException For unknown versions
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -62,11 +62,11 @@ class Fax extends Domain {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $method = 'context' . ucfirst($name);
@@ -78,15 +78,15 @@ class Fax extends Domain {
     }
 
     /**
-     * @return \Twilio\Rest\Fax\V1\FaxList 
+     * @return \Twilio\Rest\Fax\V1\FaxList
      */
     protected function getFaxes() {
         return $this->v1->faxes;
     }
 
     /**
-     * @param string $sid A string that uniquely identifies this fax.
-     * @return \Twilio\Rest\Fax\V1\FaxContext 
+     * @param string $sid The unique string that identifies the resource
+     * @return \Twilio\Rest\Fax\V1\FaxContext
      */
     protected function contextFaxes($sid) {
         return $this->v1->faxes($sid);
@@ -94,7 +94,7 @@ class Fax extends Domain {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

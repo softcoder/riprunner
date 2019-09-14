@@ -26,11 +26,12 @@ class ApplicationTest extends BaseTestCase
         $this->mock(new PlivoResponse($request,201, $body));
 
         $actual = $this->client->applications->create('app');
+
         $this->assertRequest($request);
 
         self::assertNotNull($actual);
-
-        self::assertEquals($actual->message, "created");
+        
+        self::assertEquals($actual->_message, "created");
         self::assertEquals($actual->appId, "20468599130939380");
         self::assertEquals($actual->apiId, "99f9d6f6-3f08-11e7-9fd1-06660ad2b8e6");
     }

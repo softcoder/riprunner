@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Sync\V1\Service\SyncStream;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Serialize;
 use Twilio\Values;
@@ -20,11 +21,12 @@ use Twilio\Version;
 class StreamMessageList extends ListResource {
     /**
      * Construct the StreamMessageList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @param string $serviceSid Service Instance SID.
-     * @param string $streamSid Stream SID.
-     * @return \Twilio\Rest\Sync\V1\Service\SyncStream\StreamMessageList 
+     * @param string $serviceSid The SID of the Sync Service that the resource is
+     *                           associated with
+     * @param string $streamSid The unique string that identifies the resource
+     * @return \Twilio\Rest\Sync\V1\Service\SyncStream\StreamMessageList
      */
     public function __construct(Version $version, $serviceSid, $streamSid) {
         parent::__construct($version);
@@ -37,8 +39,9 @@ class StreamMessageList extends ListResource {
 
     /**
      * Create a new StreamMessageInstance
-     * 
-     * @param array $data Stream Message body.
+     *
+     * @param array $data A JSON string that represents an arbitrary, schema-less
+     *                    object that makes up the Stream Message body
      * @return StreamMessageInstance Newly created StreamMessageInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -62,7 +65,7 @@ class StreamMessageList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

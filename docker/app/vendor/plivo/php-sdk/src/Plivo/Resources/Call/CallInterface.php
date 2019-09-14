@@ -3,6 +3,7 @@
 namespace Plivo\Resources\Call;
 
 use Plivo\Exceptions\PlivoValidationException;
+use Plivo\Exceptions\PlivoResponseException;
 use Plivo\BaseClient;
 use Plivo\Resources\ResourceInterface;
 use Plivo\Resources\ResourceList;
@@ -65,8 +66,8 @@ class CallInterface extends ResourceInterface
      *   + [string] parent_call_uuid - The call_uuid of the first leg in an ongoing conference call. It is recommended to use this parameter in scenarios where a member who is already present in the conference intends to add new members by initiating outbound API calls. This minimizes the delay in adding a new memeber to the conference.
      *   + [boolean] error_parent_not_found - if set to true and the parent_call_uuid cannot be found, the API request would return an error. If set to false, the outbound call API request will be executed even if the parent_call_uuid is not found. Defaults to false.
 
-     * @return CallCreateResponse
-     * @throws PlivoValidationException
+     * @return JSON output
+     * @throws PlivoValidationException,PlivoResponseException
      */
     public function create($from, array $to, $answerUrl, $answerMethod,
                            array $optionalArgs = [])
@@ -94,12 +95,24 @@ class CallInterface extends ResourceInterface
         );
 
         $responseContents = $response->getContent();
+        if(!array_key_exists("error",$responseContents)){
+            return new CallCreateResponse(
+                $responseContents['api_id'],
+                $responseContents['message'],
+                $responseContents['request_uuid'],
+                $response->getStatusCode()
+            );
+        } else {
+            throw new PlivoResponseException(
+                $responseContents['error'],
+                0,
+                null,
+                $response->getContent(),
+                $response->getStatusCode()
 
-        return new CallCreateResponse(
-            $responseContents['api_id'],
-            $responseContents['message'],
-            $responseContents['request_uuid']
-        );
+            );
+        }
+        
     }
 
     /**
@@ -226,7 +239,6 @@ class CallInterface extends ResourceInterface
 
             array_push($calls, $newCall);
         }
-
         return
             new CallList(
                 $this->client,
@@ -350,10 +362,24 @@ class CallInterface extends ResourceInterface
 
         $responseContents = $response->getContent();
 
-        return new ResponseUpdate(
-            $responseContents['api_id'],
-            $responseContents['message']
-        );
+        if(!array_key_exists("error",$responseContents)){
+            return new ResponseUpdate(
+                $responseContents['api_id'],
+                $responseContents['message'],
+                $response->getStatusCode()
+            );
+        } else {
+            throw new PlivoResponseException(
+                $responseContents['error'],
+                0,
+                null,
+                $response->getContent(),
+                $response->getStatusCode()
+
+            );
+        }
+
+        
     }
     
     /**
@@ -429,12 +455,26 @@ class CallInterface extends ResourceInterface
 
         $responseContents = $response->getContent();
 
-        return new CallRecording(
-            $responseContents['url'],
-            $responseContents['api_id'],
-            $responseContents['recording_id'],
-            $responseContents['message']
-        );
+        if(!array_key_exists("error",$responseContents)){
+            return new CallRecording(
+                $responseContents['url'],
+                $responseContents['api_id'],
+                $responseContents['recording_id'],
+                $responseContents['message'],
+                $response->getStatusCode()
+            );
+        } else {
+            throw new PlivoResponseException(
+                $responseContents['error'],
+                0,
+                null,
+                $response->getContent(),
+                $response->getStatusCode()
+
+            );
+        }
+
+        
     }
     
     /**
@@ -513,10 +553,24 @@ class CallInterface extends ResourceInterface
 
         $responseContents = $response->getContent();
 
-        return new ResponseUpdate(
-            $responseContents['api_id'],
-            $responseContents['message']
-        );
+        if(!array_key_exists("error",$responseContents)){
+            return new ResponseUpdate(
+                $responseContents['api_id'],
+                $responseContents['message'],
+                $response->getStatusCode()
+            );
+        } else {
+            throw new PlivoResponseException(
+                $responseContents['error'],
+                0,
+                null,
+                $response->getContent(),
+                $response->getStatusCode()
+
+            );
+        }
+
+        
     }
 
     /**
@@ -591,10 +645,22 @@ class CallInterface extends ResourceInterface
 
         $responseContents = $response->getContent();
 
-        return new ResponseUpdate(
-            $responseContents['api_id'],
-            $responseContents['message']
-        );
+        if(!array_key_exists("error",$responseContents)){
+            return new ResponseUpdate(
+                $responseContents['api_id'],
+                $responseContents['message'],
+                $response->getStatusCode()
+            );
+        } else {
+            throw new PlivoResponseException(
+                $responseContents['error'],
+                0,
+                null,
+                $response->getContent(),
+                $response->getStatusCode()
+
+            );
+        }
     }
 
     /**
@@ -647,10 +713,22 @@ class CallInterface extends ResourceInterface
 
         $responseContents = $response->getContent();
 
-        return new ResponseUpdate(
-            $responseContents['api_id'],
-            $responseContents['message']
-        );
+        if(!array_key_exists("error",$responseContents)){
+            return new ResponseUpdate(
+                $responseContents['api_id'],
+                $responseContents['message'],
+                $response->getStatusCode()
+            );
+        } else {
+            throw new PlivoResponseException(
+                $responseContents['error'],
+                0,
+                null,
+                $response->getContent(),
+                $response->getStatusCode()
+
+            );
+        }
     }
     
     /**

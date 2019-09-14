@@ -18,18 +18,19 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Api\V2010\Account\Address\DependentPhoneNumberList dependentPhoneNumbers
+ * @property \Twilio\Rest\Api\V2010\Account\Address\DependentPhoneNumberList $dependentPhoneNumbers
  */
 class AddressContext extends InstanceContext {
     protected $_dependentPhoneNumbers = null;
 
     /**
      * Initialize the AddressContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $accountSid The account_sid
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Api\V2010\Account\AddressContext 
+     * @param string $accountSid The SID of the Account that is responsible for
+     *                           this address
+     * @param string $sid The unique string that identifies the resource
+     * @return \Twilio\Rest\Api\V2010\Account\AddressContext
      */
     public function __construct(Version $version, $accountSid, $sid) {
         parent::__construct($version);
@@ -42,7 +43,7 @@ class AddressContext extends InstanceContext {
 
     /**
      * Deletes the AddressInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -52,7 +53,7 @@ class AddressContext extends InstanceContext {
 
     /**
      * Fetch a AddressInstance
-     * 
+     *
      * @return AddressInstance Fetched AddressInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -75,7 +76,7 @@ class AddressContext extends InstanceContext {
 
     /**
      * Update the AddressInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return AddressInstance Updated AddressInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -111,8 +112,8 @@ class AddressContext extends InstanceContext {
 
     /**
      * Access the dependentPhoneNumbers
-     * 
-     * @return \Twilio\Rest\Api\V2010\Account\Address\DependentPhoneNumberList 
+     *
+     * @return \Twilio\Rest\Api\V2010\Account\Address\DependentPhoneNumberList
      */
     protected function getDependentPhoneNumbers() {
         if (!$this->_dependentPhoneNumbers) {
@@ -128,10 +129,10 @@ class AddressContext extends InstanceContext {
 
     /**
      * Magic getter to lazy load subresources
-     * 
+     *
      * @param string $name Subresource to return
      * @return \Twilio\ListResource The requested subresource
-     * @throws \Twilio\Exceptions\TwilioException For unknown subresources
+     * @throws TwilioException For unknown subresources
      */
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
@@ -144,11 +145,11 @@ class AddressContext extends InstanceContext {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -161,7 +162,7 @@ class AddressContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

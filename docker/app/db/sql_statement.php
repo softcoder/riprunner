@@ -73,10 +73,12 @@ class SqlStatement {
         if($pdo_schema_file !== null && $pdo_schema_file !== '') {
             $sql_filename = $this->getRootPath().'/'.$pdo_schema_file;
             if(file_exists($sql_filename) === true) {
+                //print('#1 InstallSchema: '.$sql_filename.PHP_EOL);
                 return $this->import_sql_file($sql_filename);
             }
         }
         $sql_filename = $this->getRootPath().'/'.$this->getDefaultSchemaFile();
+        //print('#2 InstallSchema: '.$sql_filename.PHP_EOL);
         return $this->import_sql_file($sql_filename);
     }
     

@@ -29,6 +29,9 @@ class Authentication {
     private $firehall = null;
     private $db_connection = null;
     private $sql_statement = null;
+    private $GET_FILE_CONTENTS_FUNC;
+	private $request_variables;
+	private $server_variables;
     
     /*
     	Constructor
@@ -44,12 +47,29 @@ class Authentication {
         else {
             $this->db_connection = $db_connection;
         }
-        // Static methods trigger constructor
-//     	if(isset($this->firehall) === false || isset($db_connection) === false) {
-//     		throwExceptionAndLogError('Firehall and/or db is not set!', 'Firehall and/or db is not set!');
-//     	}
     }
-    
+
+    public function setFileContentsFunc($func) {
+        $this->GET_FILE_CONTENTS_FUNC = $func;
+    }
+    public function setRequestVars($vars) {
+        $this->request_variables = $vars;
+    }
+    public function setServerVars($vars) {
+        $this->server_variables = $vars;
+    }
+
+	private function file_get_contents(string $url) {
+		if($this->GET_FILE_CONTENTS_FUNC != null) {
+			$cb = $this->GET_FILE_CONTENTS_FUNC;
+			return $cb($url);
+		}
+		else if(empty($_POST)) {
+			return file_get_contents($url);
+		}
+		return null;
+	}
+
     static public function is_session_started() {
         return (isset($_SESSION) === true);
     }
@@ -103,20 +123,20 @@ class Authentication {
     
     static public function getClientIPInfo() {
         $ip_address = '';
-        if (empty($_SERVER['HTTP_CLIENT_IP']) === false) {
-            $ip_address .= 'HTTP_CLIENT_IP: '.htmlspecialchars($_SERVER['HTTP_CLIENT_IP']);
+        if (empty(getServerVar('HTTP_CLIENT_IP')) === false) {
+            $ip_address .= 'HTTP_CLIENT_IP: '.htmlspecialchars(getServerVar('HTTP_CLIENT_IP'));
         }
-        if (empty($_SERVER['HTTP_X_FORWARDED_FOR']) === false) {
+        if (empty(getServerVar('HTTP_X_FORWARDED_FOR')) === false) {
             if (empty($ip_address) === false) {
                 $ip_address .= ' ';
             }
-            $ip_address .= 'HTTP_X_FORWARDED_FOR: '.htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']);
+            $ip_address .= 'HTTP_X_FORWARDED_FOR: '.htmlspecialchars(getServerVar('HTTP_X_FORWARDED_FOR'));
         }
-        if (empty($_SERVER['REMOTE_ADDR']) === false) {
+        if (empty(getServerVar('REMOTE_ADDR')) === false) {
             if (empty($ip_address) === false) {
                 $ip_address .= ' ';
             }
-            $ip_address .= 'REMOTE_ADDR: '.htmlspecialchars($_SERVER['REMOTE_ADDR']);
+            $ip_address .= 'REMOTE_ADDR: '.htmlspecialchars(getServerVar('REMOTE_ADDR'));
         }
         return $ip_address;
     }
@@ -192,25 +212,39 @@ class Authentication {
         }
         return $userType;
     }
-    
+
+	private function getJSONLogin($request_method) {
+		global $log;
+		$json = null;
+		$jsonObject = null;
+		if ($request_method != null && $request_method == 'POST') {
+			$json = $this->file_get_contents('php://input');
+		}
+		if($json != null && strlen($json) > 0) {
+			$jsonObject = json_decode($json);
+			if(json_last_error() != JSON_ERROR_NONE) {
+				$jsonObject = null;
+			}
+			if($log) $log->trace("process_login found request method: ".$request_method." request: ".$json);
+		}
+		return $jsonObject;
+	}
+
     public function login($user_id, $password) {
         global $log;
         if($log !== null) $log->trace("Login attempt for user [$user_id] fhid [" . 
                 $this->getFirehall()->FIREHALL_ID . "] client [" . self::getClientIPInfo() . "]");
     
+        $loginResult = [];
         $isAngularClient = false;
         if($log !== null) $log->trace("Login check request method: ".$this->getServerVar('REQUEST_METHOD'));
-        if($this->getServerVar('REQUEST_METHOD') == 'POST' && empty($_POST)) {
-            $json = file_get_contents('php://input');
-            if($json != null && strlen($json) > 0) {
-                if($log !== null) $log->trace("Login found request method: ".$this->getServerVar('REQUEST_METHOD')." request: ".$json);
-                $request = json_decode($json);
-                if(json_last_error() == JSON_ERROR_NONE) {
-                    $isAngularClient = true;
-                    $password = \base64_decode($password);
-                }
-            }
+
+        $jsonObject = $this->getJSONLogin($this->getServerVar('REQUEST_METHOD'));
+        if($jsonObject != null) {
+            $isAngularClient = true;
+            $password = \base64_decode($password);
         }
+        if($log !== null) $log->trace("Login check isAngularClient: ".$isAngularClient);
         
         if($this->getFirehall()->LDAP->ENABLED === true) {
             return login_ldap($this->getFirehall(), $user_id, $password);
@@ -229,15 +263,13 @@ class Authentication {
             $stmt->closeCursor();
     
             if($row !== null && $row !== false) {
-                $dbId = $row->id;
+
+                $dbId       = $row->id;
                 $FirehallId = $row->firehall_id;
-                $userId = $row->user_id;
-                $userPwd = $row->user_pwd;
+                $userId     = $row->user_id;
+                $userPwd    = $row->user_pwd;
                 $userAccess = $row->access;
-                $userType = $row->user_type;
-    
-                // hash the password with the unique salt.
-                //$password = hash('sha512', $password . $salt);
+                $userType   = $row->user_type;
     
                 // If the user exists we check if the account is locked
                 // from too many login attempts
@@ -245,19 +277,13 @@ class Authentication {
                     // Account is locked
                     // Send an email to user saying their account is locked
                     if($log !== null) $log->error("LOGIN-F1");
-                    @session_destroy();
-                    return false;
                 }
                 else {
-                    // Check if the password in the database matches
-                    // the password the user submitted.
-                    //$password = hash('sha512', $password);
-    
                     if (crypt($password, $userPwd) === $userPwd ) {
                         // Password is correct!
                         // Get the user-agent string of the user.
-                        if(isset($_SERVER['HTTP_USER_AGENT']) === true) {
-                            $user_browser = htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
+                        if(getServerVar('HTTP_USER_AGENT') != null) {
+                            $user_browser = htmlspecialchars(getServerVar('HTTP_USER_AGENT'));
                         }
                         else {
                             $user_browser = 'UNKNONW user agent.';
@@ -265,31 +291,24 @@ class Authentication {
                          
                         $config = new \riprunner\ConfigManager();
                         if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
-                            if($log !== null) $log->warn("Login audit for user [$user_id] userid [$dbId] firehallid [$FirehallId] agent [$user_browser] client [" . self::getClientIPInfo() . "]");
+                            if($log !== null) $log->warn("Login audit for user [$user_id] userid [$dbId] firehallid [$FirehallId] agent [$user_browser] client [" . self::getClientIPInfo() . "] isAngularClient: ".var_export($isAngularClient,true));
                         }
-                        // XSS protection as we might print this value
-                        //$user_id = preg_replace("/[^0-9]+/", "", $user_id);
-                        $_SESSION['user_db_id'] = $dbId;
-                        // XSS protection as we might print this value
-                        //$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
-                        $_SESSION['user_id'] = $userId;
-                        $_SESSION['user_type'] = $userType;
-                        $_SESSION['login_string'] = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $userPwd . $user_browser);
-                        $_SESSION['firehall_id'] = $FirehallId;
-                        $_SESSION['ldap_enabled'] = false;
-                        $_SESSION['user_access'] = $userAccess;
-                        $_SESSION['user_jwt'] = false;
-                        if ($isAngularClient == true) {
-                            $_SESSION['user_jwt'] = true;
-                        }
-                        if($log !== null) $log->trace("process_login JWT user status: ".$_SESSION['user_jwt']);
+
+                        $loginResult['user_db_id']      = $dbId;
+                        $loginResult['user_id']         = $userId;
+                        $loginResult['user_type']       = $userType;
+                        $loginResult['login_string']    = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $userPwd . $user_browser);
+                        $loginResult['firehall_id']     = $FirehallId;
+                        $loginResult['ldap_enabled']    = false;
+                        $loginResult['user_access']     = $userAccess;
+                        $loginResult['user_jwt']        = $isAngularClient;
                         
                         \riprunner\CalloutStatusType::getStatusList($this->getFirehall());
                         
                         if($log !== null) $log->trace('Login OK pwd check crypt($password, $userPwd) ['.crypt($password, $userPwd).'] $userPwd ['.$userPwd.']');
                         
                         // Login successful.
-                        return true;
+                        return $loginResult;
                     }
                     else {
                         // Password is not correct
@@ -303,52 +322,166 @@ class Authentication {
                         $qry_bind->execute();
 
                         if($log !== null) $log->error('Login FAILED pwd check crypt($password, $userPwd) ['.crypt($password, $userPwd).'] $userPwd ['.$userPwd.']');
-                        
-                        
                         if($log !== null) $log->trace("LOGIN-F2");
-                        @session_destroy();
-                        return false;
                     }
                 }
             }
             else {
                 // No user exists.
                 if($log !== null) $log->warn("Login attempt for user [$user_id] FAILED uid check for client [" . self::getClientIPInfo() . "]");
-                 
                 if($log !== null) $log->trace("LOGIN-F3");
-                @session_destroy();
-                return false;
             }
         }
         @session_destroy();
-        return false;
+        return $loginResult;
     }
     
     private function getServerVar($key) {
-        if($_SERVER !== null && array_key_exists($key, $_SERVER) === true) {
-            return $_SERVER[$key];
+        return getServerVar($key, $this->server_variables);
+    }
+
+    static public function getJWTToken($request_variables=null, $server_variables=null) {
+        global $log;
+
+        $token = getServerVar('HTTP_JWT_TOKEN', $server_variables);
+        if($log !== null) $log->trace("getJWTToken #1 check srv token [$token]");
+
+        if($token == null) {
+            $token = getSafeRequestValue('JWT_TOKEN', $request_variables);
+            if($log !== null) $log->trace("getJWTToken #2 check req token [$token]");
+        }
+        if ($token != null && strlen($token)) {
+            return $token;
+        }
+        else {
+            if($log !== null) $log->trace("In getJWTToken SERVER vars [".print_r($_SERVER, TRUE)."]");
+            if($log !== null) $log->trace("In getJWTToken REQ vars [".print_r(array_merge($_GET, $_POST), TRUE)."]");
         }
         return null;
     }
-    
+
+    static public function deployJWTToken($request_variables=null, $server_variables=null) {
+        global $log;
+
+        $token = self::getJWTToken($request_variables,$server_variables);
+        if ($token != null && strlen($token)) {
+            header('JWT_TOKEN: '.$token);
+        }
+    }
+
+    static private function decodeJWTToken($request_variables=null, $server_variables=null) {
+        global $log;
+
+        $token = getServerVar('HTTP_JWT_TOKEN', $server_variables);
+        if($log !== null) $log->trace("decodeJWTToken #1 check token [$token]");
+
+        if($token == null) {
+            $token = getSafeRequestValue('JWT_TOKEN', $request_variables);
+            if($log !== null) $log->trace("decodeJWTToken #2 check req token [$token]");
+        }
+
+        if($token != null && strlen($token)) {
+            $token = JWT::decode($token, JWT_KEY, array('HS256'));
+            if($log !== null) $log->trace("decodeJWTToken check token decode [" . json_encode($token). "]");
+            
+            if ($token == false) {
+                if($log !== null) $log->error("decodeJWTToken check jwt token decode FAILED!");
+                return null;
+            }
+            return $token;
+        }
+        return null;
+    }
+
+    static public function getJWTAuthCache($request_variables=null, $server_variables=null) {
+        global $log;
+        $authCache = [];
+
+        $token = self::decodeJWTToken($request_variables, $server_variables);
+        if($token != null) {
+            $authCache['firehall_id'] = $token->fhid;
+
+            //if($log !== null) $log->warn("In getJWTAuthCache acl [".$token->acl."]");
+            if(isset($token->acl) && strlen($token->acl)) {
+                $jsonObject = json_decode($token->acl);
+                $authCache['user_access'] = $jsonObject->access;
+                $authCache['user_role']   = $jsonObject->role;
+            }
+            $authCache['user_id']    = $token->username;
+            $authCache['user_type']  = $token->usertype;
+            $authCache['login_string']  = $token->login_string;
+            $authCache['user_db_id'] = $token->id;
+            //if($log !== null) $log->warn("In getJWTAuthCache authCache vars [".print_r($authCache, TRUE)."]");
+        }
+        return $authCache;
+    }
+
+    static public function getAuthVar($key, $request_variables=null, $server_variables=null) {
+
+        $authCache = self::getJWTAuthCache($request_variables, $server_variables);
+        if($authCache != null && count($authCache) > 0) {
+            if (isset($authCache[$key]) == true) {
+                return $authCache[$key];
+            }
+        }
+        if (isset($_SESSION)) {
+            if (isset($_SESSION[$key]) == true) {
+                return $_SESSION[$key];
+            }
+        }
+        return null;
+    }
+
+    static private function getAuthCacheList($request_variables) {
+        global $log;
+        // Read from request the JWT info
+        $authCache = self::getJWTAuthCache($request_variables);
+        if($log !== null) $log->trace("In getAuthCacheList authCache vars [".print_r($authCache, TRUE)."]");
+
+        $sessionless = getSafeRequestValue('SESSIONLESS_LOGIN',$request_variables);
+        if($sessionless == null || $sessionless == false) {
+            if(isset($_SESSION)) {
+                foreach ($_SESSION as $key => $value) {
+                    $authCache[$key] = $value;
+                }
+            }
+        }
+        return $authCache;        
+    }
+
+    private function getAuthCache() {
+        return self::getAuthCacheList($this->request_variables);
+    }
+
+    static public function safeGetValueFromArray($key, $array) {
+        return (array_key_exists($key,$array) ? $array[$key] : null);
+    }
+
     public function login_check() {
         global $log;
-    
-        // Check if all session variables are set
-        if (isset($_SESSION['user_db_id'],$_SESSION['user_id'],
-                $_SESSION['login_string']) === true) {
 
-            $user_id = $_SESSION['user_db_id'];
-            $login_string = $_SESSION['login_string'];
-            //$username = $_SESSION['user_id'];
-            $firehall_id = $_SESSION['firehall_id'];
+        $authCache = $this->getAuthCache();
+
+        $jwtEnabled = self::safeGetValueFromArray('user_jwt',$authCache);
+        if($log !== null) $log->trace("login_check jwtEnabled [" . $jwtEnabled. "] for session [".session_id()."]");
+
+        // Check if all variables are set
+        if (self::safeGetValueFromArray('user_db_id',$authCache) != null &&
+            self::safeGetValueFromArray('user_id',$authCache) != null &&
+            self::safeGetValueFromArray('login_string',$authCache) != null) {
+
+            $user_id = self::safeGetValueFromArray('user_db_id',$authCache);
+            $login_string = self::safeGetValueFromArray('login_string',$authCache);
+            //$username = self::safeGetValueFromArray('user_id',$authCache)
+            $firehall_id = self::safeGetValueFromArray('firehall_id',$authCache);
             	
-            $ldap_enabled = $_SESSION['ldap_enabled'];
+            $ldap_enabled = self::safeGetValueFromArray('ldap_enabled',$authCache);
 
             // Get the user-agent string of the user.
-            $user_browser = htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
+            $user_browser = htmlspecialchars(getServerVar('HTTP_USER_AGENT'));
 
-            if($this->validateJWT() == false) {
+            if($this->validateJWT($authCache) == false) {
+                if($log !== null) $log->warn("login_check validateJWT false for session [".session_id()."]");
                 return false;
             }
             
@@ -399,23 +532,21 @@ class Authentication {
             }
         }
         else {
-            // Not logged in
-            //if($this->is_session_started() === true) {
-            //    if($log !== null) $log->warn("Login check has no valid session! client [" . self::getClientIPInfo() . "] db userid: " .
-            //            @$_SESSION['user_db_id'] .
-            //            " userid: " . @$_SESSION['user_id'] . " login_String: " . @$_SESSION['login_string']);
-    
-                //if($log !== null) $log->error("LOGINCHECK F4");
-            //}
+            if($log !== null) $log->trace("login_check vars not set for session [".session_id()."]");
             return false;
         }
     }
 
-    public function getCurrentUserRoleJSon() {
+    public function getCurrentUserRoleJSon($authCache=null) {
         global $log;
         
         $jsonRole = null;
-        $userType = $_SESSION['user_type'];
+        if ($authCache == null) {
+            $authCache = $this->getAuthCache();
+        }
+        $userType = self::safeGetValueFromArray('user_type',$authCache);
+        if($log) $log->trace("In getCurrentUserRoleJSon userType [$userType]");
+
         if($userType != null && $this->hasDbConnection() === true) {
             if($this->getFirehall()->LDAP->ENABLED === true) {
                 create_temp_users_table_for_ldap($this->getFirehall(), $this->getDbConnection());
@@ -435,7 +566,10 @@ class Authentication {
                 // Add any custom fields with values here
                 //$resultArray[] = $row;
                 if($userType == $row->id) {
-                    $jsonRole = json_encode(array('role' => $row->name, 'access' => $_SESSION['user_access']), JSON_FORCE_OBJECT);
+                    $jsonRole = json_encode(
+                        array(  'role' => $row->name, 
+                                'access' => self::safeGetValueFromArray('user_access',$authCache)),
+                                JSON_FORCE_OBJECT);
                     break;
                 }
             }
@@ -443,12 +577,13 @@ class Authentication {
         return $jsonRole;
     }
     
-    private function validateJWT() {
+    private function validateJWT($authCache) {
         global $log;
 
-        $jwtEnabled = $_SESSION['user_jwt'];
-        if($log !== null) $log->trace("Login check jwtEnabled [" . $jwtEnabled. "] for session [".session_id()."]");
-        if($jwtEnabled) {
+        $jwtEnabled = self::safeGetValueFromArray('user_jwt',$authCache);
+        if($log !== null) $log->trace("validateJWT jwtEnabled [" . $jwtEnabled. "] for session [".session_id()."]");
+
+        if($jwtEnabled != null && $jwtEnabled == true) {
 //             while (list($var,$value) = each ($_SERVER)) {
 //                 if($log !== null) $log->warn("Login check headers are: name [$var] => value [$value]");
 //             }
@@ -468,14 +603,19 @@ class Authentication {
                     if($log !== null) $log->error("Login check jwt token decode FAILED!");
                     return false;
                 }
-                else if ($token->id != $_SESSION['user_db_id']) {
-                    if($log !== null) $log->error("Login check jwt token mismatch FAILURE!");
-                    return false;
-                }
+                //else if ($token->id != self::safeGetValueFromArray('user_db_id',$authCache)) {
+                //    if($log !== null) $log->error("Login check jwt token mismatch FAILURE!");
+                //    return false;
+                //}
                 
                 $token_handoff = \getSafeRequestValue('JWT_TOKEN_HANDOFF');
                 if($token_handoff != null) {
-                    $_SESSION['user_jwt'] = false;
+                    $authCache['user_jwt'] = false;
+                    $sessionless = getSafeRequestValue('SESSIONLESS_LOGIN',$this->request_variables);
+                    if($sessionless == null || $sessionless == false) {
+                        $_SESSION['user_jwt'] = false;
+                    }
+                                
                     if($log !== null) $log->warn("Login check jwt handoff success!");
                 }
             }
@@ -487,8 +627,13 @@ class Authentication {
         return true;
     }
     
-    static public function userHasAcess($access_flag) {
-        return (isset($_SESSION['user_access']) && ($_SESSION['user_access'] & $access_flag));
+    static public function userHasAcess($access_flag, $request_variables=null) {
+        global $log;
+        $authCache = self::getAuthCacheList($request_variables);
+        $user_access = self::safeGetValueFromArray('user_access',$authCache);
+        //if($log !== null) $log->warn("In userHasAcess: $user_access access_flag: $access_flag authCache vars [".print_r($authCache, TRUE)."]");
+
+        return ($user_access != null && ($user_access & $access_flag));
     }
     
     static public function userHasAcessValueDB($value, $access_flag) {

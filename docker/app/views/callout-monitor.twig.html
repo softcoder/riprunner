@@ -153,7 +153,7 @@
                 <input type="radio" name="verticalMenu" id="main_page" />
                 <div>
                   <ul>
-                    <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php" onclick="javascript:closeConnection(); return true;">Main Menu</a></li>
+                    <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}" onclick="javascript:closeConnection(); return true;">Main Menu</a></li>
                   </ul>
                 </div>
               </li>
@@ -254,7 +254,7 @@ function signalPage(callout_url) {
 
 // sends messages with text/event-stream mimetype.
 {% set authSpecialParams = (gvm.auth.hasAuthSpecialToken ? '&ast=' ~ callout_monitor_ast ~ '&fhid=' ~ callout_monitor_fhid ~ '&member_id=' ~ callout_monitor_member_id : '') %}
-var source = new EventSource('{{ gvm.RR_DOC_ROOT }}/controllers/callout-monitor-controller.php?server_mode=true{{ authSpecialParams|raw }}');
+var source = new EventSource('{{ gvm.RR_DOC_ROOT }}/controllers/callout-monitor-controller.php?server_mode=true{{ authSpecialParams|raw }}&{{ gvm.RR_JWT_TOKEN_PARAM }}');
 console.info('Will try to connect to url: ' + source.url);
 
 function Logger(id) {
@@ -324,7 +324,7 @@ source.addEventListener('message', function(event) {
 
 		  {% set authSpecialParams_trigger = (gvm.auth.hasAuthSpecialToken ? '&member_id=' ~ callout_monitor_member_id : '') %}
 	      var callout_url = "{{ gvm.RR_DOC_ROOT }}/ci/fhid={{ gvm.firehall.FIREHALL_ID }}&cid=" + data.id + 
-	                        "&ckid=" + data.keyid + '{{ authSpecialParams_trigger|raw }}';
+	                        "&ckid=" + data.keyid + '{{ authSpecialParams_trigger|raw }}&{{ gvm.RR_JWT_TOKEN_PARAM }}';
 	      // callout_url += "&member_id={{ gvm.auth.user_id }}"
 		  
 	      signalPage(callout_url);

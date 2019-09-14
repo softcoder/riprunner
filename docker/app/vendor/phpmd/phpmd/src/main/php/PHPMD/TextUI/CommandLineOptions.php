@@ -2,46 +2,23 @@
 /**
  * This file is part of PHP Mess Detector.
  *
- * Copyright (c) 2008-2017, Manuel Pichler <mapi@phpmd.org>.
+ * Copyright (c) Manuel Pichler <mapi@phpmd.org>.
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *   * Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in
- *     the documentation and/or other materials provided with the
- *     distribution.
- *
- *   * Neither the name of Manuel Pichler nor the names of his
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Licensed under BSD License
+ * For full copyright and license information, please see the LICENSE file.
+ * Redistributions of files must retain the above copyright notice.
  *
  * @author Manuel Pichler <mapi@phpmd.org>
- * @copyright 2008-2017 Manuel Pichler. All rights reserved.
- * @license http://www.opensource.org/licenses/bsd-license.php BSD License
+ * @copyright Manuel Pichler. All rights reserved.
+ * @license https://opensource.org/licenses/bsd-license.php BSD License
+ * @link http://phpmd.org/
  */
 
 namespace PHPMD\TextUI;
 
 use PHPMD\Renderer\HTMLRenderer;
+use PHPMD\Renderer\JSONRenderer;
 use PHPMD\Renderer\TextRenderer;
 use PHPMD\Renderer\XMLRenderer;
 use PHPMD\Rule;
@@ -49,10 +26,6 @@ use PHPMD\Rule;
 /**
  * This is a helper class that collects the specified cli arguments and puts them
  * into accessible properties.
- *
- * @author Manuel Pichler <mapi@phpmd.org>
- * @copyright 2008-2017 Manuel Pichler. All rights reserved.
- * @license http://www.opensource.org/licenses/bsd-license.php BSD License
  */
 class CommandLineOptions
 {
@@ -67,6 +40,13 @@ class CommandLineOptions
      * @var integer
      */
     protected $minimumPriority = Rule::LOWEST_PRIORITY;
+
+    /**
+     * The maximum rule priority.
+     *
+     * @var integer
+     */
+    protected $maximumPriority = Rule::HIGHEST_PRIORITY;
 
     /**
      * A php source code filename or directory.
@@ -170,12 +150,21 @@ class CommandLineOptions
         $arguments = array();
         while (($arg = array_shift($args)) !== null) {
             switch ($arg) {
+                case '--min-priority':
+                case '--minimum-priority':
                 case '--minimumpriority':
-                    $this->minimumPriority = (int) array_shift($args);
+                    $this->minimumPriority = (int)array_shift($args);
                     break;
+                case '--max-priority':
+                case '--maximum-priority':
+                case '--maximumpriority':
+                    $this->maximumPriority = (int)array_shift($args);
+                    break;
+                case '--report-file':
                 case '--reportfile':
                     $this->reportFile = array_shift($args);
                     break;
+                case '--input-file':
                 case '--inputfile':
                     array_unshift($arguments, $this->readInputFile(array_shift($args)));
                     break;
@@ -185,20 +174,28 @@ class CommandLineOptions
                 case '--extensions':
                     $this->logDeprecated('extensions', 'suffixes');
                     /* Deprecated: We use the suffixes option now */
+                    $this->extensions = array_shift($args);
+                    break;
                 case '--suffixes':
                     $this->extensions = array_shift($args);
                     break;
                 case '--ignore':
                     $this->logDeprecated('ignore', 'exclude');
                     /* Deprecated: We use the exclude option now */
+                    $this->ignore = array_shift($args);
+                    break;
                 case '--exclude':
                     $this->ignore = array_shift($args);
                     break;
                 case '--version':
                     $this->version = true;
+
                     return;
                 case '--strict':
                     $this->strict = true;
+                    break;
+                case '--not-strict':
+                    $this->strict = false;
                     break;
                 case '--ignore-violations-on-exit':
                     $this->ignoreViolationsOnExit = true;
@@ -206,7 +203,8 @@ class CommandLineOptions
                 case '--reportfile-html':
                 case '--reportfile-text':
                 case '--reportfile-xml':
-                    preg_match('(^\-\-reportfile\-(xml|html|text)$)', $arg, $match);
+                case '--reportfile-json':
+                    preg_match('(^\-\-reportfile\-(xml|html|text|json)$)', $arg, $match);
                     $this->reportFiles[$match[1]] = array_shift($args);
                     break;
                 default:
@@ -219,9 +217,9 @@ class CommandLineOptions
             throw new \InvalidArgumentException($this->usage(), self::INPUT_ERROR);
         }
 
-        $this->inputPath    = (string) array_shift($arguments);
-        $this->reportFormat = (string) array_shift($arguments);
-        $this->ruleSets     = (string) array_shift($arguments);
+        $this->inputPath = (string)array_shift($arguments);
+        $this->reportFormat = (string)array_shift($arguments);
+        $this->ruleSets = (string)array_shift($arguments);
     }
 
     /**
@@ -284,6 +282,16 @@ class CommandLineOptions
     public function getMinimumPriority()
     {
         return $this->minimumPriority;
+    }
+
+    /**
+     * Returns the maximum rule priority.
+     *
+     * @return integer
+     */
+    public function getMaximumPriority()
+    {
+        return $this->maximumPriority;
     }
 
     /**
@@ -359,6 +367,7 @@ class CommandLineOptions
      *   <li>xml</li>
      *   <li>html</li>
      *   <li>text</li>
+     *   <li>json</li>
      * </ul>
      *
      * @param string $reportFormat
@@ -376,6 +385,8 @@ class CommandLineOptions
                 return $this->createHtmlRenderer();
             case 'text':
                 return $this->createTextRenderer();
+            case 'json':
+                return $this->createJsonRenderer();
             default:
                 return $this->createCustomRenderer();
         }
@@ -390,7 +401,7 @@ class CommandLineOptions
     }
 
     /**
-     * @return \PHPMD\Renderer\XMLRenderer
+     * @return \PHPMD\Renderer\TextRenderer
      */
     protected function createTextRenderer()
     {
@@ -403,6 +414,14 @@ class CommandLineOptions
     protected function createHtmlRenderer()
     {
         return new HTMLRenderer();
+    }
+
+    /**
+     * @return \PHPMD\Renderer\JSONRenderer
+     */
+    protected function createJsonRenderer()
+    {
+        return new JSONRenderer();
     }
 
     /**
@@ -449,28 +468,56 @@ class CommandLineOptions
      */
     public function usage()
     {
+        $availableRenderers = $this->getListOfAvailableRenderers();
+
         return 'Mandatory arguments:' . \PHP_EOL .
-               '1) A php source code filename or directory. Can be a comma-' .
-               'separated string' . \PHP_EOL .
-               '2) A report format' . \PHP_EOL .
-               '3) A ruleset filename or a comma-separated string of ruleset' .
-               'filenames' . \PHP_EOL . \PHP_EOL .
-               'Available formats: xml, text, html.' . \PHP_EOL .
-               'Available rulesets: ' . implode(', ', $this->availableRuleSets) . '.' . \PHP_EOL . \PHP_EOL .
-               'Optional arguments that may be put after the mandatory arguments:' .
-               \PHP_EOL .
-               '--minimumpriority: rule priority threshold; rules with lower ' .
-               'priority than this will not be used' . \PHP_EOL .
-               '--reportfile: send report output to a file; default to STDOUT' .
-               \PHP_EOL .
-               '--suffixes: comma-separated string of valid source code ' .
-               'filename extensions, e.g. php,phtml' . \PHP_EOL .
-               '--exclude: comma-separated string of patterns that are used to ' .
-               'ignore directories' . \PHP_EOL .
-                '--strict: also report those nodes with a @SuppressWarnings ' .
-               'annotation' . \PHP_EOL .
-                '--ignore-violations-on-exit: will exit with a zero code, ' .
-                'even if any violations are found' . \PHP_EOL;
+            '1) A php source code filename or directory. Can be a comma-' .
+            'separated string' . \PHP_EOL .
+            '2) A report format' . \PHP_EOL .
+            '3) A ruleset filename or a comma-separated string of ruleset' .
+            'filenames' . \PHP_EOL . \PHP_EOL .
+            'Example: phpmd /path/to/source format ruleset' . \PHP_EOL . \PHP_EOL .
+            'Available formats: ' . $availableRenderers . '.' . \PHP_EOL .
+            'Available rulesets: ' . implode(', ', $this->availableRuleSets) . '.' . \PHP_EOL . \PHP_EOL .
+            'Optional arguments that may be put after the mandatory arguments:' .
+            \PHP_EOL .
+            '--minimumpriority: rule priority threshold; rules with lower ' .
+            'priority than this will not be used' . \PHP_EOL .
+            '--reportfile: send report output to a file; default to STDOUT' .
+            \PHP_EOL .
+            '--suffixes: comma-separated string of valid source code ' .
+            'filename extensions, e.g. php,phtml' . \PHP_EOL .
+            '--exclude: comma-separated string of patterns that are used to ' .
+            'ignore directories' . \PHP_EOL .
+            '--strict: also report those nodes with a @SuppressWarnings ' .
+            'annotation' . \PHP_EOL .
+            '--ignore-violations-on-exit: will exit with a zero code, ' .
+            'even if any violations are found' . \PHP_EOL;
+    }
+
+    /**
+     * Get a list of available renderers
+     *
+     * @return string The list of renderers found.
+     */
+    protected function getListOfAvailableRenderers()
+    {
+        $renderersDirPathName=__DIR__.'/../Renderer';
+        $renderers = array();
+
+        foreach (scandir($renderersDirPathName) as $rendererFileName) {
+            if (preg_match('/^(\w+)Renderer.php$/i', $rendererFileName, $rendererName)) {
+                $renderers[] =  strtolower($rendererName[1]);
+            }
+        }
+
+        sort($renderers);
+
+        if (count($renderers) > 1) {
+            return implode(', ', $renderers);
+        }
+
+        return array_pop($renderers);
     }
 
     /**

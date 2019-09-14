@@ -8,6 +8,8 @@ namespace riprunner;
 require_once 'config_constants.php';
 require __DIR__ . '/vendor/autoload.php';
 
+use Twig\Extensions\TextExtension;
+
 class RiprunnerTwig {
     
     private $twig_template_loader = null;
@@ -31,6 +33,7 @@ class RiprunnerTwig {
             	'debug' => true,
             	'strict_variables' => true
             ));
+            $this->twig->addExtension(new TextExtension());
         }
         return $this->twig;
     }

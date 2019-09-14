@@ -16,8 +16,8 @@ use Twilio\Rest\Api\V2010\Account\Sip\Domain\AuthTypes\AuthTypeRegistrationsList
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Api\V2010\Account\Sip\Domain\AuthTypes\AuthTypeCallsList calls
- * @property \Twilio\Rest\Api\V2010\Account\Sip\Domain\AuthTypes\AuthTypeRegistrationsList registrations
+ * @property \Twilio\Rest\Api\V2010\Account\Sip\Domain\AuthTypes\AuthTypeCallsList $calls
+ * @property \Twilio\Rest\Api\V2010\Account\Sip\Domain\AuthTypes\AuthTypeRegistrationsList $registrations
  */
 class AuthTypesList extends ListResource {
     protected $_calls = null;
@@ -25,11 +25,11 @@ class AuthTypesList extends ListResource {
 
     /**
      * Construct the AuthTypesList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @param string $accountSid The unique id of the account that sent the call
-     * @param string $domainSid A string that uniquely identifies the SIP Domain
-     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\AuthTypesList 
+     * @param string $accountSid The SID of the Account that created the resource
+     * @param string $domainSid The unique string that identifies the resource
+     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\AuthTypesList
      */
     public function __construct(Version $version, $accountSid, $domainSid) {
         parent::__construct($version);
@@ -70,10 +70,10 @@ class AuthTypesList extends ListResource {
 
     /**
      * Magic getter to lazy load subresources
-     * 
+     *
      * @param string $name Subresource to return
      * @return \Twilio\ListResource The requested subresource
-     * @throws \Twilio\Exceptions\TwilioException For unknown subresources
+     * @throws TwilioException For unknown subresources
      */
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
@@ -86,11 +86,11 @@ class AuthTypesList extends ListResource {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -103,7 +103,7 @@ class AuthTypesList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

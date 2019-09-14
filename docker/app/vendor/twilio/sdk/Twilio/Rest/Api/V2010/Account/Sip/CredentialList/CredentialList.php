@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account\Sip\CredentialList;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,12 +17,14 @@ use Twilio\Version;
 class CredentialList extends ListResource {
     /**
      * Construct the CredentialList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @param string $accountSid The unique id of the Account that responsible for
-     *                           this resource.
-     * @param string $credentialListSid The credential_list_sid
-     * @return \Twilio\Rest\Api\V2010\Account\Sip\CredentialList\CredentialList 
+     * @param string $accountSid The unique id of the Account that is responsible
+     *                           for this resource.
+     * @param string $credentialListSid The unique id that identifies the
+     *                                  credential list that includes this
+     *                                  credential
+     * @return \Twilio\Rest\Api\V2010\Account\Sip\CredentialList\CredentialList
      */
     public function __construct(Version $version, $accountSid, $credentialListSid) {
         parent::__construct($version);
@@ -39,7 +42,7 @@ class CredentialList extends ListResource {
      * is reached.
      * The results are returned as a generator, so this operation is memory
      * efficient.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. stream()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -62,7 +65,7 @@ class CredentialList extends ListResource {
      * Reads CredentialInstance records from the API as a list.
      * Unlike stream(), this operation is eager and will load `limit` records into
      * memory before returning.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. read()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -80,7 +83,7 @@ class CredentialList extends ListResource {
     /**
      * Retrieve a single page of CredentialInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param mixed $pageSize Number of records to return, defaults to 50
      * @param string $pageToken PageToken provided by the API
      * @param mixed $pageNumber Page Number, this value is simply for client state
@@ -105,7 +108,7 @@ class CredentialList extends ListResource {
     /**
      * Retrieve a specific page of CredentialInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param string $targetUrl API-generated URL for the requested results page
      * @return \Twilio\Page Page of CredentialInstance
      */
@@ -120,7 +123,7 @@ class CredentialList extends ListResource {
 
     /**
      * Create a new CredentialInstance
-     * 
+     *
      * @param string $username The username for this credential.
      * @param string $password The password will not be returned in the response.
      * @return CredentialInstance Newly created CredentialInstance
@@ -146,9 +149,9 @@ class CredentialList extends ListResource {
 
     /**
      * Constructs a CredentialContext
-     * 
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Api\V2010\Account\Sip\CredentialList\CredentialContext 
+     *
+     * @param string $sid The unique id that identifies the resource to fetch.
+     * @return \Twilio\Rest\Api\V2010\Account\Sip\CredentialList\CredentialContext
      */
     public function getContext($sid) {
         return new CredentialContext(
@@ -161,7 +164,7 @@ class CredentialList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

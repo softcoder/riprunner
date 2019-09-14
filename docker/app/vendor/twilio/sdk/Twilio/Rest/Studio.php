@@ -14,8 +14,8 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Studio\V1;
 
 /**
- * @property \Twilio\Rest\Studio\V1 v1
- * @property \Twilio\Rest\Studio\V1\FlowList flows
+ * @property \Twilio\Rest\Studio\V1 $v1
+ * @property \Twilio\Rest\Studio\V1\FlowList $flows
  * @method \Twilio\Rest\Studio\V1\FlowContext flows(string $sid)
  */
 class Studio extends Domain {
@@ -23,7 +23,7 @@ class Studio extends Domain {
 
     /**
      * Construct the Studio Domain
-     * 
+     *
      * @param \Twilio\Rest\Client $client Twilio\Rest\Client to communicate with
      *                                    Twilio
      * @return \Twilio\Rest\Studio Domain for Studio
@@ -46,10 +46,10 @@ class Studio extends Domain {
 
     /**
      * Magic getter to lazy load version
-     * 
+     *
      * @param string $name Version to return
      * @return \Twilio\Version The requested version
-     * @throws \Twilio\Exceptions\TwilioException For unknown versions
+     * @throws TwilioException For unknown versions
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -62,11 +62,11 @@ class Studio extends Domain {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $method = 'context' . ucfirst($name);
@@ -78,15 +78,15 @@ class Studio extends Domain {
     }
 
     /**
-     * @return \Twilio\Rest\Studio\V1\FlowList 
+     * @return \Twilio\Rest\Studio\V1\FlowList
      */
     protected function getFlows() {
         return $this->v1->flows;
     }
 
     /**
-     * @param string $sid A string that uniquely identifies this Flow.
-     * @return \Twilio\Rest\Studio\V1\FlowContext 
+     * @param string $sid The SID that identifies the resource to fetch
+     * @return \Twilio\Rest\Studio\V1\FlowContext
      */
     protected function contextFlows($sid) {
         return $this->v1->flows($sid);
@@ -94,7 +94,7 @@ class Studio extends Domain {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -1,6 +1,6 @@
 riprunner is a docker image that include the Docker-Lamp baseimage (Ubuntu 18.04), along with a LAMP stack ([Apache][apache], [MySQL][mysql] and [PHP][php]) all in one handy package.
 
-With Ubuntu **18.04** image on the `latest-1804`, riprunner is ready to test the Rip Runner communication suite.  
+1. With Ubuntu **18.04** image on the `latest-1804`, riprunner is ready to test the Rip Runner communication suite.  
 
 # To build a new docker image  
 sudo docker build -t=softcoder/riprunner:latest -f ./1804/Dockerfile .  
@@ -20,7 +20,8 @@ db username:        riprunner
 db password:        riprunner  
   
 ---  
-Google Cloud Run:  
+
+2. Google Cloud Run:  
 
 There is a seperate Dockerfile for deploying to Google's Serverless Cloud Run platform.  
 The Dockerfile is located in the app folder. The docker image produced does not include a db engine  
@@ -34,8 +35,7 @@ Value: mysql:unix_socket=/cloudsql/<your instance connection name>;dbname=riprun
 Name: APP_GOOGLE_MAP_API_KEY  
 Value: <your api key>  
 
-
-Open a terminal and navigate to the app folder  
+Open a terminal and navigate into the 'docker/app' folder (make sure NOT to run from the docker folder)  
 
 # Build the docker Image in google cloud run  
 gcloud builds submit --tag gcr.io/pgtg-container-demo/riprunner  

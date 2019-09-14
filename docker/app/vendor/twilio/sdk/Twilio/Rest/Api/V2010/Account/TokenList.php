@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
@@ -17,10 +18,10 @@ use Twilio\Version;
 class TokenList extends ListResource {
     /**
      * Construct the TokenList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @param string $accountSid The unique sid that identifies this account
-     * @return \Twilio\Rest\Api\V2010\Account\TokenList 
+     * @param string $accountSid The SID of the Account that created the resource
+     * @return \Twilio\Rest\Api\V2010\Account\TokenList
      */
     public function __construct(Version $version, $accountSid) {
         parent::__construct($version);
@@ -33,7 +34,7 @@ class TokenList extends ListResource {
 
     /**
      * Create a new TokenInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return TokenInstance Newly created TokenInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -55,7 +56,7 @@ class TokenList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

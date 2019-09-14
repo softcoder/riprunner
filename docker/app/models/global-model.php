@@ -52,6 +52,17 @@ class GlobalViewModel {
 		if('RR_DB_CONN' === $name) {
 			return $this->getDBConnection();
 		}
+		if('RR_JWT_TOKEN' === $name) {
+			return Authentication::getJWTToken();
+		}
+		if('RR_JWT_TOKEN_PARAM' === $name) {
+			$token = Authentication::getJWTToken();
+			if($token != null) {
+				return 'JWT_TOKEN='.$token;
+			}
+			return '';
+		}
+
 		if(AuthViewModel::getAuthVarContainerName() === $name) {
 			return $this->getAuthModel();
 		}
@@ -148,7 +159,7 @@ class GlobalViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN',
+			array('isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN','RR_JWT_TOKEN', 'RR_JWT_TOKEN_PARAM',
 					AuthViewModel::getAuthVarContainerName(),'firehall',
 					'firehall_list','user_firehallid','enabled_asynch_mode',
 					'db_timezone', 'phpinfo','MENU_TYPE','CUSTOM_MAIN_CSS','CUSTOM_MOBILE_CSS',
@@ -187,10 +198,7 @@ class GlobalViewModel {
 	}
 
 	private function getUserFirehallId() {
-		if (isset($_SESSION['firehall_id']) === true) {
-			return $_SESSION['firehall_id'];
-		}
-		return null;
+		return Authentication::getAuthVar('firehall_id');
 	}
 	
 	private function getDBConnection() {

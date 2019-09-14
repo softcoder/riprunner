@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account\Sip\Domain;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,12 +17,13 @@ use Twilio\Version;
 class CredentialListMappingContext extends InstanceContext {
     /**
      * Initialize the CredentialListMappingContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $accountSid The account_sid
-     * @param string $domainSid The domain_sid
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\CredentialListMappingContext 
+     * @param string $accountSid The unique sid that identifies this account
+     * @param string $domainSid A string that identifies the SIP Domain that
+     *                          includes the resource to fetch
+     * @param string $sid A string that identifies the resource to fetch
+     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\CredentialListMappingContext
      */
     public function __construct(Version $version, $accountSid, $domainSid, $sid) {
         parent::__construct($version);
@@ -34,7 +36,7 @@ class CredentialListMappingContext extends InstanceContext {
 
     /**
      * Fetch a CredentialListMappingInstance
-     * 
+     *
      * @return CredentialListMappingInstance Fetched CredentialListMappingInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -58,7 +60,7 @@ class CredentialListMappingContext extends InstanceContext {
 
     /**
      * Deletes the CredentialListMappingInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -68,7 +70,7 @@ class CredentialListMappingContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

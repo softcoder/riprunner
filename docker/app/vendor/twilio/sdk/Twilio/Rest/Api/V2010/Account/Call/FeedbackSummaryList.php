@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account\Call;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Serialize;
@@ -18,11 +19,10 @@ use Twilio\Version;
 class FeedbackSummaryList extends ListResource {
     /**
      * Construct the FeedbackSummaryList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @param string $accountSid The unique id of the Account responsible for
-     *                           creating this Call
-     * @return \Twilio\Rest\Api\V2010\Account\Call\FeedbackSummaryList 
+     * @param string $accountSid The SID of the Account that created this resource
+     * @return \Twilio\Rest\Api\V2010\Account\Call\FeedbackSummaryList
      */
     public function __construct(Version $version, $accountSid) {
         parent::__construct($version);
@@ -35,11 +35,9 @@ class FeedbackSummaryList extends ListResource {
 
     /**
      * Create a new FeedbackSummaryInstance
-     * 
-     * @param \DateTime $startDate Only include usage that has occurred on or after
-     *                             this date.
-     * @param \DateTime $endDate Only include usage that has occurred on or before
-     *                           this date.
+     *
+     * @param \DateTime $startDate Only include feedback given on or after this date
+     * @param \DateTime $endDate Only include feedback given on or before this date
      * @param array|Options $options Optional Arguments
      * @return FeedbackSummaryInstance Newly created FeedbackSummaryInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -67,9 +65,10 @@ class FeedbackSummaryList extends ListResource {
 
     /**
      * Constructs a FeedbackSummaryContext
-     * 
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Api\V2010\Account\Call\FeedbackSummaryContext 
+     *
+     * @param string $sid A string that uniquely identifies this feedback summary
+     *                    resource
+     * @return \Twilio\Rest\Api\V2010\Account\Call\FeedbackSummaryContext
      */
     public function getContext($sid) {
         return new FeedbackSummaryContext($this->version, $this->solution['accountSid'], $sid);
@@ -77,7 +76,7 @@ class FeedbackSummaryList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Taskrouter\V1\Workspace;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,11 +17,11 @@ use Twilio\Version;
 class EventContext extends InstanceContext {
     /**
      * Initialize the EventContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $workspaceSid The workspace_sid
      * @param string $sid The sid
-     * @return \Twilio\Rest\Taskrouter\V1\Workspace\EventContext 
+     * @return \Twilio\Rest\Taskrouter\V1\Workspace\EventContext
      */
     public function __construct(Version $version, $workspaceSid, $sid) {
         parent::__construct($version);
@@ -33,7 +34,7 @@ class EventContext extends InstanceContext {
 
     /**
      * Fetch a EventInstance
-     * 
+     *
      * @return EventInstance Fetched EventInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -56,7 +57,7 @@ class EventContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Taskrouter\V1\Workspace;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Options;
 use Twilio\Values;
@@ -17,10 +18,10 @@ use Twilio\Version;
 class WorkspaceRealTimeStatisticsContext extends InstanceContext {
     /**
      * Initialize the WorkspaceRealTimeStatisticsContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $workspaceSid The workspace_sid
-     * @return \Twilio\Rest\Taskrouter\V1\Workspace\WorkspaceRealTimeStatisticsContext 
+     * @return \Twilio\Rest\Taskrouter\V1\Workspace\WorkspaceRealTimeStatisticsContext
      */
     public function __construct(Version $version, $workspaceSid) {
         parent::__construct($version);
@@ -33,7 +34,7 @@ class WorkspaceRealTimeStatisticsContext extends InstanceContext {
 
     /**
      * Fetch a WorkspaceRealTimeStatisticsInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return WorkspaceRealTimeStatisticsInstance Fetched
      *                                             WorkspaceRealTimeStatisticsInstance
@@ -59,7 +60,7 @@ class WorkspaceRealTimeStatisticsContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

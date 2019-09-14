@@ -17,37 +17,37 @@ use Twilio\Version;
 
 /**
  * PLEASE NOTE that this class contains beta products that are subject to change. Use them with caution.
- * 
- * @property string sid
- * @property string sessionSid
- * @property string serviceSid
- * @property string accountSid
- * @property string data
- * @property string type
- * @property string inboundParticipantSid
- * @property string inboundResourceSid
- * @property string inboundResourceStatus
- * @property string inboundResourceType
- * @property string inboundResourceUrl
- * @property string outboundParticipantSid
- * @property string outboundResourceSid
- * @property string outboundResourceStatus
- * @property string outboundResourceType
- * @property string outboundResourceUrl
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string url
+ *
+ * @property string $sid
+ * @property string $sessionSid
+ * @property string $serviceSid
+ * @property string $accountSid
+ * @property string $data
+ * @property string $type
+ * @property string $inboundParticipantSid
+ * @property string $inboundResourceSid
+ * @property string $inboundResourceStatus
+ * @property string $inboundResourceType
+ * @property string $inboundResourceUrl
+ * @property string $outboundParticipantSid
+ * @property string $outboundResourceSid
+ * @property string $outboundResourceStatus
+ * @property string $outboundResourceType
+ * @property string $outboundResourceUrl
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $url
  */
 class InteractionInstance extends InstanceResource {
     /**
      * Initialize the InteractionInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $serviceSid Service Sid.
-     * @param string $sessionSid Session Sid.
-     * @param string $sid A string that uniquely identifies this Interaction.
-     * @return \Twilio\Rest\Proxy\V1\Service\Session\InteractionInstance 
+     * @param string $serviceSid The SID of the resource's parent Service
+     * @param string $sessionSid The SID of the resource's parent Session
+     * @param string $sid The unique string that identifies the resource
+     * @return \Twilio\Rest\Proxy\V1\Service\Session\InteractionInstance
      */
     public function __construct(Version $version, array $payload, $serviceSid, $sessionSid, $sid = null) {
         parent::__construct($version);
@@ -85,7 +85,7 @@ class InteractionInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Proxy\V1\Service\Session\InteractionContext Context for
      *                                                                  this
      *                                                                  InteractionInstance
@@ -105,7 +105,7 @@ class InteractionInstance extends InstanceResource {
 
     /**
      * Fetch a InteractionInstance
-     * 
+     *
      * @return InteractionInstance Fetched InteractionInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -115,7 +115,7 @@ class InteractionInstance extends InstanceResource {
 
     /**
      * Deletes the InteractionInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -125,7 +125,7 @@ class InteractionInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -145,7 +145,7 @@ class InteractionInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

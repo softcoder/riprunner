@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Monitor\V1;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,10 +17,10 @@ use Twilio\Version;
 class AlertContext extends InstanceContext {
     /**
      * Initialize the AlertContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $sid The sid
-     * @return \Twilio\Rest\Monitor\V1\AlertContext 
+     * @return \Twilio\Rest\Monitor\V1\AlertContext
      */
     public function __construct(Version $version, $sid) {
         parent::__construct($version);
@@ -32,7 +33,7 @@ class AlertContext extends InstanceContext {
 
     /**
      * Fetch a AlertInstance
-     * 
+     *
      * @return AlertInstance Fetched AlertInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -50,7 +51,7 @@ class AlertContext extends InstanceContext {
 
     /**
      * Deletes the AlertInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -60,7 +61,7 @@ class AlertContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

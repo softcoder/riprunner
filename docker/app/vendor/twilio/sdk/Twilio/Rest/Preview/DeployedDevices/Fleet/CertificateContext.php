@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Preview\DeployedDevices\Fleet;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Options;
 use Twilio\Values;
@@ -20,11 +21,11 @@ use Twilio\Version;
 class CertificateContext extends InstanceContext {
     /**
      * Initialize the CertificateContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $fleetSid The fleet_sid
      * @param string $sid A string that uniquely identifies the Certificate.
-     * @return \Twilio\Rest\Preview\DeployedDevices\Fleet\CertificateContext 
+     * @return \Twilio\Rest\Preview\DeployedDevices\Fleet\CertificateContext
      */
     public function __construct(Version $version, $fleetSid, $sid) {
         parent::__construct($version);
@@ -37,7 +38,7 @@ class CertificateContext extends InstanceContext {
 
     /**
      * Fetch a CertificateInstance
-     * 
+     *
      * @return CertificateInstance Fetched CertificateInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -60,7 +61,7 @@ class CertificateContext extends InstanceContext {
 
     /**
      * Deletes the CertificateInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -70,7 +71,7 @@ class CertificateContext extends InstanceContext {
 
     /**
      * Update the CertificateInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return CertificateInstance Updated CertificateInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -100,7 +101,7 @@ class CertificateContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

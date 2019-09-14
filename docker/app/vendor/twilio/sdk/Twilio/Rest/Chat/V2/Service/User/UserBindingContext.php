@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Chat\V2\Service\User;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,12 +17,12 @@ use Twilio\Version;
 class UserBindingContext extends InstanceContext {
     /**
      * Initialize the UserBindingContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $serviceSid The service_sid
-     * @param string $userSid The user_sid
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Chat\V2\Service\User\UserBindingContext 
+     * @param string $serviceSid The SID of the Service to fetch the resource from
+     * @param string $userSid The SID of the User with the binding
+     * @param string $sid The SID of the User Binding resource to fetch
+     * @return \Twilio\Rest\Chat\V2\Service\User\UserBindingContext
      */
     public function __construct(Version $version, $serviceSid, $userSid, $sid) {
         parent::__construct($version);
@@ -34,7 +35,7 @@ class UserBindingContext extends InstanceContext {
 
     /**
      * Fetch a UserBindingInstance
-     * 
+     *
      * @return UserBindingInstance Fetched UserBindingInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -58,7 +59,7 @@ class UserBindingContext extends InstanceContext {
 
     /**
      * Deletes the UserBindingInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -68,7 +69,7 @@ class UserBindingContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

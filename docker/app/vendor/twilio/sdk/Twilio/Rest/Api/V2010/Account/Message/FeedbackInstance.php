@@ -16,22 +16,23 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string accountSid
- * @property string messageSid
- * @property string outcome
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string uri
+ * @property string $accountSid
+ * @property string $messageSid
+ * @property string $outcome
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $uri
  */
 class FeedbackInstance extends InstanceResource {
     /**
      * Initialize the FeedbackInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $accountSid The account_sid
-     * @param string $messageSid The message_sid
-     * @return \Twilio\Rest\Api\V2010\Account\Message\FeedbackInstance 
+     * @param string $accountSid The SID of the Account that created the resource
+     * @param string $messageSid The SID of the Message resource for which the
+     *                           feedback was provided
+     * @return \Twilio\Rest\Api\V2010\Account\Message\FeedbackInstance
      */
     public function __construct(Version $version, array $payload, $accountSid, $messageSid) {
         parent::__construct($version);
@@ -51,7 +52,7 @@ class FeedbackInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -71,7 +72,7 @@ class FeedbackInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

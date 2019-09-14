@@ -28,7 +28,7 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php">Main Menu</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Main Menu</a></li>
                       </ul>
                     </div>
                   </li>
@@ -37,7 +37,7 @@
                     <input type="radio" name="verticalMenu" id="tools_page" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-info-controller.php?clearCache=true">Clear Cache</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-info-controller.php?clearCache=true&{{ gvm.RR_JWT_TOKEN_PARAM }}">Clear Cache</a></li>
                       </ul>
                     </div>
                   </li>

@@ -2,7 +2,7 @@
 
 namespace Plivo\Resources\PhoneNumber;
 
-
+use Plivo\Exceptions\PlivoResponseException;
 use Plivo\BaseClient;
 use Plivo\Resources\ResourceInterface;
 use Plivo\Resources\ResourceList;
@@ -48,7 +48,7 @@ class PhoneNumberInterface extends ResourceInterface
      *   + [string] rate_center - Numbers can be searched using Rate Center {http://en.wikipedia.org/wiki/Telephone_exchange}. This filter is application only for country_iso US and CA.
      *   + [int] limit - Used to display the number of results per page. The maximum number of results that can be fetched is 20.
      *   + [int] offset - Denotes the number of value items by which the results should be offset. Eg:- If the result contains a 1000 values and limit is set to 10 and offset is set to 705, then values 706 through 715 are displayed in the results. This parameter is also used for pagination of the results.
-     * @return ResourceList
+     * @return ResourceList output
      */
     public function getList($countryIso, $optionalArgs = [])
     {
@@ -65,9 +65,7 @@ class PhoneNumberInterface extends ResourceInterface
 
             array_push($phoneNumbers, $newNumber);
         }
-
-        return new ResourceList(
-            $this->client, $response->getContent()['meta'], $phoneNumbers);
+        return new ResourceList($this->client, $response->getContent()['meta'], $phoneNumbers);
     }
 
     /**
@@ -75,7 +73,7 @@ class PhoneNumberInterface extends ResourceInterface
      *
      * @param number $phoneNumber
      * @param string|null $appId
-     * @return PhoneNumberBuyResponse
+     * @return PhoneNumberBuyResponse output
      */
     public function buy($phoneNumber, $appId = null)
     {
@@ -85,13 +83,25 @@ class PhoneNumberInterface extends ResourceInterface
         );
 
         $responseContents = $response->getContent();
+        if(!array_key_exists("error",$responseContents)){
+            return new PhoneNumberBuyResponse(
+                $responseContents['api_id'],
+                $responseContents['message'],
+                $responseContents['numbers'][0]['number'],
+                $responseContents['numbers'][0]['status'],
+                $responseContents['status'],
+                $response->getStatusCode()
+            );
+        } else {
+            throw new PlivoResponseException(
+                $responseContents['error'],
+                0,
+                null,
+                $response->getContent(),
+                $response->getStatusCode()
 
-        return new PhoneNumberBuyResponse(
-            $responseContents['api_id'],
-            $responseContents['message'],
-            $responseContents['numbers'][0]['number'],
-            $responseContents['numbers'][0]['status'],
-            $responseContents['status']
-        );
+            );
+        }
+        
     }
 }

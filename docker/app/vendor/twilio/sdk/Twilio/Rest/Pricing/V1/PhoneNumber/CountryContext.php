@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Pricing\V1\PhoneNumber;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,10 +17,10 @@ use Twilio\Version;
 class CountryContext extends InstanceContext {
     /**
      * Initialize the CountryContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $isoCountry The iso_country
-     * @return \Twilio\Rest\Pricing\V1\PhoneNumber\CountryContext 
+     * @param string $isoCountry The ISO country code
+     * @return \Twilio\Rest\Pricing\V1\PhoneNumber\CountryContext
      */
     public function __construct(Version $version, $isoCountry) {
         parent::__construct($version);
@@ -32,7 +33,7 @@ class CountryContext extends InstanceContext {
 
     /**
      * Fetch a CountryInstance
-     * 
+     *
      * @return CountryInstance Fetched CountryInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -50,7 +51,7 @@ class CountryContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

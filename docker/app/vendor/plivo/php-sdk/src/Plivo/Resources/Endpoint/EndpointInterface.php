@@ -4,6 +4,7 @@ namespace Plivo\Resources\Endpoint;
 
 
 use Plivo\Exceptions\PlivoValidationException;
+use Plivo\Exceptions\PlivoResponseException;
 use Plivo\BaseClient;
 
 use Plivo\Resources\ResourceInterface;
@@ -41,7 +42,7 @@ class EndpointInterface extends ResourceInterface
      * @param string $password
      * @param string $alias
      * @param null|string $appId
-     * @return EndpointCreateReponse
+     * @return JSON output
      * @throws PlivoValidationException
      */
     public function create($username, $password, $alias, $appId = null)
@@ -61,15 +62,27 @@ class EndpointInterface extends ResourceInterface
             $this->uri,
             array_merge($mandatoryArgs, ['app_id' => $appId])
         );
-
         $responseContents = $response->getContent();
+        if(!array_key_exists("error",$responseContents)){
 
-        return new EndpointCreateReponse(
-            $responseContents['username'],
-            $responseContents['alias'],
-            $responseContents['message'],
-            $responseContents['endpoint_id'],
-            $responseContents['api_id']);
+            return new EndpointCreateReponse(
+                $responseContents['username'],
+                $responseContents['alias'],
+                $responseContents['message'],
+                $responseContents['endpoint_id'],
+                $responseContents['api_id'],
+                $response->getStatusCode()
+            );
+        } else {
+            throw new PlivoResponseException(
+                $responseContents['error'],
+                0,
+                null,
+                $response->getContent(),
+                $response->getStatusCode()
+
+            );
+        }
     }
 
     /**
@@ -117,7 +130,6 @@ class EndpointInterface extends ResourceInterface
 
             array_push($endpoints, $newEndpoint);
         }
-
         return new ResourceList($this->client, $response->getContent()['meta'], $endpoints);
     }
 
@@ -141,9 +153,24 @@ class EndpointInterface extends ResourceInterface
 
         $responseContents = $response->getContent();
 
-        return new ResponseUpdate(
-            $responseContents['api_id'],
-            $responseContents['message']);
+        if(!array_key_exists("error",$responseContents)){
+            return new ResponseUpdate(
+                $responseContents['api_id'],
+                $responseContents['message'],
+                $response->getStatusCode()
+            );
+        } else {
+            throw new PlivoResponseException(
+                $responseContents['error'],
+                0,
+                null,
+                $response->getContent(),
+                $response->getStatusCode()
+
+            );
+        }
+
+        
     }
     
     /**

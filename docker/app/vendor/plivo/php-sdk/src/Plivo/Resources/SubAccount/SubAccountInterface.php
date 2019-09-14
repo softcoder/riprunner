@@ -4,6 +4,7 @@ namespace Plivo\Resources\SubAccount;
 
 
 use Plivo\Exceptions\PlivoValidationException;
+use Plivo\Exceptions\PlivoResponseException;
 use Plivo\BaseClient;
 use Plivo\Resources\ResourceInterface;
 use Plivo\Resources\ResponseDelete;
@@ -36,7 +37,7 @@ class SubAccountInterface extends ResourceInterface
      * @param string $name Name of the subaccount
      * @param boolean|null $enabled Specify if the subaccount should be enabled or
      * not. Takes a value of True or False. Defaults to False
-     * @return SubAccountCreateResponse
+     * @return JSON Output
      */
     public function create($name, $enabled = null)
     {
@@ -54,9 +55,27 @@ class SubAccountInterface extends ResourceInterface
             $this->uri,
             $data
         );
-
         $responseContents = $response->getContent();
-        return new SubAccountCreateResponse($responseContents['message'], $responseContents['auth_id'], $responseContents['auth_token'], $responseContents['api_id']);
+        if(!array_key_exists("error",$responseContents)){
+
+            return new SubAccountCreateResponse(
+                $responseContents['message'],
+                $responseContents['auth_id'], 
+                $responseContents['auth_token'], 
+                $responseContents['api_id'],
+                $response->getStatusCode()
+            );
+            
+        } else {
+            throw new PlivoResponseException(
+                $responseContents['error'],
+                0,
+                null,
+                $response->getContent(),
+                $response->getStatusCode()
+
+            );
+        }
     }
 
     /**
@@ -82,10 +101,22 @@ class SubAccountInterface extends ResourceInterface
 
         $responseContents = $response->getContent();
 
-        return new ResponseUpdate(
-            $responseContents['api_id'],
-            $responseContents['message']
-        );
+        if(!array_key_exists("error",$responseContents)){
+            return new ResponseUpdate(
+                $responseContents['api_id'],
+                $responseContents['message'],
+                $response->getStatusCode()
+            );
+        } else {
+            throw new PlivoResponseException(
+                $responseContents['error'],
+                0,
+                null,
+                $response->getContent(),
+                $response->getStatusCode()
+
+            );
+        }
     }
 
     /**

@@ -17,10 +17,23 @@ require_once 'config/config_manager.php';
 require_once 'core/CalloutStatusType.php';
 require_once 'logging.php';
 
-function getSafeRequestValue($key) {
+function getSafeRequestValue($key, $request_variables=null) {
+    if($request_variables !== null && array_key_exists($key, $request_variables) === true) {
+        return htmlspecialchars($request_variables[$key]);
+    }
     $request_list = array_merge($_GET, $_POST);
     if(array_key_exists($key, $request_list) === true) {
         return htmlspecialchars($request_list[$key]);
+    }
+    return null;
+}
+
+function getServerVar($key, $server_variables=null) {
+    if($server_variables !== null && array_key_exists($key, $server_variables) === true) {
+        return htmlspecialchars($server_variables[$key]);
+    }
+    if($_SERVER !== null && array_key_exists($key, $_SERVER) === true) {
+        return htmlspecialchars($_SERVER[$key]);
     }
     return null;
 }
@@ -266,7 +279,7 @@ function validateDate($date, $format='Y-m-d H:i:s') {
 function getFirehallRootURLFromRequest($request_url, $firehalls, $use_firehall=null) {
 	global $log;
 	
-    if (count($firehalls) === 1 || $use_firehall !== null) {
+    if ($use_firehall !== null || count($firehalls) === 1) {
         if ($use_firehall !== null) {
             if ($log !== null) $log->trace("#1 Looking for website root URL req [$request_url] use_firehall root [" . $use_firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
             return rtrim($use_firehall->WEBSITE->WEBSITE_ROOT_URL, '/');

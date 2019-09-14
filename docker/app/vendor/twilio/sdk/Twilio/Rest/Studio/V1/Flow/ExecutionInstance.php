@@ -16,17 +16,17 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string sid
- * @property string accountSid
- * @property string flowSid
- * @property string contactSid
- * @property string contactChannelAddress
- * @property array context
- * @property string status
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string url
- * @property array links
+ * @property string $sid
+ * @property string $accountSid
+ * @property string $flowSid
+ * @property string $contactSid
+ * @property string $contactChannelAddress
+ * @property array $context
+ * @property string $status
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $url
+ * @property array $links
  */
 class ExecutionInstance extends InstanceResource {
     protected $_steps = null;
@@ -34,12 +34,12 @@ class ExecutionInstance extends InstanceResource {
 
     /**
      * Initialize the ExecutionInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $flowSid Flow Sid.
-     * @param string $sid Execution Sid.
-     * @return \Twilio\Rest\Studio\V1\Flow\ExecutionInstance 
+     * @param string $flowSid The SID of the Flow
+     * @param string $sid The SID of the Execution resource to fetch
+     * @return \Twilio\Rest\Studio\V1\Flow\ExecutionInstance
      */
     public function __construct(Version $version, array $payload, $flowSid, $sid = null) {
         parent::__construct($version);
@@ -65,7 +65,7 @@ class ExecutionInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Studio\V1\Flow\ExecutionContext Context for this
      *                                                      ExecutionInstance
      */
@@ -83,7 +83,7 @@ class ExecutionInstance extends InstanceResource {
 
     /**
      * Fetch a ExecutionInstance
-     * 
+     *
      * @return ExecutionInstance Fetched ExecutionInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -93,7 +93,7 @@ class ExecutionInstance extends InstanceResource {
 
     /**
      * Deletes the ExecutionInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -103,8 +103,8 @@ class ExecutionInstance extends InstanceResource {
 
     /**
      * Access the steps
-     * 
-     * @return \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionStepList 
+     *
+     * @return \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionStepList
      */
     protected function getSteps() {
         return $this->proxy()->steps;
@@ -112,8 +112,8 @@ class ExecutionInstance extends InstanceResource {
 
     /**
      * Access the executionContext
-     * 
-     * @return \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionContextList 
+     *
+     * @return \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionContextList
      */
     protected function getExecutionContext() {
         return $this->proxy()->executionContext;
@@ -121,7 +121,7 @@ class ExecutionInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -141,7 +141,7 @@ class ExecutionInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

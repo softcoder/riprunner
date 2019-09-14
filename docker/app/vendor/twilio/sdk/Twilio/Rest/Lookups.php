@@ -14,8 +14,8 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Lookups\V1;
 
 /**
- * @property \Twilio\Rest\Lookups\V1 v1
- * @property \Twilio\Rest\Lookups\V1\PhoneNumberList phoneNumbers
+ * @property \Twilio\Rest\Lookups\V1 $v1
+ * @property \Twilio\Rest\Lookups\V1\PhoneNumberList $phoneNumbers
  * @method \Twilio\Rest\Lookups\V1\PhoneNumberContext phoneNumbers(string $phoneNumber)
  */
 class Lookups extends Domain {
@@ -23,7 +23,7 @@ class Lookups extends Domain {
 
     /**
      * Construct the Lookups Domain
-     * 
+     *
      * @param \Twilio\Rest\Client $client Twilio\Rest\Client to communicate with
      *                                    Twilio
      * @return \Twilio\Rest\Lookups Domain for Lookups
@@ -46,10 +46,10 @@ class Lookups extends Domain {
 
     /**
      * Magic getter to lazy load version
-     * 
+     *
      * @param string $name Version to return
      * @return \Twilio\Version The requested version
-     * @throws \Twilio\Exceptions\TwilioException For unknown versions
+     * @throws TwilioException For unknown versions
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -62,11 +62,11 @@ class Lookups extends Domain {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $method = 'context' . ucfirst($name);
@@ -78,15 +78,15 @@ class Lookups extends Domain {
     }
 
     /**
-     * @return \Twilio\Rest\Lookups\V1\PhoneNumberList 
+     * @return \Twilio\Rest\Lookups\V1\PhoneNumberList
      */
     protected function getPhoneNumbers() {
         return $this->v1->phoneNumbers;
     }
 
     /**
-     * @param string $phoneNumber The phone_number
-     * @return \Twilio\Rest\Lookups\V1\PhoneNumberContext 
+     * @param string $phoneNumber The phone number to fetch in E.164 format
+     * @return \Twilio\Rest\Lookups\V1\PhoneNumberContext
      */
     protected function contextPhoneNumbers($phoneNumber) {
         return $this->v1->phoneNumbers($phoneNumber);
@@ -94,7 +94,7 @@ class Lookups extends Domain {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Authy\V1;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -19,10 +20,10 @@ use Twilio\Version;
 class FormContext extends InstanceContext {
     /**
      * Initialize the FormContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $formType The Form Type of this Form
-     * @return \Twilio\Rest\Authy\V1\FormContext 
+     * @param string $formType The Type of this Form
+     * @return \Twilio\Rest\Authy\V1\FormContext
      */
     public function __construct(Version $version, $formType) {
         parent::__construct($version);
@@ -35,7 +36,7 @@ class FormContext extends InstanceContext {
 
     /**
      * Fetch a FormInstance
-     * 
+     *
      * @return FormInstance Fetched FormInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -53,7 +54,7 @@ class FormContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -34,14 +34,14 @@
                     <input type="radio" name="verticalMenu" id="admin" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php">User Accounts</a></li>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-type-controller.php">Callout Codes</a></li>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-status-controller.php">Response Codes</a></li>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/address-override-controller.php">Callout Address Overrides</a></li>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-config-controller.php">System Settings</a></li>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-info-controller.php">System Information</a></li>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-test-controller.php">System Testing</a></li>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/view-logs-controller.php">View Logs</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">User Accounts</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-type-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Callout Codes</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-status-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Response Codes</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/address-override-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Callout Address Overrides</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-config-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">System Settings</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-info-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">System Information</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-test-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">System Testing</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/view-logs-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">View Logs</a></li>
                       </ul>
                     </div>
                   </li>
@@ -51,8 +51,8 @@
                     <input type="radio" name="verticalMenu" id="call_history" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-history-controller.php">Callouts and Responders</a></li>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-monitor-controller.php?server_mode=false">Monitor Live Callouts</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-history-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Callouts and Responders</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-monitor-controller.php?server_mode=false&{{ gvm.RR_JWT_TOKEN_PARAM }}">Monitor Live Callouts</a></li>
                       </ul>
                     </div>
                   </li>
@@ -61,7 +61,7 @@
                     <input type="radio" name="verticalMenu" id="reports" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/reports-charts-controller.php">Charts</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/reports-charts-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Charts</a></li>
                       </ul>
                     </div>
                   </li>
@@ -79,7 +79,7 @@
                     <input type="radio" name="verticalMenu" id="my_account" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?se=true">My Account</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?se=true&{{ gvm.RR_JWT_TOKEN_PARAM }}">My Account</a></li>
                       </ul>
                     </div>
                   </li>

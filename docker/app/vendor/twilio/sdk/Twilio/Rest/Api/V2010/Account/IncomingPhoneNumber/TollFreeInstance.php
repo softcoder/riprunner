@@ -16,43 +16,43 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string accountSid
- * @property string addressSid
- * @property string addressRequirements
- * @property string apiVersion
- * @property boolean beta
- * @property string capabilities
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string friendlyName
- * @property string identitySid
- * @property string phoneNumber
- * @property string origin
- * @property string sid
- * @property string smsApplicationSid
- * @property string smsFallbackMethod
- * @property string smsFallbackUrl
- * @property string smsMethod
- * @property string smsUrl
- * @property string statusCallback
- * @property string statusCallbackMethod
- * @property string trunkSid
- * @property string uri
- * @property string voiceApplicationSid
- * @property boolean voiceCallerIdLookup
- * @property string voiceFallbackMethod
- * @property string voiceFallbackUrl
- * @property string voiceMethod
- * @property string voiceUrl
+ * @property string $accountSid
+ * @property string $addressSid
+ * @property string $addressRequirements
+ * @property string $apiVersion
+ * @property bool $beta
+ * @property string $capabilities
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $friendlyName
+ * @property string $identitySid
+ * @property string $phoneNumber
+ * @property string $origin
+ * @property string $sid
+ * @property string $smsApplicationSid
+ * @property string $smsFallbackMethod
+ * @property string $smsFallbackUrl
+ * @property string $smsMethod
+ * @property string $smsUrl
+ * @property string $statusCallback
+ * @property string $statusCallbackMethod
+ * @property string $trunkSid
+ * @property string $uri
+ * @property string $voiceApplicationSid
+ * @property bool $voiceCallerIdLookup
+ * @property string $voiceFallbackMethod
+ * @property string $voiceFallbackUrl
+ * @property string $voiceMethod
+ * @property string $voiceUrl
  */
 class TollFreeInstance extends InstanceResource {
     /**
      * Initialize the TollFreeInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $accountSid The unique sid that identifies this account
-     * @return \Twilio\Rest\Api\V2010\Account\IncomingPhoneNumber\TollFreeInstance 
+     * @param string $accountSid The SID of the Account that created the resource
+     * @return \Twilio\Rest\Api\V2010\Account\IncomingPhoneNumber\TollFreeInstance
      */
     public function __construct(Version $version, array $payload, $accountSid) {
         parent::__construct($version);
@@ -94,7 +94,7 @@ class TollFreeInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -114,7 +114,7 @@ class TollFreeInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

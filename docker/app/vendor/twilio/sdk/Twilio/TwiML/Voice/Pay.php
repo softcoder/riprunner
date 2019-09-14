@@ -14,7 +14,7 @@ use Twilio\TwiML\TwiML;
 class Pay extends TwiML {
     /**
      * Pay constructor.
-     * 
+     *
      * @param array $attributes Optional attributes
      */
     public function __construct($attributes = array()) {
@@ -23,19 +23,29 @@ class Pay extends TwiML {
 
     /**
      * Add Prompt child.
-     * 
+     *
      * @param array $attributes Optional attributes
-     * @return TwiML Child element.
+     * @return Prompt Child element.
      */
     public function prompt($attributes = array()) {
         return $this->nest(new Prompt($attributes));
     }
 
     /**
+     * Add Parameter child.
+     *
+     * @param array $attributes Optional attributes
+     * @return Parameter Child element.
+     */
+    public function parameter($attributes = array()) {
+        return $this->nest(new Parameter($attributes));
+    }
+
+    /**
      * Add Input attribute.
-     * 
-     * @param pay:Enum:Input $input Input type Twilio should accept
-     * @return $this
+     *
+     * @param string $input Input type Twilio should accept
+     * @return static $this.
      */
     public function setInput($input) {
         return $this->setAttribute('input', $input);
@@ -43,19 +53,32 @@ class Pay extends TwiML {
 
     /**
      * Add Action attribute.
-     * 
-     * @param url $action Action URL
-     * @return $this
+     *
+     * @param string $action Action URL
+     * @return static $this.
      */
     public function setAction($action) {
         return $this->setAttribute('action', $action);
     }
 
     /**
+     * Add BankAccountType attribute.
+     *
+     * @param string $bankAccountType Bank account type for ach transactions. If
+     *                                set, payment method attribute must be
+     *                                provided and value should be set to
+     *                                ach-debit. defaults to consumer-checking
+     * @return static $this.
+     */
+    public function setBankAccountType($bankAccountType) {
+        return $this->setAttribute('bankAccountType', $bankAccountType);
+    }
+
+    /**
      * Add StatusCallback attribute.
-     * 
-     * @param url $statusCallback Status callback URL
-     * @return $this
+     *
+     * @param string $statusCallback Status callback URL
+     * @return static $this.
      */
     public function setStatusCallback($statusCallback) {
         return $this->setAttribute('statusCallback', $statusCallback);
@@ -63,10 +86,9 @@ class Pay extends TwiML {
 
     /**
      * Add StatusCallbackMethod attribute.
-     * 
-     * @param pay:Enum:StatusCallbackMethod $statusCallbackMethod Status callback
-     *                                                            method
-     * @return $this
+     *
+     * @param string $statusCallbackMethod Status callback method
+     * @return static $this.
      */
     public function setStatusCallbackMethod($statusCallbackMethod) {
         return $this->setAttribute('statusCallbackMethod', $statusCallbackMethod);
@@ -74,9 +96,9 @@ class Pay extends TwiML {
 
     /**
      * Add Timeout attribute.
-     * 
-     * @param integer $timeout Time to wait to gather input
-     * @return $this
+     *
+     * @param int $timeout Time to wait to gather input
+     * @return static $this.
      */
     public function setTimeout($timeout) {
         return $this->setAttribute('timeout', $timeout);
@@ -84,10 +106,10 @@ class Pay extends TwiML {
 
     /**
      * Add MaxAttempts attribute.
-     * 
-     * @param integer $maxAttempts Maximum number of allowed retries when gathering
-     *                             input
-     * @return $this
+     *
+     * @param int $maxAttempts Maximum number of allowed retries when gathering
+     *                         input
+     * @return static $this.
      */
     public function setMaxAttempts($maxAttempts) {
         return $this->setAttribute('maxAttempts', $maxAttempts);
@@ -95,9 +117,9 @@ class Pay extends TwiML {
 
     /**
      * Add SecurityCode attribute.
-     * 
-     * @param boolean $securityCode Prompt for security code
-     * @return $this
+     *
+     * @param bool $securityCode Prompt for security code
+     * @return static $this.
      */
     public function setSecurityCode($securityCode) {
         return $this->setAttribute('securityCode', $securityCode);
@@ -105,30 +127,51 @@ class Pay extends TwiML {
 
     /**
      * Add PostalCode attribute.
-     * 
+     *
      * @param string $postalCode Prompt for postal code and it should be true/false
      *                           or default postal code
-     * @return $this
+     * @return static $this.
      */
     public function setPostalCode($postalCode) {
         return $this->setAttribute('postalCode', $postalCode);
     }
 
     /**
+     * Add MinPostalCodeLength attribute.
+     *
+     * @param int $minPostalCodeLength Prompt for minimum postal code length
+     * @return static $this.
+     */
+    public function setMinPostalCodeLength($minPostalCodeLength) {
+        return $this->setAttribute('minPostalCodeLength', $minPostalCodeLength);
+    }
+
+    /**
      * Add PaymentConnector attribute.
-     * 
+     *
      * @param string $paymentConnector Unique name for payment connector
-     * @return $this
+     * @return static $this.
      */
     public function setPaymentConnector($paymentConnector) {
         return $this->setAttribute('paymentConnector', $paymentConnector);
     }
 
     /**
+     * Add PaymentMethod attribute.
+     *
+     * @param string $paymentMethod Payment method to be used. defaults to
+     *                              credit-card
+     * @return static $this.
+     */
+    public function setPaymentMethod($paymentMethod) {
+        return $this->setAttribute('paymentMethod', $paymentMethod);
+    }
+
+    /**
      * Add TokenType attribute.
-     * 
-     * @param pay:Enum:TokenType $tokenType Type of token
-     * @return $this
+     *
+     * @param string $tokenType Type of token
+     * @return static $this.
      */
     public function setTokenType($tokenType) {
         return $this->setAttribute('tokenType', $tokenType);
@@ -136,10 +179,10 @@ class Pay extends TwiML {
 
     /**
      * Add ChargeAmount attribute.
-     * 
+     *
      * @param string $chargeAmount Amount to process. If value is greater than 0
      *                             then make the payment else create a payment token
-     * @return $this
+     * @return static $this.
      */
     public function setChargeAmount($chargeAmount) {
         return $this->setAttribute('chargeAmount', $chargeAmount);
@@ -147,9 +190,9 @@ class Pay extends TwiML {
 
     /**
      * Add Currency attribute.
-     * 
-     * @param pay:Enum:Currency $currency Currency of the amount attribute
-     * @return $this
+     *
+     * @param string $currency Currency of the amount attribute
+     * @return static $this.
      */
     public function setCurrency($currency) {
         return $this->setAttribute('currency', $currency);
@@ -157,9 +200,9 @@ class Pay extends TwiML {
 
     /**
      * Add Description attribute.
-     * 
+     *
      * @param string $description Details regarding the payment
-     * @return $this
+     * @return static $this.
      */
     public function setDescription($description) {
         return $this->setAttribute('description', $description);
@@ -167,10 +210,9 @@ class Pay extends TwiML {
 
     /**
      * Add ValidCardTypes attribute.
-     * 
-     * @param pay:Enum:ValidCardTypes $validCardTypes Comma separated accepted card
-     *                                                types
-     * @return $this
+     *
+     * @param string $validCardTypes Comma separated accepted card types
+     * @return static $this.
      */
     public function setValidCardTypes($validCardTypes) {
         return $this->setAttribute('validCardTypes', $validCardTypes);
@@ -178,9 +220,9 @@ class Pay extends TwiML {
 
     /**
      * Add Language attribute.
-     * 
-     * @param pay:Enum:Language $language Language to use
-     * @return $this
+     *
+     * @param string $language Language to use
+     * @return static $this.
      */
     public function setLanguage($language) {
         return $this->setAttribute('language', $language);

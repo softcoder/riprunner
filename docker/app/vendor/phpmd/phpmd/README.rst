@@ -3,7 +3,7 @@ PHPMD
 
 PHPMD is a spin-off project of PHP Depend and aims to be a PHP equivalent of the well known Java tool PMD. PHPMD can be seen as an user friendly frontend application for the raw metrics stream measured by PHP Depend.
 
-http://phpmd.org
+https://phpmd.org
 
 .. image:: https://poser.pugx.org/phpmd/phpmd/v/stable.svg
    :target: https://packagist.org/packages/phpmd/phpmd
@@ -29,10 +29,22 @@ http://phpmd.org
    :target: https://scrutinizer-ci.com/g/phpmd/phpmd/?branch=master
    :alt: Scrutinizer Code Quality
 
+.. image:: https://badges.gitter.im/phpmd/community.svg
+   :target: https://gitter.im/phpmd/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
+   :alt: Chat to us on Gitter
+
+.. image:: https://poser.pugx.org/phpmd/phpmd/d/monthly
+   :target: https://packagist.org/packages/phpmd/phpmd
+   :alt: Monthly downloads
+
+.. image:: https://poser.pugx.org/phpmd/phpmd/downloads
+   :target: https://packagist.org/packages/phpmd/phpmd
+   :alt: Total downloads
+
 Installation
 ------------
 
-See http://phpmd.org/download/index.html
+See https://phpmd.org/download/index.html
 
 Command line usage
 ------------------
@@ -65,7 +77,7 @@ The `PHPMD Phar distribution`__ includes the rule set files inside
 its archive, even if the "rulesets/codesize.xml" parameter above looks
 like a filesystem reference.
 
-__ http://phpmd.org/download/index.html
+__ https://phpmd.org/download/index.html
 
 Command line options
 --------------------
@@ -121,7 +133,7 @@ You can also mix custom `rule set files`__ with build-in rule sets: ::
 
   ~ $ phpmd /path/to/source text codesize,/my/rules.xml
 
-__ http://phpmd.org/documentation/creating-a-ruleset.html
+__ https://phpmd.org/documentation/creating-a-ruleset.html
 
 That's it. With this behavior you can specify you own combination of rule sets
 that will check the source code.
@@ -133,7 +145,6 @@ PHPMD also allowes you to specify multiple source directories in case you want
 to create one output for certain parts of your code ::
 
  ~ $ phpmd /path/to/code,index.php,/another/place/with/code text codesize
-
 
 Exit codes
 ----------
@@ -154,8 +165,9 @@ PHPMD's command line tool currently defines three different exit codes.
 Renderers
 ---------
 
-At the moment PHPMD comes with the following three renderers:
+At the moment PHPMD comes with the following four renderers:
 
 - *xml*, which formats the report as XML.
 - *text*, simple textual format.
 - *html*, single HTML file with possible problems.
+- *json*, formats JSON report.

@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Preview\Marketplace\AvailableAddOn;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -19,11 +20,11 @@ use Twilio\Version;
 class AvailableAddOnExtensionContext extends InstanceContext {
     /**
      * Initialize the AvailableAddOnExtensionContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $availableAddOnSid The available_add_on_sid
      * @param string $sid The unique Extension Sid
-     * @return \Twilio\Rest\Preview\Marketplace\AvailableAddOn\AvailableAddOnExtensionContext 
+     * @return \Twilio\Rest\Preview\Marketplace\AvailableAddOn\AvailableAddOnExtensionContext
      */
     public function __construct(Version $version, $availableAddOnSid, $sid) {
         parent::__construct($version);
@@ -36,7 +37,7 @@ class AvailableAddOnExtensionContext extends InstanceContext {
 
     /**
      * Fetch a AvailableAddOnExtensionInstance
-     * 
+     *
      * @return AvailableAddOnExtensionInstance Fetched
      *                                         AvailableAddOnExtensionInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -60,7 +61,7 @@ class AvailableAddOnExtensionContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

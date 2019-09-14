@@ -16,27 +16,27 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string sid
- * @property string accountSid
- * @property string simSid
- * @property string command
- * @property string commandMode
- * @property string transport
- * @property boolean deliveryReceiptRequested
- * @property string status
- * @property string direction
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string url
+ * @property string $sid
+ * @property string $accountSid
+ * @property string $simSid
+ * @property string $command
+ * @property string $commandMode
+ * @property string $transport
+ * @property bool $deliveryReceiptRequested
+ * @property string $status
+ * @property string $direction
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $url
  */
 class CommandInstance extends InstanceResource {
     /**
      * Initialize the CommandInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Wireless\V1\CommandInstance 
+     * @param string $sid The SID that identifies the resource to fetch
+     * @return \Twilio\Rest\Wireless\V1\CommandInstance
      */
     public function __construct(Version $version, array $payload, $sid = null) {
         parent::__construct($version);
@@ -63,7 +63,7 @@ class CommandInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Wireless\V1\CommandContext Context for this
      *                                                 CommandInstance
      */
@@ -77,7 +77,7 @@ class CommandInstance extends InstanceResource {
 
     /**
      * Fetch a CommandInstance
-     * 
+     *
      * @return CommandInstance Fetched CommandInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -86,8 +86,18 @@ class CommandInstance extends InstanceResource {
     }
 
     /**
+     * Deletes the CommandInstance
+     *
+     * @return boolean True if delete succeeds, false otherwise
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    public function delete() {
+        return $this->proxy()->delete();
+    }
+
+    /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -107,7 +117,7 @@ class CommandInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

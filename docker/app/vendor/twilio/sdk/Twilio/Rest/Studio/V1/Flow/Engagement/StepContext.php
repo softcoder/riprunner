@@ -16,7 +16,7 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Studio\V1\Flow\Engagement\Step\StepContextList stepContext
+ * @property \Twilio\Rest\Studio\V1\Flow\Engagement\Step\StepContextList $stepContext
  * @method \Twilio\Rest\Studio\V1\Flow\Engagement\Step\StepContextContext stepContext()
  */
 class StepContext extends InstanceContext {
@@ -24,12 +24,12 @@ class StepContext extends InstanceContext {
 
     /**
      * Initialize the StepContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $flowSid Flow Sid.
-     * @param string $engagementSid Engagement Sid.
-     * @param string $sid Step Sid.
-     * @return \Twilio\Rest\Studio\V1\Flow\Engagement\StepContext 
+     * @param string $flowSid The SID of the Flow
+     * @param string $engagementSid The SID of the Engagement
+     * @param string $sid The SID that identifies the resource to fetch
+     * @return \Twilio\Rest\Studio\V1\Flow\Engagement\StepContext
      */
     public function __construct(Version $version, $flowSid, $engagementSid, $sid) {
         parent::__construct($version);
@@ -42,7 +42,7 @@ class StepContext extends InstanceContext {
 
     /**
      * Fetch a StepInstance
-     * 
+     *
      * @return StepInstance Fetched StepInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -66,8 +66,8 @@ class StepContext extends InstanceContext {
 
     /**
      * Access the stepContext
-     * 
-     * @return \Twilio\Rest\Studio\V1\Flow\Engagement\Step\StepContextList 
+     *
+     * @return \Twilio\Rest\Studio\V1\Flow\Engagement\Step\StepContextList
      */
     protected function getStepContext() {
         if (!$this->_stepContext) {
@@ -84,10 +84,10 @@ class StepContext extends InstanceContext {
 
     /**
      * Magic getter to lazy load subresources
-     * 
+     *
      * @param string $name Subresource to return
      * @return \Twilio\ListResource The requested subresource
-     * @throws \Twilio\Exceptions\TwilioException For unknown subresources
+     * @throws TwilioException For unknown subresources
      */
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
@@ -100,11 +100,11 @@ class StepContext extends InstanceContext {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -117,7 +117,7 @@ class StepContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

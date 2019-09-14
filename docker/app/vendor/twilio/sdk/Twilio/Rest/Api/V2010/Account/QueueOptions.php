@@ -14,8 +14,8 @@ use Twilio\Values;
 
 abstract class QueueOptions {
     /**
-     * @param string $friendlyName A human readable description of the queue
-     * @param integer $maxSize The max number of members allowed in the queue
+     * @param string $friendlyName A string to describe this resource
+     * @param int $maxSize The max number of calls allowed in the queue
      * @return UpdateQueueOptions Options builder
      */
     public static function update($friendlyName = Values::NONE, $maxSize = Values::NONE) {
@@ -23,7 +23,7 @@ abstract class QueueOptions {
     }
 
     /**
-     * @param integer $maxSize The max number of calls allowed in the queue
+     * @param int $maxSize The max number of calls allowed in the queue
      * @return CreateQueueOptions Options builder
      */
     public static function create($maxSize = Values::NONE) {
@@ -33,8 +33,8 @@ abstract class QueueOptions {
 
 class UpdateQueueOptions extends Options {
     /**
-     * @param string $friendlyName A human readable description of the queue
-     * @param integer $maxSize The max number of members allowed in the queue
+     * @param string $friendlyName A string to describe this resource
+     * @param int $maxSize The max number of calls allowed in the queue
      */
     public function __construct($friendlyName = Values::NONE, $maxSize = Values::NONE) {
         $this->options['friendlyName'] = $friendlyName;
@@ -42,9 +42,9 @@ class UpdateQueueOptions extends Options {
     }
 
     /**
-     * A human readable description of the queue
-     * 
-     * @param string $friendlyName A human readable description of the queue
+     * A descriptive string that you created to describe this resource. It can be up to 64 characters long.
+     *
+     * @param string $friendlyName A string to describe this resource
      * @return $this Fluent Builder
      */
     public function setFriendlyName($friendlyName) {
@@ -53,9 +53,9 @@ class UpdateQueueOptions extends Options {
     }
 
     /**
-     * The maximum number of members that can be in the queue at a time
-     * 
-     * @param integer $maxSize The max number of members allowed in the queue
+     * The maximum number of calls allowed to be in the queue. The default is 100. The maximum is 5000.
+     *
+     * @param int $maxSize The max number of calls allowed in the queue
      * @return $this Fluent Builder
      */
     public function setMaxSize($maxSize) {
@@ -65,7 +65,7 @@ class UpdateQueueOptions extends Options {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {
@@ -81,16 +81,16 @@ class UpdateQueueOptions extends Options {
 
 class CreateQueueOptions extends Options {
     /**
-     * @param integer $maxSize The max number of calls allowed in the queue
+     * @param int $maxSize The max number of calls allowed in the queue
      */
     public function __construct($maxSize = Values::NONE) {
         $this->options['maxSize'] = $maxSize;
     }
 
     /**
-     * The upper limit of calls allowed to be in the queue. The default is 100. The maximum is 1000.
-     * 
-     * @param integer $maxSize The max number of calls allowed in the queue
+     * The maximum number of calls allowed to be in the queue. The default is 100. The maximum is 5000.
+     *
+     * @param int $maxSize The max number of calls allowed in the queue
      * @return $this Fluent Builder
      */
     public function setMaxSize($maxSize) {
@@ -100,7 +100,7 @@ class CreateQueueOptions extends Options {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

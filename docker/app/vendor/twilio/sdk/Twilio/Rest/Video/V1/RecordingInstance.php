@@ -16,31 +16,31 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string accountSid
- * @property string status
- * @property \DateTime dateCreated
- * @property string sid
- * @property string sourceSid
- * @property string size
- * @property string url
- * @property string type
- * @property integer duration
- * @property string containerFormat
- * @property string codec
- * @property array groupingSids
- * @property string trackName
- * @property string offset
- * @property array links
+ * @property string $accountSid
+ * @property string $status
+ * @property \DateTime $dateCreated
+ * @property string $sid
+ * @property string $sourceSid
+ * @property string $size
+ * @property string $url
+ * @property string $type
+ * @property int $duration
+ * @property string $containerFormat
+ * @property string $codec
+ * @property array $groupingSids
+ * @property string $trackName
+ * @property string $offset
+ * @property array $links
  */
 class RecordingInstance extends InstanceResource {
     /**
      * Initialize the RecordingInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
      * @param string $sid The Recording Sid that uniquely identifies the Recording
      *                    to fetch.
-     * @return \Twilio\Rest\Video\V1\RecordingInstance 
+     * @return \Twilio\Rest\Video\V1\RecordingInstance
      */
     public function __construct(Version $version, array $payload, $sid = null) {
         parent::__construct($version);
@@ -70,7 +70,7 @@ class RecordingInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Video\V1\RecordingContext Context for this
      *                                                RecordingInstance
      */
@@ -84,7 +84,7 @@ class RecordingInstance extends InstanceResource {
 
     /**
      * Fetch a RecordingInstance
-     * 
+     *
      * @return RecordingInstance Fetched RecordingInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -94,7 +94,7 @@ class RecordingInstance extends InstanceResource {
 
     /**
      * Deletes the RecordingInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -104,7 +104,7 @@ class RecordingInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -124,7 +124,7 @@ class RecordingInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

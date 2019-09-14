@@ -16,43 +16,42 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string sid
- * @property string accountSid
- * @property string friendlyName
- * @property string phoneNumber
- * @property string voiceUrl
- * @property string voiceMethod
- * @property string voiceFallbackMethod
- * @property string voiceFallbackUrl
- * @property boolean voiceCallerIdLookup
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string smsFallbackMethod
- * @property string smsFallbackUrl
- * @property string smsMethod
- * @property string smsUrl
- * @property string addressRequirements
- * @property array capabilities
- * @property string statusCallback
- * @property string statusCallbackMethod
- * @property string apiVersion
- * @property string smsApplicationSid
- * @property string voiceApplicationSid
- * @property string trunkSid
- * @property string emergencyStatus
- * @property string emergencyAddressSid
- * @property string uri
+ * @property string $sid
+ * @property string $accountSid
+ * @property string $friendlyName
+ * @property string $phoneNumber
+ * @property string $voiceUrl
+ * @property string $voiceMethod
+ * @property string $voiceFallbackMethod
+ * @property string $voiceFallbackUrl
+ * @property bool $voiceCallerIdLookup
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $smsFallbackMethod
+ * @property string $smsFallbackUrl
+ * @property string $smsMethod
+ * @property string $smsUrl
+ * @property string $addressRequirements
+ * @property array $capabilities
+ * @property string $statusCallback
+ * @property string $statusCallbackMethod
+ * @property string $apiVersion
+ * @property string $smsApplicationSid
+ * @property string $voiceApplicationSid
+ * @property string $trunkSid
+ * @property string $emergencyStatus
+ * @property string $emergencyAddressSid
+ * @property string $uri
  */
 class DependentPhoneNumberInstance extends InstanceResource {
     /**
      * Initialize the DependentPhoneNumberInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $accountSid The account_sid
-     * @param string $addressSid A 34 character string that uniquely identifies
-     *                           this address.
-     * @return \Twilio\Rest\Api\V2010\Account\Address\DependentPhoneNumberInstance 
+     * @param string $accountSid The SID of the Account that created the resource
+     * @param string $addressSid The unique string that identifies the resource
+     * @return \Twilio\Rest\Api\V2010\Account\Address\DependentPhoneNumberInstance
      */
     public function __construct(Version $version, array $payload, $accountSid, $addressSid) {
         parent::__construct($version);
@@ -92,7 +91,7 @@ class DependentPhoneNumberInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -112,7 +111,7 @@ class DependentPhoneNumberInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

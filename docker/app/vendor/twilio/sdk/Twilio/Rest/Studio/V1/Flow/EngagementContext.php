@@ -17,8 +17,8 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Studio\V1\Flow\Engagement\StepList steps
- * @property \Twilio\Rest\Studio\V1\Flow\Engagement\EngagementContextList engagementContext
+ * @property \Twilio\Rest\Studio\V1\Flow\Engagement\StepList $steps
+ * @property \Twilio\Rest\Studio\V1\Flow\Engagement\EngagementContextList $engagementContext
  * @method \Twilio\Rest\Studio\V1\Flow\Engagement\StepContext steps(string $sid)
  * @method \Twilio\Rest\Studio\V1\Flow\Engagement\EngagementContextContext engagementContext()
  */
@@ -28,11 +28,11 @@ class EngagementContext extends InstanceContext {
 
     /**
      * Initialize the EngagementContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $flowSid Flow Sid.
-     * @param string $sid Engagement Sid.
-     * @return \Twilio\Rest\Studio\V1\Flow\EngagementContext 
+     * @param string $flowSid Flow SID
+     * @param string $sid The SID of the Engagement resource to fetch
+     * @return \Twilio\Rest\Studio\V1\Flow\EngagementContext
      */
     public function __construct(Version $version, $flowSid, $sid) {
         parent::__construct($version);
@@ -45,7 +45,7 @@ class EngagementContext extends InstanceContext {
 
     /**
      * Fetch a EngagementInstance
-     * 
+     *
      * @return EngagementInstance Fetched EngagementInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -68,7 +68,7 @@ class EngagementContext extends InstanceContext {
 
     /**
      * Deletes the EngagementInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -78,8 +78,8 @@ class EngagementContext extends InstanceContext {
 
     /**
      * Access the steps
-     * 
-     * @return \Twilio\Rest\Studio\V1\Flow\Engagement\StepList 
+     *
+     * @return \Twilio\Rest\Studio\V1\Flow\Engagement\StepList
      */
     protected function getSteps() {
         if (!$this->_steps) {
@@ -91,8 +91,8 @@ class EngagementContext extends InstanceContext {
 
     /**
      * Access the engagementContext
-     * 
-     * @return \Twilio\Rest\Studio\V1\Flow\Engagement\EngagementContextList 
+     *
+     * @return \Twilio\Rest\Studio\V1\Flow\Engagement\EngagementContextList
      */
     protected function getEngagementContext() {
         if (!$this->_engagementContext) {
@@ -108,10 +108,10 @@ class EngagementContext extends InstanceContext {
 
     /**
      * Magic getter to lazy load subresources
-     * 
+     *
      * @param string $name Subresource to return
      * @return \Twilio\ListResource The requested subresource
-     * @throws \Twilio\Exceptions\TwilioException For unknown subresources
+     * @throws TwilioException For unknown subresources
      */
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
@@ -124,11 +124,11 @@ class EngagementContext extends InstanceContext {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -141,7 +141,7 @@ class EngagementContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

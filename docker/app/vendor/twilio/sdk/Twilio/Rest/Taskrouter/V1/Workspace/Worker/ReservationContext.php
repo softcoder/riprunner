@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Taskrouter\V1\Workspace\Worker;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Options;
 use Twilio\Serialize;
@@ -18,12 +19,12 @@ use Twilio\Version;
 class ReservationContext extends InstanceContext {
     /**
      * Initialize the ReservationContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $workspaceSid The workspace_sid
      * @param string $workerSid The worker_sid
      * @param string $sid The sid
-     * @return \Twilio\Rest\Taskrouter\V1\Workspace\Worker\ReservationContext 
+     * @return \Twilio\Rest\Taskrouter\V1\Workspace\Worker\ReservationContext
      */
     public function __construct(Version $version, $workspaceSid, $workerSid, $sid) {
         parent::__construct($version);
@@ -36,7 +37,7 @@ class ReservationContext extends InstanceContext {
 
     /**
      * Fetch a ReservationInstance
-     * 
+     *
      * @return ReservationInstance Fetched ReservationInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -60,7 +61,7 @@ class ReservationContext extends InstanceContext {
 
     /**
      * Update the ReservationInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return ReservationInstance Updated ReservationInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -118,6 +119,8 @@ class ReservationContext extends InstanceContext {
             'SipAuthPassword' => $options['sipAuthPassword'],
             'DequeueStatusCallbackEvent' => Serialize::map($options['dequeueStatusCallbackEvent'], function($e) { return $e; }),
             'PostWorkActivitySid' => $options['postWorkActivitySid'],
+            'EndConferenceOnCustomerExit' => Serialize::booleanToString($options['endConferenceOnCustomerExit']),
+            'BeepOnCustomerEntrance' => Serialize::booleanToString($options['beepOnCustomerEntrance']),
         ));
 
         $payload = $this->version->update(
@@ -138,7 +141,7 @@ class ReservationContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

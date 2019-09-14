@@ -15,21 +15,21 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string accountSid
- * @property array context
- * @property string flowSid
- * @property string executionSid
- * @property string url
+ * @property string $accountSid
+ * @property array $context
+ * @property string $flowSid
+ * @property string $executionSid
+ * @property string $url
  */
 class ExecutionContextInstance extends InstanceResource {
     /**
      * Initialize the ExecutionContextInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $flowSid Flow Sid.
-     * @param string $executionSid Execution Sid.
-     * @return \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionContextInstance 
+     * @param string $flowSid The SID of the Flow
+     * @param string $executionSid The SID of the Execution
+     * @return \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionContextInstance
      */
     public function __construct(Version $version, array $payload, $flowSid, $executionSid) {
         parent::__construct($version);
@@ -49,7 +49,7 @@ class ExecutionContextInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Studio\V1\Flow\Execution\ExecutionContextContext Context for this ExecutionContextInstance
      */
     protected function proxy() {
@@ -66,7 +66,7 @@ class ExecutionContextInstance extends InstanceResource {
 
     /**
      * Fetch a ExecutionContextInstance
-     * 
+     *
      * @return ExecutionContextInstance Fetched ExecutionContextInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -76,7 +76,7 @@ class ExecutionContextInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -96,7 +96,7 @@ class ExecutionContextInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

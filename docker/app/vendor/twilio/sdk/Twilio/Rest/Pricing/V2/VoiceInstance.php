@@ -15,17 +15,17 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string name
- * @property string url
- * @property array links
+ * @property string $name
+ * @property string $url
+ * @property array $links
  */
 class VoiceInstance extends InstanceResource {
     /**
      * Initialize the VoiceInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @return \Twilio\Rest\Pricing\V2\VoiceInstance 
+     * @return \Twilio\Rest\Pricing\V2\VoiceInstance
      */
     public function __construct(Version $version, array $payload) {
         parent::__construct($version);
@@ -42,7 +42,7 @@ class VoiceInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -62,7 +62,7 @@ class VoiceInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

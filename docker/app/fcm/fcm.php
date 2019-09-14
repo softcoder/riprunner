@@ -99,42 +99,106 @@ class FCM {
     		throwExceptionAndLogError('FCM fhid is not set!', 'FCM fhid is not set ['.$this->firehall_id.']');
     	}
     }
-    
+	
+	private function getMessageNotificationBody($message, $rootURL) {
+		$msgBody = null;
+		// 'notification' => [
+		// 	// https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#notification
+		// ],
+		if(array_key_exists('CALLOUT_MSG', $message)) {
+			$msgBody = [
+                'title' => 'Emergency Page.',
+				'body' => 'Callout type: '.urldecode($message['call-type']).' location: '.urldecode($message['call-address']),
+				//'image' => 'notification_icon.png',
+				'image' => $rootURL.'/images/logo.png',
+				//'tag' => 'rr-callout-notification',
+			];
+		}
+		else if(array_key_exists('CALLOUT_RESPONSE_MSG', $message)) {
+			$msgBody = [
+                'title' => 'Responder Status Updated.',
+				'body' => 'Responder: '.urldecode($message['user-id']).' is: '.urldecode($message['user-status']),
+				//'image' => 'notification_icon.png',
+				'image' => $rootURL.'/images/logo.png',
+				//'image' => 'http://lorempixel.com/400/200/',
+				//'tag' => 'rr-callout-notification',
+			];
+		}
+		else if(array_key_exists('ADMIN_MSG', $message)) {
+			$msgBody = [
+                'title' => 'Responder Message Received:',
+				'body' => urldecode($message['ADMIN_MSG']),
+				//'image' => 'notification_icon.png',
+				'image' => $rootURL.'/images/logo.png',
+				//'image' => 'http://lorempixel.com/400/200/',
+				//'tag' => 'rr-callout-notification',
+			];
+		}
+
+		if($msgBody != null) {
+			// Background message
+			if($rootURL != null && $rootURL != '') {
+				$msgBody['image'] = $rootURL.'/images/logo.png';
+				//$msgBody['image'] = 'notification_icon.png';
+			}
+			
+			$msgBodyAndroid = $msgBody;
+			// Red notification icon for Android
+			$msgBodyAndroid['color'] = '#8B0000';
+			if(array_key_exists('CALLOUT_MSG', $message)) {
+				$msgBodyAndroid['sound'] = 'pager_notify.mp3';
+			}
+			else if(array_key_exists('ADMIN_MSG', $message)) {
+				$msgBodyAndroid['sound'] = 'message.mp3';
+			}
+
+			return [ 
+				'notification' => $msgBody,
+				'android' => [
+					'priority' => 'normal',
+					'notification' => $msgBodyAndroid,
+				],
+			];
+
+
+		}
+		return null;
+	}
+
     /*
     	Send the message to the device
     	@param $message The message to send
     */
-    public function send($message) {
+    public function send($message, $rootURL) {
     	global $log;
     	
     	$resultFCM = '';
     	if (is_array($this->devices) === false || count($this->devices) === 0) {
     		$this->error('FCM No devices set!', 'FCM No devices set.');
-    	}
+		}
+		
+		$fcmArray = [];
+
+		$notificationBody = $this->getMessageNotificationBody($message, $rootURL);
+		if($notificationBody != null) {
+			// This ensures the notification shows in the tray even if the application is not running
+			$message['click_action'] = 'FLUTTER_NOTIFICATION_CLICK';
+			// Foreground message
+			if($rootURL != null && $rootURL != '') {
+				$message['image'] = $rootURL.'/images/logo.png';
+				//$message['image'] = 'notification_icon.png';
+			}
+
+			$jsonNotifMessage = json_encode($notificationBody);
+			if($log != null) $log->warn('Send FCM $notifMessage ['.$jsonNotifMessage.']');
+			$fcmArray = $notificationBody;
+		}
+		$fcmArray['data'] = $message;
 
 		$jsonMessage = json_encode($message);
 		if($log != null) $log->warn('Send FCM $message ['.$jsonMessage.']');
-
-		$fcm_message = new RawMessageFromArray([
-			// 'notification' => [
-			// 	// https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#notification
-			// 	'title' => 'Notification title',
-			// 	'body' => 'Notification body',
-			// 	'image' => 'http://lorempixel.com/400/200/',
-			// ],
-			'data' => $message,
-			// 'android' => [
-			// 	// https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#androidconfig
-			// 	'ttl' => '3600s',
-			// 	'priority' => 'normal',
-			// 	'notification' => [
-			// 		'title' => '$GOOG up 1.43% on the day',
-			// 		'body' => '$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.',
-			// 		'icon' => 'stock_ticker_update',
-			// 		'color' => '#f45342',
-			// 	],
-			// ],
-		]);
+		
+		$fcm_message = new RawMessageFromArray($fcmArray);
 		$report = $this->messaging->sendMulticast($fcm_message, $this->devices);
 
 		$resultMessage = 'Send FCM Successful sends: '.$report->successes()->count();
@@ -152,7 +216,6 @@ class FCM {
 				$resultFCM .= $errMessage;
 			}
 		}
-
 		return $resultFCM;
     }
     

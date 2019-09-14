@@ -118,20 +118,6 @@ class CannotBeAutowired
     }
 }
 
-class CannotBeAutowiredForwardOrder
-{
-    public function __construct(CollisionA $a, CollisionInterface $b, CollisionB $c)
-    {
-    }
-}
-
-class CannotBeAutowiredReverseOrder
-{
-    public function __construct(CollisionA $a, CollisionB $c, CollisionInterface $b)
-    {
-    }
-}
-
 class Lille
 {
 }
@@ -278,6 +264,39 @@ class SetterInjection extends SetterInjectionParent
     }
 }
 
+class Wither
+{
+    public $foo;
+
+    /**
+     * @required
+     */
+    public function setFoo(Foo $foo)
+    {
+    }
+
+    /**
+     * @required
+     * @return static
+     */
+    public function withFoo1(Foo $foo)
+    {
+        return $this->withFoo2($foo);
+    }
+
+    /**
+     * @required
+     * @return static
+     */
+    public function withFoo2(Foo $foo)
+    {
+        $new = clone $this;
+        $new->foo = $foo;
+
+        return $new;
+    }
+}
+
 class SetterInjectionParent
 {
     /** @required*/
@@ -361,7 +380,7 @@ interface DecoratorInterface
 
 class Decorated implements DecoratorInterface
 {
-    public function __construct($quz = null, \NonExistent $nonExistent = null, DecoratorInterface $decorated = null, array $foo = array())
+    public function __construct($quz = null, \NonExistent $nonExistent = null, DecoratorInterface $decorated = null, array $foo = [])
     {
     }
 }
@@ -383,6 +402,13 @@ class DecoratedDecorator implements DecoratorInterface
 class NonAutowirableDecorator implements DecoratorInterface
 {
     public function __construct(LoggerInterface $logger, DecoratorInterface $decorated1, DecoratorInterface $decorated2)
+    {
+    }
+}
+
+final class ElsaAction
+{
+    public function __construct(NotExisting $notExisting)
     {
     }
 }

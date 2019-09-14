@@ -1,5 +1,5 @@
 <button onclick="toggleVisibility('user_send_msg');">Show/Hide Send Message</button>            
-<form action="{{ gvm.RR_DOC_ROOT }}/controllers/{{ override_smc_controller is defined ? override_smc_controller : 'send-message-controller.php' }}" 
+<form action="{{ gvm.RR_DOC_ROOT }}/controllers/{{ override_smc_controller is defined ? override_smc_controller : 'send-message-controller.php' }}?{{ gvm.RR_JWT_TOKEN_PARAM }}" 
       method="post" id="user_send_msg" name="user_send_msg" 
       style="display:{% if sendmsg_vm is not defined or 
                            sendmsg_vm.gcm_send_mode is not defined or 

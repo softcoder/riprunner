@@ -18,19 +18,21 @@ use Twilio\Version;
 
 /**
  * PLEASE NOTE that this class contains preview products that are subject to change. Use them with caution. If you currently do not have developer preview access, please contact help@twilio.com.
- * 
- * @property string accountSid
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string friendlyName
- * @property string latestModelBuildSid
- * @property array links
- * @property boolean logQueries
- * @property string sid
- * @property string uniqueName
- * @property string url
- * @property string callbackUrl
- * @property string callbackEvents
+ *
+ * @property string $accountSid
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $friendlyName
+ * @property string $latestModelBuildSid
+ * @property array $links
+ * @property bool $logQueries
+ * @property string $developmentStage
+ * @property bool $needsModelBuild
+ * @property string $sid
+ * @property string $uniqueName
+ * @property string $url
+ * @property string $callbackUrl
+ * @property string $callbackEvents
  */
 class AssistantInstance extends InstanceResource {
     protected $_fieldTypes = null;
@@ -40,15 +42,15 @@ class AssistantInstance extends InstanceResource {
     protected $_styleSheet = null;
     protected $_defaults = null;
     protected $_dialogues = null;
+    protected $_webhooks = null;
 
     /**
      * Initialize the AssistantInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $sid A 34-character string that uniquely identifies this
-     *                    resource.
-     * @return \Twilio\Rest\Autopilot\V1\AssistantInstance 
+     * @param string $sid The unique string that identifies the resource
+     * @return \Twilio\Rest\Autopilot\V1\AssistantInstance
      */
     public function __construct(Version $version, array $payload, $sid = null) {
         parent::__construct($version);
@@ -62,6 +64,8 @@ class AssistantInstance extends InstanceResource {
             'latestModelBuildSid' => Values::array_get($payload, 'latest_model_build_sid'),
             'links' => Values::array_get($payload, 'links'),
             'logQueries' => Values::array_get($payload, 'log_queries'),
+            'developmentStage' => Values::array_get($payload, 'development_stage'),
+            'needsModelBuild' => Values::array_get($payload, 'needs_model_build'),
             'sid' => Values::array_get($payload, 'sid'),
             'uniqueName' => Values::array_get($payload, 'unique_name'),
             'url' => Values::array_get($payload, 'url'),
@@ -75,7 +79,7 @@ class AssistantInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Autopilot\V1\AssistantContext Context for this
      *                                                    AssistantInstance
      */
@@ -89,7 +93,7 @@ class AssistantInstance extends InstanceResource {
 
     /**
      * Fetch a AssistantInstance
-     * 
+     *
      * @return AssistantInstance Fetched AssistantInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -99,7 +103,7 @@ class AssistantInstance extends InstanceResource {
 
     /**
      * Update the AssistantInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return AssistantInstance Updated AssistantInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -110,7 +114,7 @@ class AssistantInstance extends InstanceResource {
 
     /**
      * Deletes the AssistantInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -120,8 +124,8 @@ class AssistantInstance extends InstanceResource {
 
     /**
      * Access the fieldTypes
-     * 
-     * @return \Twilio\Rest\Autopilot\V1\Assistant\FieldTypeList 
+     *
+     * @return \Twilio\Rest\Autopilot\V1\Assistant\FieldTypeList
      */
     protected function getFieldTypes() {
         return $this->proxy()->fieldTypes;
@@ -129,8 +133,8 @@ class AssistantInstance extends InstanceResource {
 
     /**
      * Access the tasks
-     * 
-     * @return \Twilio\Rest\Autopilot\V1\Assistant\TaskList 
+     *
+     * @return \Twilio\Rest\Autopilot\V1\Assistant\TaskList
      */
     protected function getTasks() {
         return $this->proxy()->tasks;
@@ -138,8 +142,8 @@ class AssistantInstance extends InstanceResource {
 
     /**
      * Access the modelBuilds
-     * 
-     * @return \Twilio\Rest\Autopilot\V1\Assistant\ModelBuildList 
+     *
+     * @return \Twilio\Rest\Autopilot\V1\Assistant\ModelBuildList
      */
     protected function getModelBuilds() {
         return $this->proxy()->modelBuilds;
@@ -147,8 +151,8 @@ class AssistantInstance extends InstanceResource {
 
     /**
      * Access the queries
-     * 
-     * @return \Twilio\Rest\Autopilot\V1\Assistant\QueryList 
+     *
+     * @return \Twilio\Rest\Autopilot\V1\Assistant\QueryList
      */
     protected function getQueries() {
         return $this->proxy()->queries;
@@ -156,8 +160,8 @@ class AssistantInstance extends InstanceResource {
 
     /**
      * Access the styleSheet
-     * 
-     * @return \Twilio\Rest\Autopilot\V1\Assistant\StyleSheetList 
+     *
+     * @return \Twilio\Rest\Autopilot\V1\Assistant\StyleSheetList
      */
     protected function getStyleSheet() {
         return $this->proxy()->styleSheet;
@@ -165,8 +169,8 @@ class AssistantInstance extends InstanceResource {
 
     /**
      * Access the defaults
-     * 
-     * @return \Twilio\Rest\Autopilot\V1\Assistant\DefaultsList 
+     *
+     * @return \Twilio\Rest\Autopilot\V1\Assistant\DefaultsList
      */
     protected function getDefaults() {
         return $this->proxy()->defaults;
@@ -174,16 +178,25 @@ class AssistantInstance extends InstanceResource {
 
     /**
      * Access the dialogues
-     * 
-     * @return \Twilio\Rest\Autopilot\V1\Assistant\DialogueList 
+     *
+     * @return \Twilio\Rest\Autopilot\V1\Assistant\DialogueList
      */
     protected function getDialogues() {
         return $this->proxy()->dialogues;
     }
 
     /**
+     * Access the webhooks
+     *
+     * @return \Twilio\Rest\Autopilot\V1\Assistant\WebhookList
+     */
+    protected function getWebhooks() {
+        return $this->proxy()->webhooks;
+    }
+
+    /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -203,7 +216,7 @@ class AssistantInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

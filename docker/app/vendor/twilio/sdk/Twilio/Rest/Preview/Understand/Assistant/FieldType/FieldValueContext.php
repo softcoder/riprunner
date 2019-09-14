@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Preview\Understand\Assistant\FieldType;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -19,12 +20,12 @@ use Twilio\Version;
 class FieldValueContext extends InstanceContext {
     /**
      * Initialize the FieldValueContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $assistantSid The assistant_sid
      * @param string $fieldTypeSid The field_type_sid
      * @param string $sid The sid
-     * @return \Twilio\Rest\Preview\Understand\Assistant\FieldType\FieldValueContext 
+     * @return \Twilio\Rest\Preview\Understand\Assistant\FieldType\FieldValueContext
      */
     public function __construct(Version $version, $assistantSid, $fieldTypeSid, $sid) {
         parent::__construct($version);
@@ -41,7 +42,7 @@ class FieldValueContext extends InstanceContext {
 
     /**
      * Fetch a FieldValueInstance
-     * 
+     *
      * @return FieldValueInstance Fetched FieldValueInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -65,7 +66,7 @@ class FieldValueContext extends InstanceContext {
 
     /**
      * Deletes the FieldValueInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -75,7 +76,7 @@ class FieldValueContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

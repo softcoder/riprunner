@@ -20,9 +20,9 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Api\V2010\Account\Sip\Domain\IpAccessControlListMappingList ipAccessControlListMappings
- * @property \Twilio\Rest\Api\V2010\Account\Sip\Domain\CredentialListMappingList credentialListMappings
- * @property \Twilio\Rest\Api\V2010\Account\Sip\Domain\AuthTypesList auth
+ * @property \Twilio\Rest\Api\V2010\Account\Sip\Domain\IpAccessControlListMappingList $ipAccessControlListMappings
+ * @property \Twilio\Rest\Api\V2010\Account\Sip\Domain\CredentialListMappingList $credentialListMappings
+ * @property \Twilio\Rest\Api\V2010\Account\Sip\Domain\AuthTypesList $auth
  * @method \Twilio\Rest\Api\V2010\Account\Sip\Domain\IpAccessControlListMappingContext ipAccessControlListMappings(string $sid)
  * @method \Twilio\Rest\Api\V2010\Account\Sip\Domain\CredentialListMappingContext credentialListMappings(string $sid)
  */
@@ -33,11 +33,12 @@ class DomainContext extends InstanceContext {
 
     /**
      * Initialize the DomainContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $accountSid The account_sid
-     * @param string $sid Fetch by unique Domain Sid
-     * @return \Twilio\Rest\Api\V2010\Account\Sip\DomainContext 
+     * @param string $accountSid The SID of the Account that created the resource
+     *                           to fetch
+     * @param string $sid The unique string that identifies the resource
+     * @return \Twilio\Rest\Api\V2010\Account\Sip\DomainContext
      */
     public function __construct(Version $version, $accountSid, $sid) {
         parent::__construct($version);
@@ -50,7 +51,7 @@ class DomainContext extends InstanceContext {
 
     /**
      * Fetch a DomainInstance
-     * 
+     *
      * @return DomainInstance Fetched DomainInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -73,7 +74,7 @@ class DomainContext extends InstanceContext {
 
     /**
      * Update the DomainInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return DomainInstance Updated DomainInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -82,7 +83,6 @@ class DomainContext extends InstanceContext {
         $options = new Values($options);
 
         $data = Values::of(array(
-            'AuthType' => $options['authType'],
             'FriendlyName' => $options['friendlyName'],
             'VoiceFallbackMethod' => $options['voiceFallbackMethod'],
             'VoiceFallbackUrl' => $options['voiceFallbackUrl'],
@@ -91,6 +91,7 @@ class DomainContext extends InstanceContext {
             'VoiceStatusCallbackUrl' => $options['voiceStatusCallbackUrl'],
             'VoiceUrl' => $options['voiceUrl'],
             'SipRegistration' => Serialize::booleanToString($options['sipRegistration']),
+            'DomainName' => $options['domainName'],
         ));
 
         $payload = $this->version->update(
@@ -110,7 +111,7 @@ class DomainContext extends InstanceContext {
 
     /**
      * Deletes the DomainInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -120,8 +121,8 @@ class DomainContext extends InstanceContext {
 
     /**
      * Access the ipAccessControlListMappings
-     * 
-     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\IpAccessControlListMappingList 
+     *
+     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\IpAccessControlListMappingList
      */
     protected function getIpAccessControlListMappings() {
         if (!$this->_ipAccessControlListMappings) {
@@ -137,8 +138,8 @@ class DomainContext extends InstanceContext {
 
     /**
      * Access the credentialListMappings
-     * 
-     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\CredentialListMappingList 
+     *
+     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\CredentialListMappingList
      */
     protected function getCredentialListMappings() {
         if (!$this->_credentialListMappings) {
@@ -154,8 +155,8 @@ class DomainContext extends InstanceContext {
 
     /**
      * Access the auth
-     * 
-     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\AuthTypesList 
+     *
+     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\AuthTypesList
      */
     protected function getAuth() {
         if (!$this->_auth) {
@@ -171,10 +172,10 @@ class DomainContext extends InstanceContext {
 
     /**
      * Magic getter to lazy load subresources
-     * 
+     *
      * @param string $name Subresource to return
      * @return \Twilio\ListResource The requested subresource
-     * @throws \Twilio\Exceptions\TwilioException For unknown subresources
+     * @throws TwilioException For unknown subresources
      */
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
@@ -187,11 +188,11 @@ class DomainContext extends InstanceContext {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -204,7 +205,7 @@ class DomainContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

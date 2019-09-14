@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account\Call;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,11 +17,12 @@ use Twilio\Version;
 class FeedbackSummaryContext extends InstanceContext {
     /**
      * Initialize the FeedbackSummaryContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $accountSid The account_sid
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Api\V2010\Account\Call\FeedbackSummaryContext 
+     * @param string $accountSid The unique sid that identifies this account
+     * @param string $sid A string that uniquely identifies this feedback summary
+     *                    resource
+     * @return \Twilio\Rest\Api\V2010\Account\Call\FeedbackSummaryContext
      */
     public function __construct(Version $version, $accountSid, $sid) {
         parent::__construct($version);
@@ -33,7 +35,7 @@ class FeedbackSummaryContext extends InstanceContext {
 
     /**
      * Fetch a FeedbackSummaryInstance
-     * 
+     *
      * @return FeedbackSummaryInstance Fetched FeedbackSummaryInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -56,7 +58,7 @@ class FeedbackSummaryContext extends InstanceContext {
 
     /**
      * Deletes the FeedbackSummaryInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -66,7 +68,7 @@ class FeedbackSummaryContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

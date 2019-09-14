@@ -14,12 +14,14 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Wireless\V1\CommandList;
 use Twilio\Rest\Wireless\V1\RatePlanList;
 use Twilio\Rest\Wireless\V1\SimList;
+use Twilio\Rest\Wireless\V1\UsageRecordList;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Wireless\V1\CommandList commands
- * @property \Twilio\Rest\Wireless\V1\RatePlanList ratePlans
- * @property \Twilio\Rest\Wireless\V1\SimList sims
+ * @property \Twilio\Rest\Wireless\V1\CommandList $commands
+ * @property \Twilio\Rest\Wireless\V1\RatePlanList $ratePlans
+ * @property \Twilio\Rest\Wireless\V1\UsageRecordList $usageRecords
+ * @property \Twilio\Rest\Wireless\V1\SimList $sims
  * @method \Twilio\Rest\Wireless\V1\CommandContext commands(string $sid)
  * @method \Twilio\Rest\Wireless\V1\RatePlanContext ratePlans(string $sid)
  * @method \Twilio\Rest\Wireless\V1\SimContext sims(string $sid)
@@ -27,11 +29,12 @@ use Twilio\Version;
 class V1 extends Version {
     protected $_commands = null;
     protected $_ratePlans = null;
+    protected $_usageRecords = null;
     protected $_sims = null;
 
     /**
      * Construct the V1 version of Wireless
-     * 
+     *
      * @param \Twilio\Domain $domain Domain that contains the version
      * @return \Twilio\Rest\Wireless\V1 V1 version of Wireless
      */
@@ -41,7 +44,7 @@ class V1 extends Version {
     }
 
     /**
-     * @return \Twilio\Rest\Wireless\V1\CommandList 
+     * @return \Twilio\Rest\Wireless\V1\CommandList
      */
     protected function getCommands() {
         if (!$this->_commands) {
@@ -51,7 +54,7 @@ class V1 extends Version {
     }
 
     /**
-     * @return \Twilio\Rest\Wireless\V1\RatePlanList 
+     * @return \Twilio\Rest\Wireless\V1\RatePlanList
      */
     protected function getRatePlans() {
         if (!$this->_ratePlans) {
@@ -61,7 +64,17 @@ class V1 extends Version {
     }
 
     /**
-     * @return \Twilio\Rest\Wireless\V1\SimList 
+     * @return \Twilio\Rest\Wireless\V1\UsageRecordList
+     */
+    protected function getUsageRecords() {
+        if (!$this->_usageRecords) {
+            $this->_usageRecords = new UsageRecordList($this);
+        }
+        return $this->_usageRecords;
+    }
+
+    /**
+     * @return \Twilio\Rest\Wireless\V1\SimList
      */
     protected function getSims() {
         if (!$this->_sims) {
@@ -72,10 +85,10 @@ class V1 extends Version {
 
     /**
      * Magic getter to lazy load root resources
-     * 
+     *
      * @param string $name Resource to return
      * @return \Twilio\ListResource The requested resource
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -88,11 +101,11 @@ class V1 extends Version {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -105,7 +118,7 @@ class V1 extends Version {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

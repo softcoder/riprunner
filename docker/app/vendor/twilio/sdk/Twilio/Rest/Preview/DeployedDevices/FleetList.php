@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Preview\DeployedDevices;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
@@ -20,9 +21,9 @@ use Twilio\Version;
 class FleetList extends ListResource {
     /**
      * Construct the FleetList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @return \Twilio\Rest\Preview\DeployedDevices\FleetList 
+     * @return \Twilio\Rest\Preview\DeployedDevices\FleetList
      */
     public function __construct(Version $version) {
         parent::__construct($version);
@@ -35,7 +36,7 @@ class FleetList extends ListResource {
 
     /**
      * Create a new FleetInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return FleetInstance Newly created FleetInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -62,7 +63,7 @@ class FleetList extends ListResource {
      * is reached.
      * The results are returned as a generator, so this operation is memory
      * efficient.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. stream()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -85,7 +86,7 @@ class FleetList extends ListResource {
      * Reads FleetInstance records from the API as a list.
      * Unlike stream(), this operation is eager and will load `limit` records into
      * memory before returning.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. read()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -103,7 +104,7 @@ class FleetList extends ListResource {
     /**
      * Retrieve a single page of FleetInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param mixed $pageSize Number of records to return, defaults to 50
      * @param string $pageToken PageToken provided by the API
      * @param mixed $pageNumber Page Number, this value is simply for client state
@@ -128,7 +129,7 @@ class FleetList extends ListResource {
     /**
      * Retrieve a specific page of FleetInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param string $targetUrl API-generated URL for the requested results page
      * @return \Twilio\Page Page of FleetInstance
      */
@@ -143,9 +144,9 @@ class FleetList extends ListResource {
 
     /**
      * Constructs a FleetContext
-     * 
+     *
      * @param string $sid A string that uniquely identifies the Fleet.
-     * @return \Twilio\Rest\Preview\DeployedDevices\FleetContext 
+     * @return \Twilio\Rest\Preview\DeployedDevices\FleetContext
      */
     public function getContext($sid) {
         return new FleetContext($this->version, $sid);
@@ -153,7 +154,7 @@ class FleetList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

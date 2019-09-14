@@ -17,10 +17,11 @@ use Twilio\Values;
  */
 abstract class SyncListOptions {
     /**
-     * @param string $uniqueName Human-readable name for this list
-     * @param integer $ttl Alias for collection_ttl
-     * @param integer $collectionTtl Time-to-live of this List in seconds, defaults
-     *                               to no expiration.
+     * @param string $uniqueName An application-defined string that uniquely
+     *                           identifies the resource
+     * @param int $ttl Alias for collection_ttl
+     * @param int $collectionTtl How long, in seconds, before the Sync List expires
+     *                           and is deleted
      * @return CreateSyncListOptions Options builder
      */
     public static function create($uniqueName = Values::NONE, $ttl = Values::NONE, $collectionTtl = Values::NONE) {
@@ -28,9 +29,9 @@ abstract class SyncListOptions {
     }
 
     /**
-     * @param integer $ttl Alias for collection_ttl
-     * @param integer $collectionTtl Time-to-live of this List in seconds, defaults
-     *                               to no expiration.
+     * @param int $ttl An alias for collection_ttl
+     * @param int $collectionTtl How long, in seconds, before the Sync List expires
+     *                           and is deleted
      * @return UpdateSyncListOptions Options builder
      */
     public static function update($ttl = Values::NONE, $collectionTtl = Values::NONE) {
@@ -40,10 +41,11 @@ abstract class SyncListOptions {
 
 class CreateSyncListOptions extends Options {
     /**
-     * @param string $uniqueName Human-readable name for this list
-     * @param integer $ttl Alias for collection_ttl
-     * @param integer $collectionTtl Time-to-live of this List in seconds, defaults
-     *                               to no expiration.
+     * @param string $uniqueName An application-defined string that uniquely
+     *                           identifies the resource
+     * @param int $ttl Alias for collection_ttl
+     * @param int $collectionTtl How long, in seconds, before the Sync List expires
+     *                           and is deleted
      */
     public function __construct($uniqueName = Values::NONE, $ttl = Values::NONE, $collectionTtl = Values::NONE) {
         $this->options['uniqueName'] = $uniqueName;
@@ -52,9 +54,10 @@ class CreateSyncListOptions extends Options {
     }
 
     /**
-     * Human-readable name for this list
-     * 
-     * @param string $uniqueName Human-readable name for this list
+     * An application-defined string that uniquely identifies the resource. This value must be unique within its Service and it can be up to 320 characters long. The `unique_name` value can be used as an alternative to the `sid` in the URL path to address the resource.
+     *
+     * @param string $uniqueName An application-defined string that uniquely
+     *                           identifies the resource
      * @return $this Fluent Builder
      */
     public function setUniqueName($uniqueName) {
@@ -64,8 +67,8 @@ class CreateSyncListOptions extends Options {
 
     /**
      * Alias for collection_ttl. If both are provided, this value is ignored.
-     * 
-     * @param integer $ttl Alias for collection_ttl
+     *
+     * @param int $ttl Alias for collection_ttl
      * @return $this Fluent Builder
      */
     public function setTtl($ttl) {
@@ -74,10 +77,10 @@ class CreateSyncListOptions extends Options {
     }
 
     /**
-     * Time-to-live of this List in seconds, defaults to no expiration. In the range [1, 31 536 000 (1 year)], or 0 for infinity.
-     * 
-     * @param integer $collectionTtl Time-to-live of this List in seconds, defaults
-     *                               to no expiration.
+     * How long, in seconds, before the Sync List expires (time-to-live) and is deleted.  Can be an integer from 0 to 31,536,000 (1 year). The default value is `0`, which means the Sync List does not expire. The Sync List might not be deleted immediately after it expires.
+     *
+     * @param int $collectionTtl How long, in seconds, before the Sync List expires
+     *                           and is deleted
      * @return $this Fluent Builder
      */
     public function setCollectionTtl($collectionTtl) {
@@ -87,7 +90,7 @@ class CreateSyncListOptions extends Options {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {
@@ -103,9 +106,9 @@ class CreateSyncListOptions extends Options {
 
 class UpdateSyncListOptions extends Options {
     /**
-     * @param integer $ttl Alias for collection_ttl
-     * @param integer $collectionTtl Time-to-live of this List in seconds, defaults
-     *                               to no expiration.
+     * @param int $ttl An alias for collection_ttl
+     * @param int $collectionTtl How long, in seconds, before the Sync List expires
+     *                           and is deleted
      */
     public function __construct($ttl = Values::NONE, $collectionTtl = Values::NONE) {
         $this->options['ttl'] = $ttl;
@@ -113,9 +116,9 @@ class UpdateSyncListOptions extends Options {
     }
 
     /**
-     * Alias for collection_ttl. If both are provided, this value is ignored.
-     * 
-     * @param integer $ttl Alias for collection_ttl
+     * An alias for `collection_ttl`. If both are provided, this value is ignored.
+     *
+     * @param int $ttl An alias for collection_ttl
      * @return $this Fluent Builder
      */
     public function setTtl($ttl) {
@@ -124,10 +127,10 @@ class UpdateSyncListOptions extends Options {
     }
 
     /**
-     * Time-to-live of this List in seconds, defaults to no expiration. In the range [1, 31 536 000 (1 year)], or 0 for infinity.
-     * 
-     * @param integer $collectionTtl Time-to-live of this List in seconds, defaults
-     *                               to no expiration.
+     * How long, in seconds, before the Sync List expires (time-to-live) and is deleted. Can be an integer from 0 to 31,536,000 (1 year). The default value is `0`, which means the Sync List does not expire. The Sync List might not be deleted immediately after it expires.
+     *
+     * @param int $collectionTtl How long, in seconds, before the Sync List expires
+     *                           and is deleted
      * @return $this Fluent Builder
      */
     public function setCollectionTtl($collectionTtl) {
@@ -137,7 +140,7 @@ class UpdateSyncListOptions extends Options {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

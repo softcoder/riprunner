@@ -26,6 +26,7 @@ RUN chown -R www-data:www-data /var/www/html/
 
 # Install php app dependencies
 ENV COMPOSER_ALLOW_SUPERUSER 1
+# RUN composer update --no-dev --prefer-dist --no-interaction --optimize-autoloader --working-dir /var/www/html/
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --working-dir /var/www/html/
 
 # Enable mode rewrite for routes.php (http://flightphp.com/)

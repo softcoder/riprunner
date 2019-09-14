@@ -28,7 +28,8 @@ function convertCallOutTypeToText($type, $FIREHALL, $asOfDate) {
 function processFireHallText($msgText, $FIREHALL) {
 	$callout = new \riprunner\CalloutDetails();
 	if($FIREHALL->ENABLED == true) {
-	    $config = new \riprunner\ConfigManager();
+		$config = new \riprunner\ConfigManager();
+	
     	$callDateTime = extractDelimitedValueFromString($msgText, $config->getSystemConfigValue('EMAIL_PARSING_DATETIME_PATTERN'), 1);
     	if($callDateTime !== null) {
     	    $callDateTime = trim($callDateTime);

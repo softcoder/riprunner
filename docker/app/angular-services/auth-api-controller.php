@@ -21,7 +21,6 @@ require_once __RIPRUNNER_ROOT__ . '/rest/WebApi.php';
 require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 
-
 use Vanen\Mvc\Api;
 use Vanen\Mvc\ApiController;
 use Vanen\Net\HttpResponse;
@@ -48,17 +47,20 @@ class AuthApiController extends ApiController {
     protected function getLastError() {
         return $this->lastError;
     }
-    
+
     protected function validateAuth($fhid=null,$checkAccess=null) {
         global $log;
         global $FIREHALLS;
         
         if($log !== null) $log->trace("API validateAuth start for session [".session_id()."]");
-        
+        if($log !== null) $log->trace("API validateAuth session vars [".print_r($_SESSION, TRUE)."]");
+
         $userAuthorized = false;
-        if($fhid == null && isset($_SESSION) && isset($_SESSION['firehall_id'])) {
-            $fhid = $_SESSION['firehall_id'];
+        
+        if($fhid == null) {
+            $fhid = \riprunner\Authentication::getAuthVar('firehall_id');
         }
+
         if($log !== null) $log->trace("API validateAuth fhid: $fhid [".session_id()."]");
         
         if($fhid != null) {
@@ -71,16 +73,18 @@ class AuthApiController extends ApiController {
             }
             $auth = new\riprunner\Authentication($FIREHALL);
             $userAuthorized = $auth->login_check();
-            
-            if($log !== null) $log->trace("API validateAuth fhid: $fhid userAuthorized: $userAuthorized [".session_id()."]");
+            if ($userAuthorized === false) {
+                if($log !== null) $log->warn("API validateAuth login_check fhid: $fhid userAuthorized: $userAuthorized [".session_id()."]");
+            }
 
             if($checkAccess !== null) {
+                if($log !== null) $log->warn("API validateAuth about to check userHasAcess fhid: $fhid checkAccess: $checkAccess userAuthorized: $userAuthorized [".session_id()."]");
                 $userAuthorized = $auth->userHasAcess($checkAccess);
             }
         }
         
         if ($userAuthorized === false) {
-            if($log !== null) $log->trace("API validateAuth fhid: $fhid UNAUTHORIZED [".session_id()."]");
+            if($log !== null) $log->warn("API validateAuth userHasAcess fhid: $fhid checkAccess: $checkAccess UNAUTHORIZED [".session_id()."]");
             
             $this->lastError = new HttpResponse(401, 'Not Authorized', (object)[
                     'exception' => (object)[

@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Chat\V2\Service;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,11 +17,11 @@ use Twilio\Version;
 class BindingContext extends InstanceContext {
     /**
      * Initialize the BindingContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $serviceSid The service_sid
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Chat\V2\Service\BindingContext 
+     * @param string $serviceSid The SID of the Service to fetch the resource from
+     * @param string $sid The SID of the resource to fetch
+     * @return \Twilio\Rest\Chat\V2\Service\BindingContext
      */
     public function __construct(Version $version, $serviceSid, $sid) {
         parent::__construct($version);
@@ -33,7 +34,7 @@ class BindingContext extends InstanceContext {
 
     /**
      * Fetch a BindingInstance
-     * 
+     *
      * @return BindingInstance Fetched BindingInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -56,7 +57,7 @@ class BindingContext extends InstanceContext {
 
     /**
      * Deletes the BindingInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -66,7 +67,7 @@ class BindingContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Options;
 use Twilio\Values;
@@ -17,11 +18,12 @@ use Twilio\Version;
 class ShortCodeContext extends InstanceContext {
     /**
      * Initialize the ShortCodeContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $accountSid The account_sid
-     * @param string $sid Fetch by unique short-code Sid
-     * @return \Twilio\Rest\Api\V2010\Account\ShortCodeContext 
+     * @param string $accountSid The SID of the Account that created the
+     *                           resource(s) to fetch
+     * @param string $sid The unique string that identifies this resource
+     * @return \Twilio\Rest\Api\V2010\Account\ShortCodeContext
      */
     public function __construct(Version $version, $accountSid, $sid) {
         parent::__construct($version);
@@ -34,7 +36,7 @@ class ShortCodeContext extends InstanceContext {
 
     /**
      * Fetch a ShortCodeInstance
-     * 
+     *
      * @return ShortCodeInstance Fetched ShortCodeInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -57,7 +59,7 @@ class ShortCodeContext extends InstanceContext {
 
     /**
      * Update the ShortCodeInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return ShortCodeInstance Updated ShortCodeInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -91,7 +93,7 @@ class ShortCodeContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

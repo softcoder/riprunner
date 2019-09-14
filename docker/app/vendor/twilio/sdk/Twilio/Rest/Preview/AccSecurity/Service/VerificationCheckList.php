@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Preview\AccSecurity\Service;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
@@ -20,10 +21,10 @@ use Twilio\Version;
 class VerificationCheckList extends ListResource {
     /**
      * Construct the VerificationCheckList
-     * 
+     *
      * @param Version $version Version that contains the resource
      * @param string $serviceSid Service Sid.
-     * @return \Twilio\Rest\Preview\AccSecurity\Service\VerificationCheckList 
+     * @return \Twilio\Rest\Preview\AccSecurity\Service\VerificationCheckList
      */
     public function __construct(Version $version, $serviceSid) {
         parent::__construct($version);
@@ -36,7 +37,7 @@ class VerificationCheckList extends ListResource {
 
     /**
      * Create a new VerificationCheckInstance
-     * 
+     *
      * @param string $code The verification string
      * @param array|Options $options Optional Arguments
      * @return VerificationCheckInstance Newly created VerificationCheckInstance
@@ -59,7 +60,7 @@ class VerificationCheckList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

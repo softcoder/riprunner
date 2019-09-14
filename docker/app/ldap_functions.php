@@ -17,7 +17,14 @@ require_once 'logging.php';
 
 function extractDelimitedValueFromString($rawValue, $regularExpression, $groupResultIndex) {
 	$cleanRawValue = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/u', '', $rawValue);
-	preg_match($regularExpression, $cleanRawValue, $result);
+
+	// Replace weird dash with ascii dash
+	$cleanRawValue = str_replace( chr(226).chr(128).chr(144), '-', $cleanRawValue);
+	// Replace weird utf spaces with real spaces
+	$cleanRawValue = str_replace( chr(194).chr(160), ' ', $cleanRawValue);
+	//$cleanRawValue = iconv('ASCII', 'UTF-8//IGNORE', $cleanRawValue);
+
+	$result_pass = preg_match($regularExpression, $cleanRawValue, $result);
 	if(isset($result[$groupResultIndex]) === true) {
 		$result[$groupResultIndex] = str_replace(array("\n", "\r"), '', $result[$groupResultIndex]);
 		return $result[$groupResultIndex];
@@ -70,9 +77,11 @@ function login_ldap($FIREHALL, $user_id, $password) {
 	
 	if($log !== null) $log->trace('filter ['.$filter.']');
 
+	$loginResult = [];
+
 	$entries = $ldap->search($FIREHALL->LDAP->LDAP_BASE_USERDN, $filter, $FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
 	if(isset($entries) === true && $entries !== null && empty($entries) === false && 
-	        isset($entries[0]) === true) {
+	   isset($entries[0]) === true) {
 		//var_dump($entries);
 		$binddn = $entries[0][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
 	
@@ -123,32 +132,29 @@ function login_ldap($FIREHALL, $user_id, $password) {
     				if($log !== null) $log->warn("Login audit for user [$user_id] userid [".(($user_id_number == null) ? 'null' : $user_id_number[0])."]  firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");
     			}
     			
-    			// XSS protection as we might print this value
-    			//$user_id = preg_replace("/[^0-9]+/", "", $user_id);
-    			$_SESSION['user_db_id'] = (($user_id_number == null) ? null : $user_id_number[0]);
-    			// XSS protection as we might print this value
-    			//$userId = preg_replace("/[^a-zA-Z0-9_\-]+/",	"",	$userId);
-    			$_SESSION['user_id'] = $user_id;
-    			$_SESSION['user_type'] = $userType;
-    			$_SESSION['login_string'] = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
-    			$_SESSION['firehall_id'] = $FirehallId;
-    			$_SESSION['ldap_enabled'] = true;
-    			$_SESSION['user_access'] = $userAccess;
-    			$_SESSION['user_jwt'] = false;
+    			$loginResult['user_db_id'] 		= (($user_id_number == null) ? null : $user_id_number[0]);
+				$loginResult['user_id'] 		= $user_id;
+    			$loginResult['user_type'] 		= $userType;
+    			$loginResult['login_string'] 	= hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
+    			$loginResult['firehall_id'] 	= $FirehallId;
+    			$loginResult['ldap_enabled'] 	= true;
+    			$loginResult['user_access'] 	= $userAccess;
+    			$loginResult['user_jwt'] 		= false;
     			
-    			if($log !== null) $log->warn("process_login check request method: ".$_SERVER['REQUEST_METHOD']);
+    			if($log !== null) $log->warn("login_ldap check request method: ".$_SERVER['REQUEST_METHOD']);
     			if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST)) {
     			    $json = file_get_contents('php://input');
     			    if($json != null && strlen($json) > 0) {
-    			        if($log !== null) $log->warn("process_login found request method: ".$_SERVER['REQUEST_METHOD']." request: ".$json);
-    			        $request = json_decode($json);
+    			        if($log !== null) $log->warn("login_ldap found request method: ".$_SERVER['REQUEST_METHOD']." request: ".$json);
+						
+						$request = json_decode($json);
     			        if(json_last_error() == JSON_ERROR_NONE) {
-    			            $_SESSION['user_jwt'] = true;
+    			            $loginResult['user_jwt'] = true;
     			        }
     			        
     			    }
     			}
-    			if($log !== null) $log->trace("process_login JWT user status: ".$_SESSION['user_jwt']);
+    			if($log !== null) $log->warn("login_ldap JWT user status: ".$loginResult['user_jwt']);
     			
     			\riprunner\CalloutStatusType::getStatusList($FIREHALL);
     		  
@@ -159,18 +165,18 @@ function login_ldap($FIREHALL, $user_id, $password) {
     				
     			// Enable for DEBUGGING
     			//die("FORCE EXIT!");
-    			return true;
+    			return $loginResult;
 			}
 			else {
 			    if($log !== null) $log->warn("INVALID LDAP Login, valid user but no app access, audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");			    
 			}
 		}
 	}
-	return false;
+	return $loginResult;
 }
 
 function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
-	global $log;
+	global $log;$loginResult = [];
 
 	if($FIREHALL->LDAP->ENABLED_CACHE == true) {
 		$cache_key_lookup = "RIPRUNNER_LDAP_USER_ACCESS_" . $FIREHALL->FIREHALL_ID . ((isset($user_id) === true) ? $user_id : "") . ((isset($userDn) === true) ? $userDn : "");
@@ -288,9 +294,8 @@ function login_check_ldap($db_connection) {
 	global $log;
 
 	// Check if all session variables are set
-	if (isset($_SESSION['user_db_id'], $_SESSION['user_id'], $_SESSION['login_string'],
-			$db_connection) === true) {
-
+	$userId = \riprunner\Authentication::getAuthVar('user_id');
+	if (isset($userId, $db_connection) === true) {
 		if($log !== null) $log->trace("LDAP LOGINCHECK OK");
 		return true;
 	}

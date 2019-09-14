@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account\Call;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Options;
 use Twilio\Values;
@@ -17,12 +18,13 @@ use Twilio\Version;
 class RecordingContext extends InstanceContext {
     /**
      * Initialize the RecordingContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $accountSid The account_sid
-     * @param string $callSid Fetch by unique call Sid for the recording
-     * @param string $sid Fetch by unique recording Sid
-     * @return \Twilio\Rest\Api\V2010\Account\Call\RecordingContext 
+     * @param string $accountSid The SID of the Account that created the resource
+     *                           to fetch
+     * @param string $callSid The Call SID of the resource to fetch
+     * @param string $sid The unique string that identifies the resource
+     * @return \Twilio\Rest\Api\V2010\Account\Call\RecordingContext
      */
     public function __construct(Version $version, $accountSid, $callSid, $sid) {
         parent::__construct($version);
@@ -35,8 +37,8 @@ class RecordingContext extends InstanceContext {
 
     /**
      * Update the RecordingInstance
-     * 
-     * @param string $status The status to change the recording to.
+     *
+     * @param string $status The new status of the recording
      * @param array|Options $options Optional Arguments
      * @return RecordingInstance Updated RecordingInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -64,7 +66,7 @@ class RecordingContext extends InstanceContext {
 
     /**
      * Fetch a RecordingInstance
-     * 
+     *
      * @return RecordingInstance Fetched RecordingInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -88,7 +90,7 @@ class RecordingContext extends InstanceContext {
 
     /**
      * Deletes the RecordingInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -98,7 +100,7 @@ class RecordingContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

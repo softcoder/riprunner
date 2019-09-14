@@ -43,7 +43,7 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php">Main Menu</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Main Menu</a></li>
                       </ul>
                     </div>
                   </li>
@@ -52,7 +52,7 @@
                     <input type="radio" name="verticalMenu" id="call_history" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-history-controller.php">Callouts and Responders</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-history-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Callouts and Responders</a></li>
                       </ul>
                     </div>
                   </li>
@@ -295,7 +295,7 @@
 						  {% endfor %}
 						</select>
 						<input type="button" id="load_report" 
-						onclick="location.href='{{ gvm.RR_DOC_ROOT }}/controllers/reports-charts-controller.php?report_year='+document.getElementById('select_report_year').value;return false;"
+						onclick="location.href='{{ gvm.RR_DOC_ROOT }}/controllers/reports-charts-controller.php?report_year='+document.getElementById('select_report_year').value+'&{{ gvm.RR_JWT_TOKEN_PARAM }}';return false;"
 						class="report_submit" value="Run Reports">
 					</td>
                 </tr>

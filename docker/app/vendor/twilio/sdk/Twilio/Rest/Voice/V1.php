@@ -11,18 +11,18 @@ namespace Twilio\Rest\Voice;
 
 use Twilio\Domain;
 use Twilio\Exceptions\TwilioException;
-use Twilio\Rest\Voice\V1\VoicePermissionList;
+use Twilio\Rest\Voice\V1\DialingPermissionsList;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Voice\V1\VoicePermissionList voicePermissions
+ * @property \Twilio\Rest\Voice\V1\DialingPermissionsList $dialingPermissions
  */
 class V1 extends Version {
-    protected $_voicePermissions = null;
+    protected $_dialingPermissions = null;
 
     /**
      * Construct the V1 version of Voice
-     * 
+     *
      * @param \Twilio\Domain $domain Domain that contains the version
      * @return \Twilio\Rest\Voice\V1 V1 version of Voice
      */
@@ -32,21 +32,21 @@ class V1 extends Version {
     }
 
     /**
-     * @return \Twilio\Rest\Voice\V1\VoicePermissionList 
+     * @return \Twilio\Rest\Voice\V1\DialingPermissionsList
      */
-    protected function getVoicePermissions() {
-        if (!$this->_voicePermissions) {
-            $this->_voicePermissions = new VoicePermissionList($this);
+    protected function getDialingPermissions() {
+        if (!$this->_dialingPermissions) {
+            $this->_dialingPermissions = new DialingPermissionsList($this);
         }
-        return $this->_voicePermissions;
+        return $this->_dialingPermissions;
     }
 
     /**
      * Magic getter to lazy load root resources
-     * 
+     *
      * @param string $name Resource to return
      * @return \Twilio\ListResource The requested resource
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -59,11 +59,11 @@ class V1 extends Version {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -76,7 +76,7 @@ class V1 extends Version {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

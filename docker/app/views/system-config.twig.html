@@ -41,13 +41,13 @@
                 }
 		    	
 			    $.ajax({
-			        url: "{{ gvm.RR_DOC_ROOT }}/controllers/system-config-controller.php",
+			        url: "{{ gvm.RR_DOC_ROOT }}/controllers/system-config-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}",
 			        type: "POST",
 			        data: 'action='+action+'&column='+column+'&editval='+editableObj.innerText+'&id='+id,
 			        success: function(data) {
 			        	//alert('Success saving change.');
 			            $(editableObj).css("background","");
-		                var redir_url = "{{ gvm.RR_DOC_ROOT }}/controllers/system-config-controller.php";
+		                var redir_url = "{{ gvm.RR_DOC_ROOT }}/controllers/system-config-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}";
 		                try {
 		                    window.location.replace(redir_url);
 		                }
@@ -92,7 +92,7 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php">Main Menu</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Main Menu</a></li>
                       </ul>
                     </div>
                   </li>

@@ -89,6 +89,7 @@ ADD app/ /app
 
 # Install php app dependencies
 ENV COMPOSER_ALLOW_SUPERUSER 1
+# RUN composer update --no-dev --prefer-dist --no-interaction --optimize-autoloader --working-dir app/
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --working-dir app/
 
 #Environment variables to configure php

@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Preview\Sync\Service;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
@@ -20,10 +21,10 @@ use Twilio\Version;
 class SyncListList extends ListResource {
     /**
      * Construct the SyncListList
-     * 
+     *
      * @param Version $version Version that contains the resource
      * @param string $serviceSid The service_sid
-     * @return \Twilio\Rest\Preview\Sync\Service\SyncListList 
+     * @return \Twilio\Rest\Preview\Sync\Service\SyncListList
      */
     public function __construct(Version $version, $serviceSid) {
         parent::__construct($version);
@@ -36,7 +37,7 @@ class SyncListList extends ListResource {
 
     /**
      * Create a new SyncListInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return SyncListInstance Newly created SyncListInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -63,7 +64,7 @@ class SyncListList extends ListResource {
      * is reached.
      * The results are returned as a generator, so this operation is memory
      * efficient.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. stream()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -86,7 +87,7 @@ class SyncListList extends ListResource {
      * Reads SyncListInstance records from the API as a list.
      * Unlike stream(), this operation is eager and will load `limit` records into
      * memory before returning.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. read()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -104,7 +105,7 @@ class SyncListList extends ListResource {
     /**
      * Retrieve a single page of SyncListInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param mixed $pageSize Number of records to return, defaults to 50
      * @param string $pageToken PageToken provided by the API
      * @param mixed $pageNumber Page Number, this value is simply for client state
@@ -129,7 +130,7 @@ class SyncListList extends ListResource {
     /**
      * Retrieve a specific page of SyncListInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param string $targetUrl API-generated URL for the requested results page
      * @return \Twilio\Page Page of SyncListInstance
      */
@@ -144,9 +145,9 @@ class SyncListList extends ListResource {
 
     /**
      * Constructs a SyncListContext
-     * 
+     *
      * @param string $sid The sid
-     * @return \Twilio\Rest\Preview\Sync\Service\SyncListContext 
+     * @return \Twilio\Rest\Preview\Sync\Service\SyncListContext
      */
     public function getContext($sid) {
         return new SyncListContext($this->version, $this->solution['serviceSid'], $sid);
@@ -154,7 +155,7 @@ class SyncListList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

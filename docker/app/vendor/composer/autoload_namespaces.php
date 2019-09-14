@@ -7,7 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Twig_' => array($vendorDir . '/twig/twig/lib'),
-    'Prophecy\\' => array($vendorDir . '/phpspec/prophecy/src'),
+    'Rize\\UriTemplate' => array($vendorDir . '/rize/uri-template/src'),
     'PHPSMS' => array($vendorDir . '/phpsms/phpsms/src'),
     'PHPMD\\' => array($vendorDir . '/phpmd/phpmd/src/main/php'),
 );

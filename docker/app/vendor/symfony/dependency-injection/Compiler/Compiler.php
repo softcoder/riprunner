@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\Exception\EnvParameterException;
 class Compiler
 {
     private $passConfig;
-    private $log = array();
+    private $log = [];
     private $serviceReferenceGraph;
 
     public function __construct()
@@ -54,9 +54,8 @@ class Compiler
     /**
      * Adds a pass to the PassConfig.
      *
-     * @param CompilerPassInterface $pass     A compiler pass
-     * @param string                $type     The type of the pass
-     * @param int                   $priority Used to sort the passes
+     * @param CompilerPassInterface $pass A compiler pass
+     * @param string                $type The type of the pass
      */
     public function addPass(CompilerPassInterface $pass, $type = PassConfig::TYPE_BEFORE_OPTIMIZATION, int $priority = 0)
     {
@@ -95,7 +94,7 @@ class Compiler
                 $pass->process($container);
             }
         } catch (\Exception $e) {
-            $usedEnvs = array();
+            $usedEnvs = [];
             $prev = $e;
 
             do {

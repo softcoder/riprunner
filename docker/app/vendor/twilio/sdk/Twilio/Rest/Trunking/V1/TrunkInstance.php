@@ -17,35 +17,36 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string accountSid
- * @property string domainName
- * @property string disasterRecoveryMethod
- * @property string disasterRecoveryUrl
- * @property string friendlyName
- * @property boolean secure
- * @property array recording
- * @property boolean cnamLookupEnabled
- * @property string authType
- * @property string authTypeSet
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string sid
- * @property string url
- * @property array links
+ * @property string $accountSid
+ * @property string $domainName
+ * @property string $disasterRecoveryMethod
+ * @property string $disasterRecoveryUrl
+ * @property string $friendlyName
+ * @property bool $secure
+ * @property array $recording
+ * @property bool $cnamLookupEnabled
+ * @property string $authType
+ * @property string $authTypeSet
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $sid
+ * @property string $url
+ * @property array $links
  */
 class TrunkInstance extends InstanceResource {
     protected $_originationUrls = null;
     protected $_credentialsLists = null;
     protected $_ipAccessControlLists = null;
     protected $_phoneNumbers = null;
+    protected $_terminatingSipDomains = null;
 
     /**
      * Initialize the TrunkInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Trunking\V1\TrunkInstance 
+     * @param string $sid The unique string that identifies the resource
+     * @return \Twilio\Rest\Trunking\V1\TrunkInstance
      */
     public function __construct(Version $version, array $payload, $sid = null) {
         parent::__construct($version);
@@ -75,7 +76,7 @@ class TrunkInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Trunking\V1\TrunkContext Context for this TrunkInstance
      */
     protected function proxy() {
@@ -88,7 +89,7 @@ class TrunkInstance extends InstanceResource {
 
     /**
      * Fetch a TrunkInstance
-     * 
+     *
      * @return TrunkInstance Fetched TrunkInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -98,7 +99,7 @@ class TrunkInstance extends InstanceResource {
 
     /**
      * Deletes the TrunkInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -108,7 +109,7 @@ class TrunkInstance extends InstanceResource {
 
     /**
      * Update the TrunkInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return TrunkInstance Updated TrunkInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -119,8 +120,8 @@ class TrunkInstance extends InstanceResource {
 
     /**
      * Access the originationUrls
-     * 
-     * @return \Twilio\Rest\Trunking\V1\Trunk\OriginationUrlList 
+     *
+     * @return \Twilio\Rest\Trunking\V1\Trunk\OriginationUrlList
      */
     protected function getOriginationUrls() {
         return $this->proxy()->originationUrls;
@@ -128,8 +129,8 @@ class TrunkInstance extends InstanceResource {
 
     /**
      * Access the credentialsLists
-     * 
-     * @return \Twilio\Rest\Trunking\V1\Trunk\CredentialListList 
+     *
+     * @return \Twilio\Rest\Trunking\V1\Trunk\CredentialListList
      */
     protected function getCredentialsLists() {
         return $this->proxy()->credentialsLists;
@@ -137,8 +138,8 @@ class TrunkInstance extends InstanceResource {
 
     /**
      * Access the ipAccessControlLists
-     * 
-     * @return \Twilio\Rest\Trunking\V1\Trunk\IpAccessControlListList 
+     *
+     * @return \Twilio\Rest\Trunking\V1\Trunk\IpAccessControlListList
      */
     protected function getIpAccessControlLists() {
         return $this->proxy()->ipAccessControlLists;
@@ -146,16 +147,25 @@ class TrunkInstance extends InstanceResource {
 
     /**
      * Access the phoneNumbers
-     * 
-     * @return \Twilio\Rest\Trunking\V1\Trunk\PhoneNumberList 
+     *
+     * @return \Twilio\Rest\Trunking\V1\Trunk\PhoneNumberList
      */
     protected function getPhoneNumbers() {
         return $this->proxy()->phoneNumbers;
     }
 
     /**
+     * Access the terminatingSipDomains
+     *
+     * @return \Twilio\Rest\Trunking\V1\Trunk\TerminatingSipDomainList
+     */
+    protected function getTerminatingSipDomains() {
+        return $this->proxy()->terminatingSipDomains;
+    }
+
+    /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -175,7 +185,7 @@ class TrunkInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

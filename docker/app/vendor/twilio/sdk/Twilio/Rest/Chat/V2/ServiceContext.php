@@ -21,10 +21,10 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Chat\V2\Service\ChannelList channels
- * @property \Twilio\Rest\Chat\V2\Service\RoleList roles
- * @property \Twilio\Rest\Chat\V2\Service\UserList users
- * @property \Twilio\Rest\Chat\V2\Service\BindingList bindings
+ * @property \Twilio\Rest\Chat\V2\Service\ChannelList $channels
+ * @property \Twilio\Rest\Chat\V2\Service\RoleList $roles
+ * @property \Twilio\Rest\Chat\V2\Service\UserList $users
+ * @property \Twilio\Rest\Chat\V2\Service\BindingList $bindings
  * @method \Twilio\Rest\Chat\V2\Service\ChannelContext channels(string $sid)
  * @method \Twilio\Rest\Chat\V2\Service\RoleContext roles(string $sid)
  * @method \Twilio\Rest\Chat\V2\Service\UserContext users(string $sid)
@@ -38,10 +38,10 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Initialize the ServiceContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Chat\V2\ServiceContext 
+     * @param string $sid The SID of the Service resource to fetch
+     * @return \Twilio\Rest\Chat\V2\ServiceContext
      */
     public function __construct(Version $version, $sid) {
         parent::__construct($version);
@@ -54,7 +54,7 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Fetch a ServiceInstance
-     * 
+     *
      * @return ServiceInstance Fetched ServiceInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -72,7 +72,7 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Deletes the ServiceInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -82,7 +82,7 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Update the ServiceInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return ServiceInstance Updated ServiceInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -136,8 +136,8 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Access the channels
-     * 
-     * @return \Twilio\Rest\Chat\V2\Service\ChannelList 
+     *
+     * @return \Twilio\Rest\Chat\V2\Service\ChannelList
      */
     protected function getChannels() {
         if (!$this->_channels) {
@@ -149,8 +149,8 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Access the roles
-     * 
-     * @return \Twilio\Rest\Chat\V2\Service\RoleList 
+     *
+     * @return \Twilio\Rest\Chat\V2\Service\RoleList
      */
     protected function getRoles() {
         if (!$this->_roles) {
@@ -162,8 +162,8 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Access the users
-     * 
-     * @return \Twilio\Rest\Chat\V2\Service\UserList 
+     *
+     * @return \Twilio\Rest\Chat\V2\Service\UserList
      */
     protected function getUsers() {
         if (!$this->_users) {
@@ -175,8 +175,8 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Access the bindings
-     * 
-     * @return \Twilio\Rest\Chat\V2\Service\BindingList 
+     *
+     * @return \Twilio\Rest\Chat\V2\Service\BindingList
      */
     protected function getBindings() {
         if (!$this->_bindings) {
@@ -188,10 +188,10 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Magic getter to lazy load subresources
-     * 
+     *
      * @param string $name Subresource to return
      * @return \Twilio\ListResource The requested subresource
-     * @throws \Twilio\Exceptions\TwilioException For unknown subresources
+     * @throws TwilioException For unknown subresources
      */
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
@@ -204,11 +204,11 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -221,7 +221,7 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

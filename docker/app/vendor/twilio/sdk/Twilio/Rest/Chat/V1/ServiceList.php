@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Chat\V1;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,9 +17,9 @@ use Twilio\Version;
 class ServiceList extends ListResource {
     /**
      * Construct the ServiceList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @return \Twilio\Rest\Chat\V1\ServiceList 
+     * @return \Twilio\Rest\Chat\V1\ServiceList
      */
     public function __construct(Version $version) {
         parent::__construct($version);
@@ -31,8 +32,8 @@ class ServiceList extends ListResource {
 
     /**
      * Create a new ServiceInstance
-     * 
-     * @param string $friendlyName Human-readable name for this service instance
+     *
+     * @param string $friendlyName A string to describe the resource
      * @return ServiceInstance Newly created ServiceInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -56,7 +57,7 @@ class ServiceList extends ListResource {
      * is reached.
      * The results are returned as a generator, so this operation is memory
      * efficient.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. stream()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -79,7 +80,7 @@ class ServiceList extends ListResource {
      * Reads ServiceInstance records from the API as a list.
      * Unlike stream(), this operation is eager and will load `limit` records into
      * memory before returning.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. read()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -97,7 +98,7 @@ class ServiceList extends ListResource {
     /**
      * Retrieve a single page of ServiceInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param mixed $pageSize Number of records to return, defaults to 50
      * @param string $pageToken PageToken provided by the API
      * @param mixed $pageNumber Page Number, this value is simply for client state
@@ -122,7 +123,7 @@ class ServiceList extends ListResource {
     /**
      * Retrieve a specific page of ServiceInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param string $targetUrl API-generated URL for the requested results page
      * @return \Twilio\Page Page of ServiceInstance
      */
@@ -137,9 +138,9 @@ class ServiceList extends ListResource {
 
     /**
      * Constructs a ServiceContext
-     * 
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Chat\V1\ServiceContext 
+     *
+     * @param string $sid The unique string that identifies the resource
+     * @return \Twilio\Rest\Chat\V1\ServiceContext
      */
     public function getContext($sid) {
         return new ServiceContext($this->version, $sid);
@@ -147,7 +148,7 @@ class ServiceList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

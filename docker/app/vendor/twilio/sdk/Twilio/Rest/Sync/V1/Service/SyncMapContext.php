@@ -19,9 +19,9 @@ use Twilio\Version;
 
 /**
  * PLEASE NOTE that this class contains beta products that are subject to change. Use them with caution.
- * 
- * @property \Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapItemList syncMapItems
- * @property \Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapPermissionList syncMapPermissions
+ *
+ * @property \Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapItemList $syncMapItems
+ * @property \Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapPermissionList $syncMapPermissions
  * @method \Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapItemContext syncMapItems(string $key)
  * @method \Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapPermissionContext syncMapPermissions(string $identity)
  */
@@ -31,11 +31,12 @@ class SyncMapContext extends InstanceContext {
 
     /**
      * Initialize the SyncMapContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $serviceSid The service_sid
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Sync\V1\Service\SyncMapContext 
+     * @param string $serviceSid The SID of the Sync Service with the Sync Map
+     *                           resource to fetch
+     * @param string $sid The SID of the Sync Map resource to fetch
+     * @return \Twilio\Rest\Sync\V1\Service\SyncMapContext
      */
     public function __construct(Version $version, $serviceSid, $sid) {
         parent::__construct($version);
@@ -48,7 +49,7 @@ class SyncMapContext extends InstanceContext {
 
     /**
      * Fetch a SyncMapInstance
-     * 
+     *
      * @return SyncMapInstance Fetched SyncMapInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -71,7 +72,7 @@ class SyncMapContext extends InstanceContext {
 
     /**
      * Deletes the SyncMapInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -81,7 +82,7 @@ class SyncMapContext extends InstanceContext {
 
     /**
      * Update the SyncMapInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return SyncMapInstance Updated SyncMapInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -108,8 +109,8 @@ class SyncMapContext extends InstanceContext {
 
     /**
      * Access the syncMapItems
-     * 
-     * @return \Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapItemList 
+     *
+     * @return \Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapItemList
      */
     protected function getSyncMapItems() {
         if (!$this->_syncMapItems) {
@@ -125,8 +126,8 @@ class SyncMapContext extends InstanceContext {
 
     /**
      * Access the syncMapPermissions
-     * 
-     * @return \Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapPermissionList 
+     *
+     * @return \Twilio\Rest\Sync\V1\Service\SyncMap\SyncMapPermissionList
      */
     protected function getSyncMapPermissions() {
         if (!$this->_syncMapPermissions) {
@@ -142,10 +143,10 @@ class SyncMapContext extends InstanceContext {
 
     /**
      * Magic getter to lazy load subresources
-     * 
+     *
      * @param string $name Subresource to return
      * @return \Twilio\ListResource The requested subresource
-     * @throws \Twilio\Exceptions\TwilioException For unknown subresources
+     * @throws TwilioException For unknown subresources
      */
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
@@ -158,11 +159,11 @@ class SyncMapContext extends InstanceContext {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -175,7 +176,7 @@ class SyncMapContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -63,6 +63,8 @@ class CallTest extends BaseTestCase
 
         self::assertNotNull($actual);
 
+        // $actual = json_decode($actual);
+
         self::assertEquals($actual->message, "call fired");
         self::assertEquals($actual->requestUuid, "9834029e-58b6-11e1-b8b7-a5bd0e4e126f");
         self::assertEquals($actual->apiId, "97ceeb52-58b6-11e1-86da-77300b68f8bb");
@@ -84,7 +86,8 @@ class CallTest extends BaseTestCase
 
         self::assertNotNull($actual);
 
-        foreach ($actual as $actualCall) {
+        foreach($actual->resources as $actualCall) {
+            
             self::assertEquals(substr($actualCall->resourceUri, 0, 33), "/v1/Account/MAXXXXXXXXXXXXXXXXXX/");
         }
     }

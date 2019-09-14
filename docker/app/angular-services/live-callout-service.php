@@ -37,16 +37,6 @@ class LiveCalloutController extends AuthApiController {
         global $log;
         global $FIREHALLS;
 
-        if (!isset($_SESSION) && !isset($_SESSION['firehall_id'])) {
-            if ($log !== null) $log->error("API invalid session fhid: $fhid UNAUTHORIZED [".session_id()."]");
-            return new HttpResponse(422, 'Missing Session', (object)[
-                'exception' => (object)[
-                        'type' => 'MissingParameterApiException',
-                        'message' => 'Missing Session.',
-                        'code' => 422
-                ]
-        ]);
-        }
         if($this->validateAuth() == false) {
             if ($log !== null) $log->error("API validateAuth failed fhid: $fhid UNAUTHORIZED [".session_id()."]");
             return $this->getLastError();
@@ -91,12 +81,11 @@ class LiveCalloutController extends AuthApiController {
         }
         //$callouts['comments'] = $liveCalloutModel->getComments();
 
-        // $fhid, $cid, $ckid, $member_id
         $query_params = array();
         $query_params['fhid'] = $fhid;
         $query_params['cid'] = $liveCalloutModel->id;
         $query_params['ckid'] = $liveCalloutModel->callkey;
-        //$query_params['member_id'] = $_SESSION['user_id'];
+
         $calloutModel = new \riprunner\CalloutDetailsViewModel($global_vm, $view_template_vars, $query_params);
 
         //$callouts['comments'] = $calloutModel->getComments();

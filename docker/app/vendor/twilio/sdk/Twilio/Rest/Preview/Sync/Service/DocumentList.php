@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Preview\Sync\Service;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Serialize;
@@ -21,10 +22,10 @@ use Twilio\Version;
 class DocumentList extends ListResource {
     /**
      * Construct the DocumentList
-     * 
+     *
      * @param Version $version Version that contains the resource
      * @param string $serviceSid The service_sid
-     * @return \Twilio\Rest\Preview\Sync\Service\DocumentList 
+     * @return \Twilio\Rest\Preview\Sync\Service\DocumentList
      */
     public function __construct(Version $version, $serviceSid) {
         parent::__construct($version);
@@ -37,7 +38,7 @@ class DocumentList extends ListResource {
 
     /**
      * Create a new DocumentInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return DocumentInstance Newly created DocumentInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -67,7 +68,7 @@ class DocumentList extends ListResource {
      * is reached.
      * The results are returned as a generator, so this operation is memory
      * efficient.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. stream()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -90,7 +91,7 @@ class DocumentList extends ListResource {
      * Reads DocumentInstance records from the API as a list.
      * Unlike stream(), this operation is eager and will load `limit` records into
      * memory before returning.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. read()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -108,7 +109,7 @@ class DocumentList extends ListResource {
     /**
      * Retrieve a single page of DocumentInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param mixed $pageSize Number of records to return, defaults to 50
      * @param string $pageToken PageToken provided by the API
      * @param mixed $pageNumber Page Number, this value is simply for client state
@@ -133,7 +134,7 @@ class DocumentList extends ListResource {
     /**
      * Retrieve a specific page of DocumentInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param string $targetUrl API-generated URL for the requested results page
      * @return \Twilio\Page Page of DocumentInstance
      */
@@ -148,9 +149,9 @@ class DocumentList extends ListResource {
 
     /**
      * Constructs a DocumentContext
-     * 
+     *
      * @param string $sid The sid
-     * @return \Twilio\Rest\Preview\Sync\Service\DocumentContext 
+     * @return \Twilio\Rest\Preview\Sync\Service\DocumentContext
      */
     public function getContext($sid) {
         return new DocumentContext($this->version, $this->solution['serviceSid'], $sid);
@@ -158,7 +159,7 @@ class DocumentList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

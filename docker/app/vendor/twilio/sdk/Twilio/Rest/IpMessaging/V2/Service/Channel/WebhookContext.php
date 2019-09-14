@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\IpMessaging\V2\Service\Channel;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Options;
 use Twilio\Serialize;
@@ -18,12 +19,14 @@ use Twilio\Version;
 class WebhookContext extends InstanceContext {
     /**
      * Initialize the WebhookContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $serviceSid The service_sid
-     * @param string $channelSid The channel_sid
-     * @param string $sid The sid
-     * @return \Twilio\Rest\IpMessaging\V2\Service\Channel\WebhookContext 
+     * @param string $serviceSid The SID of the Service with the Channel to fetch
+     *                           the Webhook resource from
+     * @param string $channelSid The SID of the Channel the resource to fetch
+     *                           belongs to
+     * @param string $sid The SID of the Channel Webhook resource to fetch
+     * @return \Twilio\Rest\IpMessaging\V2\Service\Channel\WebhookContext
      */
     public function __construct(Version $version, $serviceSid, $channelSid, $sid) {
         parent::__construct($version);
@@ -36,7 +39,7 @@ class WebhookContext extends InstanceContext {
 
     /**
      * Fetch a WebhookInstance
-     * 
+     *
      * @return WebhookInstance Fetched WebhookInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -60,7 +63,7 @@ class WebhookContext extends InstanceContext {
 
     /**
      * Update the WebhookInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return WebhookInstance Updated WebhookInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -95,7 +98,7 @@ class WebhookContext extends InstanceContext {
 
     /**
      * Deletes the WebhookInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -105,7 +108,7 @@ class WebhookContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

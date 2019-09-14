@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account\Message;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,12 +17,14 @@ use Twilio\Version;
 class MediaContext extends InstanceContext {
     /**
      * Initialize the MediaContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $accountSid The account_sid
-     * @param string $messageSid The message_sid
-     * @param string $sid Fetch by unique media Sid
-     * @return \Twilio\Rest\Api\V2010\Account\Message\MediaContext 
+     * @param string $accountSid The SID of the Account that created the
+     *                           resource(s) to fetch
+     * @param string $messageSid The SID of the Message resource that this Media
+     *                           resource belongs to
+     * @param string $sid The unique string that identifies this resource
+     * @return \Twilio\Rest\Api\V2010\Account\Message\MediaContext
      */
     public function __construct(Version $version, $accountSid, $messageSid, $sid) {
         parent::__construct($version);
@@ -34,7 +37,7 @@ class MediaContext extends InstanceContext {
 
     /**
      * Deletes the MediaInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -44,7 +47,7 @@ class MediaContext extends InstanceContext {
 
     /**
      * Fetch a MediaInstance
-     * 
+     *
      * @return MediaInstance Fetched MediaInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -68,7 +71,7 @@ class MediaContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

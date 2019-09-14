@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Pricing\V1\Voice;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,10 +17,10 @@ use Twilio\Version;
 class NumberContext extends InstanceContext {
     /**
      * Initialize the NumberContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $number The number
-     * @return \Twilio\Rest\Pricing\V1\Voice\NumberContext 
+     * @param string $number The phone number to fetch
+     * @return \Twilio\Rest\Pricing\V1\Voice\NumberContext
      */
     public function __construct(Version $version, $number) {
         parent::__construct($version);
@@ -32,7 +33,7 @@ class NumberContext extends InstanceContext {
 
     /**
      * Fetch a NumberInstance
-     * 
+     *
      * @return NumberInstance Fetched NumberInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -50,7 +51,7 @@ class NumberContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

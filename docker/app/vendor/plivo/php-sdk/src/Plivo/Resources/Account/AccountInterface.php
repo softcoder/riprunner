@@ -5,6 +5,8 @@ namespace Plivo\Resources\Account;
 use Plivo\BaseClient;
 use Plivo\Resources\ResourceInterface;
 use Plivo\Resources\ResponseUpdate;
+use Plivo\Resources\Account\Address\AddressInterface;
+use Plivo\Exceptions\PlivoResponseException;
 
 
 /**
@@ -13,6 +15,16 @@ use Plivo\Resources\ResponseUpdate;
  */
 class AccountInterface extends ResourceInterface
 {
+    /**
+     * @var
+     */
+    public $addressInterface;
+
+    /**
+     * @var
+     */
+    public $client;
+
     /**
      * AccountInterface constructor.
      * @param BaseClient $plivoClient The Plivo api REST client
@@ -27,6 +39,7 @@ class AccountInterface extends ResourceInterface
         ];
 
         $this->uri = "Account/".$authId."/";
+        $this->client = $plivoClient;
     }
 
     /**
@@ -74,9 +87,28 @@ class AccountInterface extends ResourceInterface
 
         $responseContents = $response->getContent();
 
-        return new ResponseUpdate(
-            $responseContents['api_id'],
-            $responseContents['message']
+        if(!array_key_exists("error",$responseContents)){
+            return new ResponseUpdate(
+                $responseContents['api_id'],
+                $responseContents['message'],
+                $response->getStatusCode()
+                );
+        } else {
+            throw new PlivoResponseException(
+                $responseContents['error'],
+                0,
+                null,
+                $response->getContent(),
+                $response->getStatusCode()
+
             );
+        }
+
+        
+    }
+
+    public function address() {
+        $this->addressInterface = new AddressInterface($this->client, $this->uri);
+        return $this->addressInterface;
     }
 }

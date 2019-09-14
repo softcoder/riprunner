@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Messaging\V1\Service;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Values;
 use Twilio\Version;
@@ -19,10 +20,11 @@ use Twilio\Version;
 class ShortCodeList extends ListResource {
     /**
      * Construct the ShortCodeList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @param string $serviceSid The 34 character unique sid of the Service.
-     * @return \Twilio\Rest\Messaging\V1\Service\ShortCodeList 
+     * @param string $serviceSid The SID of the Service that this resource is
+     *                           associated with
+     * @return \Twilio\Rest\Messaging\V1\Service\ShortCodeList
      */
     public function __construct(Version $version, $serviceSid) {
         parent::__construct($version);
@@ -35,9 +37,8 @@ class ShortCodeList extends ListResource {
 
     /**
      * Create a new ShortCodeInstance
-     * 
-     * @param string $shortCodeSid ShortCodeSid for the Shortcode being added to
-     *                             the Service.
+     *
+     * @param string $shortCodeSid SID of the ShortCode being added to the Service.
      * @return ShortCodeInstance Newly created ShortCodeInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -61,7 +62,7 @@ class ShortCodeList extends ListResource {
      * is reached.
      * The results are returned as a generator, so this operation is memory
      * efficient.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. stream()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -84,7 +85,7 @@ class ShortCodeList extends ListResource {
      * Reads ShortCodeInstance records from the API as a list.
      * Unlike stream(), this operation is eager and will load `limit` records into
      * memory before returning.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. read()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -102,7 +103,7 @@ class ShortCodeList extends ListResource {
     /**
      * Retrieve a single page of ShortCodeInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param mixed $pageSize Number of records to return, defaults to 50
      * @param string $pageToken PageToken provided by the API
      * @param mixed $pageNumber Page Number, this value is simply for client state
@@ -127,7 +128,7 @@ class ShortCodeList extends ListResource {
     /**
      * Retrieve a specific page of ShortCodeInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param string $targetUrl API-generated URL for the requested results page
      * @return \Twilio\Page Page of ShortCodeInstance
      */
@@ -142,9 +143,9 @@ class ShortCodeList extends ListResource {
 
     /**
      * Constructs a ShortCodeContext
-     * 
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Messaging\V1\Service\ShortCodeContext 
+     *
+     * @param string $sid The unique string that identifies this resource
+     * @return \Twilio\Rest\Messaging\V1\Service\ShortCodeContext
      */
     public function getContext($sid) {
         return new ShortCodeContext($this->version, $this->solution['serviceSid'], $sid);
@@ -152,7 +153,7 @@ class ShortCodeList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

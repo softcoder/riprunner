@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account\Sip\Domain;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Values;
 use Twilio\Version;
@@ -16,12 +17,12 @@ use Twilio\Version;
 class IpAccessControlListMappingList extends ListResource {
     /**
      * Construct the IpAccessControlListMappingList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @param string $accountSid The unique id of the Account that responsible for
-     *                           this resource.
-     * @param string $domainSid A string that uniquely identifies the SIP Domain
-     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\IpAccessControlListMappingList 
+     * @param string $accountSid The unique id of the Account that is responsible
+     *                           for this resource.
+     * @param string $domainSid The unique string that identifies the resource
+     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\IpAccessControlListMappingList
      */
     public function __construct(Version $version, $accountSid, $domainSid) {
         parent::__construct($version);
@@ -34,8 +35,9 @@ class IpAccessControlListMappingList extends ListResource {
 
     /**
      * Create a new IpAccessControlListMappingInstance
-     * 
-     * @param string $ipAccessControlListSid The ip_access_control_list_sid
+     *
+     * @param string $ipAccessControlListSid The unique id of the IP access control
+     *                                       list to map to the SIP domain
      * @return IpAccessControlListMappingInstance Newly created
      *                                            IpAccessControlListMappingInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -66,7 +68,7 @@ class IpAccessControlListMappingList extends ListResource {
      * is reached.
      * The results are returned as a generator, so this operation is memory
      * efficient.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. stream()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -89,7 +91,7 @@ class IpAccessControlListMappingList extends ListResource {
      * Reads IpAccessControlListMappingInstance records from the API as a list.
      * Unlike stream(), this operation is eager and will load `limit` records into
      * memory before returning.
-     * 
+     *
      * @param int $limit Upper limit for the number of records to return. read()
      *                   guarantees to never return more than limit.  Default is no
      *                   limit
@@ -108,7 +110,7 @@ class IpAccessControlListMappingList extends ListResource {
      * Retrieve a single page of IpAccessControlListMappingInstance records from
      * the API.
      * Request is executed immediately
-     * 
+     *
      * @param mixed $pageSize Number of records to return, defaults to 50
      * @param string $pageToken PageToken provided by the API
      * @param mixed $pageNumber Page Number, this value is simply for client state
@@ -134,7 +136,7 @@ class IpAccessControlListMappingList extends ListResource {
      * Retrieve a specific page of IpAccessControlListMappingInstance records from
      * the API.
      * Request is executed immediately
-     * 
+     *
      * @param string $targetUrl API-generated URL for the requested results page
      * @return \Twilio\Page Page of IpAccessControlListMappingInstance
      */
@@ -149,9 +151,10 @@ class IpAccessControlListMappingList extends ListResource {
 
     /**
      * Constructs a IpAccessControlListMappingContext
-     * 
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\IpAccessControlListMappingContext 
+     *
+     * @param string $sid A 34 character string that uniquely identifies the
+     *                    resource to fetch.
+     * @return \Twilio\Rest\Api\V2010\Account\Sip\Domain\IpAccessControlListMappingContext
      */
     public function getContext($sid) {
         return new IpAccessControlListMappingContext(
@@ -164,7 +167,7 @@ class IpAccessControlListMappingList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

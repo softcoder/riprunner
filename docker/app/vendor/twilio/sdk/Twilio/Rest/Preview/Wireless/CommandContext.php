@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Preview\Wireless;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -19,10 +20,10 @@ use Twilio\Version;
 class CommandContext extends InstanceContext {
     /**
      * Initialize the CommandContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $sid The sid
-     * @return \Twilio\Rest\Preview\Wireless\CommandContext 
+     * @return \Twilio\Rest\Preview\Wireless\CommandContext
      */
     public function __construct(Version $version, $sid) {
         parent::__construct($version);
@@ -35,7 +36,7 @@ class CommandContext extends InstanceContext {
 
     /**
      * Fetch a CommandInstance
-     * 
+     *
      * @return CommandInstance Fetched CommandInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -53,7 +54,7 @@ class CommandContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

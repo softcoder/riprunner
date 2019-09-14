@@ -14,8 +14,8 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Trunking\V1;
 
 /**
- * @property \Twilio\Rest\Trunking\V1 v1
- * @property \Twilio\Rest\Trunking\V1\TrunkList trunks
+ * @property \Twilio\Rest\Trunking\V1 $v1
+ * @property \Twilio\Rest\Trunking\V1\TrunkList $trunks
  * @method \Twilio\Rest\Trunking\V1\TrunkContext trunks(string $sid)
  */
 class Trunking extends Domain {
@@ -23,7 +23,7 @@ class Trunking extends Domain {
 
     /**
      * Construct the Trunking Domain
-     * 
+     *
      * @param \Twilio\Rest\Client $client Twilio\Rest\Client to communicate with
      *                                    Twilio
      * @return \Twilio\Rest\Trunking Domain for Trunking
@@ -46,10 +46,10 @@ class Trunking extends Domain {
 
     /**
      * Magic getter to lazy load version
-     * 
+     *
      * @param string $name Version to return
      * @return \Twilio\Version The requested version
-     * @throws \Twilio\Exceptions\TwilioException For unknown versions
+     * @throws TwilioException For unknown versions
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -62,11 +62,11 @@ class Trunking extends Domain {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $method = 'context' . ucfirst($name);
@@ -78,15 +78,15 @@ class Trunking extends Domain {
     }
 
     /**
-     * @return \Twilio\Rest\Trunking\V1\TrunkList 
+     * @return \Twilio\Rest\Trunking\V1\TrunkList
      */
     protected function getTrunks() {
         return $this->v1->trunks;
     }
 
     /**
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Trunking\V1\TrunkContext 
+     * @param string $sid The unique string that identifies the resource
+     * @return \Twilio\Rest\Trunking\V1\TrunkContext
      */
     protected function contextTrunks($sid) {
         return $this->v1->trunks($sid);
@@ -94,7 +94,7 @@ class Trunking extends Domain {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

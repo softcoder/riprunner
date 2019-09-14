@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Preview\DeployedDevices\Fleet;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Serialize;
@@ -21,10 +22,10 @@ use Twilio\Version;
 class DeviceList extends ListResource {
     /**
      * Construct the DeviceList
-     * 
+     *
      * @param Version $version Version that contains the resource
      * @param string $fleetSid The unique identifier of the Fleet.
-     * @return \Twilio\Rest\Preview\DeployedDevices\Fleet\DeviceList 
+     * @return \Twilio\Rest\Preview\DeployedDevices\Fleet\DeviceList
      */
     public function __construct(Version $version, $fleetSid) {
         parent::__construct($version);
@@ -37,7 +38,7 @@ class DeviceList extends ListResource {
 
     /**
      * Create a new DeviceInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return DeviceInstance Newly created DeviceInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -70,7 +71,7 @@ class DeviceList extends ListResource {
      * is reached.
      * The results are returned as a generator, so this operation is memory
      * efficient.
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @param int $limit Upper limit for the number of records to return. stream()
      *                   guarantees to never return more than limit.  Default is no
@@ -94,7 +95,7 @@ class DeviceList extends ListResource {
      * Reads DeviceInstance records from the API as a list.
      * Unlike stream(), this operation is eager and will load `limit` records into
      * memory before returning.
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @param int $limit Upper limit for the number of records to return. read()
      *                   guarantees to never return more than limit.  Default is no
@@ -113,7 +114,7 @@ class DeviceList extends ListResource {
     /**
      * Retrieve a single page of DeviceInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @param mixed $pageSize Number of records to return, defaults to 50
      * @param string $pageToken PageToken provided by the API
@@ -141,7 +142,7 @@ class DeviceList extends ListResource {
     /**
      * Retrieve a specific page of DeviceInstance records from the API.
      * Request is executed immediately
-     * 
+     *
      * @param string $targetUrl API-generated URL for the requested results page
      * @return \Twilio\Page Page of DeviceInstance
      */
@@ -156,9 +157,9 @@ class DeviceList extends ListResource {
 
     /**
      * Constructs a DeviceContext
-     * 
+     *
      * @param string $sid A string that uniquely identifies the Device.
-     * @return \Twilio\Rest\Preview\DeployedDevices\Fleet\DeviceContext 
+     * @return \Twilio\Rest\Preview\DeployedDevices\Fleet\DeviceContext
      */
     public function getContext($sid) {
         return new DeviceContext($this->version, $this->solution['fleetSid'], $sid);
@@ -166,7 +167,7 @@ class DeviceList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

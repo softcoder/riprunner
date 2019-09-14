@@ -14,10 +14,11 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Wireless\V1;
 
 /**
- * @property \Twilio\Rest\Wireless\V1 v1
- * @property \Twilio\Rest\Wireless\V1\CommandList commands
- * @property \Twilio\Rest\Wireless\V1\RatePlanList ratePlans
- * @property \Twilio\Rest\Wireless\V1\SimList sims
+ * @property \Twilio\Rest\Wireless\V1 $v1
+ * @property \Twilio\Rest\Wireless\V1\CommandList $commands
+ * @property \Twilio\Rest\Wireless\V1\RatePlanList $ratePlans
+ * @property \Twilio\Rest\Wireless\V1\UsageRecordList $usageRecords
+ * @property \Twilio\Rest\Wireless\V1\SimList $sims
  * @method \Twilio\Rest\Wireless\V1\CommandContext commands(string $sid)
  * @method \Twilio\Rest\Wireless\V1\RatePlanContext ratePlans(string $sid)
  * @method \Twilio\Rest\Wireless\V1\SimContext sims(string $sid)
@@ -27,7 +28,7 @@ class Wireless extends Domain {
 
     /**
      * Construct the Wireless Domain
-     * 
+     *
      * @param \Twilio\Rest\Client $client Twilio\Rest\Client to communicate with
      *                                    Twilio
      * @return \Twilio\Rest\Wireless Domain for Wireless
@@ -50,10 +51,10 @@ class Wireless extends Domain {
 
     /**
      * Magic getter to lazy load version
-     * 
+     *
      * @param string $name Version to return
      * @return \Twilio\Version The requested version
-     * @throws \Twilio\Exceptions\TwilioException For unknown versions
+     * @throws TwilioException For unknown versions
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -66,11 +67,11 @@ class Wireless extends Domain {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $method = 'context' . ucfirst($name);
@@ -82,45 +83,52 @@ class Wireless extends Domain {
     }
 
     /**
-     * @return \Twilio\Rest\Wireless\V1\CommandList 
+     * @return \Twilio\Rest\Wireless\V1\CommandList
      */
     protected function getCommands() {
         return $this->v1->commands;
     }
 
     /**
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Wireless\V1\CommandContext 
+     * @param string $sid The SID that identifies the resource to fetch
+     * @return \Twilio\Rest\Wireless\V1\CommandContext
      */
     protected function contextCommands($sid) {
         return $this->v1->commands($sid);
     }
 
     /**
-     * @return \Twilio\Rest\Wireless\V1\RatePlanList 
+     * @return \Twilio\Rest\Wireless\V1\RatePlanList
      */
     protected function getRatePlans() {
         return $this->v1->ratePlans;
     }
 
     /**
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Wireless\V1\RatePlanContext 
+     * @param string $sid The SID that identifies the resource to fetch
+     * @return \Twilio\Rest\Wireless\V1\RatePlanContext
      */
     protected function contextRatePlans($sid) {
         return $this->v1->ratePlans($sid);
     }
 
     /**
-     * @return \Twilio\Rest\Wireless\V1\SimList 
+     * @return \Twilio\Rest\Wireless\V1\UsageRecordList
+     */
+    protected function getUsageRecords() {
+        return $this->v1->usageRecords;
+    }
+
+    /**
+     * @return \Twilio\Rest\Wireless\V1\SimList
      */
     protected function getSims() {
         return $this->v1->sims;
     }
 
     /**
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Wireless\V1\SimContext 
+     * @param string $sid The SID that identifies the resource to fetch
+     * @return \Twilio\Rest\Wireless\V1\SimContext
      */
     protected function contextSims($sid) {
         return $this->v1->sims($sid);
@@ -128,7 +136,7 @@ class Wireless extends Domain {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

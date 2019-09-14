@@ -16,8 +16,8 @@ use Twilio\Rest\Accounts\V1\Credential\PublicKeyList;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Accounts\V1\Credential\PublicKeyList publicKey
- * @property \Twilio\Rest\Accounts\V1\Credential\AwsList aws
+ * @property \Twilio\Rest\Accounts\V1\Credential\PublicKeyList $publicKey
+ * @property \Twilio\Rest\Accounts\V1\Credential\AwsList $aws
  * @method \Twilio\Rest\Accounts\V1\Credential\PublicKeyContext publicKey(string $sid)
  * @method \Twilio\Rest\Accounts\V1\Credential\AwsContext aws(string $sid)
  */
@@ -27,9 +27,9 @@ class CredentialList extends ListResource {
 
     /**
      * Construct the CredentialList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @return \Twilio\Rest\Accounts\V1\CredentialList 
+     * @return \Twilio\Rest\Accounts\V1\CredentialList
      */
     public function __construct(Version $version) {
         parent::__construct($version);
@@ -62,10 +62,10 @@ class CredentialList extends ListResource {
 
     /**
      * Magic getter to lazy load subresources
-     * 
+     *
      * @param string $name Subresource to return
      * @return \Twilio\ListResource The requested subresource
-     * @throws \Twilio\Exceptions\TwilioException For unknown subresources
+     * @throws TwilioException For unknown subresources
      */
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
@@ -78,11 +78,11 @@ class CredentialList extends ListResource {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -95,7 +95,7 @@ class CredentialList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -12,26 +12,28 @@ namespace Twilio\Rest\Api\V2010\Account\Queue;
 use Twilio\Deserialize;
 use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceResource;
+use Twilio\Options;
 use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string callSid
- * @property \DateTime dateEnqueued
- * @property integer position
- * @property string uri
- * @property integer waitTime
+ * @property string $callSid
+ * @property \DateTime $dateEnqueued
+ * @property int $position
+ * @property string $uri
+ * @property int $waitTime
+ * @property string $queueSid
  */
 class MemberInstance extends InstanceResource {
     /**
      * Initialize the MemberInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $accountSid The account_sid
-     * @param string $queueSid A string that uniquely identifies this queue
-     * @param string $callSid The call_sid
-     * @return \Twilio\Rest\Api\V2010\Account\Queue\MemberInstance 
+     * @param string $accountSid The SID of the Account that created this resource
+     * @param string $queueSid The SID of the Queue the member is in
+     * @param string $callSid The Call SID of the resource(s) to fetch
+     * @return \Twilio\Rest\Api\V2010\Account\Queue\MemberInstance
      */
     public function __construct(Version $version, array $payload, $accountSid, $queueSid, $callSid = null) {
         parent::__construct($version);
@@ -43,6 +45,7 @@ class MemberInstance extends InstanceResource {
             'position' => Values::array_get($payload, 'position'),
             'uri' => Values::array_get($payload, 'uri'),
             'waitTime' => Values::array_get($payload, 'wait_time'),
+            'queueSid' => Values::array_get($payload, 'queue_sid'),
         );
 
         $this->solution = array(
@@ -55,7 +58,7 @@ class MemberInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Api\V2010\Account\Queue\MemberContext Context for this
      *                                                            MemberInstance
      */
@@ -74,7 +77,7 @@ class MemberInstance extends InstanceResource {
 
     /**
      * Fetch a MemberInstance
-     * 
+     *
      * @return MemberInstance Fetched MemberInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -84,19 +87,19 @@ class MemberInstance extends InstanceResource {
 
     /**
      * Update the MemberInstance
-     * 
-     * @param string $url The url
-     * @param string $method The method
+     *
+     * @param string $url The absolute URL of the Queue resource
+     * @param array|Options $options Optional Arguments
      * @return MemberInstance Updated MemberInstance
      * @throws TwilioException When an HTTP error occurs.
      */
-    public function update($url, $method) {
-        return $this->proxy()->update($url, $method);
+    public function update($url, $options = array()) {
+        return $this->proxy()->update($url, $options);
     }
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -116,7 +119,7 @@ class MemberInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

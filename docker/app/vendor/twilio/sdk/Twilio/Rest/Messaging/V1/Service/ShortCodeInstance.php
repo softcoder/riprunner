@@ -17,26 +17,27 @@ use Twilio\Version;
 
 /**
  * PLEASE NOTE that this class contains beta products that are subject to change. Use them with caution.
- * 
- * @property string sid
- * @property string accountSid
- * @property string serviceSid
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string shortCode
- * @property string countryCode
- * @property array capabilities
- * @property string url
+ *
+ * @property string $sid
+ * @property string $accountSid
+ * @property string $serviceSid
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $shortCode
+ * @property string $countryCode
+ * @property array $capabilities
+ * @property string $url
  */
 class ShortCodeInstance extends InstanceResource {
     /**
      * Initialize the ShortCodeInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $serviceSid The 34 character unique sid of the Service.
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Messaging\V1\Service\ShortCodeInstance 
+     * @param string $serviceSid The SID of the Service that this resource is
+     *                           associated with
+     * @param string $sid The unique string that identifies this resource
+     * @return \Twilio\Rest\Messaging\V1\Service\ShortCodeInstance
      */
     public function __construct(Version $version, array $payload, $serviceSid, $sid = null) {
         parent::__construct($version);
@@ -60,7 +61,7 @@ class ShortCodeInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Messaging\V1\Service\ShortCodeContext Context for this
      *                                                            ShortCodeInstance
      */
@@ -78,7 +79,7 @@ class ShortCodeInstance extends InstanceResource {
 
     /**
      * Deletes the ShortCodeInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -88,7 +89,7 @@ class ShortCodeInstance extends InstanceResource {
 
     /**
      * Fetch a ShortCodeInstance
-     * 
+     *
      * @return ShortCodeInstance Fetched ShortCodeInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -98,7 +99,7 @@ class ShortCodeInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -118,7 +119,7 @@ class ShortCodeInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

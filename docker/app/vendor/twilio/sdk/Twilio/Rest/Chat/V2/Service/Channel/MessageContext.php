@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Chat\V2\Service\Channel;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Options;
 use Twilio\Serialize;
@@ -18,13 +19,13 @@ use Twilio\Version;
 class MessageContext extends InstanceContext {
     /**
      * Initialize the MessageContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $serviceSid Sid of the Service this message belongs to.
-     * @param string $channelSid Key that uniquely defines the channel this message
-     *                           belongs to.
-     * @param string $sid Key that uniquely defines the message to fetch.
-     * @return \Twilio\Rest\Chat\V2\Service\Channel\MessageContext 
+     * @param string $serviceSid The SID of the Service to fetch the resource from
+     * @param string $channelSid The SID of the Channel the message to fetch
+     *                           belongs to
+     * @param string $sid The SID of the Message resource to fetch
+     * @return \Twilio\Rest\Chat\V2\Service\Channel\MessageContext
      */
     public function __construct(Version $version, $serviceSid, $channelSid, $sid) {
         parent::__construct($version);
@@ -37,7 +38,7 @@ class MessageContext extends InstanceContext {
 
     /**
      * Fetch a MessageInstance
-     * 
+     *
      * @return MessageInstance Fetched MessageInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -61,7 +62,7 @@ class MessageContext extends InstanceContext {
 
     /**
      * Deletes the MessageInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -71,7 +72,7 @@ class MessageContext extends InstanceContext {
 
     /**
      * Update the MessageInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return MessageInstance Updated MessageInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -106,7 +107,7 @@ class MessageContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -15,7 +15,7 @@ use Twilio\Rest\Studio\V1\FlowList;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Studio\V1\FlowList flows
+ * @property \Twilio\Rest\Studio\V1\FlowList $flows
  * @method \Twilio\Rest\Studio\V1\FlowContext flows(string $sid)
  */
 class V1 extends Version {
@@ -23,7 +23,7 @@ class V1 extends Version {
 
     /**
      * Construct the V1 version of Studio
-     * 
+     *
      * @param \Twilio\Domain $domain Domain that contains the version
      * @return \Twilio\Rest\Studio\V1 V1 version of Studio
      */
@@ -33,7 +33,7 @@ class V1 extends Version {
     }
 
     /**
-     * @return \Twilio\Rest\Studio\V1\FlowList 
+     * @return \Twilio\Rest\Studio\V1\FlowList
      */
     protected function getFlows() {
         if (!$this->_flows) {
@@ -44,10 +44,10 @@ class V1 extends Version {
 
     /**
      * Magic getter to lazy load root resources
-     * 
+     *
      * @param string $name Resource to return
      * @return \Twilio\ListResource The requested resource
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -60,11 +60,11 @@ class V1 extends Version {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -77,7 +77,7 @@ class V1 extends Version {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

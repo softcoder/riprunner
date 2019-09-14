@@ -17,7 +17,7 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Api\V2010\Account\Queue\MemberList members
+ * @property \Twilio\Rest\Api\V2010\Account\Queue\MemberList $members
  * @method \Twilio\Rest\Api\V2010\Account\Queue\MemberContext members(string $callSid)
  */
 class QueueContext extends InstanceContext {
@@ -25,11 +25,12 @@ class QueueContext extends InstanceContext {
 
     /**
      * Initialize the QueueContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $accountSid The account_sid
-     * @param string $sid Fetch by unique queue Sid
-     * @return \Twilio\Rest\Api\V2010\Account\QueueContext 
+     * @param string $accountSid The SID of the Account that created the
+     *                           resource(s) to fetch
+     * @param string $sid The unique string that identifies this resource
+     * @return \Twilio\Rest\Api\V2010\Account\QueueContext
      */
     public function __construct(Version $version, $accountSid, $sid) {
         parent::__construct($version);
@@ -42,7 +43,7 @@ class QueueContext extends InstanceContext {
 
     /**
      * Fetch a QueueInstance
-     * 
+     *
      * @return QueueInstance Fetched QueueInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -65,7 +66,7 @@ class QueueContext extends InstanceContext {
 
     /**
      * Update the QueueInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return QueueInstance Updated QueueInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -95,7 +96,7 @@ class QueueContext extends InstanceContext {
 
     /**
      * Deletes the QueueInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -105,8 +106,8 @@ class QueueContext extends InstanceContext {
 
     /**
      * Access the members
-     * 
-     * @return \Twilio\Rest\Api\V2010\Account\Queue\MemberList 
+     *
+     * @return \Twilio\Rest\Api\V2010\Account\Queue\MemberList
      */
     protected function getMembers() {
         if (!$this->_members) {
@@ -122,10 +123,10 @@ class QueueContext extends InstanceContext {
 
     /**
      * Magic getter to lazy load subresources
-     * 
+     *
      * @param string $name Subresource to return
      * @return \Twilio\ListResource The requested subresource
-     * @throws \Twilio\Exceptions\TwilioException For unknown subresources
+     * @throws TwilioException For unknown subresources
      */
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
@@ -138,11 +139,11 @@ class QueueContext extends InstanceContext {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -155,7 +156,7 @@ class QueueContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

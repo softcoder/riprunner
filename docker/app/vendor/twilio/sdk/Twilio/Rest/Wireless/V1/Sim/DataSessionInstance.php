@@ -16,31 +16,32 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string sid
- * @property string simSid
- * @property string accountSid
- * @property string radioLink
- * @property string operatorMcc
- * @property string operatorMnc
- * @property string operatorCountry
- * @property string operatorName
- * @property string cellId
- * @property array cellLocationEstimate
- * @property integer packetsUploaded
- * @property integer packetsDownloaded
- * @property \DateTime lastUpdated
- * @property \DateTime start
- * @property \DateTime end
+ * @property string $sid
+ * @property string $simSid
+ * @property string $accountSid
+ * @property string $radioLink
+ * @property string $operatorMcc
+ * @property string $operatorMnc
+ * @property string $operatorCountry
+ * @property string $operatorName
+ * @property string $cellId
+ * @property array $cellLocationEstimate
+ * @property int $packetsUploaded
+ * @property int $packetsDownloaded
+ * @property \DateTime $lastUpdated
+ * @property \DateTime $start
+ * @property \DateTime $end
+ * @property string $imei
  */
 class DataSessionInstance extends InstanceResource {
     /**
      * Initialize the DataSessionInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $simSid The unique id of the SIM resource that this Data
-     *                       Session is for.
-     * @return \Twilio\Rest\Wireless\V1\Sim\DataSessionInstance 
+     * @param string $simSid The SID of the Sim resource that the Data Session is
+     *                       for
+     * @return \Twilio\Rest\Wireless\V1\Sim\DataSessionInstance
      */
     public function __construct(Version $version, array $payload, $simSid) {
         parent::__construct($version);
@@ -62,6 +63,7 @@ class DataSessionInstance extends InstanceResource {
             'lastUpdated' => Deserialize::dateTime(Values::array_get($payload, 'last_updated')),
             'start' => Deserialize::dateTime(Values::array_get($payload, 'start')),
             'end' => Deserialize::dateTime(Values::array_get($payload, 'end')),
+            'imei' => Values::array_get($payload, 'imei'),
         );
 
         $this->solution = array('simSid' => $simSid, );
@@ -69,7 +71,7 @@ class DataSessionInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -89,7 +91,7 @@ class DataSessionInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -14,8 +14,8 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Sync\V1;
 
 /**
- * @property \Twilio\Rest\Sync\V1 v1
- * @property \Twilio\Rest\Sync\V1\ServiceList services
+ * @property \Twilio\Rest\Sync\V1 $v1
+ * @property \Twilio\Rest\Sync\V1\ServiceList $services
  * @method \Twilio\Rest\Sync\V1\ServiceContext services(string $sid)
  */
 class Sync extends Domain {
@@ -23,7 +23,7 @@ class Sync extends Domain {
 
     /**
      * Construct the Sync Domain
-     * 
+     *
      * @param \Twilio\Rest\Client $client Twilio\Rest\Client to communicate with
      *                                    Twilio
      * @return \Twilio\Rest\Sync Domain for Sync
@@ -46,10 +46,10 @@ class Sync extends Domain {
 
     /**
      * Magic getter to lazy load version
-     * 
+     *
      * @param string $name Version to return
      * @return \Twilio\Version The requested version
-     * @throws \Twilio\Exceptions\TwilioException For unknown versions
+     * @throws TwilioException For unknown versions
      */
     public function __get($name) {
         $method = 'get' . ucfirst($name);
@@ -62,11 +62,11 @@ class Sync extends Domain {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $method = 'context' . ucfirst($name);
@@ -78,15 +78,15 @@ class Sync extends Domain {
     }
 
     /**
-     * @return \Twilio\Rest\Sync\V1\ServiceList 
+     * @return \Twilio\Rest\Sync\V1\ServiceList
      */
     protected function getServices() {
         return $this->v1->services;
     }
 
     /**
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Sync\V1\ServiceContext 
+     * @param string $sid The SID of the Service resource to fetch
+     * @return \Twilio\Rest\Sync\V1\ServiceContext
      */
     protected function contextServices($sid) {
         return $this->v1->services($sid);
@@ -94,7 +94,7 @@ class Sync extends Domain {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

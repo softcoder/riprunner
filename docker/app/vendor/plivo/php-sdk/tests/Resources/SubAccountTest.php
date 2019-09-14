@@ -55,8 +55,13 @@ class SubAccountTest extends BaseTestCase
 
         self::assertNotNull($actual);
 
-        foreach ($actual as $actualSubAccount) {
-            self::assertEquals($actualSubAccount->account, "/v1/Account/MAXXXXXXXXXXXXXXXXXX/");
+        $resource = false;
+        foreach($actual->resources as $object) {
+            
+            if(stripos($object->resourceUri, "/v1/Account/MAXXXXXXXXXXXXXXXXXX/") !== false) {
+                $resource = true;
+            }
+            self::assertEquals($resource, true);
         }
     }
 

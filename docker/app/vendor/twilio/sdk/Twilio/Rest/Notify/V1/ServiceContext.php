@@ -20,9 +20,9 @@ use Twilio\Version;
 
 /**
  * PLEASE NOTE that this class contains beta products that are subject to change. Use them with caution.
- * 
- * @property \Twilio\Rest\Notify\V1\Service\BindingList bindings
- * @property \Twilio\Rest\Notify\V1\Service\NotificationList notifications
+ *
+ * @property \Twilio\Rest\Notify\V1\Service\BindingList $bindings
+ * @property \Twilio\Rest\Notify\V1\Service\NotificationList $notifications
  * @method \Twilio\Rest\Notify\V1\Service\BindingContext bindings(string $sid)
  */
 class ServiceContext extends InstanceContext {
@@ -31,10 +31,10 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Initialize the ServiceContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Notify\V1\ServiceContext 
+     * @param string $sid The unique string that identifies the resource
+     * @return \Twilio\Rest\Notify\V1\ServiceContext
      */
     public function __construct(Version $version, $sid) {
         parent::__construct($version);
@@ -47,7 +47,7 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Deletes the ServiceInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -57,7 +57,7 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Fetch a ServiceInstance
-     * 
+     *
      * @return ServiceInstance Fetched ServiceInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -75,7 +75,7 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Update the ServiceInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return ServiceInstance Updated ServiceInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -110,8 +110,8 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Access the bindings
-     * 
-     * @return \Twilio\Rest\Notify\V1\Service\BindingList 
+     *
+     * @return \Twilio\Rest\Notify\V1\Service\BindingList
      */
     protected function getBindings() {
         if (!$this->_bindings) {
@@ -123,8 +123,8 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Access the notifications
-     * 
-     * @return \Twilio\Rest\Notify\V1\Service\NotificationList 
+     *
+     * @return \Twilio\Rest\Notify\V1\Service\NotificationList
      */
     protected function getNotifications() {
         if (!$this->_notifications) {
@@ -136,10 +136,10 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Magic getter to lazy load subresources
-     * 
+     *
      * @param string $name Subresource to return
      * @return \Twilio\ListResource The requested subresource
-     * @throws \Twilio\Exceptions\TwilioException For unknown subresources
+     * @throws TwilioException For unknown subresources
      */
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
@@ -152,11 +152,11 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -169,7 +169,7 @@ class ServiceContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

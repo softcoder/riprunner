@@ -17,25 +17,27 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string sid
- * @property string accountSid
- * @property string credentialListSid
- * @property string username
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string uri
+ * @property string $sid
+ * @property string $accountSid
+ * @property string $credentialListSid
+ * @property string $username
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $uri
  */
 class CredentialInstance extends InstanceResource {
     /**
      * Initialize the CredentialInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $accountSid The unique id of the Account that responsible for
-     *                           this resource.
-     * @param string $credentialListSid The credential_list_sid
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Api\V2010\Account\Sip\CredentialList\CredentialInstance 
+     * @param string $accountSid The unique id of the Account that is responsible
+     *                           for this resource.
+     * @param string $credentialListSid The unique id that identifies the
+     *                                  credential list that includes this
+     *                                  credential
+     * @param string $sid The unique id that identifies the resource to fetch.
+     * @return \Twilio\Rest\Api\V2010\Account\Sip\CredentialList\CredentialInstance
      */
     public function __construct(Version $version, array $payload, $accountSid, $credentialListSid, $sid = null) {
         parent::__construct($version);
@@ -61,7 +63,7 @@ class CredentialInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Api\V2010\Account\Sip\CredentialList\CredentialContext Context for this CredentialInstance
      */
     protected function proxy() {
@@ -79,7 +81,7 @@ class CredentialInstance extends InstanceResource {
 
     /**
      * Fetch a CredentialInstance
-     * 
+     *
      * @return CredentialInstance Fetched CredentialInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -89,7 +91,7 @@ class CredentialInstance extends InstanceResource {
 
     /**
      * Update the CredentialInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return CredentialInstance Updated CredentialInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -100,7 +102,7 @@ class CredentialInstance extends InstanceResource {
 
     /**
      * Deletes the CredentialInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -110,7 +112,7 @@ class CredentialInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -130,7 +132,7 @@ class CredentialInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

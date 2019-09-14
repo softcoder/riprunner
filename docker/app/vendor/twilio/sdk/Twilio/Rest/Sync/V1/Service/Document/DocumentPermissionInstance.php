@@ -16,27 +16,29 @@ use Twilio\Version;
 
 /**
  * PLEASE NOTE that this class contains beta products that are subject to change. Use them with caution.
- * 
- * @property string accountSid
- * @property string serviceSid
- * @property string documentSid
- * @property string identity
- * @property boolean read
- * @property boolean write
- * @property boolean manage
- * @property string url
+ *
+ * @property string $accountSid
+ * @property string $serviceSid
+ * @property string $documentSid
+ * @property string $identity
+ * @property bool $read
+ * @property bool $write
+ * @property bool $manage
+ * @property string $url
  */
 class DocumentPermissionInstance extends InstanceResource {
     /**
      * Initialize the DocumentPermissionInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $serviceSid Sync Service Instance SID.
-     * @param string $documentSid Sync Document SID.
-     * @param string $identity Identity of the user to whom the Sync Document
-     *                         Permission applies.
-     * @return \Twilio\Rest\Sync\V1\Service\Document\DocumentPermissionInstance 
+     * @param string $serviceSid The SID of the Sync Service that the resource is
+     *                           associated with
+     * @param string $documentSid The Sync Document SID
+     * @param string $identity The application-defined string that uniquely
+     *                         identifies the User's Document Permission resource
+     *                         to fetch
+     * @return \Twilio\Rest\Sync\V1\Service\Document\DocumentPermissionInstance
      */
     public function __construct(Version $version, array $payload, $serviceSid, $documentSid, $identity = null) {
         parent::__construct($version);
@@ -63,7 +65,7 @@ class DocumentPermissionInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Sync\V1\Service\Document\DocumentPermissionContext Context for this DocumentPermissionInstance
      */
     protected function proxy() {
@@ -81,7 +83,7 @@ class DocumentPermissionInstance extends InstanceResource {
 
     /**
      * Fetch a DocumentPermissionInstance
-     * 
+     *
      * @return DocumentPermissionInstance Fetched DocumentPermissionInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -91,7 +93,7 @@ class DocumentPermissionInstance extends InstanceResource {
 
     /**
      * Deletes the DocumentPermissionInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -101,10 +103,10 @@ class DocumentPermissionInstance extends InstanceResource {
 
     /**
      * Update the DocumentPermissionInstance
-     * 
-     * @param boolean $read Read access.
-     * @param boolean $write Write access.
-     * @param boolean $manage Manage access.
+     *
+     * @param bool $read Read access
+     * @param bool $write Write access
+     * @param bool $manage Manage access
      * @return DocumentPermissionInstance Updated DocumentPermissionInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -114,7 +116,7 @@ class DocumentPermissionInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -134,7 +136,7 @@ class DocumentPermissionInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

@@ -17,29 +17,30 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string sid
- * @property string accountSid
- * @property string channelSid
- * @property string serviceSid
- * @property string identity
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string roleSid
- * @property integer lastConsumedMessageIndex
- * @property \DateTime lastConsumptionTimestamp
- * @property string url
+ * @property string $sid
+ * @property string $accountSid
+ * @property string $channelSid
+ * @property string $serviceSid
+ * @property string $identity
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $roleSid
+ * @property int $lastConsumedMessageIndex
+ * @property \DateTime $lastConsumptionTimestamp
+ * @property string $url
+ * @property string $attributes
  */
 class MemberInstance extends InstanceResource {
     /**
      * Initialize the MemberInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $serviceSid The unique id of the Service this member belongs
-     *                           to.
-     * @param string $channelSid The unique id of the Channel for this member.
-     * @param string $sid Key that uniquely defines the member to fetch.
-     * @return \Twilio\Rest\IpMessaging\V2\Service\Channel\MemberInstance 
+     * @param string $serviceSid The SID of the Service that the resource is
+     *                           associated with
+     * @param string $channelSid The SID of the Channel for the member
+     * @param string $sid The SID of the Member resource to fetch
+     * @return \Twilio\Rest\IpMessaging\V2\Service\Channel\MemberInstance
      */
     public function __construct(Version $version, array $payload, $serviceSid, $channelSid, $sid = null) {
         parent::__construct($version);
@@ -57,6 +58,7 @@ class MemberInstance extends InstanceResource {
             'lastConsumedMessageIndex' => Values::array_get($payload, 'last_consumed_message_index'),
             'lastConsumptionTimestamp' => Deserialize::dateTime(Values::array_get($payload, 'last_consumption_timestamp')),
             'url' => Values::array_get($payload, 'url'),
+            'attributes' => Values::array_get($payload, 'attributes'),
         );
 
         $this->solution = array(
@@ -69,7 +71,7 @@ class MemberInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\IpMessaging\V2\Service\Channel\MemberContext Context
      *                                                                   for this
      *                                                                   MemberInstance
@@ -89,7 +91,7 @@ class MemberInstance extends InstanceResource {
 
     /**
      * Fetch a MemberInstance
-     * 
+     *
      * @return MemberInstance Fetched MemberInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -99,7 +101,7 @@ class MemberInstance extends InstanceResource {
 
     /**
      * Deletes the MemberInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -109,7 +111,7 @@ class MemberInstance extends InstanceResource {
 
     /**
      * Update the MemberInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return MemberInstance Updated MemberInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -120,7 +122,7 @@ class MemberInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -140,7 +142,7 @@ class MemberInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

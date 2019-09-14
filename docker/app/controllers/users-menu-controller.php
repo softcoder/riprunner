@@ -110,8 +110,8 @@ class UsersMenuController {
 		
 		if(isset($form_action) === true && $form_action === 'save' ) {
 			if($self_edit === true) {
-				$edit_user_id = $_SESSION['user_db_id'];
-				$edit_firehall_id = $_SESSION['firehall_id'];
+				$edit_user_id = \riprunner\Authentication::getAuthVar('user_db_id');
+				$edit_firehall_id = \riprunner\Authentication::getAuthVar('firehall_id');
 			}
 			else {
 				$edit_user_id = get_query_param('edit_user_id');
@@ -148,8 +148,8 @@ class UsersMenuController {
 				
 		// UPDATE
 		if($self_edit === true) {
-			$edit_firehall_id = $_SESSION['firehall_id'];
-			$edit_user_type = $_SESSION['user_type'];
+			$edit_firehall_id = \riprunner\Authentication::getAuthVar('firehall_id');
+			$edit_user_type = \riprunner\Authentication::getAuthVar('user_type');
 			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
 			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
@@ -246,8 +246,8 @@ class UsersMenuController {
 		}
 
 		if($self_edit === true) {
-			$edit_firehall_id = $_SESSION['firehall_id'];
-			$edit_user_type = $_SESSION['user_type'];
+			$edit_firehall_id = \riprunner\Authentication::getAuthVar('firehall_id');
+			$edit_user_type = \riprunner\Authentication::getAuthVar('user_type');
 			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
 			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);

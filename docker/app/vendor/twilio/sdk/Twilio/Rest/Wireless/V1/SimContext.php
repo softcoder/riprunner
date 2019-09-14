@@ -18,8 +18,8 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property \Twilio\Rest\Wireless\V1\Sim\UsageRecordList usageRecords
- * @property \Twilio\Rest\Wireless\V1\Sim\DataSessionList dataSessions
+ * @property \Twilio\Rest\Wireless\V1\Sim\UsageRecordList $usageRecords
+ * @property \Twilio\Rest\Wireless\V1\Sim\DataSessionList $dataSessions
  */
 class SimContext extends InstanceContext {
     protected $_usageRecords = null;
@@ -27,10 +27,10 @@ class SimContext extends InstanceContext {
 
     /**
      * Initialize the SimContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Wireless\V1\SimContext 
+     * @param string $sid The SID that identifies the resource to fetch
+     * @return \Twilio\Rest\Wireless\V1\SimContext
      */
     public function __construct(Version $version, $sid) {
         parent::__construct($version);
@@ -43,7 +43,7 @@ class SimContext extends InstanceContext {
 
     /**
      * Fetch a SimInstance
-     * 
+     *
      * @return SimInstance Fetched SimInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -61,7 +61,7 @@ class SimContext extends InstanceContext {
 
     /**
      * Update the SimInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return SimInstance Updated SimInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -86,6 +86,7 @@ class SimContext extends InstanceContext {
             'VoiceFallbackUrl' => $options['voiceFallbackUrl'],
             'VoiceMethod' => $options['voiceMethod'],
             'VoiceUrl' => $options['voiceUrl'],
+            'ResetStatus' => $options['resetStatus'],
         ));
 
         $payload = $this->version->update(
@@ -99,9 +100,19 @@ class SimContext extends InstanceContext {
     }
 
     /**
+     * Deletes the SimInstance
+     *
+     * @return boolean True if delete succeeds, false otherwise
+     * @throws TwilioException When an HTTP error occurs.
+     */
+    public function delete() {
+        return $this->version->delete('delete', $this->uri);
+    }
+
+    /**
      * Access the usageRecords
-     * 
-     * @return \Twilio\Rest\Wireless\V1\Sim\UsageRecordList 
+     *
+     * @return \Twilio\Rest\Wireless\V1\Sim\UsageRecordList
      */
     protected function getUsageRecords() {
         if (!$this->_usageRecords) {
@@ -113,8 +124,8 @@ class SimContext extends InstanceContext {
 
     /**
      * Access the dataSessions
-     * 
-     * @return \Twilio\Rest\Wireless\V1\Sim\DataSessionList 
+     *
+     * @return \Twilio\Rest\Wireless\V1\Sim\DataSessionList
      */
     protected function getDataSessions() {
         if (!$this->_dataSessions) {
@@ -126,10 +137,10 @@ class SimContext extends InstanceContext {
 
     /**
      * Magic getter to lazy load subresources
-     * 
+     *
      * @param string $name Subresource to return
      * @return \Twilio\ListResource The requested subresource
-     * @throws \Twilio\Exceptions\TwilioException For unknown subresources
+     * @throws TwilioException For unknown subresources
      */
     public function __get($name) {
         if (property_exists($this, '_' . $name)) {
@@ -142,11 +153,11 @@ class SimContext extends InstanceContext {
 
     /**
      * Magic caller to get resource contexts
-     * 
+     *
      * @param string $name Resource to return
      * @param array $arguments Context parameters
      * @return \Twilio\InstanceContext The requested resource context
-     * @throws \Twilio\Exceptions\TwilioException For unknown resource
+     * @throws TwilioException For unknown resource
      */
     public function __call($name, $arguments) {
         $property = $this->$name;
@@ -159,7 +170,7 @@ class SimContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

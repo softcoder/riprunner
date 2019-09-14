@@ -14,7 +14,7 @@ use Twilio\TwiML\TwiML;
 class Room extends TwiML {
     /**
      * Room constructor.
-     * 
+     *
      * @param string $name Room name
      * @param array $attributes Optional attributes
      */
@@ -23,13 +23,13 @@ class Room extends TwiML {
     }
 
     /**
-     * Add Participantidentity attribute.
-     * 
-     * @param string $participantidentity Participant identity when connecting to
+     * Add ParticipantIdentity attribute.
+     *
+     * @param string $participantIdentity Participant identity when connecting to
      *                                    the Room
-     * @return $this
+     * @return static $this.
      */
-    public function setParticipantidentity($participantidentity) {
-        return $this->setAttribute('participantidentity', $participantidentity);
+    public function setParticipantIdentity($participantIdentity) {
+        return $this->setAttribute('participantIdentity', $participantIdentity);
     }
 }

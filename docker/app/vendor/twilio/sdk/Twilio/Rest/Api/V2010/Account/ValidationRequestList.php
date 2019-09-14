@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
@@ -17,11 +18,10 @@ use Twilio\Version;
 class ValidationRequestList extends ListResource {
     /**
      * Construct the ValidationRequestList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @param string $accountSid The unique ID of the Account responsible for this
-     *                           Caller Id.
-     * @return \Twilio\Rest\Api\V2010\Account\ValidationRequestList 
+     * @param string $accountSid The SID of the Account that created the resource
+     * @return \Twilio\Rest\Api\V2010\Account\ValidationRequestList
      */
     public function __construct(Version $version, $accountSid) {
         parent::__construct($version);
@@ -34,8 +34,8 @@ class ValidationRequestList extends ListResource {
 
     /**
      * Create a new ValidationRequestInstance
-     * 
-     * @param string $phoneNumber The phone number to verify.
+     *
+     * @param string $phoneNumber The phone number to verify in E.164 format
      * @param array|Options $options Optional Arguments
      * @return ValidationRequestInstance Newly created ValidationRequestInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -64,7 +64,7 @@ class ValidationRequestList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

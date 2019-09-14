@@ -30,8 +30,9 @@ function isRequestedFileValid($file) {
 }
 
 global $log;
-if (isset($_SESSION['firehall_id']) === true) {
-	$firehall_id = $_SESSION['firehall_id'];
+$fhid = \riprunner\Authentication::getAuthVar('firehall_id');
+if ($fhid != null) {
+	$firehall_id = $fhid;
 	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
     $auth = new\riprunner\Authentication($FIREHALL);
     if ($auth->login_check() === true) {

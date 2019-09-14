@@ -1,5 +1,25 @@
 # Change Log
 
+## [v4.3.4](https://github.com/plivo/plivo-php/releases/tag/v4.3.4) - 2019-07-31
+- Add logic to handle invalid numbers for bulk SMS
+
+## [v4.3.3](https://github.com/plivo/plivo-php/releases/tag/v4.3.3) - 2019-04-15
+- Fix responses to return HTTP status codes.
+
+## [v4.3.2](https://github.com/plivo/plivo-php/releases/tag/v4.3.2) - 2019-04-02
+- Fix client->messages->create response by adding error handling.
+
+## [v4.3.1](https://github.com/plivo/plivo-php/releases/tag/v4.3.1) - 2019-03-20
+- Fix Json responses for all resources.
+
+## [v4.3.0](https://github.com/plivo/plivo-php/releases/tag/v4.3.0) - 2019-03-12
+- Add PHLO support
+- Add Multi-Party Call triggers
+
+## [v4.2-beta1](https://github.com/plivo/plivo-php/releases/tag/v4.2-beta1) - 2019-03-11
+- Add PHLO support
+- Add Multi-Party Call triggers
+
 ## [v4.1.5](https://github.com/plivo/plivo-php/releases/tag/v4.1.5) - 2018-11-21
 - Add hangup party details to CDR. CDR filtering allowed by hangup_source and hangup_cause_code.
 - Add sub-account cascade delete support.

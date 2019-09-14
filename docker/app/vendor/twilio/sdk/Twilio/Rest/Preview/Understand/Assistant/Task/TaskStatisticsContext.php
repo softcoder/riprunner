@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Preview\Understand\Assistant\Task;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Values;
 use Twilio\Version;
@@ -19,11 +20,11 @@ use Twilio\Version;
 class TaskStatisticsContext extends InstanceContext {
     /**
      * Initialize the TaskStatisticsContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param string $assistantSid The unique ID of the parent Assistant.
      * @param string $taskSid The unique ID of the Task associated with this Field.
-     * @return \Twilio\Rest\Preview\Understand\Assistant\Task\TaskStatisticsContext 
+     * @return \Twilio\Rest\Preview\Understand\Assistant\Task\TaskStatisticsContext
      */
     public function __construct(Version $version, $assistantSid, $taskSid) {
         parent::__construct($version);
@@ -36,7 +37,7 @@ class TaskStatisticsContext extends InstanceContext {
 
     /**
      * Fetch a TaskStatisticsInstance
-     * 
+     *
      * @return TaskStatisticsInstance Fetched TaskStatisticsInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -59,7 +60,7 @@ class TaskStatisticsContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

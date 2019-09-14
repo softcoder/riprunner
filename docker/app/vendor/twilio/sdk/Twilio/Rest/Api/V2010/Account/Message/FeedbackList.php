@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account\Message;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\ListResource;
 use Twilio\Options;
 use Twilio\Values;
@@ -17,11 +18,12 @@ use Twilio\Version;
 class FeedbackList extends ListResource {
     /**
      * Construct the FeedbackList
-     * 
+     *
      * @param Version $version Version that contains the resource
-     * @param string $accountSid The account_sid
-     * @param string $messageSid The message_sid
-     * @return \Twilio\Rest\Api\V2010\Account\Message\FeedbackList 
+     * @param string $accountSid The SID of the Account that created the resource
+     * @param string $messageSid The SID of the Message resource for which the
+     *                           feedback was provided
+     * @return \Twilio\Rest\Api\V2010\Account\Message\FeedbackList
      */
     public function __construct(Version $version, $accountSid, $messageSid) {
         parent::__construct($version);
@@ -34,7 +36,7 @@ class FeedbackList extends ListResource {
 
     /**
      * Create a new FeedbackInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return FeedbackInstance Newly created FeedbackInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -61,7 +63,7 @@ class FeedbackList extends ListResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

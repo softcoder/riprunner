@@ -103,70 +103,22 @@ class LoginDeviceViewModel extends BaseViewModel {
 			
 			$this->user_account_id = null;
 
-/*			
-			if($this->getFirehall()->LDAP->ENABLED == true) {
-				$this->user_authenticated = login_ldap($this->getFirehall(), $this->getUserId(), $this->getUserPassword());
-			}
-			else {
-				// Read from the database info about this callout
-			    $sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
-			    $sql = $sql_statement->getSqlStatement('callout_authenticate_by_fhid_and_userid');
-
-				$fhid = $this->getFirehallId();
-				$uid = $this->getUserId();
-				$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql);
-				$qry_bind->bindParam(':fhid', $fhid);
-				$qry_bind->bindParam(':uid', $uid);
-				$qry_bind->execute();
-
-				$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
-				$qry_bind->closeCursor();
-				
-				$this->user_authenticated = false;
-				if(empty($rows) === false) {
-					$row = $rows[0];
-					if (crypt( $this->getUserPassword(), $row->user_pwd) === $row->user_pwd ) {
-						$this->user_account_id = $row->id;
-						$this->user_authenticated = true;
-					}
-					else {
-						$log->error("device register invalid password for user_id [" . $this->getUserId() . "]");
-					}
-				}
-				else {
-					$log->error("device register invalid user_id [". $this->getUserId() ."]");
-				}
-			}
-*/
-
-			//$db_connection = null;
-			//$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
-			//if(isset($FIREHALL) === true) {
 			$auth = new\riprunner\Authentication($this->getFirehall());
-            if ($auth->login($this->getUserId(), $this->getUserPassword()) === true) {
+			$loginResult = $auth->login($this->getUserId(), $this->getUserPassword());
+            if (count($loginResult) > 0) {
 				// Login success
-				$this->user_account_id = $_SESSION['user_db_id'];
+				$this->user_account_id = $loginResult['user_db_id'];
 				$this->user_authenticated = true;
-		
-                //if ($isAngularClient == true) {
-                    // $token = array();
-                    // $token['id'] = $_SESSION['user_db_id'];
-                    // $token['acl'] = $auth->getCurrentUserRoleJSon();
-                    // $token['fhid'] = $firehall_id;
-                    // $token['uid'] = '';
-                    
-                    // $output = array();
-                    // $output['status'] = true;
-                    // $output['expiresIn'] = 60 * 30; // expires in 30 mins
-                    // $output['user'] = $_SESSION['user_id'];
-                    // $output['message'] = 'LOGIN: OK';
-                    // $output['token'] = JWT::encode($token, JWT_KEY);
-                    
-                    // header('Cache-Control: no-cache, must-revalidate');
-                    // header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-                    // header('Content-type: application/json');
-                    // echo json_encode($output);
-                //}
+
+				if($log !== null) $log->trace("#1 json device checkAuth loginResult vars [".print_r($loginResult, TRUE)."]");
+
+				$sessionless = getSafeRequestValue('SESSIONLESS_LOGIN');
+				if($sessionless == null || $sessionless == false) {
+					foreach ($loginResult as $key => $value) {
+						$_SESSION[$key] = $value;
+					}
+					if($log !== null) $log->trace("#2 json device checkAuth session vars [".print_r($_SESSION, TRUE)."]");
+				}
             }
 			else {
 				$log->error("device register invalid userid or password for user_id [" . $this->getUserId() . "]");

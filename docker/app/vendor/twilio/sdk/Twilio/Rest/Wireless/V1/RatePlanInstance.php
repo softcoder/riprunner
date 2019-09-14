@@ -17,31 +17,31 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string sid
- * @property string uniqueName
- * @property string accountSid
- * @property string friendlyName
- * @property boolean dataEnabled
- * @property string dataMetering
- * @property integer dataLimit
- * @property boolean messagingEnabled
- * @property boolean voiceEnabled
- * @property boolean nationalRoamingEnabled
- * @property integer nationalRoamingDataLimit
- * @property string internationalRoaming
- * @property integer internationalRoamingDataLimit
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string url
+ * @property string $sid
+ * @property string $uniqueName
+ * @property string $accountSid
+ * @property string $friendlyName
+ * @property bool $dataEnabled
+ * @property string $dataMetering
+ * @property int $dataLimit
+ * @property bool $messagingEnabled
+ * @property bool $voiceEnabled
+ * @property bool $nationalRoamingEnabled
+ * @property int $nationalRoamingDataLimit
+ * @property string $internationalRoaming
+ * @property int $internationalRoamingDataLimit
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $url
  */
 class RatePlanInstance extends InstanceResource {
     /**
      * Initialize the RatePlanInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Wireless\V1\RatePlanInstance 
+     * @param string $sid The SID that identifies the resource to fetch
+     * @return \Twilio\Rest\Wireless\V1\RatePlanInstance
      */
     public function __construct(Version $version, array $payload, $sid = null) {
         parent::__construct($version);
@@ -72,7 +72,7 @@ class RatePlanInstance extends InstanceResource {
     /**
      * Generate an instance context for the instance, the context is capable of
      * performing various actions.  All instance actions are proxied to the context
-     * 
+     *
      * @return \Twilio\Rest\Wireless\V1\RatePlanContext Context for this
      *                                                  RatePlanInstance
      */
@@ -86,7 +86,7 @@ class RatePlanInstance extends InstanceResource {
 
     /**
      * Fetch a RatePlanInstance
-     * 
+     *
      * @return RatePlanInstance Fetched RatePlanInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -96,7 +96,7 @@ class RatePlanInstance extends InstanceResource {
 
     /**
      * Update the RatePlanInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return RatePlanInstance Updated RatePlanInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -107,7 +107,7 @@ class RatePlanInstance extends InstanceResource {
 
     /**
      * Deletes the RatePlanInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -117,7 +117,7 @@ class RatePlanInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -137,7 +137,7 @@ class RatePlanInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

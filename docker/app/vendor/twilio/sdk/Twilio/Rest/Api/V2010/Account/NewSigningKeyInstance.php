@@ -16,21 +16,21 @@ use Twilio\Values;
 use Twilio\Version;
 
 /**
- * @property string sid
- * @property string friendlyName
- * @property \DateTime dateCreated
- * @property \DateTime dateUpdated
- * @property string secret
+ * @property string $sid
+ * @property string $friendlyName
+ * @property \DateTime $dateCreated
+ * @property \DateTime $dateUpdated
+ * @property string $secret
  */
 class NewSigningKeyInstance extends InstanceResource {
     /**
      * Initialize the NewSigningKeyInstance
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
      * @param mixed[] $payload The response payload
      * @param string $accountSid A 34 character string that uniquely identifies
      *                           this resource.
-     * @return \Twilio\Rest\Api\V2010\Account\NewSigningKeyInstance 
+     * @return \Twilio\Rest\Api\V2010\Account\NewSigningKeyInstance
      */
     public function __construct(Version $version, array $payload, $accountSid) {
         parent::__construct($version);
@@ -49,7 +49,7 @@ class NewSigningKeyInstance extends InstanceResource {
 
     /**
      * Magic getter to access properties
-     * 
+     *
      * @param string $name Property to access
      * @return mixed The requested property
      * @throws TwilioException For unknown properties
@@ -69,7 +69,7 @@ class NewSigningKeyInstance extends InstanceResource {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {

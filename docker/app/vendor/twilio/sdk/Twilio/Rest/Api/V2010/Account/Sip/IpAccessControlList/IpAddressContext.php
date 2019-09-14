@@ -9,6 +9,7 @@
 
 namespace Twilio\Rest\Api\V2010\Account\Sip\IpAccessControlList;
 
+use Twilio\Exceptions\TwilioException;
 use Twilio\InstanceContext;
 use Twilio\Options;
 use Twilio\Values;
@@ -17,12 +18,14 @@ use Twilio\Version;
 class IpAddressContext extends InstanceContext {
     /**
      * Initialize the IpAddressContext
-     * 
+     *
      * @param \Twilio\Version $version Version that contains the resource
-     * @param string $accountSid The account_sid
-     * @param string $ipAccessControlListSid The ip_access_control_list_sid
-     * @param string $sid The sid
-     * @return \Twilio\Rest\Api\V2010\Account\Sip\IpAccessControlList\IpAddressContext 
+     * @param string $accountSid The unique sid that identifies this account
+     * @param string $ipAccessControlListSid The IpAccessControlList Sid that
+     *                                       identifies the IpAddress resources to
+     *                                       fetch
+     * @param string $sid A string that identifies the IpAddress resource to fetch
+     * @return \Twilio\Rest\Api\V2010\Account\Sip\IpAccessControlList\IpAddressContext
      */
     public function __construct(Version $version, $accountSid, $ipAccessControlListSid, $sid) {
         parent::__construct($version);
@@ -39,7 +42,7 @@ class IpAddressContext extends InstanceContext {
 
     /**
      * Fetch a IpAddressInstance
-     * 
+     *
      * @return IpAddressInstance Fetched IpAddressInstance
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -63,7 +66,7 @@ class IpAddressContext extends InstanceContext {
 
     /**
      * Update the IpAddressInstance
-     * 
+     *
      * @param array|Options $options Optional Arguments
      * @return IpAddressInstance Updated IpAddressInstance
      * @throws TwilioException When an HTTP error occurs.
@@ -95,7 +98,7 @@ class IpAddressContext extends InstanceContext {
 
     /**
      * Deletes the IpAddressInstance
-     * 
+     *
      * @return boolean True if delete succeeds, false otherwise
      * @throws TwilioException When an HTTP error occurs.
      */
@@ -105,7 +108,7 @@ class IpAddressContext extends InstanceContext {
 
     /**
      * Provide a friendly representation
-     * 
+     *
      * @return string Machine friendly representation
      */
     public function __toString() {
