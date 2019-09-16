@@ -252,8 +252,8 @@ You must create this file (or rename [config-default.php](php/config-default.php
 The following explains the main sections in config.php. The structures used in coinfig.php are
 defined in [config_interfaces.php](php/config_interfaces.php) if you are interested to see their definitions.
 
- Config.php:
- -----------
+ Sample Config.php:
+ ------------------
 
 	// ----------------------------------------------------------------------
 	// Email Settings
@@ -386,6 +386,13 @@ defined in [config_interfaces.php](php/config_interfaces.php) if you are interes
 	    'http://yourwebsite.com/riprunner/',
 	    DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY, 
 	    $GOOGLE_MAP_CITY_LOOKUP);
+	// If you have configured an audio streaming service (like the opensource https://www.azuracast.com/)
+	// You may enabled streaming radio audio example:
+	$LOCAL_DEBUG_WEBSITE->setStreamAudioEnabled(true);
+	$LOCAL_DEBUG_WEBSITE->setStreamMobile(true);
+	$LOCAL_DEBUG_WEBSITE->setStreamDesktop(true);
+	$LOCAL_DEBUG_WEBSITE->setStreamUrl('https://radio.example.com/public/live/embed');
+	$LOCAL_DEBUG_WEBSITE->setStreamUrlRaw('https://radio.example.com/radio/8000/radio.mp3');
 	
 	// ----------------------------------------------------------------------
 	// LDAP Settings
@@ -450,12 +457,13 @@ To test your provider, send the following text message to your provider configur
 Special Notes:
 --------------
 
-A newer mobile app is being developed using google's 'Flutter' framework which can be found i nthe flutter folder.
-Visual Studio Code is the IDE being used to develop this mobile app but command line compiling using flutter
-works fine too.
+A new mobile app is being developed using google's 'Flutter' framework (https://flutter.dev/) which can be found in the flutter folder.
+Visual Studio Code (https://code.visualstudio.com/) is the IDE being used to develop this mobile app but command line compiling using flutter works fine too.
+
+See project files here: https://github.com/softcoder/riprunner/tree/master/flutter/riprunner
 
 Old information below regarding mobile app:
---------------
+-------------------------------------------
 Compiling the Android application in the Eclipse IDE requires you to install the ADT plugin (http://developer.android.com/tools/sdk/eclipse-adt.html) as well as setup the Google Play Services SDK (https://developer.android.com/google/play-services/setup.html#Setup) as this is a dependency in the riprunner android app.
 
 FAQ:
@@ -606,7 +614,7 @@ which all phones would recognize because it uses the well known .com format
 
 Development:
 --------------
-Rip Runner uses composer for dependency management (the existing third-party folder is now deprecated and will eventually be deleted). Currently php 7.x is supported and our continuous integration system (travis) runs automated tests on those versions. If you want to contribute to rip runner as a developer checkout the repo from github and from the php folder of the repo on your local system run:
+Rip Runner uses composer for dependency management. Currently php 7.x is supported and our continuous integration system (travis) runs automated tests on those versions. If you want to contribute to rip runner as a developer checkout the repo from github and from the php folder of the repo on your local system run:
 
 composer install
 
@@ -620,6 +628,9 @@ https://travis-ci.org/softcoder/riprunner
 
 Experimental Work:
 ------------------
+
+Angular client:
+---------------
 We have begun porting the user interface to Angular (v8+). Currently this UI is partially ported from the
 legacy twig UI, in order to build and deploy to your server:
 
@@ -649,6 +660,12 @@ If you installed rip runner in the root folder of s subdomain for example http:/
 ng build --base-href=/ngui/ --output-path=../php/ngui/ --aot
 
 then copy the ngui folder to the root folder on myhost.com.
+
+Serverless support:
+-------------------
+We have started work on the application architecture to prepare for supporting various vendors who offer serverless computing platforms. Documentation can be read regarding deploying to Google Cloud Run (GCR) using a docker container
+https://github.com/softcoder/riprunner/tree/master/docker  
+
 
 Contributions:
 --------------
