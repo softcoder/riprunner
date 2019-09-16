@@ -655,11 +655,11 @@ Notice above the base-href which is the document root path on your webserver whe
   
   /~softcoder/svvfd1/php/ngui/index.html
 
-If you installed rip runner in the root folder of s subdomain for example http://svvfd.yourhost.com, you would run the script as follows:
+If you installed rip runner in the root folder of a subdomain for example http://svvfd.yourhost.com, you would run the script as follows:
 
 ng build --base-href=/ngui/ --output-path=../php/ngui/ --aot
 
-then copy the ngui folder to the root folder on myhost.com.
+then copy the ngui folder to the root folder on svvfd.yourhost.com  
 
 Serverless support:
 -------------------
