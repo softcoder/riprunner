@@ -26,7 +26,7 @@ db password:        riprunner
 There is a seperate Dockerfile for deploying to Google's Serverless Cloud Run platform.  
 The Dockerfile is located in the app folder. The docker image produced does not include a db engine  
 it is assumed you have setup Google Cloud SQL (MySQL). In your cloud run service, ensure the live   
-revision has the following enviornment varialbes set to connect to your environment:  
+revision has the following environment varialbes set to connect to your environment:  
 
 Environment variables  
 Name: APP_DSN  
@@ -35,7 +35,12 @@ Value: mysql:unix_socket=/cloudsql/<your instance connection name>;dbname=riprun
 Name: APP_GOOGLE_MAP_API_KEY  
 Value: <your api key>  
 
+To see more variables look in the config.php file in the dcoker/app folder  
+
 Open a terminal and navigate into the 'docker/app' folder (make sure NOT to run from the docker folder)  
+
+# Authentication your google cloud platform account
+gcloud auth login  
 
 # Build the docker Image in google cloud run  
 gcloud builds submit --tag gcr.io/pgtg-container-demo/riprunner  
