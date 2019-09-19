@@ -17,7 +17,7 @@ This application suite was designed by volunteer fire fighters to enhance the ex
 Key Features:
 -------------
 - Real-time Email trigger (using Google App Engine) or email polling for 911 callouts received from your 
-Fire Operations Command Center. Easily adaptable to other callout trigger mechanisms (suc has Web, Rest API, SMS, etc).
+Fire Operations Command Center. Easily adaptable to other callout trigger mechanisms (such as Web, Rest API, SMS, etc).
 - Pluggable support for SMS gateway providers to send SMS information to fire fighters. 
   Current SMS providers implemented include:
   - Twilio (twilio.com - paid account charges approx $0.0075 per SMS -> https://www.twilio.com/sms/pricing)
