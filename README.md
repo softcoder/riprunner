@@ -678,7 +678,7 @@ Contributors currently include:
 Contact Info:
 --------------
 - Email: mark@vsoft.solutions
-- Slack Channel: https://vsoftsolutions.slack.com/messages/CJEQ6H5J6/
+- Slack Channel: https://join.slack.com/t/vsoftsolutions/shared_invite/enQtNzU1MzQzMTU2NDE3LTBiM2EyMGQ4ZWQwYTNmMzk0OTMzMDg4NWY0MDJiZTk4NTI5YTE5ODZjMGEzODM5YmNhODJhNDE2ODg1NTY1MGU
 - Join our IRC channel `#softhaus` on FreeNode.
 - Webchat IRC channel: http://webchat.freenode.net/?channels=softhaus
 
