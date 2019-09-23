@@ -18,6 +18,7 @@ require_once __RIPRUNNER_ROOT__ . '/models/live-callout-warning-model.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 // Register our view and variables for the template
+\riprunner\Authentication::setJWTCookie();
 $server_mode = get_query_param('server_mode');
 if(isset($server_mode) === true && $server_mode === 'true') {
     \riprunner\Authentication::sec_session_start_ext(true);

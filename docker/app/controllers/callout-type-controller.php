@@ -20,6 +20,7 @@ require_once __RIPRUNNER_ROOT__ . '/plugins/sms-callout/default.class.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 // Register our view and variables for the template
+\riprunner\Authentication::setJWTCookie();
 \riprunner\Authentication::sec_session_start();
 new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 $callouttype_mv = new CalloutTypeViewModel($global_vm, $view_template_vars);

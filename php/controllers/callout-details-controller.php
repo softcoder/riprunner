@@ -18,6 +18,7 @@ require_once __RIPRUNNER_ROOT__ . '/models/callout-details-model.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 // Register our view and variables for the template
+\riprunner\Authentication::setJWTCookie();
 \riprunner\Authentication::sec_session_start(true);
 new CalloutDetailsViewModel($global_vm, $view_template_vars);
 

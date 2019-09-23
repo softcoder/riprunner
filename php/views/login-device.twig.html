@@ -9,10 +9,10 @@
             {% else %}
                 {% set result = logindevice_vm.register_result %}                
                 {% if logindevice_vm.live_callout is not null and logindevice_vm.live_callout is not empty %}
-                    {{ result }}|{{ logindevice_vm.live_callout[0]['id'] }}|{{ logindevice_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE }},{{ logindevice_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE }}|
+                    {{ result }}|{{ logindevice_vm.live_callout[0]['id'] }}|{{ logindevice_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE }},{{ logindevice_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE }}|{{ logindevice_vm.RR_JWT_TOKEN_PARAM }}|
                     {{ logindevice_vm.signal_callout }}
                 {% else %}
-                    {{ result }}|?|{{ logindevice_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE }},{{ logindevice_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE }}|
+                    {{ result }}|?|{{ logindevice_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LATITUDE }},{{ logindevice_vm.firehall.WEBSITE.FIREHALL_GEO_COORD_LONGITUDE }}|{{ logindevice_vm.RR_JWT_TOKEN_PARAM }}|
                     {{ logindevice_vm.signal_login }}
                 {% endif %}
             {% endif %}

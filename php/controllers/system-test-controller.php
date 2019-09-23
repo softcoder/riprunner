@@ -17,15 +17,14 @@ require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/live-callout-warning-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/system-test-model.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
-//require_once __RIPRUNNER_ROOT__ . '/cache/cache-proxy.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 // Register our view and variables for the template
+\riprunner\Authentication::setJWTCookie();
 \riprunner\Authentication::sec_session_start();
 new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 $testModel = new SystemTestModel($global_vm, $view_template_vars);
-//$testModel->processActions();
 
 new SystemTestMenuController($global_vm, $testModel, $view_template_vars);
 

@@ -17,12 +17,22 @@ require_once 'config/config_manager.php';
 require_once 'core/CalloutStatusType.php';
 require_once 'logging.php';
 
+function getSafeCookieValue($key, $cookie_variables=null) {
+    if($cookie_variables !== null && array_key_exists($key, $cookie_variables) === true) {
+        return htmlspecialchars($cookie_variables[$key]);
+    }
+    if($_COOKIE !== null && array_key_exists($key, $_COOKIE) === true) {
+        return htmlspecialchars($_COOKIE[$key]);
+    }
+    return null;
+}
+
 function getSafeRequestValue($key, $request_variables=null) {
     if($request_variables !== null && array_key_exists($key, $request_variables) === true) {
         return htmlspecialchars($request_variables[$key]);
     }
     $request_list = array_merge($_GET, $_POST);
-    if(array_key_exists($key, $request_list) === true) {
+    if($request_list !== null && array_key_exists($key, $request_list) === true) {
         return htmlspecialchars($request_list[$key]);
     }
     return null;

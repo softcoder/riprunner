@@ -22,8 +22,6 @@ require __RIPRUNNER_ROOT__.'/vendor/autoload.php';
 require_once __RIPRUNNER_ROOT__.'/functions.php';
 require_once __RIPRUNNER_ROOT__.'/logging.php';
 
-use \Firebase\JWT\JWT;
-
 class ProcessLogin {
 	
 	private $request_variables;
@@ -141,33 +139,28 @@ class ProcessLogin {
 						$loginResult = $auth->login($user_id, $password);
 						if (count($loginResult) > 0) {
 							// Login success
-							$token = array();
-							$token['id'] 		= $loginResult['user_db_id'];
-							$token['username'] 	= $loginResult['user_id'];
-							$token['usertype']	= $loginResult['user_type'];
-							$token['login_string']	= $loginResult['login_string'];
-							$token['acl'] 		= $auth->getCurrentUserRoleJSon($loginResult);
-							$token['fhid'] 		= $firehall_id;
-							$token['uid'] 		= '';
-							$jwt = JWT::encode($token, JWT_KEY);
+							$userRole = $auth->getCurrentUserRoleJSon($loginResult);
+							$jwt = \riprunner\Authentication::getJWTAccessToken($loginResult, $userRole);
+							$jwtRefresh = \riprunner\Authentication::getJWTRefreshToken($loginResult['user_id'], $loginResult['user_db_id'], $firehall_id, $loginResult['login_string']);
 
 							if($isAngularClient == true) {
 								
 								$output = array();
-								$output['status'] 		= true;
-								$output['expiresIn'] 	= 60 * 30; // expires in 30 mins
-								$output['user'] 		= $loginResult['user_id'];
-								$output['message'] 		= 'LOGIN: OK';
-								$output['token'] 		= $jwt;
+								$output['status'] 		 = true;
+								$output['expiresIn'] 	 = 60 * 30; // expires in 30 mins
+								$output['user'] 		 = $loginResult['user_id'];
+								$output['message'] 		 = 'LOGIN: OK';
+								$output['token'] 		 = $jwt;
+								$output['refresh_token'] = $jwtRefresh;
 
-								if($log !== null) $log->trace("#1 json login execute loginResult vars [".print_r($loginResult, TRUE)."] token vars [".print_r($token, TRUE)."] output vars [".print_r($output, TRUE)."]");
+								if($log !== null) $log->trace("#1 json login execute loginResult vars [".print_r($loginResult, TRUE)."] jwt [$jwt] output vars [".print_r($output, TRUE)."]");
 
 								$sessionless = getSafeRequestValue('SESSIONLESS_LOGIN',$this->request_variables);
 								if($sessionless == null || $sessionless == false) {
-									foreach ($loginResult as $key => $value) {
-										$_SESSION[$key] = $value;
-									}
-									if($log !== null) $log->trace("#2 json login execute session vars [".print_r($_SESSION, TRUE)."]");
+									// foreach ($loginResult as $key => $value) {
+									// 	$_SESSION[$key] = $value;
+									// }
+									// if($log !== null) $log->trace("#2 json login execute session vars [".print_r($_SESSION, TRUE)."]");
 								}
 								
 								$this->header('Cache-Control: no-cache, must-revalidate');
@@ -179,19 +172,19 @@ class ProcessLogin {
 							else {
 								if($log !== null) $log->trace("#1 login execute loginResult vars [".print_r($loginResult, TRUE)."]");
 
-								$sessionless = getSafeRequestValue('SESSIONLESS_LOGIN',$this->request_variables);
-								if($sessionless == null || $sessionless == false) {
-									foreach ($loginResult as $key => $value) {
+								//$sessionless = getSafeRequestValue('SESSIONLESS_LOGIN',$this->request_variables);
+								//if($sessionless == null || $sessionless == false) {
+									//foreach ($loginResult as $key => $value) {
 										//!!! Play with this (comment out) to eventually not require session state 
 										// vars for serverless operation
-										$_SESSION[$key] = $value;
-									}
-									if($log !== null) $log->trace("#2 login execute session vars [".print_r($_SESSION, TRUE)."]");
-								}
+										//$_SESSION[$key] = $value;
+									//}
+									//if($log !== null) $log->trace("#2 login execute session vars [".print_r($_SESSION, TRUE)."]");
+								//}
 
-								//$this->header('JWT_TOKEN: '.$jwt);
-								$this->header('Location: controllers/main-menu-controller.php?JWT_TOKEN='.$jwt);
-								//$this->header('Location: controllers/main-menu-controller.php');
+								$this->header('Location: controllers/main-menu-controller.php?'.
+											  \riprunner\Authentication::getJWTTokenName().'='.$jwt.
+											  '&'.\riprunner\Authentication::getJWTRefreshTokenName().'='.$jwtRefresh);
 							}
 						} 
 						else {

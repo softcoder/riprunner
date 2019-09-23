@@ -74,14 +74,33 @@ function get_log() {
     /* The "log_file_size - 1" deliberately reloads the last byte, which we already
      * have. This is to prevent a 416 "Range unsatisfiable" error: a response
      * of length 1 tells us that the file hasn't changed yet. A 416 shows that
-     * the file has been trucnated */
+     * the file has been truncated */
 
-    $.ajax(url, {
+    //debugger;
+    $.ajax({
+        url: url,
         dataType: "text",
         cache: false,
-        headers: {Range: "bytes=" + range},
+        beforeSend: function (xhr) {
+            //debugger;
+            xhr.setRequestHeader(jwtTokenNameForHeader, jwtToken);
+            xhr.setRequestHeader(jwtRefreshTokenNameForHeader, jwtRefreshToken);
+            xhr.setRequestHeader('Range', 'bytes='+range);
+        },
         success: function (data, s, xhr) {
             loading = false;
+
+            //debugger;
+            var newTokenValue = xhr.getResponseHeader(jwtTokenName);
+            if(newTokenValue) {
+                //console.info("Found new JWT: "+newTokenValue);
+                jwtToken = newTokenValue;
+            }
+            var newRefreshTokenValue = xhr.getResponseHeader(jwtRefreshTokenName);
+            if(newRefreshTokenValue) {
+                //console.info("Found new Refresh JWT: "+newRefreshTokenValue);
+                jwtRefreshToken = newRefreshTokenValue;
+            }
 
             var content_size;
 
@@ -92,19 +111,22 @@ function get_log() {
 
                 log_file_size = parseInt2(c_r.split("/")[1]);
                 content_size = parseInt2(xhr.getResponseHeader("Content-Length"));
-            } else if (xhr.status === 200) {
+            } 
+            else if (xhr.status === 200) {
                 if (must_get_206)
                     throw "Expected 206 Partial Content";
 
                 content_size = log_file_size =
                         parseInt2(xhr.getResponseHeader("Content-Length"));
-            } else {
+            } 
+            else {
                 throw "Unexpected status " + xhr.status;
             }
 
-            if (first_load && data.length > load)
+            if (first_load && data.length > load) {
                 //throw "Server's response was too long, data: " + data.length + " load: " + load;
             	console.info("WARNING: Server's response was too long, data: " + data.length + " load: " + load);
+            }
 
             var added = false;
 

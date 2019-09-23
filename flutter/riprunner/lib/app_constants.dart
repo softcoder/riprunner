@@ -23,6 +23,7 @@ class AppConstants {
     static const String PROPERTY_STATUS_LIST              = "status_list";
     
     static const String PROPERTY_AUTH                     = "auth";
+    static const String PROPERTY_AUTH_REFRESH             = "auth_refresh";
     static const String PROPERTY_AUDIO_STREAM_RAW_URL     = "audio_stream_raw_url";
 
     static const String PROPERTY_CUSTOM_PAGER_AUDIO_FILE  = "custom_pager_audio_file";

@@ -72,6 +72,14 @@ class Utils {
           }
         }
       }
+
+      String refreshToken = await Utils.getConfigItem<String>(AppConstants.PROPERTY_AUTH_REFRESH);
+      if(refreshToken != null && refreshToken.isNotEmpty) {
+        if (url.indexOf('JWT_REFRESH_TOKEN') == -1) {
+          url = addQueryParam(url, 'JWT_REFRESH_TOKEN', refreshToken);
+        }
+      }
+
       return url;
     }
 
@@ -79,6 +87,11 @@ class Utils {
       String token = await Utils.getConfigItem<String>(AppConstants.PROPERTY_AUTH);
       if(token != null && token.isNotEmpty) {
         request.headers.set('jwt-token',token);
+      }
+
+      String refreshToken = await Utils.getConfigItem<String>(AppConstants.PROPERTY_AUTH_REFRESH);
+      if(refreshToken != null && refreshToken.isNotEmpty) {
+        request.headers.set('jwt-refresh-token',refreshToken);
       }
     }
 
@@ -174,7 +187,7 @@ class Utils {
 	}
 
   static void processDeviceMsgTrigger(Map<String, dynamic> messageMap) {
-    Map<String, String> calloutMsgMap = Map<String, dynamic>.from(messageMap);
+    Map<String, dynamic> calloutMsgMap = Map<String, dynamic>.from(messageMap);
     String deviceMsg = Uri.decodeQueryComponent(calloutMsgMap["DEVICE_MSG"]);
     if (deviceMsg != null && deviceMsg != "FCM_LOGINOK") {
         //AppMainActivity.this.processDeviceMsgTrigger(deviceMsg);

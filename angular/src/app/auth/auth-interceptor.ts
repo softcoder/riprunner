@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
-import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from '@angular/common/http';
+import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable()
@@ -9,11 +9,16 @@ export class AuthInterceptor implements HttpInterceptor {
             next: HttpHandler): Observable<HttpEvent<any>> {
       //debugger;
       const token = localStorage.getItem('token');
+      const refreshToken = localStorage.getItem('refreshToken');
       if (token && !req.url.includes('maps.googleapis.com')) {
-          const cloned = req.clone({
-              headers: req.headers.set('jwt-token', token)
+          const reqWithInjection = req.clone({
+            headers: new HttpHeaders({
+                'jwt-token': token,
+                'jwt-refresh-token': refreshToken
+            })
           });
-          return next.handle(cloned);
+          //console.log('Intercepted HTTP call', reqWithInjection);
+          return next.handle(reqWithInjection);
       }
       else {
           return next.handle(req);

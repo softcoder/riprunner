@@ -9,8 +9,9 @@ class AuthResponse {
   final String user;
   final String message;
   final String token;
+  final String refreshToken;
 
-  AuthResponse({this.status, this.expiresIn, this.user, this.message, this.token});
+  AuthResponse({this.status, this.expiresIn, this.user, this.message, this.token, this.refreshToken});
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
@@ -19,6 +20,7 @@ class AuthResponse {
       user: json['user'],
       message: json['message'],
       token: json['token'],
+      refreshToken: json['refresh_token'],
     );
   }
 }
@@ -84,6 +86,7 @@ class Authentication {
                     user: '',
                     message: 'FCM error, bad sender',
                     token: '',
+                    refreshToken: '',
                   );
 
               // }
@@ -115,17 +118,39 @@ class Authentication {
                     user: '',
                     message: 'FCM error, not registered',
                     token: '',
+                    refreshToken: '',
                   );
           } 
           else {
               if (responseString.startsWith("OK=")) {
-                  List<String> responseParts = responseString.split("\\|");
+                  String jwtToken = '';
+                  String jwtRefreshToken = '';
+
+                  List<String> responseParts = responseString.split("|");
                   if (responseParts.length > 2) {
                       String firehallCoords = responseParts[2];
                       List<String> firehallCoordsParts = firehallCoords.split(",");
                       if (firehallCoordsParts.length == 2) {
                           //auth.setFireHallGeoLatitude(firehallCoordsParts[0]);
                           //auth.setFireHallGeoLongitude(firehallCoordsParts[1]);
+                      }
+                      if (responseParts.length > 3) {
+                        for(final tokens in responseParts) {
+                          List<String> tokenParts = tokens.split(";");
+                          if (tokenParts.length > 0) {
+                            for(final token in tokenParts) {
+                              List<String> jwtTokenParts = token.split("=");
+                              if (jwtTokenParts.length == 2) {
+                                if(jwtTokenParts[0] == "JWT_TOKEN") {
+                                  jwtToken = jwtTokenParts[1];
+                                }
+                                if(jwtTokenParts[0] == "JWT_REFRESH_TOKEN") {
+                                  jwtRefreshToken = jwtTokenParts[1];
+                                }
+                              }
+                            }
+                          }
+                        }
                       }
                   }
 
@@ -135,7 +160,8 @@ class Authentication {
                     expiresIn: 0,
                     user: user,
                     message: 'Login success',
-                    token: '',
+                    token: jwtToken,
+                    refreshToken: jwtRefreshToken,
                   );                  
               } else {
                   // runOnUiThread(new Runnable() {
@@ -155,6 +181,7 @@ class Authentication {
                     user: '',
                     message: 'Invalid login attempt',
                     token: '',
+                    refreshToken: '',
                   );                  
               }
           }

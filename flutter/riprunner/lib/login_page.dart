@@ -99,6 +99,7 @@ class _LoginState extends State<LoginPage> {
         Utils.setConfigItem<String>(AppConstants.PROPERTY_FIREHALL_ID,firehallId);
         Utils.setConfigItem<String>(AppConstants.PROPERTY_USER_ID,userId);
         Utils.setConfigItem<String>(AppConstants.PROPERTY_AUTH,auth.token);
+        Utils.setConfigItem<String>(AppConstants.PROPERTY_AUTH_REFRESH,auth.refreshToken);
 
         DataContainer data = Provider.of<DataContainer>(context);
         data.setData({});
@@ -106,6 +107,7 @@ class _LoginState extends State<LoginPage> {
         data.setDataInMap('FIREHALL_ID', firehallId);
         data.setDataInMap('USER_ID', userId);
         data.setDataInMap('AUTH_TOKEN', auth.token);
+        data.setDataInMap('AUTH_TOKEN_REFRESH', auth.refreshToken);
 
         Navigator.of(context).popAndPushNamed(HomePage.tag);
       });

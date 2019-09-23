@@ -18,6 +18,7 @@ require_once __RIPRUNNER_ROOT__ . '/models/live-callout-warning-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/main-menu-model.php';
 
 // Register our view and variables for the template
+\riprunner\Authentication::setJWTCookie();
 \riprunner\Authentication::sec_session_start();
 new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 new MainMenuViewModel($global_vm, $view_template_vars);

@@ -23,6 +23,7 @@ require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+\riprunner\Authentication::setJWTCookie();
 \riprunner\Authentication::sec_session_start();
 // Register our view and variables for the template
 if(isset($sendmsg_mv) === false ) {

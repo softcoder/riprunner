@@ -9,6 +9,14 @@
         {% endif %}
     
         <script type="text/javascript">
+        debugger;
+        var jwtTokenName = '{{ gvm.RR_JWT_TOKEN_NAME }}';
+        var jwtTokenNameForHeader = '{{ gvm.RR_JWT_TOKEN_NAME_FOR_HEADER }}';
+        var jwtRefreshTokenName = '{{ gvm.RR_JWT_REFRESH_TOKEN_NAME }}';
+        var jwtRefreshTokenNameForHeader = '{{ gvm.RR_JWT_REFRESH_TOKEN_NAME_FOR_HEADER }}';
+
+        var jwtToken = '{{ gvm.RR_JWT_TOKEN }}';
+        var jwtRefreshToken = '{{ gvm.RR_JWT_REFRESH_TOKEN }}';
         var url ='{{ gvm.RR_DOC_ROOT }}/getFileContents.php?file={{ viewlogs_ctl_logfile }}';
         </script>
        

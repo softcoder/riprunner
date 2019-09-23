@@ -28,9 +28,11 @@ class GlobalViewModel {
 	private $db_connection;
 	private $authModel;
 	private $firehalls;
+	private $firehall_id;
 	
-	public function __construct($firehalls) { 
+	public function __construct($firehalls, $firehall_id=null) { 
 		$this->firehalls = $firehalls;
+		$this->firehall_id = $firehall_id;
 	}
 	
 	public function __destruct() { 
@@ -38,7 +40,8 @@ class GlobalViewModel {
 	}
 	
 	public function __get($name) {
-		
+		global $log;
+
 		if('isMobile' === $name) {
 			return $this->getDetectBrowser()->isMobile();
 		}
@@ -52,13 +55,68 @@ class GlobalViewModel {
 		if('RR_DB_CONN' === $name) {
 			return $this->getDBConnection();
 		}
-		if('RR_JWT_TOKEN' === $name) {
-			return Authentication::getJWTToken();
+		if('RR_JWT_TOKEN_NAME' === $name) {
+			return \riprunner\Authentication::getJWTTokenName();
 		}
+		if('RR_JWT_REFRESH_TOKEN_NAME' === $name) {
+			return \riprunner\Authentication::getJWTRefreshTokenName();
+		}
+		if('RR_JWT_TOKEN_NAME_FOR_HEADER' === $name) {
+			return \riprunner\Authentication::getJWTTokenNameForHeader();
+		}
+		if('RR_JWT_REFRESH_TOKEN_NAME_FOR_HEADER' === $name) {
+			return \riprunner\Authentication::getJWTRefreshTokenNameForHeader();
+		}
+		if('RR_JWT_TOKEN' === $name) {
+			if($log !== null) $log->trace("Start RR_JWT_TOKEN");
+			$token = \riprunner\Authentication::getJWTToken(null,null,true);
+			if($log !== null) $log->trace("In RR_JWT_TOKEN token [$token]");
+
+			if($token != null && strlen($token)) {
+				return $token;
+			}
+			return '';
+		}
+		if('RR_JWT_REFRESH_TOKEN' === $name) {
+			if($log !== null) $log->trace("Start RR_JWT_REFRESH_TOKEN");
+			$refreshTokenObject = \riprunner\Authentication::getRefreshTokenObject();
+			if($refreshTokenObject != null) {
+				if($log !== null) $log->trace("Refresh Token [".json_encode($refreshTokenObject)."].");
+
+				$refreshToken = \riprunner\Authentication::getJWTRefreshToken($refreshTokenObject->sub,
+																			  $refreshTokenObject->iss,
+																			  $refreshTokenObject->fhid,
+																			  $refreshTokenObject->login_string);
+
+				if($log !== null) $log->trace("In RR_JWT_REFRESH_TOKEN token [$refreshToken]");
+
+				if($refreshToken != null && strlen($refreshToken)) {
+					return $refreshToken;
+				}
+			}
+			return '';
+		}
+
 		if('RR_JWT_TOKEN_PARAM' === $name) {
-			$token = Authentication::getJWTToken();
-			if($token != null) {
-				return 'JWT_TOKEN='.$token;
+			if($log !== null) $log->trace("Start RR_JWT_TOKEN_PARAM");
+			$token = \riprunner\Authentication::getJWTToken(null,null,true);
+			if($log !== null) $log->trace("In RR_JWT_TOKEN_PARAM token [$token]");
+
+			if($token != null && strlen($token)) {
+				$tokenParam = \riprunner\Authentication::getJWTTokenName().'='.$token;
+
+				$refreshTokenObject = \riprunner\Authentication::getRefreshTokenObject();
+				if($refreshTokenObject != null) {
+					if($log !== null) $log->trace("Refresh Token [".json_encode($refreshTokenObject)."].");
+
+					$refreshToken = \riprunner\Authentication::getJWTRefreshToken($refreshTokenObject->sub,
+																				  $refreshTokenObject->iss,
+																				  $refreshTokenObject->fhid,
+																				  $refreshTokenObject->login_string);
+					$refreshTokenParam = \riprunner\Authentication::getJWTRefreshTokenName().'='.$refreshToken;
+
+					return $tokenParam.'&'.$refreshTokenParam;
+				}
 			}
 			return '';
 		}
@@ -159,7 +217,9 @@ class GlobalViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN','RR_JWT_TOKEN', 'RR_JWT_TOKEN_PARAM',
+			array('isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN','RR_JWT_TOKEN_NAME', 'RR_JWT_TOKEN',
+				  'RR_JWT_REFRESH_TOKEN_NAME', 'RR_JWT_REFRESH_TOKEN', 
+				  'RR_JWT_TOKEN_NAME_FOR_HEADER', 'RR_JWT_REFRESH_TOKEN_NAME_FOR_HEADER', 'RR_JWT_TOKEN_PARAM',
 					AuthViewModel::getAuthVarContainerName(),'firehall',
 					'firehall_list','user_firehallid','enabled_asynch_mode',
 					'db_timezone', 'phpinfo','MENU_TYPE','CUSTOM_MAIN_CSS','CUSTOM_MOBILE_CSS',
@@ -189,6 +249,9 @@ class GlobalViewModel {
 		$firehall_id = $this->getUserFirehallId();
 		if(isset($firehall_id) === false) {
 			$firehall_id = get_query_param('fhid');
+		}
+		if(isset($firehall_id) === false) {
+			$firehall_id = $this->firehall_id;
 		}
 		if(isset($firehall_id) === true) {
 			$fire_hall = findFireHallConfigById($firehall_id, $this->firehalls);

@@ -53,7 +53,7 @@ class AuthApiController extends ApiController {
         global $FIREHALLS;
         
         if($log !== null) $log->trace("API validateAuth start for session [".session_id()."]");
-        if($log !== null) $log->trace("API validateAuth session vars [".print_r($_SESSION, TRUE)."]");
+        //if($log !== null) $log->trace("API validateAuth session vars [".print_r($_SESSION, TRUE)."]");
 
         $userAuthorized = false;
         

@@ -15,13 +15,18 @@ interface AuthResponse {
   user: string;
   message: string;
   token: string;
+  refresh_token: string;
 }
 
 interface TokenObject {
   id: number;
+  username: string;
+  usertype: number;
   acl: string;
   fhid: string;
   uid: string;
+  iat: string;
+  exp: string;
   fcmTokens?: { [token: string]: true };
 }
 
@@ -108,6 +113,9 @@ export class AuthService {
       if (this.isLoggedIn() && url.indexOf('JWT_TOKEN') === -1) {
         const token = localStorage.getItem('token');
         url = this.addQueryParam(url, 'JWT_TOKEN', token);
+        const refreshToken = localStorage.getItem('refreshToken');
+        url = this.addQueryParam(url, 'JWT_REFRESH_TOKEN', refreshToken);
+
         if (handOffJWT) {
           url = this.addQueryParam(url, 'JWT_TOKEN_HANDOFF', 'true');
         }
@@ -134,6 +142,7 @@ export class AuthService {
 
         const permissions: Array<string> = [ 'USER-AUTHENTICATED' ];
         localStorage.setItem('token', authResult.token);
+        localStorage.setItem('refreshToken', authResult.refresh_token);
         //console.log('SetSession authResult: ' + JSON.stringify(authResult));
 
         const jwtToken: TokenObject = JWT(authResult.token);
@@ -156,6 +165,7 @@ export class AuthService {
         // debugger;
 
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         localStorage.removeItem('acl');
         localStorage.removeItem('expires_at');
         localStorage.removeItem('fhid');

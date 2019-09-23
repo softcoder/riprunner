@@ -19,6 +19,8 @@ class LoginDeviceViewModel extends BaseViewModel {
 	private $user_account_id;
 	private $register_result;
 	private $live_callout;
+	private $jwt;
+	private $jwtRefresh;
 	
 	protected function getVarContainerName() { 
 		return "logindevice_vm";
@@ -56,6 +58,11 @@ class LoginDeviceViewModel extends BaseViewModel {
 		if('signal_login' === $name) {
 			return $this->getSignalLogin();
 		}
+		if('RR_JWT_TOKEN_PARAM') {
+			$tokenParam = \riprunner\Authentication::getJWTTokenName().'='.$this->jwt;
+			$refreshTokenParam = \riprunner\Authentication::getJWTRefreshTokenName().'='.$this->jwtRefresh;
+			return $tokenParam.';'.$refreshTokenParam;
+		}
 		
 		return parent::__get($name);
 	}
@@ -64,7 +71,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 		if(in_array($name,
 			array('firehall_id','reg_id','user_id','has_user_password',
 				  'firehall', 'user_authenticated', 'register_result',
-				  'live_callout', 'signal_callout', 'signal_login'
+				  'live_callout', 'signal_callout', 'signal_login', 'RR_JWT_TOKEN_PARAM'
 			 )) === true) {
 			return true;
 		}
@@ -112,13 +119,18 @@ class LoginDeviceViewModel extends BaseViewModel {
 
 				if($log !== null) $log->trace("#1 json device checkAuth loginResult vars [".print_r($loginResult, TRUE)."]");
 
-				$sessionless = getSafeRequestValue('SESSIONLESS_LOGIN');
-				if($sessionless == null || $sessionless == false) {
-					foreach ($loginResult as $key => $value) {
-						$_SESSION[$key] = $value;
-					}
-					if($log !== null) $log->trace("#2 json device checkAuth session vars [".print_r($_SESSION, TRUE)."]");
-				}
+				// Login success
+				$userRole = $auth->getCurrentUserRoleJSon($loginResult);
+				$this->jwt = \riprunner\Authentication::getJWTAccessToken($loginResult, $userRole);
+				$this->jwtRefresh = \riprunner\Authentication::getJWTRefreshToken($loginResult['user_id'], $loginResult['user_db_id'], $this->getFirehallId(), $loginResult['login_string']);
+
+				// $sessionless = getSafeRequestValue('SESSIONLESS_LOGIN');
+				// if($sessionless == null || $sessionless == false) {
+				// 	foreach ($loginResult as $key => $value) {
+				// 		$_SESSION[$key] = $value;
+				// 	}
+				// 	if($log !== null) $log->trace("#2 json device checkAuth session vars [".print_r($_SESSION, TRUE)."]");
+				// }
             }
 			else {
 				$log->error("device register invalid userid or password for user_id [" . $this->getUserId() . "]");

@@ -16,6 +16,7 @@ require_once 'authentication/authentication.php';
 require_once 'functions.php';
 require_once 'logging.php';
 
+\riprunner\Authentication::setJWTCookie();
 \riprunner\Authentication::sec_session_start();
 
 function isRequestedFileValid($file) {
@@ -30,6 +31,11 @@ function isRequestedFileValid($file) {
 }
 
 global $log;
+//if($log !== null) $log->warn("In getFileContents token [".(isset($_SERVER['HTTP_JWT_TOKEN']) ? $_SERVER['HTTP_JWT_TOKEN'] : "")."]");
+//if($log !== null) $log->warn("In getFileContents refreshToken [".(isset($_SERVER['HTTP_JWT_REFRESH_TOKEN']) ? $_SERVER['HTTP_JWT_REFRESH_TOKEN'] : "")."]");
+//if($log !== null) $log->warn("In getFileContents SERVER vars [".print_r($_SERVER, TRUE)."]");
+//if($log !== null) $log->warn("In getFileContents Request vars [".print_r(array_merge($_GET, $_POST), TRUE)."]");
+
 $fhid = \riprunner\Authentication::getAuthVar('firehall_id');
 if ($fhid != null) {
 	$firehall_id = $fhid;
@@ -79,7 +85,7 @@ if ($fhid != null) {
     				header("Pragma: public");
     				header("Expires: -1");
     				header("Cache-Control: public, must-revalidate, post-check=0, pre-check=0");
-    								
+					
     				// set appropriate headers for attachment or streamed file
     				if ($is_attachment === true) {
     					header("Content-Disposition: attachment; filename=\"$file_name\"");
@@ -133,7 +139,9 @@ if ($fhid != null) {
     				
     				// This line turns off the web server's gzip compression
     				// which messes up our result.
-    				header("Content-Encoding: none");
+					header("Content-Encoding: none");
+					// Deploy JWT header tokens
+					$auth->deployJWTTokenHeaders(null, null, true);
     		
     				set_time_limit(0);
     				if($seek_start > 0) {

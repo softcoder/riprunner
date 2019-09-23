@@ -18,6 +18,10 @@ require_once __RIPRUNNER_ROOT__.'/template.php';
 require_once __RIPRUNNER_ROOT__.'/config/config_manager.php';
 require_once __RIPRUNNER_ROOT__.'/core/CalloutStatusType.php';
 require_once __RIPRUNNER_ROOT__.'/logging.php';
+require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class SignalManager {
     
@@ -346,7 +350,7 @@ class SignalManager {
         }
         return $resultFCM;
     }
-    public function sendFCM_Message($FIREHALL, $msg, $db_connection) {
+    public function sendFCM_Message($FIREHALL, $msg, $db_connection, $devices=null) {
         global $log;
         if($log !== null) $log->trace("Check FCM send_msg signal for MOBILE Enabled [" .
                 var_export($FIREHALL->MOBILE->MOBILE_SIGNAL_ENABLED, true) . "] FCM [" .
@@ -376,7 +380,7 @@ class SignalManager {
                         
             $fcmInstance->setDBConnection($db_connection);
             $fcmInstance->setFirehallId($FIREHALL->FIREHALL_ID);
-            $fcmInstance->setFCM_Devices(null);
+            $fcmInstance->setFCM_Devices($devices);
             	
             if($log !== null) $log->trace("Send FCM send_msg check device count: " . $fcmInstance->getDeviceCount());
             if($fcmInstance->getDeviceCount() > 0) {
@@ -619,7 +623,166 @@ class SignalManager {
         }
         return $result;
     }
+
+    public function sendMsg($msgContext, $gvm) {
+        if($msgContext->type == 'sms') {
+            return $this->sendSMSMessage($msgContext->msg, $msgContext->users, $gvm);
+        }
+        else if($msgContext->type == 'fcm') {
+            return $this->sendFCMMessage($msgContext->msg, $msgContext->users, $gvm);
+        }
+        else if($msgContext->type == 'email') {
+            return $this->sendEmailMessage($msgContext->msg, $msgContext->users, $gvm);
+        }
+        $result = array();
+        $result['result'] = 'INVALID send type!';
+        $result['status'] = 'INVALID send type!';
+        return $result;
+    }
     
+    private function sendSMSMessage($msg, $users, $gvm) {
+        if($users !== null && $users != '') {
+            //$users = explode(',',$users);
+            $smsList = getMobilePhoneListFromDB($gvm->firehall, $gvm->RR_DB_CONN, $users);
+            
+            $sendMsgResult = $this->sendSMSPlugin_Message($gvm->firehall, $msg, $smsList);
+        }
+        else {
+            $sendMsgResult = $this->sendSMSPlugin_Message($gvm->firehall, $msg);
+        }
+        
+        $sendMsgResultStatus = "SMS Message sent to applicable recipients.";
+        
+        $result = array();
+        $result['result'] = $sendMsgResult;
+        $result['status'] = $sendMsgResultStatus;
+        return $result;
+    }
+
+    private function sendFCMMessage($msg, $users, $gvm) {
+        $result = array();
+        $result['result'] = '';
+        $result['status'] = '';
+
+        if ($users != null && count($users) > 0) {
+            foreach ($users as $user) {
+                // Find all device id's for user
+                $sql_statement = new \riprunner\SqlStatement($gvm->RR_DB_CONN);
+                $sql = $sql_statement->getSqlStatement('devicereg_select_by_fhid_userid');
+                
+                $qry_bind = $gvm->RR_DB_CONN->prepare($sql);
+                $qry_bind->bindParam(':fhid', $gvm->firehall->FIREHALL_ID);
+                $qry_bind->bindParam(':uid', $user);
+                $qry_bind->execute();
+                
+                $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
+                $qry_bind->closeCursor();
+                
+                if (empty($rows) === false) {
+                    $devices = array();
+                    foreach ($rows as $row) {
+                        array_push($devices,$row);
+                    }
+
+                    $sendMsgResult = $this->sendFCM_Message($gvm->firehall, $msg, $gvm->RR_DB_CONN, $devices);
+                
+                    if (strpos($sendMsgResult, "|FCM_ERROR:") !== false) {
+                        $sendMsgResultStatus = "Error sending Android Message: " . $sendMsgResult;
+                    } else {
+                        $sendMsgResultStatus = "Android Message sent to applicable recipients.";
+                    }
+                
+                    $result['result'] = $result['result'].$sendMsgResult;
+                    $result['status'] = $result['status'].$sendMsgResultStatus;
+                }
+            }
+        }
+        return $result;
+    }
+
+    private function sendEmailMessage($msg, $users, $gvm) {
+    	global $log;
+
+        $result = array();
+        $result['result'] = '';
+        $result['status'] = '';
+
+        if($gvm->firehall->EMAIL->ENABLE_OUTBOUND_SMTP == true ||
+           $gvm->firehall->EMAIL->ENABLE_OUTBOUND_SENDMAIL == true) {
+            
+            //echo "email_users = [$email_users] emailMsg [$emailMsg]" . PHP_EOL;
+            if($log !== null) $log->trace("email users: ".print_r($users,TRUE));
+            $mail = new PHPMailer;
+            
+            //$users = explode(',',$users);
+            $emailList = getEmailListFromDB($gvm->firehall, $gvm->RR_DB_CONN);
+            foreach($emailList as $emailItem) {
+                $user_found = in_array($emailItem->id, $users);
+                //echo " email user checked for id [$emailItem->id] = " . $user_found. PHP_EOL;
+                if($log !== null) $log->trace("email user checked for id [$emailItem->id] user_found: $user_found");
+                        
+                if($user_found) {
+                    $mail->addAddress($emailItem->email, $emailItem->user_id);
+                }
+            }
+            
+            //$mail->SMTPDebug = 3;                               // Enable verbose debug output
+            //$mail->SMTPDebug = 2;
+            //$mail->Debugoutput = 'html';
+            
+            if($gvm->firehall->EMAIL->ENABLE_OUTBOUND_SMTP == true) {
+                $mail->isSMTP();
+            }
+            else if($gvm->firehall->EMAIL->ENABLE_OUTBOUND_SENDMAIL == true) {
+                $mail->isSendmail();
+            }
+            
+            //Set the hostname of the mail server
+            $mail->Host = $gvm->firehall->EMAIL->OUTBOUND_HOST;
+            // use
+            // $mail->Host = gethostbyname('smtp.gmail.com');
+            // if your network does not support SMTP over IPv6
+            //Set the SMTP port number - 587 for authenticated TLS, a.k.a. RFC4409 SMTP submission
+            $mail->Port = $gvm->firehall->EMAIL->OUTBOUND_PORT;
+            //Set the encryption system to use - ssl (deprecated) or tls
+            $mail->SMTPSecure = $gvm->firehall->EMAIL->OUTBOUND_ENCRYPT;
+            //Whether to use SMTP authentication
+            $mail->SMTPAuth = $gvm->firehall->EMAIL->OUTBOUND_AUTH;
+            //Username to use for SMTP authentication - use full email address for gmail
+            $mail->Username = $gvm->firehall->EMAIL->OUTBOUND_USERNAME;
+            //Password to use for SMTP authentication
+            $mail->Password = $gvm->firehall->EMAIL->OUTBOUND_PASSWORD;
+            //Set who the message is to be sent from
+            $mail->setFrom($gvm->firehall->EMAIL->OUTBOUND_FROM_ADDRESS, $gvm->firehall->EMAIL->OUTBOUND_FROM_NAME);
+            //Set an alternative reply-to address
+            $mail->addReplyTo($gvm->firehall->EMAIL->OUTBOUND_FROM_ADDRESS, $gvm->firehall->EMAIL->OUTBOUND_FROM_NAME);
+            //Set who the message is to be sent to
+            //$mail->addAddress('mark_vejvoda@hotmail.com', 'Mark Vejvoda');
+            //Set the subject line
+            $mail->Subject = 'Notification from Rip Runner';
+            //Read an HTML message body from an external file, convert referenced images to embedded,
+            //convert HTML into a basic plain-text alternative body
+            $mail->msgHTML(nl2br($msg));
+            //Replace the plain text body with one created manually
+            //$mail->Body = $emailMsg;
+            $mail->AltBody = $msg;
+            //Attach an image file
+            //$mail->addAttachment('images/phpmailer_mini.png');
+            //send the message, check for errors
+            
+            if (!$mail->send()) {
+                $sendMsgResultStatus = "Error sending Email Message: " . $mail->ErrorInfo;
+            }
+            else {
+                $sendMsgResultStatus = "Email Message sent to applicable recipients.";
+            }
+            
+            $result['result'] = $sendMsgResultStatus;
+            $result['status'] = $sendMsgResultStatus;
+       }
+       return $result;
+    }
+
     private function getTwigEnv() {
         global $twig;
         if($this->twig_env === null) {

@@ -184,7 +184,7 @@ class SendMessageController extends AuthApiController {
             //$this->view_template_vars["sendmsg_ctl_result"] = $sendMsgResultStatus;
             //$this->view_template_vars["sendmsg_ctl_result_status"] = $sendMsgResultStatus;
             $result = array();
-            $result['result'] = $sendMsgResult;
+            $result['result'] = $sendMsgResultStatus;
             $result['status'] = $sendMsgResultStatus;
             return $result;
        }

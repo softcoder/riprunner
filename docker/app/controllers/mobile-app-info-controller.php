@@ -17,6 +17,7 @@ require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/mobile-app-info-model.php';
 
 // Register our view and variables for the template
+\riprunner\Authentication::setJWTCookie();
 \riprunner\Authentication::sec_session_start();
 new MobileAppInfoViewModel($global_vm, $view_template_vars);
 // Load out template

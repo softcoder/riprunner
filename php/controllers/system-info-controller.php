@@ -20,6 +20,7 @@ require_once __RIPRUNNER_ROOT__ . '/cache/cache-proxy.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 // Register our view and variables for the template
+\riprunner\Authentication::setJWTCookie();
 \riprunner\Authentication::sec_session_start();
 new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 if(isset($global_vm->firehall) === true && $global_vm->firehall !== null) {
