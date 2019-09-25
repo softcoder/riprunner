@@ -4,6 +4,18 @@
   Satisfy all
 </FilesMatch>
 
+<FilesMatch "\.json$">
+  Order allow,deny
+  Deny from all
+  Satisfy all
+</FilesMatch>
+
+<FilesMatch "\.ini$">
+  Order allow,deny
+  Deny from all
+  Satisfy all
+</FilesMatch>
+
 #RewriteEngine On
 #RewriteCond %{REQUEST_FILENAME} !-f
 #RewriteCond %{REQUEST_FILENAME} !-d
