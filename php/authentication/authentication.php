@@ -449,16 +449,34 @@ class Authentication {
         return $token;
     }
 
-    static public function getRandomJWTSecret() {
+    static private function getJWTSecretForTime($timeWithHourResolution) {
         global $log;
 
-        $jwtSecret = JWT_KEY;
+        $jwtSecret = null;
         $secrets = self::getJWTSecrets();
         $keyCount = count($secrets);
         if($secrets != null && $keyCount > 0) {
-            $keyIndex = random_int(0, $keyCount-1);
+            //$keyIndex = random_int(0, $keyCount-1);
+            $rotateEveryXHours = (int)(24 / $keyCount);
+            $keyIndex = ($timeWithHourResolution % $rotateEveryXHours);
+            if($keyIndex >= $keyCount) {
+                $keyIndex = 0;
+            }
             $jwtSecret = $secrets[$keyIndex];
         }
+        else {
+            $context = "{ \"jwt_keys\": [ { \"kty\": \"oct\", \"use\": \"enc\", \"kid\": \"riprunner\", \"k\": \"".JWT_KEY."\", \"alg\": \"HS256\" } ] }";
+            $jwtSecret = json_decode($context);
+            //echo "MV JSON JWT: " .print_r($jwtSecret,TRUE).PHP_EOL;
+        }
+        if($log) $log->trace("In getRandomJWTSecret jwtSecret: ".print_r($jwtSecret,TRUE));
+        return $jwtSecret;
+    }
+
+    static public function getRandomJWTSecret($timeWithHourResolution) {
+        global $log;
+
+        $jwtSecret = self::getJWTSecretForTime($timeWithHourResolution);
         if($log) $log->trace("In getRandomJWTSecret jwtSecret: ".print_r($jwtSecret,TRUE));
         return $jwtSecret;
     }
@@ -490,20 +508,51 @@ class Authentication {
         return $algorithList;
     }
 
-    static private function getJWTKeyIdLookupList($secrets) {
+    static private function getJWTKeyIdLookupList() {
         $lookupList = [];
-        foreach ($secrets as $secret) {
-            $lookupList[$secret->kid] = $secret->k;
+
+        $timeNow = self::getCurrentTimeWithHourResolution();
+        $secret = self::getJWTSecretForTime($timeNow);
+        $keyIdNow  = $secret->kid;
+        $keyNow    = $secret->k;
+        $lookupList[$keyIdNow] = $keyNow;
+
+        $timePast = self::getCurrentTimeWithPreviousHourResolution();
+        $secretPast = self::getJWTSecretForTime($timePast);
+        $keyIdPast  = $secretPast->kid;
+        $keyPast    = $secretPast->k;
+        if ($keyIdNow != $keyIdPast) {
+            $lookupList[$keyIdPast] = $keyPast;
         }
+
         return $lookupList;
+    }
+
+    // return our current unix time in millis
+    static private function currentTimeSeconds() {
+        return time();
+    }
+    static public function getCurrentTimeWithHourResolution() {
+        // Convert to the current hour, removing current minutes and seconds
+        $currentTime = (int)(self::currentTimeSeconds() / 60 / 60);
+        return $currentTime;
+    }
+    static public function getCurrentTimeWithPreviousHourResolution() {
+        // Convert to the previous hour, removing minutes and seconds
+        $currentTime = self::getCurrentTimeWithHourResolution() - 1;
+        return $currentTime;
     }
 
     static public function encodeJWT($token) {
         global $log;
 
-        $secret = self::getRandomJWTSecret();
-        $jwt = JWT::encode($token, $secret->k, $secret->alg, $secret->kid);
-        if($log) $log->trace("In encodeJWT token: ".print_r($token,TRUE)." kid: $secret->kid alg: $secret->alg jwt: $jwt");
+        $timeNow = self::getCurrentTimeWithHourResolution();
+        $secret = self::getRandomJWTSecret($timeNow);
+        $keyIdNow  = $secret->kid;
+        $keyNow    = $secret->k;
+
+        $jwt = JWT::encode($token, $keyNow, $secret->alg, $keyIdNow);
+        if($log) $log->trace("In encodeJWT token: ".print_r($token,TRUE)." kid: $keyIdNow alg: $secret->alg ket: $keyNow jwt: $jwt");
 
         return $jwt;
     }
@@ -513,7 +562,9 @@ class Authentication {
 
         $secrets = self::getJWTSecrets();
         $alg = self::getUniqueJWTALGFromList($secrets);
-        $keyList = self::getJWTKeyIdLookupList($secrets);
+        $keyList = self::getJWTKeyIdLookupList();
+        if($log) $log->trace("In decodeJWT token: $token keylist: ".print_r($keyList,TRUE));
+
         $jwt = JWT::decode($token, $keyList, $alg);
         if($log) $log->trace("In decodeJWT token: $token jwt: ".print_r($jwt,TRUE));
 
@@ -566,8 +617,8 @@ class Authentication {
                     $refreshTokenObject = null;
                 }
             } 
-            catch (\Firebase\JWT\ExpiredException $e) {
-                if ($log !== null)  $log->warn("In getRefreshTokenObject token expired [$refreshToken] error: ".$e->getMessage());
+            catch (\Firebase\JWT\ExpiredException | \UnexpectedValueException $e) {
+                if ($log !== null)  $log->warn("In getRefreshTokenObject problem refreshToken [$refreshToken] error: ".$e->getMessage());
                 $refreshTokenObject = null;
             }
         }
@@ -622,8 +673,8 @@ class Authentication {
                 }
             }
         }
-        catch(\Firebase\JWT\ExpiredException $e) {
-            if ($log !== null) $log->warn("In getNewJWTTokenFromRefreshToken token expired [$token] refreshToken [$refreshToken] error: ".$e->getMessage());
+        catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
+            if ($log !== null) $log->warn("In getNewJWTTokenFromRefreshToken problem token [$token] refreshToken [$refreshToken] error: ".$e->getMessage());
             $token = null;
         }
         return [ $token, $refreshToken ];
@@ -653,8 +704,8 @@ class Authentication {
                 $refreshToken = $jwtRefresh;
             }
         }
-        catch(\Firebase\JWT\ExpiredException $e) {
-            if ($log !== null) $log->trace("In getRefreshJWTTokenIfRequired token expired [$token] error: ".$e->getMessage());
+        catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
+            if ($log !== null) $log->trace("In getRefreshJWTTokenIfRequired problem token [$token] error: ".$e->getMessage());
             $newTokens = self::getNewJWTTokenFromRefreshToken($refreshToken);
             if ($newTokens != null && count($newTokens) == 2) {
                 $token = $newTokens[0];
@@ -791,8 +842,8 @@ class Authentication {
                 }
                 return $token;
             }
-            catch(\Firebase\JWT\ExpiredException $e) {
-                if ($log !== null) $log->trace("In decodeJWTToken token expired [$token] error: ".$e->getMessage());
+            catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
+                if ($log !== null) $log->trace("In decodeJWTToken problem token [$token] error: ".$e->getMessage());
 
                 $refreshToken = self::getCurrentJWTRefreshToken();
                 $newTokens = self::getNewJWTTokenFromRefreshToken($refreshToken);
@@ -1037,8 +1088,8 @@ class Authentication {
                     }
                     $this->handOffTokenIfRequired($authCache);
                 }
-                catch(\Firebase\JWT\ExpiredException $e) {
-                    if ($log !== null) $log->trace("In validateJWT token expired [$token] error: ".$e->getMessage());
+                catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
+                    if ($log !== null) $log->trace("In validateJWT problem token [$token] error: ".$e->getMessage());
 
                     $token = $this->getJWTToken(null, null, true);
                     if ($token != null && strlen($token)) {

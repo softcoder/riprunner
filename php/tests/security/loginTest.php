@@ -261,10 +261,22 @@ class LoginTest extends BaseDBFixture {
 	}
 
 	public function testJSONRandomSecret() {
-		$result = \riprunner\Authentication::getRandomJWTSecret();
+		$timeNow = \riprunner\Authentication::getCurrentTimeWithHourResolution();
+		$result = \riprunner\Authentication::getRandomJWTSecret($timeNow);
 
 		$this->assertNotEmpty($result->kid);
 		$this->assertGreaterThanOrEqual(340, strlen($result->k));
 		$this->assertEquals('HS512', $result->alg);
 	}
+
+	public function testRotatingSecret() {
+		foreach([ 1,2,3 ] as $index) {
+			$hour = \riprunner\Authentication::getCurrentTimeWithHourResolution();
+			$pasthour = \riprunner\Authentication::getCurrentTimeWithPreviousHourResolution();
+			$maxElapsedAllowed = $hour - $pasthour;
+			//print(PHP_EOL.'index: '.$index.' maxElapsedAllowed: '.$maxElapsedAllowed.' Current hour: '.$hour.' Past hour: '.$pasthour);
+			$this->assertLessThanOrEqual(1, $maxElapsedAllowed);
+			sleep(1);
+		}
+	}	
 }
