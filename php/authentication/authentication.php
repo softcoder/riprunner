@@ -449,6 +449,77 @@ class Authentication {
         return $token;
     }
 
+    static public function getRandomJWTSecret() {
+        global $log;
+
+        $jwtSecret = JWT_KEY;
+        $secrets = self::getJWTSecrets();
+        $keyCount = count($secrets);
+        if($secrets != null && $keyCount > 0) {
+            $keyIndex = random_int(0, $keyCount-1);
+            $jwtSecret = $secrets[$keyIndex];
+        }
+        if($log) $log->trace("In getRandomJWTSecret jwtSecret: ".print_r($jwtSecret,TRUE));
+        return $jwtSecret;
+    }
+
+    static public function getJWTSecrets() {
+        global $log;
+
+        $configFile = __RIPRUNNER_ROOT__ . '/secrets/config-secrets.json';
+        $json = file_get_contents($configFile);
+        $jsonObject = json_decode($json);
+        if(json_last_error() != JSON_ERROR_NONE) {
+            $jsonObject = null;
+        }
+        if($log) $log->trace("In getJWTSecrets configFile: $configFile json: ".$json);
+
+        if($jsonObject != null) {
+            return $jsonObject->jwt_keys;
+        }
+        return [];
+    }
+
+    static private function getUniqueJWTALGFromList($secrets) {
+        $algorithList = [];
+        foreach ($secrets as $secret) {
+            if(in_array($secret->alg,$algorithList) == false) {
+                $algorithList[] = $secret->alg;
+            }
+        }
+        return $algorithList;
+    }
+
+    static private function getJWTKeyIdLookupList($secrets) {
+        $lookupList = [];
+        foreach ($secrets as $secret) {
+            $lookupList[$secret->kid] = $secret->k;
+        }
+        return $lookupList;
+    }
+
+    static public function encodeJWT($token) {
+        global $log;
+
+        $secret = self::getRandomJWTSecret();
+        $jwt = JWT::encode($token, $secret->k, $secret->alg, $secret->kid);
+        if($log) $log->trace("In encodeJWT token: ".print_r($token,TRUE)." kid: $secret->kid alg: $secret->alg jwt: $jwt");
+
+        return $jwt;
+    }
+
+    static public function decodeJWT($token) {
+        global $log;
+
+        $secrets = self::getJWTSecrets();
+        $alg = self::getUniqueJWTALGFromList($secrets);
+        $keyList = self::getJWTKeyIdLookupList($secrets);
+        $jwt = JWT::decode($token, $keyList, $alg);
+        if($log) $log->trace("In decodeJWT token: $token jwt: ".print_r($jwt,TRUE));
+
+        return $jwt;
+    }
+
     static public function getJWTAccessToken($loginResult, $userRole) {
         $issuedAt = time();
         $expireIn5Minutes = $issuedAt + (60 * 5);
@@ -456,7 +527,7 @@ class Authentication {
         $fhid = $loginResult['firehall_id'];
         $token = self::applyJWTPayload($fhid, $loginResult, $userRole);
         $token = self::applyJWTRegisteredClaims($token, $loginResult, $issuedAt, $expireIn5Minutes);
-        $jwt = JWT::encode($token, JWT_KEY);
+        $jwt = self::encodeJWT($token);
         return $jwt;
     }
 
@@ -474,7 +545,7 @@ class Authentication {
         $token['fhid']         = $firehallId;
         $token['login_string'] = $loginString;
         $token = self::applyJWTRegisteredClaims($token, $appData, $issuedAt, $expireIn30Minutes);
-        $jwt = JWT::encode($token, JWT_KEY);
+        $jwt = self::encodeJWT($token);
         return $jwt;
     }
 
@@ -487,7 +558,7 @@ class Authentication {
         $refreshTokenObject = null;
         if ($refreshToken != null && strlen($refreshToken)) {
             try {
-                $refreshTokenObject = JWT::decode($refreshToken, JWT_KEY, array('HS256'));
+                $refreshTokenObject = self::decodeJWT($refreshToken);
                 if ($log !== null) $log->trace("getRefreshTokenObject check token decode [$refreshToken]");
                 
                 if ($refreshTokenObject == false) {
@@ -511,7 +582,7 @@ class Authentication {
 
         try {
             if($refreshToken !== null && strlen($refreshToken)) {
-                $json_token = JWT::decode($refreshToken, JWT_KEY, array('HS256'));
+                $json_token = self::decodeJWT($refreshToken);
                 if ($log !== null) $log->trace("getNewJWTTokenFromRefreshToken check token decode [$refreshToken]");
                 
                 if ($json_token == null || $json_token == false) {
@@ -562,7 +633,7 @@ class Authentication {
         global $log;
 
         try {
-            $json_token = JWT::decode($token, JWT_KEY, array('HS256'));
+            $json_token = self::decodeJWT($token);
             if ($log !== null) $log->trace("getRefreshJWTTokenIfRequired check token decode [" . $token. "]");
             
             if ($json_token == null || $json_token == false) {
@@ -711,7 +782,7 @@ class Authentication {
         $token = self::getCurrentJWTToken($request_variables, $server_variables);
         if($token != null && strlen($token)) {
             try {
-                $token = JWT::decode($token, JWT_KEY, array('HS256'));
+                $token = self::decodeJWT($token);
                 if ($log !== null) $log->trace("decodeJWTToken check token decode [" . json_encode($token). "]");
                 
                 if ($token == false) {
@@ -728,7 +799,7 @@ class Authentication {
                 if ($newTokens != null && count($newTokens) == 2 && $newTokens[0] != null && strlen($newTokens[0])) {
                     if ($log !== null) $log->trace("In decodeJWTToken new token [$newTokens[0]]");
 
-                    $token = JWT::decode($newTokens[0], JWT_KEY, array('HS256'));
+                    $token = self::decodeJWT($newTokens[0]);
                     return $token;
                 }
             }
@@ -953,7 +1024,7 @@ class Authentication {
 
             if($token != null && strlen($token)) {
                 try {
-                    $token = JWT::decode($token, JWT_KEY, array('HS256'));
+                    $token = self::decodeJWT($token);
                     if ($log !== null) {
                         $log->trace("validateJWT token decode [" . json_encode($token). "]");
                     }

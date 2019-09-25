@@ -30,6 +30,7 @@ before_script:
 # - ls -la
 # - ls -la vendor/
 - cp config-test.php config.php
+- cp secrets/config-secrets-default.json secrets/config-secrets.json
 #  - cd ../
 
 script:

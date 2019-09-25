@@ -250,4 +250,21 @@ class LoginTest extends BaseDBFixture {
 		$this->assertEquals('', $assertText);
 	}
 
+	public function testJSONSecrets() {
+		$result = \riprunner\Authentication::getJWTSecrets();
+
+		$this->assertGreaterThanOrEqual(5, count($result));
+		$this->assertGreaterThanOrEqual(340, strlen($result[0]->k));
+		$this->assertEquals('HS512', $result[0]->alg);
+		$this->assertGreaterThanOrEqual(340, strlen($result[3]->k));
+		$this->assertEquals('HS512', $result[3]->alg);
+	}
+
+	public function testJSONRandomSecret() {
+		$result = \riprunner\Authentication::getRandomJWTSecret();
+
+		$this->assertNotEmpty($result->kid);
+		$this->assertGreaterThanOrEqual(340, strlen($result->k));
+		$this->assertEquals('HS512', $result->alg);
+	}
 }
