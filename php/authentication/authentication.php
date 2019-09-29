@@ -458,7 +458,7 @@ class Authentication {
         if($secrets != null && $keyCount > 0) {
             //$keyIndex = random_int(0, $keyCount-1);
             $rotateEveryXHours = (int)(24 / $keyCount);
-            $keyIndex = ($timeWithHourResolution % $rotateEveryXHours);
+            $keyIndex = (($timeWithHourResolution / 60 / 60) % $rotateEveryXHours);
             if($keyIndex >= $keyCount) {
                 $keyIndex = 0;
             }
