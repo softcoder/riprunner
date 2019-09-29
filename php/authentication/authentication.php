@@ -521,9 +521,7 @@ class Authentication {
         $secretPast = self::getJWTSecretForTime($timePast);
         $keyIdPast  = $secretPast->kid;
         $keyPast    = $secretPast->k;
-        if ($keyIdNow != $keyIdPast) {
-            $lookupList[$keyIdPast] = $keyPast;
-        }
+        $lookupList[$keyIdPast] = $keyPast;
 
         return $lookupList;
     }
@@ -534,12 +532,12 @@ class Authentication {
     }
     static public function getCurrentTimeWithHourResolution() {
         // Convert to the current hour, removing current minutes and seconds
-        $currentTime = (int)(self::currentTimeSeconds() / 60 / 60);
+        $currentTime = (int)(self::currentTimeSeconds() / 60 / 60) * 60 * 60;
         return $currentTime;
     }
     static public function getCurrentTimeWithPreviousHourResolution() {
         // Convert to the previous hour, removing minutes and seconds
-        $currentTime = self::getCurrentTimeWithHourResolution() - 1;
+        $currentTime = self::getCurrentTimeWithHourResolution() - (60 * 60);
         return $currentTime;
     }
 
@@ -619,6 +617,7 @@ class Authentication {
             } 
             catch (\Firebase\JWT\ExpiredException | \UnexpectedValueException $e) {
                 if ($log !== null)  $log->warn("In getRefreshTokenObject problem refreshToken [$refreshToken] error: ".$e->getMessage());
+                self::logTokenErrorDetails(null, $refreshToken, $e);
                 $refreshTokenObject = null;
             }
         }
@@ -674,10 +673,26 @@ class Authentication {
             }
         }
         catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
-            if ($log !== null) $log->warn("In getNewJWTTokenFromRefreshToken problem token [$token] refreshToken [$refreshToken] error: ".$e->getMessage());
+            $timeNow = self::getCurrentTimeWithHourResolution();
+            $timePast = self::getCurrentTimeWithPreviousHourResolution();
+    
+            if ($log !== null) $log->warn("In getNewJWTTokenFromRefreshToken problem token [$token] refreshToken [$refreshToken] timeNow: $timeNow timePast: $timePast error: ".$e->getMessage());
+            self::logTokenErrorDetails($token, $refreshToken, $e);
             $token = null;
         }
         return [ $token, $refreshToken ];
+    }
+
+    static private function logTokenErrorDetails($token, $refreshToken, $e) {
+        global $log;
+
+        if($e instanceof \UnexpectedValueException) {
+            $currentToken = self::getCurrentJWTToken();
+            //$secrets = self::getJWTSecrets();
+            //$alg = self::getUniqueJWTALGFromList($secrets);
+            $keyList = self::getJWTKeyIdLookupList();
+            if($log) $log->warn("In logTokenErrorDetails token: $token [$currentToken] refreshToken: $refreshToken keylist: ".print_r($keyList,TRUE));
+        }
     }
 
     static private function getRefreshJWTTokenIfRequired($token, $refreshToken) {
@@ -710,6 +725,12 @@ class Authentication {
             if ($newTokens != null && count($newTokens) == 2) {
                 $token = $newTokens[0];
                 $refreshToken = $newTokens[1];
+            }
+            else {
+                if ($log !== null) $log->warn("In getRefreshJWTTokenIfRequired #2 problem token [$token] error: ".$e->getMessage());
+                self::logTokenErrorDetails($token, $refreshToken, $e);
+                $token = null;
+                $refreshToken = null;
             }
         }
         return [ $token, $refreshToken ];
@@ -846,12 +867,16 @@ class Authentication {
                 if ($log !== null) $log->trace("In decodeJWTToken problem token [$token] error: ".$e->getMessage());
 
                 $refreshToken = self::getCurrentJWTRefreshToken();
+                
                 $newTokens = self::getNewJWTTokenFromRefreshToken($refreshToken);
                 if ($newTokens != null && count($newTokens) == 2 && $newTokens[0] != null && strlen($newTokens[0])) {
                     if ($log !== null) $log->trace("In decodeJWTToken new token [$newTokens[0]]");
 
                     $token = self::decodeJWT($newTokens[0]);
                     return $token;
+                }
+                else {
+                    self::logTokenErrorDetails($token, $refreshToken, $e);
                 }
             }
         }
@@ -1090,7 +1115,7 @@ class Authentication {
                 }
                 catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
                     if ($log !== null) $log->trace("In validateJWT problem token [$token] error: ".$e->getMessage());
-
+                    
                     $token = $this->getJWTToken(null, null, true);
                     if ($token != null && strlen($token)) {
                         if ($log !== null) $log->trace("In validateJWT NEW token [$token]");
@@ -1098,6 +1123,7 @@ class Authentication {
                         $this->handOffTokenIfRequired($authCache);
                         return true;
                     }
+                    self::logTokenErrorDetails($token, null, $e);
                     return false;
                 }
             }

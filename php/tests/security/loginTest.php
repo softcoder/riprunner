@@ -275,7 +275,7 @@ class LoginTest extends BaseDBFixture {
 			$pasthour = \riprunner\Authentication::getCurrentTimeWithPreviousHourResolution();
 			$maxElapsedAllowed = $hour - $pasthour;
 			//print(PHP_EOL.'index: '.$index.' maxElapsedAllowed: '.$maxElapsedAllowed.' Current hour: '.$hour.' Past hour: '.$pasthour);
-			$this->assertLessThanOrEqual(1, $maxElapsedAllowed);
+			$this->assertLessThanOrEqual(1 * 60 * 60, $maxElapsedAllowed);
 			sleep(1);
 		}
 	}	
