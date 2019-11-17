@@ -780,5 +780,77 @@ Units Responding: SALGRP1";
         $this->assertEquals('-122.54077',$callout->getGPSLong());
         $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
     }
-    
+
+    public function testProcessFireHallText_EMAIL_new_email_trigger_format6_Nov2019() {
+        $realdata = "Date:  2019-11-15 21:56:04
+        Dept:  Shell-Glen Fire/Rescue
+        Type:  STRRES - Structure Fire - Residential
+        
+        Address:  10265 FAIRWAY RD, SHELL-GLEN
+        Unit:  
+        Suite:  
+        1st Cross Street:  EAGLE VIEW RD, SHELL-GLEN
+        2nd Cross Street:  FARGO PL, SHELL-GLEN
+        
+        Building:  
+        Common Place Name:  
+        Pre-Incident Plan:  
+        
+        Latitude: 53.95691
+        Longitude: -122.57324
+        Google Maps Link:  http://maps.google.com/maps?z=1&t=m&q=53.9569,-122.573
+        
+        Units Responding: SHLGRP1
+        ";
+
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
+
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2019-11-15 21:56:04',$callout->getDateTimeAsString());
+        $this->assertEquals('STRRES',$callout->getCode());
+        $this->assertEquals('10265 FAIRWAY RD, SHELL-GLEN',$callout->getAddress());
+        $this->assertEquals('10265 FAIRWAY RD, SHELL-GLEN',$callout->getAddressForMap());
+        $this->assertEquals('53.95691',$callout->getGPSLat());
+        $this->assertEquals('-122.57324',$callout->getGPSLong());
+        $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
+    }
+
+    public function testProcessFireHallText_EMAIL_new_email_trigger_format7_Nov2019() {
+        $realdata = "Date:  2019-11-16 11:48:17
+        Dept:  Shell-Glen Fire/Rescue
+        Type:  STRRECALL - Structure Fire - Recall
+        
+        Address:  10265 FAIRWAY RD, SHELL-GLEN
+        Unit:  
+        Suite:  
+        1st Cross Street:  EAGLE VIEW RD, SHELL-GLEN
+        2nd Cross Street:  FARGO PL, SHELL-GLEN
+        
+        Building:  
+        Common Place Name:  
+        Pre-Incident Plan:  
+        
+        Latitude: 53.95691
+        Longitude: -122.57324
+        Google Maps Link:  http://maps.google.com/maps?z=1&t=m&q=53.9569,-122.573
+        
+        Units Responding: SHLOFF1
+        ";
+
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
+
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2019-11-16 11:48:17',$callout->getDateTimeAsString());
+        $this->assertEquals('STRRECALL',$callout->getCode());
+        $this->assertEquals('10265 FAIRWAY RD, SHELL-GLEN',$callout->getAddress());
+        $this->assertEquals('10265 FAIRWAY RD, SHELL-GLEN',$callout->getAddressForMap());
+        $this->assertEquals('53.95691',$callout->getGPSLat());
+        $this->assertEquals('-122.57324',$callout->getGPSLong());
+        $this->assertEquals('SHLOFF1',$callout->getUnitsResponding());
+    }
+
 }

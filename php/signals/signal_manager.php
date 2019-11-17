@@ -548,8 +548,8 @@ class SignalManager {
     		$units = (($callout->getUnitsResponding() !== null) ? $callout->getUnitsResponding() : "");
     		$ckid = $callout->getKeyId();
 
-            //if($log !== null) $log->warn('Callout signal cdatetime: '. $cdatetime. ' ctype: '. $ctype);
-
+            if($log !== null) $log->warn("Callout signal cdatetime: [$cdatetime] ctype: [$ctype]");
+            
     		$qry_bind = $db_connection->prepare($sql);
     		$qry_bind->bindParam(':cdatetime', $cdatetime);
     		$qry_bind->bindParam(':ctype', $ctype);
