@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 
+import 'actions_page.dart';
 import 'app_constants.dart';
 import 'common/data_container.dart';
 import 'common/utils.dart';
@@ -101,7 +102,7 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
       ),
       home: Provider<DataContainer>(
-        builder: (context) => DataContainer(data: {}, dataMap: { 'CHAT_MESSAGES': [] }),
+        create: (context) => DataContainer(data: {}, dataMap: { 'CHAT_MESSAGES': [] }),
         //dispose: (context, value) => value.dispose(),
         child: MyHomePage(title: 'Rip Runner Home Page'),
       )
@@ -133,6 +134,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     LoginPage.tag:          (context)=>LoginPage(),
     HomePage.tag:           (context)=>HomePage(),
     AppSettingsPage.tag:    (context)=>AppSettingsPage(),
+    //ActionsPage.tag:        (context)=>ActionsPage()
   };
   
   DataContainer getDataContainer({ bool listenValue = true}) {

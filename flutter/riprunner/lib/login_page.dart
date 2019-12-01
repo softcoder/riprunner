@@ -5,6 +5,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:package_info/package_info.dart';
+import 'dart:convert';
 
 import 'app_constants.dart';
 import 'auth/auth.dart';
@@ -109,6 +110,15 @@ class _LoginState extends State<LoginPage> {
         data.setDataInMap('AUTH_TOKEN', auth.token);
         data.setDataInMap('AUTH_TOKEN_REFRESH', auth.refreshToken);
 
+        Utils.getConfigItem<String>(AppConstants.PROPERTY_WEBSITE_URL).then((websiteRootUrl) {
+          String url = websiteRootUrl + (!websiteRootUrl.endsWith('/') ? '/' : '') + 'angular-services/system-config-service.php/config';
+          Utils.apiRequest(url, null, APIRequestType.GET,false).then((jsonData) {
+            Map<String, dynamic> config = json.decode(jsonData);
+            String mapApiKey = config['google']['maps_api_key'];
+            data.setDataInMap('MAP_API_KEY', mapApiKey);
+          });
+
+        });
         Navigator.of(context).popAndPushNamed(HomePage.tag);
       });
     }

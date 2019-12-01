@@ -350,7 +350,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
 
   List<Widget> buildCalloutResponderHeader() {
     List<Widget> responders = [
-        Row(
+        Wrap(
           children: <Widget> [
             new Container(
               width: ResponderNameWidth,
@@ -516,7 +516,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
 
   void buildResponderRowList(List responses, List<Widget> responders, List<DropdownMenuItem<String>> statusList) {
     for (var responder in responses ?? []) {
-      responders.add(Row(
+      responders.add(Wrap(
           children: <Widget> [
             new Container(
               width: ResponderNameWidth,

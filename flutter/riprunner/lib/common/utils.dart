@@ -227,7 +227,7 @@ class Utils {
 
   static void processAdminMsgTrigger(Map<String, dynamic> messageMap, DataContainer container) {
     AppLifecycleState state = container.getDataFromMap('APP_STATE');
-    if(state.index != AppLifecycleState.resumed.index) {
+    if(state != null && state.index != AppLifecycleState.resumed.index) {
 
     }
     container.getDataFromMap('CHAT_MESSAGES').add(
