@@ -71,6 +71,20 @@ require __DIR__ . '/vendor/autoload.php';
     \Flight::redirect($root_url .'/ngui/index.html'.$fhid);
 });
 
+\Flight::route('GET|POST /maprxy(/@lnk)', function ($lnk) {
+	global $FIREHALLS;
+	global $log;
+	$query = array();
+	//parse_str($params, $query);
+	//$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
+	$longUrl = 'https://maps.googleapis.com/maps/api/js?v=3.exp&alternatives=true&callback=map_initialize';
+	$firehall = getFirstActiveFireHallConfig($FIREHALLS);
+	if($firehall !== null) {
+		$longUrl .= '&key='.$firehall->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY;
+	}
+	\Flight::redirect($longUrl);
+});
+
 \Flight::route('GET|POST /prxy(/@lnk)', function ($lnk) {
 	global $FIREHALLS;
 	global $log;
