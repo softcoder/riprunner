@@ -226,7 +226,7 @@ class SignalManager {
                 if(isset($callKey) === false || $callKey === '') {
                     $callKey = '?';
                 }
-                	
+
                 $message = array("CALLOUT_MSG" => urlencode($smsMsg),
                             "call-id"          => urlencode($callout->getId()),
                             "call-key-id"      => urlencode($callKey),
@@ -299,13 +299,16 @@ class SignalManager {
                     $callkey_id = '?';
                 }
 
+                $statusDesc = \riprunner\CalloutStatusType::getStatusById($userStatus, $callout->getFirehall())->getDisplayName();
+
                 $message = array("CALLOUT_RESPONSE_MSG" => urlencode($smsMsg),
                                     "call-id"           => urlencode($callout->getId()),
                                     "call-key-id"       => urlencode($callout->getKeyId()),
                                     "user-id"           => urlencode($userId),
                                     "user-gps-lat"      => urlencode($callGPSLat),
                                     "user-gps-long"     => urlencode($callGPSLong),
-                                    "user-status"       => urlencode($userStatus)
+                                    "user-status"       => urlencode($userStatus),
+                                    "user-status-desc"  => urlencode($statusDesc)
                 );
 
                 $resultFCM .= $fcmInstance->send($message, getFirehallRootURLFromRequest(null, null, $callout->getFirehall()));

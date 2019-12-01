@@ -174,7 +174,7 @@ class SignalsTest extends BaseDBFixture {
 	
 	    // Call the test
 	    $user_id = 'mark.vejvoda';
-	    $user_status = 'RESPONDING';
+	    $user_status = '2';
 	    $device_id = 'ABC123-XXX';
 	    $signalManager = new \riprunner\SignalManager(null,null,$mock_gcm,$this->getTwigEnv());
 	    $result = $signalManager->signalResponseRecipientsUsingFCM($callout, $user_id, $user_status, 'Test SMS Message.', $device_id, $this->getDBConnection($FIREHALL));

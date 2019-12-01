@@ -117,7 +117,7 @@ class FCM {
 		else if(array_key_exists('CALLOUT_RESPONSE_MSG', $message)) {
 			$msgBody = [
                 'title' => 'Responder Status Updated.',
-				'body' => 'Responder: '.urldecode($message['user-id']).' is: '.urldecode($message['user-status']),
+				'body' => 'Responder: '.urldecode($message['user-id']).' is: '.urldecode($message['user-status-desc']),
 				//'image' => 'notification_icon.png',
 				'image' => $rootURL.'/images/logo.png',
 				//'image' => 'http://lorempixel.com/400/200/',
