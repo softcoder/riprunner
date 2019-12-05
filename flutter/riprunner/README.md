@@ -19,3 +19,9 @@ Follow instructions to download google-services.json and place that file in the 
 
 3. Compile the application and produce the APK:
 flutter build apk
+
+FAQs:
+
+1. Why do I see the default Flutter icon as the application icon and not the riprunner icon?
+   Answer: You may need to run the following command to ensure the correct icons are set as the defaults:
+           flutter packages pub run flutter_launcher_icons:main
