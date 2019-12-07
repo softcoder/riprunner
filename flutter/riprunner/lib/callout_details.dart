@@ -2,11 +2,14 @@ import 'dart:io' as io;
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter_radio/flutter_radio.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_webservice/directions.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:riprunner/auth/auth.dart';
@@ -33,7 +36,7 @@ const double ResponderDefaultHeight = 30;
 const double ResponderNameWidth = 130;
 const double ResponderStatusWidth = 175;
 //double ResponderTimeWidth = 100;
-const double ResponderETAWidth = 50;
+const double ResponderETAWidth = 90;
 
 const int UNSELECTED_STATUS_ID = -1;
 
@@ -57,6 +60,10 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
   Position geoPosition;
   StreamSubscription<Position> positionStream;
 
+  Completer<LatLng> callerPos = Completer();
+  Map<String,String> responderEta = new Map<String,String>();
+  Map<String,String> responderEtaCache = new Map<String,String>();
+
   void dispose() {
     if(pollCallouts != null) {
       pollCallouts.cancel();
@@ -72,6 +79,22 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
 
   DataContainer getDataContainer({ bool listenValue = true}) {
     return Provider.of<DataContainer>(context, listen: listenValue);
+  }
+
+  Future<LatLng> getCallerGeo({bool listenValue=true}) async {
+    double callerLat = double.tryParse(getDataContainer(listenValue: listenValue).getData()['lat'].toString() ?? '0.0');
+    double callerLong = double.tryParse(getDataContainer(listenValue: listenValue).getData()['long'].toString() ?? '0.0');
+
+    if(callerLat == null || callerLat == 0 || 
+      callerLong == null || callerLong == 0) {
+      // From a query
+      final query = getDataContainer(listenValue: listenValue).getData()['address'];
+      var addresses = await Geocoder.local.findAddressesFromQuery(query);
+      var first = addresses.first;
+      callerLat = first.coordinates.latitude;
+      callerLong = first.coordinates.longitude;
+    }
+    return LatLng(callerLat, callerLong);  
   }
 
   Future<void> trackGeo() async {
@@ -434,7 +457,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
     Map responder = {};
     responder['user_id'] = userId;
     responder['status']  = UNSELECTED_STATUS_ID.toString();
-    responder['eta']     = '?';
+    responder['eta']     = '';
         
     responses.insert(0, responder);
   }
@@ -464,6 +487,65 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
 
   bool isResponderCurrentUser(var responder) {
     return (responder['user_id'] == userId);
+  }
+
+  Future<String> getEta(var responder) async {
+      if(responder != null && (responder['status'] ?? '') != UNSELECTED_STATUS_ID.toString()) {
+        String responderId = responder['user_id'];
+        String responderGeoStr = responder['responder_location'];
+        if(responderId != null && responderGeoStr != null && responderGeoStr.isNotEmpty) {
+          String lookupKey = responderId + ':' + responderGeoStr;
+          if(responderEtaCache.containsKey(lookupKey)) {
+            return responderEtaCache[lookupKey];
+          }
+
+          LatLng pos = await getCallerGeo();
+          // Location origin = new Location(double.tryParse(responder['latitude'] ?? '0.0'),
+          //                               double.tryParse(responder['longitude'] ?? '0.0'));
+          
+          
+          List<String> responderGeo = responderGeoStr.split(",");
+          if(responderGeo != null && responderGeo.length == 2) {
+            Location origin = new Location(double.tryParse(responderGeo[0]) ?? 0.0,double.tryParse(responderGeo[1]) ?? 0.0);
+            Location destination = new Location(pos.latitude ?? 0.0,pos.longitude ?? 0.0);
+            
+            //HttpClient httpClient = new HttpClient();
+            //httpClient.badCertificateCallback = ((X509Certificate cert, String host, int port) => true);
+            //String url = websiteUrlStr + (!websiteUrlStr.endsWith('/') ? '/' : '');
+            //GoogleMapsDirections directions = new GoogleMapsDirections(baseUrl: url+'mapapiprxy', httpClient: new IOClient(httpClient));
+            String mapApiKey = getDataContainer().getDataFromMap('MAP_API_KEY');
+            GoogleMapsDirections directions = new GoogleMapsDirections(apiKey: mapApiKey);
+
+            DirectionsResponse dir = await directions.directions(origin, destination,travelMode: TravelMode.driving,units: Unit.metric);
+            if(dir.isOkay && dir.routes.isNotEmpty && dir.routes[0].legs.isNotEmpty) {
+              return getResponderEta(responder, dir, lookupKey);
+            }
+            else if(dir.isOverQueryLimit) {
+              Future.delayed(const Duration(milliseconds: 125), () {
+                directions.directions(origin, destination,travelMode: TravelMode.driving,units: Unit.metric).then((retyDir) {
+                  if(retyDir.isOkay && retyDir.routes.isNotEmpty && retyDir.routes[0].legs.isNotEmpty) {
+                    return getResponderEta(responder, retyDir, lookupKey);
+                  }
+                  return '?';
+                });
+              });
+            }
+          }
+        }
+      }
+      return '?';
+  }
+
+  String getResponderEta(var responder, DirectionsResponse dir, String lookupKey) {
+    String responderId = responder['user_id'];
+    var point = dir.routes[0].legs[0];
+    if(responderEta[responderId] != point.duration.text) {
+      setState(() {
+        responderEta[responderId] = point.duration.text;
+      });
+    }
+    responderEtaCache[lookupKey] = responderEta[responderId];
+    return responderEta[responderId];
   }
 
   Widget getStatusWidget(var responder, List<DropdownMenuItem<String>> statusList) {
@@ -516,6 +598,9 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
 
   void buildResponderRowList(List responses, List<Widget> responders, List<DropdownMenuItem<String>> statusList) {
     for (var responder in responses ?? []) {
+
+      String responderUserId = responder['user_id'] ?? '?';
+      getEta(responder);
       responders.add(Wrap(
           children: <Widget> [
             new Container(
@@ -552,7 +637,7 @@ class _CalloutDetailsPageState extends State<CalloutDetailsPage> with AutomaticK
               decoration: new BoxDecoration(
                 border: new Border.all(color: Colors.blueAccent)
               ),
-              child: Text(responder['eta'] ?? '?',
+              child: Text(responderEta[responderUserId] ?? '?',
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: ResponderDefaultFontSize, color: Colors.white)))
           ]

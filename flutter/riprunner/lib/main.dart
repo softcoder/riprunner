@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 
-import 'actions_page.dart';
 import 'app_constants.dart';
 import 'common/data_container.dart';
 import 'common/utils.dart';
@@ -123,7 +122,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
-  //AppLifecycleState appState;
   FirebaseMessaging firebaseMessaging = FirebaseMessaging();
   String _message = '';
 
@@ -134,7 +132,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     LoginPage.tag:          (context)=>LoginPage(),
     HomePage.tag:           (context)=>HomePage(),
     AppSettingsPage.tag:    (context)=>AppSettingsPage(),
-    //ActionsPage.tag:        (context)=>ActionsPage()
   };
   
   DataContainer getDataContainer({ bool listenValue = true}) {
@@ -167,6 +164,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     _androidAppRetain.setMethodCallHandler((call) {
       print("In _androidAppRetain.setMethodCallHandler: $call.method");
       Utils.getLogger().i("In _androidAppRetain.setMethodCallHandler: $call.method");
+      return;
     });
 
     if (Platform.isAndroid) {

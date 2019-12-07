@@ -106,6 +106,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         body: TabBarView(
           controller: tabController,
+          physics: new NeverScrollableScrollPhysics(),
           children: [
             CalloutDetailsPage(),
             CalloutMapPage(),

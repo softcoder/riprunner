@@ -85,6 +85,34 @@ require __DIR__ . '/vendor/autoload.php';
 	\Flight::redirect($longUrl);
 });
 
+\Flight::route('GET|POST /mapapiprxy/*', function () {
+	global $FIREHALLS;
+	global $log;
+	$query = array();
+
+	$longUrl = 'https://maps.googleapis.com/maps/api';
+	$firehall = getFirstActiveFireHallConfig($FIREHALLS);
+
+	$prefix = '/mapapiprxy';
+	$url = \Flight::request()->url;
+	$pos = strpos($url, $prefix);
+	if($pos !== false && $pos >= 0) {
+		$url = substr($url, $pos+strlen($prefix));
+		$longUrl .= $url;
+	}
+	if($firehall !== null) {
+		if(strpos($longUrl, '?') == false) {
+			$longUrl .= '?';
+		}
+		else {
+			$longUrl .= '&';
+		}
+		$longUrl .= ('key='.$firehall->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY);
+	}
+	if($log !== null) $log->trace("Call /mapapiprxy/ longUrl [$longUrl]");
+	\Flight::redirect($longUrl);
+});
+
 \Flight::route('GET|POST /prxy(/@lnk)', function ($lnk) {
 	global $FIREHALLS;
 	global $log;

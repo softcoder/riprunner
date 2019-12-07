@@ -29,6 +29,7 @@ dependencies:
   file_picker: 
   google_maps_flutter:
   google_map_polyline:
+  google_maps_webservice:
   permission:
   geocoder: 
   background_fetch: 
