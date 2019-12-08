@@ -86,10 +86,10 @@ function getGEOCoordinatesFromAddress($FIREHALL, $address) {
 	$result_address = $address;
 
 	$result_address = getAddressForMapping($FIREHALL, $address);
-		
-    $url = DEFAULT_GOOGLE_MAPS_API_URL . 'json?address=' . urlencode($result_address) . '&sensor=false&key='. 
-            urlencode($FIREHALL->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY);
-		
+    $webRoot = rtrim($FIREHALL->WEBSITE->WEBSITE_ROOT_URL, '/');
+	$url = $webRoot . '/mapapiprxy/geocode/json?address=' . urlencode($result_address) . '&sensor=false';
+
+    if($log !== null) $log->warn("GEO MAP JSON [$url]");
 	$httpclient = new \riprunner\HTTPCli($url);
 	$result = $httpclient->execute(true);
 	

@@ -75,8 +75,6 @@ require __DIR__ . '/vendor/autoload.php';
 	global $FIREHALLS;
 	global $log;
 	$query = array();
-	//parse_str($params, $query);
-	//$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 	$longUrl = 'https://maps.googleapis.com/maps/api/js?v=3.exp&alternatives=true&callback=map_initialize';
 	$firehall = getFirstActiveFireHallConfig($FIREHALLS);
 	if($firehall !== null) {
