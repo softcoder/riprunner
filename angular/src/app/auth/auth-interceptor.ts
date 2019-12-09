@@ -10,7 +10,8 @@ export class AuthInterceptor implements HttpInterceptor {
       //debugger;
       const token = localStorage.getItem('token');
       const refreshToken = localStorage.getItem('refreshToken');
-      if (token && !req.url.includes('maps.googleapis.com')) {
+      if (token && !req.url.includes('maps.googleapis.com') &&
+      !req.url.includes('mapapiprxy')) {
           const reqWithInjection = req.clone({
             headers: new HttpHeaders({
                 'jwt-token': token,
