@@ -25,6 +25,7 @@ require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 
 use \Firebase\JWT\JWT;
+use \OTPHP\TOTP;
 
 class Authentication {
 
@@ -410,7 +411,7 @@ class Authentication {
                         $successContext['twofa'] = $row->twofa;
                         $successContext['twofaKey'] = '';
                         if($row->twofa == true) {
-                            $otp = \OTPHP\TOTP::create(
+                            $otp = TOTP::create(
                                 null, // Let the secret be defined by the class
                                 60    // The period is now 60 seconds
                             );
