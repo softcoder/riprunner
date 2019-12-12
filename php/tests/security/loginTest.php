@@ -61,11 +61,29 @@ class LoginTest extends BaseDBFixture {
 
 		$FIREHALLS = $this->FIREHALLS;
 
+		$FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+
+		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+
+		$loginResult = array();
+		$loginResult['firehall_id'] = 0;
+		$loginResult['user_db_id'] = 1;
+		$loginResult['user_id'] = 'mark.vejvoda';
+		$loginResult['user_type'] = '1';
+		$loginResult['login_string'] = 'Unit Test';
+		$loginResult['twofa'] = '1';
+		$loginResult['twofaKey'] = '';
+
+		$userRole = $auth->getCurrentUserRoleJSon($loginResult);
+		$jwt = $auth->getJWTAccessToken($loginResult, $userRole);
+
 		$request_variables = [
 			'SESSIONLESS_LOGIN' => true,
 			'firehall_id' => 0,
 			'user_id' => 'mark.vejvoda',
-			'p' => 'test123',
+			'p' => '123456',
+			'twofa_key' => '1',
+			\riprunner\Authentication::getJWTTokenName() => $jwt
 		];
 
 		$server_variables = [
@@ -158,8 +176,24 @@ class LoginTest extends BaseDBFixture {
 
 		$FIREHALLS = $this->FIREHALLS;
 
+		$FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+
+		$loginResult = array();
+		$loginResult['firehall_id'] = 0;
+		$loginResult['user_db_id'] = 1;
+		$loginResult['user_id'] = 'mark.vejvoda';
+		$loginResult['user_type'] = '1';
+		$loginResult['login_string'] = 'Unit Test';
+		$loginResult['twofa'] = '1';
+		$loginResult['twofaKey'] = '';
+
+		$userRole = $auth->getCurrentUserRoleJSon($loginResult);
+		$jwt = $auth->getJWTAccessToken($loginResult, $userRole);
+
 		$request_variables = [
 			'SESSIONLESS_LOGIN' => true,
+			\riprunner\Authentication::getJWTTokenName() => $jwt
 		];
 
 		$server_variables = [
@@ -182,7 +216,8 @@ class LoginTest extends BaseDBFixture {
 			return json_encode([
 				'fhid' => '0',
 				'username' => 'mark.vejvoda',
-				'p' => base64_encode('test123'),
+				'p' => '123456',
+				'twofaKey' => '1'
 			]);
 		};
 		
@@ -231,6 +266,7 @@ class LoginTest extends BaseDBFixture {
 				'fhid' => '0',
 				'username' => 'mark.vejvodaX',
 				'p' => base64_encode('test123'),
+				'twofaKey' => ''
 			]);
 		};
 		

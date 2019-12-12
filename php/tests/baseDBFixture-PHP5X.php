@@ -194,7 +194,7 @@ abstract class BaseDBFixture extends \PHPUnit_Extensions_Database_TestCase {
         $LOCAL_DEBUG_WEBSITE->setFirehallAddress('5155 Salmon Valley Road, Prince George, BC');
         $LOCAL_DEBUG_WEBSITE->setFirehallGeoLatitude(54.0916667);
         $LOCAL_DEBUG_WEBSITE->setFirehallGeoLongitude(-122.6537361);
-        $LOCAL_DEBUG_WEBSITE->setRootURL('http://192.168.0.150/~softcoder/svvfd1/php/');
+        $LOCAL_DEBUG_WEBSITE->setRootURL('https://172.18.0.150/~softcoder/svvfd1/php/');
         $LOCAL_DEBUG_WEBSITE->setGoogleMap_ApiKey(DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY);
         $LOCAL_DEBUG_WEBSITE->setCityNameSubs($this->getMapSubsForCities());
         $LOCAL_DEBUG_WEBSITE->setStreetNameSubs($this->getMapSubsForStreets());

@@ -58,6 +58,8 @@ mobile_phone varchar(25) NOT NULL DEFAULT '',
 access INTEGER NOT NULL DEFAULT 0,
 user_type int(11),
 active BOOLEAN NOT NULL DEFAULT 1,
+twofa BOOLEAN NOT NULL DEFAULT 0,
+twofa_key varchar(100) NOT NULL DEFAULT '',
 email  varchar(255) NOT NULL DEFAULT '',
 updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

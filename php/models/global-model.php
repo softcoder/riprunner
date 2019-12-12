@@ -86,7 +86,9 @@ class GlobalViewModel {
 				$refreshToken = \riprunner\Authentication::getJWTRefreshToken($refreshTokenObject->sub,
 																			  $refreshTokenObject->iss,
 																			  $refreshTokenObject->fhid,
-																			  $refreshTokenObject->login_string);
+																			  $refreshTokenObject->login_string,
+																			  $refreshTokenObject->twofa,
+																			  $refreshTokenObject->twofaKey);
 
 				if($log !== null) $log->trace("In RR_JWT_REFRESH_TOKEN token [$refreshToken]");
 
@@ -112,7 +114,9 @@ class GlobalViewModel {
 					$refreshToken = \riprunner\Authentication::getJWTRefreshToken($refreshTokenObject->sub,
 																				  $refreshTokenObject->iss,
 																				  $refreshTokenObject->fhid,
-																				  $refreshTokenObject->login_string);
+																				  $refreshTokenObject->login_string,
+																				  $refreshTokenObject->twofa,
+																				  $refreshTokenObject->twofaKey);
 					$refreshTokenParam = \riprunner\Authentication::getJWTRefreshTokenName().'='.$refreshToken;
 
 					return $tokenParam.'&'.$refreshTokenParam;

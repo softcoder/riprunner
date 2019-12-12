@@ -122,7 +122,14 @@ class LoginDeviceViewModel extends BaseViewModel {
 				// Login success
 				$userRole = $auth->getCurrentUserRoleJSon($loginResult);
 				$this->jwt = \riprunner\Authentication::getJWTAccessToken($loginResult, $userRole);
-				$this->jwtRefresh = \riprunner\Authentication::getJWTRefreshToken($loginResult['user_id'], $loginResult['user_db_id'], $this->getFirehallId(), $loginResult['login_string']);
+				$this->jwtRefresh = \riprunner\Authentication::getJWTRefreshToken(
+					$loginResult['user_id'], 
+					$loginResult['user_db_id'], 
+					$this->getFirehallId(), 
+					$loginResult['login_string'],
+					$loginResult['twofa'],
+					$loginResult['twofaKey']
+				);
 
 				// $sessionless = getSafeRequestValue('SESSIONLESS_LOGIN');
 				// if($sessionless == null || $sessionless == false) {

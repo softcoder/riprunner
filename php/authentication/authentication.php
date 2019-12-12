@@ -251,14 +251,114 @@ class Authentication {
         $loginResult['ldap_enabled']    = $successContext['ldap_enabled'];
         $loginResult['user_access']     = $successContext['userAccess'];
         $loginResult['user_jwt']        = $successContext['isAngularClient'];
-                
+        $loginResult['twofa']           = $successContext['twofa'];
+        $loginResult['twofaKey']        = $successContext['twofaKey'];
+
         // Ensure status are cached
         \riprunner\CalloutStatusType::getStatusList($this->getFirehall());
-        if($log !== null) $log->trace('Login OK pwd check pwdHash ['.$successContext['pwdHash'].'] $userPwd ['.$successContext['userPwd'].']');
+        if($log !== null) $log->trace('Login OK pwd check pwdHash ['.$successContext['pwdHash'].'] $userPwd ['.$successContext['userPwd'].'] $twofaKey ['.$successContext['twofaKey'].']');
         // Login successful.
         return $loginResult;
     }
 
+    public function update_twofa($user_id, $twofaKey) {
+        global $log;
+        if ($log !== null) {
+            $log->trace("Login attempt for user [$user_id] fhid [" .
+                                      $this->getFirehall()->FIREHALL_ID . "] 2fa: [".$twofaKey."] client [" .
+                                      self::getClientIPInfo() . "]");
+        }
+        
+        $sql = $this->getSqlStatement('user_accounts_update_twofa');
+        //echo "update_twofa sql: $sql" . PHP_EOL;
+        $stmt = $this->getDbConnection()->prepare($sql);
+        if ($stmt !== false) {
+            $stmt->bindParam(':user_id', $user_id);
+            $stmt->bindParam(':twofa_key', $twofaKey);
+            $stmt->execute();
+        }
+    }
+    public function get_twofa($user_id) {
+        global $log;
+        if($log !== null) $log->trace("get_twofa attempt for user [$user_id] fhid [" . 
+                                      $this->getFirehall()->FIREHALL_ID . "] client [" . 
+                                      self::getClientIPInfo() . "]");
+        if($log !== null) $log->trace("get_twofa check request method: ".$this->getServerVar('REQUEST_METHOD'));
+
+        $twofaKey = '';
+        $isAngularClient = false;
+        $jsonObject = $this->getJSONLogin($this->getServerVar('REQUEST_METHOD'));
+        if($jsonObject != null) {
+            $isAngularClient = true;
+            //$password = \base64_decode($password);
+        }
+        if($log !== null) $log->trace("get_twofa check isAngularClient: ".$isAngularClient);
+        
+        //if($this->getFirehall()->LDAP->ENABLED === true) {
+        //    return login_ldap($this->getFirehall(), $user_id, $password);
+        //}
+    
+        $sql = $this->getSqlStatement('login_user_check');
+        $stmt = $this->getDbConnection()->prepare($sql);
+        if ($stmt !== false) {
+            $stmt->bindParam(':id', $user_id);
+            $stmt->bindParam(':fhid', $this->getFirehall()->FIREHALL_ID);
+            $stmt->execute();
+
+            $row = $stmt->fetch(\PDO::FETCH_OBJ);
+            $stmt->closeCursor();
+
+            if ($row !== null && $row !== false) {
+                $twofaKey = $row->twofa_key;
+            }
+        }
+        return $twofaKey;
+    }
+
+    public function verifyTwoFA($user_id, $dbId, $requestTwofaKey) {
+        global $log;
+        //$otp = \OTPHP\TOTP::create(
+        //	null, // Let the secret be defined by the class
+        //	60    // The period is now 60 seconds
+        //);
+        //$valid2FA = $otp->verify($request_p);
+        $validTwoFAKey = true;
+
+        // // If the user exists we check if the account is locked from too many login attempts
+        $bruteforceCheck = $this->checkbrute($dbId, $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS);
+        if ($bruteforceCheck['max_exceeded'] === true) {
+            // Account is locked TODO: send an email to user saying their account is locked
+            $fhid = $this->getFirehall()->FIREHALL_ID;
+            $loginErrorMsg = "Warning: The following account has been locked due to maximum invalid login attempts for firehall: $fhid user account: $user_id attempts: ".$bruteforceCheck['count'];
+            if($log !== null) $log->error("LOGIN-F1 msg: $loginErrorMsg");
+
+            $validTwoFAKey = false;
+        }
+        else {
+            $userTwoFAKey = $this->get_twofa($user_id);
+            if ($requestTwofaKey != $userTwoFAKey) {
+                // Login failed wrong 2fa key
+                $validTwoFAKey = false;
+
+                // 2FA is not correct we record this attempt in the database
+                if ($log !== null) {
+                    $log->error("Login attempt for user [$user_id] userid [$dbId] FAILED pwd check for client [" . self::getClientIPInfo() . "]");
+                }
+                    
+                $sql = $this->getSqlStatement('login_brute_force_insert');
+                    
+                $qry_bind = $this->getDbConnection()->prepare($sql);
+                $qry_bind->bindParam(':uid', $dbId);
+                $qry_bind->execute();
+
+                if ($log !== null) {
+                    $log->error('Login FAILED 2FA check requestTwofaKey ['.$requestTwofaKey.'] userTwoFAKey ['.$userTwoFAKey.'] bruteforce: '.$bruteforceCheck['count']);
+                }
+                $this->notifyUsersAccountLocked($bruteforceCheck, $user_id, $dbId);
+            }
+        }
+        return $validTwoFAKey;
+    }
     public function login($user_id, $password) {
         global $log;
         if($log !== null) $log->trace("Login attempt for user [$user_id] fhid [" . 
@@ -302,13 +402,27 @@ class Authentication {
                 else {
                     $pwdHash = crypt($password, $row->user_pwd);
                     if ($pwdHash === $row->user_pwd ) {
-                        // Password is correct! Get the user-agent string of the user.
+                        // Password is correct! 
+                        $successContext = [];
+
+                        // Check if user requires 2 factor auth
+                        // twofa, twofa_key
+                        $successContext['twofa'] = $row->twofa;
+                        $successContext['twofaKey'] = '';
+                        if($row->twofa == true) {
+                            $otp = \OTPHP\TOTP::create(
+                                null, // Let the secret be defined by the class
+                                60    // The period is now 60 seconds
+                            );
+                            $successContext['twofaKey'] = $otp->now();
+                        }
+
+                        // Get the user-agent string of the user.
                         $user_browser = 'UNKNOWN user agent.';
                         if(getServerVar('HTTP_USER_AGENT') != null) {
                             $user_browser = htmlspecialchars(getServerVar('HTTP_USER_AGENT'));
                         }
-                         
-                        $successContext = [];
+                                                
                         $successContext['dbId']             = $dbId;
                         $successContext['FirehallId']       = $row->firehall_id;
                         $successContext['userId']           = $row->user_id;
@@ -438,6 +552,10 @@ class Authentication {
         $token['acl'] 		    = $acl;
         $token['fhid'] 		    = $firehall_id;
         $token['uid'] 		    = '';
+        if (array_key_exists('twofa', $appData)) {
+            $token['twofa']         = $appData['twofa'];
+            $token['twofaKey']      = $appData['twofaKey'];
+        }
         return $token;
     }
 
@@ -580,7 +698,7 @@ class Authentication {
         return $jwt;
     }
 
-    static public function getJWTRefreshToken($userId, $userDbId, $firehallId, $loginString) {
+    static public function getJWTRefreshToken($userId, $userDbId, $firehallId, $loginString, $twofa, $twofaKey) {
         $issuedAt = time();
         $expireIn30Minutes = $issuedAt + (60 * 30);
 
@@ -588,11 +706,15 @@ class Authentication {
         $appData['user_db_id']   = $userDbId;
         $appData['user_id']      = $userId;
         $appData['login_string'] = $loginString;
-        
+        $appData['twofa']        = $twofa;
+        $appData['twofaKey']     = $twofaKey;
+                
         $token = [];
         $token['user_id']      = $userId;
         $token['fhid']         = $firehallId;
         $token['login_string'] = $loginString;
+        $token['twofa']        = $twofa;
+        $token['twofaKey']     = $twofaKey;
         $token = self::applyJWTRegisteredClaims($token, $appData, $issuedAt, $expireIn30Minutes);
         $jwt = self::encodeJWT($token);
         return $jwt;
@@ -652,6 +774,8 @@ class Authentication {
                         $appData['firehall_id']  = $json_token->fhid;
                         $appData['ldap_enabled'] = false;
                         $appData['user_access']  = $userInfo->access;
+                        $appData['twofa']        = $json_token->twofa;
+                        $appData['twofaKey']     = $json_token->twofaKey;
                         $appData['user_jwt']     = true;
 
                         $userRole = $auth->getCurrentUserRoleJSon($appData);
@@ -660,7 +784,13 @@ class Authentication {
                             $log->trace("REFRESH TOKEN: getNewJWTTokenFromRefreshToken NEW token [$token]");
                         }
 
-                        $refreshToken = self::getJWTRefreshToken($appData['user_id'], $appData['user_db_id'], $appData['firehall_id'], $appData['login_string']);
+                        $refreshToken = self::getJWTRefreshToken(
+                            $appData['user_id'], 
+                            $appData['user_db_id'], 
+                            $appData['firehall_id'], 
+                            $appData['login_string'],
+                            $appData['twofa'],
+                            $appData['twofaKey']);
                         if ($log !== null) {
                             $log->trace("REFRESH TOKEN: getNewJWTTokenFromRefreshToken NEW refreshtoken [$refreshToken]");
                         }
@@ -713,7 +843,14 @@ class Authentication {
                                  'access' => $loginResult['user_access']),
                                  JSON_FORCE_OBJECT);
                 $jwt = \riprunner\Authentication::getJWTAccessToken($loginResult, $userRole);
-                $jwtRefresh = \riprunner\Authentication::getJWTRefreshToken($loginResult['user_id'], $loginResult['user_db_id'], $loginResult['firehall_id'], $loginResult['login_string']);
+                $jwtRefresh = \riprunner\Authentication::getJWTRefreshToken(
+                    $loginResult['user_id'], 
+                    $loginResult['user_db_id'], 
+                    $loginResult['firehall_id'], 
+                    $loginResult['login_string'],
+                    $loginResult['twofa'],
+                    $loginResult['twofaKey'],
+                );
 
                 $token = $jwt;
                 $refreshToken = $jwtRefresh;
@@ -837,10 +974,14 @@ class Authentication {
             if($refreshTokenObject != null) {
                 if($log !== null) $log->trace("In deployJWTTokenHeaders Refresh Token [".json_encode($refreshTokenObject)."].");
 
-                $refreshToken = self::getJWTRefreshToken($refreshTokenObject->sub,
-                                                            $refreshTokenObject->iss,
-                                                            $refreshTokenObject->fhid,
-                                                            $refreshTokenObject->login_string);
+                $refreshToken = self::getJWTRefreshToken(
+                    $refreshTokenObject->sub,
+                    $refreshTokenObject->iss,
+                    $refreshTokenObject->fhid,
+                    $refreshTokenObject->login_string,
+                    $refreshTokenObject->twofa,
+                    $refreshTokenObject->twofaKey,
+                );
 
                 header(self::getJWTTokenName().': '.$token);
                 header(self::getJWTRefreshTokenName().': '.$refreshToken);
@@ -899,6 +1040,8 @@ class Authentication {
             $authCache['user_type']    = $token->usertype;
             $authCache['login_string'] = $token->login_string;
             $authCache['user_db_id']   = $token->id;
+            $authCache['twofa']        = $token->twofa;
+            $authCache['twofaKey']     = $token->twofaKey;
         }
         return $authCache;
 

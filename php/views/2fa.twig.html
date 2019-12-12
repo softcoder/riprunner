@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Secure Login: Log In</title>
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
+        {% endif %}
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/sha512.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script> 
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/spin.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/forms.js"></script> 
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
+    </head>
+    <body>
+    
+    	<div class="container_center">
+    	{% if gvm.isMobile %} 
+        <b>Mobile Device Detected</b> 
+    	{% elseif gvm.isTablet %} 
+        <b>Tablet Device Detected</b> 
+        {% else %} 
+        <b>Desktop Device Detected</b> 
+        {% endif %}
+    	
+        {% if twofavm.hasError %}
+        <p class="error">Error Logging In!</p>
+        {% else %}
+		<div class="container">
+			<section id="content">
+	        <form action="{{ gvm.RR_DOC_ROOT }}/process_login.php?{{ gvm.RR_JWT_TOKEN_PARAM }}" method="post" 
+	               accept-charset="utf-8" id="login_form" name="login_form">
+	        	<h1>Login User</h1>
+	        	{% include 'display-logo.twig.html' %}
+	        	
+			    <div>
+	            	<label for="twofa_key">Please enter the code you received</label>
+	            	<input type="text" name="twofa_key" id="twofa_key" 
+	            	       placeholder="Two factor code" required 
+	            		   onKeyPress="return submitenter(this,event,document.getElementById('btnLogin').onclick);" />
+				</div>
+				<div >
+	            	<input type="button" id="btnLogin" 
+	                		value="Next" 
+	                   		onclick="return formhash(document.getElementById('login_form'), document.getElementById('twofa_key'), true);" />
+	            </div>	
+	        </form>
+			</section>
+			</div>
+	
+	        {% if gvm.auth.isAuth %}
+	        <p>If you are done browsing, please <a href="{{ gvm.RR_DOC_ROOT }}/logout.php">log out</a>.</p>
+	        {% endif %}
+	        <p>You are currently logged {{ gvm.auth.isAuth ? 'in' : 'out' }}.</p>
+        {% endif %}
+        </div>
+    </body>
+</html>

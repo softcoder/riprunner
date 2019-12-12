@@ -24,18 +24,26 @@ function checkRequiredField(field,fieldDisplayName) {
 	return true;
 }
 
-function formhash(form, password) {
+function formhash(form, password, is2FA) {
 	
-	if(checkRequiredField(document.forms["login_form"]["firehall_id"],
+    if(typeof document.forms["login_form"]["firehall_id"] != "undefined" && 
+       checkRequiredField(document.forms["login_form"]["firehall_id"],
 			document.forms["login_form"]["firehall_id"].placeholder) == false) {
 		return false;
 	}
-	if(checkRequiredField(document.forms["login_form"]["user_id"],
+    if(typeof document.forms["login_form"]["user_id"] != "undefined" && 
+       checkRequiredField(document.forms["login_form"]["user_id"],
 			document.forms["login_form"]["user_id"].placeholder) == false) {
 		return false;
 	}
-	if(checkRequiredField(document.forms["login_form"]["password"],
+    if(typeof document.forms["login_form"]["password"] != "undefined" && 
+       checkRequiredField(document.forms["login_form"]["password"],
 			document.forms["login_form"]["password"].placeholder) == false) {
+		return false;
+	}
+    if(typeof document.forms["login_form"]["twofa_key"] != "undefined" && 
+       checkRequiredField(document.forms["login_form"]["twofa_key"],
+			document.forms["login_form"]["twofa_key"].placeholder) == false) {
 		return false;
 	}
 	
@@ -51,6 +59,9 @@ function formhash(form, password) {
  
     // Make sure the plaintext password doesn't get sent. 
     password.value = "";
+    if(is2FA != null && is2FA) {
+        password.value = "1";
+    }
 
     loadingSpinner(form,'#000');
     // Finally submit the form. 

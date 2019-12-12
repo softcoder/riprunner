@@ -449,6 +449,22 @@ class SignalManager {
         return $smsMsg;
     }
 
+    public function getSMSTwoFAMessage($twofaKey) {
+        
+        $view_template_vars = array();
+        $view_template_vars['twofaKey'] = $twofaKey;
+    
+        // Load our template
+        $template = $this->getTwigEnv()->resolveTemplate(
+            array('@custom/sms-twofa-msg.twig.html',
+                    'sms-twofa-msg.twig.html'
+                    
+            ));
+        // Output our template
+        $smsMsg = $template->render($view_template_vars);
+        return $smsMsg;
+    }
+
     public function signalFireHallCallout($callout) {
     	global $log;
     	if($log !== null) {
