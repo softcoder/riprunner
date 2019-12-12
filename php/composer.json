@@ -26,7 +26,7 @@
     },
 
     "require": {
-        "php": "^5.6 || >=7.1",
+        "php": "^7.1 || >=7.2",
         "apache/log4php": ">=2.3",
         "firebase/php-jwt": ">=5.0",
         "kreait/firebase-php": "^4.28",
@@ -36,9 +36,9 @@
         "plivo/php-sdk": ">=1.1.7",
         "phpsms/phpsms": "dev-master",
         "twilio/sdk": ">=5.6.2",
-        "twig/twig": "^1.35 || >=2.0",
+        "twig/twig": ">=2.0",
         "twig/extensions": "^1.x-dev || >=1.5.4",
-        "spomky-labs/otphp": ">=10.0.0"
+        "spomky-labs/otphp": "^9.1.4 || >=10.0.0"
     },
 
     "repositories": [
