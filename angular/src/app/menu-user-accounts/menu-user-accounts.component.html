@@ -183,11 +183,19 @@
       <ng-container matColumnDef="active">
         <mat-header-cell *matHeaderCellDef mat-sort-header>User Active</mat-header-cell>
         <mat-cell *matCellDef="let row">
-            <input *ngIf="!selfEditMode && editingRow(row.id)" type="checkbox" [(ngModel)]="row.active" [checked]="row.active">
+            <input *ngIf="!selfEditMode && editingRow(row.id)" type="checkbox" [(ngModel)]="row.active" [checked]="(row.active == 1)">
             <span *ngIf="selfEditMode || !editingRow(row.id)">{{ row.active }}</span>
         </mat-cell>
       </ng-container>
-  
+
+      <ng-container matColumnDef="twofa">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Two Factor Login</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+            <input *ngIf="!selfEditMode && editingRow(row.id)" type="checkbox" [(ngModel)]="row.twofa" [checked]="(row.twofa == 1)">
+            <span *ngIf="selfEditMode || !editingRow(row.id)">{{ row.twofa }}</span>
+        </mat-cell>
+      </ng-container>
+
       <ng-container matColumnDef="updatetime">
         <mat-header-cell *matHeaderCellDef mat-sort-header>Update Date/Time</mat-header-cell>
         <mat-cell *matCellDef="let row">{{ row.updatetime }}</mat-cell>

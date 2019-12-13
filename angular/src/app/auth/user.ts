@@ -3,6 +3,7 @@ export class User {
     username: string;
     password: string;
     p: string;
+    twofaKey: string;
 
     constructor() {
     }

@@ -168,7 +168,8 @@ export class MenuUserAccountsComponent implements AfterViewInit {
       access_sms: false,
       access_respond_self: false,
       access_respond_others: false,
-      active: true
+      active: true,
+      twofa: false
     });
     this.setDisplayedColumns();
     this.dataSource._updateChangeSubscription();
@@ -293,13 +294,13 @@ export class MenuUserAccountsComponent implements AfterViewInit {
     if (this.isEditing()) {
       this.displayedColumns = ['grid_update_row', 'id', 'firehall_id', 'user_id', 'new_password_1', 'new_password_2',
                 'email', 'user_type', 'mobile_phone', 'access_admin', 'access_sms', 'access_respond_self',
-                'access_respond_others', 'active', 'updatetime'
+                'access_respond_others', 'active', 'twofa', 'updatetime'
            ];
     }
     else {
       this.displayedColumns = ['grid_update_row', 'id', 'firehall_id', 'user_id',
                 'email', 'user_type', 'mobile_phone', 'access_admin', 'access_sms', 'access_respond_self',
-                'access_respond_others', 'active', 'updatetime'
+                'access_respond_others', 'active', 'twofa', 'updatetime'
            ];
     }
   }

@@ -149,6 +149,7 @@ class UserAccountsController extends AuthApiController {
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
 			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 			$edit_user_active = 1;
+			$edit_user_twofa = \riprunner\Authentication::getAuthVar('twofa');
 		}
 		else {
 			$edit_firehall_id = $user->firehall_id;
@@ -157,7 +158,8 @@ class UserAccountsController extends AuthApiController {
 			$edit_sms_access = $user->access_sms;
 			$edit_respond_self_access = $user->access_respond_self;
 			$edit_respond_others_access = $user->access_respond_others;
-			$edit_user_active = $user->active;
+			$edit_user_active = ($user->active ? 1 : 0);
+			$edit_user_twofa = ($user->twofa ? 1 : 0);
 		}
 		$edit_user_id_name = $user->user_id;
 		$edit_email = (strlen($user->email) > 0 ? $user->email : '');
@@ -189,6 +191,7 @@ class UserAccountsController extends AuthApiController {
 		$qry_bind->bindParam(':email', $edit_email);
 		$qry_bind->bindParam(':user_type', $edit_user_type);
 		$qry_bind->bindParam(':active', $edit_user_active);
+		$qry_bind->bindParam(':twofa', $edit_user_twofa);
 		$qry_bind->bindParam(':mobile_phone', $edit_mobile_phone);
 		$qry_bind->bindParam(':user_pwd', $new_pwd_value);
 		$qry_bind->bindParam(':access', $new_user_access);
@@ -209,6 +212,7 @@ class UserAccountsController extends AuthApiController {
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
 			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 			$edit_user_active = 1;
+			$edit_user_twofa = \riprunner\Authentication::getAuthVar('twofa');
 		}
 		else {
 			$edit_firehall_id = $user->firehall_id;
@@ -217,7 +221,8 @@ class UserAccountsController extends AuthApiController {
 			$edit_sms_access = $user->access_sms;
 			$edit_respond_self_access = $user->access_respond_self;
 			$edit_respond_others_access = $user->access_respond_others;
-			$edit_user_active = $user->active;
+			$edit_user_active = ($user->active ? 1 : 0);
+			$edit_user_twofa = ($user->twofa ? 1 : 0);
 		}
 		$edit_user_id_name = $user->user_id;
 		$edit_email = (strlen($user->email) > 0 ? $user->email : '');
@@ -267,6 +272,7 @@ class UserAccountsController extends AuthApiController {
 		$qry_bind->bindParam(':email', $edit_email);
 		$qry_bind->bindParam(':user_type', $edit_user_type);
 		$qry_bind->bindParam(':active', $edit_user_active);
+		$qry_bind->bindParam(':twofa', $edit_user_twofa);
 		
 		if(isset($new_pwd) === true) {
 			$qry_bind->bindParam(':user_pwd', $new_pwd);

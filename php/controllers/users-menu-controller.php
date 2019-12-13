@@ -156,6 +156,7 @@ class UsersMenuController {
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
 			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 			$edit_user_active = 1;
+			$edit_user_twofa = \riprunner\Authentication::getAuthVar('twofa');
 		}
 		else {
 			$edit_firehall_id = get_query_param('edit_firehall_id');
@@ -170,6 +171,13 @@ class UsersMenuController {
 			}
 			else {
 			    $edit_user_active = 0;
+			}
+			$edit_user_twofa = get_query_param('edit_user_twofa');
+			if(isset($edit_user_twofa) === true && $edit_user_twofa === 'on') {
+			    $edit_user_twofa = 1;
+			}
+			else {
+			    $edit_user_twofa = 0;
 			}
 		}
 		$edit_user_id_name = get_query_param('edit_user_id_name');
@@ -221,7 +229,8 @@ class UsersMenuController {
 		$qry_bind->bindParam(':email', $edit_email);
 		$qry_bind->bindParam(':user_type', $edit_user_type);
 		$qry_bind->bindParam(':active', $edit_user_active);
-		
+		$qry_bind->bindParam(':twofa', $edit_user_twofa);
+				
 		if(isset($new_pwd) === true) {
 			$qry_bind->bindParam(':user_pwd', $new_pwd);
 		}
@@ -254,6 +263,7 @@ class UsersMenuController {
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
 			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 			$edit_user_active = 1;
+			$edit_user_twofa = \riprunner\Authentication::getAuthVar('twofa');
 		}
 		else {
 			$edit_firehall_id = get_query_param('edit_firehall_id');
@@ -268,6 +278,13 @@ class UsersMenuController {
 			}
 			else {
 			    $edit_user_active = 0;
+			}
+			$edit_user_twofa = get_query_param('edit_user_twofa');
+			if(isset($edit_user_twofa) === true && $edit_user_twofa === 'on') {
+			    $edit_user_twofa = 1;
+			}
+			else {
+			    $edit_user_twofa = 0;
 			}
 		}
 		$edit_user_id_name = get_query_param('edit_user_id_name');
@@ -300,6 +317,7 @@ class UsersMenuController {
 		$qry_bind->bindParam(':email', $edit_email);
 		$qry_bind->bindParam(':user_type', $edit_user_type);
 		$qry_bind->bindParam(':active', $edit_user_active);
+		$qry_bind->bindParam(':twofa', $edit_user_twofa);
 		$qry_bind->bindParam(':mobile_phone', $edit_mobile_phone);
 		$qry_bind->bindParam(':user_pwd', $new_pwd_value);
 		$qry_bind->bindParam(':access', $new_user_access);

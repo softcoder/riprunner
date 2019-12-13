@@ -9,7 +9,7 @@
         <h1>Login User</h1>
         <img src="./assets/images/logo.png" onerror="this.style.display='none'" />
         
-        <div>
+        <div *ngIf="!twoFAkeyRequired">
             <label for="firehall_id">Firehall Id</label>
             <input [(ngModel)]="login.fhid" type="text" name="firehall_id" id="firehall_id" 
                    placeholder="your firehall id" required />
@@ -17,15 +17,21 @@
         <div class="loading-shade" *ngIf="(isLoadingResults | async)">
           <mat-spinner *ngIf="(isLoadingResults | async)"></mat-spinner>
         </div>
-        <div>
+        <div *ngIf="!twoFAkeyRequired">
             <label for="user_id">User Id</label>
             <input [(ngModel)]="login.username" type="text" name="user_id" id="user_id"
                    placeholder="your user id" required />
         </div>
-        <div>
+        <div *ngIf="!twoFAkeyRequired">
             <label for="password">Password</label>
             <input [(ngModel)]="login.password" type="password" name="password" id="password" 
                    placeholder="password" required />
+        </div>
+        <div *ngIf="twoFAkeyRequired">
+            <label for="twofaKey">Please enter the code you received</label>
+            <input [(ngModel)]="login.p" type="text" name="p" id="p" 
+                   placeholder="enter your authorization code" required />
+            <input [(ngModel)]="login.twofaKey" type="hidden" name="twofaKey" id="twofaKey" />
         </div>
         <div >
             <input (click)="loginUser()" type="button" id="btnLogin" value="Login" />

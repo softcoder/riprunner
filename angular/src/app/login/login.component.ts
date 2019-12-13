@@ -16,6 +16,7 @@ export class LoginComponent implements OnInit {
   login: Login = new Login();
   errorMessage: string;
   isLoadingResults: Observable<boolean> = of(false);
+  twoFAkeyRequired = false;
 
   private sub: any;
 
@@ -47,12 +48,16 @@ export class LoginComponent implements OnInit {
   }
 
   loginUser() {
-    //debugger;
+    // debugger;
     Promise.resolve(null).then(() => this.isLoadingResults = of(true));
     this.loginService.login(this.login).then(loginResult => {
-      //debugger;
+      // debugger;
       Promise.resolve(null).then(() => this.isLoadingResults = of(false));
       this.errorMessage = loginResult;
+      if (this.loginService.getTwoFARequired()) {
+        this.twoFAkeyRequired = true;
+        this.login.twofaKey = '1';
+      }
     })
     .catch((err) => {
       debugger;

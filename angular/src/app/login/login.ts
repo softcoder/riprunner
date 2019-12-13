@@ -3,7 +3,8 @@ export class Login {
     username: string;
     password: string;
     p: string;
-    
-    constructor() { 
-    }    
+    twofaKey: string;
+
+    constructor() {
+    }
 }

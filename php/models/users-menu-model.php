@@ -99,7 +99,9 @@ class UsersMenuViewModel extends BaseViewModel {
 			$row['access_sms'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_SIGNAL_SMS);
 			$row['access_respond_self'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_CALLOUT_RESPOND_SELF);
 			$row['access_respond_others'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_CALLOUT_RESPOND_OTHERS);
-			
+			$row['active'] = ($row['active'] ? true : false);
+			$row['twofa'] = ($row['twofa'] ? true : false);
+
 			$resultArray[] = $row;
 		}		
 				

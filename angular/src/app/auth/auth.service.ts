@@ -11,6 +11,7 @@ import { User } from './user';
 
 interface AuthResponse {
   status: boolean;
+  twofa: string;
   expiresIn: number;
   user: string;
   message: string;
@@ -28,6 +29,8 @@ interface TokenObject {
   iat: string;
   exp: string;
   fcmTokens?: { [token: string]: true };
+  twofa: string;
+  twofaKey: string;
 }
 
 @Injectable()
@@ -35,6 +38,7 @@ export class AuthService {
     url_action = '/../process_login.php';
     url = '';
     lastErrorMsg = '';
+    twoFARequired = false;
 
     logoff_url_action = '/../logout.php';
     logoff_url = '';
@@ -53,9 +57,18 @@ export class AuthService {
     login(user: User): Promise<boolean> {
       // debugger;
 
+      const token = localStorage.getItem('token');
+      const refreshToken = localStorage.getItem('refreshToken');
+
       this.logout();
       this.lastErrorMsg = '';
-      return this.http.post<AuthResponse>(this.url, user)
+      this.twoFARequired = false;
+
+      let urlPath: string = this.url;
+      if (user.twofaKey !== '') {
+        urlPath = this.injectJWTtokenFromData(urlPath, token, refreshToken);
+      }
+      return this.http.post<AuthResponse>(urlPath, user)
         .toPromise()
         .then(response => {
             // debugger;
@@ -63,7 +76,12 @@ export class AuthService {
               this.setSession(response);
               return true;
             }
-            debugger;
+            if (response && response.status === false && response.token && response.twofa) {
+              this.twoFARequired = true;
+              this.setSessionJWT(response);
+              return false;
+            }
+            // debugger;
             this.lastErrorMsg = response.message;
             return false;
         })
@@ -87,6 +105,7 @@ export class AuthService {
       );
       this.logout();
       this.lastErrorMsg = '';
+      this.twoFARequired = false;
     }
 
     public getFirehallId(): string {
@@ -106,6 +125,27 @@ export class AuthService {
     public getLastErrorMsg(): string {
       return this.lastErrorMsg;
     }
+
+    public getTwoFARequired(): boolean {
+      return this.twoFARequired;
+    }
+
+    public injectJWTtokenFromData(url: string, token: string, refreshToken: string , handOffJWT: boolean = false): string {
+      // debugger;
+
+      if (url.indexOf('JWT_TOKEN') === -1) {
+        // const token = localStorage.getItem('token');
+        url = this.addQueryParam(url, 'JWT_TOKEN', token);
+        // const refreshToken = localStorage.getItem('refreshToken');
+        url = this.addQueryParam(url, 'JWT_REFRESH_TOKEN', refreshToken);
+
+        if (handOffJWT) {
+          url = this.addQueryParam(url, 'JWT_TOKEN_HANDOFF', 'true');
+        }
+      }
+      return url;
+    }
+
 
     public injectJWTtoken(url: string, handOffJWT: boolean = false): string {
       // debugger;
@@ -137,9 +177,17 @@ export class AuthService {
       return (error.message || error);
     }
 
+    private setSessionJWT(authResult) {
+      // debugger;
+      localStorage.setItem('token', authResult.token);
+      localStorage.setItem('refreshToken', authResult.refresh_token);
+      //console.log('SetSession authResult: ' + JSON.stringify(authResult));
+      const expiresAt = moment().add(authResult.expiresIn, 'second');
+      localStorage.setItem('expires_at', JSON.stringify(expiresAt.valueOf()) );
+  }
+
     private setSession(authResult) {
         // debugger;
-
         const permissions: Array<string> = [ 'USER-AUTHENTICATED' ];
         localStorage.setItem('token', authResult.token);
         localStorage.setItem('refreshToken', authResult.refresh_token);

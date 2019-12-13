@@ -87,6 +87,7 @@
                     <th scope="col">Enable Responding{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_RESPOND_SELF_GROUP_FILTER }}{% endif %}</th>
                     <th scope="col">Enable Responding for others{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_RESPOND_OTHERS_GROUP_FILTER }}{% endif %}</th>
                     <th scope="col">User Active</th>
+                    <th scope="col">Two Factor Login</th>
                     <th scope="col" class="column_nowrap">Update Date/Time</th>
                     <th scope="col" colspan="2" align="Center">Modify Data</th>
                     <tr>
@@ -155,6 +156,10 @@
                     <input id="edit_user_active" name="edit_user_active" 
                            type="checkbox" checked/>
                 </td>
+                <td>
+                    <input id="edit_user_twofa" name="edit_user_twofa" 
+                           type="checkbox" checked/>
+                </td>
                 
                 <td class="column_nowrap">
                 </td>
@@ -191,9 +196,9 @@
                            type="checkbox" user-id="-1" />
                 </td>
 	            {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
-	                <td colspan="16">
+	                <td colspan="17">
 	            {% else %}
-	                <td colspan="14">
+	                <td colspan="15">
 	            {% endif %}
 	                    <center>
 	                    <input type="button" value="Add New User" onclick="edit_user(this.form, -1);" />
@@ -328,7 +333,15 @@
                     {{ user.active ? 'yes' : 'no' }}
                 {% endif %}
                 </td>
-
+                <td>
+                {% if edit_current_row and not usersmenu_vm.selfedit_mode %}
+                    <input id="edit_user_twofa" name="edit_user_twofa" 
+                            type="checkbox" {{ user.twofa ? 'checked="checked"' : '' }} />
+                {% else %}
+                    {{ user.twofa ? 'yes' : 'no' }}
+                {% endif %}
+                </td>
+    
 	            <td class="column_nowrap">
 	               {{ user.updatetime }}
 	            </td>

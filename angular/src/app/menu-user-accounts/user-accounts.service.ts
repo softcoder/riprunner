@@ -14,6 +14,7 @@ export interface UserAccount {
   access: number;
   user_type: number;
   active: boolean;
+  twofa: boolean;
   email: string;
   updatetime: string;
   access_admin: boolean;
