@@ -850,7 +850,7 @@ class Authentication {
                     $loginResult['firehall_id'], 
                     $loginResult['login_string'],
                     $loginResult['twofa'],
-                    $loginResult['twofaKey'],
+                    $loginResult['twofaKey']
                 );
 
                 $token = $jwt;
