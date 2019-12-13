@@ -850,8 +850,7 @@ class Authentication {
                     $loginResult['firehall_id'], 
                     $loginResult['login_string'],
                     $loginResult['twofa'],
-                    $loginResult['twofaKey']
-                );
+                    $loginResult['twofaKey']);
 
                 $token = $jwt;
                 $refreshToken = $jwtRefresh;
@@ -981,8 +980,7 @@ class Authentication {
                     $refreshTokenObject->fhid,
                     $refreshTokenObject->login_string,
                     $refreshTokenObject->twofa,
-                    $refreshTokenObject->twofaKey,
-                );
+                    $refreshTokenObject->twofaKey);
 
                 header(self::getJWTTokenName().': '.$token);
                 header(self::getJWTRefreshTokenName().': '.$refreshToken);
