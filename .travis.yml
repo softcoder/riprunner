@@ -25,9 +25,11 @@ before_install:
 
 before_script:
 - cd php/
-- if [ "$deps" = "low" ]; then composer --prefer-lowest --prefer-stable update; fi;
-- if [ "$deps" = "default" ]; then composer update; fi;
-- if [ "$deps" = "default" ]; then composer install; fi;
+# - if [ "$deps" = "low" ]; then composer --prefer-lowest --prefer-stable update; fi;
+# - if [ "$deps" = "default" ]; then composer update; fi;
+# - if [ "$deps" = "default" ]; then composer install; fi;
+- composer update
+- composer install
 # - ls -la
 # - ls -la vendor/
 - cp config-test.php config.php
