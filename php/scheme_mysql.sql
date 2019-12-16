@@ -114,6 +114,16 @@ CREATE TABLE IF NOT EXISTS `callouts_info` (
   `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `login_audit` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `useracctid` INT(11) NULL,
+  `username` varchar(255) COLLATE utf8_unicode_ci NULL,
+  `status` INT(11) NOT NULL,
+  `login_agent` varchar(255) COLLATE utf8_unicode_ci NULL,
+  `login_ip` varchar(100) COLLATE utf8_unicode_ci NULL,
+  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 
 CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);

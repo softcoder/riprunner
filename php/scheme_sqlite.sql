@@ -132,6 +132,16 @@ CREATE TABLE IF NOT EXISTS user_types (
   updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS login_audit (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  useracctid INTEGER NULL,
+  username varchar(255) NULL,
+  status INTEGER NOT NULL,
+  login_agent varchar(255) NULL,
+  login_ip varchar(100) NULL,
+  updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 
 CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);

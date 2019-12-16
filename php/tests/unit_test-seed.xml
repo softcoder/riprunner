@@ -13,6 +13,8 @@
     <user_accounts id="3" firehall_id="0" user_id="daniel.vejvoda" user_pwd="123" mobile_phone="2505551213" access="1" user_type="3" active="1" twofa="0" twofa_key="" updatetime="2010-04-26 12:14:20" />
     <user_accounts id="4" firehall_id="0" user_id="stephanie.vejvoda" user_pwd="abc" mobile_phone="2505551214" access="2" user_type="4" active="1" twofa="0" twofa_key="" updatetime="2010-04-26 12:14:20" />
     
+	<login_audit id="1" useracctid="4" username="stephanie.vejvoda" status="100" login_agent="Test Agent 123" login_ip="192.168.0.1" updatetime="2010-04-24 17:15:23" />
+
     <callouts id="1" calltime="2010-04-26 12:14:20" calltype="BURN" address="9115 Salmon Valley Road" latitude="" longitude="" units="SALGRP1" status="10" updatetime="2010-04-26 13:14:20" call_key="abc1" />
     <callouts id="2" calltime="2999-04-26 12:14:20" calltype="MED" address="9115 Salmon Valley Road" latitude="" longitude="" units="SALGRP1" status="1" updatetime="2999-04-26 13:14:20" call_key="abc2" />
 

@@ -27,6 +27,15 @@ require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 use \Firebase\JWT\JWT;
 use \OTPHP\TOTP;
 
+abstract class LoginAuditType extends BasicEnum {
+    const SUCCESS_PASSWORD  = 0;
+    const SUCCESS_TWOFA     = 1;
+    const INVALID_USERNAME  = 100;
+    const INVALID_PASSWORD  = 101;
+    const INVALID_TWOFA     = 102;
+    const ACCOUNT_LOCKED    = 103;
+}
+
 class Authentication {
 
     private $firehall = null;
@@ -35,7 +44,7 @@ class Authentication {
     private $GET_FILE_CONTENTS_FUNC;
 	private $request_variables;
 	private $server_variables;
-    
+
     /*
     	Constructor
     	@param $db_firehall the firehall
@@ -142,19 +151,19 @@ class Authentication {
     static public function getClientIPInfo() {
         $ip_address = '';
         if (empty(getServerVar('HTTP_CLIENT_IP')) === false) {
-            $ip_address .= 'HTTP_CLIENT_IP: '.htmlspecialchars(getServerVar('HTTP_CLIENT_IP'));
+            $ip_address .= 'CLIENT: '.htmlspecialchars(getServerVar('HTTP_CLIENT_IP'));
         }
         if (empty(getServerVar('HTTP_X_FORWARDED_FOR')) === false) {
             if (empty($ip_address) === false) {
                 $ip_address .= ' ';
             }
-            $ip_address .= 'HTTP_X_FORWARDED_FOR: '.htmlspecialchars(getServerVar('HTTP_X_FORWARDED_FOR'));
+            $ip_address .= 'FORWARDED: '.htmlspecialchars(getServerVar('HTTP_X_FORWARDED_FOR'));
         }
         if (empty(getServerVar('REMOTE_ADDR')) === false) {
             if (empty($ip_address) === false) {
                 $ip_address .= ' ';
             }
-            $ip_address .= 'REMOTE_ADDR: '.htmlspecialchars(getServerVar('REMOTE_ADDR'));
+            $ip_address .= 'REMOTE: '.htmlspecialchars(getServerVar('REMOTE_ADDR'));
         }
         return $ip_address;
     }
@@ -329,6 +338,7 @@ class Authentication {
         $bruteforceCheck = $this->checkbrute($dbId, $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS);
         if ($bruteforceCheck['max_exceeded'] === true) {
             // Account is locked TODO: send an email to user saying their account is locked
+            self::auditLogin($dbId, $user_id, LoginAuditType::ACCOUNT_LOCKED);
             $fhid = $this->getFirehall()->FIREHALL_ID;
             $loginErrorMsg = "Warning: The following account has been locked due to maximum invalid login attempts for firehall: $fhid user account: $user_id attempts: ".$bruteforceCheck['count'];
             if($log !== null) $log->error("LOGIN-F1 msg: $loginErrorMsg");
@@ -340,26 +350,54 @@ class Authentication {
             if ($requestTwofaKey != $userTwoFAKey) {
                 // Login failed wrong 2fa key
                 $validTwoFAKey = false;
-
+                self::auditLogin($dbId, $user_id, LoginAuditType::INVALID_TWOFA);
                 // 2FA is not correct we record this attempt in the database
-                if ($log !== null) {
-                    $log->error("Login attempt for user [$user_id] userid [$dbId] FAILED pwd check for client [" . self::getClientIPInfo() . "]");
-                }
-                    
+                if ($log !== null) $log->error("Login attempt for user [$user_id] userid [$dbId] FAILED pwd check for client [" . self::getClientIPInfo() . "]");
+                                    
                 $sql = $this->getSqlStatement('login_brute_force_insert');
                     
                 $qry_bind = $this->getDbConnection()->prepare($sql);
                 $qry_bind->bindParam(':uid', $dbId);
                 $qry_bind->execute();
 
-                if ($log !== null) {
-                    $log->error('Login FAILED 2FA check requestTwofaKey ['.$requestTwofaKey.'] userTwoFAKey ['.$userTwoFAKey.'] bruteforce: '.$bruteforceCheck['count']);
-                }
+                if ($log !== null) $log->error('Login FAILED 2FA check requestTwofaKey ['.$requestTwofaKey.'] userTwoFAKey ['.$userTwoFAKey.'] bruteforce: '.$bruteforceCheck['count']);
+                
                 $this->notifyUsersAccountLocked($bruteforceCheck, $user_id, $dbId);
+            }
+            else {
+                self::auditLogin($dbId, $user_id, LoginAuditType::SUCCESS_TWOFA);
             }
         }
         return $validTwoFAKey;
     }
+
+    private function getUserAgent() {
+        // Get the user-agent string of the user.
+        $user_browser = 'UNKNOWN user agent.';
+        if(getServerVar('HTTP_USER_AGENT') != null) {
+            $user_browser = htmlspecialchars(getServerVar('HTTP_USER_AGENT'));
+        }
+        return $user_browser;
+    }
+
+    private function auditLogin($userDbId, $userName, $status) {
+        global $log;
+
+        $ip = self::getClientIPInfo();
+        $userAgent = self::getUserAgent();
+        if($log !== null) $log->trace("Login audit for user [$userDbId] name [$userName] status [$status] for client [$ip] agent [$userAgent]");
+        
+        $sql = $this->getSqlStatement('login_audit_insert');
+        
+        $qry_bind = $this->getDbConnection()->prepare($sql);
+        $qry_bind->bindParam(':useracctid', $userDbId);
+        $qry_bind->bindParam(':username', $userName);
+        $qry_bind->bindParam(':status', $status);
+        $qry_bind->bindParam(':login_agent', $userAgent);
+        $qry_bind->bindParam(':login_ip', $ip);
+        $qry_bind->execute();
+    }
+
     public function login($user_id, $password) {
         global $log;
         if($log !== null) $log->trace("Login attempt for user [$user_id] fhid [" . 
@@ -374,7 +412,7 @@ class Authentication {
             $password = \base64_decode($password);
         }
         if($log !== null) $log->trace("Login check isAngularClient: ".$isAngularClient);
-        
+
         if($this->getFirehall()->LDAP->ENABLED === true) {
             return login_ldap($this->getFirehall(), $user_id, $password);
         }
@@ -396,6 +434,8 @@ class Authentication {
                 $bruteforceCheck = $this->checkbrute($dbId, $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS);
                 if ($bruteforceCheck['max_exceeded'] === true) {
                     // Account is locked TODO: send an email to user saying their account is locked
+                    self::auditLogin($dbId, $row->user_id, LoginAuditType::ACCOUNT_LOCKED);
+
                     $fhid = $this->getFirehall()->FIREHALL_ID;
                     $loginErrorMsg = "Warning: The following account has been locked due to maximum invalid login attempts for firehall: $fhid user account: $user_id attempts: ".$bruteforceCheck['count'];
                     if($log !== null) $log->error("LOGIN-F1 msg: $loginErrorMsg");
@@ -404,6 +444,8 @@ class Authentication {
                     $pwdHash = crypt($password, $row->user_pwd);
                     if ($pwdHash === $row->user_pwd ) {
                         // Password is correct! 
+                        self::auditLogin($dbId, $row->user_id, LoginAuditType::SUCCESS_PASSWORD);
+
                         $successContext = [];
 
                         // Check if user requires 2 factor auth
@@ -419,10 +461,7 @@ class Authentication {
                         }
 
                         // Get the user-agent string of the user.
-                        $user_browser = 'UNKNOWN user agent.';
-                        if(getServerVar('HTTP_USER_AGENT') != null) {
-                            $user_browser = htmlspecialchars(getServerVar('HTTP_USER_AGENT'));
-                        }
+                        $user_browser = $this->getUserAgent();
                                                 
                         $successContext['dbId']             = $dbId;
                         $successContext['FirehallId']       = $row->firehall_id;
@@ -441,6 +480,7 @@ class Authentication {
                     }
 
                     // Password is not correct we record this attempt in the database
+                    self::auditLogin($dbId, $row->user_id, LoginAuditType::INVALID_PASSWORD);
                     if($log !== null) $log->error("Login attempt for user [$row->user_id] userid [$dbId] FAILED pwd check for client [" . self::getClientIPInfo() . "]");
                         
                     $sql = $this->getSqlStatement('login_brute_force_insert');
@@ -456,6 +496,7 @@ class Authentication {
             }
             else {
                 // No user exists.
+                self::auditLogin(-1, $user_id, LoginAuditType::INVALID_USERNAME);
                 if($log !== null) $log->warn("Login attempt for user [$user_id] FAILED uid check for client [" . self::getClientIPInfo() . "]");
                 if($log !== null) $log->trace("LOGIN-F3");
             }
@@ -1118,7 +1159,7 @@ class Authentication {
             $ldap_enabled = self::safeGetValueFromArray('ldap_enabled',$authCache);
 
             // Get the user-agent string of the user.
-            $user_browser = htmlspecialchars(getServerVar('HTTP_USER_AGENT'));
+            $user_browser = $this->getUserAgent();
 
             if($this->validateJWT($authCache) == false) {
                 if($log !== null) $log->warn("login_check validateJWT false for session [".session_id()."]");
