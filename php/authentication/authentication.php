@@ -413,6 +413,20 @@ class Authentication {
             $password = \base64_decode($password);
         }
         if($log !== null) $log->trace("Login check isAngularClient: ".$isAngularClient);
+        
+        // If the user exists we check if the client is blocked from too many login attempts
+        $ip = self::getClientIPInfo();
+        $maxAttemptsByIPAllowed = $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS * 3;
+        $bruteforceCheckByIP = $this->checkbruteByIP($ip, $maxAttemptsByIPAllowed);
+        if ($bruteforceCheckByIP['max_exceeded'] === true) {
+            // Account is blocked by IP Address
+            $fhid = $this->getFirehall()->FIREHALL_ID;
+            $loginErrorMsg = "Warning: The following Client has been blocked due to maximum invalid login attempts by IP Address for firehall: $fhid user account: $user_id IP: $ip attempts: ".$bruteforceCheckByIP['count'];
+            if($log !== null) $log->error("LOGIN checkbruteByIP blocked login msg: $loginErrorMsg");
+
+            @session_destroy();
+            return [];
+        }
 
         if($this->getFirehall()->LDAP->ENABLED === true) {
             return login_ldap($this->getFirehall(), $user_id, $password);
@@ -430,13 +444,11 @@ class Authentication {
 
             if($row !== null && $row !== false) {
                 $dbId = $row->id;
-    
+
                 // If the user exists we check if the account is locked from too many login attempts
                 $bruteforceCheck = $this->checkbrute($dbId, $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS);
                 if ($bruteforceCheck['max_exceeded'] === true) {
                     // Account is locked TODO: send an email to user saying their account is locked
-                    self::auditLogin($dbId, $row->user_id, LoginAuditType::ACCOUNT_LOCKED);
-
                     $fhid = $this->getFirehall()->FIREHALL_ID;
                     $loginErrorMsg = "Warning: The following account has been locked due to maximum invalid login attempts for firehall: $fhid user account: $user_id attempts: ".$bruteforceCheck['count'];
                     if($log !== null) $log->error("LOGIN-F1 msg: $loginErrorMsg");
@@ -553,6 +565,7 @@ class Authentication {
                 }
             }
             $this->notifyUsers($fhid, $notifyUsers, $loginErrorMsg);
+            self::auditLogin($dbId, $user_id, LoginAuditType::ACCOUNT_LOCKED);
         }
     }
 
@@ -1534,4 +1547,40 @@ class Authentication {
         }
         return $result;
     }
+
+    public function checkbruteByIP($login_ip, $max_fails) {
+        global $log;
+    
+        $result = [];
+        $result['max_exceeded'] = false;
+        $result['count'] = 0;
+
+        // All invalid login attempts are counted from the past 2 hours.
+        $sql = $this->getSqlStatement('login_brute_force_check_ip');
+        $stmt = $this->getDbConnection()->prepare($sql);
+        if ($stmt !== false) {
+            $stmt->bindParam(':login_ip', $login_ip);
+            $stmt->execute();
+    
+            //$rows = $stmt->fetchAll(\PDO::FETCH_OBJ);
+            $rows = $stmt->fetchColumn();
+            $stmt->closeCursor();
+    
+            $count = $rows;
+            $result['count'] = $count;
+            // If there have been more than x failed logins
+            if ($count > $max_fails) {
+                if($log !== null) $log->warn("Login attempt for ip [$login_ip] was blocked, client [" . self::getClientIPInfo() . "] brute force count [" . $count . "]");
+                $result['max_exceeded'] = true;
+            }
+            else {
+                if($log !== null) $log->warn("Login attempt for ip [$login_ip] was NOT blocked, client [" . self::getClientIPInfo() . "] brute force count [" . $count . "]");
+            }
+        }
+        else {
+            if($log !== null) $log->error("Login attempt for ip [$login_ip] for client [" . self::getClientIPInfo() . "] was unknown bf error!");
+        }
+        return $result;
+    }
+
 }
