@@ -1503,7 +1503,7 @@ class Authentication {
         return $this->firehall;
     }
 
-    private function checkbrute($user_id, $max_logins) {
+    public function checkbrute($user_id, $max_logins) {
         global $log;
     
         $result = [];

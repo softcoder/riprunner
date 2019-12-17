@@ -87,6 +87,7 @@
                     <th scope="col">Enable Responding{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_RESPOND_SELF_GROUP_FILTER }}{% endif %}</th>
                     <th scope="col">Enable Responding for others{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_RESPOND_OTHERS_GROUP_FILTER }}{% endif %}</th>
                     <th scope="col">User Active</th>
+                    <th scope="col">User Locked</th>
                     <th scope="col">Two Factor Login</th>
                     <th scope="col" class="column_nowrap">Update Date/Time</th>
                     <th scope="col" colspan="2" align="Center">Modify Data</th>
@@ -157,6 +158,9 @@
                            type="checkbox" checked/>
                 </td>
                 <td>
+                    no
+                </td>                
+                <td>
                     <input id="edit_user_twofa" name="edit_user_twofa" 
                            type="checkbox" checked/>
                 </td>
@@ -196,9 +200,9 @@
                            type="checkbox" user-id="-1" />
                 </td>
 	            {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
-	                <td colspan="17">
+	                <td colspan="18">
 	            {% else %}
-	                <td colspan="15">
+	                <td colspan="16">
 	            {% endif %}
 	                    <center>
 	                    <input type="button" value="Add New User" onclick="edit_user(this.form, -1);" />
@@ -334,6 +338,13 @@
                 {% endif %}
                 </td>
                 <td>
+                    {{ user.locked ? 'yes' : 'no' }}
+                    {% if user.locked and not usersmenu_vm.selfedit_mode %}
+                    <input type="button" value="Unlock" 
+	                               onclick="return unlock_user(this.form, {{ user.id }},'{{ user.user_id }}');" />
+                    {% endif %}
+                </td>
+                <td>
                 {% if edit_current_row and not usersmenu_vm.selfedit_mode %}
                     <input id="edit_user_twofa" name="edit_user_twofa" 
                             type="checkbox" {{ user.twofa ? 'checked="checked"' : '' }} />
@@ -400,6 +411,21 @@
     function delete_user(form, user_id, user_id_name) {
         if(confirm('Confirm DELETE for user: ' + user_id_name + '?')) {
             addformhiddenfield(form, 'form_action', 'delete');
+            addformhiddenfield(form, 'edit_user_id', user_id);
+            
+            {% if usersmenu_vm.selfedit_mode %}
+            addformhiddenfield(form, 'se', 'true');
+            {% endif %}
+            
+            form.submit();
+            return true;
+        }
+        return false;
+    }
+
+    function unlock_user(form, user_id, user_id_name) {
+        if(confirm('Confirm to Unlock account for user: ' + user_id_name + '?')) {
+            addformhiddenfield(form, 'form_action', 'unlock');
             addformhiddenfield(form, 'edit_user_id', user_id);
             
             {% if usersmenu_vm.selfedit_mode %}

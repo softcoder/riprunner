@@ -61,7 +61,9 @@ class UsersMenuController {
 			$insert_new_account = $this->isInsertAccount(true, $edit_user_id);
 		}
 		else {
-			$this->handleDeleteAccount($this->global_vm->RR_DB_CONN, 
+			$this->handleDeleteAccount($this->global_vm->RR_DB_CONN,
+					$self_edit, $edit_user_id);
+			$this->handleUnlockAccount($this->global_vm->RR_DB_CONN,
 					$self_edit, $edit_user_id);
 		}
 		$edit_mode = isset($edit_user_id);
@@ -386,6 +388,33 @@ class UsersMenuController {
 			}
 		}
 	}
+
+	private function handleUnlockAccount($db_connection, $self_edit, &$edit_user_id) {
+		global $log;
+		
+		$form_action = get_query_param('form_action');
+		if(isset($form_action) === true && $form_action === 'unlock' && $self_edit === false) {
+			$edit_user_id = $this->handleEditAccount(true);
+			if(isset($edit_user_id) === true) {
+				// UPDATE
+				if($edit_user_id >= 0) {
+					
+				    $sql_statement = new \riprunner\SqlStatement($db_connection);
+				    $sql = $sql_statement->getSqlStatement('user_accounts_unlock');
+
+					$log->trace("About to UNLOCK user account for sql [$sql]");
+	
+					$qry_bind = $db_connection->prepare($sql);
+					$qry_bind->bindParam(':id', $edit_user_id);
+					
+					$qry_bind->execute();
+						
+					$edit_user_id = null;
+				}
+			}
+		}
+	}
+
 }
 
 // Load out template

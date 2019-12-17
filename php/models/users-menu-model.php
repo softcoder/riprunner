@@ -92,6 +92,8 @@ class UsersMenuViewModel extends BaseViewModel {
 		
 		$log->trace("About to display user list for sql [$sql] result count: " . count($rows));
 		
+		$auth = new\riprunner\Authentication($this->getGvm()->firehall);
+
 		$resultArray = array();
 		foreach($rows as $row){
 			// Add any custom fields with values here
@@ -102,7 +104,11 @@ class UsersMenuViewModel extends BaseViewModel {
 			$row['active'] = ($row['active'] ? true : false);
 			$row['twofa'] = ($row['twofa'] ? true : false);
 
-			$resultArray[] = $row;
+			$dbId = $row['id'];
+			$bruteforceCheck = $auth->checkbrute($dbId, $this->getGvm()->firehall->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS);
+			$row['locked'] = ($bruteforceCheck['max_exceeded'] === true);
+	
+	        $resultArray[] = $row;
 		}		
 				
 		return $resultArray;
