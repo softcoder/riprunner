@@ -106,6 +106,55 @@ class LoginTest extends BaseDBFixture {
 	    $this->assertContains('Location: controllers/main-menu-controller.php?JWT_TOKEN=', $assertHeader);
 	}
 
+	public function testValidLoginRequires2FA() {
+
+		$FIREHALLS = $this->FIREHALLS;
+
+		$FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+
+		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+
+		$loginResult = array();
+		$loginResult['firehall_id'] = 0;
+		$loginResult['user_db_id'] = 1;
+		$loginResult['user_id'] = 'mark.vejvoda';
+		$loginResult['user_type'] = '1';
+		$loginResult['login_string'] = 'Unit Test';
+		$loginResult['twofa'] = '1';
+		$loginResult['twofaKey'] = '';
+
+		$userRole = $auth->getCurrentUserRoleJSon($loginResult);
+		$jwt = $auth->getJWTAccessToken($loginResult, $userRole);
+
+		$request_variables = [
+			'SESSIONLESS_LOGIN' => true,
+			'firehall_id' => 0,
+			'user_id' => 'mark.vejvoda',
+			'p' => 'test123',
+			'twofa_key' => '',
+			\riprunner\Authentication::getJWTTokenName() => $jwt
+		];
+
+		$server_variables = [
+			'REQUEST_METHOD' => 'GET'
+		];
+		
+		$assertHeader = '';
+		$header_callback = function($header) use (&$assertHeader) { 
+			$assertHeader = $header;
+		};
+		
+		$processLogin = new \riprunner\ProcessLogin(
+			$FIREHALLS,
+			(isset($request_variables) ? $request_variables : null),
+			(isset($server_variables) ? $server_variables : null),
+			(isset($header_callback) ? $header_callback : null)
+			);
+		$processLogin->execute();
+		
+	    $this->assertContains('Location: controllers/2fa-controller.php?JWT_TOKEN=', $assertHeader);
+	}
+
 	public function testInValidLogin_fhid() {
 
 		$FIREHALLS = $this->FIREHALLS;

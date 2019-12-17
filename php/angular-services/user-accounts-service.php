@@ -18,6 +18,7 @@ require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/users-menu-model.php';
 require_once __RIPRUNNER_ROOT__ . '/angular-services/auth-api-controller.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 
 use Vanen\Mvc\Api;
 use Vanen\Mvc\ApiController;
@@ -73,7 +74,7 @@ class UserAccountsController extends AuthApiController {
 
     /** :POST :{method} */
     public function add_user($password1,$password2) {
-        global $log;
+		global $log;
         $user = $this->getJSonObject();
         if($log !== null) $log->trace("In add_user p1 [$password1] p2 [$password2] user: ".json_encode($user));
             
@@ -87,7 +88,7 @@ class UserAccountsController extends AuthApiController {
             return $new_pwd;
         }
 
-        $this->addUser($view_template_vars['gvm']->RR_DB_CONN, false, $user, $new_pwd);
+		$this->addUser($view_template_vars['gvm']->RR_DB_CONN, false, $user, $new_pwd);
         return $this->isXml ? [ 'Status' => 'ok' ] : 'ok';
     }
 
@@ -127,7 +128,12 @@ class UserAccountsController extends AuthApiController {
             }
         }
 
-        $this->updateAccount($view_template_vars['gvm']->RR_DB_CONN, $self_edit, $user, $new_pwd);
+		$this->updateAccount($view_template_vars['gvm']->RR_DB_CONN, $self_edit, $user, $new_pwd);
+
+		$FIREHALL = $view_template_vars['gvm']->firehall;
+		$auth = new\riprunner\Authentication($FIREHALL);
+		$auth->auditLogin($user->id, $user->user_id, \riprunner\LoginAuditType::SUCCESS_CHANGE_PASSWORD);
+
         return $this->isXml ? [ 'Status' => 'ok' ] : 'ok';
     }
 

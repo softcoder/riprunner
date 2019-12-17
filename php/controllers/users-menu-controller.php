@@ -129,8 +129,19 @@ class UsersMenuController {
 				
 				if($result === true) {
 					if($edit_user_id >= 0) {
-						$this->updateAccount($db_connection, $self_edit, $new_pwd,
-								$edit_user_id);
+						$this->updateAccount($db_connection, $self_edit, $new_pwd, $edit_user_id);
+
+						if($self_edit === true) {
+							$edit_firehall_id = \riprunner\Authentication::getAuthVar('firehall_id');
+						}
+						else {
+							$edit_firehall_id = get_query_param('edit_firehall_id');
+						}
+						$edit_user_id_name = get_query_param('edit_user_id_name');
+
+						$FIREHALL = $this->global_vm->firehall;
+						$auth = new\riprunner\Authentication($FIREHALL);
+						$auth->auditLogin($edit_user_id, $edit_user_id_name, LoginAuditType::SUCCESS_CHANGE_PASSWORD);
 					}
 					else if($self_edit === false) {
 						$this->addAccount($db_connection, $self_edit, $new_pwd,

@@ -28,12 +28,13 @@ use \Firebase\JWT\JWT;
 use \OTPHP\TOTP;
 
 abstract class LoginAuditType extends BasicEnum {
-    const SUCCESS_PASSWORD  = 0;
-    const SUCCESS_TWOFA     = 1;
-    const INVALID_USERNAME  = 100;
-    const INVALID_PASSWORD  = 101;
-    const INVALID_TWOFA     = 102;
-    const ACCOUNT_LOCKED    = 103;
+    const SUCCESS_PASSWORD          = 0;
+    const SUCCESS_TWOFA             = 1;
+    const SUCCESS_CHANGE_PASSWORD   = 10;
+    const INVALID_USERNAME          = 100;
+    const INVALID_PASSWORD          = 101;
+    const INVALID_TWOFA             = 102;
+    const ACCOUNT_LOCKED            = 103;
 }
 
 class Authentication {
@@ -380,7 +381,7 @@ class Authentication {
         return $user_browser;
     }
 
-    private function auditLogin($userDbId, $userName, $status) {
+    public function auditLogin($userDbId, $userName, $status) {
         global $log;
 
         $ip = self::getClientIPInfo();
