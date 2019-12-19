@@ -12,6 +12,9 @@ sudo docker run -p "80:80" -v ${PWD}/app:/app -v ${PWD}/mysql:/var/lib/mysql sof
 sudo docker ps (this will show yo uthe name of the running container)
 sudo docker exec -it <container name from previous step> /bin/bash
 
+# To login to your hub.docker.com account  
+sudo docker login  
+
 # To push the docker image to dockerhub  
 sudo docker push softcoder/riprunner:latest  
 
