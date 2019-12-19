@@ -193,8 +193,14 @@ class AuthNotification {
         $existingDevice = self::findExistingDevice($userDBId, $deviceDetails, $location);
              
         if ($existingDevice == null) {
-            if($log !== null) $log->warn("Login audit for user [$user_id] - $userDBId detected NEW LOGIN DEVICE for client [$ip] agent [$userAgent]");
-            self::notifyUsersNewDeviceLogin($user_id,$userDBId,$requestIPHeader,$location,$userAgent);
+
+            $knownDevices = self::findExistingDevicesByUser($userDBId);
+            if ($knownDevices != null && count($knownDevices) > 0) {
+                if ($log !== null) {
+                    $log->warn("Login audit for user [$user_id] - $userDBId detected NEW LOGIN DEVICE for client [$ip] agent [$userAgent]");
+                }
+                self::notifyUsersNewDeviceLogin($user_id, $userDBId, $requestIPHeader, $location, $userAgent);
+            }
         } 
         else {
             if($log !== null) $log->trace("Login audit for user [$user_id] - $userDBId detected RELOGIN DEVICE for client [$ip] agent [$userAgent]");
