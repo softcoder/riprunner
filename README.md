@@ -16,7 +16,6 @@ This application suite was designed by volunteer fire fighters to enhance the ex
 
 Key Features:
 -------------
-- Optional Two Factor Authentication (2FA) support for enhanced security access.
 - Real-time Email trigger (using Google App Engine) or email polling for 911 callouts received from your 
 Fire Operations Command Center. Easily adaptable to other callout trigger mechanisms (such as Web, Rest API, SMS, etc).
 - Pluggable support for SMS gateway providers to send SMS information to fire fighters. 
@@ -37,6 +36,7 @@ Fire Operations Command Center. Easily adaptable to other callout trigger mechan
 - Customizable user interface using twig templates (http://twig.sensiolabs.org/)
 - Experimental Android App which integrates with the web application.
 - Great backup system during power outages at your firehall (if installed offsite / cloud), still get callouts via cell phone when radio backup battery system fails or has poor coverage.
+- Secure features such as optional two factor authentication (2FA) support, new device login detection and brute force attack detection help keep admin and users informed about suspcious activity.
 
 Key Android App Features:
 -------------------------
