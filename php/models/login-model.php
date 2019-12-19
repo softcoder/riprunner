@@ -20,13 +20,16 @@ class LoginViewModel extends BaseViewModel {
 		if('hasError' === $name) {
 			return isset($_GET['error']);
 		}
+		if('errorMsg' === $name) {
+			return $_GET['error'];
+		}
 		
 		return parent::__get($name);
 	}
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('hasError')) === true) {
+			array('hasError', 'errorMsg')) === true) {
 			return true;
 		}
 		return parent::__isset($name);

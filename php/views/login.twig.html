@@ -3,10 +3,13 @@
     <head>
         <title>Secure Login: Log In</title>
         {% if gvm.isMobile %}
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
+		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
+		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/callout-mobile.css?version=1" />
         {% else %}
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
-        {% endif %}
+		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
+		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/callout-main.css?version=1" />
+		{% endif %}
+	
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/sha512.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script> 
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/spin.js"></script>
@@ -24,16 +27,16 @@
         <b>Desktop Device Detected</b> 
         {% endif %}
     	
-        {% if loginvm.hasError %}
-        <p class="error">Error Logging In!</p>
-        {% else %}
 		<div class="container">
 			<section id="content">
 	        <form action="{{ gvm.RR_DOC_ROOT }}/process_login.php" method="post" 
 	               accept-charset="utf-8" id="login_form" name="login_form">
 	        	<h1>Login User</h1>
 	        	{% include 'display-logo.twig.html' %}
-	        	
+
+				{% if loginvm.hasError %}
+				<p class="ci_header_type_blink_response_status">{{ loginvm.errorMsg }}</p>
+				{% endif %}
 	        	<div>
 	            	<label for="firehall_id">Firehall Id</label>
 	            	<input type="text" name="firehall_id" id="firehall_id" 
@@ -65,7 +68,7 @@
 	        <p>If you are done browsing, please <a href="{{ gvm.RR_DOC_ROOT }}/logout.php">log out</a>.</p>
 	        {% endif %}
 	        <p>You are currently logged {{ gvm.auth.isAuth ? 'in' : 'out' }}.</p>
-        {% endif %}
+
         </div>
     </body>
 </html>

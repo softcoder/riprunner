@@ -137,7 +137,9 @@ class ProcessLogin {
 
 				if ($json_token == null || $json_token == false) {
 					if ($log !== null) $log->error("2FA FIRST check jwt token decode FAILED!");
-					$this->print("Login FAILED." . PHP_EOL);
+
+					//$this->print("Login FAILED." . PHP_EOL);
+					$this->header('Location: controllers/login-controller.php?error=Invalid Login Attempt!');
 					return;
 				}
 				$request_fhid  = $json_token->fhid;
@@ -163,8 +165,10 @@ class ProcessLogin {
             if ($log !== null) $log->trace("#1 json 2FA execute token decode [" . $twofaToken. "]");
             
             if ($json_token == null || $json_token == false) {
-                if ($log !== null) $log->error("2FA SECOND check jwt token decode FAILED!");
-				$this->print("Login FAILED." . PHP_EOL);
+				if ($log !== null) $log->error("2FA SECOND check jwt token decode FAILED!");
+				
+				//$this->print("Login FAILED." . PHP_EOL);
+				$this->header('Location: controllers/login-controller.php?error=Invalid Login Attempt!');
 				return;
 			}
 
@@ -186,15 +190,18 @@ class ProcessLogin {
 				$valid2FA = $auth->verifyTwoFA($user_id, $dbId, $request_p);
 				if ($valid2FA == false) {
 					// Login failed wrong 2fa key
+					if ($log != null) $log->error("process_login error, 2FA Failed for firehall id: $firehall_id, userid: $user_id twofa_key: $request_twofa_key, request_p: $request_p");
+
 					if ($isAngularClient == true) {
 						$this->header('Cache-Control: no-cache, must-revalidate');
 						$this->header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 						$this->header("HTTP/1.1 401 Unauthorized");
 					} 
 					else {
-						$this->print("Login FAILED." . PHP_EOL);
+						//$this->print("Login FAILED." . PHP_EOL);
+						$this->header('Location: controllers/login-controller.php?error=Invalid Login Attempt!');
 					}
-					if ($log != null) $log->error("process_login error, 2FA Failed for firehall id: $firehall_id, userid: $user_id twofa_key: $request_twofa_key, request_p: $request_p");
+					
 					return;
 				}
 				else {
@@ -290,9 +297,7 @@ class ProcessLogin {
 											$firehall = $FIREHALL;
 											$auth->sendSMSTwoFAMessage($systemTwoFA, $userid, $user_id, $firehall);
 
-                                            $this->header('Location: controllers/2fa-controller.php?'.
-                                                        \riprunner\Authentication::getJWTTokenName().'='.$jwt.
-											            '&'.\riprunner\Authentication::getJWTRefreshTokenName().'='.$jwtRefresh);
+                                            $this->header('Location: controllers/2fa-controller.php?'.Authentication::getJWTTokenName().'='.$jwt.'&'.Authentication::getJWTRefreshTokenName().'='.$jwtRefresh);
 											return;
                                         }
 									} 
@@ -370,9 +375,7 @@ class ProcessLogin {
                                     //if($log !== null) $log->trace("#2 login execute session vars [".print_r($_SESSION, TRUE)."]");
                                     //}
 
-                                    $this->header('Location: controllers/main-menu-controller.php?'.
-                                                \riprunner\Authentication::getJWTTokenName().'='.$jwt.
-                                                '&'.\riprunner\Authentication::getJWTRefreshTokenName().'='.$jwtRefresh);
+                                    $this->header('Location: controllers/main-menu-controller.php?'.Authentication::getJWTTokenName().'='.$jwt.'&'.Authentication::getJWTRefreshTokenName().'='.$jwtRefresh);
                                 }
                             }
 						} 
@@ -384,7 +387,9 @@ class ProcessLogin {
 								$this->header("HTTP/1.1 401 Unauthorized");
 							}
 							else {
-								$this->print('Login FAILED.' . PHP_EOL);
+								//$this->print('Login FAILED.' . PHP_EOL);
+								$this->header('Location: controllers/login-controller.php?error=Invalid Login Attempt!');
+								return;
 							}
 						}
 					}
