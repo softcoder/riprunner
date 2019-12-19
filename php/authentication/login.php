@@ -98,9 +98,6 @@ class ProcessLogin {
 	}
 
     private function sendSMS_Message($twofaKey, $userid, $firehall) {
-        // $smsMsg = get_query_param('txtMsg');
-        // $sms_users = get_query_param('selected_users');
-		
 		$msg = $this->signalManager->getSMSTwoFAMessage($twofaKey);
         if($userid !== null && strlen($userid) > 0) {
             $users = array($userid);
@@ -112,11 +109,8 @@ class ProcessLogin {
         else {
             $sendMsgResult = $this->signalManager->sendSMSPlugin_Message($firehall, $msg);
         }
-        
+
         $sendMsgResultStatus = "SMS Message sent to applicable recipients.";
-        
-        //$this->view_template_vars["sendmsg_ctl_result"] = $sendMsgResult;
-        //$this->view_template_vars["sendmsg_ctl_result_status"] = $sendMsgResultStatus;
         $result = array();
         $result['result'] = $sendMsgResult;
         $result['status'] = $sendMsgResultStatus;
@@ -160,7 +154,7 @@ class ProcessLogin {
                     $json_token = Authentication::decodeJWT($twofaToken);
                 }
 				if ($log !== null) $log->trace("#1 json 2FA execute token decode [" . $twofaToken. "]");
-				
+
 				if ($json_token == null || $json_token == false) {
 					if ($log !== null) $log->error("2FA FIRST check jwt token decode FAILED!");
 					$this->print("Login FAILED." . PHP_EOL);
@@ -168,8 +162,6 @@ class ProcessLogin {
 				}
 				$request_fhid  = $json_token->fhid;
 				$request_uid   = $json_token->username;
-				
-				//$twofaKey = $json_token->twofaKey;
 
 				$firehall_id = ($jsonRequest != null ? $jsonRequest->fhid : $request_fhid);
 				$user_id 	 = ($jsonRequest != null ? $jsonRequest->username : $request_uid);
@@ -195,7 +187,7 @@ class ProcessLogin {
 				$this->print("Login FAILED." . PHP_EOL);
 				return;
 			}
-			
+
 			//print_r($json_token);
 			// stdClass Object ( 
 			// [id] => 1 [username] => mark.vejvoda [usertype] => 1 
@@ -217,12 +209,10 @@ class ProcessLogin {
 					if ($isAngularClient == true) {
 						$this->header('Cache-Control: no-cache, must-revalidate');
 						$this->header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-				
 						$this->header("HTTP/1.1 401 Unauthorized");
 					} 
 					else {
 						$this->print("Login FAILED." . PHP_EOL);
-						//$this->print("Login FAILED." . PHP_EOL);
 					}
 					if ($log != null) $log->error("process_login error, 2FA Failed for firehall id: $firehall_id, userid: $user_id twofa_key: $request_twofa_key, request_p: $request_p");
 					return;
@@ -234,11 +224,6 @@ class ProcessLogin {
 			else {
 				if ($log != null) $log->error("process_login ??, 2FA (no request_p) for firehall id: $firehall_id, userid: $user_id twofa_key: $request_twofa_key, request_p: $request_p");
 			}
-
-            //if ($valid2FA == false) {
-            //    $this->print(PHP_EOL . "2FA Key INVALID jwt: $twofaToken reqkey: $request_twofa_key p: $request_p fhid: $json_token->fhid validOTP: $valid2FA twofaKey: $twofaKey". PHP_EOL);
-            //    return;
-			//}
 		}
 		
 		if ($isAngularClient == true || $valid2FA || 
@@ -278,14 +263,12 @@ class ProcessLogin {
 								$systemTwoFA = $loginResult['twofaKey'];
                                 if ($loginResult['twofa'] == true) {
                                     if (strlen($twofa_key) == 0) {
-                                        //$this->print('2FA redirect should happen here: '. $systemTwoFA . PHP_EOL);
-
 										$auth->update_twofa($user_id, $systemTwoFA);
 										$loginResult['twofaKey'] = '';
 
                                         $userRole = $auth->getCurrentUserRoleJSon($loginResult);
-                                        $jwt = \riprunner\Authentication::getJWTAccessToken($loginResult, $userRole);
-                                        $jwtRefresh = \riprunner\Authentication::getJWTRefreshToken(
+                                        $jwt = Authentication::getJWTAccessToken($loginResult, $userRole);
+                                        $jwtRefresh = Authentication::getJWTRefreshToken(
                                             $loginResult['user_id'],
                                             $loginResult['user_db_id'],
                                             $firehall_id,
@@ -321,10 +304,8 @@ class ProcessLogin {
 											return;
 										} 
 										else {
-                                            if ($log !== null) {
-                                                $log->trace("#1 2FA execute loginResult vars [".print_r($loginResult, true)."]");
-                                            }
-											
+                                            if ($log !== null) $log->trace("#1 2FA execute loginResult vars [".print_r($loginResult, true)."]");
+                                            											
 											$userid   = $loginResult['user_db_id'];
 											$firehall = $FIREHALL;
 											$this->sendSMS_Message($systemTwoFA, $userid, $firehall);
@@ -348,8 +329,8 @@ class ProcessLogin {
 									$loginResultUserId = $loginResult['user_id'];
 
                                     $userRole = $auth->getCurrentUserRoleJSon($loginResult);
-                                    $jwt = \riprunner\Authentication::getJWTAccessToken($loginResult, $userRole);
-                                    $jwtRefresh = \riprunner\Authentication::getJWTRefreshToken(
+                                    $jwt = Authentication::getJWTAccessToken($loginResult, $userRole);
+                                    $jwtRefresh = Authentication::getJWTRefreshToken(
                                         $loginResult['user_id'],
                                         $loginResult['user_db_id'],
                                         $firehall_id,
@@ -362,7 +343,7 @@ class ProcessLogin {
 									$loginResultUserId = $json_token->username;
 
 									$jwt = $twofaToken;
-                                    $jwtRefresh = \riprunner\Authentication::getJWTRefreshToken(
+                                    $jwtRefresh = Authentication::getJWTRefreshToken(
                                         $json_token->username,
                                         $json_token->id,
                                         $json_token->fhid,
@@ -397,10 +378,8 @@ class ProcessLogin {
 
                                     $this->print(json_encode($output));
                                 } else {
-                                    if ($log !== null) {
-                                        $log->trace("#1 login execute loginResult vars [".print_r($loginResult, true)."]");
-                                    }
-
+                                    if ($log !== null) $log->trace("#1 login execute loginResult vars [".print_r($loginResult, true)."]");
+                                    
                                     //$sessionless = getSafeRequestValue('SESSIONLESS_LOGIN',$this->request_variables);
                                     //if($sessionless == null || $sessionless == false) {
                                     //foreach ($loginResult as $key => $value) {
@@ -422,7 +401,6 @@ class ProcessLogin {
 							if($isAngularClient == true) {
 								$this->header('Cache-Control: no-cache, must-revalidate');
 								$this->header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-								
 								$this->header("HTTP/1.1 401 Unauthorized");
 							}
 							else {
@@ -453,7 +431,6 @@ class ProcessLogin {
 					$this->header('Cache-Control: no-cache, must-revalidate');
 					$this->header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 					$this->header('Content-type: application/json');
-		
 					$this->header("HTTP/1.1 401 Unauthorized");
 				}
 				else {

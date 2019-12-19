@@ -50,19 +50,20 @@ class Authentication {
     /*
     	Constructor
     	@param $db_firehall the firehall
-    	@param $db_connection the db connection
+        @param $db_connection the db connection
+        @param $sm the signal manager to use
     */
     public function __construct($firehall,$db_connection=null,$sm=null) {
         $this->firehall = $firehall;
         if($this->firehall !== null && $db_connection === null) {
-            $db = new \riprunner\DbConnection($this->firehall);
+            $db = new DbConnection($this->firehall);
             $this->db_connection = $db->getConnection();
         }
         else {
             $this->db_connection = $db_connection;
         }
 
-        $this->auth_notification = new \riprunner\AuthNotification($firehall,$db_connection,$sm);
+        $this->auth_notification = new AuthNotification($firehall,$db_connection,$sm);
     }
 
     public function setFileContentsFunc($func) {
@@ -104,9 +105,11 @@ class Authentication {
 
         // setcookie(self::getJWTTokenName(), $jwt, null, '/', null, null, true);
     }
+
     static public function is_session_started() {
         return (isset($_SESSION) === true);
     }
+
     static public function sec_session_start() {
         self::sec_session_start_ext(null);
     }
@@ -117,7 +120,7 @@ class Authentication {
         $ses_already_started = self::is_session_started();
         if ($ses_already_started === false) {
             $session_name = 'sec_session_id';   // Set a custom session name
-            $config = new \riprunner\ConfigManager();
+            $config = new ConfigManager();
             $secure = $config->getSystemConfigValue('SECURE');
             
             // This stops JavaScript being able to access the session id.
@@ -156,7 +159,7 @@ class Authentication {
     }
     
     static public function getClientIPInfo() {
-        return \riprunner\AuthNotification::getClientIPInfo();
+        return AuthNotification::getClientIPInfo();
     }
 
     private function getUserInfo($fhid,$user_id) {
@@ -164,7 +167,7 @@ class Authentication {
     
         if($this->hasDbConnection() == false) {
             if($log !== null) $log->warn("NO DB CONNECTION during type check for user [$user_id] fhid [" .
-                    $fhid . "] client [" . \riprunner\AuthNotification::getClientIPInfo() . "]");
+                    $fhid . "] client [" . AuthNotification::getClientIPInfo() . "]");
             return null;
         }
         if($this->getFirehall()->LDAP->ENABLED === true) {
@@ -185,7 +188,7 @@ class Authentication {
             $stmt->closeCursor();
         
             if($log !== null) $log->trace("Type check for user [$user_id] fhid [" .
-                    $fhid . "] result: ". $row->id ."client [" . \riprunner\AuthNotification::getClientIPInfo() . "]");
+                    $fhid . "] result: ". $row->id ."client [" . AuthNotification::getClientIPInfo() . "]");
             return $row;
         }
         return null;
@@ -198,8 +201,7 @@ class Authentication {
         $userInfo = $this->getUserInfo($fhid,$user_id);
         if($userInfo != null && $userInfo !== false) {
             $userAccess = $userInfo->access;
-            if($log !== null) $log->trace("Access check for user [$user_id] fhid [" .
-                            $fhid . "] result: ". $userAccess ."client [" . \riprunner\AuthNotification::getClientIPInfo() . "]");
+            if($log !== null) $log->trace("Access check for user [$user_id] fhid [" . $fhid . "] result: ". $userAccess ."client [" . AuthNotification::getClientIPInfo() . "]");
         }
         return $userAccess;
     }
@@ -212,7 +214,7 @@ class Authentication {
         if($userInfo != null && $userInfo !== false) {
             $userType = $userInfo->user_type;
             if($log !== null) $log->trace("Type check for user [$user_id] fhid [" .
-                    $fhid . "] result: ". $userType ."client [" . \riprunner\AuthNotification::getClientIPInfo() . "]");
+                    $fhid . "] result: ". $userType ."client [" . AuthNotification::getClientIPInfo() . "]");
         }
         return $userType;
     }
@@ -236,11 +238,11 @@ class Authentication {
 
     private function getLoginSuccessResult($successContext) {
         global $log;
-        $config = new \riprunner\ConfigManager();
+        $config = new ConfigManager();
         if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
             if($log !== null) $log->warn('*LOGIN AUDIT* for user ['.$successContext['userId'].'] userid ['.$successContext['dbId'].
                                          '] firehallid ['.$successContext['FirehallId'].'] agent ['.$successContext['user_browser'].
-                                         '] client ['.\riprunner\AuthNotification::getClientIPInfo().'] isAngularClient: '.var_export($successContext['isAngularClient'],true));
+                                         '] client ['.AuthNotification::getClientIPInfo().'] isAngularClient: '.var_export($successContext['isAngularClient'],true));
         }
 
         $loginResult = [];
@@ -256,7 +258,7 @@ class Authentication {
         $loginResult['twofaKey']        = $successContext['twofaKey'];
 
         // Ensure status are cached
-        \riprunner\CalloutStatusType::getStatusList($this->getFirehall());
+        CalloutStatusType::getStatusList($this->getFirehall());
         if($log !== null) $log->trace('Login OK pwd check pwdHash ['.$successContext['pwdHash'].'] $userPwd ['.$successContext['userPwd'].'] $twofaKey ['.$successContext['twofaKey'].']');
         // Login successful.
         return $loginResult;
@@ -267,7 +269,7 @@ class Authentication {
         if ($log !== null) {
             $log->trace("Login attempt for user [$user_id] fhid [" .
                                       $this->getFirehall()->FIREHALL_ID . "] 2fa: [".$twofaKey."] client [" .
-                                      \riprunner\AuthNotification::getClientIPInfo() . "]");
+                                      AuthNotification::getClientIPInfo() . "]");
         }
         
         $sql = $this->getSqlStatement('user_accounts_update_twofa');
@@ -283,7 +285,7 @@ class Authentication {
         global $log;
         if($log !== null) $log->trace("get_twofa attempt for user [$user_id] fhid [" . 
                                       $this->getFirehall()->FIREHALL_ID . "] client [" . 
-                                      \riprunner\AuthNotification::getClientIPInfo() . "]");
+                                      AuthNotification::getClientIPInfo() . "]");
         if($log !== null) $log->trace("get_twofa check request method: ".$this->getServerVar('REQUEST_METHOD'));
 
         $twofaKey = '';
@@ -317,18 +319,13 @@ class Authentication {
     }
 
     private function verifyDevice($user_id, $userDBId) {
-        $ip = \riprunner\AuthNotification::getClientIPInfo();
-        $userAgent = \riprunner\AuthNotification::getUserAgent();
+        $ip = AuthNotification::getClientIPInfo();
+        $userAgent = AuthNotification::getUserAgent();
         $this->auth_notification->verifyDevice($user_id,$userDBId,$ip,$userAgent);
     }
 
     public function verifyTwoFA($user_id, $dbId, $requestTwofaKey) {
         global $log;
-        //$otp = \OTPHP\TOTP::create(
-        //	null, // Let the secret be defined by the class
-        //	60    // The period is now 60 seconds
-        //);
-        //$valid2FA = $otp->verify($request_p);
         $validTwoFAKey = true;
 
         // // If the user exists we check if the account is locked from too many login attempts
@@ -349,7 +346,7 @@ class Authentication {
                 $validTwoFAKey = false;
                 self::auditLogin($dbId, $user_id, LoginAuditType::INVALID_TWOFA);
                 // 2FA is not correct we record this attempt in the database
-                if ($log !== null) $log->error("Login attempt for user [$user_id] userid [$dbId] FAILED pwd check for client [" . \riprunner\AuthNotification::getClientIPInfo() . "]");
+                if ($log !== null) $log->error("Login attempt for user [$user_id] userid [$dbId] FAILED pwd check for client [" . AuthNotification::getClientIPInfo() . "]");
                                     
                 $sql = $this->getSqlStatement('login_brute_force_insert');
                     
@@ -364,6 +361,11 @@ class Authentication {
                 }
             }
             else {
+                //$otp = \OTPHP\TOTP::create(
+                //	null, // Let the secret be defined by the class
+                //	60    // The period is now 60 seconds
+                //);
+                //$valid2FA = $otp->verify($request_p);
                 self::auditLogin($dbId, $user_id, LoginAuditType::SUCCESS_TWOFA);
             }
         }
@@ -373,8 +375,8 @@ class Authentication {
     public function auditLogin($userDbId, $userName, $status) {
         global $log;
 
-        $ip = \riprunner\AuthNotification::getClientIPInfo();
-        $userAgent = \riprunner\AuthNotification::getUserAgent();
+        $ip = AuthNotification::getClientIPInfo();
+        $userAgent = AuthNotification::getUserAgent();
         if($log !== null) $log->trace("Login audit for user [$userDbId] name [$userName] status [$status] for client [$ip] agent [$userAgent]");
         
         $sql = $this->getSqlStatement('login_audit_insert');
@@ -392,7 +394,7 @@ class Authentication {
         global $log;
         if($log !== null) $log->trace("Login attempt for user [$user_id] fhid [" . 
                                       $this->getFirehall()->FIREHALL_ID . "] client [" . 
-                                      \riprunner\AuthNotification::getClientIPInfo() . "]");
+                                      AuthNotification::getClientIPInfo() . "]");
         if($log !== null) $log->trace("Login check request method: ".$this->getServerVar('REQUEST_METHOD'));
 
         $isAngularClient = false;
@@ -404,7 +406,7 @@ class Authentication {
         if($log !== null) $log->trace("Login check isAngularClient: ".$isAngularClient);
         
         // If the user exists we check if the client is blocked from too many login attempts
-        $ip = \riprunner\AuthNotification::getClientIPInfo();
+        $ip = AuthNotification::getClientIPInfo();
         $maxAttemptsByIPAllowed = $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS * 3;
         $bruteforceCheckByIP = $this->checkbruteByIP($ip, $maxAttemptsByIPAllowed);
         if ($bruteforceCheckByIP['max_exceeded'] === true) {
@@ -464,7 +466,7 @@ class Authentication {
                         }
 
                         // Get the user-agent string of the user.
-                        $user_browser = \riprunner\AuthNotification::getUserAgent();
+                        $user_browser = AuthNotification::getUserAgent();
                                                 
                         $successContext['dbId']             = $dbId;
                         $successContext['FirehallId']       = $row->firehall_id;
@@ -484,7 +486,7 @@ class Authentication {
 
                     // Password is not correct we record this attempt in the database
                     self::auditLogin($dbId, $row->user_id, LoginAuditType::INVALID_PASSWORD);
-                    if($log !== null) $log->error("Login attempt for user [$row->user_id] userid [$dbId] FAILED pwd check for client [" . \riprunner\AuthNotification::getClientIPInfo() . "]");
+                    if($log !== null) $log->error("Login attempt for user [$row->user_id] userid [$dbId] FAILED pwd check for client [" . AuthNotification::getClientIPInfo() . "]");
                         
                     $sql = $this->getSqlStatement('login_brute_force_insert');
                         
@@ -502,7 +504,7 @@ class Authentication {
             else {
                 // No user exists.
                 self::auditLogin(-1, $user_id, LoginAuditType::INVALID_USERNAME);
-                if($log !== null) $log->warn("Login attempt for user [$user_id] FAILED uid check for client [" . \riprunner\AuthNotification::getClientIPInfo() . "]");
+                if($log !== null) $log->warn("Login attempt for user [$user_id] FAILED uid check for client [" . AuthNotification::getClientIPInfo() . "]");
                 if($log !== null) $log->trace("LOGIN-F3");
             }
         }
@@ -813,8 +815,8 @@ class Authentication {
                          array(  'role' => $loginResult['user_role'], 
                                  'access' => $loginResult['user_access']),
                                  JSON_FORCE_OBJECT);
-                $jwt = \riprunner\Authentication::getJWTAccessToken($loginResult, $userRole);
-                $jwtRefresh = \riprunner\Authentication::getJWTRefreshToken(
+                $jwt = Authentication::getJWTAccessToken($loginResult, $userRole);
+                $jwtRefresh = Authentication::getJWTRefreshToken(
                     $loginResult['user_id'], 
                     $loginResult['user_db_id'], 
                     $loginResult['firehall_id'], 
@@ -1088,7 +1090,7 @@ class Authentication {
             $ldap_enabled = self::safeGetValueFromArray('ldap_enabled',$authCache);
 
             // Get the user-agent string of the user.
-            $user_browser = \riprunner\AuthNotification::getUserAgent();
+            $user_browser = AuthNotification::getUserAgent();
 
             if($this->validateJWT($authCache) == false) {
                 if($log !== null) $log->warn("login_check validateJWT false for session [".session_id()."]");
@@ -1113,7 +1115,7 @@ class Authentication {
                 if ($row !== false) {
                     // If the user exists get variables from result.
                     $password = $row->user_pwd;
-                    $config = new \riprunner\ConfigManager();
+                    $config = new ConfigManager();
                     $login_check = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
 
                     if ($login_check === $login_string) {
@@ -1121,7 +1123,7 @@ class Authentication {
                     }
                     else {
                         // Not logged in
-                        if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . \riprunner\AuthNotification::getClientIPInfo() . "] failed hash check!");
+                        if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . AuthNotification::getClientIPInfo() . "] failed hash check!");
                         	
                         if($log !== null) $log->error("LOGINCHECK F1");
                         return false;
@@ -1129,14 +1131,14 @@ class Authentication {
                 }
                 else {
                     // Not logged in
-                    if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . \riprunner\AuthNotification::getClientIPInfo() . "] failed uid check!");
+                    if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . AuthNotification::getClientIPInfo() . "] failed uid check!");
                     if($log !== null) $log->error("LOGINCHECK F2");
                     return false;
                 }
             }
             else {
                 // Not logged in
-                if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . \riprunner\AuthNotification::getClientIPInfo() . "] UNKNOWN SQL error!");
+                if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . AuthNotification::getClientIPInfo() . "] UNKNOWN SQL error!");
                 if($log !== null) $log->error("LOGINCHECK F3");
                 return false;
             }
@@ -1282,7 +1284,7 @@ class Authentication {
         $schema_db_version_get = null;
         if($this->hasDbConnection() === true) {
             // First ensure we have the config table installed
-            $sql_statement = new \riprunner\SqlStatement($this->db_connection);
+            $sql_statement = new SqlStatement($this->db_connection);
             $db_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, null);
             $db_table_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, 'config');
         
@@ -1309,7 +1311,7 @@ class Authentication {
         global $log;
         if($this->hasDbConnection() === true) {
             // First ensure we have the config table installed
-            $sql_statement = new \riprunner\SqlStatement($this->db_connection);
+            $sql_statement = new SqlStatement($this->db_connection);
             $db_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, null);
             $db_table_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, 'config');
             
@@ -1424,7 +1426,7 @@ class Authentication {
     }
     private function getSqlStatement($key) {
         if($this->sql_statement === null) {
-            $this->sql_statement = new \riprunner\SqlStatement($this->getDbConnection());
+            $this->sql_statement = new SqlStatement($this->getDbConnection());
         }
         return $this->sql_statement->getSqlStatement($key);
     }
@@ -1453,12 +1455,12 @@ class Authentication {
             $result['count'] = $row_count;
             // If there have been more than x failed logins
             if ($row_count > $max_logins) {
-                if($log !== null) $log->warn("Login attempt for user [$user_id] was blocked, client [" . \riprunner\AuthNotification::getClientIPInfo() . "] brute force count [" . $row_count . "]");
+                if($log !== null) $log->warn("Login attempt for user [$user_id] was blocked, client [" . AuthNotification::getClientIPInfo() . "] brute force count [" . $row_count . "]");
                 $result['max_exceeded'] = true;
             }
         }
         else {
-            if($log !== null) $log->error("Login attempt for user [$user_id] for client [" . \riprunner\AuthNotification::getClientIPInfo() . "] was unknown bf error!");
+            if($log !== null) $log->error("Login attempt for user [$user_id] for client [" . AuthNotification::getClientIPInfo() . "] was unknown bf error!");
         }
         return $result;
     }
@@ -1477,7 +1479,6 @@ class Authentication {
             $stmt->bindParam(':login_ip', $login_ip);
             $stmt->execute();
     
-            //$rows = $stmt->fetchAll(\PDO::FETCH_OBJ);
             $rows = $stmt->fetchColumn();
             $stmt->closeCursor();
     
@@ -1485,17 +1486,16 @@ class Authentication {
             $result['count'] = $count;
             // If there have been more than x failed logins
             if ($count > $max_fails) {
-                if($log !== null) $log->warn("Login attempt for ip [$login_ip] was blocked, client [" . \riprunner\AuthNotification::getClientIPInfo() . "] brute force count [" . $count . "]");
+                if($log !== null) $log->warn("Login attempt for ip [$login_ip] was blocked, client [" . AuthNotification::getClientIPInfo() . "] brute force count [" . $count . "]");
                 $result['max_exceeded'] = true;
             }
             else {
-                if($log !== null) $log->trace("Login attempt for ip [$login_ip] was NOT blocked, client [" . \riprunner\AuthNotification::getClientIPInfo() . "] brute force count [" . $count . "]");
+                if($log !== null) $log->trace("Login attempt for ip [$login_ip] was NOT blocked, client [" . AuthNotification::getClientIPInfo() . "] brute force count [" . $count . "]");
             }
         }
         else {
-            if($log !== null) $log->error("Login attempt for ip [$login_ip] for client [" . \riprunner\AuthNotification::getClientIPInfo() . "] was unknown bf error!");
+            if($log !== null) $log->error("Login attempt for ip [$login_ip] for client [" . AuthNotification::getClientIPInfo() . "] was unknown bf error!");
         }
         return $result;
     }
-
 }

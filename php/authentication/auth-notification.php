@@ -19,7 +19,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 }
 require_once __RIPRUNNER_ROOT__ . '/config/config_manager.php';
 require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
-//require_once __RIPRUNNER_ROOT__ . '/functions.php';
+require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
@@ -32,19 +32,20 @@ class AuthNotification {
     private $firehall = null;
     private $db_connection = null;
     private $sql_statement = null;
-    private  $reader = null;
+    private $reader = null;
     private $parser = null;
     private $signalManager = null;
 
     /*
     	Constructor
     	@param $db_firehall the firehall
-    	@param $db_connection the db connection
+        @param $db_connection the db connection
+        @param $sm the signal manager to use
     */
     public function __construct($firehall,$db_connection=null,$sm=null) {
         $this->firehall = $firehall;
         if($this->firehall !== null && $db_connection === null) {
-            $db = new \riprunner\DbConnection($this->firehall);
+            $db = new DbConnection($this->firehall);
             $this->db_connection = $db->getConnection();
         }
         else {
@@ -71,7 +72,7 @@ class AuthNotification {
     }
     private function getSqlStatement($key) {
         if($this->sql_statement === null) {
-            $this->sql_statement = new \riprunner\SqlStatement($this->getDbConnection());
+            $this->sql_statement = new SqlStatement(self::getDbConnection());
         }
         return $this->sql_statement->getSqlStatement($key);
     }
@@ -123,8 +124,8 @@ class AuthNotification {
 
     private function findExistingDevicesByUser($userDBId) {
         $devices = [];
-        $sql = $this->getSqlStatement('login_audit_by_user');
-        $stmt = $this->getDbConnection()->prepare($sql);
+        $sql = self::getSqlStatement('login_audit_by_user');
+        $stmt = self::getDbConnection()->prepare($sql);
         if ($stmt !== false) {
             $stmt->bindParam(':useracctid', $userDBId);
             $stmt->execute();
@@ -143,15 +144,14 @@ class AuthNotification {
     }
 
     private function findExistingDevice($userDBId, $deviceDetails, $location) {
-        $knownDevices = $this->findExistingDevicesByUser($userDBId);
+        $knownDevices = self::findExistingDevicesByUser($userDBId);
 
         //echo "Current device logging in location: $location deviceDetails: $deviceDetails" . PHP_EOL;
 
         foreach ($knownDevices as $existingDevice) {
-
-            $existingDeviceDetails = $this->getDeviceDetails($existingDevice->login_agent);
-            $existingDeviceIP = $this->extractIp($existingDevice->login_ip);
-            $existingDeviceLocation = $this->getIpLocation($existingDeviceIP);
+            $existingDeviceDetails = self::getDeviceDetails($existingDevice->login_agent);
+            $existingDeviceIP = self::extractIp($existingDevice->login_ip);
+            $existingDeviceLocation = self::getIpLocation($existingDeviceIP);
     
             //echo "Exisitng device location: $existingDeviceLocation deviceDetails: $existingDeviceDetails" . PHP_EOL;
 
@@ -166,43 +166,25 @@ class AuthNotification {
     public function verifyDevice($user_id,$userDBId,$requestIPHeader,$userAgent) {
         global $log;
 
-        $ip = $this->extractIp($requestIPHeader);
-        $location = $this->getIpLocation($ip);
-     
-        $deviceDetails = $this->getDeviceDetails($userAgent);
-             
-        $existingDevice = $this->findExistingDevice($userDBId, $deviceDetails, $location);
+        $ip = self::extractIp($requestIPHeader);
+        $location = self::getIpLocation($ip);
+        $deviceDetails = self::getDeviceDetails($userAgent);
+        $existingDevice = self::findExistingDevice($userDBId, $deviceDetails, $location);
              
         if ($existingDevice == null) {
-            //echo "NEW device detected!" . PHP_EOL;
-            //exit;
             if($log !== null) $log->warn("Login audit for user [$user_id] - $userDBId detected NEW LOGIN DEVICE for client [$ip] agent [$userAgent]");
             self::notifyUsersNewDeviceLogin($user_id,$userDBId,$requestIPHeader,$location,$userAgent);
-
-            // unknownDeviceNotification(deviceDetails, location,
-            //   ip, user.getEmail(), request.getLocale());
-     
-            // DeviceMetadata deviceMetadata = new DeviceMetadata();
-            // deviceMetadata.setUserId(user.getId());
-            // deviceMetadata.setLocation(location);
-            // deviceMetadata.setDeviceDetails(deviceDetails);
-            // deviceMetadata.setLastLoggedIn(new Date());
-            // deviceMetadataRepository.save(deviceMetadata);
-        } else {
-            //echo "EXISTING device detected!" . PHP_EOL;
-            //exit;
+        } 
+        else {
             if($log !== null) $log->trace("Login audit for user [$user_id] - $userDBId detected RELOGIN DEVICE for client [$ip] agent [$userAgent]");
-
-            //existingDevice.setLastLoggedIn(new Date());
-            //deviceMetadataRepository.save(existingDevice);
         }
     }
 
     private function notifyUsersNewDeviceLogin($user_id,$dbId,$requestIPHeader,$location,$userAgent) {
         global $log;
         
-        $fhid = $this->getFirehall()->FIREHALL_ID;
-        $webRootURL = getFirehallRootURLFromRequest(null, null, $this->getFirehall());
+        $fhid = self::getFirehall()->FIREHALL_ID;
+        $webRootURL = getFirehallRootURLFromRequest(null, null, self::getFirehall());
 
         $msg = 
 "New device sign in
@@ -230,14 +212,14 @@ If this was you, no action is required. If this wasn't you, change your password
     public function notifyUsersAccountLocked($bruteforceCheck, $user_id, $dbId) {
         global $log;
 
-        if ($bruteforceCheck['count'] == $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS) {
-            $fhid = $this->getFirehall()->FIREHALL_ID;
-            $webRootURL = getFirehallRootURLFromRequest(null, null, $this->getFirehall());
+        if ($bruteforceCheck['count'] == self::getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS) {
+            $fhid = self::getFirehall()->FIREHALL_ID;
+            $webRootURL = getFirehallRootURLFromRequest(null, null, self::getFirehall());
 
             $userAgent = self::getUserAgent();
             $requestIPHeader = self::getClientIPInfo();
-            $ip = $this->extractIp($requestIPHeader);
-            $location = $this->getIpLocation($ip);
+            $ip = self::extractIp($requestIPHeader);
+            $location = self::getIpLocation($ip);
     
             $msg = 
 "Security Warning: 
@@ -245,7 +227,7 @@ If this was you, no action is required. If this wasn't you, change your password
 The following account has been locked due to exceeding the maximum invalid login attempt count: 
 
 Website: $webRootURL
-Firehall: $fhid 
+Firehall: $fhid
 Login: $user_id" .
 "
 
@@ -263,7 +245,7 @@ IP address: $requestIPHeader";
             // Notify the user themself of the hack attempt
             array_push($notifyUsers,$dbId);
             // Notify the admin users of the hack attempt
-            $adminUsers = $this->getAdminUsers();
+            $adminUsers = self::getAdminUsers();
             if ($adminUsers != null && count($adminUsers) > 0) {
                 foreach ($adminUsers as $adminUser) {
                     //if($log !== null) $log->error("LOGIN-F2 admin: ".print_r($adminUser,TRUE));
@@ -272,7 +254,7 @@ IP address: $requestIPHeader";
                     }
                 }
             }
-            $this->notifyUsers($fhid, $notifyUsers, $msg);
+            self::notifyUsers($fhid, $notifyUsers, $msg);
             return true;
         }
         return false;
@@ -311,12 +293,12 @@ IP address: $requestIPHeader";
         //global $log;
 
         $users = [];
-        $sql = $this->getSqlStatement('users_admin_list');
-        $stmt = $this->getDbConnection()->prepare($sql);
+        $sql = self::getSqlStatement('users_admin_list');
+        $stmt = self::getDbConnection()->prepare($sql);
         if ($stmt !== false) {
             $adminAccessFlag = USER_ACCESS_ADMIN;
             $stmt->bindParam(':admin_access', $adminAccessFlag);
-            $stmt->bindParam(':fhid', $this->getFirehall()->FIREHALL_ID);
+            $stmt->bindParam(':fhid', self::getFirehall()->FIREHALL_ID);
             $stmt->execute();
 
             $rows = $stmt->fetchAll(\PDO::FETCH_CLASS);
@@ -339,7 +321,7 @@ IP address: $requestIPHeader";
         $jsonUsers = json_encode($users);
         if ($log !== null) $log->trace("Notifying users: ".$jsonUsers);
 
-        $gvm = new \riprunner\GlobalViewModel($FIREHALLS, $fhid);
+        $gvm = new GlobalViewModel($FIREHALLS, $fhid);
 
         // Email the message to users
         $context = "{\"type\": \"email\",\"msg\":  \"\",\"users\": $jsonUsers }";
@@ -359,5 +341,4 @@ IP address: $requestIPHeader";
 
         if ($log !== null) $log->trace("Notified user of account status: ".print_r($notifyResult, true));
     }
-
 }
