@@ -30,16 +30,25 @@ class ProcessLogin {
 	private $HEADERS_FUNC;
 	private $PRINT_FUNC;
 	private $GET_FILE_CONTENTS_FUNC;
+	private $signalManager;
 
-	public function __construct($FIREHALLS,$request_variables=null,$server_variables=null,$hf=null,$pf=null,$gfcf=null) {
+	public function __construct($FIREHALLS,$request_variables=null,$server_variables=null,$hf=null,$pf=null,$gfcf=null,$sm=null) {
 		$this->FIREHALLS = $FIREHALLS;
 		$this->request_variables = $request_variables;
 		$this->server_variables = $server_variables;
 		$this->HEADERS_FUNC = $hf;
 		$this->PRINT_FUNC = $pf;
 		$this->GET_FILE_CONTENTS_FUNC = $gfcf;
+		$this->setSignalManager($sm);
     }
-	
+
+    public function setSignalManager($sm) {
+        $this->signalManager = $sm;
+		if($this->signalManager == null) {
+			$this->signalManager = new SignalManager();
+		}
+    }
+
 	private function header(string $header) {
 		if($this->HEADERS_FUNC != null) {
 			$cb = $this->HEADERS_FUNC;
@@ -91,19 +100,17 @@ class ProcessLogin {
     private function sendSMS_Message($twofaKey, $userid, $firehall) {
         // $smsMsg = get_query_param('txtMsg');
         // $sms_users = get_query_param('selected_users');
-        
-		$signalManager = new \riprunner\SignalManager();
 		
-		$msg = $signalManager->getSMSTwoFAMessage($twofaKey);
+		$msg = $this->signalManager->getSMSTwoFAMessage($twofaKey);
         if($userid !== null && strlen($userid) > 0) {
             $users = array($userid);
             $smsList = getMobilePhoneListFromDB($firehall, null, $users);
 			
 			//echo "For users: $userid got ". print_r($smsList, true) . PHP_EOL;
-            $sendMsgResult = $signalManager->sendSMSPlugin_Message($firehall, $msg, $smsList);
+            $sendMsgResult = $this->signalManager->sendSMSPlugin_Message($firehall, $msg, $smsList);
         }
         else {
-            $sendMsgResult = $signalManager->sendSMSPlugin_Message($firehall, $msg);
+            $sendMsgResult = $this->signalManager->sendSMSPlugin_Message($firehall, $msg);
         }
         
         $sendMsgResultStatus = "SMS Message sent to applicable recipients.";
@@ -121,7 +128,7 @@ class ProcessLogin {
 		$sessionless = getSafeRequestValue('SESSIONLESS_LOGIN',$this->request_variables);
 		// Our custom secure way of starting a PHP session.
 		if($sessionless == null || $sessionless == false) {
-			\riprunner\Authentication::sec_session_start();
+			Authentication::sec_session_start();
 		}
 		
 		$jsonRequest = null;
@@ -147,10 +154,10 @@ class ProcessLogin {
 			$request_twofa_key = $twofa_key;
 			
             if ($twofa_key != null && strlen($twofa_key) > 0) {
-				$twofaToken = \riprunner\Authentication::getJWTToken($this->request_variables, $this->server_variables);
+				$twofaToken = Authentication::getJWTToken($this->request_variables, $this->server_variables);
 				$json_token = null;
 				if ($twofaToken != null) {
-                    $json_token = \riprunner\Authentication::decodeJWT($twofaToken);
+                    $json_token = Authentication::decodeJWT($twofaToken);
                 }
 				if ($log !== null) $log->trace("#1 json 2FA execute token decode [" . $twofaToken. "]");
 				
@@ -171,15 +178,16 @@ class ProcessLogin {
 			
             $FIREHALL = findFireHallConfigById($firehall_id, $this->FIREHALLS);
             if (isset($FIREHALL) === true) {
-				$auth = new\riprunner\Authentication($FIREHALL);
+				$auth = new Authentication($FIREHALL);
 				$auth->setServerVars($this->server_variables);
 				$auth->setFileContentsFunc($this->GET_FILE_CONTENTS_FUNC);
+				$auth->setSignalManager($this->signalManager);
             }
         }
 		
 		if($request_twofa_key != null && strlen($request_twofa_key) > 0) {
-			$twofaToken = \riprunner\Authentication::getJWTToken($this->request_variables, $this->server_variables);
-            $json_token = \riprunner\Authentication::decodeJWT($twofaToken);
+			$twofaToken = Authentication::getJWTToken($this->request_variables, $this->server_variables);
+            $json_token = Authentication::decodeJWT($twofaToken);
             if ($log !== null) $log->trace("#1 json 2FA execute token decode [" . $twofaToken. "]");
             
             if ($json_token == null || $json_token == false) {
@@ -338,6 +346,7 @@ class ProcessLogin {
 								$loginResultUserId = null;
                                 if ($valid2FA == false) {
 									$loginResultUserId = $loginResult['user_id'];
+
                                     $userRole = $auth->getCurrentUserRoleJSon($loginResult);
                                     $jwt = \riprunner\Authentication::getJWTAccessToken($loginResult, $userRole);
                                     $jwtRefresh = \riprunner\Authentication::getJWTRefreshToken(
@@ -351,6 +360,7 @@ class ProcessLogin {
 								}
 								else {
 									$loginResultUserId = $json_token->username;
+
 									$jwt = $twofaToken;
                                     $jwtRefresh = \riprunner\Authentication::getJWTRefreshToken(
                                         $json_token->username,
@@ -372,7 +382,7 @@ class ProcessLogin {
                                     $output['refresh_token'] = $jwtRefresh;
 
                                     if ($log !== null) $log->trace("#1 json login execute loginResult vars [".print_r($loginResult, true)."] jwt [$jwt] output vars [".print_r($output, true)."]");
-                                    
+
                                     $sessionless = getSafeRequestValue('SESSIONLESS_LOGIN', $this->request_variables);
                                     if ($sessionless == null || $sessionless == false) {
                                         // foreach ($loginResult as $key => $value) {

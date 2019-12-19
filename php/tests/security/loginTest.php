@@ -13,6 +13,17 @@ if(defined('INCLUSION_PERMITTED') === false) {
 require_once dirname(dirname(__FILE__)).'/baseDBFixture.php';
 require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/authentication/login.php';
+require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
+
+
+class SignalManagerMock extends \riprunner\SignalManager {
+	public function sendMsg($msgContext, $gvm, $msg=null) {
+        $result = array();
+        $result['result'] = 'MOCK send type!';
+        $result['status'] = 'MOCK send type!';
+        return $result;
+    }
+}
 
 class LoginTest extends BaseDBFixture {
 	
@@ -32,7 +43,7 @@ class LoginTest extends BaseDBFixture {
 		$user_id = 'mark.vejvoda';
 		$password = 'test123';
 
-		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL),new SignalManagerMock());
 		$login_result = $auth->login($user_id, $password);
 		$this->assertEquals($user_id, $login_result['user_id']);
 	}
@@ -41,7 +52,7 @@ class LoginTest extends BaseDBFixture {
 	    $user_id = 'bad.user';
 	    $password = 'bad password';
 	
-	    $auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+	    $auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL),new SignalManagerMock());
 	    $login_result = $auth->login($user_id, $password);
 	    $this->assertEmpty($login_result);
 	}
@@ -51,7 +62,7 @@ class LoginTest extends BaseDBFixture {
 	    $user_id = 'mark.vejvoda';
 	    $password = 'bad password';
 	
-	    $auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+	    $auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL),new SignalManagerMock());
 	    $login_result = $auth->login($user_id, $password);
 	    
 	    $this->assertEmpty($login_result);
@@ -63,7 +74,7 @@ class LoginTest extends BaseDBFixture {
 
 		$FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 
-		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL),new SignalManagerMock());
 
 		$loginResult = array();
 		$loginResult['firehall_id'] = 0;
@@ -99,7 +110,9 @@ class LoginTest extends BaseDBFixture {
 			$FIREHALLS,
 			(isset($request_variables) ? $request_variables : null),
 			(isset($server_variables) ? $server_variables : null),
-			(isset($header_callback) ? $header_callback : null)
+			(isset($header_callback) ? $header_callback : null),
+			null,null,
+			new SignalManagerMock()
 			);
 		$processLogin->execute();
 		
@@ -112,7 +125,7 @@ class LoginTest extends BaseDBFixture {
 
 		$FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 
-		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL),new SignalManagerMock());
 
 		$loginResult = array();
 		$loginResult['firehall_id'] = 0;
@@ -148,7 +161,9 @@ class LoginTest extends BaseDBFixture {
 			$FIREHALLS,
 			(isset($request_variables) ? $request_variables : null),
 			(isset($server_variables) ? $server_variables : null),
-			(isset($header_callback) ? $header_callback : null)
+			(isset($header_callback) ? $header_callback : null),
+			null,null,
+			new SignalManagerMock()
 			);
 		$processLogin->execute();
 		
@@ -181,7 +196,8 @@ class LoginTest extends BaseDBFixture {
 			(isset($server_variables) ? $server_variables : null),
 			(isset($header_callback) ? $header_callback : null),
 			(isset($print_callback) ? $print_callback : null),
-			(isset($getfile_callback) ? $getfile_callback : null)
+			(isset($getfile_callback) ? $getfile_callback : null),
+			new SignalManagerMock()
 			);
 		$processLogin->execute();
 		
@@ -214,7 +230,8 @@ class LoginTest extends BaseDBFixture {
 			(isset($server_variables) ? $server_variables : null),
 			(isset($header_callback) ? $header_callback : null),
 			(isset($print_callback) ? $print_callback : null),
-			(isset($getfile_callback) ? $getfile_callback : null)
+			(isset($getfile_callback) ? $getfile_callback : null),
+			new SignalManagerMock()
 			);
 		$processLogin->execute();
 		
@@ -226,7 +243,7 @@ class LoginTest extends BaseDBFixture {
 		$FIREHALLS = $this->FIREHALLS;
 
 		$FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
-		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL),new SignalManagerMock());
 
 		$loginResult = array();
 		$loginResult['firehall_id'] = 0;
@@ -277,7 +294,8 @@ class LoginTest extends BaseDBFixture {
 			(isset($server_variables) ? $server_variables : null),
 			(isset($header_callback) ? $header_callback : null),
 			(isset($print_callback) ? $print_callback : null),
-			(isset($getfile_callback) ? $getfile_callback : null)
+			(isset($getfile_callback) ? $getfile_callback : null),
+			new SignalManagerMock()
 			);
 		$processLogin->execute();
 		
@@ -326,7 +344,8 @@ class LoginTest extends BaseDBFixture {
 			(isset($server_variables) ? $server_variables : null),
 			(isset($header_callback) ? $header_callback : null),
 			(isset($print_callback) ? $print_callback : null),
-			(isset($getfile_callback) ? $getfile_callback : null)
+			(isset($getfile_callback) ? $getfile_callback : null),
+			new SignalManagerMock()
 			);
 		$processLogin->execute();
 		

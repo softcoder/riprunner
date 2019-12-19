@@ -643,15 +643,15 @@ class SignalManager {
         return $result;
     }
 
-    public function sendMsg($msgContext, $gvm) {
+    public function sendMsg($msgContext, $gvm, $msg=null) {
         if($msgContext->type == 'sms') {
-            return $this->sendSMSMessage($msgContext->msg, $msgContext->users, $gvm);
+            return $this->sendSMSMessage(($msg != null ? $msg : $msgContext->msg), $msgContext->users, $gvm);
         }
         else if($msgContext->type == 'fcm') {
-            return $this->sendFCMMessage($msgContext->msg, $msgContext->users, $gvm);
+            return $this->sendFCMMessage(($msg != null ? $msg : $msgContext->msg), $msgContext->users, $gvm);
         }
         else if($msgContext->type == 'email') {
-            return $this->sendEmailMessage($msgContext->msg, $msgContext->users, $gvm);
+            return $this->sendEmailMessage(($msg != null ? $msg : $msgContext->msg), $msgContext->users, $gvm);
         }
         $result = array();
         $result['result'] = 'INVALID send type!';
