@@ -118,7 +118,7 @@ class DbConnection {
     
         try {
             //echo "DB DSN [$dsn]" . PHP_EOL;
-            $localIP = getHostByName(getHostName());
+            //$localIP = getHostByName(getHostName());
             $conn_dsn = preg_replace_callback('(\$HOST-IP)', function ($m) { $m; return getHostByName(getHostName());; }, $dsn);
 
             $this->pdo = new \PDO($conn_dsn, $user, $password);

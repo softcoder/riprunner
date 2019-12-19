@@ -176,8 +176,8 @@ function login_ldap($FIREHALL, $user_id, $password) {
 }
 
 function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
-	global $log;$loginResult = [];
-
+	global $log;
+	
 	if($FIREHALL->LDAP->ENABLED_CACHE == true) {
 		$cache_key_lookup = "RIPRUNNER_LDAP_USER_ACCESS_" . $FIREHALL->FIREHALL_ID . ((isset($user_id) === true) ? $user_id : "") . ((isset($userDn) === true) ? $userDn : "");
 		$cache = \riprunner\CacheProxy::getInstance();

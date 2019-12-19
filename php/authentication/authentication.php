@@ -1000,7 +1000,6 @@ class Authentication {
     }
 
     static private function getJWTAuthCacheFromTokenObject($token) {
-        global $log;
         $authCache = [];
 
         if ($token != null) {
@@ -1023,11 +1022,7 @@ class Authentication {
     }
 
     static public function getJWTAuthCache($request_variables=null, $server_variables=null) {
-        global $log;
-        
         $token = self::decodeJWTToken($request_variables, $server_variables);
-        //if($log !== null) $log->warn("In getJWTAuthCache token [$token]");
-
         $authCache = self::getJWTAuthCacheFromTokenObject($token);
         return $authCache;
     }
@@ -1254,7 +1249,7 @@ class Authentication {
     }
     
     static public function userHasAcess($access_flag, $request_variables=null) {
-        global $log;
+        //global $log;
         $authCache = self::getAuthCacheList($request_variables);
         $user_access = self::safeGetValueFromArray('user_access',$authCache);
         //if($log !== null) $log->warn("In userHasAcess: $user_access access_flag: $access_flag authCache vars [".print_r($authCache, TRUE)."]");
