@@ -8,6 +8,10 @@ sudo docker build -t=softcoder/riprunner:latest -f ./1804/Dockerfile .
 # To run the docker image  
 sudo docker run -p "80:80" -v ${PWD}/app:/app -v ${PWD}/mysql:/var/lib/mysql softcoder/riprunner:latest  
 
+# To connect to the running the docker image  
+sudo docker ps (this will show yo uthe name of the running container)
+sudo docker exec -it <container name from previous step> /bin/bash
+
 # To push the docker image to dockerhub  
 sudo docker push softcoder/riprunner:latest  
 
