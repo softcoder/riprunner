@@ -1,0 +1,15 @@
+Security Warning detected.
+The following account has been locked due to exceeding the maximum invalid login attempts:
+
+Website: {{ webRootURL }}
+Firehall: {{ fhid }}
+Login: {{ userid }}
+Invalid Login Attempts: {{count }}
+
+Latest attempt information:
+Date & time of login: {{ datetime }}
+Login city: {{ location }}
+Type of device: {{ userAgent }}
+IP address: {{ requestIPHeader }}
+
+Please change your password immediately to secure your account!{# This comment removes the newline that follows #}

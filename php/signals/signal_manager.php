@@ -449,10 +449,12 @@ class SignalManager {
         return $smsMsg;
     }
 
-    public function getSMSTwoFAMessage($twofaKey) {
+    public function getSMSTwoFAMessage($twofaKey,$userid,$firehall) {
         
         $view_template_vars = array();
         $view_template_vars['twofaKey'] = $twofaKey;
+        $view_template_vars['userid'] = $userid;
+        $view_template_vars['firehall'] = $firehall;
     
         // Load our template
         $template = $this->getTwigEnv()->resolveTemplate(

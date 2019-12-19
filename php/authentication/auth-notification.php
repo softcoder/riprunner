@@ -35,6 +35,7 @@ class AuthNotification {
     private $reader = null;
     private $parser = null;
     private $signalManager = null;
+    private $twig_env = null;
 
     /*
     	Constructor
@@ -65,6 +66,26 @@ class AuthNotification {
 		if($this->signalManager == null) {
 			$this->signalManager = new SignalManager();
 		}
+    }
+
+    public function sendSMSTwoFAMessage($twofaKey, $userDBid, $userid, $firehall) {
+		$msg = $this->signalManager->getSMSTwoFAMessage($twofaKey,$userid,$firehall);
+        if($userDBid !== null && strlen($userDBid) > 0) {
+            $users = array($userDBid);
+            $smsList = getMobilePhoneListFromDB($firehall, null, $users);
+			
+			//echo "For users: $userid got ". print_r($smsList, true) . PHP_EOL;
+            $sendMsgResult = $this->signalManager->sendSMSPlugin_Message($firehall, $msg, $smsList);
+        }
+        else {
+            $sendMsgResult = $this->signalManager->sendSMSPlugin_Message($firehall, $msg);
+        }
+
+        $sendMsgResultStatus = "SMS Message sent to applicable recipients.";
+        $result = array();
+        $result['result'] = $sendMsgResult;
+        $result['status'] = $sendMsgResultStatus;
+        return $result;
     }
 
     private function getDbConnection() {
@@ -180,27 +201,36 @@ class AuthNotification {
         }
     }
 
+    private function getNewDeviceLoginMessage($webRootURL,$userid,$fhid,$datetime,$location,$userAgent,$requestIPHeader) {
+        
+        $view_template_vars = array();
+        $view_template_vars['webRootURL'] = $webRootURL;
+        $view_template_vars['userid'] = $userid;
+        $view_template_vars['fhid'] = $fhid;
+        $view_template_vars['datetime'] = $datetime;
+        $view_template_vars['location'] = $location;
+        $view_template_vars['userAgent'] = $userAgent;
+        $view_template_vars['requestIPHeader'] = $requestIPHeader;
+        
+        // Load our template
+        $template = $this->getTwigEnv()->resolveTemplate(
+            array('@custom/sms-newdevicelogin-msg.twig.html',
+                    'sms-newdevicelogin-msg.twig.html'
+                    
+            ));
+        // Output our template
+        $smsMsg = $template->render($view_template_vars);
+        return $smsMsg;
+    }
+
     private function notifyUsersNewDeviceLogin($user_id,$dbId,$requestIPHeader,$location,$userAgent) {
         global $log;
         
         $fhid = self::getFirehall()->FIREHALL_ID;
         $webRootURL = getFirehallRootURLFromRequest(null, null, self::getFirehall());
+        $datetime = date('m/d/Y h:i:s a', time());
 
-        $msg = 
-"New device sign in
-
-Your RipRunner account was used to sign in on the following device. Please review the details below to confirm it was you.
-
-Website: $webRootURL
-Firehall: $fhid 
-Login: $user_id
-Date & time of login: ".date('m/d/Y h:i:s a', time())."
-Login city: $location
-Type of device: $userAgent
-IP address: $requestIPHeader
-
-If this was you, no action is required. If this wasn't you, change your password immediately to secure your account!";
-
+        $msg = self::getNewDeviceLoginMessage($webRootURL,$user_id,$fhid,$datetime,$location,$userAgent,$requestIPHeader);
         if($log !== null) $log->warn("notifyUsersNewDeviceLogin msg: $msg");
 
         $notifyUsers = [];
@@ -209,36 +239,43 @@ If this was you, no action is required. If this wasn't you, change your password
         self::notifyUsers($fhid, $notifyUsers, $msg);
     }
 
+    private function getAccountLockedMessage($webRootURL,$userid,$fhid,$datetime,$location,$userAgent,$requestIPHeader,$count) {
+        
+        $view_template_vars = array();
+        $view_template_vars['webRootURL'] = $webRootURL;
+        $view_template_vars['userid'] = $userid;
+        $view_template_vars['fhid'] = $fhid;
+        $view_template_vars['count'] = $count;
+        $view_template_vars['datetime'] = $datetime;
+        $view_template_vars['location'] = $location;
+        $view_template_vars['userAgent'] = $userAgent;
+        $view_template_vars['requestIPHeader'] = $requestIPHeader;
+        
+        // Load our template
+        $template = $this->getTwigEnv()->resolveTemplate(
+            array('@custom/sms-accountlocked-msg.twig.html',
+                    'sms-accountlocked-msg.twig.html'
+                    
+            ));
+        // Output our template
+        $smsMsg = $template->render($view_template_vars);
+        return $smsMsg;
+    }
+
     public function notifyUsersAccountLocked($bruteforceCheck, $user_id, $dbId) {
         global $log;
 
         if ($bruteforceCheck['count'] == self::getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS) {
             $fhid = self::getFirehall()->FIREHALL_ID;
             $webRootURL = getFirehallRootURLFromRequest(null, null, self::getFirehall());
-
+            $datetime = date('m/d/Y h:i:s a', time());
             $userAgent = self::getUserAgent();
             $requestIPHeader = self::getClientIPInfo();
             $ip = self::extractIp($requestIPHeader);
             $location = self::getIpLocation($ip);
-    
-            $msg = 
-"Security Warning: 
+            $count = ($bruteforceCheck['count']+1);
 
-The following account has been locked due to exceeding the maximum invalid login attempt count: 
-
-Website: $webRootURL
-Firehall: $fhid
-Login: $user_id" .
-"
-
-Invalid Login Attempts: ".($bruteforceCheck['count']+1) .
-"
-Latest attempt information:
-Date & time of login: ".date('m/d/Y h:i:s a', time())."
-Login city: $location
-Type of device: $userAgent
-IP address: $requestIPHeader";
-
+            $msg = $this->getAccountLockedMessage($webRootURL,$user_id,$fhid,$datetime,$location,$userAgent,$requestIPHeader,$count);
             if($log !== null) $log->warn("notifyUsersAccountLocked msg: $msg");
 
             $notifyUsers = [];
@@ -341,4 +378,16 @@ IP address: $requestIPHeader";
 
         if ($log !== null) $log->trace("Notified user of account status: ".print_r($notifyResult, true));
     }
+
+    private function getTwigEnv() {
+        global $twig;
+        if($this->twig_env === null) {
+            $twig_instance = $twig;
+        }
+        else {
+            $twig_instance = $this->twig_env;
+        }
+        return $twig_instance;
+    }
+
 }

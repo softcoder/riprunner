@@ -79,6 +79,10 @@ class Authentication {
         $this->auth_notification->setSignalManager($sm);
     }
 
+    public function sendSMSTwoFAMessage($twofaKey, $userDBid, $userid, $firehall) {
+        $this->auth_notification->sendSMSTwoFAMessage($twofaKey, $userDBid, $userid, $firehall);
+    }
+
 	private function file_get_contents(string $url) {
 		if($this->GET_FILE_CONTENTS_FUNC != null) {
 			$cb = $this->GET_FILE_CONTENTS_FUNC;

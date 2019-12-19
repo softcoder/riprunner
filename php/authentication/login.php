@@ -97,26 +97,6 @@ class ProcessLogin {
 		return $jsonObject;
 	}
 
-    private function sendSMS_Message($twofaKey, $userid, $firehall) {
-		$msg = $this->signalManager->getSMSTwoFAMessage($twofaKey);
-        if($userid !== null && strlen($userid) > 0) {
-            $users = array($userid);
-            $smsList = getMobilePhoneListFromDB($firehall, null, $users);
-			
-			//echo "For users: $userid got ". print_r($smsList, true) . PHP_EOL;
-            $sendMsgResult = $this->signalManager->sendSMSPlugin_Message($firehall, $msg, $smsList);
-        }
-        else {
-            $sendMsgResult = $this->signalManager->sendSMSPlugin_Message($firehall, $msg);
-        }
-
-        $sendMsgResultStatus = "SMS Message sent to applicable recipients.";
-        $result = array();
-        $result['result'] = $sendMsgResult;
-        $result['status'] = $sendMsgResultStatus;
-        return $result;
-    }
-
 	public function execute() {
 		global $log;
 		$sessionless = getSafeRequestValue('SESSIONLESS_LOGIN',$this->request_variables);
@@ -299,7 +279,7 @@ class ProcessLogin {
 
 											$userid   = $loginResult['user_db_id'];
 											$firehall = $FIREHALL;
-											$this->sendSMS_Message($systemTwoFA, $userid, $firehall);
+											$auth->sendSMSTwoFAMessage($systemTwoFA, $userid, $user_id, $firehall);
 
 											return;
 										} 
@@ -308,7 +288,7 @@ class ProcessLogin {
                                             											
 											$userid   = $loginResult['user_db_id'];
 											$firehall = $FIREHALL;
-											$this->sendSMS_Message($systemTwoFA, $userid, $firehall);
+											$auth->sendSMSTwoFAMessage($systemTwoFA, $userid, $user_id, $firehall);
 
                                             $this->header('Location: controllers/2fa-controller.php?'.
                                                         \riprunner\Authentication::getJWTTokenName().'='.$jwt.
