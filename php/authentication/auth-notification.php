@@ -26,6 +26,7 @@ require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
 
 use GeoIp2\Database\Reader;
 use UAParser\Parser;
+use \OTPHP\TOTP;
 
 class AuthNotification {
 
@@ -268,7 +269,140 @@ class AuthNotification {
         return $smsMsg;
     }
 
-    public function notifyUsersAccountLocked($bruteforceCheck, $user_id, $dbId) {
+    private function getLoginSuccessResult($successContext) {
+        global $log;
+        $config = new ConfigManager();
+        if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
+
+            if($log !== null) $log->warn('IN getLoginSuccessResult successContext: '.print_r($successContext, true));
+
+            if($log !== null) $log->warn('*LOGIN AUDIT* for user ['.$successContext['userId'].'] userid ['.$successContext['dbId'].
+                                         '] firehallid ['.$successContext['FirehallId'].'] agent ['.$successContext['user_browser'].
+                                         '] client ['.self::getClientIPInfo().'] isAngularClient: '.var_export($successContext['isAngularClient'],true));
+        }
+
+        $loginResult = [];
+        $loginResult['user_db_id']      = $successContext['dbId'];
+        $loginResult['user_id']         = $successContext['userId'];
+        $loginResult['user_type']       = $successContext['userType'];
+
+        if($log !== null) $log->trace('IN getLoginSuccessResult userPwd: '.$successContext['userPwd'].' user_browser: '.$successContext['user_browser']);
+        $loginResult['login_string']    = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $successContext['userPwd'] . $successContext['user_browser']);
+        $loginResult['firehall_id']     = $successContext['FirehallId'];
+        $loginResult['ldap_enabled']    = $successContext['ldap_enabled'];
+        $loginResult['user_access']     = $successContext['userAccess'];
+        $loginResult['user_jwt']        = $successContext['isAngularClient'];
+        $loginResult['twofa']           = $successContext['twofa'];
+        $loginResult['twofaKey']        = $successContext['twofaKey'];
+
+        // Ensure status are cached
+        CalloutStatusType::getStatusList($this->getFirehall());
+        if($log !== null) $log->trace('Login OK pwd check pwdHash ['.$successContext['pwdHash'].'] $userPwd ['.$successContext['userPwd'].'] $twofaKey ['.$successContext['twofaKey'].']');
+        // Login successful.
+        return $loginResult;
+    }
+
+    public function getLoginResult($isAngularClient, $user_id, $user_record) {
+        global $log;
+
+        if ($user_record === null || $user_record === false) {
+            $sql = $this->getSqlStatement('login_user_check');
+            $stmt = $this->getDbConnection()->prepare($sql);
+            if ($stmt !== false) {
+                $stmt->bindParam(':id', $user_id);
+                $stmt->bindParam(':fhid', $this->getFirehall()->FIREHALL_ID);
+                $stmt->execute();
+
+                $user_record = $stmt->fetch(\PDO::FETCH_OBJ);
+                $stmt->closeCursor();
+            }
+        }
+
+        if($log !== null) $log->trace('IN getLoginResult user_record: '.print_r($user_record, true));
+
+        if ($user_record !== null && $user_record !== false) {
+            $dbId = $user_record->id;
+
+            $successContext = [];
+            // Check if user requires 2 factor auth
+            // twofa, twofa_key
+            $successContext['twofa'] = $user_record->twofa;
+            $successContext['twofaKey'] = '';
+            if ($user_record->twofa == true) {
+                $otp = TOTP::create(
+                    null, // Let the secret be defined by the class
+                    60    // The period is now 60 seconds
+                );
+                $successContext['twofaKey'] = $otp->now();
+            }
+
+            // Get the user-agent string of the user.
+            $user_browser = self::getUserAgent();
+            $pwdHash      = $user_record->user_pwd;
+                                    
+            $successContext['dbId']             = $dbId;
+            $successContext['FirehallId']       = $user_record->firehall_id;
+            $successContext['userId']           = $user_record->user_id;
+            $successContext['userPwd']          = $user_record->user_pwd;
+            $successContext['userAccess']       = $user_record->access;
+            $successContext['userType']         = $user_record->user_type;
+            $successContext['password']         = '';
+            $successContext['user_browser']     = $user_browser;
+            $successContext['ldap_enabled']     = false;
+            $successContext['isAngularClient']  = $isAngularClient;
+            $successContext['pwdHash']          = $pwdHash;
+                                
+            if($log !== null) $log->warn('IN getLoginResult successContext: '.print_r($successContext, true));
+
+            // Login successful.
+            return self::getLoginSuccessResult($successContext);
+        }
+        return [];
+    }
+
+    static public function safeGetValueFromArray($key, $array) {
+        return (array_key_exists($key,$array) ? $array[$key] : null);
+    }
+
+    public function hasDbConnection() {
+        return ($this->db_connection !== null);
+    }
+
+    public function getCurrentUserRoleJSon($authCache) {
+        global $log;
+        
+        $jsonRole = null;
+        $userType = self::safeGetValueFromArray('user_type',$authCache);
+        if($log !== null) $log->trace("In getCurrentUserRoleJSon userType [$userType]");
+
+        if($userType != null && $this->hasDbConnection() === true) {
+            if($this->getFirehall()->LDAP->ENABLED === true) {
+                create_temp_users_table_for_ldap($this->getFirehall(), $this->getDbConnection());
+            }
+            $sql = $this->getSqlStatement('user_type_list_select');
+            
+            $qry_bind= $this->getDbConnection()->prepare($sql);
+            $qry_bind->execute();
+            
+            $rows = $qry_bind->fetchAll(\PDO::FETCH_CLASS);
+            $qry_bind->closeCursor();
+            
+            if($log !== null) $log->trace("About to build user type list for sql [$sql] result count: " . count($rows));
+            
+            foreach($rows as $row) {
+                if($userType == $row->id) {
+                    $jsonRole = json_encode(
+                        array(  'role' => $row->name, 
+                                'access' => self::safeGetValueFromArray('user_access',$authCache)),
+                                JSON_FORCE_OBJECT);
+                    break;
+                }
+            }
+        }
+        return $jsonRole;
+    }
+
+    public function notifyUsersAccountLocked($isAngularClient, $bruteforceCheck, $user_id, $dbId) {
         global $log;
 
         if ($bruteforceCheck['count'] == self::getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS) {
@@ -282,6 +416,31 @@ class AuthNotification {
             $count = ($bruteforceCheck['count']+1);
 
             $msg = $this->getAccountLockedMessage($webRootURL,$user_id,$fhid,$datetime,$location,$userAgent,$requestIPHeader,$count);
+
+            // $ build jwt for user to be able to autologin and reset password
+            $loginResult = self::getLoginResult($isAngularClient, $user_id, null);
+            if (count($loginResult) > 0) {
+                if ($loginResult['twofa'] == true) {
+                    $loginResult['twofaKey'] = '';
+                }
+            }
+            $userRole = self::getCurrentUserRoleJSon($loginResult);
+            $jwt = Authentication::getJWTAccessToken($loginResult, $userRole);
+            $jwtRefresh = Authentication::getJWTRefreshToken(
+                $loginResult['user_id'],
+                $loginResult['user_db_id'],
+                $fhid,
+                $loginResult['login_string'],
+                $loginResult['twofa'],
+                $loginResult['twofaKey']
+            );
+
+            $resetPasswordURL = $webRootURL.'/controllers/main-menu-controller.php?'.Authentication::getJWTTokenName().'='.$jwt.'&'.Authentication::getJWTRefreshTokenName().'='.$jwtRefresh;
+            $msg .= 
+"
+
+Follow this time-sensitive link to reset your password: 
+$resetPasswordURL";
             if($log !== null) $log->warn("notifyUsersAccountLocked msg: $msg");
 
             $notifyUsers = [];

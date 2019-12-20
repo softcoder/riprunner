@@ -187,7 +187,7 @@ class ProcessLogin {
 
 			if ($request_p != null && strlen($request_p) > 0) {
 				$dbId = $json_token->id;
-				$valid2FA = $auth->verifyTwoFA($user_id, $dbId, $request_p);
+				$valid2FA = $auth->verifyTwoFA($isAngularClient, $user_id, $dbId, $request_p);
 				if ($valid2FA == false) {
 					// Login failed wrong 2fa key
 					if ($log != null) $log->error("process_login error, 2FA Failed for firehall id: $firehall_id, userid: $user_id twofa_key: $request_twofa_key, request_p: $request_p");

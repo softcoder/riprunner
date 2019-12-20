@@ -129,6 +129,7 @@ class UsersMenuController {
 				
 				if($result === true) {
 					if($edit_user_id >= 0) {
+						$userDBId = $edit_user_id;
 						$this->updateAccount($db_connection, $self_edit, $new_pwd, $edit_user_id);
 
 						if($self_edit === true) {
@@ -141,7 +142,8 @@ class UsersMenuController {
 
 						$FIREHALL = $this->global_vm->firehall;
 						$auth = new\riprunner\Authentication($FIREHALL);
-						$auth->auditLogin($edit_user_id, $edit_user_id_name, LoginAuditType::SUCCESS_CHANGE_PASSWORD);
+						$auth->auditLogin($userDBId, $edit_user_id_name, LoginAuditType::SUCCESS_CHANGE_PASSWORD);
+						self::unlockAccount($userDBId, $db_connection);
 					}
 					else if($self_edit === false) {
 						$this->addAccount($db_connection, $self_edit, $new_pwd,
@@ -154,7 +156,7 @@ class UsersMenuController {
 		}
 		return $result;
 	}
-	
+
 	private function updateAccount($db_connection, $self_edit, $new_pwd,
 			&$edit_user_id) {
 		
@@ -409,20 +411,28 @@ class UsersMenuController {
 			if(isset($edit_user_id) === true) {
 				// UPDATE
 				if($edit_user_id >= 0) {
-					
-				    $sql_statement = new \riprunner\SqlStatement($db_connection);
-				    $sql = $sql_statement->getSqlStatement('user_accounts_unlock');
-
-					$log->trace("About to UNLOCK user account for sql [$sql]");
-	
-					$qry_bind = $db_connection->prepare($sql);
-					$qry_bind->bindParam(':id', $edit_user_id);
-					
-					$qry_bind->execute();
-						
+				    self::unlockAccount($edit_user_id, $db_connection);
 					$edit_user_id = null;
 				}
 			}
+		}
+	}
+
+	private function unlockAccount($userDBId, $db_connection) {
+		global $log;
+		// UPDATE
+		if($userDBId >= 0) {
+			
+			$sql_statement = new \riprunner\SqlStatement($db_connection);
+			$sql = $sql_statement->getSqlStatement('user_accounts_unlock');
+
+			if($log !== null) $log->trace("About to UNLOCK user account for sql [$sql]");
+
+			$qry_bind = $db_connection->prepare($sql);
+			$qry_bind->bindParam(':id', $userDBId);
+			
+			$qry_bind->execute();
+			if($log !== null) $log->warn("UNLOCKED user account for account id [$userDBId]");
 		}
 	}
 

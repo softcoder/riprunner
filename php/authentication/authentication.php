@@ -25,7 +25,6 @@ require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/authentication/auth-notification.php';
 
 use \Firebase\JWT\JWT;
-use \OTPHP\TOTP;
 
 abstract class LoginAuditType extends BasicEnum {
     const SUCCESS_PASSWORD          = 0;
@@ -240,34 +239,6 @@ class Authentication {
 		return $jsonObject;
 	}
 
-    private function getLoginSuccessResult($successContext) {
-        global $log;
-        $config = new ConfigManager();
-        if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
-            if($log !== null) $log->warn('*LOGIN AUDIT* for user ['.$successContext['userId'].'] userid ['.$successContext['dbId'].
-                                         '] firehallid ['.$successContext['FirehallId'].'] agent ['.$successContext['user_browser'].
-                                         '] client ['.AuthNotification::getClientIPInfo().'] isAngularClient: '.var_export($successContext['isAngularClient'],true));
-        }
-
-        $loginResult = [];
-        $loginResult['user_db_id']      = $successContext['dbId'];
-        $loginResult['user_id']         = $successContext['userId'];
-        $loginResult['user_type']       = $successContext['userType'];
-        $loginResult['login_string']    = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $successContext['userPwd'] . $successContext['user_browser']);
-        $loginResult['firehall_id']     = $successContext['FirehallId'];
-        $loginResult['ldap_enabled']    = $successContext['ldap_enabled'];
-        $loginResult['user_access']     = $successContext['userAccess'];
-        $loginResult['user_jwt']        = $successContext['isAngularClient'];
-        $loginResult['twofa']           = $successContext['twofa'];
-        $loginResult['twofaKey']        = $successContext['twofaKey'];
-
-        // Ensure status are cached
-        CalloutStatusType::getStatusList($this->getFirehall());
-        if($log !== null) $log->trace('Login OK pwd check pwdHash ['.$successContext['pwdHash'].'] $userPwd ['.$successContext['userPwd'].'] $twofaKey ['.$successContext['twofaKey'].']');
-        // Login successful.
-        return $loginResult;
-    }
-
     public function update_twofa($user_id, $twofaKey) {
         global $log;
         if ($log !== null) {
@@ -328,7 +299,7 @@ class Authentication {
         $this->auth_notification->verifyDevice($user_id,$userDBId,$ip,$userAgent);
     }
 
-    public function verifyTwoFA($user_id, $dbId, $requestTwofaKey) {
+    public function verifyTwoFA($isAngularClient, $user_id, $dbId, $requestTwofaKey) {
         global $log;
         $validTwoFAKey = true;
 
@@ -360,7 +331,7 @@ class Authentication {
 
                 if ($log !== null) $log->error('Login FAILED 2FA check requestTwofaKey ['.$requestTwofaKey.'] userTwoFAKey ['.$userTwoFAKey.'] bruteforce: '.$bruteforceCheck['count']);
                 
-                if ($this->auth_notification->notifyUsersAccountLocked($bruteforceCheck, $user_id, $dbId) == true) {
+                if ($this->auth_notification->notifyUsersAccountLocked($isAngularClient, $bruteforceCheck, $user_id, $dbId) == true) {
                     self::auditLogin($dbId, $user_id, LoginAuditType::ACCOUNT_LOCKED);
                 }
             }
@@ -454,38 +425,9 @@ class Authentication {
                         // Password is correct!
                         self::verifyDevice($user_id, $dbId);
                         self::auditLogin($dbId, $row->user_id, LoginAuditType::SUCCESS_PASSWORD);
-
-                        $successContext = [];
-
-                        // Check if user requires 2 factor auth
-                        // twofa, twofa_key
-                        $successContext['twofa'] = $row->twofa;
-                        $successContext['twofaKey'] = '';
-                        if($row->twofa == true) {
-                            $otp = TOTP::create(
-                                null, // Let the secret be defined by the class
-                                60    // The period is now 60 seconds
-                            );
-                            $successContext['twofaKey'] = $otp->now();
-                        }
-
-                        // Get the user-agent string of the user.
-                        $user_browser = AuthNotification::getUserAgent();
-                                                
-                        $successContext['dbId']             = $dbId;
-                        $successContext['FirehallId']       = $row->firehall_id;
-                        $successContext['userId']           = $row->user_id;
-                        $successContext['userPwd']          = $row->user_pwd;
-                        $successContext['userAccess']       = $row->access;
-                        $successContext['userType']         = $row->user_type;
-                        $successContext['password']         = $password;
-                        $successContext['user_browser']     = $user_browser;
-                        $successContext['ldap_enabled']     = false;
-                        $successContext['isAngularClient']  = $isAngularClient;
-                        $successContext['pwdHash']          = $pwdHash;
-                                                                        
+                        
                         // Login successful.
-                        return $this->getLoginSuccessResult($successContext);
+                        return $this->auth_notification->getLoginResult($isAngularClient, $user_id, $row);
                     }
 
                     // Password is not correct we record this attempt in the database
@@ -500,7 +442,7 @@ class Authentication {
 
                     if($log !== null) $log->error('Login FAILED pwd check pwdHash ['.$pwdHash.'] $userPwd ['.$row->user_pwd.'] bruteforce: '.$bruteforceCheck['count']);
 
-                    if($this->auth_notification->notifyUsersAccountLocked($bruteforceCheck, $user_id, $dbId) == true) {
+                    if($this->auth_notification->notifyUsersAccountLocked($isAngularClient, $bruteforceCheck, $user_id, $dbId) == true) {
                         self::auditLogin($dbId, $user_id, LoginAuditType::ACCOUNT_LOCKED);
                     }
                 }
@@ -1115,16 +1057,25 @@ class Authentication {
                     // If the user exists get variables from result.
                     $password = $row->user_pwd;
                     $config = new ConfigManager();
+                    if($log !== null) $log->trace('IN login=>execute password: '.$password.' user_browser: '.$user_browser);
                     $login_check = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
 
                     if ($login_check === $login_string) {
                         return true;
                     }
                     else {
-                        // Not logged in
-                        if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . AuthNotification::getClientIPInfo() . "] failed hash check!");
-                        	
+                        // Login user agent does not match
+                        if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . AuthNotification::getClientIPInfo() . "] user_browser [$user_browser] failed hash check, login_check [$login_check] != login_string [$login_string]");
                         if($log !== null) $log->error("LOGINCHECK F1");
+
+                        // If the user account is locked we dont care if the user agent matches or not:
+                        $dbId = $user_id;
+                        $bruteforceCheck = $this->checkbrute($dbId, $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS);
+                        if ($bruteforceCheck['max_exceeded'] === true) {
+                            if($log !== null) $log->warn("Override check for user agent login_string since account is locked!");
+                            return true;
+                        }
+                    
                         return false;
                     }
                 }

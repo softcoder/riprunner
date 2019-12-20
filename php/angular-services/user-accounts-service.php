@@ -133,6 +133,7 @@ class UserAccountsController extends AuthApiController {
 		$FIREHALL = $view_template_vars['gvm']->firehall;
 		$auth = new\riprunner\Authentication($FIREHALL);
 		$auth->auditLogin($user->id, $user->user_id, \riprunner\LoginAuditType::SUCCESS_CHANGE_PASSWORD);
+		self::unlockAccount($user->id, $view_template_vars['gvm']->RR_DB_CONN);
 
         return $this->isXml ? [ 'Status' => 'ok' ] : 'ok';
     }
@@ -330,7 +331,7 @@ class UserAccountsController extends AuthApiController {
 		if($log !== null) $log->trace('UPDATE user password ok');
 		return $new_pwd;
 	}
-    
+
 	private function handleDeleteAccount($db_connection, $self_edit, $edit_user_id) {
 		global $log;
         if($self_edit === false) {
@@ -350,7 +351,25 @@ class UserAccountsController extends AuthApiController {
 			}
 		}
 	}
-    
+	
+	private function unlockAccount($userDBId, $db_connection) {
+		global $log;
+		// UPDATE
+		if($userDBId >= 0) {
+			
+			$sql_statement = new \riprunner\SqlStatement($db_connection);
+			$sql = $sql_statement->getSqlStatement('user_accounts_unlock');
+
+			if($log !== null) $log->trace("About to UNLOCK user account for sql [$sql]");
+
+			$qry_bind = $db_connection->prepare($sql);
+			$qry_bind->bindParam(':id', $userDBId);
+			
+			$qry_bind->execute();
+			if($log !== null) $log->warn("UNLOCKED user account for account id [$userDBId]");
+		}
+	}
+	
 }
 $api = new Api();
 $api->handle();
