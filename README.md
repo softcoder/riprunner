@@ -51,10 +51,10 @@ Key Android App Features:
 
 Referral Codes:
 ---------------
-If you are planning on signing up with Twilio please consider using my referral code:
+If you are planning to sign up with Twilio as your SMS provider, please consider using my referral code:
 www.twilio.com/referral/G68JJs
 
-If you are planning toi purchase a Tesla product please consider using my referral code:
+If you are planning to purchase a Tesla product, please consider using my referral code:
 https://ts.la/mark25940
 
 Thank you!
