@@ -85,7 +85,7 @@ class TwilioSMSCommandHandler extends SMSCommandHandler {
 
                 if($log !== null) $log->trace("About to validate twilio host url [$url] vars [" . implode(', ', $post_vars) . 
                                               "] sig [$signature] auth [$authToken[1]]");
-                $validate_result = $validator->validate($signature, $url, $post_vars);
+                $validate_result = $validator->validate($signature != null ? $signature : '', $url, $post_vars);
                 if ($validate_result === true) {
                     // This request definitely came from Twilio
                     return true;
