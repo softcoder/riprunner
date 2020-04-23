@@ -491,7 +491,7 @@ class Authentication {
 
         $jwtSecret = null;
         $secrets = self::getJWTSecrets();
-        $keyCount = count($secrets);
+        $keyCount = safe_count($secrets);
         if($secrets != null && $keyCount > 0) {
             //$keyIndex = random_int(0, $keyCount-1);
             $rotateEveryXHours = (int)(24 / $keyCount);
@@ -777,7 +777,7 @@ class Authentication {
         catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
             if ($log !== null) $log->trace("In getRefreshJWTTokenIfRequired problem token [$token] error: ".$e->getMessage());
             $newTokens = self::getNewJWTTokenFromRefreshToken($refreshToken);
-            if ($newTokens != null && count($newTokens) == 2) {
+            if ($newTokens != null && safe_count($newTokens) == 2) {
                 $token = $newTokens[0];
                 $refreshToken = $newTokens[1];
             }
@@ -867,7 +867,7 @@ class Authentication {
             if($refreshIfRequired == true) {
                 $refreshToken = self::getCurrentJWTRefreshToken($request_variables, $server_variables);
                 $tokens = self::getRefreshJWTTokenIfRequired($token, $refreshToken);
-                if($tokens != null && count($tokens) == 2) {
+                if($tokens != null && safe_count($tokens) == 2) {
                     $token = $tokens[0];
                     $refreshToken = $tokens[1];
                 }
@@ -927,7 +927,8 @@ class Authentication {
                 $refreshToken = self::getCurrentJWTRefreshToken();
                 
                 $newTokens = self::getNewJWTTokenFromRefreshToken($refreshToken);
-                if ($newTokens != null && count($newTokens) == 2 && $newTokens[0] != null && strlen($newTokens[0])) {
+                if ($newTokens != null && safe_count($newTokens) == 2 && 
+                    $newTokens[0] != null && strlen($newTokens[0])) {
                     if ($log !== null) $log->trace("In decodeJWTToken new token [$newTokens[0]]");
 
                     $token = self::decodeJWT($newTokens[0]);
@@ -972,7 +973,7 @@ class Authentication {
     static public function getAuthVar($key, $request_variables=null, $server_variables=null) {
 
         $authCache = self::getJWTAuthCache($request_variables, $server_variables);
-        if($authCache != null && count($authCache) > 0) {
+        if($authCache != null && safe_count($authCache) > 0) {
             if (isset($authCache[$key]) == true) {
                 return $authCache[$key];
             }
@@ -1121,7 +1122,8 @@ class Authentication {
             $rows = $qry_bind->fetchAll(\PDO::FETCH_CLASS);
             $qry_bind->closeCursor();
             
-            if($log) $log->trace("About to build user type list for sql [$sql] result count: " . count($rows));
+            if($log) $log->trace("About to build user type list for sql [$sql] result count: " . 
+            safe_count($rows));
             
             foreach($rows as $row) {
                 if($userType == $row->id) {
@@ -1401,7 +1403,7 @@ class Authentication {
             $rows = $stmt->fetchAll(\PDO::FETCH_OBJ);
             $stmt->closeCursor();
     
-            $row_count = count($rows);
+            $row_count = safe_count($rows);
             $result['count'] = $row_count;
             // If there have been more than x failed logins
             if ($row_count > $max_logins) {

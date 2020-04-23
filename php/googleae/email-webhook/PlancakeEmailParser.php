@@ -164,7 +164,7 @@ class PlancakeEmailParser {
      */
     public function getSender()
     {
-        if ( (!isset($this->rawFields['sender'])) || (!count($this->rawFields['sender'])))
+        if ( (!isset($this->rawFields['sender'])) || (!safe_count($this->rawFields['sender'])))
         {
             throw new Exception("Couldn't find the sender of the email");
         }
@@ -178,7 +178,7 @@ class PlancakeEmailParser {
      */
     public function getTo()
     {
-        if ( (!isset($this->rawFields['to'])) || (!count($this->rawFields['to'])))
+        if ( (!isset($this->rawFields['to'])) || (!safe_count($this->rawFields['to'])))
         {
             throw new Exception("Couldn't find the recipients of the email");
         }

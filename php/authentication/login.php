@@ -244,7 +244,7 @@ class ProcessLogin {
                         if ($valid2FA == false) {
 							$loginResult = $auth->login($user_id, $password);
                         }
-						if ($valid2FA == true || count($loginResult) > 0) {
+						if ($valid2FA == true || safe_count($loginResult) > 0) {
                             if ($valid2FA == false) {
 								$twoFAResult = !$loginResult['twofa'];
 								$systemTwoFA = $loginResult['twofaKey'];

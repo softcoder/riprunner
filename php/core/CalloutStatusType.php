@@ -76,7 +76,8 @@ class CalloutStatusType {
             $qry_bind->closeCursor();
             \riprunner\DbConnection::disconnect_db( $db_connection );
             
-            if($log !== null) $log->trace("Call get response status codes SQL success for sql [$sql] row count: " . count($rows));
+            if($log !== null) $log->trace("Call get response status codes SQL success for sql [$sql] row count: " . 
+            safe_count($rows));
             
             $statusList = array();
             foreach($rows as $row) {

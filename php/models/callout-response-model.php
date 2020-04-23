@@ -159,7 +159,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$row = $qry_bind->fetch(\PDO::FETCH_OBJ);
 			$qry_bind->closeCursor();
 			
-			//$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . count($row));
+			//$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . safe_count($row));
 			$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."]");
 
 			$this->useracctid = null;
@@ -183,7 +183,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 				$row_ci = $qry_bind2->fetch(\PDO::FETCH_OBJ);
 				$qry_bind2->closeCursor();
 				
-				//$result_count = count($row_ci);
+				//$result_count = safe_count($row_ci);
 
 				//$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation count: " . $result_count);
 				$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation.");

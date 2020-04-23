@@ -307,7 +307,7 @@ class CalloutTrackingViewModel extends BaseViewModel {
 				$rows_callout = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
 				$qry_bind->closeCursor();
 				
-				$rows_count = count($rows_callout);
+				$rows_count = safe_count($rows_callout);
 				
 				if( $rows_count > 0) {
 					if($this->getUserPassword() === null && $this->getCalloutKeyId() !== null) {

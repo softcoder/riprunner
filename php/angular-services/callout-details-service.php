@@ -58,7 +58,7 @@ class CalloutDetailsController extends AuthApiController {
         $calloutDetails = $calloutModel->__get('callout_details_list');
         $callouts = array();
         $callouts['details'] = null;
-        if(count($calloutDetails) > 0) {
+        if(safe_count($calloutDetails) > 0) {
             $callouts['details'] = $calloutDetails[0];
             $callouts['details']['latitude'] = floatval($callouts['details']['latitude']);
             $callouts['details']['longitude'] = floatval($callouts['details']['longitude']);

@@ -593,7 +593,7 @@ class Mobile_Detect
     public function setHttpHeaders($httpHeaders = null)
     {
         //use global _SERVER if $httpHeaders aren't defined
-        if (!is_array($httpHeaders) || !count($httpHeaders)) {
+        if (!is_array($httpHeaders) || !safe_count($httpHeaders)) {
             $httpHeaders = $_SERVER;
         }
 

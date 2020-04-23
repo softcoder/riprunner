@@ -47,7 +47,8 @@ class CalloutTypeViewModel extends BaseViewModel {
 		$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 		$qry_bind->closeCursor();
 		
-		$log->trace("About to display type list for sql [$sql] result count: " . count($rows));
+		$log->trace("About to display type list for sql [$sql] result count: " . 
+		safe_count($rows));
 		
 		$resultArray = array();
 		foreach($rows as $row){

@@ -90,7 +90,8 @@ class UsersMenuViewModel extends BaseViewModel {
 		$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 		$qry_bind->closeCursor();
 		
-		$log->trace("About to display user list for sql [$sql] result count: " . count($rows));
+		$log->trace("About to display user list for sql [$sql] result count: " . 
+		safe_count($rows));
 		
 		$auth = new\riprunner\Authentication($this->getGvm()->firehall);
 
@@ -130,7 +131,8 @@ class UsersMenuViewModel extends BaseViewModel {
 	    $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 	    $qry_bind->closeCursor();
 	
-	    $log->trace("About to display user type list for sql [$sql] result count: " . count($rows));
+		$log->trace("About to display user type list for sql [$sql] result count: " . 
+		safe_count($rows));
 	
 	    $resultArray = array();
 	    foreach($rows as $row){

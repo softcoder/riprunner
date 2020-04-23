@@ -148,9 +148,10 @@ require __DIR__ . '/vendor/autoload.php';
 			$qry_bind->closeCursor();
 			\riprunner\DbConnection::disconnect_db( $db_connection );
 
-			if($log !== null) $log->trace("Call /prxy/ SQL success for sql [$sql] row count: " . count($rows));
+			if($log !== null) $log->trace("Call /prxy/ SQL success for sql [$sql] row count: " . 
+			safe_count($rows));
 			
-			if(count($rows) > 0) {
+			if(safe_count($rows) > 0) {
 				//echo 'Proxy SQL found long url [' .$rows[0]['longurl'] . ']' . PHP_EOL;
 				//print_r($rows[0]);
 				$longUrl = $rows[0]['longurl'];

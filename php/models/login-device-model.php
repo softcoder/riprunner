@@ -112,7 +112,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 
 			$auth = new\riprunner\Authentication($this->getFirehall());
 			$loginResult = $auth->login($this->getUserId(), $this->getUserPassword());
-            if (count($loginResult) > 0) {
+            if (safe_count($loginResult) > 0) {
 				// Login success
 				$this->user_account_id = $loginResult['user_db_id'];
 				$this->user_authenticated = true;
@@ -211,7 +211,8 @@ class LoginDeviceViewModel extends BaseViewModel {
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 			$qry_bind->closeCursor();
 			
-			$log->trace("About to collect live callout for sql [$sql] result count: " . count($rows));
+			$log->trace("About to collect live callout for sql [$sql] result count: " . 
+			safe_count($rows));
 
 			$this->live_callout = array();
 			foreach($rows as $row){

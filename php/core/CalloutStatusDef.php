@@ -217,7 +217,7 @@ class CalloutStatusDef implements \JsonSerializable {
     
     public function hasAccess($userAccess) {
         $validateList = $this->getAccessFlagsValidateList();
-        if($this->accessFlags != null && count($validateList) > 0) {
+        if($this->accessFlags != null && safe_count($validateList) > 0) {
             if($userAccess != null) {
                 $foundMatch = false;
                 foreach($validateList as &$access) {

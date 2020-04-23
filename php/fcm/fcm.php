@@ -75,7 +75,7 @@ class FCM {
     public function getDeviceCount() {
     	$result = 0;
     	if (isset($this->devices) === true) {
-    		$result = count($this->devices);
+    		$result = safe_count($this->devices);
     	}
     	return $result;
     }
@@ -173,7 +173,7 @@ class FCM {
     	global $log;
     	
     	$resultFCM = '';
-    	if (is_array($this->devices) === false || count($this->devices) === 0) {
+    	if (is_array($this->devices) === false || safe_count($this->devices) === 0) {
     		$this->error('FCM No devices set!', 'FCM No devices set.');
 		}
 		

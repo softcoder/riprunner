@@ -63,7 +63,8 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 			$qry_bind->closeCursor();
 			
-			$log->trace("About to display callout response list for sql [$sql] result count: " . count($rows));
+			$log->trace("About to display callout response list for sql [$sql] result count: " . 
+			safe_count($rows));
 			
 			$this->response_list = array();
 			foreach($rows as $row) {
@@ -81,7 +82,7 @@ class CalloutHistoryResponseViewModel extends BaseViewModel {
 		if(isset($this->response_cols) === false) {
 			$list = $this->getResponseList();
 			
-			if(count($list) > 0) {
+			if(safe_count($list) > 0) {
 				$this->response_cols = array_keys(reset($list));
 			}
 		}

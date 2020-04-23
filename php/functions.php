@@ -17,6 +17,22 @@ require_once 'config/config_manager.php';
 require_once 'core/CalloutStatusType.php';
 require_once 'logging.php';
 
+if (!function_exists('is_countable')) {
+    function is_countable($var) { 
+        return is_array($var) 
+            || $var instanceof Countable 
+            || $var instanceof ResourceBundle 
+            || $var instanceof SimpleXmlElement; 
+    }
+}
+
+function safe_count($var) {
+    if(is_countable($var)) {
+        return count($var);
+    }
+    return 0;
+}
+
 function getSafeCookieValue($key, $cookie_variables=null) {
     if($cookie_variables !== null && array_key_exists($key, $cookie_variables) === true) {
         return htmlspecialchars($cookie_variables[$key]);
@@ -59,7 +75,7 @@ function getAddressForMapping($FIREHALL, $address) {
 	$result_address = $address;
 	
 	$streetSubstList = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_STREET_NAME_SUBSTITUTION;
-	if(isset($streetSubstList) === true && $streetSubstList !== null && count($streetSubstList) > 0) {
+	if(isset($streetSubstList) === true && $streetSubstList !== null && safe_count($streetSubstList) > 0) {
 		foreach($streetSubstList as $sourceStreetName => $destStreetName) {
 			$result_address = str_replace($sourceStreetName, $destStreetName, $result_address);
 		}
@@ -68,7 +84,7 @@ function getAddressForMapping($FIREHALL, $address) {
 	//$log->trace("After street subst map address is [$result_address]");
 	
 	$citySubstList = $FIREHALL->WEBSITE->WEBSITE_CALLOUT_DETAIL_CITY_NAME_SUBSTITUTION;
-	if(isset($citySubstList) === true && $citySubstList !== null && count($citySubstList) > 0) {
+	if(isset($citySubstList) === true && $citySubstList !== null && safe_count($citySubstList) > 0) {
 		foreach($citySubstList as $sourceCityName => $destCityName) {
 			$result_address = str_replace($sourceCityName, $destCityName, $result_address);
 		}
@@ -175,7 +191,7 @@ function getUserNameFromMobilePhone($FIREHALL, $db_connection, $matching_sms_use
     $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
     $qry_bind->closeCursor();
 
-    if($log !== null) $log->trace("SMS Host got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . count($rows));
+    if($log !== null) $log->trace("SMS Host got firehall_id [$FIREHALL->FIREHALL_ID] mobile [$matching_sms_user] got count: " . safe_count($rows));
 
     if($must_close_db === true) {
         \riprunner\DbConnection::disconnect_db( $db_connection );
@@ -211,7 +227,7 @@ function getMobilePhoneListFromDB($FIREHALL, $db_connection, $filtered_sms_users
 	$rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
 	$qry_bind->closeCursor();
 	
-	if($log !== null) $log->trace("Call getMobilePhoneListFromDB SQL success for sql [$sql] row count: " . count($rows));
+	if($log !== null) $log->trace("Call getMobilePhoneListFromDB SQL success for sql [$sql] row count: " . safe_count($rows));
 	
 	$result = array();
 	foreach($rows as $row) {
@@ -247,7 +263,7 @@ function getEmailListFromDB($FIREHALL, $db_connection) {
     $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
     $qry_bind->closeCursor();
     
-    if($log !== null) $log->trace("Call getEmailListFromDB SQL success for sql [$sql] row count: " . count($rows));
+    if($log !== null) $log->trace("Call getEmailListFromDB SQL success for sql [$sql] row count: " . safe_count($rows));
     
 //     $result = array();
 //     foreach($rows as $row) {
@@ -289,7 +305,7 @@ function validateDate($date, $format='Y-m-d H:i:s') {
 function getFirehallRootURLFromRequest($request_url, $firehalls, $use_firehall=null) {
 	global $log;
 	
-    if ($use_firehall !== null || count($firehalls) === 1) {
+    if ($use_firehall !== null || safe_count($firehalls) === 1) {
         if ($use_firehall !== null) {
             if ($log !== null) $log->trace("#1 Looking for website root URL req [$request_url] use_firehall root [" . $use_firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
             return rtrim($use_firehall->WEBSITE->WEBSITE_ROOT_URL, '/');
@@ -313,15 +329,15 @@ function getFirehallRootURLFromRequest($request_url, $firehalls, $use_firehall=n
 		}
 		
 		$url_parts = explode('/', $request_url);
-		if(isset($url_parts)  === true && count($url_parts) > 0) {
-			$url_parts_count = count($url_parts);
+		if(isset($url_parts)  === true && safe_count($url_parts) > 0) {
+			$url_parts_count = safe_count($url_parts);
 			
 			foreach ($firehalls as &$firehall) {
 				if($log !== null) $log->trace("#3 Looking for website root URL req [$request_url] firehall root [" . $firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
 				
 				$fh_parts = explode('/', $firehall->WEBSITE->WEBSITE_ROOT_URL);
-				if(isset($fh_parts)  === true && count($fh_parts) > 0) {
-					$fh_parts_count = count($fh_parts);
+				if(isset($fh_parts)  === true && safe_count($fh_parts) > 0) {
+					$fh_parts_count = safe_count($fh_parts);
 					
 					for($index_fh = 0; $index_fh < $fh_parts_count; $index_fh++) {
 						for($index = 0; $index < $url_parts_count; $index++) {
@@ -427,19 +443,19 @@ function validate_email_sender($FIREHALL, $from) {
                 // Match on exact email address if @ in trigger text
                 $valid_email_from_trigger_parts = explode('@', $valid_email_from_trigger);
                 if(strpos($valid_email_from_trigger, '@') !== false && 
-                     count($valid_email_from_trigger_parts) > 1 &&
+                safe_count($valid_email_from_trigger_parts) > 1 &&
                         $valid_email_from_trigger_parts[0] !== '') {
                     $fromaddr = $from;
                 }
                 // Match on all email addresses from the same domain
                 else {
-                    if(count($valid_email_from_trigger_parts) > 1 &&
+                    if(safe_count($valid_email_from_trigger_parts) > 1 &&
                         $valid_email_from_trigger_parts[0] === '') {
                         $valid_email_from_trigger = $valid_email_from_trigger_parts[1];
                     }
                     
                     $fromaddr = explode('@', $from);
-                    if(count($fromaddr) > 1) {
+                    if(safe_count($fromaddr) > 1) {
                         $fromaddr = $fromaddr[1];
                     }
                 }

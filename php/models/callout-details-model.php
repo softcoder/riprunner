@@ -254,7 +254,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	        $row = $qry_bind->fetch(\PDO::FETCH_OBJ);
 	        $qry_bind->closeCursor();
 	        	
-	        $log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getMemberId() ."] got count: " . (is_array($row) ? count($row) : ''));
+	        $log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getMemberId() ."] got count: " . (is_array($row) ? safe_count($row) : ''));
 	
 	        $this->useracctid = null;
 	        $this->user_authenticated = false;
@@ -320,7 +320,8 @@ class CalloutDetailsViewModel extends BaseViewModel {
 				$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 				$qry_bind->closeCursor();
 
-				$log->trace("Call Info callouts SQL success for sql [$sql] row count: " . count($rows));
+				$log->trace("Call Info callouts SQL success for sql [$sql] row count: " . 
+				safe_count($rows));
 				
 				$results = array();
 				foreach($rows as $row){
@@ -393,7 +394,8 @@ class CalloutDetailsViewModel extends BaseViewModel {
 					$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 					$qry_bind->closeCursor();
 
-					$log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . count($rows));
+					$log->trace("Call Info callouts responders SQL success for sql [$sql_response] row count: " . 
+					safe_count($rows));
 					
 					$results = array();
 					foreach($rows as $row_r){
@@ -439,7 +441,8 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 			$qry_bind->closeCursor();
 
-			$log->trace("Call Info callouts no responses SQL success for sql [$sql_no_response] row count: " . count($rows));
+			$log->trace("Call Info callouts no responses SQL success for sql [$sql_no_response] row count: " . 
+			safe_count($rows));
 			
 			$results = array();
 			foreach($rows as $row){
@@ -475,7 +478,8 @@ class CalloutDetailsViewModel extends BaseViewModel {
 			$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 			$qry_bind->closeCursor();
 
-			$log->trace("Call Info callouts yes responses SQL success for sql [$sql_yes_response] row count: " . count($rows));
+			$log->trace("Call Info callouts yes responses SQL success for sql [$sql_yes_response] row count: " . 
+			safe_count($rows));
 			
 			$results = array();
 			foreach($rows as $row){

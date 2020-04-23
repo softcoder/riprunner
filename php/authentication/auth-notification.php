@@ -196,7 +196,7 @@ class AuthNotification {
         if ($existingDevice == null) {
 
             $knownDevices = self::findExistingDevicesByUser($userDBId);
-            if ($knownDevices != null && count($knownDevices) > 0) {
+            if ($knownDevices != null && safe_count($knownDevices) > 0) {
                 if ($log !== null) {
                     $log->warn("Login audit for user [$user_id] - $userDBId detected NEW LOGIN DEVICE for client [$ip] agent [$userAgent]");
                 }
@@ -387,7 +387,8 @@ class AuthNotification {
             $rows = $qry_bind->fetchAll(\PDO::FETCH_CLASS);
             $qry_bind->closeCursor();
             
-            if($log !== null) $log->trace("About to build user type list for sql [$sql] result count: " . count($rows));
+            if($log !== null) $log->trace("About to build user type list for sql [$sql] result count: " . 
+            safe_count($rows));
             
             foreach($rows as $row) {
                 if($userType == $row->id) {
@@ -419,7 +420,7 @@ class AuthNotification {
 
             // $ build jwt for user to be able to autologin and reset password
             $loginResult = self::getLoginResult($isAngularClient, $user_id, null);
-            if (count($loginResult) > 0) {
+            if (safe_count($loginResult) > 0) {
                 if ($loginResult['twofa'] == true) {
                     $loginResult['twofaKey'] = '';
                 }
@@ -448,7 +449,7 @@ $resetPasswordURL";
             array_push($notifyUsers,$dbId);
             // Notify the admin users of the hack attempt
             $adminUsers = self::getAdminUsers();
-            if ($adminUsers != null && count($adminUsers) > 0) {
+            if ($adminUsers != null && safe_count($adminUsers) > 0) {
                 foreach ($adminUsers as $adminUser) {
                     //if($log !== null) $log->error("LOGIN-F2 admin: ".print_r($adminUser,TRUE));
                     if (in_array($adminUser->id, $notifyUsers) == false) {

@@ -133,8 +133,8 @@ class EmailTriggerPolling {
         global $log;
         $html = '';
     
-        echo 'Loop count: '.count($FIREHALLS).PHP_EOL;
-        if($log !== null) $log->trace('Email trigger checking firehall count:'.count($FIREHALLS));
+        echo 'Loop count: '.safe_count($FIREHALLS).PHP_EOL;
+        if($log !== null) $log->trace('Email trigger checking firehall count:'.safe_count($FIREHALLS));
     
         # Loop through all Firehall email triggers
         foreach ($FIREHALLS as &$FIREHALL) {
@@ -181,7 +181,7 @@ class EmailTriggerPolling {
                 if($log !== null) $log->trace('SUCCESS imap_open firehall: '.$FIREHALL->WEBSITE->FIREHALL_NAME);
                 
                 $headers = $this->getIMapProvider()->imap_headers($mail);
-                $headers_count = count($headers);
+                $headers_count = safe_count($headers);
 
                 //$log->trace('Found email count # ['.$headers_count.']');
 
@@ -282,7 +282,7 @@ class EmailTriggerPolling {
         }
         $nparts = 0;
         if ($multi != null) {
-            $nparts = count($multi);
+            $nparts = safe_count($multi);
         }
     
         if($log !== null) $log->trace('Email trigger check Email contains ['.$nparts.'] parts.');
