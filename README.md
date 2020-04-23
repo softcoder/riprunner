@@ -49,6 +49,16 @@ Key Android App Features:
 - Allows responders to indicate that the call is coempleted or cancelled with the click of 1 button. (other responders are notified)
 - If you login during a live callout, you will receive the pager tones and live call information.
 
+Referral Codes:
+---------------
+If you are planning to sign up with Twilio as your SMS provider, please consider using my referral code:
+www.twilio.com/referral/G68JJs
+
+If you are planning to purchase a Tesla product, please consider using my referral code:
+https://ts.la/mark25940
+
+Thank you!
+
 Overview:
 -------------------------
 
