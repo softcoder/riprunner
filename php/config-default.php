@@ -15,9 +15,20 @@ require_once 'config_interfaces.php';
 require_once 'config_constants.php';
 require_once 'config/config_manager.php';
 
-// This true / false variable defines whether or not users can update callouts
-// even after their status is set to cancelled or completed
-define('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
+// ====================================================================================================
+// ===                   CUSTOMIZE THE LOGIN SCREEN LOGO, DEFAULT IS SET                            ===
+// ===  A DEFAULT LOGO HAS BEEN CREATED OF A GENERIC MALTESE CROSS, YOU CAN OVERWRITE THIS WITH     ===
+// ===              A LOGO OF YOUR CHOICE.  RECOMMEND THE IMAGE SIZE BE 350x350px                   ===
+// ====================================================================================================
+define('LOGO_LOGIN', '/images/small-logo.png');
+
+
+// ====================================================================================================
+// ===                     ALLOW CALLOUT CHANGES AFTER THE CALL IS COMPLETED                        ===
+// ===       THIS WILL ALLOW MEMBERS TO RESPOND TO A CALL, EVEN AFTER THE CALL IS COMPLETED.        ===
+// ===                    BE CAREFULL WITH THIS AS TIME LOGS CAN BE INCORRECT                       ===
+// ====================================================================================================
+define('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', false);
 
 // ====================================================================================================
 // ===                     ENABLE JAVASCRIPT OR IFRAME MAPPING STYLES                               ===
@@ -26,31 +37,71 @@ define('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
 // === OPTIONS SUCH AS OVERLAYS: EG. MUTAUAL AID BOUNDARIES, OR MARKERS TO IDENTIFY LANDMARKS       ===
 // === SUCH AS WATER SOURCES OR HYDRANT LOCATIONS.                                                  ===
 // ====================================================================================================
+define('google_map_type','javascript');
 
-define('GOOGLE_MAP_TYPE', 'javascript');
-//define( 'GOOGLE_MAP_TYPE', 'iframe');
-
-define('MAP_REFRESH_TIMER', '60');
-
-define('MAP_TRACKING_TIMER', '40');
+// ====================================================================================================
+// ===                            MAP OPTIONS FOR CALLOUT DETAILS                                   ===
+// ====================================================================================================
+// === OPTIONS SUCH AS OVERLAYS: EG. MUTUAL AID BOUNDARIES, OR MARKERS TO IDENTIFY LANDMARKS       ===
+// === SUCH AS WATER SOURCES, HYDRANT LOCATIONS, AND LOCATIONS OF OTHER FIREHALLS IN YOUR AREA      ===
+// === REFRESH TIMER WILL RELOAD THE LIVE CALLOUT MAP AND RESPONDERS                                 ===
+// === USING LARGE ZOOM BUTTONS HELPS WITH SMALLER SCREENS, MAKING ZOOM CONTROLS EASIER TO USE      ===
+// ====================================================================================================
+define('MAP_REFRESH_TIMER', '60');  // AUTOMATIC RELOAD FOR MAP IN SECONDS
+define('MAP_TRACKING_TIMER', '40'); // RESPONDER TRACKING TIME, MUST BE LOWER THAN MAP_REFRESH_TIMER
 
 // these will only work with the javascript map
 define('JSMAP_WIDTH','100%');
-define('JSMAP_HEIGHT','550px');
+define('JSMAP_HEIGHT','500px');
 define('JSMAP_MOBILEWIDTH','85%');
-define('JSMAP_MOBILEHEIGHT','1000px');
+define('JSMAP_MOBILEHEIGHT','8000px');
+
+// THIS SECTION UNDER DEVELOPMENT AND CHANGES HERE HAVE NO EFFECT
+// Icon path is relative to your setRootURL configuration option, or the full URL to the image
+//define('ICON_MARKERSCUSTOM','yes');  // Enable custom icons for markers 
+//define('ICON_MARKERSCUSTOM_LEGEND','yes');  // Enable the javascript map Legend for custom markers
+//define('ICON_HYDRANT','/images/icons/redhydrant_small.png'); //hydrant Icon
+//define('ICON_FIREHALL','/images/icons/firedept.png'); // Fire Department Icon 
+//define('ICON_WATERTANK','/images/icons/water.png'); // Water Tank Icon
+//define('ICON_CALLORIGIN','/images/icons/phone.png'); // 911 Call origin
+//define('ICON_RESPONDER' ,'images/icons/responder.png'); // Icon for Responder Locations
 
 // ====================================================================================================
-// === ENABLE THE AUDIO SOURCE FOR REALTIME RADIO TRAFFIC AVAIALABLE OVER DEVICES                   ===
+// === DEFINE ANY CUSTOM STYLES HERE - THESE WILL NOT BE REMOVED OR REPLACED ACROSS UPGRADES        ===
+// ====================================================================================================
+// THIS SECTION UNDER DEVELOPMENT AND CHANGES HERE HAVE NO EFFECT
+//define('CUSTOM_MAIN_CSS','styles/custom-main.css');
+//define('CUSTOM_MOBILE_CSS','styles/custom-mobile.css');
+
+// ====================================================================================================
+// === DEFINE THE MENU STYLE FOR THE SITE, OPTIONS ARE horizontal OR vertical						===
+// ====================================================================================================
+// THIS SECTION UNDER DEVELOPMENT AND CHANGES HERE HAVE NO EFFECT
+//define('MENU_TYPE', 'horizontal');
+
+
+// ====================================================================================================
+// === SPECIFY A USERNAME YOUR FIREHALL DISPLAY WILL LOG INTO THE SYSTEM WITH. THIS DISPLAY WILL    ===
+// ===       NOT SHOW RESPONDING BUTTONS, OR OPTIONS TO MODIFY A RESONDERS STATUS                   ===
+// ===     ONLY CALL RELATED INFORMATION WILL BE INFORMATION ON THE SCREEN.                         ===
+// ===  A WIDE SCREEN TV WITH A ROTATED DISPLAY MAY SHOW MUCH MORE INFORMATION IN A CONDENSED VIEW  ===
+// === THIS USER WILL ALSO AUTOMATICALLY OPEN AND CLOSE CALLS WHEN VIEWING THE "LIVE MONITOR"       ===
+// ====================================================================================================
+// THIS SECTION UNDER DEVELOPMENT AND CHANGES HERE HAVE NO EFFECT
+//define('DISPLAY_USERNAME','_DISPLAY');
+//define('JSMAP_DISPLAYWIDTH', '100%');
+//define('JSMAP_DISPLAYHEIGHT', '350px');
+
+// ====================================================================================================
+// === ENABLE THE AUDIO SOURCE FOR REALTIME RADIO TRAFFIC AVAILABLE OVER DEVICES                    ===
 // === SERVER MUST HAVE AN AUDIO CHANNEL FROM YOUR RADIO NETWORK AND MADE AVAILABLE WITH SOFTWARE   ===
 // === CAPABLE OF STREAMING AN MP3 AND/OR OOG AUDIO STREAM TO DEVICES OUTSIDE OF YOUR NETWORK       ===
-// === TESTING KNOWN SERVERS ARE ICECAST AND VLC PLAYER WITH A CONFIGURED HTTP STREAM               ===
+// === TESTED KNOWN SERVERS ARE ICECAST AND VLC PLAYER WITH A CONFIGURED HTTP STREAM                ===
 // ====================================================================================================
-//define('STREAM_AUDIO_ENABLED', 'no');
-//define('STREAM_MOBILE', 'no');
-//define('STREAM_DESKTOP', 'no');
-//define('STREAM_URL', 'http://radiostream.sgvfr.com:65432/call.mp3');
-//define('STREAM_URL', '');
+define('STREAM_AUDIO_ENABLED', 'no');
+define('STREAM_MOBILE', 'no');
+define('STREAM_DESKTOP', 'no');
+define('STREAM_URL', 'http://radiostream.domain.com:65432/stream.mp3');
 define('STREAM_TYPE', 'audio/mp3');
 define('STREAM_AUTOPLAY_DESKTOP', 'no');  //almost always works on desktop devices.
 define('STREAM_AUTOPLAY_MOBILE', 'no');  //may not work on all devices, especially iPhone.
@@ -60,9 +111,8 @@ define('STREAM_AUTOPLAY_MOBILE', 'no');  //may not work on all devices, especial
 // ===--------------MORE USER OPTIONS ARE FURTHER DOWN ---------------------------------------------===
 // ====================================================================================================
 
-// ----------------------------------------------------------------------
-// Max hours old to trigger a live callout page
-define( 'DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD',	48);
+// Max hours old to trigger a live CALLOUT page
+define('DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD', 2);
 
 // ----------------------------------------------------------------------
 
@@ -77,143 +127,98 @@ define( 'GOOGLE_MAP_CITY_DEFAULT2', ',PRINCE GEORGE' );
 
 // This is a list of common areas around your city.  this tables substitues each for the city you have chosen
 $GOOGLE_MAP_CITY_LOOKUP = array(
+	//"ALBREDA," => "ALBREDA,",   AS AN EXAMPLE 
+	"BEAVERLEY," => GOOGLE_MAP_CITY_DEFAULT,
+	"BEDNESTI NORMAN," => GOOGLE_MAP_CITY_DEFAULT,
+	"BLACKWATER NORTH," => GOOGLE_MAP_CITY_DEFAULT,
+	"BUCKHORN," => GOOGLE_MAP_CITY_DEFAULT,
+	"CHIEF LAKE," => GOOGLE_MAP_CITY_DEFAULT,
+	"FERNDALE-TABOR," => GOOGLE_MAP_CITY_DEFAULT,
+	"FOREMAN FLATS," => GOOGLE_MAP_CITY_DEFAULT,
+	"FORT GEORGE NO 2," => GOOGLE_MAP_CITY_DEFAULT,
+	"GISCOME," => GOOGLE_MAP_CITY_DEFAULT,
+	"ISLE PIERRE," => GOOGLE_MAP_CITY_DEFAULT,
+	"MACKENZIE RURAL," => "MACKENZIE RURAL,",
+	"MCBRIDE RURAL," => "MCBRIDE,",
+	"MCLEOD LAKE RESERVE," => "MCLEOD LAKE,",
+	"MIWORTH," => GOOGLE_MAP_CITY_DEFAULT,
+	"MUD RIVER," => GOOGLE_MAP_CITY_DEFAULT,
+	"NESS LAKE," => GOOGLE_MAP_CITY_DEFAULT,
+	"NORTH KELLY," => GOOGLE_MAP_CITY_DEFAULT,
+	"PINE PASS," => GOOGLE_MAP_CITY_DEFAULT,
+	"PINEVIEW FFG," => GOOGLE_MAP_CITY_DEFAULT,
+	"PURDEN," => GOOGLE_MAP_CITY_DEFAULT,
+	"RED ROCK," => GOOGLE_MAP_CITY_DEFAULT,
+	"SALMON VALLEY," => GOOGLE_MAP_CITY_DEFAULT,
+	"SHELL-GLEN," => GOOGLE_MAP_CITY_DEFAULT,
+	"STONER," => GOOGLE_MAP_CITY_DEFAULT,
+	"VALEMOUNT RURAL," => "VALEMOUNT,",
+	"WEST LAKE," => GOOGLE_MAP_CITY_DEFAULT,
+	"WILLOW RIVER," => GOOGLE_MAP_CITY_DEFAULT,
+	"WILLOW RIVER VALLEY," => "WILLOW RIVER,",
+	"WOODPECKER," => GOOGLE_MAP_CITY_DEFAULT,
 
-		//"ALBREDA," => "ALBREDA,",
-		//"BEAR LAKE," => "BEAR LAKE,",
-		"BEAVERLEY," => GOOGLE_MAP_CITY_DEFAULT,
-		"BEDNESTI NORMAN," => GOOGLE_MAP_CITY_DEFAULT,
-		"BLACKWATER NORTH," => GOOGLE_MAP_CITY_DEFAULT,
-		"BUCKHORN," => GOOGLE_MAP_CITY_DEFAULT,
-		//"CARP LAKE," => "CARP LAKE,",
-		"CHIEF LAKE," => GOOGLE_MAP_CITY_DEFAULT,
-		//"CRESCENT SPUR," => "CRESCENT SPUR,",
-		//"DOME CREEK," => "DOME CREEK,",
-		//"DUNSTER," => "DUNSTER,",
-		"FERNDALE-TABOR," => GOOGLE_MAP_CITY_DEFAULT,
-		"FOREMAN FLATS," => GOOGLE_MAP_CITY_DEFAULT,
-		"FORT GEORGE NO 2," => GOOGLE_MAP_CITY_DEFAULT,
-		"GISCOME," => GOOGLE_MAP_CITY_DEFAULT,
-		//"HIXON," => "HIXON,",
-		"ISLE PIERRE," => GOOGLE_MAP_CITY_DEFAULT,
-		//"MACKENZIE," => "MACKENZIE,",
-		"MACKENZIE RURAL," => "MACKENZIE RURAL,",
-		//"MCBRIDE," => "MCBRIDE,",
-		"MCBRIDE RURAL," => "MCBRIDE,",
-		//"MCGREGOR," => GOOGLE_MAP_CITY_DEFAULT,
-		//"MCLEOD LAKE," => "MCLEOD LAKE,"
-		"MCLEOD LAKE RESERVE," => "MCLEOD LAKE,",
-		"MIWORTH," => GOOGLE_MAP_CITY_DEFAULT,
-		//"MOSSVALE," => "MOSSVALE,",
-		//"MOUNT ROBSON," => "MOUNT ROBSON,",
-		"MUD RIVER," => GOOGLE_MAP_CITY_DEFAULT,
-		"NESS LAKE," => GOOGLE_MAP_CITY_DEFAULT,
-		"NORTH KELLY," => GOOGLE_MAP_CITY_DEFAULT,
-		//"PARSNIP," => "PARSNIP,",
-		"PINE PASS," => GOOGLE_MAP_CITY_DEFAULT,
-		"PINEVIEW FFG," => GOOGLE_MAP_CITY_DEFAULT,
-		//"PRINCE GEORGE," => "PRINCE GEORGE,",
-		"PURDEN," => GOOGLE_MAP_CITY_DEFAULT,
-		"RED ROCK," => GOOGLE_MAP_CITY_DEFAULT,
-		"SALMON VALLEY," => GOOGLE_MAP_CITY_DEFAULT,
-		"SHELL-GLEN," => GOOGLE_MAP_CITY_DEFAULT,
-		"STONER," => GOOGLE_MAP_CITY_DEFAULT,
-		//"SUMMIT LAKE," => "SUMMIT LAKE,",
-		//"TETE JAUNE," => "TETE JAUNE,",
-		//"UPPER FRASER," => "UPPER FRASER,",
-		//"VALEMOUNT," => "VALEMOUNT,",
-		"VALEMOUNT RURAL," => "VALEMOUNT,",
-		"WEST LAKE," => GOOGLE_MAP_CITY_DEFAULT,
-		//"WILLISTON LAKE," => "WILLISTON LAKE,",
-		"WILLOW RIVER," => GOOGLE_MAP_CITY_DEFAULT,
-		"WILLOW RIVER VALLEY," => "WILLOW RIVER,",
-		"WOODPECKER," => GOOGLE_MAP_CITY_DEFAULT,
-        
-        
-        
-        //",ALBREDA" => "ALBREDA,",
-        //",BEAR LAKE" => "BEAR LAKE,",
-        ",BEAVERLEY" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",BEDNESTI NORMAN" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",BLACKWATER NORTH" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",BUCKHORN" => GOOGLE_MAP_CITY_DEFAULT2,
-        //",CARP LAKE" => "CARP LAKE,",
-        ",CHIEF LAKE" => GOOGLE_MAP_CITY_DEFAULT2,
-        //",CRESCENT SPUR" => "CRESCENT SPUR,",
-        //",DOME CREEK" => "DOME CREEK,",
-        //",DUNSTER" => "DUNSTER,",
-        ",FERNDALE-TABOR" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",FOREMAN FLATS" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",FORT GEORGE NO 2" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",GISCOME" => GOOGLE_MAP_CITY_DEFAULT2,
-        //",HIXON" => ",HIXON",
-        ",ISLE PIERRE" => GOOGLE_MAP_CITY_DEFAULT2,
-        //",MACKENZIE" => ",MACKENZIE",
-        ",MACKENZIE RURAL" => ",MACKENZIE RURAL",
-        //",MCBRIDE" => ",MCBRIDE",
-        ",MCBRIDE RURAL" => ",MCBRIDE",
-        //",MCGREGOR" => GOOGLE_MAP_CITY_DEFAULT,
-        //",MCLEOD LAKE" => "MCLEOD LAKE,"
-        ",MCLEOD LAKE RESERVE" => ",MCLEOD LAKE",
-        ",MIWORTH" => GOOGLE_MAP_CITY_DEFAULT2,
-        //",MOSSVALE" => ",MOSSVALE",
-        //",MOUNT ROBSON" => ",MOUNT ROBSON",
-        ",MUD RIVER" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",NESS LAKE" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",NORTH KELLY" => GOOGLE_MAP_CITY_DEFAULT2,
-        //",PARSNIP" => ",PARSNIP",
-        ",PINE PASS" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",PINEVIEW FFG" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",PINEVIEW" => GOOGLE_MAP_CITY_DEFAULT2,
-        //",PRINCE GEORGE" => ",PRINCE GEORGE",
-        ",PURDEN" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",RED ROCK" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",SALMON VALLEY" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",SHELL-GLEN" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",STONER" => GOOGLE_MAP_CITY_DEFAULT2,
-        //",SUMMIT LAKE" => ",SUMMIT LAKE",
-        //",TETE JAUNE" => ",TETE JAUNE",
-        //",UPPER FRASER" => ",UPPER FRASER",
-        //",VALEMOUNT" => ",VALEMOUNT",
-        ",VALEMOUNT RURAL" => ",VALEMOUNT",
-        ",WEST LAKE" => GOOGLE_MAP_CITY_DEFAULT2,
-        //",WILLISTON LAKE" => ",WILLISTON LAKE",
-        ",WILLOW RIVER" => GOOGLE_MAP_CITY_DEFAULT2,
-        ",WILLOW RIVER VALLEY" => "WILLOW RIVER",
-        ",WOODPECKER" => GOOGLE_MAP_CITY_DEFAULT2
-        
-	);
+	",BEAVERLEY" => GOOGLE_MAP_CITY_DEFAULT2,
+	",BEDNESTI NORMAN" => GOOGLE_MAP_CITY_DEFAULT2,
+	",BLACKWATER NORTH" => GOOGLE_MAP_CITY_DEFAULT2,
+	",BUCKHORN" => GOOGLE_MAP_CITY_DEFAULT2,
+	",CHIEF LAKE" => GOOGLE_MAP_CITY_DEFAULT2,
+	",FERNDALE-TABOR" => GOOGLE_MAP_CITY_DEFAULT2,
+	",FOREMAN FLATS" => GOOGLE_MAP_CITY_DEFAULT2,
+	",FORT GEORGE NO 2" => GOOGLE_MAP_CITY_DEFAULT2,
+	",GISCOME" => GOOGLE_MAP_CITY_DEFAULT2,
+	",ISLE PIERRE" => GOOGLE_MAP_CITY_DEFAULT2,
+	",MACKENZIE RURAL" => ",MACKENZIE RURAL",
+	",MCBRIDE RURAL" => ",MCBRIDE",
+	",MCLEOD LAKE RESERVE" => ",MCLEOD LAKE",
+	",MIWORTH" => GOOGLE_MAP_CITY_DEFAULT2,
+	",MUD RIVER" => GOOGLE_MAP_CITY_DEFAULT2,
+	",NESS LAKE" => GOOGLE_MAP_CITY_DEFAULT2,
+	",NORTH KELLY" => GOOGLE_MAP_CITY_DEFAULT2,
+	",PINE PASS" => GOOGLE_MAP_CITY_DEFAULT2,
+	",PINEVIEW FFG" => GOOGLE_MAP_CITY_DEFAULT2,
+	",PINEVIEW" => GOOGLE_MAP_CITY_DEFAULT2,
+	",PURDEN" => GOOGLE_MAP_CITY_DEFAULT2,
+	",RED ROCK" => GOOGLE_MAP_CITY_DEFAULT2,
+	",SALMON VALLEY" => GOOGLE_MAP_CITY_DEFAULT2,
+	",SHELL-GLEN" => GOOGLE_MAP_CITY_DEFAULT2,
+	",STONER" => GOOGLE_MAP_CITY_DEFAULT2,
+	",VALEMOUNT RURAL" => ",VALEMOUNT",
+	",WEST LAKE" => GOOGLE_MAP_CITY_DEFAULT2,
+	",WILLOW RIVER" => GOOGLE_MAP_CITY_DEFAULT2,
+	",WILLOW RIVER VALLEY" => "WILLOW RIVER",
+	",WOODPECKER" => GOOGLE_MAP_CITY_DEFAULT2
+);
 	
 	
 // =============================================================================================
 // ===--------------EDIT BLOCKS BELOW TO COMPLETE THE SETUP FOR YOUR SITE--------------------===
 // =============================================================================================
 
-    // !!! email settings start
+// !!! email settings start
 	// Email Settings: blank allows emails from anyone. example value: vfd@gmail.com
-	define( 'DEFAULT_EMAIL_FROM_TRIGGER', '');
+	define( 'DEFAULT_EMAIL_FROM_TRIGGER', 'dispatcher@emailaddress.com');
 	
 	$LOCAL_DEBUG_EMAIL = new FireHallEmailAccount();
-	$LOCAL_DEBUG_EMAIL->setHostEnabled(true);
+	$LOCAL_DEBUG_EMAIL->setHostEnabled(false);
 	$LOCAL_DEBUG_EMAIL->setFromTrigger(DEFAULT_EMAIL_FROM_TRIGGER);
 	$LOCAL_DEBUG_EMAIL->setConnectionString('{MTA_HOSTNAME:MTA_PORT/imap/novalidate-cert}INBOX'); // ie: {pop.secureserver.net:995/pop3/ssl/novalidate-cert}INBOX
 	$LOCAL_DEBUG_EMAIL->setUserName('IMAP/POP3 USERNAME');
 	$LOCAL_DEBUG_EMAIL->setPassword('IMAP/POP3 PASSWORD');
 	$LOCAL_DEBUG_EMAIL->setDeleteOnProcessed(true);        // Delete processed emails after they trigger a callout
-	// !!! email settings end
-	
-	// !!! db settings start
-	// ----------------------------------------------------------------------
-	// Database Settings
+// !!! email settings end
+// ----------------------------------------------------------------------	
+// !!! db settings start
+// Database Settings
 	$LOCAL_DEBUG_DB = new FireHallDatabase();
-	$LOCAL_DEBUG_DB->setDsn('mysql:host=localhost;dbname=riprunner');
-	$LOCAL_DEBUG_DB->setUserName('riprunner');
+	$LOCAL_DEBUG_DB->setDsn('mysql:host=localhost;dbname=riprunner_test');
+	$LOCAL_DEBUG_DB->setUserName('riprunner_test');
 	$LOCAL_DEBUG_DB->setPassword('password');
-	$LOCAL_DEBUG_DB->setDatabaseName('riprunner');
-	// !!! db settings end
-	
-	// ----------------------------------------------------------------------
+	$LOCAL_DEBUG_DB->setDatabaseName('riprunner_test');
+// !!! db settings end
+// ----------------------------------------------------------------------
+// !!! sms settings start
 	// SMS Provider Settings
-	// !!! sms settings start
 	define( 'DEFAULT_SMS_PROVIDER_SENDHUB_BASE_URL', 	'https://api.sendhub.com/v1/messages/?username=X&api_key=X');
 	define( 'DEFAULT_SMS_PROVIDER_TEXTBELT_BASE_URL', 	'http://textbelt.com/canada');
 	define( 'DEFAULT_SMS_PROVIDER_EZTEXTING_BASE_URL', 	'https://app.eztexting.com/sending/messages?format=xml');
@@ -250,23 +255,26 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	//$LOCAL_DEBUG_SMS->setCalloutProviderType(SMS_CALLOUT_PROVIDER_DEFAULT);
 	//$LOCAL_DEBUG_SMS->setTextbeltLocalFrom('riprunner@localhost.com');
 	//$LOCAL_DEBUG_SMS->setTextbeltLocalRegion('canada');
-	// !!! sms settings end
-	
-	// ----------------------------------------------------------------------
+// !!! sms settings end
+// ----------------------------------------------------------------------
+// !!! mobile settings start
 	// Mobile App Settings
-	// !!! mobile settings start
-	define( 'DEFAULT_GCM_API_KEY', 	'X');
-	// This is the Google 'Key for browser applications' API key from your google project:
-	// https://console.developers.google.com/project/<your proj name>/apiui/credential
-	// The Google Project Number
-	define( 'DEFAULT_GCM_PROJECTID', 'X');
-	// The Google Project Id
-	define( 'DEFAULT_GCM_APPLICATIONID', 'X');
-	// The Google Email Project Id
-	define( 'DEFAULT_GCM_EMAIL_APPLICATIONID', 'X');
-	// The Google Service Account Name
-	define( 'DEFAULT_GCM_SAM', 'applicationid@appspot.gserviceaccount.com');
+	// define('DEFAULT_GCM_API_KEY','xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');	// Mobile App Settings  // LIVE
+	// define('DEFAULT_GCM_PROJECTID','xxxxxxxxxxx');								// This is the Google 'Key for browser applications' // LIVE
+	// define('DEFAULT_GCM_APPLICATIONID', 'gcm_appid');						// The Google Project Id // LIVE
+	// define('DEFAULT_GCM_EMAIL_APPLICATIONID', 'gcm_email_appid');								// The Google Service Account Name
+	// define('DEFAULT_GCM_SAM', 'live_service_account@appspot.gserviceaccount.com');		// The Google Service Account Name // LIVE
+    // define('DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY','live-api-map-key');// The Goggle map API key // LIVE
+
 	
+	define('DEFAULT_GCM_API_KEY','xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');	// Mobile App Settings  // TEST
+    define('DEFAULT_GCM_PROJECTID','xxxxxxxxxxx');								// This is the Google 'Key for browser applications' // TEST
+    define('DEFAULT_GCM_APPLICATIONID', 'google_project_id');					// The Google Project Id // TEST
+	define('DEFAULT_GCM_EMAIL_APPLICATIONID', 'gcm_email_appid');				// The Google Service Account Name
+	define('DEFAULT_GCM_SAM', 'test_service_account@appspot.gserviceaccount.com');// The Google Service Account Name // TEST
+    define('DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY','testing-api-map-key');// The Goggle map API key // TEST
+	
+
 	$LOCAL_DEBUG_MOBILE = new FireHallMobile();
 	$LOCAL_DEBUG_MOBILE->setSignalEnabled(true);
 	$LOCAL_DEBUG_MOBILE->setTrackingEnabled(true);
@@ -277,47 +285,49 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	$LOCAL_DEBUG_MOBILE->setGCM_APP_ID(DEFAULT_GCM_APPLICATIONID);
 	$LOCAL_DEBUG_MOBILE->setGCM_EMAIL_APP_ID(DEFAULT_GCM_EMAIL_APPLICATIONID);
 	$LOCAL_DEBUG_MOBILE->setGCM_SAM(DEFAULT_GCM_SAM);
-	// !!! mobile settings end
-	
-	// ----------------------------------------------------------------------
+// !!! mobile settings end
+// ----------------------------------------------------------------------
+// !!! website settings start
 	// Website and Location Settings
-	// !!! website settings start
-	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY', 'X' );
-	
 	$LOCAL_DEBUG_WEBSITE = new FireHallWebsite();
-	$LOCAL_DEBUG_WEBSITE->setFirehallName('FIREHALL_NAME');                // ie: Salmon Valley Volunteer Fire Department
-	$LOCAL_DEBUG_WEBSITE->setFirehallAddress('FIREHALL ADDRESS');          // ie: 5155 Salmon Valley Road, Prince George, BC
-	$LOCAL_DEBUG_WEBSITE->setFirehallTimezone('America/Vancouver');
-	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLatitude(123.456);  // ie: 54.0916667
-	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLongitude(-123.456); // ie: -122.6537361
+	$LOCAL_DEBUG_WEBSITE->setFirehallName('FIREHALL_NAME');					// ie: Your Fire Department Name
+	$LOCAL_DEBUG_WEBSITE->setFirehallAddress('FIREHALL ADDRESS');			// ie: 1234 Any Street, Your Town, Povince / State
+	$LOCAL_DEBUG_WEBSITE->setFirehallTimezone('America/Vancouver');			// https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLatitude(123.456);
+	$LOCAL_DEBUG_WEBSITE->setFirehallGeoLongitude(-123.456);
 	$LOCAL_DEBUG_WEBSITE->setGoogleMap_ApiKey(DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY);
 	$LOCAL_DEBUG_WEBSITE->setCityNameSubs($GOOGLE_MAP_CITY_LOOKUP);
 	$LOCAL_DEBUG_WEBSITE->setStreetNameSubs($GOOGLE_MAP_STREET_LOOKUP);
-	$LOCAL_DEBUG_WEBSITE->setRootURL('http://www.example.com/');	       // ie: http://firehall/riprunner/
-	// !!! website settings end
-		
-	// ----------------------------------------------------------------------
+	$LOCAL_DEBUG_WEBSITE->setRootURL('http://www.your_riprunner.com/');	       // ie: http(s)://firehall/riprunner/
+// !!! website settings end
+// ----------------------------------------------------------------------		
+// !!! ldap settings start
 	// LDAP Settings (optional for sites wanting to use LDAP user authentication
-	// !!! ldap settings start
 	$LOCAL_DEBUG_LDAP = new FireHall_LDAP();
 	$LOCAL_DEBUG_LDAP->setEnabled(false);
+    $LOCAL_DEBUG_LDAP->setEnableCache(true);
 	$LOCAL_DEBUG_LDAP->setHostName('ldap://LDAPHOSTNAME:LDAPPORT');
 	$LOCAL_DEBUG_LDAP->setBindRDN('cn=READONLYUSER,dc=EXAMPLE,dc=COM');
 	$LOCAL_DEBUG_LDAP->setBindPassword('READONLYPASSWORD');
 	$LOCAL_DEBUG_LDAP->setBaseDN('dc=EXAMPLE,dc=COM');
 	$LOCAL_DEBUG_LDAP->setBaseUserDN('dc=EXAMPLE,dc=COM');
-	$LOCAL_DEBUG_LDAP->setLoginFilter('(|(uid=${login})(cn=${login})(mail=${login}@\*))');
+    $LOCAL_DEBUG_LDAP->setLoginFilter('(uid=${login})');
+	//$LOCAL_DEBUG_LDAP->setLoginFilter('(|(uid=${login})(cn=${login})(mail=${login}@\*))');
 	$LOCAL_DEBUG_LDAP->setLoginAllUsersFilter('(|(memberOf=cn=MEMBERS,ou=Groups,dc=EXAMPLE,dc=COM)(memberOf=cn=OFFICERS,ou=Groups,dc=EXAMPLE,dc=COM))');
 	$LOCAL_DEBUG_LDAP->setAdminGroupFilter('(&(memberOf=cn=OFFICERS,ou=Groups,dc=EXAMPLE,dc=COM))');
 	$LOCAL_DEBUG_LDAP->setSMSGroupFilter('(&(objectClass=posixAccount)(memberOf=cn=SMSCALLOUT-USERS,ou=Groups,dc=EXAMPLE,dc=COM))');
 	$LOCAL_DEBUG_LDAP->setRespondSelfGroupFilter('(&(objectClass=posixAccount)(memberOf=cn=SMSCALLOUT-RESPOND-SELF,ou=Groups,dc=EXAMPLE,dc=COM))');
 	$LOCAL_DEBUG_LDAP->setRespondOthersGroupFilter('(&(objectClass=posixAccount)(memberOf=cn=SMSCALLOUT-RESPOND-OTHERS,ou=Groups,dc=EXAMPLE,dc=COM))');
-	$LOCAL_DEBUG_LDAP->setGroupMemberOf_Attribute('memberuid');
-	// !!! ldap settings end
-		
-	// ----------------------------------------------------------------------
+
+    // SPECIFIC OVERRIDES OR SETTINGS FOR YOUR LDAP SERVER
+    $LOCAL_DEBUG_LDAP->setGroupMemberOf_Attribute('memberuid');
+    $LOCAL_DEBUG_LDAP->setUserSMS_Attribute('mobile');
+    $LOCAL_DEBUG_LDAP->setUserID_Attribute('uidnumber');
+    $LOCAL_DEBUG_LDAP->setUserType_Attribute('employeetype');
+// !!! ldap settings end
+// ----------------------------------------------------------------------
+// !!! firehall settings start
 	// Main Firehall Configuration Container Settings
-	// !!! firehall settings start
 	$LOCAL_DEBUG_FIREHALL = new FireHallConfig();
 	$LOCAL_DEBUG_FIREHALL->setEnabled(true);
 	$LOCAL_DEBUG_FIREHALL->setFirehallId(123);     				//  I USE THE MAIN HALL PHONE NUMBER
@@ -330,9 +340,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 		
 	// Add as many firehalls to the array as you desire to support
 	$FIREHALLS = array(	$LOCAL_DEBUG_FIREHALL);
-
-	// !!! firehall settings end
-	
+// !!! firehall settings end
 	// ----------------------------------------------------------------------
 	// Email parser lookup patterns for email triggers
 	// The patterns below work for emails with the following format:
