@@ -44,9 +44,9 @@ class GlobalViewModel {
 	
 	public function __get($name) {
 		global $log;
-		if('LOGO_LOGIN' == $name) {
-			if(defined('LOGO_LOGIN') == true) {
-				return LOGO_LOGIN;
+		if('LOGO' == $name) {
+			if(defined('LOGO') == true) {
+				return LOGO;
 			}
 		}
 		if('isMobile' === $name) {
@@ -228,7 +228,7 @@ class GlobalViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('LOGO_LOGIN','isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN','RR_JWT_TOKEN_NAME', 'RR_JWT_TOKEN',
+			array('LOGO','isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN','RR_JWT_TOKEN_NAME', 'RR_JWT_TOKEN',
 				  'RR_JWT_REFRESH_TOKEN_NAME', 'RR_JWT_REFRESH_TOKEN', 
 				  'RR_JWT_TOKEN_NAME_FOR_HEADER', 'RR_JWT_REFRESH_TOKEN_NAME_FOR_HEADER', 'RR_JWT_TOKEN_PARAM',
 					AuthViewModel::getAuthVarContainerName(),'firehall',

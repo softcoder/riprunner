@@ -6,11 +6,18 @@
         {% if gvm.isMobile %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles-mobile.css" />
-        
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+			<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_cssmenu-mobile.css?version=1" />
+			<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
+			{% endif %}
         {% else %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
 		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/custom-main.css" />
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles.css" />
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+			<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_cssmenu-main.css?version=1" />
+			<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
+			{% endif %}
         {% endif %}
         
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/d3.min.js"></script>
@@ -34,7 +41,9 @@
         {% if gvm.auth.isAuth %}
             {% include 'user-welcome.twig.html' %}
             {% include 'live-callout-warning.twig.html' %}
-        
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+				{% include 'global-horizontal-menu.twig.html' %}
+			{% elseif gvm.MENU_TYPE == 'vertical' %}
             <div class="menudiv_wrapper">
               <nav class="vertical">
                 <ul>
@@ -68,7 +77,9 @@
                 </ul>
               </nav>
             </div>
-            
+            {% else %}
+				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
+			{% endif %}               
 	        <script type="text/javascript">
 	        function addJSONDataToChartData(json_data, chart_data) {
 	            var table_data = new Array();
@@ -423,7 +434,7 @@
             </table>
             </div>
 
-    
+
         {% else %}
             {% include 'access-denied.twig.html' %}
         {% endif %}

@@ -17,6 +17,13 @@ div.overlayLoggedinAs {
 	background-color: black;
 	z-index:99;
 }
+div.overlayLogo {
+	position: fixed;
+	top: 5px;
+	left: 5px;
+	background-color: black;
+	z-index:99;
+}
 a {
 	color:#0033CC;
 	text-decoration:underline;

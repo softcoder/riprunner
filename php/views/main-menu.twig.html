@@ -4,9 +4,17 @@
         <meta charset="UTF-8">
         <title>Secure Login: Protected Page</title>
         {% if gvm.isMobile %}
-        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css?version=1" />
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+			<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_cssmenu-mobile.css?version=1" />
+			<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
+			{% endif %}
         {% else %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+			<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_cssmenu-main.css?version=1" />
+			<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
+			{% endif %}
         {% endif %}
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script>
     </head>
@@ -24,7 +32,9 @@
                 <a target='_blank' href='{{ mainmenu_vm.REMOTE_VERSION_NOTES }}' 
                    class='notice'>Click here for update information</a>
             {% endif %}
-            
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+				{% include 'global-horizontal-menu.twig.html' %}
+			{% elseif gvm.MENU_TYPE == 'vertical' %}
             <div class="menudiv_wrapper">
               <nav class="vertical">
                 <ul>
@@ -95,6 +105,9 @@
                 </ul>
               </nav>
             </div>
+            {% else %}
+				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
+			{% endif %}
         {% else %}
             {% include 'access-denied.twig.html' %}
         {% endif %}

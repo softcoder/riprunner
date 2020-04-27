@@ -6,9 +6,17 @@
         {% if gvm.isMobile %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles-mobile.css" />
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+			<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_cssmenu-mobile.css?version=1" />
+			<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
+			{% endif %}
         {% else %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles.css" />
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+			<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_cssmenu-main.css?version=1" />
+			<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
+			{% endif %}
         {% endif %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/freeze-header.css" />
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/forms.js"></script>
@@ -19,7 +27,9 @@
                 
             {% include 'user-welcome.twig.html' %}
             {% include 'live-callout-warning.twig.html' %}
-            
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+				{% include 'global-horizontal-menu.twig.html' %}
+			{% elseif gvm.MENU_TYPE == 'vertical' %}
             <div class="menudiv_wrapper">
               <nav class="vertical">
                 <ul>
@@ -53,7 +63,9 @@
                 </ul>
               </nav>
             </div>
-
+            {% else %}
+				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
+			{% endif %}
             <h2>Rip Runner DB Info</h2>
             <div id="riprunner_db_timezone" style="font-size:20px; color: white; height: 50px; overflow: auto;border: 2px solid #555;">
                 {{ riprunner_db_timezone }}

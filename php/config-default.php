@@ -18,9 +18,9 @@ require_once 'config/config_manager.php';
 // ====================================================================================================
 // ===                   CUSTOMIZE THE LOGIN SCREEN LOGO, DEFAULT IS SET                            ===
 // ===  A DEFAULT LOGO HAS BEEN CREATED OF A GENERIC MALTESE CROSS, YOU CAN OVERWRITE THIS WITH     ===
-// ===              A LOGO OF YOUR CHOICE.  RECOMMEND THE IMAGE SIZE BE 350x350px                   ===
+// ===  A LOGO OF YOUR CHOICE.  RECOMMEND THE IMAGE SIZE BE 150x150px WITH TRANSPARENT BACKGROUND   ===
 // ====================================================================================================
-define('LOGO_LOGIN', '/images/small-logo.png');
+define('LOGO', '/images/small-logo.png');
 
 
 // ====================================================================================================
@@ -42,9 +42,9 @@ define('google_map_type','javascript');
 // ====================================================================================================
 // ===                            MAP OPTIONS FOR CALLOUT DETAILS                                   ===
 // ====================================================================================================
-// === OPTIONS SUCH AS OVERLAYS: EG. MUTUAL AID BOUNDARIES, OR MARKERS TO IDENTIFY LANDMARKS       ===
+// === OPTIONS SUCH AS OVERLAYS: EG. MUTUAL AID BOUNDARIES, OR MARKERS TO IDENTIFY LANDMARKS        ===
 // === SUCH AS WATER SOURCES, HYDRANT LOCATIONS, AND LOCATIONS OF OTHER FIREHALLS IN YOUR AREA      ===
-// === REFRESH TIMER WILL RELOAD THE LIVE CALLOUT MAP AND RESPONDERS                                 ===
+// === REFRESH TIMER WILL RELOAD THE LIVE CALLOUT MAP AND RESPONDERS                                ===
 // === USING LARGE ZOOM BUTTONS HELPS WITH SMALLER SCREENS, MAKING ZOOM CONTROLS EASIER TO USE      ===
 // ====================================================================================================
 define('MAP_REFRESH_TIMER', '60');  // AUTOMATIC RELOAD FOR MAP IN SECONDS
@@ -112,7 +112,7 @@ define('STREAM_AUTOPLAY_MOBILE', 'no');  //may not work on all devices, especial
 // ====================================================================================================
 
 // Max hours old to trigger a live CALLOUT page
-define('DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD', 2);
+define('DEFAULT_LIVE_CALLOUT_MAX_HOURS_OLD', 24);
 
 // ----------------------------------------------------------------------
 

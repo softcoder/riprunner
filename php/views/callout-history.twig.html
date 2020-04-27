@@ -6,9 +6,17 @@
         {% if gvm.isMobile %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles-mobile.css" />
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+			<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_cssmenu-mobile.css?version=1" />
+			<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
+			{% endif %}
         {% else %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles.css" />
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+			<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_cssmenu-main.css?version=1" />
+			<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
+			{% endif %}
         {% endif %}
         
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/freeze-header.css" />
@@ -23,32 +31,36 @@
         {% if gvm.auth.isAuth %}
             {% include 'user-welcome.twig.html' %}
             {% include 'live-callout-warning.twig.html' %}
-        
-        <div class="menudiv_wrapper">
-          <nav class="vertical">
-            <ul>
-              <li>
-                <label for="main_page">Return to ..</label>
-                <input type="radio" name="verticalMenu" id="main_page" />
-                <div>
-                  <ul>
-                    <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Main Menu</a></li>
-                  </ul>
-                </div>
-              </li>
-              <li>
-                <label for="logout">Exit</label>
-                <input type="radio" name="verticalMenu" id="logout" />
-                <div>
-                  <ul>
-                    <li><a href="{{ gvm.RR_DOC_ROOT }}/logout.php">Logout</a></li>
-                  </ul>
-                </div>
-              </li>
-            </ul>
-          </nav>
-        </div>
-
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+				{% include 'global-horizontal-menu.twig.html' %}
+			{% elseif gvm.MENU_TYPE == 'vertical' %}
+			<div class="menudiv_wrapper">
+			  <nav class="vertical">
+				<ul>
+				  <li>
+					<label for="main_page">Return to ..</label>
+					<input type="radio" name="verticalMenu" id="main_page" />
+					<div>
+					  <ul>
+						<li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Main Menu</a></li>
+					  </ul>
+					</div>
+				  </li>
+				  <li>
+					<label for="logout">Exit</label>
+					<input type="radio" name="verticalMenu" id="logout" />
+					<div>
+					  <ul>
+						<li><a href="{{ gvm.RR_DOC_ROOT }}/logout.php">Logout</a></li>
+					  </ul>
+					</div>
+				  </li>
+				</ul>
+			  </nav>
+			</div>
+            {% else %}
+				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
+			{% endif %}
         {% if callout_history_vm.callout_list is empty %}
         <b>NO Data.</b>
         {% endif %}

@@ -7,9 +7,17 @@
         {% if gvm.isMobile %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles-mobile.css" />
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+			<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_cssmenu-mobile.css?version=1" />
+			<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
+			{% endif %}
         {% else %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles.css" />
+			{% if gvm.MENU_TYPE == 'horizontal' %}
+			<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_cssmenu-main.css?version=1" />
+			<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
+			{% endif %}
         {% endif %}
         
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/freeze-header.css" />
@@ -22,7 +30,6 @@
 
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/js/jquery-ui-themes-1.11.4/themes/smoothness/jquery-ui.min.css">
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
-        
 		<style>
 		@-webkit-keyframes glowGreen {
 		  from {
@@ -135,16 +142,18 @@
 		button[disabled] {
 		  color: #ccc;
 		}
-		</style>        
+		</style>           
     </head>
     
     <body>
-    
     <div class="container_center">
         {% if gvm.auth.isAuth or gvm.auth.hasAuthSpecialToken %}
             {% if gvm.auth.isAuth %}
             {% include 'user-welcome.twig.html' %}
-            {% endif %}
+        {% endif %}
+		{% if gvm.MENU_TYPE == 'horizontal' %}
+			{% include 'global-horizontal-menu.twig.html' %}
+		{% elseif gvm.MENU_TYPE == 'vertical' %}
         <div class="menudiv_wrapper">
           <nav class="vertical">
             <ul>
@@ -169,195 +178,197 @@
             </ul>
           </nav>
         </div>
-        
-    <p>
-	  <div id="dialog-message" title="Error" style="display:none">
-		  <p>
-		    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>
-		    CANNOT Open popups as you have a popup blocker for this website!
-		  </p>
-		  <p>
-		    Please allow this website to open popups.
-		  </p>
-  	  </div>
-      <button onclick="logger.clear()">Clear log</button>
-      <button onclick="closeConnection()">Stop reconnections</button>
-      <span id="connection">Connecting...<div></div></span>
-    </p>
-    <center>
-    <table>
-        <tr>
-            <td>
-	           <div class="border" id="log"></div>
-	       </td>
-	       <td>
-	           <div class="border" id="right-panel">
-        	        <div>Waiting for callouts...</div>
-     	       </div>
-	       </td>
-	    </tr>
-    </table>
-    </center>
+		{% else %}
+			<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
+		{% endif %}        
+		<p>
+		  <div id="dialog-message" title="Error" style="display:none">
+			  <p>
+				<span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>
+				CANNOT Open popups as you have a popup blocker for this website!
+			  </p>
+			  <p>
+				Please allow this website to open popups.
+			  </p>
+		  </div>
+		  <button onclick="logger.clear()">Clear log</button>
+		  <button onclick="closeConnection()">Stop reconnections</button>
+		  <span id="connection">Connecting...<div></div></span>
+		</p>
+		<center>
+		<table>
+			<tr>
+				<td>
+				   <div class="border" id="log"></div>
+			   </td>
+			   <td>
+				   <div class="border" id="right-panel">
+						<div>Waiting for callouts...</div>
+				   </div>
+			   </td>
+			</tr>
+		</table>
+		</center>
     
-<script type="text/javascript">
+		<script type="text/javascript">
 
-var lastCalloutURL = null;
-function signalPage(callout_url) {
-	try {
-		console.info('In signalPage start for url: ' + callout_url);
-		
-		if(lastCalloutURL == null && lastCalloutURL != callout_url) {
-			lastCalloutURL = callout_url;
-		    var mp3 = $('<audio id="soundHandle" style="display:none;"></audio>').attr('src','{{ gvm.RR_DOC_ROOT }}/sounds/pager_tone_pg.mp3');
-		    	    
-		    $(mp3)[0].addEventListener('ended', function(){
-		    	console.info('In signalPage playing tones ENDED shows call details for url: ' + callout_url);
-		        {% if gvm.enabled_asynch_mode %}
-		        //openAjaxUrl(callout_url,false,10,30000);
-		        {% else %}
-		        //window.location = callout_url;
-		        {% endif %}
-                var win = window.open(callout_url);
-                if(win == null) {
-                    console.info('In window.open ERROR!!! cannot popup page likely blocked from popup blocker!.');
+		var lastCalloutURL = null;
+		function signalPage(callout_url) {
+			try {
+				console.info('In signalPage start for url: ' + callout_url);
+				
+				if(lastCalloutURL == null && lastCalloutURL != callout_url) {
+					lastCalloutURL = callout_url;
+					var mp3 = $('<audio id="soundHandle" style="display:none;"></audio>').attr('src','{{ gvm.RR_DOC_ROOT }}/sounds/pager_tone_pg.mp3');
+							
+					$(mp3)[0].addEventListener('ended', function(){
+						console.info('In signalPage playing tones ENDED shows call details for url: ' + callout_url);
+						{% if gvm.enabled_asynch_mode %}
+						//openAjaxUrl(callout_url,false,10,30000);
+						{% else %}
+						//window.location = callout_url;
+						{% endif %}
+						var win = window.open(callout_url);
+						if(win == null) {
+							console.info('In window.open ERROR!!! cannot popup page likely blocked from popup blocker!.');
 
-                    //var error_div="<div class='container_center' id='error_msg'><h3>CANNOT Open popups as you have a popup blocker for this website!</h3></div>";
-                    //$(document.body).prepend(error_div);
-                    
-                    $(function() {
-                        $( "#dialog-message" ).dialog({
-                          modal: true,
-                          buttons: {
-                            Ok: function() {
-                              $( this ).dialog( "close" );
-                            }
-                          }
-                        });
-                    });                    
-                }
-		        console.info('In signalPage playing tones ENDED complete');
-		    }, false);
-		    
-		    $(mp3)[0].play();
-		    console.info('In signalPage playing tones: sounds/pager_tone_pg.mp3');
+							//var error_div="<div class='container_center' id='error_msg'><h3>CANNOT Open popups as you have a popup blocker for this website!</h3></div>";
+							//$(document.body).prepend(error_div);
+							
+							$(function() {
+								$( "#dialog-message" ).dialog({
+								  modal: true,
+								  buttons: {
+									Ok: function() {
+									  $( this ).dialog( "close" );
+									}
+								  }
+								});
+							});                    
+						}
+						console.info('In signalPage playing tones ENDED complete');
+					}, false);
+					
+					$(mp3)[0].play();
+					console.info('In signalPage playing tones: sounds/pager_tone_pg.mp3');
+				}
+				else {
+					console.info('In signalPage callout already signalled, doing nothing.');
+				}
+			}
+			catch(ex) {
+				console.info('ERROR In signalPage start for url: ' + callout_url + ' error: ' + ex.message);
+				alert('Pager tone error: ' + ex.message);
+				window.location = callout_url;
+			}
 		}
-		else {
-			console.info('In signalPage callout already signalled, doing nothing.');
+
+		// sends messages with text/event-stream mimetype.
+		{% set authSpecialParams = (gvm.auth.hasAuthSpecialToken ? '&ast=' ~ callout_monitor_ast ~ '&fhid=' ~ callout_monitor_fhid ~ '&member_id=' ~ callout_monitor_member_id : '') %}
+		var source = new EventSource('{{ gvm.RR_DOC_ROOT }}/controllers/callout-monitor-controller.php?server_mode=true{{ authSpecialParams|raw }}&{{ gvm.RR_JWT_TOKEN_PARAM }}');
+		console.info('Will try to connect to url: ' + source.url);
+
+		function Logger(id) {
+		  this.el = document.getElementById(id);
 		}
-	}
-	catch(ex) {
-		console.info('ERROR In signalPage start for url: ' + callout_url + ' error: ' + ex.message);
-		alert('Pager tone error: ' + ex.message);
-		window.location = callout_url;
-	}
-}
+		Logger.prototype.log = function(msg, opt_class) {
+		  var fragment = document.createDocumentFragment();
+		  var p = document.createElement('p');
+		  p.className = opt_class || 'info';
+		  p.textContent = msg;
+		  fragment.appendChild(p);
+		  this.el.appendChild(fragment);
+		};
+		Logger.prototype.clear = function() {
+		  this.el.textContent = '';
+		};
+		var logger = new Logger('log');
 
-// sends messages with text/event-stream mimetype.
-{% set authSpecialParams = (gvm.auth.hasAuthSpecialToken ? '&ast=' ~ callout_monitor_ast ~ '&fhid=' ~ callout_monitor_fhid ~ '&member_id=' ~ callout_monitor_member_id : '') %}
-var source = new EventSource('{{ gvm.RR_DOC_ROOT }}/controllers/callout-monitor-controller.php?server_mode=true{{ authSpecialParams|raw }}&{{ gvm.RR_JWT_TOKEN_PARAM }}');
-console.info('Will try to connect to url: ' + source.url);
+		function closeConnection() {
+		  source.close();
+		  logger.log('> Connection was closed at: ' + new Date().toLocaleString());
+		  console.info('> Connection was closed at: ' + new Date().toLocaleString());
+		  updateConnectionStatus('Disconnected', false);
+		}
+		function updateConnectionStatus(msg, connected) {
+			try {
+			  var el = document.querySelector('#connection');
+			  if (connected) {
+				console.info('Connection connected at: ' + new Date().toLocaleString());
+				if (el.classList) {
+				  el.classList.add('connected');
+				  el.classList.remove('disconnected');
+				} 
+				else {
+				  el.addClass('connected');
+				  el.removeClass('disconnected');
+				}
+			  } 
+			  else {
+				console.info('Connection disconnected at: ' + new Date().toLocaleString());
+				if (el.classList) {
+				  el.classList.remove('connected');
+				  el.classList.add('disconnected');
+				} 
+				else {
+				  el.removeClass('connected');
+				  el.addClass('disconnected');
+				}
+			  }
+			  el.innerHTML = msg + '<div></div>';
+			}
+			catch(ex) {
+				console.info('ERROR In updateConnectionStatus error: ' + ex.message);
+			}
+			  
+		}
 
-function Logger(id) {
-  this.el = document.getElementById(id);
-}
-Logger.prototype.log = function(msg, opt_class) {
-  var fragment = document.createDocumentFragment();
-  var p = document.createElement('p');
-  p.className = opt_class || 'info';
-  p.textContent = msg;
-  fragment.appendChild(p);
-  this.el.appendChild(fragment);
-};
-Logger.prototype.clear = function() {
-  this.el.textContent = '';
-};
-var logger = new Logger('log');
+		source.addEventListener('message', function(event) {
+			try {
+			  var data = JSON.parse(event.data);
+			  //var d = new Date(data.msg * 1e3);
+			  //var timeStr = [d.getHours(), d.getMinutes(), d.getSeconds()].join(':');
+			  //coolclock.render(d.getHours(), d.getMinutes(), d.getSeconds());
+			  if(data.id > 0) {
+				  closeConnection();
+				  logger.log('Got a live page!', 'msg');
 
-function closeConnection() {
-  source.close();
-  logger.log('> Connection was closed at: ' + new Date().toLocaleString());
-  console.info('> Connection was closed at: ' + new Date().toLocaleString());
-  updateConnectionStatus('Disconnected', false);
-}
-function updateConnectionStatus(msg, connected) {
-	try {
-	  var el = document.querySelector('#connection');
-	  if (connected) {
-		console.info('Connection connected at: ' + new Date().toLocaleString());
-	    if (el.classList) {
-	      el.classList.add('connected');
-	      el.classList.remove('disconnected');
-	    } 
-	    else {
-	      el.addClass('connected');
-	      el.removeClass('disconnected');
-	    }
-	  } 
-	  else {
-		console.info('Connection disconnected at: ' + new Date().toLocaleString());
-	    if (el.classList) {
-	      el.classList.remove('connected');
-	      el.classList.add('disconnected');
-	    } 
-	    else {
-	      el.removeClass('connected');
-	      el.addClass('disconnected');
-	    }
-	  }
-	  el.innerHTML = msg + '<div></div>';
-    }
-    catch(ex) {
-        console.info('ERROR In updateConnectionStatus error: ' + ex.message);
-    }
-	  
-}
+				  {% set authSpecialParams_trigger = (gvm.auth.hasAuthSpecialToken ? '&member_id=' ~ callout_monitor_member_id : '') %}
+				  var callout_url = "{{ gvm.RR_DOC_ROOT }}/ci/fhid={{ gvm.firehall.FIREHALL_ID }}&cid=" + data.id + 
+									"&ckid=" + data.keyid + '{{ authSpecialParams_trigger|raw }}&{{ gvm.RR_JWT_TOKEN_PARAM }}';
+				  // callout_url += "&member_id={{ gvm.auth.user_id }}"
+				  
+				  signalPage(callout_url);
+				  logger.log('Playing page tone!', 'msg');
+			  }
+			  logger.log('lastEventID: ' + event.lastEventId +
+						 ', server msg: ' + data.keyid + ' id = ' + data.id, 'msg');
+			}
+			catch(ex) {
+				console.info('ERROR In addEventListener(message) error: ' + ex.message);
+			}
+			
+		}, false);
 
-source.addEventListener('message', function(event) {
-	try {
-	  var data = JSON.parse(event.data);
-	  //var d = new Date(data.msg * 1e3);
-	  //var timeStr = [d.getHours(), d.getMinutes(), d.getSeconds()].join(':');
-	  //coolclock.render(d.getHours(), d.getMinutes(), d.getSeconds());
-	  if(data.id > 0) {
-		  closeConnection();
-		  logger.log('Got a live page!', 'msg');
+		source.addEventListener('open', function(event) {
+			console.info('Connection was opened at: ' + new Date().toLocaleString());
+			logger.clear();
+			logger.log('> Connection was opened at: ' + new Date().toLocaleString());
+			updateConnectionStatus('Connected', true);
+		}, false);
 
-		  {% set authSpecialParams_trigger = (gvm.auth.hasAuthSpecialToken ? '&member_id=' ~ callout_monitor_member_id : '') %}
-	      var callout_url = "{{ gvm.RR_DOC_ROOT }}/ci/fhid={{ gvm.firehall.FIREHALL_ID }}&cid=" + data.id + 
-	                        "&ckid=" + data.keyid + '{{ authSpecialParams_trigger|raw }}&{{ gvm.RR_JWT_TOKEN_PARAM }}';
-	      // callout_url += "&member_id={{ gvm.auth.user_id }}"
-		  
-	      signalPage(callout_url);
-		  logger.log('Playing page tone!', 'msg');
-	  }
-	  logger.log('lastEventID: ' + event.lastEventId +
-	             ', server msg: ' + data.keyid + ' id = ' + data.id, 'msg');
-	}
-    catch(ex) {
-        console.info('ERROR In addEventListener(message) error: ' + ex.message);
-    }
-	
-}, false);
-
-source.addEventListener('open', function(event) {
-	console.info('Connection was opened at: ' + new Date().toLocaleString());
-	logger.clear();
-    logger.log('> Connection was opened at: ' + new Date().toLocaleString());
-    updateConnectionStatus('Connected', true);
-}, false);
-
-source.addEventListener('error', function(event) {
-    if (event.eventPhase == 2) { //EventSource.CLOSED
-    	console.info('Connection was closed at: ' + new Date().toLocaleString());
-      logger.log('> Connection was closed (2) at: ' + new Date().toLocaleString());
-      updateConnectionStatus('Disconnected', false);
-    }
-    else {
-    	console.info('Connection error: ' + event.eventPhase + 'at: ' + new Date().toLocaleString());
-    }
-}, false);
-    
-</script>
+		source.addEventListener('error', function(event) {
+			if (event.eventPhase == 2) { //EventSource.CLOSED
+				console.info('Connection was closed at: ' + new Date().toLocaleString());
+			  logger.log('> Connection was closed (2) at: ' + new Date().toLocaleString());
+			  updateConnectionStatus('Disconnected', false);
+			}
+			else {
+				console.info('Connection error: ' + event.eventPhase + 'at: ' + new Date().toLocaleString());
+			}
+		}, false);
+			
+		</script>
         {% else %}
             {% include 'access-denied.twig.html' %}
         {% endif %}
