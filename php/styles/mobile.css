@@ -10,6 +10,13 @@ body {
     color:#ccc;
     background:url('images/body-bg.gif');
 }
+div.overlayLoggedinAs {
+	position: fixed;
+	top: 5px;
+	right: 5px;
+	background-color: black;
+	z-index:99;
+}
 a {
 	font-size:48px;
     color:#0033CC;
