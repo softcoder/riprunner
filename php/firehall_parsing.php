@@ -9,7 +9,9 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	die( 'This file must not be invoked directly.' );
 }
 
-require_once 'config.php';
+if(file_exists('config.php')) {
+require_once __RIPRUNNER_ROOT__ . '/config.php';
+}
 require_once 'models/callout-details.php';
 require_once 'config/config_manager.php';
 
