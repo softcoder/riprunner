@@ -137,7 +137,7 @@ class DbConnection {
             array_push($FIREHALLS, $this->firehall);
             $root_url = getFirehallRootURLFromRequest(null, $FIREHALLS);
             
-            handle_config_error($root_url, $e);
+            \handle_config_error($root_url, $e);
             //throw new \Exception("Error connecting to the database, check system logs for more details.");
             exit;
         }
