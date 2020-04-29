@@ -41,15 +41,7 @@ class GlobalViewModel {
 	
 	public function __get($name) {
 		global $log;
-<<<<<<< HEAD
-		if('LOGO' == $name) {
-			if(defined('LOGO') == true) {
-				return LOGO;
-			}
-		}
-=======
 
->>>>>>> parent of 0ad3e675... fixes to previous commit
 		if('isMobile' === $name) {
 			return $this->getDetectBrowser()->isMobile();
 		}
@@ -229,11 +221,7 @@ class GlobalViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-<<<<<<< HEAD
-			array('LOGO','isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN','RR_JWT_TOKEN_NAME', 'RR_JWT_TOKEN',
-=======
 			array('isMobile','isTablet','RR_DOC_ROOT','RR_DB_CONN','RR_JWT_TOKEN_NAME', 'RR_JWT_TOKEN',
->>>>>>> parent of 0ad3e675... fixes to previous commit
 				  'RR_JWT_REFRESH_TOKEN_NAME', 'RR_JWT_REFRESH_TOKEN', 
 				  'RR_JWT_TOKEN_NAME_FOR_HEADER', 'RR_JWT_REFRESH_TOKEN_NAME_FOR_HEADER', 'RR_JWT_TOKEN_PARAM',
 					AuthViewModel::getAuthVarContainerName(),'firehall',
