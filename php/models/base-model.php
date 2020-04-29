@@ -5,9 +5,7 @@
 // ==============================================================
 namespace riprunner;
 
-if(file_exists('/config.php')) {
 require_once __RIPRUNNER_ROOT__ . '/config.php';
-}
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 
 // The abstract base model class handling variable requests dynamically
