@@ -1,0 +1,57 @@
+div#overlayLoggedinAs {
+	position: fixed;
+	bottom: 0px;
+	right: 15px;
+	background-color: black;
+	color: white;
+	z-index:101;
+}
+div#overlayLogo {
+	position: fixed;
+	top: 1px;
+	left: 1px;
+	z-index:101;
+}
+div#overlayLogo img{
+	max-width:70%;
+    height:auto;
+}	
+div.container_center > #overlayLiveCalloutWarn {
+	position: fixed;
+	bottom: 30px;
+    right: 0;
+    left: 0;
+    margin-right: auto;
+    margin-left: auto;
+	background-color: black;
+	padding: 15px;
+	z-index:100;
+		animation: blinkingBackground 1s infinite;
+}
+	@keyframes blinkingBackground{
+     0%		{	box-shadow: 0 0 0 0px rgba(255, 0, 0, 0);	}
+     100%	{	box-shadow: 0 0 0 30px rgba(255, 0, 0, 255); }
+	}
+div.container_center > #overlayLiveCalloutWarn > a {
+	z-index: 101;
+	color:yellow;
+	font-size:1.5em;
+	font-weight: 500;
+	text-decoration: none;  
+}
+
+div#overlayHorizontalMenu {
+	position: fixed;
+    right: 0;
+    left: 0;
+    margin-right: auto;
+    margin-left: auto;
+	background-color: black;
+	padding: 10px;
+	z-index:90;
+}
+@media only screen and (max-width: 900px) {
+    #overlayLogo {
+        display: none;
+    }
+}

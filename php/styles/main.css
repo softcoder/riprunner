@@ -10,20 +10,7 @@ body {
 	color:#ccc;
 	background:url('images/body-bg.gif');
 }
-div.overlayLoggedinAs {
-	position: fixed;
-	top: 5px;
-	right: 5px;
-	background-color: black;
-	z-index:99;
-}
-div.overlayLogo {
-	position: fixed;
-	top: 5px;
-	left: 5px;
-	background-color: black;
-	z-index:99;
-}
+
 a {
 	color:#0033CC;
 	text-decoration:underline;
@@ -691,7 +678,7 @@ table.center {
 }
 table.chart_center {
 	margin: 0 auto;
-	width: 95%;
+	width: 80%;
 }
 
 .center_div_wrapper {
@@ -792,7 +779,6 @@ nav.vertical {
   color:yellow;
   font-size:22px; 
 }
-
 a.alert {
   color:yellow;
   font-size:22px; 
@@ -814,34 +800,18 @@ a.alert {
 }
 
 @-moz-keyframes blink {
-  from {
-    opacity: 1;
-  }
-  
-  to {
-    opacity: 0;
-  }
+  from {    opacity: 1;  }
+    to {    opacity: 0;  }
 }
 
 @-webkit-keyframes blink {
-  from {
-    opacity: 1;
-  }
-  
-  to {
-    opacity: 0;
-  }
+  from {    opacity: 1;  }
+    to {    opacity: 0;  }
 }
 @keyframes blink {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
+  from {    opacity: 1;  }
+  to {    opacity: 0;  }
 }
-
 @-moz-keyframes blink_multi {
   0% {
     opacity: 1;

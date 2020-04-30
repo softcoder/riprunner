@@ -41,7 +41,16 @@ class GlobalViewModel {
 	
 	public function __get($name) {
 		global $log;
-
+		if('LOGO' == $name) {
+			if(defined('LOGO') == true) {
+				return LOGO;
+			}
+		}
+		if('DYNAMIC_STYLE' == $name) {
+			if(defined('DYNAMIC_STYLE') == true) {
+				return DYNAMIC_STYLE;
+			}
+		}
 		if('isMobile' === $name) {
 			return $this->getDetectBrowser()->isMobile();
 		}
@@ -147,9 +156,14 @@ class GlobalViewModel {
 		if('phpinfo' === $name) {
 			return $this->getPhpInfo();
 		}
-		if('MENU_TYPE' == $name) {
-			if(defined('MENU_TYPE') == true) {
-				return MENU_TYPE;
+		if('CSS_MENU' == $name) {
+			if(defined('CSS_MENU') == true) {
+				return CSS_MENU;
+			}
+		}
+		if('CSS_MENU_VER' == $name) {
+			if(defined('CSS_MENU_VER') == true) {
+				return CSS_MENU_VER;
 			}
 		}
 		if('CUSTOM_MAIN_CSS' == $name) {
@@ -163,36 +177,6 @@ class GlobalViewModel {
 				return CUSTOM_MOBILE_CSS;
 			}
 			return '';
-		}
-		if('ICON_MARKERSCUSTOM_LEGEND' == $name) {
-			if(defined('ICON_MARKERSCUSTOM_LEGEND') == true) {
-				return ICON_MARKERSCUSTOM_LEGEND;
-			}
-		}
-		if('ICON_MARKERSCUSTOM' == $name) {
-			if(defined('ICON_MARKERSCUSTOM') == true) {
-				return ICON_MARKERSCUSTOM;
-			}
-		}
-		if('ICON_HYDRANT' == $name) {
-			if(defined('ICON_HYDRANT') == true) {
-				return ICON_HYDRANT;
-			}
-		}
-		if('ICON_FIREHALL' == $name) {
-			if(defined('ICON_FIREHALL') == true) {
-				return ICON_FIREHALL;
-			}
-		}
-		if('ICON_WATERTANK' == $name) {
-			if(defined('ICON_WATERTANK') == true) {
-				return ICON_WATERTANK;
-			}
-		}
-		if('ICON_CALLORIGIN' == $name) {
-			if(defined('ICON_CALLORIGIN') == true) {
-				return ICON_CALLORIGIN;
-			}
 		}
 		if('JSMAP_WIDTH' == $name) {
 			if(defined('JSMAP_WIDTH') == true) {
@@ -214,6 +198,11 @@ class GlobalViewModel {
 				return JSMAP_MOBILEHEIGHT;
 			}
 		}
+		if('JSMAP_OVERLAY' == $name) {
+			if(defined('JSMAP_OVERLAY') == true) {
+				return JSMAP_OVERLAY;
+			}
+		}
 		
 		// throw some kind of error
 		throw new \Exception("Invalid var reference [$name].");
@@ -225,10 +214,9 @@ class GlobalViewModel {
 				  'RR_JWT_REFRESH_TOKEN_NAME', 'RR_JWT_REFRESH_TOKEN', 
 				  'RR_JWT_TOKEN_NAME_FOR_HEADER', 'RR_JWT_REFRESH_TOKEN_NAME_FOR_HEADER', 'RR_JWT_TOKEN_PARAM',
 					AuthViewModel::getAuthVarContainerName(),'firehall',
-					'firehall_list','user_firehallid','enabled_asynch_mode',
-					'db_timezone', 'phpinfo','MENU_TYPE','CUSTOM_MAIN_CSS','CUSTOM_MOBILE_CSS',
-					'ICON_MARKERSCUSTOM_LEGEND','ICON_MARKERSCUSTOM','ICON_HYDRANT','ICON_FIREHALL','ICON_WATERTANK','ICON_CALLORIGIN',
-					'JSMAP_WIDTH','JSMAP_HEIGHT','JSMAP_MOBILEWIDTH','JSMAP_MOBILEHEIGHT'
+					'firehall_list','user_firehallid','enabled_asynch_mode','db_timezone', 'phpinfo',
+					'LOGO','DYNAMIC_STYLE','CSS_MENU','CSS_MENU_VER','CUSTOM_MAIN_CSS','CUSTOM_MOBILE_CSS',
+					'JSMAP_WIDTH','JSMAP_HEIGHT','JSMAP_MOBILEWIDTH','JSMAP_MOBILEHEIGHT','JSMAP_OVERLAY'
 			)) === true) {
 			return true;
 		}

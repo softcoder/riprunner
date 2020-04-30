@@ -10,19 +10,21 @@
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles.css" />
         {% endif %}
-        
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/freeze-header.css" />
-        
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/forms.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/freeze-header.js"></script>
+		{% include 'global-css-js.twig.html' %}
     </head>
     <body>
 
     <div class="container_center">
-        {% if gvm.auth.isAuth %}
-            {% include 'user-welcome.twig.html' %}
-            {% include 'live-callout-warning.twig.html' %}
-        
+	{% if gvm.auth.isAuth %}
+	{% include 'user-welcome.twig.html' %}
+	{% include 'live-callout-warning.twig.html' %}
+	
+	{% if gvm.CSS_MENU == 'yes' %}
+	{% include 'global-horizontal-menu.twig.html' %}
+	{% elseif gvm.CSS_MENU == 'no' %}
         <div class="menudiv_wrapper">
           <nav class="vertical">
             <ul>
@@ -50,6 +52,9 @@
             </ul>
           </nav>
         </div>
+	{% else %}
+	<br /><h3>INVALID CSS_MENU - CHECK CONFIG.PHP: CSS_MENU</h3>
+	{% endif %}
                     
         {% if response_history_vm.response_list is empty %}
         <b>NO Data.</b>

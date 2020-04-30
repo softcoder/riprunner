@@ -1,2 +1,7 @@
+{% if gvm.DYNAMIC_STYLE == 'yes' %}
 {% include 'display-logo.twig.html' %}
-<div class="overlayLoggedinAs">Logged in as: {{ gvm.auth.username }} - {{ gvm.firehall.WEBSITE.FIREHALL_NAME }}</div>
+	<div id="overlayLoggedinAs">{{ gvm.auth.username|upper }} - {{ gvm.firehall.WEBSITE.FIREHALL_NAME }}</div>
+{% else %}
+	<h3>Welcome {{ gvm.auth.username }} - {{ gvm.firehall.WEBSITE.FIREHALL_NAME }}!</h3>
+	{% include 'display-logo.twig.html' %}
+{% endif %}

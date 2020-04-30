@@ -1,5 +1,6 @@
-{% if gvm.auth.isAuth %}
-<div class="overlayLogo"><image src="{{ gvm.RR_DOC_ROOT }}{{ gvm.LOGO }} " onerror="this.style.display='none'" /></div>
+
+{% if gvm.auth.isAuth and gvm.DYNAMIC_STYLE == 'yes' %}
+<div id="overlayLogo"><image src="{{ gvm.RR_DOC_ROOT }}{{ gvm.LOGO }} " onerror="this.style.display='none'" /></div>
 {% else %}
 <image src="{{ gvm.RR_DOC_ROOT }}{{ gvm.LOGO }} " onerror="this.style.display='none'" />
 {% endif %}

@@ -1,30 +1,37 @@
-<br><br><br><br><br>
+{% if gvm.CSS_MENU_VER == 'test' %}
+{% include 'global-horizontal-menu-testing.twig.html' %}
+{% else %}
+{% if gvm.DYNAMIC_STYLE == 'yes' %}
+<div id="overlayHorizontalMenu">
+{% endif %}
   <div class="h_cssmenu">
   <ul id="h_cssmenu" class="h_cssmenu">
   <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Home</a></li>
   {% if gvm.auth.isAdmin %}
   <li><a href="#">Admin</a> 
-    <ul>
-      <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">User Accounts</a></li>
-      <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-type-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Call Codes</a></li>
-      <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-status-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Response Codes</a></li>
-      <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/address-override-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Address Override</a></li>
-      <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-info-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">System Info</a></li>
-      <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/view-logs-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">View Logs</a></li>
-      <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-config-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">System Config</a></li>
-      <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-test-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">System Testing</a></li>
-      <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?clearCache=true&{{ gvm.RR_JWT_TOKEN_PARAM }}">Clear Cache</a></li>
-    </ul>
+	<ul>
+	  <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Accounts</a></li>
+	  <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-type-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Call Codes</a></li>
+	  <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-status-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Response Codes</a></li>
+	  <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/address-override-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Address Override</a></li>
+	  <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-info-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">System Info</a></li>
+	  <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/view-logs-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">View Logs</a></li>
+	  <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-config-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">System Config</a></li>
+	  <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/system-test-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">System Testing</a></li>
+	  <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?clearCache=true&{{ gvm.RR_JWT_TOKEN_PARAM }}">Clear Cache</a></li>
+	</ul>
   </li>
   {% endif %}
   <li><a href="#">Callouts</a>
-    <ul>
-      <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-history-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Callout History</a></li>
-      <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-monitor-controller.php?server_mode=false&{{ gvm.RR_JWT_TOKEN_PARAM }}">Live Monitor</a></li>
-    </ul>
+	<ul>
+	  <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-history-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">History</a></li>
+	  <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-monitor-controller.php?server_mode=false&{{ gvm.RR_JWT_TOKEN_PARAM }}">Monitor</a></li>
+	</ul>
   </li>
   <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/reports-charts-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Reports</a></li>
   <li><a href="{{ gvm.RR_DOC_ROOT }}/logout.php">Logout</a></li>
   </ul>
+  </div>
 </div>
-<br>
+{% endif %}
+<br><br><br>

@@ -1,0 +1,29 @@
+{% if gvm.DYNAMIC_STYLE == 'yes' %}
+<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/dynamic/dynamic.css?version=1" />
+{% endif %}
+
+{% if gvm.isMobile %}
+<!-- user mobile:start -->
+  {% if gvm.CSS_MENU == 'yes' %}
+	  {% if gvm.CSS_MENU_VER == 'test' %}
+		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_menu/test/test.css?version=1" />
+		<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu-test.js"></script>
+	  {% else %}
+		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_menu/1/h_cssmenu-mobile.css?version=1" />
+		<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
+	  {% endif %}
+<!-- user mobile:end -->
+  {% endif %}
+  {% else %}
+<!-- user not mobile:start -->
+  {% if gvm.CSS_MENU_VER == 'test' %}
+    <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_menu/test/test.css?version=1" />
+    <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu-test.js"></script>
+  {% else %}
+  {% if gvm.CSS_MENU == 'yes' %}
+    <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_menu/1/h_cssmenu-main.css?version=1" />
+    <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
+    {% endif %}
+  {% endif %}
+{% endif %}
+<!-- user not mobile:end -->

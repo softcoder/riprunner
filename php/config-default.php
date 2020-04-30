@@ -55,16 +55,15 @@ define('JSMAP_WIDTH','100%');
 define('JSMAP_HEIGHT','500px');
 define('JSMAP_MOBILEWIDTH','85%');
 define('JSMAP_MOBILEHEIGHT','8000px');
+define{'JSMAP_OVERLAY','/kml/boundaries.kml';   // KML overlay for property lines or boundaries
 
-// THIS SECTION UNDER DEVELOPMENT AND CHANGES HERE HAVE NO EFFECT
-// Icon path is relative to your setRootURL configuration option, or the full URL to the image
-//define('ICON_MARKERSCUSTOM','yes');  // Enable custom icons for markers 
-//define('ICON_MARKERSCUSTOM_LEGEND','yes');  // Enable the javascript map Legend for custom markers
-//define('ICON_HYDRANT','/images/icons/redhydrant_small.png'); //hydrant Icon
-//define('ICON_FIREHALL','/images/icons/firedept.png'); // Fire Department Icon 
-//define('ICON_WATERTANK','/images/icons/water.png'); // Water Tank Icon
-//define('ICON_CALLORIGIN','/images/icons/phone.png'); // 911 Call origin
-//define('ICON_RESPONDER' ,'images/icons/responder.png'); // Icon for Responder Locations
+// Icon path is relative to your setRootURL configuration option
+define('ICON_LEGEND','yes');  // Enable the javascript map Legend for custom markers
+define('ICON_HYDRANT','/images/icons/redhydrant_small.png'); //hydrant Icon
+define('ICON_FIREHALL','/images/icons/firedept.png'); // Fire Department Icon 
+define('ICON_WATERTANK','/images/icons/water.png'); // Water Tank Icon
+define('ICON_CALLORIGIN','/images/icons/phone.png'); // 911 Call origin
+define('ICON_RESPONDER' ,'images/icons/responder.png'); // Icon for Responder Locations
 
 // ====================================================================================================
 // === DEFINE ANY CUSTOM STYLES HERE - THESE WILL NOT BE REMOVED OR REPLACED ACROSS UPGRADES        ===

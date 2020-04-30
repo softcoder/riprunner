@@ -107,6 +107,36 @@ class CalloutDetailsViewModel extends BaseViewModel {
         if('STREAM_AUTOPLAY_DESKTOP' === $name) {
             return STREAM_AUTOPLAY_DESKTOP;
         }
+		if('ICON_LEGEND' == $name) {
+			if(defined('ICON_LEGEND') == true) {
+				return ICON_LEGEND;
+			}
+		}
+		if('ICON_RESPONDER' == $name) {
+			if(defined('ICON_RESPONDER') == true) {
+				return ICON_RESPONDER;
+			}
+		}
+		if('ICON_HYDRANT' == $name) {
+			if(defined('ICON_HYDRANT') == true) {
+				return ICON_HYDRANT;
+			}
+		}
+		if('ICON_FIREHALL' == $name) {
+			if(defined('ICON_FIREHALL') == true) {
+				return ICON_FIREHALL;
+			}
+		}
+		if('ICON_WATERTANK' == $name) {
+			if(defined('ICON_WATERTANK') == true) {
+				return ICON_WATERTANK;
+			}
+		}
+		if('ICON_CALLORIGIN' == $name) {
+			if(defined('ICON_CALLORIGIN') == true) {
+				return ICON_CALLORIGIN;
+			}
+		}
 		if('map_callout_geo_dest' === $name) {
 		    return $this->getQueryParam('map_callout_geo_dest');
 		}
@@ -141,6 +171,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
                   'MAP_REFRESH_TIMER',
 				  //'STREAM_AUDIO_ENABLED','STREAM_MOBILE','STREAM_DESKTOP','STREAM_URL',
 				  'STREAM_TYPE', 'STREAM_AUTOPLAY_MOBILE','STREAM_AUTOPLAY_DESKTOP',
+				  'ICON_LEGEND','ICON_RESPONDER','ICON_HYDRANT','ICON_FIREHALL','ICON_WATERTANK','ICON_CALLORIGIN',
                   'ALLOW_CALLOUT_UPDATES_AFTER_FINISHED',
                   'map_callout_geo_dest','map_callout_address_dest','map_fh_geo_lat','map_fh_geo_long','map_webroot',
 			      'isCalloutAuth', 'member_access','member_access_respond_self', 'member_access_respond_others', 'callout_status_defs'

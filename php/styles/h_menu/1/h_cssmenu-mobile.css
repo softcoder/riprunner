@@ -84,7 +84,7 @@
 .h_cssmenu .arrowdiv{
 	position: absolute;
 	right: 0;
-	background: transparent url(../images/menuarrow.gif) no-repeat center left;
+	background: transparent url(./images/menuarrow.gif) no-repeat center left;
 }
 
 * html p#iepara{ /*For a paragraph (if any) that immediately follows menu, add 1em top spacing between the two in IE*/

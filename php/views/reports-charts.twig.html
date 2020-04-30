@@ -6,26 +6,17 @@
         {% if gvm.isMobile %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles-mobile.css" />
-			{% if gvm.MENU_TYPE == 'horizontal' %}
-			<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_cssmenu-mobile.css?version=1" />
-			<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
-			{% endif %}
         {% else %}
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
 		<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/custom-main.css" />
         <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles.css" />
-			{% if gvm.MENU_TYPE == 'horizontal' %}
-			<link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/h_cssmenu-main.css?version=1" />
-			<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/h_cssmenu.js"></script>
-			{% endif %}
         {% endif %}
-        
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/d3.min.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/spin.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/smartresize.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
-        
+		{% include 'global-css-js.twig.html' %}
     </head>
     <body>
 
@@ -41,9 +32,9 @@
         {% if gvm.auth.isAuth %}
             {% include 'user-welcome.twig.html' %}
             {% include 'live-callout-warning.twig.html' %}
-			{% if gvm.MENU_TYPE == 'horizontal' %}
+			{% if gvm.CSS_MENU == 'yes' %}
 				{% include 'global-horizontal-menu.twig.html' %}
-			{% elseif gvm.MENU_TYPE == 'vertical' %}
+			{% elseif gvm.CSS_MENU == 'no' %}
             <div class="menudiv_wrapper">
               <nav class="vertical">
                 <ul>
@@ -78,7 +69,7 @@
               </nav>
             </div>
             {% else %}
-				<br /><h3>NO VALID MENU DEFINED - CHECK CONFIG.PHP: MENU_TYPE</h3>
+				<br /><h3>INVALID CSS_MENU - CHECK CONFIG.PHP: CSS_MENU</h3>
 			{% endif %}               
 	        <script type="text/javascript">
 	        function addJSONDataToChartData(json_data, chart_data) {
@@ -332,7 +323,7 @@
                         
             <div class="inner_table">
             <h3>Total Call Response Volume by Person (Completed/Cancelled Calls) - by Month for the Year: {{ reportscharts_vm.report_year }}</h3>
-            <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
+            <table id="box-table-a" style="width: 80%; margin-left:auto;margin-right:auto;text-align:left">
                 {% if reportscharts_vm.callresponsevol_currentyear is defined %}
                 <thead>
                     <tr>
@@ -384,7 +375,7 @@
             
             <div class="inner_table">
             <h3>Total Call Response Hours by Person (Completed/Cancelled Calls) - by Month for the Year: {{ reportscharts_vm.report_year }}</h3>
-            <table id="box-table-a" style="margin-left:auto;margin-right:auto;text-align:left">
+            <table id="box-table-a" style="width: 80%; margin-left:auto;margin-right:auto;text-align:left">
                 {% if reportscharts_vm.callresponse_hours_currentyear is defined %}
                 <thead>
                     <tr>

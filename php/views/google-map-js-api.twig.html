@@ -107,21 +107,23 @@
         {% block map_firehalls %}
         // Set other RDFFG Firehall locations here
         var fireHalls = [
-            //["PILOT MTN FIRE DEPARTMENT", 54.011258, -122.854466, 5],
-            //["SALMON VALLEY FIRE DEPARTMENT", 54.091680, -122.653749, 7]
+            //["PILOT MTN FIRE DEPARTMENT", 54.011258, -122.854466, 1],
+            //["SALMON VALLEY FIRE DEPARTMENT", 54.091680, -122.653749, 2]
         ];
         {% endblock %}
 
+		{% if callout_details_vm.ICON_LEGEND == 'yes' %}
         {% block map_legend_icons %}
         // Create Icons for Legend here
         var icons = {
-            waterTank: { name: 'Water Source', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/water.png' },
-            Origin_GPS: { name: 'Origin GPS', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/phone.png' },
-            FireHall: { name: 'Fire Station', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/firedept.png' },
-            waterHydrant: { name: 'Fire Hydrant', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/redhydrant_small.png' },
-            responderToHall: { name: 'Responder', icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/respond_to_hall.png' }
+            waterTank: { name: 'Water Source', icon: '{{ gvm.RR_DOC_ROOT }}{{ callout_details_vm.ICON_WATERTANK }}' },
+            Origin_GPS: { name: 'Origin GPS', icon: '{{ gvm.RR_DOC_ROOT }}{{ callout_details_vm.ICON_CALLORIGIN }}' },
+            FireHall: { name: 'Fire Station', icon: '{{ gvm.RR_DOC_ROOT }}{{ callout_details_vm.ICON_FIREHALL }}' },
+            waterHydrant: { name: 'Fire Hydrant', icon: '{{ gvm.RR_DOC_ROOT }}{{ callout_details_vm.ICON_HYDRANT }}' },
+            responderToHall: { name: 'Responder', icon: '{{ gvm.RR_DOC_ROOT }}{{ callout_details_vm.ICON_RESPONDER }}' }
         };
         {% endblock %}
+		{% endif %}
 
         //debugger;
         var initialZoom = true;
@@ -171,7 +173,7 @@
             position: new google.maps.LatLng({{ CALLORIGIN }}), 
             title: "CALL ORIGIN",
             clickable: true,
-            icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/phone.png',
+            icon: '{{ gvm.RR_DOC_ROOT }}{{ callout_details_vm.ICON_CALLORIGIN }}',
             map: map
         });
 
@@ -182,7 +184,7 @@
         for (i = 0; i < waterTank.length; i++) {
             marker = new google.maps.Marker({
             position: new google.maps.LatLng(waterTank[i][1], waterTank[i][2]),
-            icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/water.png',
+            icon: '{{ gvm.RR_DOC_ROOT }}{{ callout_details_vm.ICON_WATERTANK }}',
             map: map
             });
             google.maps.event.addListener(marker, 'click', (function(marker, i) {
@@ -200,7 +202,7 @@
         for (i = 0; i < fireHydrant.length; i++) {
             marker = new google.maps.Marker({
                 position: new google.maps.LatLng(fireHydrant[i][1], fireHydrant[i][2]),
-                icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/redhydrant_small.png',
+                icon: '{{ gvm.RR_DOC_ROOT }}{{ callout_details_vm.ICON_HYDRANT }}',
                 map: map
             });
             google.maps.event.addListener(marker, 'click', (function(marker, i) {
@@ -218,7 +220,7 @@
         for (i = 0; i < fireHalls.length; i++) {  
             marker = new google.maps.Marker({
                 position: new google.maps.LatLng(fireHalls[i][1], fireHalls[i][2]),
-                icon: '{{ gvm.RR_DOC_ROOT }}/images/icons/firedept.png',
+                icon: '{{ gvm.RR_DOC_ROOT }}{{ callout_details_vm.ICON_FIREHALL }}',
                 map: map
             });
             google.maps.event.addListener(marker, 'click', (function(marker, i) {
@@ -245,7 +247,7 @@
             // -----------------------------------------------------------------------------
             // Set map bounds here
             var boundaryLayer = new google.maps.KmlLayer({
-                url: '{{ WEB_ROOT }}kml/boundaries.kml?version=1',
+                url: '{{ WEB_ROOT }}{{gvm.JSMAP_OVERLAY}}?version=1',
                 preserveViewport: true,
                 supressInfoWindows: true
             });
@@ -255,6 +257,7 @@
             }
 
             // -----------------------------------------------------------------------------
+		{% if callout_details_vm.ICON_LEGEND == 'yes' %}
             // Create legend for Icons
             var legend = document.getElementById('legend');
                 for (var key in icons) {
@@ -266,6 +269,7 @@
                 legend.appendChild(div);
             }
             map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
+		{% endif %}
         });
         // Restore previous map settings if they exist
         google.maps.event.addListener(map, 'zoom_changed', function () {
