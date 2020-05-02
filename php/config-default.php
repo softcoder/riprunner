@@ -19,6 +19,8 @@ require_once 'config/config_manager.php';
 // even after their status is set to cancelled or completed
 define('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED', true);
 
+define( 'JWT_KEY', 'ca174907-e44b-4227-8c52-62cbc9e0dd64' );
+
 // ====================================================================================================
 // ===                     ENABLE JAVASCRIPT OR IFRAME MAPPING STYLES                               ===
 // ====================================================================================================
