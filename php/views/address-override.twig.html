@@ -92,7 +92,7 @@
                 </center>
             </form>
 -->            
-            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/address-override-controller.php" 
+            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/address-override-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}" 
                   method="post" name="address_edit_form">
    
             <center>
@@ -149,7 +149,7 @@
                        onclick="save_address(this.form, -1);" />
                 
                 <input type="button" value="Cancel" 
-                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/address-override-controller.php'; return false;" />
+                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/address-override-controller.php{{ gvm.RR_JWT_TOKEN_PARAM }}'; return false;" />
                 </td>
                 </tr>
                 {% endif %}
@@ -224,7 +224,7 @@
                            onclick="save_address(this.form, {{ address.id }});" />
                     
                     <input type="button" value="Cancel" 
-                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/address-override-controller.php'; return false;" />
+                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/address-override-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}'; return false;" />
                     </td>
                 {% else %}
                     <td>
