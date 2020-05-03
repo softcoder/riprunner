@@ -545,9 +545,9 @@ function calculateRoute(directionsService,request,index, callout_geo_src, map) {
                     //calculateRoute(directionsService,request,index, callout_geo_src, map);
                     //setTimeout('getAddress("'+addresses[nextAddress]+'",theNext)', 100);
                     //setTimeout('calculateRoute(directionsService,request,index, callout_geo_src, map)', 100);
-                    setTimeout(function(){
+                    setTimeout(function() {
                         calculateRoute(directionsService,request,index, callout_geo_src, map);
-                    }, 120*index);
+                    }, 500*index);
                 }
                 catch(ex) {
                     console.info('ERROR In calculateRoute() for index: ' + index + ' error: ' + ex.message);
