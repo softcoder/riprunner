@@ -134,7 +134,7 @@ class AddressOverrideViewModel extends BaseViewModel {
                 }
 	        }
 	    }
-	    if($log !== null) $log->trace("NO MATCH for auto insert [".$call_row['address']."]");
+	    if($log !== null) $log->trace("NO MATCH for auto insert [". ($call_row != null ? $call_row['address'] : '') ."]");
 	    return $call_row;
 	}
 	
