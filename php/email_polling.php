@@ -277,7 +277,7 @@ class EmailTriggerPolling {
         $structure = $this->getIMapProvider()->imap_fetchstructure($mail, $num);
          
         $multi = null;
-        if (array_key_exists('parts', $structure) === true) {
+        if (property_exists($structure, 'parts') === true) {
             $multi = $structure->parts;
         }
         $nparts = 0;

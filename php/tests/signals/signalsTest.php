@@ -484,4 +484,66 @@ class SignalsTest extends BaseDBFixture {
 	
 	    $this->assertEquals('TEST SUCCESS SMS!TEST SUCCESS FCM!', $result);
 	}
+
+	public function testSignalFireHallResponse_Valid_NoResponse_NoSignal() {
+	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+	
+	    $callout = new \riprunner\CalloutDetails();
+	    $callout->setDateTime('2015-01-02 09:28:10');
+	    $callout->setCode('MED');
+	    $callout->setAddress('9115 Salmon Valley Road, Prince George, BC');
+	    $callout->setGPSLat('54.0873847');
+	    $callout->setGPSLong('-122.5898009');
+	    $callout->setUnitsResponding('SALGRP1');
+	    $callout->setFirehall($FIREHALL);
+	
+	    // Create a stub for the ISMSPlugin class.
+	    $mock_sms_plugin = $this->getMockBuilder('\riprunner\ISMSPlugin')
+	    ->getMock(array('signalRecipients'));
+ 
+	    // Set up mock return value when signalRecipients is called
+	    $mock_sms_plugin->expects($this->any())
+	    ->method('signalRecipients')
+	    ->will($this->returnValue('TEST SUCCESS SMS!'));
+ 
+	    // Ensure signalRecipients is called
+	    $mock_sms_plugin->expects($this->never())
+	    ->method('signalRecipients')
+	    ->with($this->equalTo($FIREHALL->SMS),$this->anything(),$this->anything(),$this->equalTo('Responder: mark.vejvoda set their status to Respond to hall for the callout: MED.'));
+	
+	    // Create a stub for the GCM class.
+	    $mock_gcm = $this->getMockBuilder('\riprunner\FCM')
+	    ->disableOriginalConstructor()
+	    ->getMock(array('send','getDeviceCount'));
+	     
+	    // Set up mock return value when signalRecipients is called
+	    $mock_gcm->expects($this->any())
+	    ->method('getDeviceCount')
+	    ->will($this->returnValue(1));
+	
+	    // Ensure signalRecipients is called
+	    $mock_gcm->expects($this->atLeastOnce())
+	    ->method('getDeviceCount');
+	     
+	    // Set up mock return value when signalRecipients is called
+	    $mock_gcm->expects($this->any())
+	    ->method('send')
+	    ->will($this->returnValue('TEST SUCCESS FCM!'));
+	     
+	    // Ensure signalRecipients is called
+	    $mock_gcm->expects($this->once())
+	    ->method('send')
+	    ->with($this->anything());
+
+	    $user_id = 'mark.vejvoda';
+	    $userGPSLat = '54.0916667';
+	    $userGPSLong = '-122.6537361';
+	    $user_status = \riprunner\CalloutStatusType::getStatusByName('NotResponding',$FIREHALL)->getId();
+	    
+	    
+	    $signalManager = new \riprunner\SignalManager(null,$mock_sms_plugin,$mock_gcm,$this->getTwigEnv());
+	    $result = $signalManager->signalFireHallResponse($callout,$user_id,$userGPSLat,$userGPSLong,$user_status,null,true);
+	
+	    $this->assertEquals('TEST SUCCESS FCM!', $result);
+	}	
 }
