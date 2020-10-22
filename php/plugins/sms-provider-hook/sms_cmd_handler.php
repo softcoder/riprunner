@@ -175,7 +175,7 @@ class SMSCommandHandler {
                         $db = new \riprunner\DbConnection($FIREHALL);
                         $db_connection = $db->getConnection();
     
-                        $recipient_list_array = $this->get_recipients_list($FIREHALL, $db_connection);
+                        $recipient_list_array = $this->get_recipients_list($FIREHALL, $db_connection, true);
                         
                         if($log !== null) $log->trace("Looking for matching sms command recipients list: [" . 
                                 implode(",", $recipient_list_array) . "]");
@@ -291,7 +291,7 @@ class SMSCommandHandler {
                             }
                         }
                         else {
-                            if($log !== null) $log->error("FAILED sms matching authentication for sms user [$sms_user].");
+                            if($log !== null) $log->error("FAILED sms matching authentication for sms user [$sms_user] recipients list: [" . implode(",", $recipient_list_array) . "]");
                         }
                     }
                     catch (Exception $ex) {
@@ -455,7 +455,7 @@ class SMSCommandHandler {
         return $text;
     }
     
-    private function get_recipients_list($FIREHALL, $db_connection) {
+    private function get_recipients_list($FIREHALL, $db_connection, $include_admins=null) {
         if($FIREHALL->LDAP->ENABLED == true) {
             $recipients = get_sms_recipients_ldap($FIREHALL, null);
             $recipients = preg_replace_callback( '~(<uid>.*?</uid>)~', function ($m) { $m; return ''; }, $recipients);
@@ -471,7 +471,7 @@ class SMSCommandHandler {
                 $recipient_list_array = explode(';', $recipients_group);
             }
             else if($FIREHALL->SMS->SMS_RECIPIENTS_FROM_DB === true) {
-                $recipient_list = getMobilePhoneListFromDB($FIREHALL, $db_connection);
+                $recipient_list = getMobilePhoneListFromDB($FIREHALL, $db_connection, null, $include_admins);
                 $recipient_list_array = $recipient_list;
             }
             else {

@@ -155,7 +155,7 @@ function getUserNameFromMobilePhone($FIREHALL, $db_connection, $matching_sms_use
     return null;
 }
 
-function getMobilePhoneListFromDB($FIREHALL, $db_connection, $filtered_sms_users=null) {
+function getMobilePhoneListFromDB($FIREHALL, $db_connection, $filtered_sms_users=null, $include_admins=null) {
 	global $log;
 
 	$must_close_db = false;
@@ -165,11 +165,25 @@ function getMobilePhoneListFromDB($FIREHALL, $db_connection, $filtered_sms_users
 	     
 		$must_close_db = true;
 	}
-	
+    
+    $sql_admin_access = USER_ACCESS_ADMIN . " = ". USER_ACCESS_ADMIN;
 	$sql_sms_access = USER_ACCESS_SIGNAL_SMS . " = ". USER_ACCESS_SIGNAL_SMS;
 	$sql_statement = new \riprunner\SqlStatement($db_connection);
-	$sql = $sql_statement->getSqlStatement('users_mobile_access_list');
-	$sql = preg_replace_callback('(:sms_access)', function ($m) use ($sql_sms_access) { $m; return $sql_sms_access; }, $sql);
+    $sql = $sql_statement->getSqlStatement('users_mobile_access_list');
+    if($include_admins != null && $include_admins === true) {
+        $sql = preg_replace_callback('(:sms_access)', function ($m) use ($sql_sms_access, $sql_admin_access) { 
+            $m; 
+            return "$sql_sms_access OR access & $sql_admin_access"; 
+        }, $sql);
+    }
+    else {
+        $sql = preg_replace_callback('(:sms_access)', function ($m) use ($sql_sms_access) {
+            $m;
+            return $sql_sms_access;
+        }, $sql);
+    }
+
+    if($log !== null) $log->trace("Call getMobilePhoneListFromDB SQL text for sql [$sql]");
 
 	$qry_bind = $db_connection->prepare($sql);
 	$qry_bind->execute();
