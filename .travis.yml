@@ -8,6 +8,8 @@ coverage: xdebug
 
 env:
   - deps=default
+    global:
+        - XDEBUG_MODE=coverage
 
 matrix:
     include:
