@@ -190,7 +190,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// Website and Location Settings
 	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY', 'AIzaSyCy8uwfS_I2Iruqm1h8vczV8L_llgDirPk' );
 
-	define( 'JWT_KEY', 'X' );
+	define( 'JWT_KEY', 'XXXXXXXXXXXXXXXX' );
 
 	// ----------------------------------------------------------------------
 	// Email parser lookup patterns for email triggers
