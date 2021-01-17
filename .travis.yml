@@ -4,13 +4,10 @@ sudo: false
 
 dist: trusty
 
-coverage: xdebug
-
 env:
-  - deps=default
-    global:
+  global:
         - XDEBUG_MODE=coverage
-
+        - deps=default
 matrix:
     include:
 #        - php: 7.1
