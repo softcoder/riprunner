@@ -301,7 +301,7 @@
 
                     {% if callout_details_vm.member_id is null or
                             ((callout_details_vm.member_access_respond_self and row_no.user_id == callout_details_vm.member_id) or 
-                            callout_details_vm.member_access_respond_others) %}
+                            callout_details_vm.member_access_respond_others or gvm.auth.isAdmin) %}
             
                         {% block callout_no_response %}
                         {% if callout_details_vm.ALLOW_CALLOUT_UPDATES_AFTER_FINISHED or callout_pending %}

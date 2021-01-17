@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Secure Login: Log In</title>
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css" />
+        {% endif %}
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/sha512.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script> 
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/spin.js"></script>
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/forms.js"></script> 
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
+    </head>
+    <body>
+    
+    	<div class="container_center">
+	{% if (gvm.auth.isAuth and (gvm.auth.isAdmin)) %}
+    	{% if gvm.isMobile %} 
+        <b>Mobile Device Detected</b> 
+    	{% elseif gvm.isTablet %} 
+        <b>Tablet Device Detected</b> 
+        {% else %} 
+        <b>Desktop Device Detected</b> 
+        {% endif %}
+    	
+        {% if twofaenablevm.hasError %}
+        <p class="error">Error Enabling Two factor authentication!</p>
+        {% else %}
+		<div class="container">
+			<section id="content2fa">
+	        <form action="{{ gvm.RR_DOC_ROOT }}/controllers/2fa-enable-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}" method="post" 
+	               accept-charset="utf-8" id="login_form" name="login_form">
+	        	<h1>Two-Factor Authentication</h1>
+				{% include 'display-logo.twig.html' %}
+				
+				{% if twofa_enable_ctl_action_error != 1 and twofa_enable_ctl_action_error != 2 %}
+			    <div>
+	            	<h3 style='color:black'>Please use an authenticator app (like Google or Yubico Authenticator) to scan this QR Code:</h3>
+				</div>
+				<br>
+				<hr>
+				<br>
+			    <div>
+	            	<h2>
+						<!-- {{ twofaenablevm.otp_qrcode }} -->
+						<image src="{{ twofaenablevm.otp_qrcode }}"></image>
+					</h2>
+				</div>
+				<br>
+				<hr>
+				<br>
+			    <div>
+	            	<h3 style='color:black'>Or enter this code into your authentication app:</h3>
+				</div>
+			    <div>
+	            	<h3 style='color:blue'>{{ twofaenablevm.otp_secret }}</h3>
+				</div>
+				<br>
+				<hr>
+				<br>
+			    <div>
+	            	<h3 style='color:black'><label for="twofa_key_verify">Please enter the current authentication app 2FA code for verification</label></h3>
+	            	<input type="text" name="twofa_key_verify" id="twofa_key_verify" 
+	            	       placeholder="Two factor code" required 
+	            		   onKeyPress="return submitenter(this,event,document.getElementById('btnVerify').onclick);" />
+				</div>
+				{% endif %}
+				<div>
+				<center>
+					{% if twofa_enable_ctl_action_error == 100 %}
+					<b><font color="red">Invalid Two factor code! Please try again.</font></b>
+					{% elseif twofa_enable_ctl_action_error == 1 %}
+					<b><font color="green">Two factor authentication has been ENABLED for user: {{ twofaenablevm.user_id }}</font></b>
+					{% elseif twofa_enable_ctl_action_error == 2 %}
+					<b><font color="blue">Two factor authentication has been DISABLED for user: {{ twofaenablevm.user_id }}</font></b>
+					{% endif %}
+				</center>
+				</div>
+				<div >
+					{% if twofa_enable_ctl_action_error != 1 and twofa_enable_ctl_action_error != 2 %}
+	            	<input type="button" id="btnCancel" class="close" value="Cancel"  onclick="self.close()" />
+	            	<input type="button" id="btnVerify" 
+	                		value="Verify" 
+							   onclick="save_secret(document.getElementById('login_form'), '{{ twofaenablevm.user_id }}', 
+							                               '{{ twofaenablevm.firehall_id }}') && 
+											   formhash(document.getElementById('login_form'), '{{ twofaenablevm.otp_secret }}', true); return false;" />
+					{% else %}
+	            	<input type="button" id="btnCancel" class="close" value="Close" onclick="self.close()" />
+					{% endif %}
+				</div>
+				<script type="text/javascript">
+
+					function save_secret(form, user_id, fhid) {
+						addformhiddenfield(form, 'form_action', 'save-otp');
+						addformhiddenfield(form, 'edit_user_id', user_id);
+						addformhiddenfield(form, 'fhid', fhid);
+						return true;
+					}
+
+					window.onunload = refreshParent;
+					function refreshParent() {
+						window.opener.location.reload();
+					}
+
+				</script>
+	        </form>
+			</section>
+			</div>
+	        
+	        <p>If you are done browsing, please <a href="{{ gvm.RR_DOC_ROOT }}/logout.php">log out</a>.</p>
+	        
+	        <p>You are currently logged {{ gvm.auth.isAuth ? 'in' : 'out' }}.</p>
+        {% endif %}
+	{% else %}
+		{% include 'access-denied.twig.html' %}
+	{% endif %}
+		</div>
+	</body>
+</html>

@@ -31,7 +31,7 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Main Menu</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM|raw }}">Main Menu</a></li>
                       </ul>
                     </div>
                   </li>
@@ -53,7 +53,7 @@
                 {% include 'send-message.twig.html' %}
             {% endif %}
             
-            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}" 
+            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM|raw }}" 
                   method="post" name="user_edit_form">
    
             <center>
@@ -173,7 +173,7 @@
                            onclick="save_user(this.form, -1);" />
                     
                     <input type="button" value="Cancel" 
-                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}{{ usersmenu_vm.selfedit_mode ? '&se=true' : '' }}'; return false;" />
+                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM|raw }}{{ usersmenu_vm.selfedit_mode ? '&se=true' : '' }}'; return false;" />
                 </td>
                 {% else %}
                     {% if gvm.firehall.LDAP.ENABLED %}
@@ -345,9 +345,74 @@
                     {% endif %}
                 </td>
                 <td>
-                {% if edit_current_row and not usersmenu_vm.selfedit_mode %}
-                    <input id="edit_user_twofa" name="edit_user_twofa" 
-                            type="checkbox" {{ user.twofa ? 'checked="checked"' : '' }} />
+                {% if edit_current_row %}
+                    <!--
+                    <div id="myModal" class="modal">
+                        <div class="modal-content" id="content" name="content">
+                        </div>
+                    </div>
+                    -->            
+                    <input id="edit_user_twofa" name="edit_user_twofa" type="checkbox" {{ user.twofa ? 'checked="checked"' : '' }} 
+                                onchange="return ShowTwoFAEnableDialog(event);"/>
+
+                    <script>
+                        function ShowTwoFAEnableDialog(event) {
+                            debugger;
+
+                            var checkbox = event.target;
+                            var url = "{{ gvm.RR_DOC_ROOT }}/controllers/2fa-enable-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM|raw }}&fhid={{ user.firehall_id }}&edit_user_id={{ user.user_id }}{{ usersmenu_vm.selfedit_mode ? '&se=true' : '' }}";
+
+                            if(checkbox.checked) {
+                                window.open (url,"2fa-enable");
+                                //document.getElementById("content").innerHTML='<object type="text/html" data='+url+'></object>';
+                                return false;
+                            }
+                            else {
+                                if(confirm('Confirm REMOVE Two Factor Authentication for user: {{ user.user_id }}?')) {
+                                    url += "&form_action=remove-otp";
+                                    window.open (url,"2fa-enable");
+                                    //document.getElementById("content").innerHTML='<object type="text/html" data='+url+'></object>';
+                                    //location.reload();
+                                    return false;
+                                }
+                                else {
+                                    checkbox.checked = !checkbox.checked;
+                                }
+                            }
+                        }
+
+                        //debugger;
+                        // Get the modal
+                        //var modal = document.getElementById("myModal");
+
+                        // Get the button that opens the modal
+                        //var btn = document.getElementById("edit_user_twofa");
+
+                        // Get the <span> element that closes the modal
+                        //var span = document.getElementsByClassName("close")[0];
+
+                        // When the user clicks on the button, open the modal
+                        //btn.onclick = function() {
+                        //    debugger;
+                        //    modal.style.display = "block";
+                        //    ShowTwoFAEnableDialog(this.checked);
+                        //}
+
+                        // When the user clicks on <span> (x), close the modal
+                        //span.onclick = function() {
+                        //    debugger;
+                        //    modal.style.display = "none";
+                        //}
+
+                        // When the user clicks anywhere outside of the modal, close it
+                        //window.onclick = function(event) {
+                        //    debugger;
+                        //    if (event.target == modal) {
+                        //        modal.style.display = "none";
+                        //    }
+                        //}
+                    </script>
+        
                 {% else %}
                     {{ user.twofa ? 'yes' : 'no' }}
                 {% endif %}
@@ -362,7 +427,7 @@
 	                       onclick="save_user(this.form, {{ user.id }});" />
 	                
 	                <input type="button" value="Cancel" 
-	                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}{{ usersmenu_vm.selfedit_mode ? '&se=true' : '' }}'; return false;" />
+	                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM|raw }}{{ usersmenu_vm.selfedit_mode ? '&se=true' : '' }}'; return false;" />
 	                </td>
 	            {% else %}
 	                {% if gvm.firehall.LDAP.ENABLED %}
@@ -388,6 +453,7 @@
             </form>
             
 <script type="text/javascript">
+
     function edit_user(form, user_id) {
        addformhiddenfield(form, 'form_action', 'edit');
        addformhiddenfield(form, 'edit_user_id', user_id);

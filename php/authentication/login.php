@@ -250,7 +250,8 @@ class ProcessLogin {
 								$systemTwoFA = $loginResult['twofaKey'];
                                 if ($loginResult['twofa'] == true) {
                                     if (strlen($twofa_key) == 0) {
-										$auth->update_twofa($user_id, $systemTwoFA);
+										// Validation has passed
+										//$auth->update_twofa($user_id, $systemTwoFA);
 										$loginResult['twofaKey'] = '';
 
                                         $userRole = $auth->getCurrentUserRoleJSon($loginResult);
@@ -286,7 +287,8 @@ class ProcessLogin {
 
 											$userid   = $loginResult['user_db_id'];
 											$firehall = $FIREHALL;
-											$auth->sendSMSTwoFAMessage($systemTwoFA, $userid, $user_id, $firehall);
+											// No longer support SMS 2fa due to SIM Jacking
+											//$auth->sendSMSTwoFAMessage($systemTwoFA, $userid, $user_id, $firehall);
 
 											return;
 										} 
@@ -295,7 +297,8 @@ class ProcessLogin {
                                             											
 											$userid   = $loginResult['user_db_id'];
 											$firehall = $FIREHALL;
-											$auth->sendSMSTwoFAMessage($systemTwoFA, $userid, $user_id, $firehall);
+											// No longer support SMS 2fa due to SIM Jacking
+											//$auth->sendSMSTwoFAMessage($systemTwoFA, $userid, $user_id, $firehall);
 
                                             $this->header('Location: controllers/2fa-controller.php?'.Authentication::getJWTTokenName().'='.$jwt.'&'.Authentication::getJWTRefreshTokenName().'='.$jwtRefresh);
 											return;

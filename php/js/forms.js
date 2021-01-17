@@ -25,7 +25,9 @@ function checkRequiredField(field,fieldDisplayName) {
 }
 
 function formhash(form, password, is2FA) {
-	
+    
+    debugger;
+
     if(typeof document.forms["login_form"]["firehall_id"] != "undefined" && 
        checkRequiredField(document.forms["login_form"]["firehall_id"],
 			document.forms["login_form"]["firehall_id"].placeholder) == false) {
@@ -55,12 +57,17 @@ function formhash(form, password, is2FA) {
     p.name = "p";
     p.type = "hidden";
     //p.value = hex_sha512(password.value);
-    p.value = password.value;
- 
-    // Make sure the plaintext password doesn't get sent. 
-    password.value = "";
-    if(is2FA != null && is2FA) {
-        password.value = "1";
+    if(typeof password.value != "undefined") {
+        p.value = password.value;
+
+        // Make sure the plaintext password doesn't get sent. 
+        password.value = "";
+        if(is2FA != null && is2FA) {
+            password.value = "1";
+        }
+    }
+    else if(typeof password != "undefined") {
+        p.value = password;
     }
 
     loadingSpinner(form,'#000');

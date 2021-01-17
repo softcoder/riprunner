@@ -14,7 +14,9 @@ require_once dirname(dirname(__FILE__)).'/baseDBFixture.php';
 require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/authentication/login.php';
 require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
+require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
 
+use \OTPHP\TOTP;
 
 class SignalManagerMock extends \riprunner\SignalManager {
 	public function sendMsg($msgContext, $gvm, $msg=null) {
@@ -81,18 +83,21 @@ class LoginTest extends BaseDBFixture {
 		$loginResult['user_db_id'] = 1;
 		$loginResult['user_id'] = 'mark.vejvoda';
 		$loginResult['user_type'] = '1';
-		$loginResult['login_string'] = 'Unit Test';
+		$loginResult['login_string'] = 'Unit Test NON JSON';
 		$loginResult['twofa'] = '1';
 		$loginResult['twofaKey'] = '';
 
 		$userRole = $auth->getCurrentUserRoleJSon($loginResult);
 		$jwt = $auth->getJWTAccessToken($loginResult, $userRole);
 
+		$otp = TOTP::create('3H5TL223MRL5AUQNK3GYDHFKI2QWKCVA7AFZLY6MEKVPU2JP6GCA');
+		$twofaKey = $otp->now();
+
 		$request_variables = [
 			'SESSIONLESS_LOGIN' => true,
 			'firehall_id' => 0,
 			'user_id' => 'mark.vejvoda',
-			'p' => '123456',
+			'p' => $twofaKey,
 			'twofa_key' => '1',
 			\riprunner\Authentication::getJWTTokenName() => $jwt
 		];
@@ -279,10 +284,13 @@ class LoginTest extends BaseDBFixture {
 		$assertURL = '';
 		$getfile_callback = function($url) use (&$assertURL) { 
 			$assertURL = $url;
+			$otp = TOTP::create('3H5TL223MRL5AUQNK3GYDHFKI2QWKCVA7AFZLY6MEKVPU2JP6GCA');
+			$twofaKey = $otp->now();
+	
 			return json_encode([
 				'fhid' => '0',
 				'username' => 'mark.vejvoda',
-				'p' => '123456',
+				'p' => $twofaKey,
 				'twofaKey' => '1'
 			]);
 		};

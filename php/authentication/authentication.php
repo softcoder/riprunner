@@ -165,7 +165,7 @@ class Authentication {
         return AuthNotification::getClientIPInfo();
     }
 
-    private function getUserInfo($fhid,$user_id) {
+    public function getUserInfo($fhid, $user_id) {
         global $log;
     
         if($this->hasDbConnection() == false) {
@@ -180,6 +180,9 @@ class Authentication {
         else {
             $sql = $this->getSqlStatement('login_user_check');
         }
+
+        //if($log !== null) $log->warn("BEFORE Type check for user [$user_id] fhid [" . $fhid . "] client [" . AuthNotification::getClientIPInfo() . "] sql: $sql");
+
         $stmt = $this->getDbConnection()->prepare($sql);
         if ($stmt !== false) {
             $stmt->bindParam(':id', $user_id);  // Bind "$user_id" to parameter.
@@ -190,8 +193,7 @@ class Authentication {
             $row = $stmt->fetch(\PDO::FETCH_OBJ);
             $stmt->closeCursor();
         
-            if($log !== null) $log->trace("Type check for user [$user_id] fhid [" .
-                    $fhid . "] result: ". $row->id ."client [" . AuthNotification::getClientIPInfo() . "]");
+            if($log !== null) $log->trace("AFTER Type check for user [$user_id] fhid [" . $fhid . "] result: ". $row->id ."client [" . AuthNotification::getClientIPInfo() . "]");
             return $row;
         }
         return null;
@@ -239,11 +241,11 @@ class Authentication {
 		return $jsonObject;
 	}
 
-    public function update_twofa($user_id, $twofaKey) {
+    public function update_twofa($user_id, $twofaType, $twofaKey) {
         global $log;
         if ($log !== null) {
             $log->trace("Login attempt for user [$user_id] fhid [" .
-                                      $this->getFirehall()->FIREHALL_ID . "] 2fa: [".$twofaKey."] client [" .
+                                      $this->getFirehall()->FIREHALL_ID . "] 2fa type: $twofaType : [$twofaKey] client [" .
                                       AuthNotification::getClientIPInfo() . "]");
         }
         
@@ -252,6 +254,7 @@ class Authentication {
         $stmt = $this->getDbConnection()->prepare($sql);
         if ($stmt !== false) {
             $stmt->bindParam(':user_id', $user_id);
+            $stmt->bindParam(':twofa',   $twofaType);
             $stmt->bindParam(':twofa_key', $twofaKey);
             $stmt->execute();
         }
@@ -287,7 +290,10 @@ class Authentication {
             $stmt->closeCursor();
 
             if ($row !== null && $row !== false) {
-                $twofaKey = $row->twofa_key;
+                $twofaKeyDB = $row->twofa_key;
+
+                $twofaKey = \riprunner\Authentication::decryptData($twofaKeyDB, JWT_KEY);
+                if($log !== null) $log->warn("get_twofa RESULT user_id: $user_id twofaKeyDB: $twofaKeyDB twofaKey: $twofaKey");
             }
         }
         return $twofaKey;
@@ -297,6 +303,11 @@ class Authentication {
         $ip = AuthNotification::getClientIPInfo();
         $userAgent = AuthNotification::getUserAgent();
         $this->auth_notification->verifyDevice($user_id,$userDBId,$ip,$userAgent);
+    }
+
+    public function verifyNewTwoFA($requestSecret, $requestTwofaKey) {
+        $otp = \OTPHP\TOTP::create($requestSecret);
+        return $otp->verify($requestTwofaKey);
     }
 
     public function verifyTwoFA($isAngularClient, $user_id, $dbId, $requestTwofaKey) {
@@ -315,13 +326,14 @@ class Authentication {
             $validTwoFAKey = false;
         }
         else {
-            $userTwoFAKey = $this->get_twofa($user_id);
-            if ($requestTwofaKey != $userTwoFAKey) {
+            $userTwoFASecret = $this->get_twofa($user_id);
+            $valid2FA = $this->verifyNewTwoFA($userTwoFASecret, $requestTwofaKey);
+            if ($valid2FA == false) {
                 // Login failed wrong 2fa key
                 $validTwoFAKey = false;
                 self::auditLogin($dbId, $user_id, LoginAuditType::INVALID_TWOFA);
                 // 2FA is not correct we record this attempt in the database
-                if ($log !== null) $log->error("Login attempt for user [$user_id] userid [$dbId] FAILED pwd check for client [" . AuthNotification::getClientIPInfo() . "]");
+                if ($log !== null) $log->error("Login attempt for user [$user_id] userid [$dbId] FAILED pwd check userTwoFASecret: [$userTwoFASecret] for client [" . AuthNotification::getClientIPInfo() . "]");
                                     
                 $sql = $this->getSqlStatement('login_brute_force_insert');
                     
@@ -329,7 +341,7 @@ class Authentication {
                 $qry_bind->bindParam(':uid', $dbId);
                 $qry_bind->execute();
 
-                if ($log !== null) $log->error('Login FAILED 2FA check requestTwofaKey ['.$requestTwofaKey.'] userTwoFAKey ['.$userTwoFAKey.'] bruteforce: '.$bruteforceCheck['count']);
+                if ($log !== null) $log->error('Login FAILED 2FA check requestTwofaKey ['.$requestTwofaKey.'] bruteforce: '.$bruteforceCheck['count']);
                 
                 if ($this->auth_notification->notifyUsersAccountLocked($isAngularClient, $bruteforceCheck, $user_id, $dbId) == true) {
                     self::auditLogin($dbId, $user_id, LoginAuditType::ACCOUNT_LOCKED);
@@ -1214,6 +1226,24 @@ class Authentication {
         return (isset($value) && ($value & $access_flag));
     }
     
+    static public function encryptData($textToEncrypt, $secret) {
+        $encryptionMethod = "AES-256-CBC";
+        //$enc_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryptionMethod));
+        $enc_iv = substr($secret,0,16);
+        $result = openssl_encrypt($textToEncrypt, $encryptionMethod, $secret, 0, $enc_iv);
+        return $result;
+    }
+
+    static public function decryptData($textToDecrypt, $secret) {
+        $encryptionMethod = "AES-256-CBC";
+        $enc_iv = substr($secret,0,16);
+        $result = openssl_decrypt($textToDecrypt, $encryptionMethod, $secret, 0, $enc_iv);
+        if($result === false) {
+            $result = $textToDecrypt;
+        }
+        return $result;
+    }
+
     static public function encryptPassword($password) {
         $cost = 10;
         if (version_compare(PHP_VERSION, '7.0.0') >= 0) {

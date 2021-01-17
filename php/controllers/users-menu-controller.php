@@ -106,7 +106,12 @@ class UsersMenuController {
 		
 		$result = true;
 	
-		$edit_user_id_name = get_query_param('edit_user_id_name');
+		if($self_edit == true) {
+			$edit_user_id_name = \riprunner\Authentication::getAuthVar('user_id');
+		}
+		else {
+            $edit_user_id_name = get_query_param('edit_user_id_name');
+        }
 		$form_action = get_query_param('form_action');
 		
 		$log->trace("About to handle save user account for action [$form_action] self edit [$self_edit] edit user [$edit_user_id_name]");

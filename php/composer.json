@@ -40,7 +40,8 @@
         "twig/extensions": "^1.x-dev || >=1.5.4",
         "spomky-labs/otphp": "^9.1.4 || >=10.0.0",
         "geoip2/geoip2": ">=2.10.0",
-        "ua-parser/uap-php": ">=3.9.2"
+        "ua-parser/uap-php": ">=3.9.2",
+        "endroid/qr-code": "^3.9"
     },
 
     "repositories": [
