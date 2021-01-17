@@ -4,6 +4,8 @@ sudo: false
 
 dist: trusty
 
+coverage: xdebug
+
 env:
   - deps=default
 
