@@ -11,12 +11,13 @@
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script> 
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/spin.js"></script>
         <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/forms.js"></script> 
-        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
+		<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
+		<script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/qrcode/qrcode.min.js"></script>
     </head>
     <body>
     
     	<div class="container_center">
-	{% if (gvm.auth.isAuth and (gvm.auth.isAdmin)) %}
+	{% if gvm.auth.isAuth %}
     	{% if gvm.isMobile %} 
         <b>Mobile Device Detected</b> 
     	{% elseif gvm.isTablet %} 
@@ -35,7 +36,13 @@
 	        	<h1>Two-Factor Authentication</h1>
 				{% include 'display-logo.twig.html' %}
 				
-				{% if twofa_enable_ctl_action_error != 1 and twofa_enable_ctl_action_error != 2 %}
+				{% if twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::NONE') or
+					  twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::TOPT_REMOVE') or
+					  twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::INVALID_TOPT') or
+					  twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::INVALID_TOPT_REMOVE') %}
+
+				{% if twofa_enable_ctl_action_error != constant('riprunner\\TwoFAResultType::TOPT_REMOVE') and
+					  twofa_enable_ctl_action_error != constant('riprunner\\TwoFAResultType::INVALID_TOPT_REMOVE') %}
 			    <div>
 	            	<h3 style='color:black'>Please use an authenticator app (like Google or Yubico Authenticator) to scan this QR Code:</h3>
 				</div>
@@ -44,8 +51,11 @@
 				<br>
 			    <div>
 	            	<h2>
-						<!-- {{ twofaenablevm.otp_qrcode }} -->
-						<image src="{{ twofaenablevm.otp_qrcode }}"></image>
+						<!-- {{ twofaenablevm.otp_provurl }} -->
+						<div id="qrcode"></div>
+						<script type="text/javascript">
+						new QRCode(document.getElementById("qrcode"), "{{ twofaenablevm.otp_provurl }}");
+						</script>
 					</h2>
 				</div>
 				<br>
@@ -58,10 +68,16 @@
 	            	<h3 style='color:blue'>{{ twofaenablevm.otp_secret }}</h3>
 				</div>
 				<br>
+				{% endif %}
 				<hr>
 				<br>
 			    <div>
-	            	<h3 style='color:black'><label for="twofa_key_verify">Please enter the current authentication app 2FA code for verification</label></h3>
+					{% if twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::TOPT_REMOVE') or
+						  twofa_enable_ctl_action_error != constant('riprunner\\TwoFAResultType::INVALID_TOPT_REMOVE') %}
+					<h3 style='color:black'><label for="twofa_key_verify">Please enter the current authentication app 2FA code to REMOVE 2FA</label></h3>	  
+					{% else %}
+					<h3 style='color:black'><label for="twofa_key_verify">Please enter the current authentication app 2FA code for verification</label></h3>
+					{% endif %}	
 	            	<input type="text" name="twofa_key_verify" id="twofa_key_verify" 
 	            	       placeholder="Two factor code" required 
 	            		   onKeyPress="return submitenter(this,event,document.getElementById('btnVerify').onclick);" />
@@ -69,17 +85,21 @@
 				{% endif %}
 				<div>
 				<center>
-					{% if twofa_enable_ctl_action_error == 100 %}
+					{% if twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::INVALID_TOPT') or 
+					      twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::INVALID_TOPT_REMOVE') %}
 					<b><font color="red">Invalid Two factor code! Please try again.</font></b>
-					{% elseif twofa_enable_ctl_action_error == 1 %}
+					{% elseif twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::TOPT_ENABLED') %}
 					<b><font color="green">Two factor authentication has been ENABLED for user: {{ twofaenablevm.user_id }}</font></b>
-					{% elseif twofa_enable_ctl_action_error == 2 %}
+					{% elseif twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::TOPT_DISABLED') %}
 					<b><font color="blue">Two factor authentication has been DISABLED for user: {{ twofaenablevm.user_id }}</font></b>
 					{% endif %}
 				</center>
 				</div>
 				<div >
-					{% if twofa_enable_ctl_action_error != 1 and twofa_enable_ctl_action_error != 2 %}
+					{% if twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::NONE') or
+						  twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::TOPT_REMOVE') or
+						  twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::INVALID_TOPT') or
+						  twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::INVALID_TOPT_REMOVE') %}
 	            	<input type="button" id="btnCancel" class="close" value="Cancel"  onclick="self.close()" />
 	            	<input type="button" id="btnVerify" 
 	                		value="Verify" 

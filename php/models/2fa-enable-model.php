@@ -13,8 +13,6 @@ require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
 use \OTPHP\TOTP;
 use ParagonIE\ConstantTime\Base32;
-use Endroid\QrCode\QrCode;
-use Endroid\QrCode\ErrorCorrectionLevel;
 
 // The model class handling variable requests dynamically
 class TwoFAEnableViewModel extends BaseViewModel {
@@ -37,8 +35,8 @@ class TwoFAEnableViewModel extends BaseViewModel {
 		else if('otp_code' === $name) {
 			return $this->getOTPCode();
 		}
-		else if('otp_qrcode' === $name) {
-			return $this->getOTPQRCode();
+		else if('otp_provurl' === $name) {
+			return $this->getOTPProvisionUrl();
 		}
 		else if('user_id' === $name) {
 			return $this->getUserId();
@@ -55,7 +53,7 @@ class TwoFAEnableViewModel extends BaseViewModel {
 
 	public function __isset($name) {
 		if(in_array($name,
-			array('hasError','otp_secret','otp_code','otp_qrcode', 'user_id','firehall_id', 'selfedit_mode')) === true) {
+			array('hasError','otp_secret','otp_code', 'otp_provurl', 'user_id','firehall_id', 'selfedit_mode')) === true) {
 			return true;
 		}
 		return parent::__isset($name);
@@ -82,22 +80,16 @@ class TwoFAEnableViewModel extends BaseViewModel {
 		return $this->getOTPObject()->getSecret();
 	}
 
-	public function getOTPQRCode() {
-		global $log;
-		
-		$prov_url = $this->getOTPProvisionUrl();
-		//$prov_url = urldecode($prov_url);
-		// otpauth://totp/Rip%20Runner%20Firehall%200%3Amark.vejvoda?issuer=Rip%20Runner%20Firehall%200&secret=CHONUI4V5BOLF3YJA6GZAKNZI42HQ3N6TPNCAMQJWVMIW367XFMA
-		// otpauth://totp/Rip_Runner_Firehall%200%3Amark.vejvoda?issuer=Rip_Runner_Firehall%200&secret=T2XDOZPS5FMSBHABFJ5JYYXVMJK4HV5ZQBF2IGJMYWBSAAJOQ2YQ
-		// otpauth://totp/Rip_Runner_Firehall_0%3Amark.vejvoda?issuer=Rip_Runner_Firehall_0&secret=QSI6IQSUGCCJGBJ44QX3Z4KUV3SMCJFNISM3SYZZACMXXIAELM4A
-		// otpauth://totp/Rip_Runner_Firehall_0:mark.vejvoda?issuer=Rip_Runner_Firehall_0&secret=55IEKDLBX7XOD4CQMIYZCIRAGQ46RWNYN3WFKUXKMGADTCWZHUEQ
-		// otpauth://totp/Rip%20Runner%3Amark.vejvoda%40FHID0?issuer=Rip%20Runner&secret=D7KRJPIC65NH4S6JLK3TMKRECRU3G6VGVSYEWZYGVMJXPDQXAMTA
-		if ($log != null) $log->warn("IN getOTPQRCode() provurl: [$prov_url]");
+//	public function getOTPQRCode() {
+//		global $log;
 
-		$qrCodeUri = $this->otp->getQrCodeUri(
-			"https://api.qrserver.com/v1/create-qr-code/?data=$prov_url&size=300x300&ecc=M",
-			"$prov_url"
-		);
+//		$prov_url = $this->getOTPProvisionUrl();
+//		if ($log != null) $log->trace("IN getOTPQRCode() provurl: [$prov_url]");
+
+		// $qrCodeUri = $this->otp->getQrCodeUri(
+		// 	"https://api.qrserver.com/v1/create-qr-code/?data=$prov_url&size=300x300&ecc=M",
+		// 	"$prov_url"
+		// );
 
 		//$qrCode = new QrCode($prov_url);
 		//$qrCode->setSize(300);
@@ -106,10 +98,10 @@ class TwoFAEnableViewModel extends BaseViewModel {
 		//$qrCode->setErrorCorrectionLevel(ErrorCorrectionLevel::LOW());
 		//$qrCode->setValidateResult(true).
 		//$qrCodeUri = $qrCode->writeDataUri();
-		return $qrCodeUri;
-	}
+//		return $qrCodeUri;
+//	}
 
-	private function getOTPProvisionUrl() {
+	public function getOTPProvisionUrl() {
 		return $this->getOTPObject()->getProvisioningUri(); // Will return otpauth://totp/alice%40google.com?secret=JBSWY3DPEHPK3PXP
 	}
 
