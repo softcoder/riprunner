@@ -86,6 +86,7 @@ class LoginTest extends BaseDBFixture {
 		$loginResult['login_string'] = 'Unit Test NON JSON';
 		$loginResult['twofa'] = '1';
 		$loginResult['twofaKey'] = '';
+		$loginResult['jwt_endsession'] = '';
 
 		$userRole = $auth->getCurrentUserRoleJSon($loginResult);
 		$jwt = $auth->getJWTAccessToken($loginResult, $userRole);
@@ -140,6 +141,7 @@ class LoginTest extends BaseDBFixture {
 		$loginResult['login_string'] = 'Unit Test';
 		$loginResult['twofa'] = '1';
 		$loginResult['twofaKey'] = '';
+		$loginResult['jwt_endsession'] = '';
 
 		$userRole = $auth->getCurrentUserRoleJSon($loginResult);
 		$jwt = $auth->getJWTAccessToken($loginResult, $userRole);
@@ -258,6 +260,7 @@ class LoginTest extends BaseDBFixture {
 		$loginResult['login_string'] = 'Unit Test';
 		$loginResult['twofa'] = '1';
 		$loginResult['twofaKey'] = '';
+		$loginResult['jwt_endsession'] = '';
 
 		$userRole = $auth->getCurrentUserRoleJSon($loginResult);
 		$jwt = $auth->getJWTAccessToken($loginResult, $userRole);

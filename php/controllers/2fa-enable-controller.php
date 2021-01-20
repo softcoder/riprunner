@@ -56,13 +56,18 @@ class TwoFAEnableController
     private $view_template_vars;
     private $action_error;
 
+    private $request_fhid = null;
+    private $edit_user_id = null;
+    private $edit_user_db_id = null;
+    private $auth = null;
+
     public function __construct($global_vm, &$twofaenable_mv, &$view_template_vars)
     {
         $this->global_vm = $global_vm;
         $this->twofaenable_mv = &$twofaenable_mv;
         $this->view_template_vars = &$view_template_vars;
         $this->action_error = TwoFAResultType::NONE;
-
+    
         $this->processActions();
     }
 
@@ -70,50 +75,83 @@ class TwoFAEnableController
     {
         global $log;
 
+        $isAngularClient = false;
         $self_edit      = $this->twofaenable_mv->selfedit_mode;
         $new_twofa_type = TwoFAType::TOPT_AUTH_APP;
-        $request_fhid  = get_query_param('fhid');
-        
+                
         if ($self_edit === true) {
-            $edit_user_id = \riprunner\Authentication::getAuthVar('user_db_id');
+            $this->request_fhid = \riprunner\Authentication::getAuthVar('firehall_id');
+            $this->edit_user_id = \riprunner\Authentication::getAuthVar('user_id');
         }
         else {
-            $edit_user_id  = get_query_param('edit_user_id');
+            $this->request_fhid  = get_query_param('fhid');
+            $this->edit_user_id  = get_query_param('edit_user_id');
         }
+
+        $this->auth = null;
+        $FIREHALL = $this->global_vm->firehall;
+        if (isset($FIREHALL) === true) {
+            $this->auth = new Authentication($FIREHALL);
+        }
+
+        $this->edit_user_db_id = $this->getUserDBID($self_edit, $this->request_fhid, $this->edit_user_id, $this->auth);
 		$request_p          = get_query_param('p');
-		$valid2FA           = false;
+		//$valid2FA           = false;
 		$request_twofa_key  = get_query_param('twofa_key_verify');
 		$form_action        = get_query_param('form_action');
 
-		if ($log != null) $log->trace("2fa-enable-controller START, 2FA process for self_edit: $self_edit firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p form_action: $form_action request_twofa_key: $request_twofa_key");
+		if ($log != null) $log->trace("2fa-enable-controller START, 2FA process for self_edit: $self_edit firehall id: $this->request_fhid, userid: $this->edit_user_id request_p: $request_p form_action: $form_action request_twofa_key: $request_twofa_key");
+
+        $this->view_template_vars["twofa_enable_ctl_action_error"] = TwoFAResultType::NONE;
+        $this->view_template_vars["twofa_enable_ctl_form_action"] = '';
+        $this->view_template_vars["twofa_enable_ctl_class"] = $this;
 
         if (isset($form_action) === true && $form_action === 'save-otp') {
-            $this->enable2FA($self_edit, $request_fhid, $edit_user_id, $new_twofa_type, $request_p, $request_twofa_key);
+            $this->enable2FA($isAngularClient, $self_edit, $this->request_fhid, $this->edit_user_id, $new_twofa_type, $request_p, $request_twofa_key);
         }
         else if (isset($form_action) === true && $form_action === 'remove-otp') {
-            $this->disable2FA($self_edit, $request_fhid, $edit_user_id, $new_twofa_type, $request_p, $request_twofa_key);
+            $this->view_template_vars["twofa_enable_ctl_form_action"] = $form_action;
+            $this->disable2FA($isAngularClient, $self_edit, $this->request_fhid, $this->edit_user_id, $new_twofa_type, $request_p, $request_twofa_key);
         }
         // Setup variables from this controller for the view
 		$this->view_template_vars["twofa_enable_ctl_action_error"] = $this->action_error;
-		if ($log != null) $log->trace("2fa-enable-controller END, 2FA PASSED for firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p error: ".$this->action_error);
+		if ($log != null) $log->trace("2fa-enable-controller END, 2FA PASSED for firehall id: $this->request_fhid, userid: $this->edit_user_id request_p: $request_p error: ".$this->action_error);
     }
 
-    private function enable2FA($self_edit, $request_fhid, $edit_user_id, $new_twofa_type, $request_p, $request_twofa_key) {
+    private function getUserDBID($self_edit, $fhid, $user_id, $auth) {
+        $dbId = null;
+        if ($self_edit == true) {
+            $dbId = \riprunner\Authentication::getAuthVar('user_db_id');
+        }
+        else {
+            $userInfo = $auth->getUserInfo($fhid, $user_id);
+            if ($userInfo != null && $userInfo !== false) {
+                $dbId = $userInfo->id;
+            }
+        }
+        return $dbId;
+    }
+
+    public function forceLogoffIfRequired() {
+        $resultCode = $this->view_template_vars["twofa_enable_ctl_action_error"];
+        // We must delay ending the session until the bottom of any page processing to avoid an early trigger
+        // and thus the current page fails to report on the success of the operation
+        if ($resultCode == \riprunner\TwoFAResultType::TOPT_ENABLED ||
+            $resultCode == \riprunner\TwoFAResultType::TOPT_DISABLED) {
+                \riprunner\Authentication::addJWTEndSessionKey($this->edit_user_db_id);
+        }
+    }
+
+    private function enable2FA($isAngularClient, $self_edit, $request_fhid, $edit_user_id, $new_twofa_type, $request_p, $request_twofa_key) {
         global $log;
         // default to invalid TOPT code
         $this->action_error = TwoFAResultType::INVALID_TOPT;
         if ($request_p != null && strlen($request_p) > 0) {
-            $isAngularClient = false;
-            $auth = null;
-            $FIREHALL = $this->global_vm->firehall;
-            if (isset($FIREHALL) === true) {
-                $auth = new Authentication($FIREHALL);
-            }
 
             if ($log != null) $log->trace("2fa-enable-controller VERIFY1, 2FA process for firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p");
 
             //$valid2FA = $auth->verifyNewTwoFA($isAngularClient, $edit_user_id, $dbId, $request_p);
-            $valid2FA = $auth->verifyNewTwoFA($request_p, $request_twofa_key);
+            $valid2FA = $this->auth->verifyNewTwoFA($request_p, $request_twofa_key);
 
             if ($log != null) $log->trace("2fa-enable-controller VERIFY2, 2FA process for firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p valid2FA: $valid2FA request_twofa_key: $request_twofa_key");
 
@@ -137,8 +175,13 @@ class TwoFAEnableController
             else {
                 if ($log != null) $log->warn("2fa-enable-controller OK, 2FA PASSED for firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p request_twofa_key: $request_twofa_key");
 
-                $this->updateAccount($auth, $self_edit, $new_twofa_type, $request_p);
+                $this->updateAccount($this->auth, $self_edit, $new_twofa_type, $request_p);
                 $this->action_error = TwoFAResultType::TOPT_ENABLED;
+
+                //if ($edit_user_id == \riprunner\Authentication::getAuthVar('user_id')) {
+                if ($log != null) $log->warn("2fa-enable-controller OK, 2FA END USER SESSION for SELFEDIT for firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p request_twofa_key: $request_twofa_key");
+                //$this->forceLogoff();
+                //}
             }
         }
         else {
@@ -146,47 +189,36 @@ class TwoFAEnableController
         }
     }
 
-    private function validate2fa($isAdmin, $self_edit, $request_fhid, $edit_user_id, $new_twofa_type, $request_p, $request_twofa_key) {
+    private function validate2fa($isAngularClient, $isAdmin, $isAdmin2FA, $self_edit, $request_fhid, $edit_user_id, $request_p, $request_twofa_key) {
         global $log;
 
-        if ($isAdmin == true && $self_edit == false) {
+        if ($isAdmin == true && $self_edit == false && $isAdmin2FA == false) {
             $valid2FA = true;
         }
         else {
-            $isAngularClient = false;
-            $auth = null;
-            $FIREHALL = $this->global_vm->firehall;
-            if (isset($FIREHALL) === true) {
-                $auth = new Authentication($FIREHALL);
-            }
-
-            if ($log != null) $log->trace("2fa-enable-controller validate2fa VERIFY1, 2FA process for firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p");
-    
-            $dbId = null;
-            $userInfo = $auth->getUserInfo($request_fhid, $edit_user_id);
-            if ($userInfo != null && $userInfo !== false) {
-                $dbId = $userInfo->id;
-            }
-
-            $valid2FA = $auth->verifyTwoFA($isAngularClient, $edit_user_id, $dbId, $request_p);
-            if ($log != null) $log->trace("2fa-enable-controller validate2fa VERIFY2, 2FA process for firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p dbId: $dbId valid2FA: $valid2FA request_twofa_key: $request_twofa_key");
+            if ($log != null) $log->warn("2fa-enable-controller validate2fa VERIFY1, 2FA process for firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p dbId: $this->edit_user_db_id request_twofa_key: $request_twofa_key");
+            $valid2FA = $this->auth->verifyTwoFA($isAngularClient, $edit_user_id, $this->edit_user_db_id, $request_twofa_key);
+            if ($log != null) $log->warn("2fa-enable-controller validate2fa VERIFY2, 2FA process for firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p dbId: $this->edit_user_db_id valid2FA: $valid2FA request_twofa_key: $request_twofa_key");
         }
         return $valid2FA;
     }
 
-    private function disable2FA($self_edit, $request_fhid, $edit_user_id, $new_twofa_type, $request_p, $request_twofa_key) {
+    private function disable2FA($isAngularClient, $self_edit, $request_fhid, $edit_user_id, $new_twofa_type, $request_p, $request_twofa_key) {
         global $log;
         
         $this->action_error = TwoFAResultType::TOPT_REMOVE;
         $isAdmin = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
-        if (($isAdmin == true && $self_edit == false) || $request_p != null && strlen($request_p) > 0) {
+        $isAdmin2FA = \riprunner\Authentication::getAuthVar('twofa');
+
+        if (($isAdmin == true && $self_edit == false && $isAdmin2FA == false) || 
+             ($request_p != null && strlen($request_p) > 0)) {
             // default to invalid TOPT code
             $this->action_error = TwoFAResultType::INVALID_TOPT_REMOVE;
 
-            $valid2FA = $this->validate2fa($isAdmin, $self_edit, $request_fhid, $edit_user_id, $new_twofa_type, $request_p, $request_twofa_key);
+            $valid2FA = $this->validate2fa($isAngularClient, $isAdmin, $isAdmin2FA, $self_edit, $request_fhid, $edit_user_id, $request_p, $request_twofa_key);
             if ($valid2FA == false) {
                 // wrong 2fa key
-                if ($log != null) $log->error("2fa-enable-controller error, disable2FA 2FA Failed for firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p dbId: $dbId request_twofa_key: $request_twofa_key");
+                if ($log != null) $log->error("2fa-enable-controller error, disable2FA 2FA Failed for firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p request_twofa_key: $request_twofa_key");
 
                 if ($isAngularClient == true) {
                     $this->header('Cache-Control: no-cache, must-revalidate');
@@ -202,14 +234,14 @@ class TwoFAEnableController
             else {
                 // disable 2fa
                 $new_twofa_type = TwoFAType::DISABLED;
-                $auth           = null;
-                $FIREHALL       = $this->global_vm->firehall;
-                if (isset($FIREHALL) === true) {
-                    $auth = new Authentication($FIREHALL);
-                }
 
-                $this->updateAccount($auth, $self_edit, $new_twofa_type, '');
+                $this->updateAccount($this->auth, $self_edit, $new_twofa_type, '');
                 $this->action_error = TwoFAResultType::TOPT_DISABLED;
+
+                //if ($edit_user_id == \riprunner\Authentication::getAuthVar('user_id')) {
+                if ($log != null) $log->warn("2fa-enable-controller DISABLE OK, 2FA END USER SESSION for SELFEDIT for firehall id: $request_fhid, userid: $edit_user_id request_p: $request_p request_twofa_key: $request_twofa_key");
+                //$this->forceLogoff();
+                //}
             }
         }
     }
@@ -219,21 +251,13 @@ class TwoFAEnableController
         global $log;
                 
         // UPDATE
-        if ($self_edit === true) {
-            $edit_firehall_id = \riprunner\Authentication::getAuthVar('firehall_id');
-            //$edit_user_id = \riprunner\Authentication::getAuthVar('user_db_id');
-            $edit_user_id = \riprunner\Authentication::getAuthVar('user_id');
-        } else {
-            $edit_firehall_id  = get_query_param('fhid');
-            $edit_user_id  = get_query_param('edit_user_id');
-        }
         $new_twofaKeyEncrypted = $new_twofa;
         if ($new_twofa != null && strlen($new_twofa) > 0) {
             $new_twofaKeyEncrypted = \riprunner\Authentication::encryptData($new_twofa, JWT_KEY);
         }
 
-        if ($log != null) $log->trace("2fa-enable-controller updateAccount, 2FA for firehall id: $edit_firehall_id, userid: $edit_user_id new_twofa_type: $new_twofa_type new_twofa: $new_twofa self_edit: $self_edit");
-        $auth->update_twofa($edit_user_id, $new_twofa_type, $new_twofaKeyEncrypted);
+        if ($log != null) $log->trace("2fa-enable-controller updateAccount, 2FA for firehall id: $this->request_fhid, userid: $this->edit_user_id new_twofa_type: $new_twofa_type new_twofa: $new_twofa self_edit: $self_edit");
+        $auth->update_twofa($this->edit_user_id, $new_twofa_type, $new_twofaKeyEncrypted);
     }
 }
 

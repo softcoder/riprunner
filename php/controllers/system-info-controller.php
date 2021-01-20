@@ -27,6 +27,7 @@ if(isset($global_vm->firehall) === true && $global_vm->firehall !== null) {
     $view_template_vars["riprunner_config"] = $global_vm->firehall->toString();
     $view_template_vars["riprunner_config_db_schema_version"] = $global_vm->auth->getAuthEntity()->getDbSchemaVersion();
     $view_template_vars["riprunner_db_timezone"] = $global_vm->db_timezone;
+    $view_template_vars["riprunner_cache_info"] = \riprunner\CacheProxy::getInstance()->getInstanceInfo();
 }
 
 $clearCache = get_query_param('clearCache');

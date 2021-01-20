@@ -16,7 +16,8 @@
     </head>
     <body>
         <div class="container_center">
-        {% if gvm.auth.isAuth and (gvm.auth.isAdmin or usersmenu_vm.selfedit_mode) %} 
+        {% if gvm.auth.isAuth and 
+              (gvm.auth.isAdmin or usersmenu_vm.selfedit_mode) %} 
                 
             {% include 'user-welcome.twig.html' %}
             {% include 'live-callout-warning.twig.html' %}
@@ -199,13 +200,16 @@
                     <input class="select-all" id="checkbox_select_all" name="checkbox_select_all" 
                            type="checkbox" user-id="-1" />
                 </td>
-	            {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
+	                {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
 	                <td colspan="18">
-	            {% else %}
+	                {% else %}
 	                <td colspan="16">
-	            {% endif %}
+	                {% endif %}
 	                    <center>
-	                    <input type="button" value="Add New User" onclick="edit_user(this.form, -1);" />
+                        <input type="button" value="Add New User" onclick="edit_user(this.form, -1);" />
+                        {% if usersmenu_ctl_cache_active == true %}
+                        <input type="button" value="Force Logoff of selected users" onclick="end_user_sessions(this.form);" />
+                        {% endif %}
 	                    </center>
 	                </td>
 	            </tr>
@@ -368,11 +372,10 @@
                                 return false;
                             }
                             else {
-                                if(confirm('Confirm REMOVE Two Factor Authentication for user: {{ user.user_id }}?')) {
+                                if(confirm('Confirm that you want to REMOVE Two Factor Authentication for user: {{ user.user_id }}?')) {
                                     url += "&form_action=remove-otp";
                                     window.open (url,"2fa-enable");
                                     //document.getElementById("content").innerHTML='<object type="text/html" data='+url+'></object>';
-                                    //location.reload();
                                     return false;
                                 }
                                 else {
@@ -454,6 +457,19 @@
             
 <script type="text/javascript">
 
+    function end_user_sessions(form) {
+        if(selected_users != null && selected_users.length > 0) {
+            if(confirm('Confirm that you want to force the selected users to logoff?')) {
+                addformhiddenfield(form, 'form_action', 'end_session');
+                addformhiddenfield(form, 'selected_users', selected_users.join(','));
+                form.submit();
+            }
+        }
+        else {
+            alert('Please select (checkbox) one or more users!');
+        }
+    }
+
     function edit_user(form, user_id) {
        addformhiddenfield(form, 'form_action', 'edit');
        addformhiddenfield(form, 'edit_user_id', user_id);
@@ -475,7 +491,7 @@
     }
 
     function delete_user(form, user_id, user_id_name) {
-        if(confirm('Confirm DELETE for user: ' + user_id_name + '?')) {
+        if(confirm('Confirm that you want to DELETE the user: ' + user_id_name + '?')) {
             addformhiddenfield(form, 'form_action', 'delete');
             addformhiddenfield(form, 'edit_user_id', user_id);
             
@@ -490,7 +506,7 @@
     }
 
     function unlock_user(form, user_id, user_id_name) {
-        if(confirm('Confirm to Unlock account for user: ' + user_id_name + '?')) {
+        if(confirm('Confirm to Unlock the account for user: ' + user_id_name + '?')) {
             addformhiddenfield(form, 'form_action', 'unlock');
             addformhiddenfield(form, 'edit_user_id', user_id);
             

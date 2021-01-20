@@ -271,6 +271,8 @@ class AuthNotification {
 
     private function getLoginSuccessResult($successContext) {
         global $log;
+
+        $jwt_endsession = \riprunner\Authentication::getJWTEndSessionKey($successContext['dbId']);
         $config = new ConfigManager();
         if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
 
@@ -278,7 +280,8 @@ class AuthNotification {
 
             if($log !== null) $log->warn('*LOGIN AUDIT* for user ['.$successContext['userId'].'] userid ['.$successContext['dbId'].
                                          '] firehallid ['.$successContext['FirehallId'].'] agent ['.$successContext['user_browser'].
-                                         '] client ['.self::getClientIPInfo().'] isAngularClient: '.var_export($successContext['isAngularClient'],true));
+                                         '] client ['.self::getClientIPInfo().'] isAngularClient: '.var_export($successContext['isAngularClient'],true).
+                                         '] jwt_endsession: ['.$jwt_endsession.']');
         }
 
         $loginResult = [];
@@ -294,6 +297,10 @@ class AuthNotification {
         $loginResult['user_jwt']        = $successContext['isAngularClient'];
         $loginResult['twofa']           = $successContext['twofa'];
         $loginResult['twofaKey']        = $successContext['twofaKey'];
+        $loginResult['jwt_endsession']  = $jwt_endsession;
+
+        if($log !== null) $log->warn("Login for user [".$loginResult['user_id']."] userid [".$loginResult['user_db_id']."]  firehallid [".$loginResult['firehall_id'].
+                                     "] endsession [".$loginResult['jwt_endsession']."]");
 
         // Ensure status are cached
         CalloutStatusType::getStatusList($this->getFirehall());
@@ -433,7 +440,8 @@ class AuthNotification {
                 $fhid,
                 $loginResult['login_string'],
                 $loginResult['twofa'],
-                $loginResult['twofaKey']
+                $loginResult['twofaKey'],
+                $loginResult['jwt_endsession']
             );
 
             $resetPasswordURL = $webRootURL.'/controllers/main-menu-controller.php?'.Authentication::getJWTTokenName().'='.$jwt.'&'.Authentication::getJWTRefreshTokenName().'='.$jwtRefresh;

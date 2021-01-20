@@ -128,7 +128,8 @@ class LoginDeviceViewModel extends BaseViewModel {
 					$this->getFirehallId(), 
 					$loginResult['login_string'],
 					$loginResult['twofa'],
-					$loginResult['twofaKey']
+					$loginResult['twofaKey'],
+					$loginResult['jwt_endsession']
 				);
 
 				// $sessionless = getSafeRequestValue('SESSIONLESS_LOGIN');

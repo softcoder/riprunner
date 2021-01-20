@@ -73,8 +73,8 @@
 				<br>
 			    <div>
 					{% if twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::TOPT_REMOVE') or
-						  twofa_enable_ctl_action_error != constant('riprunner\\TwoFAResultType::INVALID_TOPT_REMOVE') %}
-					<h3 style='color:black'><label for="twofa_key_verify">Please enter the current authentication app 2FA code to REMOVE 2FA</label></h3>	  
+						  twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::INVALID_TOPT_REMOVE') %}
+					<h3 style='color:black'><label for="twofa_key_verify">Please enter your current authentication app 2FA code to verify REMOVAL</label></h3>	  
 					{% else %}
 					<h3 style='color:black'><label for="twofa_key_verify">Please enter the current authentication app 2FA code for verification</label></h3>
 					{% endif %}	
@@ -113,7 +113,12 @@
 				<script type="text/javascript">
 
 					function save_secret(form, user_id, fhid) {
+						{% if twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::TOPT_REMOVE') or
+							  twofa_enable_ctl_action_error == constant('riprunner\\TwoFAResultType::INVALID_TOPT_REMOVE') %}
+						addformhiddenfield(form, 'form_action', 'remove-otp');
+						{% else %}
 						addformhiddenfield(form, 'form_action', 'save-otp');
+						{% endif %}
 						addformhiddenfield(form, 'edit_user_id', user_id);
 						addformhiddenfield(form, 'fhid', fhid);
 						return true;
@@ -131,7 +136,10 @@
 	        
 	        <p>If you are done browsing, please <a href="{{ gvm.RR_DOC_ROOT }}/logout.php">log out</a>.</p>
 	        
-	        <p>You are currently logged {{ gvm.auth.isAuth ? 'in' : 'out' }}.</p>
+			<p>You are currently logged {{ gvm.auth.isAuth ? 'in' : 'out' }}.</p>
+			
+			{{ twofa_enable_ctl_class.forceLogoffIfRequired() }}
+			
         {% endif %}
 	{% else %}
 		{% include 'access-denied.twig.html' %}

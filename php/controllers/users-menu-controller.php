@@ -45,42 +45,76 @@ class UsersMenuController {
 	private function processActions() {
 		global $log;
 		
-		$insert_new_account = false;
-		$edit_user_id = null;
-		
-		$self_edit = $this->usersmenu_mv->selfedit_mode;
-		// Handle CRUD operations
-		$edit_user_id = $this->handleEditAccount(false);
-		$insert_new_account = $this->isInsertAccount(false, $edit_user_id);
-		$save_ok = $this->handleSaveAccount($this->global_vm->RR_DB_CONN, $self_edit);
-		
-		$log->trace("Result of handleSaveAccount [$save_ok]");
-		
-		if($save_ok === false) {
-			$edit_user_id = $this->handleEditAccount(true);
-			$insert_new_account = $this->isInsertAccount(true, $edit_user_id);
-		}
-		else {
-			$this->handleDeleteAccount($this->global_vm->RR_DB_CONN,
-					$self_edit, $edit_user_id);
-			$this->handleUnlockAccount($this->global_vm->RR_DB_CONN,
-					$self_edit, $edit_user_id);
-		}
-		$edit_mode = isset($edit_user_id);
+        try {
+            $insert_new_account = false;
+            $edit_user_id = null;
+        
+			$self_edit = $this->usersmenu_mv->selfedit_mode;
+			
+			$this->handleEndSession();
+            // Handle CRUD operations
+            $edit_user_id = $this->handleEditAccount(false);
+            $insert_new_account = $this->isInsertAccount(false, $edit_user_id);
+            $save_ok = $this->handleSaveAccount($this->global_vm->RR_DB_CONN, $self_edit);
+        
+            $log->trace("Result of handleSaveAccount [$save_ok]");
+        
+            if ($save_ok === false) {
+                $edit_user_id = $this->handleEditAccount(true);
+                $insert_new_account = $this->isInsertAccount(true, $edit_user_id);
+            } else {
+                $this->handleDeleteAccount(
+                    $this->global_vm->RR_DB_CONN,
+                    $self_edit,
+                    $edit_user_id
+                );
+                $this->handleUnlockAccount(
+                    $this->global_vm->RR_DB_CONN,
+                    $self_edit,
+                    $edit_user_id
+                );
+            }
+            $edit_mode = isset($edit_user_id);
 
-		// Setup variables from this controller for the view
-		$this->view_template_vars["usersmenu_ctl_edit_mode"] = $edit_mode;
-		$this->view_template_vars["usersmenu_ctl_edit_userid"] = $edit_user_id;
-		$this->view_template_vars["usersmenu_ctl_insert_new"] = $insert_new_account;
-		$this->view_template_vars["usersmenu_ctl_action_error"] = $this->action_error;
+			// Setup variables from this controller for the view
+			$this->view_template_vars["usersmenu_ctl_cache_active"] = \riprunner\CacheProxy::getInstance()->isInstalled();
+            $this->view_template_vars["usersmenu_ctl_edit_mode"] = $edit_mode;
+            $this->view_template_vars["usersmenu_ctl_edit_userid"] = $edit_user_id;
+            $this->view_template_vars["usersmenu_ctl_insert_new"] = $insert_new_account;
+            $this->view_template_vars["usersmenu_ctl_action_error"] = $this->action_error;
+		}
+		catch (\Firebase\JWT\ExpiredException | \UnexpectedValueException $e) {
+			if ($log !== null)  $log->warn("In UserMenu processActions() error: ".$e->getMessage());
+		}
 	}
 	
+	private function handleEndSession() {
+		global $log;
+
+		$form_action = get_query_param('form_action');
+        if (isset($form_action) === true && $form_action === 'end_session') {
+			$end_session_users = get_query_param('selected_users');
+            if ($this->global_vm->auth->isAdmin == true) {
+				$end_session_users = explode(',', $end_session_users);
+                foreach ($end_session_users as $user_db_id) {
+                    if ($user_db_id != null && strlen($user_db_id) > 0 && $user_db_id != '-1') {
+                        \riprunner\Authentication::addJWTEndSessionKey($user_db_id);
+                        if ($log !== null) {
+                            $log->warn("In UserMenu handleEndSession() user_db_id: $user_db_id");
+                        }
+                    }
+                }
+            }
+    	}
+    }
+
+
 	private function handleEditAccount($force_edit) {
 		$edit_user_id = null;
 		$form_action = get_query_param('form_action');
 		
 		if($force_edit === true ||
-				(isset($form_action) === true && $form_action === 'edit') ) {
+			(isset($form_action) === true && $form_action === 'edit') ) {
 					
 			$edit_user_id = get_query_param('edit_user_id');
 		}
@@ -92,7 +126,7 @@ class UsersMenuController {
 		$form_action = get_query_param('form_action');
 		
 		if($force_edit === true ||
-				(isset($form_action) === true && $form_action === 'edit') ) {
+			(isset($form_action) === true && $form_action === 'edit') ) {
 					
 			if(isset($edit_user_id) === true && $edit_user_id < 0) {
 				$insert_new_account = true;

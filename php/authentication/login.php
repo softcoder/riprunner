@@ -262,7 +262,8 @@ class ProcessLogin {
                                             $firehall_id,
                                             $loginResult['login_string'],
                                             $loginResult['twofa'],
-                                            $loginResult['twofaKey']
+											$loginResult['twofaKey'],
+											$loginResult['jwt_endsession']
                                         );
         
                                         if ($isAngularClient == true) {
@@ -324,7 +325,8 @@ class ProcessLogin {
                                         $firehall_id,
                                         $loginResult['login_string'],
                                         $loginResult['twofa'],
-                                        $loginResult['twofaKey']
+										$loginResult['twofaKey'],
+										$loginResult['jwt_endsession']
                                     );
 								}
 								else {
@@ -337,7 +339,8 @@ class ProcessLogin {
                                         $json_token->fhid,
                                         $json_token->login_string,
                                         $json_token->twofa,
-                                        $json_token->twofaKey
+										$json_token->twofaKey,
+										$json_token->jwt_endsession
                                     );
 								}
 

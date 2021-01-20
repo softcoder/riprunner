@@ -31,7 +31,7 @@ class CacheProxy {
 	public function __construct($cacheProviderType=null) {
 		global $log;
 		
-		if($log !== null) $log->trace("Cache proxy constructor will use type: " . $this->cacheProviderType);
+		if($log !== null) $log->trace("Cache proxy constructor START will use type: " . $this->cacheProviderType);
 		if($cacheProviderType != null) {
 			$this->cacheProviderType = $cacheProviderType;
 		}
@@ -46,7 +46,8 @@ class CacheProxy {
 		    $this->cacheProvider = null;
 		}
 		
-		if($log !== null) $log->trace("Cache proxy constructor will use type: " . $this->cacheProviderType);
+		if($log !== null) $log->trace("Cache proxy constructor END will use type: " . $this->cacheProviderType . 
+		                             " CacheProvider->isInstalled(): ".($this->cacheProvider != null ? $this->cacheProvider->isInstalled() : 'null'));
 	}
 
 	static public function getInstance() {
@@ -56,9 +57,26 @@ class CacheProxy {
 	    return self::$cacheInstance;
 	}
 	static public function clearInstance() {
-	    self::$cacheInstance = null;
+		self::$cacheInstance = null;
 	}
-	
+	public function getInstanceInfo() {
+	    //$instance = self::getInstance();
+
+		$result = "Cache Proxy:" .
+				"\nenabled: " . var_export($this->cacheProvider != null, true) .
+				"\nProvider Type: " . $this->cacheProviderType .
+				"\nInstalled: " . var_export($this->cacheProvider != null ? $this->cacheProvider->isInstalled(): false, true) .
+				"\nCache Stats: " . ($this->cacheProvider != null ? $this->cacheProvider->getStats(): 'none');
+		return $result;
+	}
+
+	public function isInstalled() {
+        if ($this->cacheProvider != null && $this->cacheProvider->isInstalled() == true) {
+			return true;
+		}
+		return false;
+    }
+
 	private function getCacheProvider() {
 		global $log;
 		if($this->cacheProvider == null) {
@@ -85,7 +103,7 @@ class CacheProxy {
 	}
 	public function setItem($key, $value, $cache_seconds=null) {
 		if($this->getCacheProvider() != null) {
-			if(isset($cache_seconds) === false) {
+			if(isset($cache_seconds) === false || $cache_seconds == null) {
 				$cache_seconds = (60 * 10);
 			}
 			$this->getCacheProvider()->setItem($key, $value, $cache_seconds);
@@ -107,5 +125,8 @@ class CacheProxy {
 			return null;
 		}
 		return $this->getCacheProvider()->clear();
+	}
+	public function getType() {
+		return $this->cacheProviderType;
 	}
 }

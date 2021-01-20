@@ -23,6 +23,7 @@ require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/authentication/auth-notification.php';
+require_once __RIPRUNNER_ROOT__ . '/cache/cache-proxy.php';
 
 use \Firebase\JWT\JWT;
 
@@ -45,6 +46,7 @@ class Authentication {
 	private $request_variables;
     private $server_variables;
     private $auth_notification;
+    static private $enable_cache = true;
 
     /*
     	Constructor
@@ -63,6 +65,10 @@ class Authentication {
         }
 
         $this->auth_notification = new AuthNotification($firehall,$db_connection,$sm);
+    }
+
+    static public function setEnableCache($caching) {
+        self::$enable_cache = $caching;
     }
 
     public function setFileContentsFunc($func) {
@@ -293,7 +299,7 @@ class Authentication {
                 $twofaKeyDB = $row->twofa_key;
 
                 $twofaKey = \riprunner\Authentication::decryptData($twofaKeyDB, JWT_KEY);
-                if($log !== null) $log->warn("get_twofa RESULT user_id: $user_id twofaKeyDB: $twofaKeyDB twofaKey: $twofaKey");
+                if($log !== null) $log->trace("get_twofa RESULT user_id: $user_id twofaKeyDB: [$twofaKeyDB] twofaKey: [$twofaKey]");
             }
         }
         return $twofaKey;
@@ -314,6 +320,7 @@ class Authentication {
         global $log;
         $validTwoFAKey = true;
 
+        if($log !== null) $log->error("AUTH verifyTwoFA START for user: $user_id");
         // // If the user exists we check if the account is locked from too many login attempts
         $bruteforceCheck = $this->checkbrute($dbId, $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS);
         if ($bruteforceCheck['max_exceeded'] === true) {
@@ -321,19 +328,22 @@ class Authentication {
             self::auditLogin($dbId, $user_id, LoginAuditType::ACCOUNT_LOCKED);
             $fhid = $this->getFirehall()->FIREHALL_ID;
             $loginErrorMsg = "Warning: The following account has been locked due to maximum invalid login attempts for firehall: $fhid user account: $user_id attempts: ".$bruteforceCheck['count'];
-            if($log !== null) $log->error("LOGIN-F1 msg: $loginErrorMsg");
+            if($log !== null) $log->error("AUTH LOGIN-F1 msg: $loginErrorMsg");
 
             $validTwoFAKey = false;
         }
         else {
             $userTwoFASecret = $this->get_twofa($user_id);
             $valid2FA = $this->verifyNewTwoFA($userTwoFASecret, $requestTwofaKey);
+            
+            if($log !== null) $log->error("AUTH verifyTwoFA verifyNewTwoFA for user: $user_id result: $valid2FA");
+
             if ($valid2FA == false) {
                 // Login failed wrong 2fa key
                 $validTwoFAKey = false;
                 self::auditLogin($dbId, $user_id, LoginAuditType::INVALID_TWOFA);
                 // 2FA is not correct we record this attempt in the database
-                if ($log !== null) $log->error("Login attempt for user [$user_id] userid [$dbId] FAILED pwd check userTwoFASecret: [$userTwoFASecret] for client [" . AuthNotification::getClientIPInfo() . "]");
+                if ($log !== null) $log->error("Login attempt for user [$user_id] userid [$dbId] FAILED pwd check userTwoFASecret: [$userTwoFASecret] requestTwofaKey [$requestTwofaKey] for client [" . AuthNotification::getClientIPInfo() . "]");
                                     
                 $sql = $this->getSqlStatement('login_brute_force_insert');
                     
@@ -341,7 +351,7 @@ class Authentication {
                 $qry_bind->bindParam(':uid', $dbId);
                 $qry_bind->execute();
 
-                if ($log !== null) $log->error('Login FAILED 2FA check requestTwofaKey ['.$requestTwofaKey.'] bruteforce: '.$bruteforceCheck['count']);
+                if ($log !== null) $log->error('AUTH Login FAILED 2FA check requestTwofaKey ['.$requestTwofaKey.'] bruteforce: '.$bruteforceCheck['count']);
                 
                 if ($this->auth_notification->notifyUsersAccountLocked($isAngularClient, $bruteforceCheck, $user_id, $dbId) == true) {
                     self::auditLogin($dbId, $user_id, LoginAuditType::ACCOUNT_LOCKED);
@@ -354,6 +364,7 @@ class Authentication {
                 //);
                 //$valid2FA = $otp->verify($request_p);
                 self::auditLogin($dbId, $user_id, LoginAuditType::SUCCESS_TWOFA);
+                //self::clearJWTEndSession();
             }
         }
         return $validTwoFAKey;
@@ -437,6 +448,7 @@ class Authentication {
                         // Password is correct!
                         self::verifyDevice($user_id, $dbId);
                         self::auditLogin($dbId, $row->user_id, LoginAuditType::SUCCESS_PASSWORD);
+                        //self::clearJWTEndSession();
                         
                         // Login successful.
                         return $this->auth_notification->getLoginResult($isAngularClient, $user_id, $row);
@@ -487,6 +499,7 @@ class Authentication {
             $token['twofa']         = $appData['twofa'];
             $token['twofaKey']      = $appData['twofaKey'];
         }
+        $token['jwt_endsession']  = $appData['jwt_endsession'];
         return $token;
     }
 
@@ -629,7 +642,7 @@ class Authentication {
         return $jwt;
     }
 
-    static public function getJWTRefreshToken($userId, $userDbId, $firehallId, $loginString, $twofa, $twofaKey) {
+    static public function getJWTRefreshToken($userId, $userDbId, $firehallId, $loginString, $twofa, $twofaKey, $jwt_endsession) {
         $issuedAt = time();
         $expireIn30Minutes = $issuedAt + (60 * 30);
 
@@ -639,6 +652,7 @@ class Authentication {
         $appData['login_string'] = $loginString;
         $appData['twofa']        = $twofa;
         $appData['twofaKey']     = $twofaKey;
+        $appData['jwt_endsession'] = $jwt_endsession;
                 
         $token = [];
         $token['user_id']      = $userId;
@@ -646,6 +660,8 @@ class Authentication {
         $token['login_string'] = $loginString;
         $token['twofa']        = $twofa;
         $token['twofaKey']     = $twofaKey;
+        $token['jwt_endsession'] = $jwt_endsession;
+
         $token = self::applyJWTRegisteredClaims($token, $appData, $issuedAt, $expireIn30Minutes);
         $jwt = self::encodeJWT($token);
         return $jwt;
@@ -708,6 +724,7 @@ class Authentication {
                         $appData['twofa']        = $json_token->twofa;
                         $appData['twofaKey']     = $json_token->twofaKey;
                         $appData['user_jwt']     = true;
+                        $appData['jwt_endsession'] = $json_token->jwt_endsession;
 
                         $userRole = $auth->getCurrentUserRoleJSon($appData);
                         $token = self::getJWTAccessToken($appData, $userRole);
@@ -721,7 +738,9 @@ class Authentication {
                             $appData['firehall_id'], 
                             $appData['login_string'],
                             $appData['twofa'],
-                            $appData['twofaKey']);
+                            $appData['twofaKey'],
+                            $appData['jwt_endsession']
+                        );
                         if ($log !== null) {
                             $log->trace("REFRESH TOKEN: getNewJWTTokenFromRefreshToken NEW refreshtoken [$refreshToken]");
                         }
@@ -780,7 +799,9 @@ class Authentication {
                     $loginResult['firehall_id'], 
                     $loginResult['login_string'],
                     $loginResult['twofa'],
-                    $loginResult['twofaKey']);
+                    $loginResult['twofaKey'],
+                    $loginResult['jwt_endsession']
+                );
 
                 $token = $jwt;
                 $refreshToken = $jwtRefresh;
@@ -801,6 +822,10 @@ class Authentication {
             }
         }
         return [ $token, $refreshToken ];
+    }
+
+    static public function getJWTTokenEndSessionName() {
+        return 'JWT_END_TOKEN';
     }
 
     static public function getJWTTokenName() {
@@ -842,6 +867,20 @@ class Authentication {
         if($token == null || !strlen($token)) {
             $token = getSafeCookieValue(self::getJWTTokenName());
             if($log !== null) $log->trace("getCurrentJWTToken #3 check cookie var token [$token]");
+        }
+
+        //if ($log !== null)  $log->warn("getCurrentJWTToken #4 check request var token [$token]");
+        if($token != null && strlen($token) > 0) {
+            $json_token = self::decodeJWT($token);
+            $jwtEndSessionKey = self::getJWTEndSessionKey($json_token->iss);
+
+            if($jwtEndSessionKey != $json_token->jwt_endsession) {
+                if ($log !== null)  $log->trace("getCurrentJWTToken #5 check request var token [$token] tokenEndSession [$jwtEndSessionKey] json_token->jwt_endsession [$json_token->jwt_endsession]");
+                $token = null;
+            }
+            else if($jwtEndSessionKey != null && strlen($jwtEndSessionKey) > 0) {
+                if ($log !== null)  $log->trace("getCurrentJWTToken #6 check request var token [$token] tokenEndSession [$jwtEndSessionKey] json_token->jwt_endsession [$json_token->jwt_endsession]");
+            }
         }
 
         return $token;
@@ -910,7 +949,8 @@ class Authentication {
                     $refreshTokenObject->fhid,
                     $refreshTokenObject->login_string,
                     $refreshTokenObject->twofa,
-                    $refreshTokenObject->twofaKey);
+                    $refreshTokenObject->twofaKey,
+                    $refreshTokenObject->jwt_endsession);
 
                 header(self::getJWTTokenName().': '.$token);
                 header(self::getJWTRefreshTokenName().': '.$refreshToken);
@@ -971,6 +1011,8 @@ class Authentication {
             $authCache['user_db_id']   = $token->id;
             $authCache['twofa']        = $token->twofa;
             $authCache['twofaKey']     = $token->twofaKey;
+            $authCache['jwt_endsession']     = $token->jwt_endsession;
+            
         }
         return $authCache;
 
@@ -1480,4 +1522,72 @@ class Authentication {
         }
         return $result;
     }
+
+    // private function clearJWTEndSession() {
+    //     global $log;
+    //     $tokenEndSession = getSafeCookieValue(self::getJWTTokenEndSessionName());
+    //     if ($tokenEndSession != null && strlen($tokenEndSession) > 0 && $tokenEndSession == '1') {
+    //         if ($log !== null)  $log->warn("clearJWTEndSession tokenEndSession [$tokenEndSession]");
+    //         setcookie(\riprunner\Authentication::getJWTTokenEndSessionName(), null, null, '/', null, null, true);
+    //     }
+    // }
+
+    static public function addJWTEndSessionKey($user_db_id) {
+        global $log;
+        if (self::$enable_cache === true) {
+            $cache_key_lookup = "RIPRUNNER_" . \riprunner\Authentication::getJWTTokenEndSessionName();
+
+            if($log !== null) $log->warn("addJWTEndSessionKey START in CACHE: $cache_key_lookup for key: $user_db_id cache type: ".self::getCache()->getType());
+                
+            $randomKey = uniqid('', true);
+            $cacheList = null;
+            if(self::getCache()->hasItem($cache_key_lookup) == false) {
+                $cacheList = array();
+                //array_push($cacheList, array($user_db_id => $randomKey));
+                //$cacheList[$user_db_id] = $randomKey;
+            }
+            else {
+                $cacheList = self::getCache()->getItem($cache_key_lookup);
+                //if (array_key_exists($key, $cacheList) == false) {
+                //    array_push($cacheList, array($user_db_id => $randomKey));
+                //}
+                //else {
+                //$cacheList[$user_db_id] = $randomKey;
+                //}
+            }
+            $cacheList[$user_db_id] = $randomKey;
+
+            if($log !== null) $log->warn("addJWTEndSessionKey END1 jwt_endsession for userid: $user_db_id is: $cacheList[$user_db_id]");
+            
+            self::getCache()->setItem($cache_key_lookup, $cacheList);
+            
+            if($log !== null) $log->warn("addJWTEndSessionKey END2 jwt_endsession for userid: $user_db_id is: [".self::getJWTEndSessionKey($user_db_id)."]");
+        }
+    }
+
+    static public function getJWTEndSessionKey($user_db_id) {
+        global $log;
+        $endJWTSessionKey = '';
+        if (self::$enable_cache === true) {
+            $cache_key_lookup = "RIPRUNNER_" . \riprunner\Authentication::getJWTTokenEndSessionName();
+            if (self::getCache()->hasItem($cache_key_lookup) == true) {
+                if($log !== null) $log->trace("getJWTEndSessionKey START in CACHE: $cache_key_lookup for key: $user_db_id");
+                
+                $cacheList = self::getCache()->getItem($cache_key_lookup);
+
+                if ($cacheList != null) {
+                    if ($log !== null) $log->trace("getJWTEndSessionKey END jwt_endsession for userid: $user_db_id count of list: ".count($cacheList));
+                }
+
+                if (array_key_exists($user_db_id, $cacheList) == true) {
+                    $endJWTSessionKey = $cacheList[$user_db_id];
+                }
+            }
+        }
+        return $endJWTSessionKey;
+    }
+
+    static private function getCache() {
+        return CacheProxy::getInstance();
+    }    
 }

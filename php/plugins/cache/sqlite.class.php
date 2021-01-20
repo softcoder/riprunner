@@ -68,6 +68,7 @@ class SqliteCachePlugin implements ICachePlugin {
 	}
 	
 	public function isInstalled() {
+		// php-sqlite3
 		return (extension_loaded('pdo_sqlite') && $this->path != null);
 	}
 	
@@ -192,6 +193,10 @@ class SqliteCachePlugin implements ICachePlugin {
 		}
 	}
 	
+	public function getStats() {
+		$stats = '';
+		return $stats;
+	}	
 	public static function deleteDir($dirPath) {
 		if (! is_dir($dirPath)) {
 			throw new InvalidArgumentException("$dirPath must be a directory");

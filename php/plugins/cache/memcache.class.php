@@ -53,6 +53,7 @@ class MemCachePlugin implements ICachePlugin {
 	}
 	
 	public function isInstalled() {
+		// php-memcache
 		return (class_exists("\Memcache"));
 	}
 	
@@ -100,5 +101,14 @@ class MemCachePlugin implements ICachePlugin {
 		
 			if($log !== null) $log->error("Cache proxy re-init error [" . $ex->getMessage() . "]");
 		}
+	}
+
+	public function getStats() {
+		$stats = '';
+		if(isset($this->memcache) === true) {
+			$statsInfo = $this->memcache->getStats();
+			$stats = "Cached Item Count: " . $statsInfo['curr_items'];
+		}
+		return $stats;
 	}
 }
