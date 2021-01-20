@@ -242,7 +242,7 @@
 	            </td>
 	            
 	            <td>
-	            {% if edit_current_row %}
+                {% if edit_current_row and not usersmenu_vm.selfedit_mode %}
 	                <input id="edit_user_id_name" name="edit_user_id_name" 
 	                       type="input" value="{{ user.user_id }}"/>
 	            {% else %}

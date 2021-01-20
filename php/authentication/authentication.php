@@ -47,6 +47,7 @@ class Authentication {
     private $server_variables;
     private $auth_notification;
     static private $enable_cache = true;
+    private $twig_env = null;
 
     /*
     	Constructor
@@ -320,7 +321,7 @@ class Authentication {
         global $log;
         $validTwoFAKey = true;
 
-        if($log !== null) $log->error("AUTH verifyTwoFA START for user: $user_id");
+        if($log !== null) $log->trace("AUTH verifyTwoFA START for user: $user_id");
         // // If the user exists we check if the account is locked from too many login attempts
         $bruteforceCheck = $this->checkbrute($dbId, $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS);
         if ($bruteforceCheck['max_exceeded'] === true) {
@@ -336,7 +337,7 @@ class Authentication {
             $userTwoFASecret = $this->get_twofa($user_id);
             $valid2FA = $this->verifyNewTwoFA($userTwoFASecret, $requestTwofaKey);
             
-            if($log !== null) $log->error("AUTH verifyTwoFA verifyNewTwoFA for user: $user_id result: $valid2FA");
+            if($log !== null) $log->trace("AUTH verifyTwoFA verifyNewTwoFA for user: $user_id result: $valid2FA");
 
             if ($valid2FA == false) {
                 // Login failed wrong 2fa key
@@ -358,13 +359,7 @@ class Authentication {
                 }
             }
             else {
-                //$otp = \OTPHP\TOTP::create(
-                //	null, // Let the secret be defined by the class
-                //	60    // The period is now 60 seconds
-                //);
-                //$valid2FA = $otp->verify($request_p);
                 self::auditLogin($dbId, $user_id, LoginAuditType::SUCCESS_TWOFA);
-                //self::clearJWTEndSession();
             }
         }
         return $validTwoFAKey;
@@ -448,8 +443,7 @@ class Authentication {
                         // Password is correct!
                         self::verifyDevice($user_id, $dbId);
                         self::auditLogin($dbId, $row->user_id, LoginAuditType::SUCCESS_PASSWORD);
-                        //self::clearJWTEndSession();
-                        
+
                         // Login successful.
                         return $this->auth_notification->getLoginResult($isAngularClient, $user_id, $row);
                     }
@@ -870,6 +864,8 @@ class Authentication {
         }
 
         //if ($log !== null)  $log->warn("getCurrentJWTToken #4 check request var token [$token]");
+
+        // Here we check if we need to force end the current user session
         if($token != null && strlen($token) > 0) {
             $json_token = self::decodeJWT($token);
             $jwtEndSessionKey = self::getJWTEndSessionKey($json_token->iss);
@@ -1523,15 +1519,6 @@ class Authentication {
         return $result;
     }
 
-    // private function clearJWTEndSession() {
-    //     global $log;
-    //     $tokenEndSession = getSafeCookieValue(self::getJWTTokenEndSessionName());
-    //     if ($tokenEndSession != null && strlen($tokenEndSession) > 0 && $tokenEndSession == '1') {
-    //         if ($log !== null)  $log->warn("clearJWTEndSession tokenEndSession [$tokenEndSession]");
-    //         setcookie(\riprunner\Authentication::getJWTTokenEndSessionName(), null, null, '/', null, null, true);
-    //     }
-    // }
-
     static public function addJWTEndSessionKey($user_db_id) {
         global $log;
         if (self::$enable_cache === true) {
@@ -1543,17 +1530,9 @@ class Authentication {
             $cacheList = null;
             if(self::getCache()->hasItem($cache_key_lookup) == false) {
                 $cacheList = array();
-                //array_push($cacheList, array($user_db_id => $randomKey));
-                //$cacheList[$user_db_id] = $randomKey;
             }
             else {
                 $cacheList = self::getCache()->getItem($cache_key_lookup);
-                //if (array_key_exists($key, $cacheList) == false) {
-                //    array_push($cacheList, array($user_db_id => $randomKey));
-                //}
-                //else {
-                //$cacheList[$user_db_id] = $randomKey;
-                //}
             }
             $cacheList[$user_db_id] = $randomKey;
 
@@ -1589,5 +1568,53 @@ class Authentication {
 
     static private function getCache() {
         return CacheProxy::getInstance();
-    }    
+    }
+
+    public function passwordChangedNotifyMsg($edit_user_id_name, $edit_email) {
+        //$webRootURL = getFirehallRootURLFromRequest(null, null, self::getFirehall());
+        $datetime = date('m/d/Y h:i:s a', time());
+
+        $requestIPHeader = AuthNotification::getClientIPInfo();
+        $userAgent = AuthNotification::getUserAgent();
+
+        $ip = $this->auth_notification->extractIp($requestIPHeader);
+        $location = $this->auth_notification->getIpLocation($ip);
+
+        $view_template_vars = array();
+        $view_template_vars['new_email'] = $edit_email;
+        $view_template_vars['userid'] = $edit_user_id_name;
+        $view_template_vars['datetime'] = $datetime;
+        $view_template_vars['location'] = $location;
+        $view_template_vars['userAgent'] = $userAgent;
+        $view_template_vars['requestIPHeader'] = $requestIPHeader;
+
+        // Load our template
+        $template = $this->getTwigEnv()->resolveTemplate(
+            array('@custom/sms-login-password-changed-msg.twig.html',
+                    'sms-login-password-changed-msg.twig.html'
+        ));
+
+        // *Warning* the email address for your account was changed to: {{ new_email }}
+        // Please review the details below to confirm it was you.
+        // Login: {{ userid }}
+        // Date & time of login: {{ datetime }}
+        // Login city: {{ location }}
+        // Type of device: {{ userAgent }}
+        // IP address: {{ requestIPHeader }}
+            
+        // Output our template
+        $msg = $template->render($view_template_vars);
+        return $msg;
+    }
+
+    private function getTwigEnv() {
+        global $twig;
+        if($this->twig_env === null) {
+            $twig_instance = $twig;
+        }
+        else {
+            $twig_instance = $this->twig_env;
+        }
+        return $twig_instance;
+    }
 }

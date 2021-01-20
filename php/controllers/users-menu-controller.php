@@ -19,9 +19,12 @@ require_once __RIPRUNNER_ROOT__ . '/models/live-callout-warning-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/users-menu-model.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 // Register our view and variables for the template
-\riprunner\Authentication::setJWTCookie();
-\riprunner\Authentication::sec_session_start();
+Authentication::setJWTCookie();
+Authentication::sec_session_start();
 new LiveCalloutWarningViewModel($global_vm, $view_template_vars);
 $usersmenu_mv = new UsersMenuViewModel($global_vm, $view_template_vars);
 new UsersMenuController($global_vm, $usersmenu_mv, $view_template_vars);
@@ -32,7 +35,7 @@ class UsersMenuController {
 	private $usersmenu_mv;
 	private $view_template_vars;
 	private $action_error;
-
+	
 	public function __construct($global_vm, $usersmenu_mv, &$view_template_vars) {
 		$this->global_vm = $global_vm;
 		$this->usersmenu_mv = $usersmenu_mv;
@@ -62,7 +65,8 @@ class UsersMenuController {
             if ($save_ok === false) {
                 $edit_user_id = $this->handleEditAccount(true);
                 $insert_new_account = $this->isInsertAccount(true, $edit_user_id);
-            } else {
+			} 
+			else {
                 $this->handleDeleteAccount(
                     $this->global_vm->RR_DB_CONN,
                     $self_edit,
@@ -77,7 +81,7 @@ class UsersMenuController {
             $edit_mode = isset($edit_user_id);
 
 			// Setup variables from this controller for the view
-			$this->view_template_vars["usersmenu_ctl_cache_active"] = \riprunner\CacheProxy::getInstance()->isInstalled();
+			$this->view_template_vars["usersmenu_ctl_cache_active"] = CacheProxy::getInstance()->isInstalled();
             $this->view_template_vars["usersmenu_ctl_edit_mode"] = $edit_mode;
             $this->view_template_vars["usersmenu_ctl_edit_userid"] = $edit_user_id;
             $this->view_template_vars["usersmenu_ctl_insert_new"] = $insert_new_account;
@@ -87,7 +91,7 @@ class UsersMenuController {
 			if ($log !== null)  $log->warn("In UserMenu processActions() error: ".$e->getMessage());
 		}
 	}
-	
+
 	private function handleEndSession() {
 		global $log;
 
@@ -98,7 +102,7 @@ class UsersMenuController {
 				$end_session_users = explode(',', $end_session_users);
                 foreach ($end_session_users as $user_db_id) {
                     if ($user_db_id != null && strlen($user_db_id) > 0 && $user_db_id != '-1') {
-                        \riprunner\Authentication::addJWTEndSessionKey($user_db_id);
+                        Authentication::addJWTEndSessionKey($user_db_id);
                         if ($log !== null) {
                             $log->warn("In UserMenu handleEndSession() user_db_id: $user_db_id");
                         }
@@ -120,7 +124,7 @@ class UsersMenuController {
 		}
 		return $edit_user_id;
 	}
-	
+
 	private function isInsertAccount($force_edit, $edit_user_id) {
 		$insert_new_account = false;
 		$form_action = get_query_param('form_action');
@@ -134,14 +138,14 @@ class UsersMenuController {
 		}
 		return $insert_new_account;
 	}
-	
+
 	private function handleSaveAccount($db_connection, $self_edit) {
 		global $log;
 		
 		$result = true;
 	
 		if($self_edit == true) {
-			$edit_user_id_name = \riprunner\Authentication::getAuthVar('user_id');
+			$edit_user_id_name = Authentication::getAuthVar('user_id');
 		}
 		else {
             $edit_user_id_name = get_query_param('edit_user_id_name');
@@ -152,8 +156,8 @@ class UsersMenuController {
 		
 		if(isset($form_action) === true && $form_action === 'save' ) {
 			if($self_edit === true) {
-				$edit_user_id = \riprunner\Authentication::getAuthVar('user_db_id');
-				$edit_firehall_id = \riprunner\Authentication::getAuthVar('firehall_id');
+				$edit_user_id = Authentication::getAuthVar('user_db_id');
+				$edit_firehall_id = Authentication::getAuthVar('firehall_id');
 			}
 			else {
 				$edit_user_id = get_query_param('edit_user_id');
@@ -172,7 +176,7 @@ class UsersMenuController {
 						$this->updateAccount($db_connection, $self_edit, $new_pwd, $edit_user_id);
 
 						if($self_edit === true) {
-							$edit_firehall_id = \riprunner\Authentication::getAuthVar('firehall_id');
+							$edit_firehall_id = Authentication::getAuthVar('firehall_id');
 						}
 						else {
 							$edit_firehall_id = get_query_param('edit_firehall_id');
@@ -180,13 +184,12 @@ class UsersMenuController {
 						$edit_user_id_name = get_query_param('edit_user_id_name');
 
 						$FIREHALL = $this->global_vm->firehall;
-						$auth = new\riprunner\Authentication($FIREHALL);
+						$auth = new Authentication($FIREHALL);
 						$auth->auditLogin($userDBId, $edit_user_id_name, LoginAuditType::SUCCESS_CHANGE_PASSWORD);
 						self::unlockAccount($userDBId, $db_connection);
 					}
 					else if($self_edit === false) {
-						$this->addAccount($db_connection, $self_edit, $new_pwd,
-								$edit_user_id);
+						$this->addAccount($db_connection, $self_edit, $new_pwd, $edit_user_id);
 					}
 					
 					$log->trace("AFTER save user account for edit_user_id [$edit_user_id]");
@@ -196,21 +199,19 @@ class UsersMenuController {
 		return $result;
 	}
 
-	private function updateAccount($db_connection, $self_edit, $new_pwd,
-			&$edit_user_id) {
-		
+	private function updateAccount($db_connection, $self_edit, $new_pwd, &$edit_user_id) {
 		global $log;
 				
 		// UPDATE
 		if($self_edit === true) {
-			$edit_firehall_id = \riprunner\Authentication::getAuthVar('firehall_id');
-			$edit_user_type = \riprunner\Authentication::getAuthVar('user_type');
-			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
-			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
-			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
-			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
+			$edit_firehall_id = Authentication::getAuthVar('firehall_id');
+			$edit_user_type = Authentication::getAuthVar('user_type');
+			$edit_admin_access = Authentication::userHasAcess(USER_ACCESS_ADMIN);
+			$edit_sms_access = Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
+			$edit_respond_self_access = Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
+			$edit_respond_others_access = Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 			$edit_user_active = 1;
-			$edit_user_twofa = \riprunner\Authentication::getAuthVar('twofa');
+			$edit_user_twofa = Authentication::getAuthVar('twofa');
 		}
 		else {
 			$edit_firehall_id = get_query_param('edit_firehall_id');
@@ -269,7 +270,18 @@ class UsersMenuController {
 			}
 		}
 		
-		$sql_statement = new \riprunner\SqlStatement($db_connection);
+		$FIREHALL = $this->global_vm->firehall;
+		$auth = new Authentication($FIREHALL);
+
+		$currentUserInfo = $auth->getUserInfo($edit_firehall_id, $edit_user_id_name);
+		if($currentUserInfo != null && $edit_email != $currentUserInfo->email && 
+		   strlen($currentUserInfo->email) > 0) {
+
+			$emailMsg = $auth->passwordChangedNotifyMsg($edit_user_id_name, $edit_email);
+			$this->sendEmail_Message($emailMsg, $edit_user_id_name, $currentUserInfo->email);
+		}
+
+		$sql_statement = new SqlStatement($db_connection);
 		$sql = $sql_statement->getSqlStatement('user_accounts_update');
 		$sql = preg_replace_callback('(:sql_pwd)', function ($m) use ($sql_pwd) { return $sql_pwd; }, $sql);
 		$sql = preg_replace_callback('(:sql_user_access)', function ($m) use ($sql_user_access) { return $sql_user_access; }, $sql);
@@ -295,6 +307,63 @@ class UsersMenuController {
 		$edit_user_id = null;
 	}
 
+	private function sendEmail_Message($emailMsg, $email_user_name, $email_address) {
+		global $log;
+
+	    if($this->global_vm->firehall->EMAIL->ENABLE_OUTBOUND_SMTP == true ||
+           $this->global_vm->firehall->EMAIL->ENABLE_OUTBOUND_SENDMAIL == true) {
+    	    
+    	    $mail = new PHPMailer;
+			$mail->addAddress($email_address, $email_user_name);
+            //$mail->SMTPDebug = 3;                               // Enable verbose debug output
+            //$mail->SMTPDebug = 2;
+            //$mail->Debugoutput = 'html';
+            if($this->global_vm->firehall->EMAIL->ENABLE_OUTBOUND_SMTP == true) {
+                $mail->isSMTP();
+            }
+            else if($this->global_vm->firehall->EMAIL->ENABLE_OUTBOUND_SENDMAIL == true) {
+                $mail->isSendmail();
+            }
+    	    
+    	    //Set the hostname of the mail server
+            $mail->Host = $this->global_vm->firehall->EMAIL->OUTBOUND_HOST;
+    	    // if your network does not support SMTP over IPv6
+    	    //Set the SMTP port number - 587 for authenticated TLS, a.k.a. RFC4409 SMTP submission
+            $mail->Port = $this->global_vm->firehall->EMAIL->OUTBOUND_PORT;
+    	    //Set the encryption system to use - ssl (deprecated) or tls
+            $mail->SMTPSecure = $this->global_vm->firehall->EMAIL->OUTBOUND_ENCRYPT;
+    	    //Whether to use SMTP authentication
+            $mail->SMTPAuth = $this->global_vm->firehall->EMAIL->OUTBOUND_AUTH;
+    	    //Username to use for SMTP authentication - use full email address for gmail
+            $mail->Username = $this->global_vm->firehall->EMAIL->OUTBOUND_USERNAME;
+    	    //Password to use for SMTP authentication
+            $mail->Password = $this->global_vm->firehall->EMAIL->OUTBOUND_PASSWORD;
+    	    //Set who the message is to be sent from
+            $mail->setFrom($this->global_vm->firehall->EMAIL->OUTBOUND_FROM_ADDRESS, $this->global_vm->firehall->EMAIL->OUTBOUND_FROM_NAME);
+    	    //Set an alternative reply-to address
+            $mail->addReplyTo($this->global_vm->firehall->EMAIL->OUTBOUND_FROM_ADDRESS, $this->global_vm->firehall->EMAIL->OUTBOUND_FROM_NAME);
+    	    //Set who the message is to be sent to
+    	    //$mail->addAddress('mark_vejvoda@hotmail.com', 'Mark Vejvoda');
+    	    //Set the subject line
+    	    $mail->Subject = 'Notification from Rip Runner';
+    	    //Read an HTML message body from an external file, convert referenced images to embedded,
+    	    //convert HTML into a basic plain-text alternative body
+    	    $mail->msgHTML(nl2br($emailMsg));
+    	    //Replace the plain text body with one created manually
+    	    //$mail->Body = $emailMsg;
+    	    $mail->AltBody = $emailMsg;
+
+    	    if (!$mail->send()) {
+				$sendMsgResultStatus = "Error sending Email Message: " . $mail->ErrorInfo;
+				$log->error("User menu ERROR sent an email to [$email_address] with result: $sendMsgResultStatus");
+    	    }
+    	    else {
+				$sendMsgResultStatus = "Email Message sent to applicable recipients.";
+				$log->warn("User menu SUCCESS sent an email to [$email_address] with result: $sendMsgResultStatus");
+    	    }
+       }
+	}
+
 	private function addAccount($db_connection, $self_edit, $new_pwd, 
 			&$edit_user_id) {
 		
@@ -310,14 +379,14 @@ class UsersMenuController {
 		}
 
 		if($self_edit === true) {
-			$edit_firehall_id = \riprunner\Authentication::getAuthVar('firehall_id');
-			$edit_user_type = \riprunner\Authentication::getAuthVar('user_type');
-			$edit_admin_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
-			$edit_sms_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
-			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
-			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
+			$edit_firehall_id = Authentication::getAuthVar('firehall_id');
+			$edit_user_type = Authentication::getAuthVar('user_type');
+			$edit_admin_access = Authentication::userHasAcess(USER_ACCESS_ADMIN);
+			$edit_sms_access = Authentication::userHasAcess(USER_ACCESS_SIGNAL_SMS);
+			$edit_respond_self_access = Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
+			$edit_respond_others_access = Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 			$edit_user_active = 1;
-			$edit_user_twofa = \riprunner\Authentication::getAuthVar('twofa');
+			$edit_user_twofa = Authentication::getAuthVar('twofa');
 		}
 		else {
 			$edit_firehall_id = get_query_param('edit_firehall_id');
@@ -360,7 +429,7 @@ class UsersMenuController {
 		    $new_user_access |= USER_ACCESS_CALLOUT_RESPOND_OTHERS;
 		}
 		
-		$sql_statement = new \riprunner\SqlStatement($db_connection);
+		$sql_statement = new SqlStatement($db_connection);
 		$sql = $sql_statement->getSqlStatement('user_accounts_insert');
 
 		$log->trace("About to INSERT user account for sql [$sql]");
@@ -392,7 +461,7 @@ class UsersMenuController {
 				(strlen($edit_pwd1) > 0 || strlen($edit_pwd2) > 0)) {
 	
 			if(strlen($edit_pwd1) >= 5 && $edit_pwd1 === $edit_pwd2) {
-				$new_pwd = \riprunner\Authentication::encryptPassword($edit_pwd1);
+				$new_pwd = Authentication::encryptPassword($edit_pwd1);
 			}
 			else {
 				$this->action_error = 100;
@@ -425,7 +494,7 @@ class UsersMenuController {
 				// UPDATE
 				if($edit_user_id >= 0) {
 					
-				    $sql_statement = new \riprunner\SqlStatement($db_connection);
+				    $sql_statement = new SqlStatement($db_connection);
 				    $sql = $sql_statement->getSqlStatement('user_accounts_delete');
 
 					$log->trace("About to DELETE user account for sql [$sql]");
@@ -462,7 +531,7 @@ class UsersMenuController {
 		// UPDATE
 		if($userDBId >= 0) {
 			
-			$sql_statement = new \riprunner\SqlStatement($db_connection);
+			$sql_statement = new SqlStatement($db_connection);
 			$sql = $sql_statement->getSqlStatement('user_accounts_unlock');
 
 			if($log !== null) $log->trace("About to UNLOCK user account for sql [$sql]");

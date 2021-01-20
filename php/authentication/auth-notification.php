@@ -103,7 +103,7 @@ class AuthNotification {
         return $this->firehall;
     }
 
-    private function extractIp($requestIPHeader) {
+    public function extractIp($requestIPHeader) {
         $clientIp = explode(' ',$requestIPHeader);
         foreach ($clientIp as $clientPart) {
             if ($clientPart != 'CLIENT:' && $clientPart != 'FORWAREDED:' && $clientPart != 'REMOTE:') {
@@ -113,7 +113,7 @@ class AuthNotification {
         return null;
     }
 
-    private function getIpLocation($ip) {
+    public function getIpLocation($ip) {
         $location = 'UNKNOWN';
         
         try {

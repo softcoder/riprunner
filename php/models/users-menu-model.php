@@ -46,6 +46,10 @@ class UsersMenuViewModel extends BaseViewModel {
 	}
 	
 	private function getIsSelfEditMode() {
+		$isAdmin =  \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
+		if($isAdmin == false) {
+			return true;			
+		}
 		if($this->selfedit_mode == null) {
 			$this->selfedit_mode = get_query_param('se');
 			$this->selfedit_mode = (isset($this->selfedit_mode) === true && $this->selfedit_mode != null && $this->selfedit_mode == true);
@@ -62,7 +66,7 @@ class UsersMenuViewModel extends BaseViewModel {
 		// Read from the database info about this callout
 		$self_edit = $this->getIsSelfEditMode();
 		
-		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+		$sql_statement = new SqlStatement($this->getGvm()->RR_DB_CONN);
 		
 		if($this->getGvm()->firehall->LDAP->ENABLED == true) {
 			create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
