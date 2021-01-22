@@ -181,7 +181,14 @@ class UsersMenuController {
 						else {
 							$edit_firehall_id = get_query_param('edit_firehall_id');
 						}
-						$edit_user_id_name = get_query_param('edit_user_id_name');
+
+						if($self_edit == true) {
+							$edit_user_id_name = Authentication::getAuthVar('user_id');
+						}
+						else {
+							$edit_user_id_name = get_query_param('edit_user_id_name');
+						}
+				
 
 						$FIREHALL = $this->global_vm->firehall;
 						$auth = new Authentication($FIREHALL);
@@ -235,7 +242,14 @@ class UsersMenuController {
 			    $edit_user_twofa = 0;
 			}
 		}
-		$edit_user_id_name = get_query_param('edit_user_id_name');
+		
+		if($self_edit == true) {
+			$edit_user_id_name = Authentication::getAuthVar('user_id');
+		}
+		else {
+            $edit_user_id_name = get_query_param('edit_user_id_name');
+        }
+
 		$edit_email = get_query_param('edit_email_address');
 		$edit_mobile_phone = get_query_param('edit_mobile_phone');
 		
@@ -272,6 +286,8 @@ class UsersMenuController {
 		
 		$FIREHALL = $this->global_vm->firehall;
 		$auth = new Authentication($FIREHALL);
+
+		if($log !== null) $log->trace("updateAccount calling getUserInfo for user name [$edit_user_id_name] user id [$edit_user_id] fhid [" . $edit_firehall_id . "]");
 
 		$currentUserInfo = $auth->getUserInfo($edit_firehall_id, $edit_user_id_name);
 		if($currentUserInfo != null && $edit_email != $currentUserInfo->email && 
@@ -364,8 +380,7 @@ class UsersMenuController {
        }
 	}
 
-	private function addAccount($db_connection, $self_edit, $new_pwd, 
-			&$edit_user_id) {
+	private function addAccount($db_connection, $self_edit, $new_pwd, &$edit_user_id) {
 		
 		global $log;
 		
@@ -410,7 +425,14 @@ class UsersMenuController {
 			    $edit_user_twofa = 0;
 			}
 		}
-		$edit_user_id_name = get_query_param('edit_user_id_name');
+
+		if($self_edit == true) {
+			$edit_user_id_name = Authentication::getAuthVar('user_id');
+		}
+		else {
+            $edit_user_id_name = get_query_param('edit_user_id_name');
+        }
+
 		$edit_email = get_query_param('edit_email_address');
 		$edit_mobile_phone = get_query_param('edit_mobile_phone');
 		

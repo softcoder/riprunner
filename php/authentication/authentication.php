@@ -174,10 +174,11 @@ class Authentication {
 
     public function getUserInfo($fhid, $user_id) {
         global $log;
-    
+
+        //if($log !== null) $log->warn("getUserInfo START for user [$user_id] fhid [" . $fhid . "] client [" . AuthNotification::getClientIPInfo() . "]");
+
         if($this->hasDbConnection() == false) {
-            if($log !== null) $log->warn("NO DB CONNECTION during type check for user [$user_id] fhid [" .
-                    $fhid . "] client [" . AuthNotification::getClientIPInfo() . "]");
+            if($log !== null) $log->warn("NO DB CONNECTION during type check for user [$user_id] fhid [" . $fhid . "] client [" . AuthNotification::getClientIPInfo() . "]");
             return null;
         }
         if($this->getFirehall()->LDAP->ENABLED === true) {
@@ -200,8 +201,10 @@ class Authentication {
             $row = $stmt->fetch(\PDO::FETCH_OBJ);
             $stmt->closeCursor();
         
-            if($log !== null) $log->trace("AFTER Type check for user [$user_id] fhid [" . $fhid . "] result: ". $row->id ."client [" . AuthNotification::getClientIPInfo() . "]");
-            return $row;
+            if($log !== null) $log->trace("AFTER Type check for user [$user_id] fhid [" . $fhid . "] result: ". ($row != null && $row != false ? $row->id : -1) ."client [" . AuthNotification::getClientIPInfo() . "]");
+            if($row != null && $row != false) {
+                return $row;
+            }
         }
         return null;
     }
