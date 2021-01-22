@@ -52,9 +52,12 @@
 			    <div>
 	            	<h2>
 						<!-- {{ twofaenablevm.otp_provurl }} -->
-						<div id="qrcode"></div>
+						<div id="qrcode" style="padding-top: 5px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;"></div>
 						<script type="text/javascript">
-						new QRCode(document.getElementById("qrcode"), "{{ twofaenablevm.otp_provurl }}");
+						new QRCode(document.getElementById("qrcode"), {
+							text: "{{ twofaenablevm.otp_provurl }}",
+							correctLevel : QRCode.CorrectLevel.H
+						});
 						</script>
 					</h2>
 				</div>

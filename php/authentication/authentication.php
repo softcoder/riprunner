@@ -870,15 +870,26 @@ class Authentication {
 
         // Here we check if we need to force end the current user session
         if($token != null && strlen($token) > 0) {
-            $json_token = self::decodeJWT($token);
-            $jwtEndSessionKey = self::getJWTEndSessionKey($json_token->iss);
+            try {
+                $json_token = self::decodeJWT($token);
+                $jwtEndSessionKey = self::getJWTEndSessionKey($json_token->iss);
 
-            if($jwtEndSessionKey != $json_token->jwt_endsession) {
-                if ($log !== null)  $log->trace("getCurrentJWTToken #5 check request var token [$token] tokenEndSession [$jwtEndSessionKey] json_token->jwt_endsession [$json_token->jwt_endsession]");
-                $token = null;
+                if ($jwtEndSessionKey != $json_token->jwt_endsession) {
+                    if ($log !== null) {
+                        $log->trace("getCurrentJWTToken #5 check request var token [$token] tokenEndSession [$jwtEndSessionKey] json_token->jwt_endsession [$json_token->jwt_endsession]");
+                    }
+                    $token = null;
+                } 
+                elseif ($jwtEndSessionKey != null && strlen($jwtEndSessionKey) > 0) {
+                    if ($log !== null) {
+                        $log->trace("getCurrentJWTToken #6 check request var token [$token] tokenEndSession [$jwtEndSessionKey] json_token->jwt_endsession [$json_token->jwt_endsession]");
+                    }
+                }
             }
-            else if($jwtEndSessionKey != null && strlen($jwtEndSessionKey) > 0) {
-                if ($log !== null)  $log->trace("getCurrentJWTToken #6 check request var token [$token] tokenEndSession [$jwtEndSessionKey] json_token->jwt_endsession [$json_token->jwt_endsession]");
+            catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
+                if ($log !== null) {
+                    $log->trace("In getCurrentJWTToken #7 problem token [$token] error: ".$e->getMessage());
+                }
             }
         }
 

@@ -82,8 +82,8 @@
             iframe.src = url;
         }
         function checkIframesLoaded() {
-            checkIframeLoaded('callout-audio', frame1, '{{ gvm.RR_DOC_ROOT }}/ci/special_view=callout-audio&cid={{ callout_details_vm.callout_id }}&fhid={{ callout_details_vm.firehall_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&{{ gvm.RR_JWT_TOKEN_PARAM }}');
-            checkIframeLoaded('callout-detail', frame2, '{{ gvm.RR_DOC_ROOT }}/ci/special_view=callout-details&cid={{ callout_details_vm.callout_id }}&fhid={{ callout_details_vm.firehall_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&{{ gvm.RR_JWT_TOKEN_PARAM }}');
+            checkIframeLoaded('callout-audio', frame1, '{{ gvm.RR_DOC_ROOT }}/ci/special_view=callout-audio&cid={{ callout_details_vm.callout_id }}&fhid={{ callout_details_vm.firehall_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&{{ gvm.RR_JWT_TOKEN_PARAM|raw }}');
+            checkIframeLoaded('callout-detail', frame2, '{{ gvm.RR_DOC_ROOT }}/ci/special_view=callout-details&cid={{ callout_details_vm.callout_id }}&fhid={{ callout_details_vm.firehall_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&{{ gvm.RR_JWT_TOKEN_PARAM|raw }}');
         }
         </script>
     {% else %}

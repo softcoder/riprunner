@@ -51,7 +51,7 @@
                 if(confirm('Confirm that '+user_id+' status should be '+
                             $( '#ui_call_update_response_status'+row_id+' option:selected' ).text()+'?')) { 
                     $('#form_call_update_response_status_'+row_id).attr('action',
-                    '{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid='+user_id+'&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_update_response_status'+row_id ).val()+'&{{ gvm.RR_JWT_TOKEN_PARAM }}');
+                    '{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid='+user_id+'&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_update_response_status'+row_id ).val()+'&{{ gvm.RR_JWT_TOKEN_PARAM|raw }}');
                     $('form#form_call_update_response_status_'+row_id).submit();
                     return true;
                 } 
@@ -123,11 +123,11 @@
                             <td class="ci_align_cell" colspan="2">
                                 <INPUT TYPE="button" VALUE="Send" 
                                         class="ci_respondnow_update" 
-                                        onclick="$('#call_no_response_me{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status_me{{ row_no.id }}' ).val()+'&{{ gvm.RR_JWT_TOKEN_PARAM }}');
+                                        onclick="$('#call_no_response_me{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status_me{{ row_no.id }}' ).val()+'&{{ gvm.RR_JWT_TOKEN_PARAM|raw }}');
                                         if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status_me{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_me{{ row_no.id }}'))) document.getElementById('call_no_response_me{{ row_no.id }}').submit();"/>
 
                                 <select id="ui_call_set_response_status_me{{ row_no.id }}" class="ci_respondnow"
-                                        onchange="$('#call_no_response_me{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status_me{{ row_no.id }}' ).val()+'&{{ gvm.RR_JWT_TOKEN_PARAM }}');
+                                        onchange="$('#call_no_response_me{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status_me{{ row_no.id }}' ).val()+'&{{ gvm.RR_JWT_TOKEN_PARAM|raw }}');
                                                   if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status_me{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_me{{ row_no.id }}'))) document.getElementById('call_no_response_me{{ row_no.id }}').submit();">
                                     {% for status_def in callout_details_vm.callout_status_defs %}
                                         {% if status_def.hasAccess(callout_details_vm.getMemberAccessValue(row_no.user_id)) and 
@@ -139,7 +139,7 @@
                                 </select>
 
                                 <form id="call_no_response_me{{ row_no.id }}" 
-                                    action="{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&{{ gvm.RR_JWT_TOKEN_PARAM }}" 
+                                    action="{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&{{ gvm.RR_JWT_TOKEN_PARAM|raw }}" 
                                     method="POST" 
                                     onsubmit="return confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status_me{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_me{{ row_no.id }}'));">
                                 </form>
@@ -312,11 +312,11 @@
                         <td class="ci_align_cell" colspan="2">
                             <INPUT TYPE="button" VALUE="Send" 
                                     class="ci_respondnow_update" 
-                                    onclick="$('#call_no_response_{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status{{ row_no.id }}' ).val()+'&{{ gvm.RR_JWT_TOKEN_PARAM }}');
+                                    onclick="$('#call_no_response_{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status{{ row_no.id }}' ).val()+'&{{ gvm.RR_JWT_TOKEN_PARAM|raw }}');
                                     if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();"/>
 
                             <select id="ui_call_set_response_status{{ row_no.id }}" class="ci_respondnow"
-                                    onchange="$('#call_no_response_{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status{{ row_no.id }}' ).val()+'&{{ gvm.RR_JWT_TOKEN_PARAM }}');
+                                    onchange="$('#call_no_response_{{ row_no.id }}').attr('action','{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status='+$( '#ui_call_set_response_status{{ row_no.id }}' ).val()+'&{{ gvm.RR_JWT_TOKEN_PARAM|raw }}');
                                                 if(confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'))) document.getElementById('call_no_response_{{ row_no.id }}').submit();">
 
                                 {% for status_def in callout_details_vm.callout_status_defs %}
@@ -330,7 +330,7 @@
                             </select>
 
                             <form id="call_no_response_{{ row_no.id }}" 
-                                action="{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&{{ gvm.RR_JWT_TOKEN_PARAM }}" 
+                                action="{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_no.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&{{ gvm.RR_JWT_TOKEN_PARAM|raw }}" 
                                 method="POST" 
                                 onsubmit="return confirmAppendGeoCoordinates('Confirm that {{ row_no.user_id }} status should be '+$( '#ui_call_set_response_status{{ row_no.id }} option:selected' ).text()+'?',document.getElementById('call_no_response_{{ row_no.id }}'));">
                             </form>
@@ -362,7 +362,7 @@
                                     onclick="if(confirmAppendGeoCoordinates('COMPLETE this call?\nConfirm that the call should be set to COMPLETE?',document.getElementById('call_yes_response_complete_{{ row_yes.id }}'))) document.getElementById('call_yes_response_complete_{{ row_yes.id }}').submit();" />
                             
                                 <form id="call_yes_response_complete_{{ row_yes.id }}" 
-                                    action="{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_yes.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status={{ callout_details_vm.callout_status_complete }}&{{ gvm.RR_JWT_TOKEN_PARAM }}" 
+                                    action="{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_yes.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status={{ callout_details_vm.callout_status_complete }}&{{ gvm.RR_JWT_TOKEN_PARAM|raw }}" 
                                     method="POST" 
                                     onsubmit="return confirmAppendGeoCoordinates('COMPLETE this call?\nConfirm that the call should be set to COMPLETE?',document.getElementById('call_yes_response_complete_{{ row_yes.id }}'));">
                                 </form>
@@ -376,7 +376,7 @@
                                     onclick="if(confirmAppendGeoCoordinates('CANCEL this call?\nConfirm that the call should be CANCELLED?',document.getElementById('call_yes_response_cancel_{{ row_yes.id }}'))) document.getElementById('call_yes_response_cancel_{{ row_yes.id }}').submit();" />
                             
                                 <form id="call_yes_response_cancel_{{ row_yes.id }}" 
-                                action="{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_yes.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status={{ callout_details_vm.callout_status_cancel }}&{{ gvm.RR_JWT_TOKEN_PARAM }}" 
+                                action="{{ gvm.RR_DOC_ROOT }}/cr/fhid={{ callout_details_vm.firehall_id }}&cid={{ callout_details_vm.callout_id }}&uid={{ row_yes.user_id }}&ckid={{ callout_details_vm.calloutkey_id }}{% if callout_details_vm.member_id is not null %}&member_id={{ callout_details_vm.member_id }}{% endif %}&status={{ callout_details_vm.callout_status_cancel }}&{{ gvm.RR_JWT_TOKEN_PARAM|raw }}" 
                                 method="POST" 
                                 onsubmit="return confirmAppendGeoCoordinates('CANCEL this call?\nConfirm that the call should be CANCELLED?',document.getElementById('call_yes_response_cancel_{{ row_yes.id }}'));">
                                 </form>

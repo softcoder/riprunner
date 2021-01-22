@@ -75,6 +75,10 @@ class TwoFAEnableController
     {
         global $log;
 
+        if( $this->global_vm->auth->isAuth == false) {
+            $this->view_template_vars["twofa_enable_ctl_action_error"] = TwoFAResultType::NONE;
+            return;
+        }
         $isAngularClient = false;
         $self_edit      = $this->twofaenable_mv->selfedit_mode;
         $new_twofa_type = TwoFAType::TOPT_AUTH_APP;
