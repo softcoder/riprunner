@@ -320,6 +320,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 		$qry_bind->bindParam(':eta', $eta);
 		$qry_bind->bindParam(':cid', $cid);
 		$qry_bind->bindParam(':uid', $this->useracctid);
+		
 		if(($this->getUserPassword() === null && $this->getUserLat() === null && 
 			$this->getCalloutKeyId() !== null) === false) {
 			$lat = $this->getUserLat();
@@ -363,6 +364,27 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$this->startTrackingResponder = true;
 			$this->isFirstResponseForUser = true;
 		}
+
+
+		
+		$sql_audit = $sql_statement->getSqlStatement('callout_response_audit_insert');
+
+		$status = $this->getUserStatus();
+		$cid = $this->getCalloutId();
+		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_audit);
+		$qry_bind->bindParam(':cid', $cid);
+		$qry_bind->bindParam(':uid', $this->useracctid);
+		$qry_bind->bindParam(':status', $status);
+		$qry_bind->bindParam(':eta', $eta);
+		$lat = $this->getUserLat();
+		$long = $this->getUserLong();
+		$qry_bind->bindParam(':lat', $lat);
+		$qry_bind->bindParam(':long', $long);
+
+		$qry_bind->execute();
+
+		//$this->callout_respond_id = $this->getGvm()->RR_DB_CONN->lastInsertId();
+
 		$log->trace("Call Response END --> updateCallResponse");
 		return $response_duplicates;
 	}

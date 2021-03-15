@@ -124,6 +124,17 @@ CREATE TABLE IF NOT EXISTS `login_audit` (
   `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `callouts_response_audit` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `calloutid` int(11) NOT NULL,
+  `useracctid` int(11) NOT NULL,
+  `responsetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `latitude` DECIMAL(10,6) DEFAULT NULL,  
+  `longitude` DECIMAL(10,6) DEFAULT NULL,
+  `eta` int(11),
+  `status` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 
 CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);

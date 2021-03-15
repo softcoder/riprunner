@@ -142,6 +142,17 @@ CREATE TABLE IF NOT EXISTS login_audit (
   updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS callouts_response_audit (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  calloutid INTEGER NOT NULL,
+  useracctid INTEGER NOT NULL,
+  responsetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  latitude DECIMAL(10,6) DEFAULT NULL,  
+  longitude DECIMAL(10,6) DEFAULT NULL,
+  eta INTEGER,
+  status INTEGER NOT NULL DEFAULT 0
+);
+
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
 
 CREATE INDEX user_accounts_fhid_uid ON user_accounts (firehall_id,user_id);
