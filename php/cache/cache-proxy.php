@@ -57,7 +57,14 @@ class CacheProxy {
 	    return self::$cacheInstance;
 	}
 	static public function clearInstance() {
+		//self::$cacheInstance->cacheProvider = null;
+
+		if(self::$cacheInstance != null) {
+			self::$cacheInstance->cacheProvider->clear();
+		}
 		self::$cacheInstance = null;
+		//CacheProxy::$cacheInstance = null;
+		//self::$cacheInstance = new CacheProxy();
 	}
 	public function getInstanceInfo() {
 	    //$instance = self::getInstance();

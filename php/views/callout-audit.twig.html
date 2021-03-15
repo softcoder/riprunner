@@ -1,0 +1,146 @@
+<html>
+<head>
+    <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script>
+    <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/spin.js"></script>
+    <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/common-utils.js"></script>
+    <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/tabs.js"></script>
+	{% if gvm.isMobile %}
+    <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/callout-mobile.css?version=1" />
+    <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/tabs-mobile.css?version=1" />
+	{% else %}
+    <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/callout-main.css?version=1" />
+    <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/tabs.css?version=1" />
+    {% endif %}
+</head>
+
+{% if callout_audit_vm.firehall_id is defined %}
+    {% if callout_audit_vm.firehall is defined and callout_audit_vm.firehall is not null %}
+        {% if callout_audit_vm.callout_id != -1 and callout_audit_vm.calloutkey_id is defined %}
+        
+    {% if callout_audit_vm.isCalloutAuth %}
+    <body class="ci_body">
+
+    {% for row in callout_audit_vm.callout_details %}
+	<div id="callContent{{ loop.index }}" width="100%">
+		<table class="box-table-a" border="1" width="100%">
+            <tr>
+                <td class="ci_header_address" colspan="3">{% if row.address is empty %}NO ADDRESS FROM FOCC{% else %}{{ row.address }}{% endif %}</td>
+                <td><div class="maps-link">
+                    <img style="cursor: pointer;" onclick="mapsSelector('{{ row.callout_geo_dest }}','{{ row.callout_address_dest }}')" 
+                    src="{{ gvm.RR_DOC_ROOT }}/images/icons/maps-icon.png" />
+                    </div>
+                </td>
+            </tr>
+            {% if row.callout_comments is not empty %}
+            <tr><td class="ci_header_type" colspan="4">Comments: {{ row.callout_comments }}</td></tr>
+            {% endif %}
+            <tr>
+                <td class=ci_header_type colspan="2">{{ row.callout_type_desc|upper }}</td>
+                <td class=ci_header_time colspan="2">{{ row.calltime }}</td>
+            </tr>
+		</table>
+        <hr>
+		<table class="box-table-a" border="1" width="100%">
+            <tr><td><span class="ci_header_units">UNITS RESPONDING: </span><span class="ci_header_units_list">{{ row.units }}</span></td></tr>
+            <tr><td><center><span class="ci_header_units">Call History Audit</center></td></tr>
+        </table>
+    </div>
+    {% endfor %}
+
+    {% if callout_audit_vm.callout_details_responding_list is empty %}
+    <b>NO Data.</b>
+    {% endif %}
+                
+    <div class="inner_table">
+        <table id="box-table-a" border="1" width="100%" style="margin-left:auto;margin-right:auto;text-align:left">
+        
+        {% if callout_audit_vm.callout_details_responding_cols is defined %}
+            <thead>
+             <tr>
+             {% for col_name in callout_audit_vm.callout_details_responding_cols 
+                   if col_name != 'id' and 
+                      col_name != 'calloutid' and 
+                      col_name != 'useracctid' and
+                      col_name != 'responder_location' and
+                      col_name != 'firehall_location' and 
+                      col_name != 'responder_display_status' %}
+                    <th scope="col">{{ col_name }}</th>
+             {% endfor %}
+             </tr>
+            </thead>
+
+            {% for row in callout_audit_vm.callout_details_responding_list %}
+                <tr>
+                {% for col_name in callout_audit_vm.callout_details_responding_cols 
+                    if col_name != 'id' and 
+                    col_name != 'calloutid' and 
+                    col_name != 'useracctid' and
+                    col_name != 'responder_location' and
+                    col_name != 'firehall_location' and 
+                    col_name != 'responder_display_status' %}
+
+                    {% if col_name == 'responsetime' %}
+                        <td class="column_nowrap">{{ row[col_name] }}</td>
+                    {% elseif col_name == 'latitude' or col_name == 'longitude' %}
+                        {% if row.latitude != 0.0 and row.longitude != 0.0 %}
+                        <td>
+                            <a target="_blank" 
+                                href="https://maps.google.com/maps/search/api-1&query={{ row.latitude }},{{ row.longitude }})">
+                                
+                                {{ row[col_name] }}
+                            </a>
+                        </td>
+                        {% else %}
+                        <td>{{ row[col_name] }}</td>
+                        {% endif %}
+                    {% elseif col_name == 'status' %}
+                        <td>{{ row.responder_display_status }}</td>
+                    {% elseif col_name == 'updatetime' %}
+                        <td class="column_nowrap">{{ row[col_name] }}</td>
+                    {% else %}
+                        <td>{{ row[col_name] }}</td>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+                
+            {% endfor %}
+        {% endif %}
+        
+        </table>
+    </div>
+
+
+
+    {% else %}
+    <body class="ci_body_error">
+    <h2><b>Invalid Auth. cdm1</b></h2>
+    
+    {% endif %}
+             
+    {% else %}
+    <body class="ci_body_error">
+    <h2><b>Invalid Request(1) cdm2</b></h2>
+           
+        {% endif %}
+    {% else %}
+    <body class="ci_body_error">
+    <h2><b>Invalid Request(2) cdm3</b></h2>
+    
+        <div id="error">
+            <h2>
+            <b><font color="white">ERROR loading page, identifier not found!</font></b>
+            </h2>
+        </div>
+    {% endif %}
+{% else %}
+    <body class="ci_body_error">
+    <h2><b>Invalid Request(3) cdm4</b></h2>
+    <div id="error">
+        <h2>
+        <b><font color="white">ERROR loading page, invalid identifier!</font></b>
+        </h2>
+    </div>
+{% endif %}
+
+</body>
+</html>
