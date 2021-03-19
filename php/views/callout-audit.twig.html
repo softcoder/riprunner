@@ -50,7 +50,29 @@
     {% if callout_audit_vm.callout_details_responding_list is empty %}
     <b>NO Data.</b>
     {% endif %}
-                
+
+    <script type="text/javascript">
+        function mapsSelector(callout_address_origin, callout_address_dest) {
+            if /* if we're on iOS, open in Apple Maps */
+                ((navigator.platform.indexOf("iPhone") != -1) || 
+                (navigator.platform.indexOf("iPod") != -1) || 
+                (navigator.platform.indexOf("iPad") != -1)) {
+                //window.open("maps://maps.google.com/maps?sdaddr="+callout_address_origin+",&amp;daddr="+callout_address_dest+"dirflg=d");
+                window.open("https://www.google.com/maps/dir/?api=1" +
+                            //"&origin="+callout_address_origin+
+                            "&destination="+callout_address_dest+
+                            "&travelmode=driving&dir_action=navigate");
+            }
+            else {/* else use Google */
+                //window.open("https://maps.google.com/maps?sdaddr="+callout_address_origin+",&amp;daddr="+callout_address_dest+"dirflg=d");
+                window.open("https://www.google.com/maps/dir/?api=1" +
+                            //"&origin="+callout_address_origin+
+                            "&destination="+callout_address_dest+
+                            "&travelmode=driving&dir_action=navigate");
+            }
+        }
+    </script>
+    
     <div class="inner_table">
         <table id="box-table-a" border="1" width="100%" style="margin-left:auto;margin-right:auto;text-align:left">
         
@@ -85,8 +107,7 @@
                         {% if row.latitude != 0.0 and row.longitude != 0.0 %}
                         <td>
                             <a target="_blank" 
-                                href="https://maps.google.com/maps/search/api-1&query={{ row.latitude }},{{ row.longitude }})">
-                                
+                                href="https://www.google.com/maps?q={{ row.latitude }},{{ row.longitude }})">
                                 {{ row[col_name] }}
                             </a>
                         </td>
@@ -108,8 +129,6 @@
         
         </table>
     </div>
-
-
 
     {% else %}
     <body class="ci_body_error">
