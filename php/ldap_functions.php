@@ -140,6 +140,8 @@ function login_ldap($FIREHALL, $user_id, $password) {
     			$loginResult['ldap_enabled'] 	= true;
     			$loginResult['user_access'] 	= $userAccess;
 				$loginResult['user_jwt'] 		= false;
+				$loginResult['twofa']           = false;
+				$loginResult['twofaKey']        = '';
 				$loginResult['jwt_endsession']  = \riprunner\Authentication::getJWTEndSessionKey($loginResult['user_db_id']);
 
 				if($log !== null) $log->warn("Login LDAP for user [$user_id] userid [".(($user_id_number == null) ? 'null' : $user_id_number[0])."]  firehallid [$FirehallId] endsession [".$loginResult['jwt_endsession']."]");
