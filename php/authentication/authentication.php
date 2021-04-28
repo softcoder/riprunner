@@ -716,7 +716,8 @@ class Authentication {
                         $appData['user_type']    = $userInfo->user_type;
                         $appData['login_string'] = $json_token->login_string;
                         $appData['firehall_id']  = $json_token->fhid;
-                        $appData['ldap_enabled'] = false;
+                        //$appData['ldap_enabled'] = false;
+                        $appData['ldap_enabled'] = $json_token->ldap_enabled;
                         $appData['user_access']  = $userInfo->access;
                         $appData['twofa']        = $json_token->twofa;
                         $appData['twofaKey']     = $json_token->twofaKey;
@@ -1093,7 +1094,8 @@ class Authentication {
             //$username = self::safeGetValueFromArray('user_id',$authCache)
             $firehall_id = self::safeGetValueFromArray('firehall_id',$authCache);
             	
-            $ldap_enabled = self::safeGetValueFromArray('ldap_enabled',$authCache);
+            //$ldap_enabled = self::safeGetValueFromArray('ldap_enabled',$authCache);
+            $ldap_enabled = ($this->getFirehall()->LDAP->ENABLED === true);
 
             // Get the user-agent string of the user.
             $user_browser = AuthNotification::getUserAgent();
@@ -1106,6 +1108,9 @@ class Authentication {
             if(isset($ldap_enabled) === true && $ldap_enabled === true) {
                 if($log !== null) $log->trace("LOGINCHECK using LDAP...");
                 return login_check_ldap($this->getDbConnection());
+            }
+            else {
+                if($log !== null) $log->trace("LOGINCHECK LDAP disabled...");
             }
 
             $sql = $this->getSqlStatement('login_user_password_check');
