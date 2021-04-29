@@ -710,6 +710,9 @@ class Authentication {
                     // Lookup values from DB for user
                     $userInfo = $auth->getUserInfo($json_token->fhid, $json_token->user_id);
                     if ($userInfo != null && $userInfo !== false) {
+
+                        $ldap_enabled = ($FIREHALL->LDAP->ENABLED === true);
+
                         $appData = [];
                         $appData['user_db_id']   = $json_token->iss;
                         $appData['user_id']      = $json_token->user_id;
@@ -717,7 +720,8 @@ class Authentication {
                         $appData['login_string'] = $json_token->login_string;
                         $appData['firehall_id']  = $json_token->fhid;
                         //$appData['ldap_enabled'] = false;
-                        $appData['ldap_enabled'] = $json_token->ldap_enabled;
+                        //$appData['ldap_enabled'] = $json_token->ldap_enabled;
+                        $appData['ldap_enabled'] = $ldap_enabled;
                         $appData['user_access']  = $userInfo->access;
                         $appData['twofa']        = $json_token->twofa;
                         $appData['twofaKey']     = $json_token->twofaKey;
