@@ -853,4 +853,46 @@ Units Responding: SALGRP1";
         $this->assertEquals('SHLOFF1',$callout->getUnitsResponding());
     }
 
+    public function testProcessFireHallText_EMAIL_new_email_trigger_format8_Oct2021() {
+        $realdata = "    Date:  2021-10-20 07:50:34
+        Dept:  Salmon Valley Fire
+        Type:  MVISER - MVI - Serious
+        
+        Address:  0 HART HWY, SALMON VALLEY
+        Unit:  
+        Suite:  
+        1st Cross Street:  SPONAUGLE RD, SALMON VALLEY
+        2nd Cross Street:  , QUATHIASKI COVE
+        
+        Building:  
+        Common Place Name:  
+        Pre-Incident Plan:  
+        
+        Latitude: 54.09994
+        Longitude: -122.65854
+        Google Maps Link:  http://maps.google.com/maps?z=1&t=m&q=54.0999,-122.659
+        
+        Units Responding: SALGRP1, REGGRPR1
+        
+        Message from the Prince George Fire Rescue Operational Communications Centre
+        1-888-253-9999 or 1-250-561-7289
+        .
+        ";
+
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
+
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2021-10-20 07:50:34',$callout->getDateTimeAsString());
+        $this->assertEquals('MVISER',$callout->getCode());
+        $this->assertEquals('0 HART HWY, SALMON VALLEY',$callout->getAddress());
+        $this->assertEquals('0 HART HWY, SALMON VALLEY',$callout->getAddressForMap());
+        $this->assertEquals('54.09994',$callout->getGPSLat());
+        $this->assertEquals('-122.65854',$callout->getGPSLong());
+        $this->assertEquals('SALGRP1, REGGRPR1',$callout->getUnitsResponding());
+    }
+
+
+    
 }

@@ -70,8 +70,8 @@ class APIMapsTest extends BaseDBFixture {
         }
         else {
             $this->assertEquals(2, (is_array($geo_corrds) ? count($geo_corrds) : 0));
-            $this->assertEquals('33.536476', $geo_corrds[0]);
-            $this->assertEquals('-84.36662', $geo_corrds[1]);
+            $this->assertEquals('40.647806', $geo_corrds[0]);
+            $this->assertEquals('-74.909835', $geo_corrds[1]);
         }
 
 	}
