@@ -22,6 +22,7 @@ Fire Operations Command Center. Easily adaptable to other callout trigger mechan
   Current SMS providers implemented include:
   - Twilio (twilio.com - paid account charges approx $0.0075 per SMS -> https://www.twilio.com/sms/pricing)
   - Plivo (plivo.com - paid account charges approx $0.0035 per SMS -> https://www.plivo.com/pricing/CA/#!sms)
+  - Amazon AWS SNS (paid account charges approx $0.00581 per SMS -> https://aws.amazon.com/sns/sms-pricing/)
   - Sendhub (sendhub.com)
   - EzTexting (eztexting.com)
   - TextBelt (textbelt.com -> a free service but not as reliable and not available everywhere)
