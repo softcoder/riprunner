@@ -122,7 +122,7 @@ class ConfigManager {
             $rows = $qry_bind->fetchAll(\PDO::FETCH_OBJ);
             $qry_bind->closeCursor();
             
-            if($log !== null) $log->trace("Call loadConfigValuesForFirehall SQL success for sql [$sql] row count: " . count($rows));
+            if($log !== null) $log->trace("Call loadConfigValuesForFirehall SQL success for sql [$sql] row count: " . safe_count($rows));
             
             $result = array();
             foreach($rows as $row) {
@@ -177,7 +177,7 @@ class ConfigManager {
             if($lookup_object !== null && property_exists($lookup_object, $key_parts[$index]) === true) {
                 $new_lookup_object = $lookup_object->{$key_parts[$index]};
                 $index++;
-                if($index < count($key_parts)) {
+                if($index < safe_count($key_parts)) {
                     return $this->findConfigValueInObject($key_parts, $index, $new_lookup_object);
                 }
                 else {
@@ -241,7 +241,7 @@ class ConfigManager {
                 $content .= "[".$key."]\n";
                 foreach ($elem as $key2 => $elem2) {
                     if(is_array($elem2) === true) {
-                        $elem2_count = count($elem2);
+                        $elem2_count = safe_count($elem2);
                         for($i = 0; $i < $elem2_count; $i++) {
                             if(is_bool($elem2[$i]) === true) {
                                 $content .= $key2."[] = \"". (($elem2[$i] === true) ? 'true' : 'false')."\"\n";
@@ -268,7 +268,7 @@ class ConfigManager {
         else {
             foreach ($assoc_arr as $key => $elem) {
                 if(is_array($elem) === true) {
-                    $elem_count = count($elem);
+                    $elem_count = safe_count($elem);
                     for($i = 0; $i < $elem_count; $i++) {
                         $content .= $key."[] = \"".$elem[$i]."\"\n";
                     }

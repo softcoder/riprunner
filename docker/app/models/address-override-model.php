@@ -55,7 +55,8 @@ class AddressOverrideViewModel extends BaseViewModel {
     		$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
     		$qry_bind->closeCursor();
     		
-    		if($log !== null) $log->trace("About to display address list for sql [$sql] result count: " . count($rows));
+			if($log !== null) $log->trace("About to display address list for sql [$sql] result count: " . 
+			safe_count($rows));
     				
     		$resultArray = array();
     		foreach($rows as $row) {
@@ -63,7 +64,8 @@ class AddressOverrideViewModel extends BaseViewModel {
     		}
     		$this->address_list = $resultArray;
 		}
-		if($log !== null) $log->trace("Address list count: ".count($this->address_list));
+		if($log !== null) $log->trace("Address list count: ".
+		safe_count($this->address_list));
 		return $this->address_list;
 	}
 	
@@ -82,8 +84,9 @@ class AddressOverrideViewModel extends BaseViewModel {
 	        $qry_bind->execute();
 	        $call_rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 	        $qry_bind->closeCursor();
-	        if($log !== null) $log->trace("About to retrieve callout count: " . count($call_rows));
-	        if(count($call_rows) > 0) {
+			if($log !== null) $log->trace("About to retrieve callout count: " . 
+				safe_count($call_rows));
+	        if(safe_count($call_rows) > 0) {
 	            return $call_rows[0];
 	        }
 	    }
@@ -97,7 +100,9 @@ class AddressOverrideViewModel extends BaseViewModel {
 	    $call_row = $this->getCallout();
         if($call_row != null) {
     	    $rows = $this->getAddressList($this->getGvm()->firehall);
-    	    if($log !== null) $log->trace("Checking for auto edit, searching through address list count: ".count($rows));
+			if($log !== null) $log->trace("Checking for auto edit, searching through address list count: ".
+			safe_count($rows));
+			
     	    foreach($rows as $row) {
 	            if($log !== null) $log->trace("Checking for auto edit [".$call_row['address']."] with [".$row['address']."]");
 	            if(strcasecmp($call_row['address'],$row['address']) == 0 ||
@@ -117,7 +122,9 @@ class AddressOverrideViewModel extends BaseViewModel {
 	    $call_row = $this->getCallout();
 	    if($call_row != null) {
 	        $rows = $this->getAddressList($this->getGvm()->firehall);
-	        if($log !== null) $log->trace("Checking for auto insert, searching through address list count: ".count($rows));
+			if($log !== null) $log->trace("Checking for auto insert, searching through address list count: ".
+				safe_count($rows));
+			
 	        foreach($rows as $row) {
 	            if($log !== null) $log->trace("Checking for auto insert [".$call_row['address']."] with [".$row['address']."]");
 	            if(strcasecmp($call_row['address'],$row['address']) == 0 ||
@@ -127,7 +134,7 @@ class AddressOverrideViewModel extends BaseViewModel {
                 }
 	        }
 	    }
-	    if($log !== null) $log->trace("NO MATCH for auto insert [".$call_row['address']."]");
+	    if($log !== null) $log->trace("NO MATCH for auto insert [". ($call_row != null ? $call_row['address'] : '') ."]");
 	    return $call_row;
 	}
 	

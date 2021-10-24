@@ -159,7 +159,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$row = $qry_bind->fetch(\PDO::FETCH_OBJ);
 			$qry_bind->closeCursor();
 			
-			//$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . count($row));
+			//$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got count: " . safe_count($row));
 			$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."]");
 
 			$this->useracctid = null;
@@ -183,7 +183,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 				$row_ci = $qry_bind2->fetch(\PDO::FETCH_OBJ);
 				$qry_bind2->closeCursor();
 				
-				//$result_count = count($row_ci);
+				//$result_count = safe_count($row_ci);
 
 				//$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation count: " . $result_count);
 				$log->trace("Call Response got firehall_id [". $this->getFirehallId() ."] user_id [". $this->getUserId() ."] got callout validation.");
@@ -320,6 +320,7 @@ class CalloutResponseViewModel extends BaseViewModel {
 		$qry_bind->bindParam(':eta', $eta);
 		$qry_bind->bindParam(':cid', $cid);
 		$qry_bind->bindParam(':uid', $this->useracctid);
+
 		if(($this->getUserPassword() === null && $this->getUserLat() === null && 
 			$this->getCalloutKeyId() !== null) === false) {
 			$lat = $this->getUserLat();
@@ -363,10 +364,42 @@ class CalloutResponseViewModel extends BaseViewModel {
 			$this->startTrackingResponder = true;
 			$this->isFirstResponseForUser = true;
 		}
+
+		$this->updateCallResponseAudit();
+		
 		$log->trace("Call Response END --> updateCallResponse");
 		return $response_duplicates;
 	}
 	
+	private function updateCallResponseAudit() {
+		global $log;
+		$log->trace("Call Response START --> updateCallResponseAudit");
+
+		$status = $this->getUserStatus();
+		$cid = $this->getCalloutId();
+		$eta = $this->getUserEta();
+		$lat = $this->getUserLat();
+		$long = $this->getUserLong();
+
+		// Check if there is already a response record for this user and call
+		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+		$sql_audit = $sql_statement->getSqlStatement('callout_response_audit_insert');
+		
+		$qry_bind = $this->getGvm()->RR_DB_CONN->prepare($sql_audit);
+		$qry_bind->bindParam(':cid', $cid);
+		$qry_bind->bindParam(':uid', $this->useracctid);
+		$qry_bind->bindParam(':status', $status);
+		$qry_bind->bindParam(':eta', $eta);
+		$qry_bind->bindParam(':lat', $lat);
+		$qry_bind->bindParam(':long', $long);
+
+		$qry_bind->execute();
+
+		//$this->callout_respond_id = $this->getGvm()->RR_DB_CONN->lastInsertId();
+
+		$log->trace("Call Response END --> updateCallResponseAudit");
+    }
+
 	private function getRespondResult() {
 		if(isset($this->respond_result) === false) {
 			global $log;

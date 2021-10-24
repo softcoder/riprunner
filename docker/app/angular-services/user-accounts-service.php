@@ -18,6 +18,7 @@ require_once __RIPRUNNER_ROOT__ . '/config.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/users-menu-model.php';
 require_once __RIPRUNNER_ROOT__ . '/angular-services/auth-api-controller.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 
 use Vanen\Mvc\Api;
 use Vanen\Mvc\ApiController;
@@ -73,7 +74,7 @@ class UserAccountsController extends AuthApiController {
 
     /** :POST :{method} */
     public function add_user($password1,$password2) {
-        global $log;
+		global $log;
         $user = $this->getJSonObject();
         if($log !== null) $log->trace("In add_user p1 [$password1] p2 [$password2] user: ".json_encode($user));
             
@@ -87,7 +88,7 @@ class UserAccountsController extends AuthApiController {
             return $new_pwd;
         }
 
-        $this->addUser($view_template_vars['gvm']->RR_DB_CONN, false, $user, $new_pwd);
+		$this->addUser($view_template_vars['gvm']->RR_DB_CONN, false, $user, $new_pwd);
         return $this->isXml ? [ 'Status' => 'ok' ] : 'ok';
     }
 
@@ -127,7 +128,13 @@ class UserAccountsController extends AuthApiController {
             }
         }
 
-        $this->updateAccount($view_template_vars['gvm']->RR_DB_CONN, $self_edit, $user, $new_pwd);
+		$this->updateAccount($view_template_vars['gvm']->RR_DB_CONN, $self_edit, $user, $new_pwd);
+
+		$FIREHALL = $view_template_vars['gvm']->firehall;
+		$auth = new\riprunner\Authentication($FIREHALL);
+		$auth->auditLogin($user->id, $user->user_id, \riprunner\LoginAuditType::SUCCESS_CHANGE_PASSWORD);
+		self::unlockAccount($user->id, $view_template_vars['gvm']->RR_DB_CONN);
+
         return $this->isXml ? [ 'Status' => 'ok' ] : 'ok';
     }
 
@@ -149,6 +156,7 @@ class UserAccountsController extends AuthApiController {
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
 			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 			$edit_user_active = 1;
+			$edit_user_twofa = \riprunner\Authentication::getAuthVar('twofa');
 		}
 		else {
 			$edit_firehall_id = $user->firehall_id;
@@ -157,7 +165,8 @@ class UserAccountsController extends AuthApiController {
 			$edit_sms_access = $user->access_sms;
 			$edit_respond_self_access = $user->access_respond_self;
 			$edit_respond_others_access = $user->access_respond_others;
-			$edit_user_active = $user->active;
+			$edit_user_active = ($user->active ? 1 : 0);
+			$edit_user_twofa = ($user->twofa ? 1 : 0);
 		}
 		$edit_user_id_name = $user->user_id;
 		$edit_email = (strlen($user->email) > 0 ? $user->email : '');
@@ -189,6 +198,7 @@ class UserAccountsController extends AuthApiController {
 		$qry_bind->bindParam(':email', $edit_email);
 		$qry_bind->bindParam(':user_type', $edit_user_type);
 		$qry_bind->bindParam(':active', $edit_user_active);
+		$qry_bind->bindParam(':twofa', $edit_user_twofa);
 		$qry_bind->bindParam(':mobile_phone', $edit_mobile_phone);
 		$qry_bind->bindParam(':user_pwd', $new_pwd_value);
 		$qry_bind->bindParam(':access', $new_user_access);
@@ -209,6 +219,7 @@ class UserAccountsController extends AuthApiController {
 			$edit_respond_self_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_SELF);
 			$edit_respond_others_access = \riprunner\Authentication::userHasAcess(USER_ACCESS_CALLOUT_RESPOND_OTHERS);
 			$edit_user_active = 1;
+			$edit_user_twofa = \riprunner\Authentication::getAuthVar('twofa');
 		}
 		else {
 			$edit_firehall_id = $user->firehall_id;
@@ -217,7 +228,8 @@ class UserAccountsController extends AuthApiController {
 			$edit_sms_access = $user->access_sms;
 			$edit_respond_self_access = $user->access_respond_self;
 			$edit_respond_others_access = $user->access_respond_others;
-			$edit_user_active = $user->active;
+			$edit_user_active = ($user->active ? 1 : 0);
+			$edit_user_twofa = ($user->twofa ? 1 : 0);
 		}
 		$edit_user_id_name = $user->user_id;
 		$edit_email = (strlen($user->email) > 0 ? $user->email : '');
@@ -267,6 +279,7 @@ class UserAccountsController extends AuthApiController {
 		$qry_bind->bindParam(':email', $edit_email);
 		$qry_bind->bindParam(':user_type', $edit_user_type);
 		$qry_bind->bindParam(':active', $edit_user_active);
+		$qry_bind->bindParam(':twofa', $edit_user_twofa);
 		
 		if(isset($new_pwd) === true) {
 			$qry_bind->bindParam(':user_pwd', $new_pwd);
@@ -318,7 +331,7 @@ class UserAccountsController extends AuthApiController {
 		if($log !== null) $log->trace('UPDATE user password ok');
 		return $new_pwd;
 	}
-    
+
 	private function handleDeleteAccount($db_connection, $self_edit, $edit_user_id) {
 		global $log;
         if($self_edit === false) {
@@ -338,7 +351,25 @@ class UserAccountsController extends AuthApiController {
 			}
 		}
 	}
-    
+	
+	private function unlockAccount($userDBId, $db_connection) {
+		global $log;
+		// UPDATE
+		if($userDBId >= 0) {
+			
+			$sql_statement = new \riprunner\SqlStatement($db_connection);
+			$sql = $sql_statement->getSqlStatement('user_accounts_unlock');
+
+			if($log !== null) $log->trace("About to UNLOCK user account for sql [$sql]");
+
+			$qry_bind = $db_connection->prepare($sql);
+			$qry_bind->bindParam(':id', $userDBId);
+			
+			$qry_bind->execute();
+			if($log !== null) $log->warn("UNLOCKED user account for account id [$userDBId]");
+		}
+	}
+	
 }
 $api = new Api();
 $api->handle();

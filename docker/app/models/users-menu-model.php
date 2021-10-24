@@ -46,6 +46,10 @@ class UsersMenuViewModel extends BaseViewModel {
 	}
 	
 	private function getIsSelfEditMode() {
+		$isAdmin =  \riprunner\Authentication::userHasAcess(USER_ACCESS_ADMIN);
+		if($isAdmin == false) {
+			return true;			
+		}
 		if($this->selfedit_mode == null) {
 			$this->selfedit_mode = get_query_param('se');
 			$this->selfedit_mode = (isset($this->selfedit_mode) === true && $this->selfedit_mode != null && $this->selfedit_mode == true);
@@ -62,7 +66,7 @@ class UsersMenuViewModel extends BaseViewModel {
 		// Read from the database info about this callout
 		$self_edit = $this->getIsSelfEditMode();
 		
-		$sql_statement = new \riprunner\SqlStatement($this->getGvm()->RR_DB_CONN);
+		$sql_statement = new SqlStatement($this->getGvm()->RR_DB_CONN);
 		
 		if($this->getGvm()->firehall->LDAP->ENABLED == true) {
 			create_temp_users_table_for_ldap($this->getGvm()->firehall, $this->getGvm()->RR_DB_CONN);
@@ -90,8 +94,11 @@ class UsersMenuViewModel extends BaseViewModel {
 		$rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 		$qry_bind->closeCursor();
 		
-		$log->trace("About to display user list for sql [$sql] result count: " . count($rows));
+		$log->trace("About to display user list for sql [$sql] result count: " . 
+		safe_count($rows));
 		
+		$auth = new\riprunner\Authentication($this->getGvm()->firehall);
+
 		$resultArray = array();
 		foreach($rows as $row){
 			// Add any custom fields with values here
@@ -99,8 +106,14 @@ class UsersMenuViewModel extends BaseViewModel {
 			$row['access_sms'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_SIGNAL_SMS);
 			$row['access_respond_self'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_CALLOUT_RESPOND_SELF);
 			$row['access_respond_others'] = \riprunner\Authentication::userHasAcessValueDB($row['access'], USER_ACCESS_CALLOUT_RESPOND_OTHERS);
-			
-			$resultArray[] = $row;
+			$row['active'] = ($row['active'] ? true : false);
+			$row['twofa'] = ($row['twofa'] ? true : false);
+
+			$dbId = $row['id'];
+			$bruteforceCheck = $auth->checkbrute($dbId, $this->getGvm()->firehall->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS);
+			$row['locked'] = ($bruteforceCheck['max_exceeded'] === true);
+	
+	        $resultArray[] = $row;
 		}		
 				
 		return $resultArray;
@@ -122,7 +135,8 @@ class UsersMenuViewModel extends BaseViewModel {
 	    $rows = $qry_bind->fetchAll(\PDO::FETCH_ASSOC);
 	    $qry_bind->closeCursor();
 	
-	    $log->trace("About to display user type list for sql [$sql] result count: " . count($rows));
+		$log->trace("About to display user type list for sql [$sql] result count: " . 
+		safe_count($rows));
 	
 	    $resultArray = array();
 	    foreach($rows as $row){

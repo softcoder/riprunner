@@ -118,7 +118,7 @@ class DbConnection {
     
         try {
             //echo "DB DSN [$dsn]" . PHP_EOL;
-            $localIP = getHostByName(getHostName());
+            //$localIP = getHostByName(getHostName());
             $conn_dsn = preg_replace_callback('(\$HOST-IP)', function ($m) { $m; return getHostByName(getHostName());; }, $dsn);
 
             $this->pdo = new \PDO($conn_dsn, $user, $password);
@@ -137,7 +137,7 @@ class DbConnection {
             array_push($FIREHALLS, $this->firehall);
             $root_url = getFirehallRootURLFromRequest(null, $FIREHALLS);
             
-            handle_config_error($root_url, $e);
+            \handle_config_error($root_url, $e);
             //throw new \Exception("Error connecting to the database, check system logs for more details.");
             exit;
         }

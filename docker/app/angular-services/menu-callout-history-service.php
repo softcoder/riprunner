@@ -37,7 +37,7 @@ class CalloutHistoryController extends AuthApiController {
         }
         
         $view_template_vars = array();
-        $global_vm = new \riprunner\GlobalViewModel($FIREHALLS);
+        $global_vm = new \riprunner\GlobalViewModel($FIREHALLS, $fhid);
         $view_template_vars['gvm'] = $global_vm;
         $calloutModel = new \riprunner\CalloutHistoryViewModel($global_vm, $view_template_vars);
         

@@ -26,7 +26,7 @@ try {
     }
 }
 catch(\Exception $e) {
-    handle_config_error('', $e);
+    \handle_config_error('', $e);
     return;
 }
 
@@ -71,6 +71,46 @@ require __DIR__ . '/vendor/autoload.php';
     \Flight::redirect($root_url .'/ngui/index.html'.$fhid);
 });
 
+\Flight::route('GET|POST /maprxy(/@lnk)', function ($lnk) {
+	global $FIREHALLS;
+	global $log;
+	$query = array();
+	$longUrl = 'https://maps.googleapis.com/maps/api/js?v=3.exp&alternatives=true&callback=map_initialize';
+	$firehall = getFirstActiveFireHallConfig($FIREHALLS);
+	if($firehall !== null) {
+		$longUrl .= '&key='.$firehall->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY;
+	}
+	\Flight::redirect($longUrl);
+});
+
+\Flight::route('GET|POST /mapapiprxy/*', function () {
+	global $FIREHALLS;
+	global $log;
+	$query = array();
+
+	$longUrl = 'https://maps.googleapis.com/maps/api';
+	$firehall = getFirstActiveFireHallConfig($FIREHALLS);
+
+	$prefix = '/mapapiprxy';
+	$url = \Flight::request()->url;
+	$pos = strpos($url, $prefix);
+	if($pos !== false && $pos >= 0) {
+		$url = substr($url, $pos+strlen($prefix));
+		$longUrl .= $url;
+	}
+	if($firehall !== null) {
+		if(strpos($longUrl, '?') == false) {
+			$longUrl .= '?';
+		}
+		else {
+			$longUrl .= '&';
+		}
+		$longUrl .= ('key='.$firehall->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY);
+	}
+	if($log !== null) $log->trace("Call /mapapiprxy/ longUrl [$longUrl]");
+	\Flight::redirect($longUrl);
+});
+
 \Flight::route('GET|POST /prxy(/@lnk)', function ($lnk) {
 	global $FIREHALLS;
 	global $log;
@@ -108,9 +148,10 @@ require __DIR__ . '/vendor/autoload.php';
 			$qry_bind->closeCursor();
 			\riprunner\DbConnection::disconnect_db( $db_connection );
 
-			if($log !== null) $log->trace("Call /prxy/ SQL success for sql [$sql] row count: " . count($rows));
+			if($log !== null) $log->trace("Call /prxy/ SQL success for sql [$sql] row count: " . 
+			safe_count($rows));
 			
-			if(count($rows) > 0) {
+			if(safe_count($rows) > 0) {
 				//echo 'Proxy SQL found long url [' .$rows[0]['longurl'] . ']' . PHP_EOL;
 				//print_r($rows[0]);
 				$longUrl = $rows[0]['longurl'];

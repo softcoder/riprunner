@@ -12,6 +12,8 @@ if(defined('INCLUSION_PERMITTED') === false) {
     define( 'INCLUSION_PERMITTED', true);
 }
 require_once 'config_constants.php';
+require_once 'common_functions.php';
+
 $isAuth = false;
 $FIREHALL = null;
 

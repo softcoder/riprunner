@@ -48,17 +48,32 @@ class APIMapsTest extends BaseDBFixture {
 	public function testGetGEOCoordinatesFromAddress_Valid()  {
 		$FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 		
-		$geo_corrds = getGEOCoordinatesFromAddress($FIREHALL,'9115 Salmon Valley Road, Prince George BC');
-		$this->assertEquals(2, (is_array($geo_corrds) ? count($geo_corrds) : 0));
-		$this->assertEquals('54.0873847', $geo_corrds[0]);
-		$this->assertEquals('-122.5898009', $geo_corrds[1]);
+        $geo_corrds = getGEOCoordinatesFromAddress($FIREHALL,'9115 Salmon Valley Road, Prince George BC');
+        
+        if (JWT_KEY == 'XXXXXXXXXXXXXXXX') {
+            $this->assertEquals(0, (is_array($geo_corrds) ? count($geo_corrds) : 0));
+        }
+        else {
+            $this->assertEquals(2, (is_array($geo_corrds) ? count($geo_corrds) : 0));
+            $this->assertEquals('54.0873847', $geo_corrds[0]);
+            $this->assertEquals('-122.5898009', $geo_corrds[1]);
+        }
 	}
 	
 	public function testGetGEOCoordinatesFromAddress_InValid()  {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
-	    $geo_corrds = getGEOCoordinatesFromAddress($FIREHALL,'Planet WackJob');
-	    $this->assertNull($geo_corrds);
+        $geo_corrds = getGEOCoordinatesFromAddress($FIREHALL,'Planet WackJob');
+        
+        if (JWT_KEY == 'XXXXXXXXXXXXXXXX') {
+            $this->assertNull($geo_corrds);
+        }
+        else {
+            $this->assertEquals(2, (is_array($geo_corrds) ? count($geo_corrds) : 0));
+            $this->assertEquals('40.647806', $geo_corrds[0]);
+            $this->assertEquals('-74.909835', $geo_corrds[1]);
+        }
+
 	}
 	
 }

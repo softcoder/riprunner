@@ -16,7 +16,8 @@
     </head>
     <body>
         <div class="container_center">
-        {% if gvm.auth.isAuth and (gvm.auth.isAdmin or usersmenu_vm.selfedit_mode) %} 
+        {% if gvm.auth.isAuth and 
+              (gvm.auth.isAdmin or usersmenu_vm.selfedit_mode) %} 
                 
             {% include 'user-welcome.twig.html' %}
             {% include 'live-callout-warning.twig.html' %}
@@ -31,7 +32,7 @@
                     <input type="radio" name="verticalMenu" id="main_page" />
                     <div>
                       <ul>
-                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}">Main Menu</a></li>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM|raw }}">Main Menu</a></li>
                       </ul>
                     </div>
                   </li>
@@ -53,7 +54,7 @@
                 {% include 'send-message.twig.html' %}
             {% endif %}
             
-            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}" 
+            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM|raw }}" 
                   method="post" name="user_edit_form">
    
             <center>
@@ -87,6 +88,8 @@
                     <th scope="col">Enable Responding{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_RESPOND_SELF_GROUP_FILTER }}{% endif %}</th>
                     <th scope="col">Enable Responding for others{%if gvm.firehall.LDAP.ENABLED == true and not usersmenu_vm.selfedit_mode %}<br>{{ gvm.firehall.LDAP.LDAP_LOGIN_RESPOND_OTHERS_GROUP_FILTER }}{% endif %}</th>
                     <th scope="col">User Active</th>
+                    <th scope="col">User Locked</th>
+                    <th scope="col">Two Factor Login</th>
                     <th scope="col" class="column_nowrap">Update Date/Time</th>
                     <th scope="col" colspan="2" align="Center">Modify Data</th>
                     <tr>
@@ -155,6 +158,13 @@
                     <input id="edit_user_active" name="edit_user_active" 
                            type="checkbox" checked/>
                 </td>
+                <td>
+                    no
+                </td>                
+                <td>
+                    <input id="edit_user_twofa" name="edit_user_twofa" 
+                           type="checkbox" checked/>
+                </td>
                 
                 <td class="column_nowrap">
                 </td>
@@ -164,7 +174,7 @@
                            onclick="save_user(this.form, -1);" />
                     
                     <input type="button" value="Cancel" 
-                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}{{ usersmenu_vm.selfedit_mode ? '&se=true' : '' }}'; return false;" />
+                           onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM|raw }}{{ usersmenu_vm.selfedit_mode ? '&se=true' : '' }}'; return false;" />
                 </td>
                 {% else %}
                     {% if gvm.firehall.LDAP.ENABLED %}
@@ -190,13 +200,16 @@
                     <input class="select-all" id="checkbox_select_all" name="checkbox_select_all" 
                            type="checkbox" user-id="-1" />
                 </td>
-	            {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
+	                {% if usersmenu_ctl_edit_mode is defined and usersmenu_ctl_edit_mode %}
+	                <td colspan="18">
+	                {% else %}
 	                <td colspan="16">
-	            {% else %}
-	                <td colspan="14">
-	            {% endif %}
+	                {% endif %}
 	                    <center>
-	                    <input type="button" value="Add New User" onclick="edit_user(this.form, -1);" />
+                        <input type="button" value="Add New User" onclick="edit_user(this.form, -1);" />
+                        {% if usersmenu_ctl_cache_active == true %}
+                        <input type="button" value="Force Logoff of selected users" onclick="end_user_sessions(this.form);" />
+                        {% endif %}
 	                    </center>
 	                </td>
 	            </tr>
@@ -229,7 +242,7 @@
 	            </td>
 	            
 	            <td>
-	            {% if edit_current_row %}
+                {% if edit_current_row and not usersmenu_vm.selfedit_mode %}
 	                <input id="edit_user_id_name" name="edit_user_id_name" 
 	                       type="input" value="{{ user.user_id }}"/>
 	            {% else %}
@@ -328,7 +341,86 @@
                     {{ user.active ? 'yes' : 'no' }}
                 {% endif %}
                 </td>
+                <td>
+                    {{ user.locked ? 'yes' : 'no' }}
+                    {% if user.locked and not usersmenu_vm.selfedit_mode %}
+                    <input type="button" value="Unlock" 
+	                               onclick="return unlock_user(this.form, {{ user.id }},'{{ user.user_id }}');" />
+                    {% endif %}
+                </td>
+                <td>
+                {% if edit_current_row %}
+                    <!--
+                    <div id="myModal" class="modal">
+                        <div class="modal-content" id="content" name="content">
+                        </div>
+                    </div>
+                    -->            
+                    <input id="edit_user_twofa" name="edit_user_twofa" type="checkbox" {{ user.twofa ? 'checked="checked"' : '' }} 
+                                onchange="return ShowTwoFAEnableDialog(event);"/>
 
+                    <script>
+                        function ShowTwoFAEnableDialog(event) {
+                            debugger;
+
+                            var checkbox = event.target;
+                            var url = "{{ gvm.RR_DOC_ROOT }}/controllers/2fa-enable-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM|raw }}&fhid={{ user.firehall_id }}&edit_user_id={{ user.user_id }}{{ usersmenu_vm.selfedit_mode ? '&se=true' : '' }}";
+
+                            if(checkbox.checked) {
+                                window.open (url,"2fa-enable");
+                                //document.getElementById("content").innerHTML='<object type="text/html" data='+url+'></object>';
+                                return false;
+                            }
+                            else {
+                                if(confirm('Confirm that you want to REMOVE Two Factor Authentication for user: {{ user.user_id }}?')) {
+                                    url += "&form_action=remove-otp";
+                                    window.open (url,"2fa-enable");
+                                    //document.getElementById("content").innerHTML='<object type="text/html" data='+url+'></object>';
+                                    return false;
+                                }
+                                else {
+                                    checkbox.checked = !checkbox.checked;
+                                }
+                            }
+                        }
+
+                        //debugger;
+                        // Get the modal
+                        //var modal = document.getElementById("myModal");
+
+                        // Get the button that opens the modal
+                        //var btn = document.getElementById("edit_user_twofa");
+
+                        // Get the <span> element that closes the modal
+                        //var span = document.getElementsByClassName("close")[0];
+
+                        // When the user clicks on the button, open the modal
+                        //btn.onclick = function() {
+                        //    debugger;
+                        //    modal.style.display = "block";
+                        //    ShowTwoFAEnableDialog(this.checked);
+                        //}
+
+                        // When the user clicks on <span> (x), close the modal
+                        //span.onclick = function() {
+                        //    debugger;
+                        //    modal.style.display = "none";
+                        //}
+
+                        // When the user clicks anywhere outside of the modal, close it
+                        //window.onclick = function(event) {
+                        //    debugger;
+                        //    if (event.target == modal) {
+                        //        modal.style.display = "none";
+                        //    }
+                        //}
+                    </script>
+        
+                {% else %}
+                    {{ user.twofa ? 'yes' : 'no' }}
+                {% endif %}
+                </td>
+    
 	            <td class="column_nowrap">
 	               {{ user.updatetime }}
 	            </td>
@@ -338,7 +430,7 @@
 	                       onclick="save_user(this.form, {{ user.id }});" />
 	                
 	                <input type="button" value="Cancel" 
-	                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM }}{{ usersmenu_vm.selfedit_mode ? '&se=true' : '' }}'; return false;" />
+	                       onclick="window.location.href='{{ gvm.RR_DOC_ROOT }}/controllers/users-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM|raw }}{{ usersmenu_vm.selfedit_mode ? '&se=true' : '' }}'; return false;" />
 	                </td>
 	            {% else %}
 	                {% if gvm.firehall.LDAP.ENABLED %}
@@ -364,6 +456,20 @@
             </form>
             
 <script type="text/javascript">
+
+    function end_user_sessions(form) {
+        if(selected_users != null && selected_users.length > 0) {
+            if(confirm('Confirm that you want to force the selected users to logoff?')) {
+                addformhiddenfield(form, 'form_action', 'end_session');
+                addformhiddenfield(form, 'selected_users', selected_users.join(','));
+                form.submit();
+            }
+        }
+        else {
+            alert('Please select (checkbox) one or more users!');
+        }
+    }
+
     function edit_user(form, user_id) {
        addformhiddenfield(form, 'form_action', 'edit');
        addformhiddenfield(form, 'edit_user_id', user_id);
@@ -385,8 +491,23 @@
     }
 
     function delete_user(form, user_id, user_id_name) {
-        if(confirm('Confirm DELETE for user: ' + user_id_name + '?')) {
+        if(confirm('Confirm that you want to DELETE the user: ' + user_id_name + '?')) {
             addformhiddenfield(form, 'form_action', 'delete');
+            addformhiddenfield(form, 'edit_user_id', user_id);
+            
+            {% if usersmenu_vm.selfedit_mode %}
+            addformhiddenfield(form, 'se', 'true');
+            {% endif %}
+            
+            form.submit();
+            return true;
+        }
+        return false;
+    }
+
+    function unlock_user(form, user_id, user_id_name) {
+        if(confirm('Confirm to Unlock the account for user: ' + user_id_name + '?')) {
+            addformhiddenfield(form, 'form_action', 'unlock');
             addformhiddenfield(form, 'edit_user_id', user_id);
             
             {% if usersmenu_vm.selfedit_mode %}

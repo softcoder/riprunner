@@ -226,7 +226,7 @@ class SignalManager {
                 if(isset($callKey) === false || $callKey === '') {
                     $callKey = '?';
                 }
-                	
+
                 $message = array("CALLOUT_MSG" => urlencode($smsMsg),
                             "call-id"          => urlencode($callout->getId()),
                             "call-key-id"      => urlencode($callKey),
@@ -299,13 +299,16 @@ class SignalManager {
                     $callkey_id = '?';
                 }
 
+                $statusDesc = \riprunner\CalloutStatusType::getStatusById($userStatus, $callout->getFirehall())->getDisplayName();
+
                 $message = array("CALLOUT_RESPONSE_MSG" => urlencode($smsMsg),
                                     "call-id"           => urlencode($callout->getId()),
                                     "call-key-id"       => urlencode($callout->getKeyId()),
                                     "user-id"           => urlencode($userId),
                                     "user-gps-lat"      => urlencode($callGPSLat),
                                     "user-gps-long"     => urlencode($callGPSLong),
-                                    "user-status"       => urlencode($userStatus)
+                                    "user-status"       => urlencode($userStatus),
+                                    "user-status-desc"  => urlencode($statusDesc)
                 );
 
                 $resultFCM .= $fcmInstance->send($message, getFirehallRootURLFromRequest(null, null, $callout->getFirehall()));
@@ -446,6 +449,24 @@ class SignalManager {
         return $smsMsg;
     }
 
+    public function getSMSTwoFAMessage($twofaKey,$userid,$firehall) {
+        
+        $view_template_vars = array();
+        $view_template_vars['twofaKey'] = $twofaKey;
+        $view_template_vars['userid'] = $userid;
+        $view_template_vars['firehall'] = $firehall;
+    
+        // Load our template
+        $template = $this->getTwigEnv()->resolveTemplate(
+            array('@custom/sms-twofa-msg.twig.html',
+                    'sms-twofa-msg.twig.html'
+                    
+            ));
+        // Output our template
+        $smsMsg = $template->render($view_template_vars);
+        return $smsMsg;
+    }
+
     public function signalFireHallCallout($callout) {
     	global $log;
     	if($log !== null) {
@@ -548,8 +569,8 @@ class SignalManager {
     		$units = (($callout->getUnitsResponding() !== null) ? $callout->getUnitsResponding() : "");
     		$ckid = $callout->getKeyId();
 
-            //if($log !== null) $log->warn('Callout signal cdatetime: '. $cdatetime. ' ctype: '. $ctype);
-
+            if($log !== null) $log->warn("Callout signal cdatetime: [$cdatetime] ctype: [$ctype]");
+            
     		$qry_bind = $db_connection->prepare($sql);
     		$qry_bind->bindParam(':cdatetime', $cdatetime);
     		$qry_bind->bindParam(':ctype', $ctype);
@@ -624,15 +645,15 @@ class SignalManager {
         return $result;
     }
 
-    public function sendMsg($msgContext, $gvm) {
+    public function sendMsg($msgContext, $gvm, $msg=null) {
         if($msgContext->type == 'sms') {
-            return $this->sendSMSMessage($msgContext->msg, $msgContext->users, $gvm);
+            return $this->sendSMSMessage(($msg != null ? $msg : $msgContext->msg), $msgContext->users, $gvm);
         }
         else if($msgContext->type == 'fcm') {
-            return $this->sendFCMMessage($msgContext->msg, $msgContext->users, $gvm);
+            return $this->sendFCMMessage(($msg != null ? $msg : $msgContext->msg), $msgContext->users, $gvm);
         }
         else if($msgContext->type == 'email') {
-            return $this->sendEmailMessage($msgContext->msg, $msgContext->users, $gvm);
+            return $this->sendEmailMessage(($msg != null ? $msg : $msgContext->msg), $msgContext->users, $gvm);
         }
         $result = array();
         $result['result'] = 'INVALID send type!';

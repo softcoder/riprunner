@@ -33,6 +33,8 @@ class GlobalViewModel {
 	public function __construct($firehalls, $firehall_id=null) { 
 		$this->firehalls = $firehalls;
 		$this->firehall_id = $firehall_id;
+
+		
 	}
 	
 	public function __destruct() { 
@@ -86,7 +88,10 @@ class GlobalViewModel {
 				$refreshToken = \riprunner\Authentication::getJWTRefreshToken($refreshTokenObject->sub,
 																			  $refreshTokenObject->iss,
 																			  $refreshTokenObject->fhid,
-																			  $refreshTokenObject->login_string);
+																			  $refreshTokenObject->login_string,
+																			  $refreshTokenObject->twofa,
+																			  $refreshTokenObject->twofaKey,
+																			  $refreshTokenObject->jwt_endsession);
 
 				if($log !== null) $log->trace("In RR_JWT_REFRESH_TOKEN token [$refreshToken]");
 
@@ -112,7 +117,10 @@ class GlobalViewModel {
 					$refreshToken = \riprunner\Authentication::getJWTRefreshToken($refreshTokenObject->sub,
 																				  $refreshTokenObject->iss,
 																				  $refreshTokenObject->fhid,
-																				  $refreshTokenObject->login_string);
+																				  $refreshTokenObject->login_string,
+																				  $refreshTokenObject->twofa,
+																				  $refreshTokenObject->twofaKey,
+																				  $refreshTokenObject->jwt_endsession);
 					$refreshTokenParam = \riprunner\Authentication::getJWTRefreshTokenName().'='.$refreshToken;
 
 					return $tokenParam.'&'.$refreshTokenParam;

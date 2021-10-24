@@ -75,7 +75,7 @@ class FCM {
     public function getDeviceCount() {
     	$result = 0;
     	if (isset($this->devices) === true) {
-    		$result = count($this->devices);
+    		$result = safe_count($this->devices);
     	}
     	return $result;
     }
@@ -117,7 +117,7 @@ class FCM {
 		else if(array_key_exists('CALLOUT_RESPONSE_MSG', $message)) {
 			$msgBody = [
                 'title' => 'Responder Status Updated.',
-				'body' => 'Responder: '.urldecode($message['user-id']).' is: '.urldecode($message['user-status']),
+				'body' => 'Responder: '.urldecode($message['user-id']).' is: '.urldecode($message['user-status-desc']),
 				//'image' => 'notification_icon.png',
 				'image' => $rootURL.'/images/logo.png',
 				//'image' => 'http://lorempixel.com/400/200/',
@@ -173,7 +173,7 @@ class FCM {
     	global $log;
     	
     	$resultFCM = '';
-    	if (is_array($this->devices) === false || count($this->devices) === 0) {
+    	if (is_array($this->devices) === false || safe_count($this->devices) === 0) {
     		$this->error('FCM No devices set!', 'FCM No devices set.');
 		}
 		
@@ -219,52 +219,52 @@ class FCM {
 		return $resultFCM;
     }
     
-    private function isRegisterDeviceRequired($fcm_err) {
-    	if (isset($fcm_err) === true && 
-    		($fcm_err === 'NotRegistered' || $fcm_err === 'MismatchSenderId')) {
-    		return true;
-    	}
-    	return false;
-    }
+    // private function isRegisterDeviceRequired($fcm_err) {
+    // 	if (isset($fcm_err) === true && 
+    // 		($fcm_err === 'NotRegistered' || $fcm_err === 'MismatchSenderId')) {
+    // 		return true;
+    // 	}
+    // 	return false;
+    // }
     
-    private function checkFCMResultError($index, $results) {
-		global $log;
-		if($log != null) $log->warn('Send FCM checkFCMResultError ['.$results.']');
+    // private function checkFCMResultError($index, $results) {
+	// 	global $log;
+	// 	if($log != null) $log->warn('Send FCM checkFCMResultError ['.$results.']');
 
-		if($results != null && $results == 'Error=DeprecatedEndpoint') {
-			return $results;
-		}
+	// 	if($results != null && $results == 'Error=DeprecatedEndpoint') {
+	// 		return $results;
+	// 	}
 		
-    	$json_result = json_decode($results);
-    	if (empty($json_result->results) === false) {
-    		$loop_index = 0;
-    		foreach ($json_result->results as $fcm_result) {
-    			if (isset($index) === false || $index === $loop_index) {
-    				if (isset($fcm_result->error) === true) {
-    					return $fcm_result->error;
-    				}
-    			}
-    			$loop_index++;
-    		}
-    	}
-    	return null;
-    }
+    // 	$json_result = json_decode($results);
+    // 	if (empty($json_result->results) === false) {
+    // 		$loop_index = 0;
+    // 		foreach ($json_result->results as $fcm_result) {
+    // 			if (isset($index) === false || $index === $loop_index) {
+    // 				if (isset($fcm_result->error) === true) {
+    // 					return $fcm_result->error;
+    // 				}
+    // 			}
+    // 			$loop_index++;
+    // 		}
+    // 	}
+    // 	return null;
+    // }
     
-    private function removeDevice($device_id) {
-        global $log;
+    // private function removeDevice($device_id) {
+    //     global $log;
     
-    	if (isset($this->db_connection) === true) {
-    	    $sql_statement = new \riprunner\SqlStatement($this->db_connection);
-    	    $sql = $sql_statement->getSqlStatement('devicereg_delete_by_regid');
+    // 	if (isset($this->db_connection) === true) {
+    // 	    $sql_statement = new \riprunner\SqlStatement($this->db_connection);
+    // 	    $sql = $sql_statement->getSqlStatement('devicereg_delete_by_regid');
             
-            $qry_bind = $this->db_connection->prepare($sql);
-            $qry_bind->bindParam(':reg_id', $device_id);
-            $qry_bind->execute();
+    //         $qry_bind = $this->db_connection->prepare($sql);
+    //         $qry_bind->bindParam(':reg_id', $device_id);
+    //         $qry_bind->execute();
             
-            $affected_rows = $qry_bind->rowCount();
-            if($log != null) $log->trace("Remove fcm device from DB for device [$device_id] returned count: $affected_rows");
-    	}
-    }
+    //         $affected_rows = $qry_bind->rowCount();
+    //         if($log != null) $log->trace("Remove fcm device from DB for device [$device_id] returned count: $affected_rows");
+    // 	}
+    // }
     
     private function getFCM_Devices($device_id) {
     	global $log;

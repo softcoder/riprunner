@@ -65,7 +65,7 @@ class GCM {
     public function getDeviceCount() {
     	$result = 0;
     	if (isset($this->devices) === true) {
-    		$result = count($this->devices);
+    		$result = safe_count($this->devices);
     	}
     	return $result;
     }
@@ -106,7 +106,8 @@ class GCM {
     	global $log;
     	
     	$resultGCM = '';
-    	if (is_array($this->devices) === false || count($this->devices) === 0) {
+		if (is_array($this->devices) === false || 
+		safe_count($this->devices) === 0) {
     		$this->error('GCM No devices set!', 'GCM No devices set.');
     	}
     	

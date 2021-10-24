@@ -99,10 +99,13 @@ function login_ldap($FIREHALL, $user_id, $password) {
 			$user_db_row = ldap_get_user_from_db($FIREHALL, $user_id, $FIREHALL->DB->DATABASE_CONNECTION);
 			if($user_db_row !== null && $user_db_row !== false) {
     			$info = $entries;
-    
+				$userCount = $info['count'];
+
+				if($log !== null) $log->trace("VALID LDAP Login attempt for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]".
+			                                  " entries count: $userCount values: ". print_r($info, true));
+
     			$user_id_number = null;
     			$userType = null;
-    			$userCount = $info['count'];
     			for ($i=0; $i < $userCount; $i++) {
     				if(isset($info[$i]['cn']) === true) {
     					if($log !== null) $log->trace("User: ". $info[$i]['cn'][0]);
@@ -113,17 +116,22 @@ function login_ldap($FIREHALL, $user_id, $password) {
     	
     				//if($debug_functions) var_dump($info);
     				if(isset($info[$i]['sn'])=== true) {
-    					if($log !== null) $log->trace("You are accessing ". $info[$i]['sn'][0] .", " . $info[$i]['givenname'][0]);
+    					if($log !== null) $log->trace("You are accessing ". $info[$i]['sn'][0] .", " . 
+						                              (isset($info[$i]['givenname']) ? $info[$i]['givenname'][0] : '?'));
     				}
     					
     				$userDn = $info[$i][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
-    				$user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
-    				unset($user_id_number['count']);
+
+					$user_id_number = array(-1);
+                    if (isset($info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME])=== true) {
+                        $user_id_number = $info[$i][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
+                        unset($user_id_number['count']);
+                    }
 
     				$userType = $info[$i][$FIREHALL->LDAP->LDAP_USER_TYPE_ATTR_NAME];
     				unset($userType['count']);
-    				
-    				if($log !== null) $log->trace("Distinguised name [$userDn]");
+
+    				if($log !== null) $log->trace("Distinguised name [$userDn] userType [".$userType[0]."]");
     			}
     			$userAccess = ldap_user_access($FIREHALL, $ldap, $user_id, $userDn);
     			// Password is correct!
@@ -134,12 +142,17 @@ function login_ldap($FIREHALL, $user_id, $password) {
     			
     			$loginResult['user_db_id'] 		= (($user_id_number == null) ? null : $user_id_number[0]);
 				$loginResult['user_id'] 		= $user_id;
-    			$loginResult['user_type'] 		= $userType;
+    			$loginResult['user_type'] 		= (($userType == null) ? null : $userType[0]);
     			$loginResult['login_string'] 	= hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
     			$loginResult['firehall_id'] 	= $FirehallId;
     			$loginResult['ldap_enabled'] 	= true;
     			$loginResult['user_access'] 	= $userAccess;
-    			$loginResult['user_jwt'] 		= false;
+				$loginResult['user_jwt'] 		= false;
+				$loginResult['twofa']           = false;
+				$loginResult['twofaKey']        = '';
+				$loginResult['jwt_endsession']  = \riprunner\Authentication::getJWTEndSessionKey($loginResult['user_db_id']);
+
+				if($log !== null) $log->warn("Login LDAP result for user [$user_id] userid [".(($user_id_number == null) ? 'null' : $user_id_number[0])."]  firehallid [$FirehallId] endsession [".$loginResult['jwt_endsession']."]");
     			
     			if($log !== null) $log->warn("login_ldap check request method: ".$_SERVER['REQUEST_METHOD']);
     			if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST)) {
@@ -171,13 +184,19 @@ function login_ldap($FIREHALL, $user_id, $password) {
 			    if($log !== null) $log->warn("INVALID LDAP Login, valid user but no app access, audit for user [$user_id] firehallid [$FirehallId] agent [$user_browser] client [" . \riprunner\Authentication::getClientIPInfo() . "]");			    
 			}
 		}
+		else {
+			if($log !== null) $log->trace("LDAP bind_rdn returned false.");	
+		}
+	}
+	else {
+		if($log !== null) $log->trace("LDAP search returned an empty result.");
 	}
 	return $loginResult;
 }
 
 function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
-	global $log;$loginResult = [];
-
+	global $log;
+	
 	if($FIREHALL->LDAP->ENABLED_CACHE == true) {
 		$cache_key_lookup = "RIPRUNNER_LDAP_USER_ACCESS_" . $FIREHALL->FIREHALL_ID . ((isset($user_id) === true) ? $user_id : "") . ((isset($userDn) === true) ? $userDn : "");
 		$cache = \riprunner\CacheProxy::getInstance();
@@ -223,10 +242,15 @@ function ldap_user_access($FIREHALL, $ldap, $user_id, $userDn) {
 function ldap_user_access_attribute($ldap, $FIREHALL, $search_filter, $user_id, $userDn, $userAccess, $searchAccessValue, $userAccessTagName) {
     global $log;
     // Check if user has admin access
+	if($log !== null) $log->trace("ldap_user_access_attribute tag: [$userAccessTagName] search: [$search_filter] user_id [$user_id], userDn [$userDn], userAccess [$userAccess], searchAccessValue [$searchAccessValue]");
+	
 	$result = $ldap->search($FIREHALL->LDAP->LDAP_BASEDN, $search_filter, $FIREHALL->LDAP->LDAP_USER_SORT_ATTR_NAME);
 
 	if($log !== null) $log->trace("$userAccessTagName Group results:");
 	//var_dump($result);
+	if($log !== null) $log->trace("Group search result list [". print_r($result, true) . "] ". 
+	                              "group member attr: [".$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME."] ".
+								  "user name attr: [".$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME."]");
 
 	//$info = $result;
 
@@ -448,6 +472,8 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 		if(isset($info[$i])  === true &&
 			isset($info[$i][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME]) === true) {
 
+			if($log !== null) $log->trace("Found LDAP_USER_NAME_ATTR_NAME.");
+
 			$username = $info[$i][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME];
 			unset($username['count']);
 
@@ -486,12 +512,16 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 		}
 		else if(isset($info[$i])  === true &&
 			isset($info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME]) === true) {
-			 
+			
+			if($log !== null) $log->trace("Found LDAP_GROUP_MEMBER_OF_ATTR_NAME.");
+
 			$members = $info[$i][$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME];
 			unset($members['count']);
+
+			if($log !== null) $log->trace("Found LDAP_GROUP_MEMBER_OF_ATTR_NAME count: ". count($members));
 			 
 			foreach($members as $member) {
-				if($log !== null) $log->trace("group has member [$member]");
+				if($log !== null) $log->trace("group has member #1 [$member]");
 				
 				$original_member = $member;
 				$member = extractDelimitedValueFromString($original_member, "/uid=(.*?),/m", 1);
@@ -502,6 +532,8 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 					$member = $original_member;
 				}
 				
+				if($log !== null) $log->trace("group has member #2 [$member] loginfiler [". $FIREHALL->LDAP->LDAP_LOGIN_FILTER . "]");
+
 				$user_filter = str_replace( '${login}', $member, $FIREHALL->LDAP->LDAP_LOGIN_FILTER );
 				if($log !== null) $log->trace("filter [$user_filter]");
 				
@@ -511,6 +543,8 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 					$users_list = $result;
 					unset($users_list['count']);
 
+					if($log !== null) $log->trace("Group search has result [". print_r($users_list[0], true) . "]");
+
 					if(isset($users_list[0]) === true &&
 						isset($users_list[0][$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME]) === true) {
 					
@@ -519,8 +553,11 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 
 						$userDn = $users_list[0][$FIREHALL->LDAP->LDAP_USER_DN_ATTR_NAME];
 					
-						$user_id_number = $users_list[0][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
-						unset($user_id_number['count']);
+						$user_id_number = array(-1);
+                        if (isset($users_list[0][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME]) === true) {
+                            $user_id_number = $users_list[0][$FIREHALL->LDAP->LDAP_USER_ID_ATTR_NAME];
+                            unset($user_id_number['count']);
+                        }
 					
 						$userType = null;
 						if(!empty($users_list[0][$FIREHALL->LDAP->LDAP_USER_TYPE_ATTR_NAME])) {
@@ -536,6 +573,9 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 					
 						$userAccess = ldap_user_access($FIREHALL, $ldap, $username[0], $userDn);
 						$userType = (empty($userType) ? null : $userType[0]);
+
+						if($log !== null) $log->trace("filter QUERY uid[".$user_id_number[0]."] user_id [".$username[0].
+						                              "] user_type [$userType] mobile_phone [".$sms_value[0]."] access [$userAccess]");
 
 						$qry_bind = $db_connection->prepare($sql);
 						$qry_bind->bindParam(':uid', $user_id_number[0]);
@@ -553,6 +593,11 @@ function populateLDAPUsers($FIREHALL, $ldap, $db_connection, $filter) {
 					if($log !== null) $log->trace("Group search has no results.");
 				}
 			}
+		}
+		else {
+            if ($log !== null) {
+                $log->trace("LDAP did not match any group access attributes [".$FIREHALL->LDAP->LDAP_USER_NAME_ATTR_NAME."] [".$FIREHALL->LDAP->LDAP_GROUP_MEMBER_OF_ATTR_NAME."] : " . print_r($info[$i], true));
+            }
 		}
 	}
 }

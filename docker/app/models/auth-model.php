@@ -59,6 +59,14 @@ class AuthViewModel extends BaseViewModel {
 		if($this->getGvm() === null) {
 			throw new \Exception("Invalid null gvm var reference.");
 		}
+
+        try {
+            \riprunner\Authentication::getJWTToken();
+        }
+		catch (\Firebase\JWT\ExpiredException | \UnexpectedValueException $e) {
+			return false;
+        }
+
 		if($this->getAuthEntity()->is_session_started() === false) {
 		    return false;
 		}

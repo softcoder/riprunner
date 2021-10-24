@@ -13,6 +13,19 @@ if(defined('INCLUSION_PERMITTED') === false) {
 require_once dirname(dirname(__FILE__)).'/baseDBFixture.php';
 require_once __RIPRUNNER_ROOT__ . '/authentication/authentication.php';
 require_once __RIPRUNNER_ROOT__ . '/authentication/login.php';
+require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
+require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
+
+use \OTPHP\TOTP;
+
+class SignalManagerMock extends \riprunner\SignalManager {
+	public function sendMsg($msgContext, $gvm, $msg=null) {
+        $result = array();
+        $result['result'] = 'MOCK send type!';
+        $result['status'] = 'MOCK send type!';
+        return $result;
+    }
+}
 
 class LoginTest extends BaseDBFixture {
 	
@@ -32,7 +45,7 @@ class LoginTest extends BaseDBFixture {
 		$user_id = 'mark.vejvoda';
 		$password = 'test123';
 
-		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL),new SignalManagerMock());
 		$login_result = $auth->login($user_id, $password);
 		$this->assertEquals($user_id, $login_result['user_id']);
 	}
@@ -41,7 +54,7 @@ class LoginTest extends BaseDBFixture {
 	    $user_id = 'bad.user';
 	    $password = 'bad password';
 	
-	    $auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+	    $auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL),new SignalManagerMock());
 	    $login_result = $auth->login($user_id, $password);
 	    $this->assertEmpty($login_result);
 	}
@@ -51,7 +64,7 @@ class LoginTest extends BaseDBFixture {
 	    $user_id = 'mark.vejvoda';
 	    $password = 'bad password';
 	
-	    $auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL));
+	    $auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL),new SignalManagerMock());
 	    $login_result = $auth->login($user_id, $password);
 	    
 	    $this->assertEmpty($login_result);
@@ -61,11 +74,33 @@ class LoginTest extends BaseDBFixture {
 
 		$FIREHALLS = $this->FIREHALLS;
 
+		$FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+
+		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL),new SignalManagerMock());
+
+		$loginResult = array();
+		$loginResult['firehall_id'] = 0;
+		$loginResult['user_db_id'] = 1;
+		$loginResult['user_id'] = 'mark.vejvoda';
+		$loginResult['user_type'] = '1';
+		$loginResult['login_string'] = 'Unit Test NON JSON';
+		$loginResult['twofa'] = '1';
+		$loginResult['twofaKey'] = '';
+		$loginResult['jwt_endsession'] = '';
+
+		$userRole = $auth->getCurrentUserRoleJSon($loginResult);
+		$jwt = $auth->getJWTAccessToken($loginResult, $userRole);
+
+		$otp = TOTP::create('3H5TL223MRL5AUQNK3GYDHFKI2QWKCVA7AFZLY6MEKVPU2JP6GCA');
+		$twofaKey = $otp->now();
+
 		$request_variables = [
 			'SESSIONLESS_LOGIN' => true,
 			'firehall_id' => 0,
 			'user_id' => 'mark.vejvoda',
-			'p' => 'test123',
+			'p' => $twofaKey,
+			'twofa_key' => '1',
+			\riprunner\Authentication::getJWTTokenName() => $jwt
 		];
 
 		$server_variables = [
@@ -81,11 +116,65 @@ class LoginTest extends BaseDBFixture {
 			$FIREHALLS,
 			(isset($request_variables) ? $request_variables : null),
 			(isset($server_variables) ? $server_variables : null),
-			(isset($header_callback) ? $header_callback : null)
+			(isset($header_callback) ? $header_callback : null),
+			null,null,
+			new SignalManagerMock()
 			);
 		$processLogin->execute();
 		
 	    $this->assertContains('Location: controllers/main-menu-controller.php?JWT_TOKEN=', $assertHeader);
+	}
+
+	public function testValidLoginRequires2FA() {
+
+		$FIREHALLS = $this->FIREHALLS;
+
+		$FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+
+		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL),new SignalManagerMock());
+
+		$loginResult = array();
+		$loginResult['firehall_id'] = 0;
+		$loginResult['user_db_id'] = 1;
+		$loginResult['user_id'] = 'mark.vejvoda';
+		$loginResult['user_type'] = '1';
+		$loginResult['login_string'] = 'Unit Test';
+		$loginResult['twofa'] = '1';
+		$loginResult['twofaKey'] = '';
+		$loginResult['jwt_endsession'] = '';
+
+		$userRole = $auth->getCurrentUserRoleJSon($loginResult);
+		$jwt = $auth->getJWTAccessToken($loginResult, $userRole);
+
+		$request_variables = [
+			'SESSIONLESS_LOGIN' => true,
+			'firehall_id' => 0,
+			'user_id' => 'mark.vejvoda',
+			'p' => 'test123',
+			'twofa_key' => '',
+			\riprunner\Authentication::getJWTTokenName() => $jwt
+		];
+
+		$server_variables = [
+			'REQUEST_METHOD' => 'GET'
+		];
+		
+		$assertHeader = '';
+		$header_callback = function($header) use (&$assertHeader) { 
+			$assertHeader = $header;
+		};
+		
+		$processLogin = new \riprunner\ProcessLogin(
+			$FIREHALLS,
+			(isset($request_variables) ? $request_variables : null),
+			(isset($server_variables) ? $server_variables : null),
+			(isset($header_callback) ? $header_callback : null),
+			null,null,
+			new SignalManagerMock()
+			);
+		$processLogin->execute();
+		
+	    $this->assertContains('Location: controllers/2fa-controller.php?JWT_TOKEN=', $assertHeader);
 	}
 
 	public function testInValidLogin_fhid() {
@@ -114,7 +203,8 @@ class LoginTest extends BaseDBFixture {
 			(isset($server_variables) ? $server_variables : null),
 			(isset($header_callback) ? $header_callback : null),
 			(isset($print_callback) ? $print_callback : null),
-			(isset($getfile_callback) ? $getfile_callback : null)
+			(isset($getfile_callback) ? $getfile_callback : null),
+			new SignalManagerMock()
 			);
 		$processLogin->execute();
 		
@@ -147,7 +237,8 @@ class LoginTest extends BaseDBFixture {
 			(isset($server_variables) ? $server_variables : null),
 			(isset($header_callback) ? $header_callback : null),
 			(isset($print_callback) ? $print_callback : null),
-			(isset($getfile_callback) ? $getfile_callback : null)
+			(isset($getfile_callback) ? $getfile_callback : null),
+			new SignalManagerMock()
 			);
 		$processLogin->execute();
 		
@@ -158,8 +249,25 @@ class LoginTest extends BaseDBFixture {
 
 		$FIREHALLS = $this->FIREHALLS;
 
+		$FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+		$auth = new \riprunner\Authentication($FIREHALL,$this->getDBConnection($FIREHALL),new SignalManagerMock());
+
+		$loginResult = array();
+		$loginResult['firehall_id'] = 0;
+		$loginResult['user_db_id'] = 1;
+		$loginResult['user_id'] = 'mark.vejvoda';
+		$loginResult['user_type'] = '1';
+		$loginResult['login_string'] = 'Unit Test';
+		$loginResult['twofa'] = '1';
+		$loginResult['twofaKey'] = '';
+		$loginResult['jwt_endsession'] = '';
+
+		$userRole = $auth->getCurrentUserRoleJSon($loginResult);
+		$jwt = $auth->getJWTAccessToken($loginResult, $userRole);
+
 		$request_variables = [
 			'SESSIONLESS_LOGIN' => true,
+			\riprunner\Authentication::getJWTTokenName() => $jwt
 		];
 
 		$server_variables = [
@@ -179,10 +287,14 @@ class LoginTest extends BaseDBFixture {
 		$assertURL = '';
 		$getfile_callback = function($url) use (&$assertURL) { 
 			$assertURL = $url;
+			$otp = TOTP::create('3H5TL223MRL5AUQNK3GYDHFKI2QWKCVA7AFZLY6MEKVPU2JP6GCA');
+			$twofaKey = $otp->now();
+	
 			return json_encode([
 				'fhid' => '0',
 				'username' => 'mark.vejvoda',
-				'p' => base64_encode('test123'),
+				'p' => $twofaKey,
+				'twofaKey' => '1'
 			]);
 		};
 		
@@ -193,7 +305,8 @@ class LoginTest extends BaseDBFixture {
 			(isset($server_variables) ? $server_variables : null),
 			(isset($header_callback) ? $header_callback : null),
 			(isset($print_callback) ? $print_callback : null),
-			(isset($getfile_callback) ? $getfile_callback : null)
+			(isset($getfile_callback) ? $getfile_callback : null),
+			new SignalManagerMock()
 			);
 		$processLogin->execute();
 		
@@ -231,6 +344,7 @@ class LoginTest extends BaseDBFixture {
 				'fhid' => '0',
 				'username' => 'mark.vejvodaX',
 				'p' => base64_encode('test123'),
+				'twofaKey' => ''
 			]);
 		};
 		
@@ -241,7 +355,8 @@ class LoginTest extends BaseDBFixture {
 			(isset($server_variables) ? $server_variables : null),
 			(isset($header_callback) ? $header_callback : null),
 			(isset($print_callback) ? $print_callback : null),
-			(isset($getfile_callback) ? $getfile_callback : null)
+			(isset($getfile_callback) ? $getfile_callback : null),
+			new SignalManagerMock()
 			);
 		$processLogin->execute();
 		
@@ -250,4 +365,33 @@ class LoginTest extends BaseDBFixture {
 		$this->assertEquals('', $assertText);
 	}
 
+	public function testJSONSecrets() {
+		$result = \riprunner\Authentication::getJWTSecrets();
+
+		$this->assertGreaterThanOrEqual(5, count($result));
+		$this->assertGreaterThanOrEqual(340, strlen($result[0]->k));
+		$this->assertEquals('HS512', $result[0]->alg);
+		$this->assertGreaterThanOrEqual(340, strlen($result[3]->k));
+		$this->assertEquals('HS512', $result[3]->alg);
+	}
+
+	public function testJSONRandomSecret() {
+		$timeNow = \riprunner\Authentication::getCurrentTimeWithHourResolution();
+		$result = \riprunner\Authentication::getRandomJWTSecret($timeNow);
+
+		$this->assertNotEmpty($result->kid);
+		$this->assertGreaterThanOrEqual(340, strlen($result->k));
+		$this->assertEquals('HS512', $result->alg);
+	}
+
+	public function testRotatingSecret() {
+		foreach([ 1,2,3 ] as $index) {
+			$hour = \riprunner\Authentication::getCurrentTimeWithHourResolution();
+			$pasthour = \riprunner\Authentication::getCurrentTimeWithPreviousHourResolution();
+			$maxElapsedAllowed = $hour - $pasthour;
+			//print(PHP_EOL.'index: '.$index.' maxElapsedAllowed: '.$maxElapsedAllowed.' Current hour: '.$hour.' Past hour: '.$pasthour);
+			$this->assertLessThanOrEqual(1 * 60 * 60, $maxElapsedAllowed);
+			sleep(1);
+		}
+	}	
 }

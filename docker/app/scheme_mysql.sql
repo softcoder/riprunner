@@ -53,6 +53,8 @@ CREATE TABLE  IF NOT EXISTS `user_accounts` (
 `mobile_phone` varchar(25) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
 `access` INT( 11 ) NOT NULL DEFAULT 0,
 `active` BOOLEAN NOT NULL DEFAULT 1,
+`twofa` INT( 11 ) NOT NULL DEFAULT 0,
+`twofa_key` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
 `email`  varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
 `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE = INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -112,6 +114,27 @@ CREATE TABLE IF NOT EXISTS `callouts_info` (
   `effective_date` datetime DEFAULT NULL,
   `expiration_date` datetime DEFAULT NULL,
   `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `login_audit` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `useracctid` INT(11) NULL,
+  `username` varchar(255) COLLATE utf8_unicode_ci NULL,
+  `status` INT(11) NOT NULL,
+  `login_agent` varchar(255) COLLATE utf8_unicode_ci NULL,
+  `login_ip` varchar(100) COLLATE utf8_unicode_ci NULL,
+  `updatetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `callouts_response_audit` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `calloutid` int(11) NOT NULL,
+  `useracctid` int(11) NOT NULL,
+  `responsetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `latitude` DECIMAL(10,6) DEFAULT NULL,  
+  `longitude` DECIMAL(10,6) DEFAULT NULL,
+  `eta` int(11),
+  `status` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);

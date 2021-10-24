@@ -117,43 +117,6 @@ class LiveCalloutController extends AuthApiController {
         $callouts['callout_status_defs'] = array_values($calloutModel->__get('callout_status_defs'));
 
         return $this->isXml ? [ 'LiveCallouts' => $callouts ] : $callouts;
-/*        
-        $FIREHALL = $calloutModel->__get('firehall');
-        $calloutDetails = $calloutModel->__get('callout_details_list');
-        $callouts = array();
-        $callouts['details'] = null;
-        if(count($calloutDetails) > 0) {
-            $callouts['details'] = $calloutDetails[0];
-            $callouts['details']['latitude'] = floatval($callouts['details']['latitude']);
-            $callouts['details']['longitude'] = floatval($callouts['details']['longitude']);
-        }
-        $callouts['firehall_id'] = $calloutModel->__get('firehall_id');
-        $callouts['member_id'] = $calloutModel->__get('member_id');
-        $callouts['member_type'] = $calloutModel->__get('member_type');
-        $callouts['member_access'] = $calloutModel->__get('member_access');
-        $callouts['member_access_respond_self'] = $calloutModel->__get('member_access_respond_self');
-        $callouts['member_access_respond_others'] = $calloutModel->__get('member_access_respond_others');
-        $callouts['callout_responding_user_id'] = $calloutModel->__get('callout_responding_user_id');
-        $callouts['callout_details_responding_list'] = $calloutModel->__get('callout_details_responding_list');
-        $callouts['callout_details_not_responding_list'] = $calloutModel->__get('callout_details_not_responding_list');
-        $callouts['callout_details_end_responding_list'] = $calloutModel->__get('callout_details_end_responding_list');
-        $callouts['google_map_type'] = $calloutModel->__get('google_map_type');
-        $callouts['MAP_REFRESH_TIMER'] = $calloutModel->__get('MAP_REFRESH_TIMER');
-        $callouts['ALLOW_CALLOUT_UPDATES_AFTER_FINISHED'] = $calloutModel->__get('ALLOW_CALLOUT_UPDATES_AFTER_FINISHED');
-
-        $callouts['firehall_latitude'] = $FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LATITUDE;
-        $callouts['firehall_longitude'] = $FIREHALL->WEBSITE->FIREHALL_GEO_COORD_LONGITUDE;
-        
-        //$callouts['map_callout_geo_dest'] = $calloutModel->__get('map_callout_geo_dest');
-        //$callouts['map_callout_address_dest'] = $calloutModel->__get('map_callout_address_dest');
-        //$callouts['map_fh_geo_lat'] = $calloutModel->__get('map_fh_geo_lat');
-        //$callouts['map_fh_geo_long'] = $calloutModel->__get('map_fh_geo_long');
-        //$callouts['map_webroot'] = $calloutModel->__get('map_webroot');
-        $callouts['isCalloutAuth'] = $calloutModel->__get('isCalloutAuth');
-        $callouts['callout_status_defs'] = array_values($calloutModel->__get('callout_status_defs'));
-
-        return $this->isXml ? [ 'CalloutDetails' => $callouts ] : $callouts;
-*/        
     }
 }
 $api = new Api();

@@ -22,9 +22,20 @@ require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
 require_once __RIPRUNNER_ROOT__ . '/functions.php';
 require_once __RIPRUNNER_ROOT__ . '/logging.php';
 require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
-require_once __RIPRUNNER_ROOT__ . '/signals/signal_manager.php';
+require_once __RIPRUNNER_ROOT__ . '/authentication/auth-notification.php';
+require_once __RIPRUNNER_ROOT__ . '/cache/cache-proxy.php';
 
 use \Firebase\JWT\JWT;
+
+abstract class LoginAuditType extends BasicEnum {
+    const SUCCESS_PASSWORD          = 0;
+    const SUCCESS_TWOFA             = 1;
+    const SUCCESS_CHANGE_PASSWORD   = 10;
+    const INVALID_USERNAME          = 100;
+    const INVALID_PASSWORD          = 101;
+    const INVALID_TWOFA             = 102;
+    const ACCOUNT_LOCKED            = 103;
+}
 
 class Authentication {
 
@@ -33,22 +44,32 @@ class Authentication {
     private $sql_statement = null;
     private $GET_FILE_CONTENTS_FUNC;
 	private $request_variables;
-	private $server_variables;
-    
+    private $server_variables;
+    private $auth_notification;
+    static private $enable_cache = true;
+    private $twig_env = null;
+
     /*
     	Constructor
     	@param $db_firehall the firehall
-    	@param $db_connection the db connection
+        @param $db_connection the db connection
+        @param $sm the signal manager to use
     */
-    public function __construct($firehall,$db_connection=null) {
+    public function __construct($firehall,$db_connection=null,$sm=null) {
         $this->firehall = $firehall;
         if($this->firehall !== null && $db_connection === null) {
-            $db = new \riprunner\DbConnection($this->firehall);
+            $db = new DbConnection($this->firehall);
             $this->db_connection = $db->getConnection();
         }
         else {
             $this->db_connection = $db_connection;
         }
+
+        $this->auth_notification = new AuthNotification($firehall,$db_connection,$sm);
+    }
+
+    static public function setEnableCache($caching) {
+        self::$enable_cache = $caching;
     }
 
     public function setFileContentsFunc($func) {
@@ -59,6 +80,13 @@ class Authentication {
     }
     public function setServerVars($vars) {
         $this->server_variables = $vars;
+    }
+    public function setSignalManager($sm) {
+        $this->auth_notification->setSignalManager($sm);
+    }
+
+    public function sendSMSTwoFAMessage($twofaKey, $userDBid, $userid, $firehall) {
+        $this->auth_notification->sendSMSTwoFAMessage($twofaKey, $userDBid, $userid, $firehall);
     }
 
 	private function file_get_contents(string $url) {
@@ -87,9 +115,11 @@ class Authentication {
 
         // setcookie(self::getJWTTokenName(), $jwt, null, '/', null, null, true);
     }
+
     static public function is_session_started() {
         return (isset($_SESSION) === true);
     }
+
     static public function sec_session_start() {
         self::sec_session_start_ext(null);
     }
@@ -100,7 +130,7 @@ class Authentication {
         $ses_already_started = self::is_session_started();
         if ($ses_already_started === false) {
             $session_name = 'sec_session_id';   // Set a custom session name
-            $config = new \riprunner\ConfigManager();
+            $config = new ConfigManager();
             $secure = $config->getSystemConfigValue('SECURE');
             
             // This stops JavaScript being able to access the session id.
@@ -139,31 +169,16 @@ class Authentication {
     }
     
     static public function getClientIPInfo() {
-        $ip_address = '';
-        if (empty(getServerVar('HTTP_CLIENT_IP')) === false) {
-            $ip_address .= 'HTTP_CLIENT_IP: '.htmlspecialchars(getServerVar('HTTP_CLIENT_IP'));
-        }
-        if (empty(getServerVar('HTTP_X_FORWARDED_FOR')) === false) {
-            if (empty($ip_address) === false) {
-                $ip_address .= ' ';
-            }
-            $ip_address .= 'HTTP_X_FORWARDED_FOR: '.htmlspecialchars(getServerVar('HTTP_X_FORWARDED_FOR'));
-        }
-        if (empty(getServerVar('REMOTE_ADDR')) === false) {
-            if (empty($ip_address) === false) {
-                $ip_address .= ' ';
-            }
-            $ip_address .= 'REMOTE_ADDR: '.htmlspecialchars(getServerVar('REMOTE_ADDR'));
-        }
-        return $ip_address;
+        return AuthNotification::getClientIPInfo();
     }
-    
-    private function getUserInfo($fhid,$user_id) {
+
+    public function getUserInfo($fhid, $user_id) {
         global $log;
-    
+
+        //if($log !== null) $log->warn("getUserInfo START for user [$user_id] fhid [" . $fhid . "] client [" . AuthNotification::getClientIPInfo() . "]");
+
         if($this->hasDbConnection() == false) {
-            if($log !== null) $log->warn("NO DB CONNECTION during type check for user [$user_id] fhid [" .
-                    $fhid . "] client [" . self::getClientIPInfo() . "]");
+            if($log !== null) $log->warn("NO DB CONNECTION during type check for user [$user_id] fhid [" . $fhid . "] client [" . AuthNotification::getClientIPInfo() . "]");
             return null;
         }
         if($this->getFirehall()->LDAP->ENABLED === true) {
@@ -173,6 +188,9 @@ class Authentication {
         else {
             $sql = $this->getSqlStatement('login_user_check');
         }
+
+        //if($log !== null) $log->warn("BEFORE Type check for user [$user_id] fhid [" . $fhid . "] client [" . AuthNotification::getClientIPInfo() . "] sql: $sql");
+
         $stmt = $this->getDbConnection()->prepare($sql);
         if ($stmt !== false) {
             $stmt->bindParam(':id', $user_id);  // Bind "$user_id" to parameter.
@@ -183,9 +201,10 @@ class Authentication {
             $row = $stmt->fetch(\PDO::FETCH_OBJ);
             $stmt->closeCursor();
         
-            if($log !== null) $log->trace("Type check for user [$user_id] fhid [" .
-                    $fhid . "] result: ". $row->id ."client [" . self::getClientIPInfo() . "]");
-            return $row;
+            if($log !== null) $log->trace("AFTER Type check for user [$user_id] fhid [" . $fhid . "] result: ". ($row != null && $row != false ? $row->id : -1) ."client [" . AuthNotification::getClientIPInfo() . "]");
+            if($row != null && $row != false) {
+                return $row;
+            }
         }
         return null;
     }
@@ -197,8 +216,7 @@ class Authentication {
         $userInfo = $this->getUserInfo($fhid,$user_id);
         if($userInfo != null && $userInfo !== false) {
             $userAccess = $userInfo->access;
-            if($log !== null) $log->trace("Access check for user [$user_id] fhid [" .
-                            $fhid . "] result: ". $userAccess ."client [" . self::getClientIPInfo() . "]");
+            if($log !== null) $log->trace("Access check for user [$user_id] fhid [" . $fhid . "] result: ". $userAccess ."client [" . AuthNotification::getClientIPInfo() . "]");
         }
         return $userAccess;
     }
@@ -211,7 +229,7 @@ class Authentication {
         if($userInfo != null && $userInfo !== false) {
             $userType = $userInfo->user_type;
             if($log !== null) $log->trace("Type check for user [$user_id] fhid [" .
-                    $fhid . "] result: ". $userType ."client [" . self::getClientIPInfo() . "]");
+                    $fhid . "] result: ". $userType ."client [" . AuthNotification::getClientIPInfo() . "]");
         }
         return $userType;
     }
@@ -233,37 +251,146 @@ class Authentication {
 		return $jsonObject;
 	}
 
-    private function getLoginSuccessResult($successContext) {
+    public function update_twofa($user_id, $twofaType, $twofaKey) {
         global $log;
-        $config = new \riprunner\ConfigManager();
-        if($config->getSystemConfigValue('ENABLE_AUDITING') === true) {
-            if($log !== null) $log->warn('*LOGIN AUDIT* for user ['.$successContext['userId'].'] userid ['.$successContext['dbId'].
-                                         '] firehallid ['.$successContext['FirehallId'].'] agent ['.$successContext['user_browser'].
-                                         '] client ['.self::getClientIPInfo().'] isAngularClient: '.var_export($successContext['isAngularClient'],true));
+        if ($log !== null) {
+            $log->trace("Login attempt for user [$user_id] fhid [" .
+                                      $this->getFirehall()->FIREHALL_ID . "] 2fa type: $twofaType : [$twofaKey] client [" .
+                                      AuthNotification::getClientIPInfo() . "]");
         }
+        
+        $sql = $this->getSqlStatement('user_accounts_update_twofa');
+        //echo "update_twofa sql: $sql" . PHP_EOL;
+        $stmt = $this->getDbConnection()->prepare($sql);
+        if ($stmt !== false) {
+            $stmt->bindParam(':user_id', $user_id);
+            $stmt->bindParam(':twofa',   $twofaType);
+            $stmt->bindParam(':twofa_key', $twofaKey);
+            $stmt->execute();
+        }
+    }
+    public function get_twofa($user_id) {
+        global $log;
+        if($log !== null) $log->trace("get_twofa attempt for user [$user_id] fhid [" . 
+                                      $this->getFirehall()->FIREHALL_ID . "] client [" . 
+                                      AuthNotification::getClientIPInfo() . "]");
+        if($log !== null) $log->trace("get_twofa check request method: ".$this->getServerVar('REQUEST_METHOD'));
 
-        $loginResult = [];
-        $loginResult['user_db_id']      = $successContext['dbId'];
-        $loginResult['user_id']         = $successContext['userId'];
-        $loginResult['user_type']       = $successContext['userType'];
-        $loginResult['login_string']    = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $successContext['userPwd'] . $successContext['user_browser']);
-        $loginResult['firehall_id']     = $successContext['FirehallId'];
-        $loginResult['ldap_enabled']    = $successContext['ldap_enabled'];
-        $loginResult['user_access']     = $successContext['userAccess'];
-        $loginResult['user_jwt']        = $successContext['isAngularClient'];
+        $twofaKey = '';
+        $isAngularClient = false;
+        $jsonObject = $this->getJSONLogin($this->getServerVar('REQUEST_METHOD'));
+        if($jsonObject != null) {
+            $isAngularClient = true;
+            //$password = \base64_decode($password);
+        }
+        if($log !== null) $log->trace("get_twofa check isAngularClient: ".$isAngularClient);
+        
+        //if($this->getFirehall()->LDAP->ENABLED === true) {
+        //    return login_ldap($this->getFirehall(), $user_id, $password);
+        //}
+    
+        $sql = $this->getSqlStatement('login_user_check');
+        $stmt = $this->getDbConnection()->prepare($sql);
+        if ($stmt !== false) {
+            $stmt->bindParam(':id', $user_id);
+            $stmt->bindParam(':fhid', $this->getFirehall()->FIREHALL_ID);
+            $stmt->execute();
+
+            $row = $stmt->fetch(\PDO::FETCH_OBJ);
+            $stmt->closeCursor();
+
+            if ($row !== null && $row !== false) {
+                $twofaKeyDB = $row->twofa_key;
+
+                $twofaKey = \riprunner\Authentication::decryptData($twofaKeyDB, JWT_KEY);
+                if($log !== null) $log->trace("get_twofa RESULT user_id: $user_id twofaKeyDB: [$twofaKeyDB] twofaKey: [$twofaKey]");
+            }
+        }
+        return $twofaKey;
+    }
+
+    private function verifyDevice($user_id, $userDBId) {
+        $ip = AuthNotification::getClientIPInfo();
+        $userAgent = AuthNotification::getUserAgent();
+        $this->auth_notification->verifyDevice($user_id,$userDBId,$ip,$userAgent);
+    }
+
+    public function verifyNewTwoFA($requestSecret, $requestTwofaKey) {
+        $otp = \OTPHP\TOTP::create($requestSecret);
+        return $otp->verify($requestTwofaKey);
+    }
+
+    public function verifyTwoFA($isAngularClient, $user_id, $dbId, $requestTwofaKey) {
+        global $log;
+        $validTwoFAKey = true;
+
+        if($log !== null) $log->trace("AUTH verifyTwoFA START for user: $user_id");
+        // // If the user exists we check if the account is locked from too many login attempts
+        $bruteforceCheck = $this->checkbrute($dbId, $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS);
+        if ($bruteforceCheck['max_exceeded'] === true) {
+            // Account is locked TODO: send an email to user saying their account is locked
+            self::auditLogin($dbId, $user_id, LoginAuditType::ACCOUNT_LOCKED);
+            $fhid = $this->getFirehall()->FIREHALL_ID;
+            $loginErrorMsg = "Warning: The following account has been locked due to maximum invalid login attempts for firehall: $fhid user account: $user_id attempts: ".$bruteforceCheck['count'];
+            if($log !== null) $log->error("AUTH LOGIN-F1 msg: $loginErrorMsg");
+
+            $validTwoFAKey = false;
+        }
+        else {
+            $userTwoFASecret = $this->get_twofa($user_id);
+            $valid2FA = $this->verifyNewTwoFA($userTwoFASecret, $requestTwofaKey);
+            
+            if($log !== null) $log->trace("AUTH verifyTwoFA verifyNewTwoFA for user: $user_id result: $valid2FA");
+
+            if ($valid2FA == false) {
+                // Login failed wrong 2fa key
+                $validTwoFAKey = false;
+                self::auditLogin($dbId, $user_id, LoginAuditType::INVALID_TWOFA);
+                // 2FA is not correct we record this attempt in the database
+                if ($log !== null) $log->error("Login attempt for user [$user_id] userid [$dbId] FAILED pwd check userTwoFASecret: [$userTwoFASecret] requestTwofaKey [$requestTwofaKey] for client [" . AuthNotification::getClientIPInfo() . "]");
+                                    
+                $sql = $this->getSqlStatement('login_brute_force_insert');
+                    
+                $qry_bind = $this->getDbConnection()->prepare($sql);
+                $qry_bind->bindParam(':uid', $dbId);
+                $qry_bind->execute();
+
+                if ($log !== null) $log->error('AUTH Login FAILED 2FA check requestTwofaKey ['.$requestTwofaKey.'] bruteforce: '.$bruteforceCheck['count']);
                 
-        // Ensure status are cached
-        \riprunner\CalloutStatusType::getStatusList($this->getFirehall());
-        if($log !== null) $log->trace('Login OK pwd check pwdHash ['.$successContext['pwdHash'].'] $userPwd ['.$successContext['userPwd'].']');
-        // Login successful.
-        return $loginResult;
+                if ($this->auth_notification->notifyUsersAccountLocked($isAngularClient, $bruteforceCheck, $user_id, $dbId) == true) {
+                    self::auditLogin($dbId, $user_id, LoginAuditType::ACCOUNT_LOCKED);
+                }
+            }
+            else {
+                self::auditLogin($dbId, $user_id, LoginAuditType::SUCCESS_TWOFA);
+            }
+        }
+        return $validTwoFAKey;
+    }
+
+    public function auditLogin($userDbId, $userName, $status) {
+        global $log;
+
+        $ip = AuthNotification::getClientIPInfo();
+        $userAgent = AuthNotification::getUserAgent();
+        if($log !== null) $log->trace("Login audit for user [$userDbId] name [$userName] status [$status] for client [$ip] agent [$userAgent]");
+        
+        $sql = $this->getSqlStatement('login_audit_insert');
+        
+        $qry_bind = $this->getDbConnection()->prepare($sql);
+        $qry_bind->bindParam(':useracctid', $userDbId);
+        $qry_bind->bindParam(':username', $userName);
+        $qry_bind->bindParam(':status', $status);
+        $qry_bind->bindParam(':login_agent', $userAgent);
+        $qry_bind->bindParam(':login_ip', $ip);
+        $qry_bind->execute();
     }
 
     public function login($user_id, $password) {
         global $log;
         if($log !== null) $log->trace("Login attempt for user [$user_id] fhid [" . 
                                       $this->getFirehall()->FIREHALL_ID . "] client [" . 
-                                      self::getClientIPInfo() . "]");
+                                      AuthNotification::getClientIPInfo() . "]");
         if($log !== null) $log->trace("Login check request method: ".$this->getServerVar('REQUEST_METHOD'));
 
         $isAngularClient = false;
@@ -274,6 +401,20 @@ class Authentication {
         }
         if($log !== null) $log->trace("Login check isAngularClient: ".$isAngularClient);
         
+        // If the user exists we check if the client is blocked from too many login attempts
+        $ip = AuthNotification::getClientIPInfo();
+        $maxAttemptsByIPAllowed = $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS * 3;
+        $bruteforceCheckByIP = $this->checkbruteByIP($ip, $maxAttemptsByIPAllowed);
+        if ($bruteforceCheckByIP['max_exceeded'] === true) {
+            // Account is blocked by IP Address
+            $fhid = $this->getFirehall()->FIREHALL_ID;
+            $loginErrorMsg = "Warning: The following Client has been blocked due to maximum invalid login attempts by IP Address for firehall: $fhid user account: $user_id IP: $ip attempts: ".$bruteforceCheckByIP['count'];
+            if($log !== null) $log->error("LOGIN checkbruteByIP blocked login msg: $loginErrorMsg");
+
+            @session_destroy();
+            return [];
+        }
+
         if($this->getFirehall()->LDAP->ENABLED === true) {
             return login_ldap($this->getFirehall(), $user_id, $password);
         }
@@ -290,7 +431,7 @@ class Authentication {
 
             if($row !== null && $row !== false) {
                 $dbId = $row->id;
-    
+
                 // If the user exists we check if the account is locked from too many login attempts
                 $bruteforceCheck = $this->checkbrute($dbId, $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS);
                 if ($bruteforceCheck['max_exceeded'] === true) {
@@ -302,31 +443,17 @@ class Authentication {
                 else {
                     $pwdHash = crypt($password, $row->user_pwd);
                     if ($pwdHash === $row->user_pwd ) {
-                        // Password is correct! Get the user-agent string of the user.
-                        $user_browser = 'UNKNOWN user agent.';
-                        if(getServerVar('HTTP_USER_AGENT') != null) {
-                            $user_browser = htmlspecialchars(getServerVar('HTTP_USER_AGENT'));
-                        }
-                         
-                        $successContext = [];
-                        $successContext['dbId']             = $dbId;
-                        $successContext['FirehallId']       = $row->firehall_id;
-                        $successContext['userId']           = $row->user_id;
-                        $successContext['userPwd']          = $row->user_pwd;
-                        $successContext['userAccess']       = $row->access;
-                        $successContext['userType']         = $row->user_type;
-                        $successContext['password']         = $password;
-                        $successContext['user_browser']     = $user_browser;
-                        $successContext['ldap_enabled']     = false;
-                        $successContext['isAngularClient']  = $isAngularClient;
-                        $successContext['pwdHash']          = $pwdHash;
-                                                                        
+                        // Password is correct!
+                        self::verifyDevice($user_id, $dbId);
+                        self::auditLogin($dbId, $row->user_id, LoginAuditType::SUCCESS_PASSWORD);
+
                         // Login successful.
-                        return $this->getLoginSuccessResult($successContext);
+                        return $this->auth_notification->getLoginResult($isAngularClient, $user_id, $row);
                     }
 
                     // Password is not correct we record this attempt in the database
-                    if($log !== null) $log->error("Login attempt for user [$row->user_id] userid [$dbId] FAILED pwd check for client [" . self::getClientIPInfo() . "]");
+                    self::auditLogin($dbId, $row->user_id, LoginAuditType::INVALID_PASSWORD);
+                    if($log !== null) $log->error("Login attempt for user [$row->user_id] userid [$dbId] FAILED pwd check for client [" . AuthNotification::getClientIPInfo() . "]");
                         
                     $sql = $this->getSqlStatement('login_brute_force_insert');
                         
@@ -336,93 +463,20 @@ class Authentication {
 
                     if($log !== null) $log->error('Login FAILED pwd check pwdHash ['.$pwdHash.'] $userPwd ['.$row->user_pwd.'] bruteforce: '.$bruteforceCheck['count']);
 
-                    $this->notifyUsersAccountLocked($bruteforceCheck, $user_id, $dbId);
+                    if($this->auth_notification->notifyUsersAccountLocked($isAngularClient, $bruteforceCheck, $user_id, $dbId) == true) {
+                        self::auditLogin($dbId, $user_id, LoginAuditType::ACCOUNT_LOCKED);
+                    }
                 }
             }
             else {
                 // No user exists.
-                if($log !== null) $log->warn("Login attempt for user [$user_id] FAILED uid check for client [" . self::getClientIPInfo() . "]");
+                self::auditLogin(-1, $user_id, LoginAuditType::INVALID_USERNAME);
+                if($log !== null) $log->warn("Login attempt for user [$user_id] FAILED uid check for client [" . AuthNotification::getClientIPInfo() . "]");
                 if($log !== null) $log->trace("LOGIN-F3");
             }
         }
         @session_destroy();
         return [];
-    }
-
-    private function getAdminUsers() {
-        //global $log;
-
-        $users = [];
-        $sql = $this->getSqlStatement('users_admin_list');
-        $stmt = $this->getDbConnection()->prepare($sql);
-        if ($stmt !== false) {
-            $adminAccessFlag = USER_ACCESS_ADMIN;
-            $stmt->bindParam(':admin_access', $adminAccessFlag);
-            $stmt->bindParam(':fhid', $this->getFirehall()->FIREHALL_ID);
-            $stmt->execute();
-
-            $rows = $stmt->fetchAll(\PDO::FETCH_CLASS);
-            $stmt->closeCursor();
-
-            if ($rows !== null && $rows !== false) {
-                foreach ($rows as $row) {
-                    //if($log !== null) $log->error("getAdminUsers user record: ".print_r($row,TRUE));
-                    $users[] = $row;
-                }
-            }
-        }
-        return $users;
-    }
-
-    private function notifyUsersAccountLocked($bruteforceCheck, $user_id, $dbId) {
-        global $log;
-
-        if ($bruteforceCheck['count'] == $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS) {
-            $fhid = $this->getFirehall()->FIREHALL_ID;
-            $loginErrorMsg = "Security Warning: The following account has been locked due to exceeding the maximum invalid login attempts, firehall: $fhid user account: $user_id attempts: ".($bruteforceCheck['count']+1);
-            if($log !== null) $log->error("LOGIN-F2 msg: $loginErrorMsg");
-
-            $notifyUsers = [];
-            // Notify the user themself of the hack attempt
-            array_push($notifyUsers,$dbId);
-            // Notify the admin users of the hack attempt
-            $adminUsers = $this->getAdminUsers();
-            if ($adminUsers != null && count($adminUsers) > 0) {
-                foreach ($adminUsers as $adminUser) {
-                    //if($log !== null) $log->error("LOGIN-F2 admin: ".print_r($adminUser,TRUE));
-                    if (in_array($adminUser->id, $notifyUsers) == false) {
-                        array_push($notifyUsers, $adminUser->id);
-                    }
-                }
-            }
-            $this->notifyUsers($fhid, $notifyUsers, $loginErrorMsg);
-        }
-    }
-
-    private function notifyUsers($fhid, $users, $msg) {
-        global $log;
-        global $FIREHALLS;
-
-        $jsonUsers = json_encode($users);
-        if ($log !== null)  $log->warn("Notifying users: ".$jsonUsers);
-
-        $gvm = new \riprunner\GlobalViewModel($FIREHALLS, $fhid);
-        $signalManager = new \riprunner\SignalManager();
-
-        // Email the message to users
-        $context = "{\"type\": \"email\",\"msg\":  \"$msg\",\"users\": $jsonUsers }";
-        $msgContext = json_decode($context);
-        $notifyResult = $signalManager->sendMsg($msgContext, $gvm);
-
-        if ($log !== null) {
-            $log->trace("Notified user of account status: ".print_r($notifyResult, true));
-        }
-        // SMS the message to users
-        $context = "{\"type\": \"sms\",\"msg\":  \"$msg\",\"users\": $jsonUsers }";
-        $msgContext = json_decode($context);
-        $notifyResult = $signalManager->sendMsg($msgContext, $gvm);
-
-        if ($log !== null)  $log->trace("Notified user of account status: ".print_r($notifyResult, true));
     }
 
     private function getServerVar($key) {
@@ -438,6 +492,11 @@ class Authentication {
         $token['acl'] 		    = $acl;
         $token['fhid'] 		    = $firehall_id;
         $token['uid'] 		    = '';
+        if (array_key_exists('twofa', $appData)) {
+            $token['twofa']         = $appData['twofa'];
+            $token['twofaKey']      = $appData['twofaKey'];
+        }
+        $token['jwt_endsession']  = $appData['jwt_endsession'];
         return $token;
     }
 
@@ -449,6 +508,126 @@ class Authentication {
         return $token;
     }
 
+    static private function getJWTSecretForTime($timeWithHourResolution) {
+        global $log;
+
+        $jwtSecret = null;
+        $secrets = self::getJWTSecrets();
+        $keyCount = safe_count($secrets);
+        if($secrets != null && $keyCount > 0) {
+            //$keyIndex = random_int(0, $keyCount-1);
+            $rotateEveryXHours = (int)(24 / $keyCount);
+            $keyIndex = (($timeWithHourResolution / 60 / 60) % $rotateEveryXHours);
+            if($keyIndex >= $keyCount) {
+                $keyIndex = 0;
+            }
+            $jwtSecret = $secrets[$keyIndex];
+        }
+        else {
+            $context = "{ \"jwt_keys\": [ { \"kty\": \"oct\", \"use\": \"enc\", \"kid\": \"riprunner\", \"k\": \"".JWT_KEY."\", \"alg\": \"HS256\" } ] }";
+            $jwtSecret = json_decode($context);
+            //echo "MV JSON JWT: " .print_r($jwtSecret,TRUE).PHP_EOL;
+        }
+        if($log) $log->trace("In getRandomJWTSecret jwtSecret: ".print_r($jwtSecret,TRUE));
+        return $jwtSecret;
+    }
+
+    static public function getRandomJWTSecret($timeWithHourResolution) {
+        global $log;
+
+        $jwtSecret = self::getJWTSecretForTime($timeWithHourResolution);
+        if($log) $log->trace("In getRandomJWTSecret jwtSecret: ".print_r($jwtSecret,TRUE));
+        return $jwtSecret;
+    }
+
+    static public function getJWTSecrets() {
+        global $log;
+
+        $configFile = __RIPRUNNER_ROOT__ . '/secrets/config-secrets.json';
+        $json = file_get_contents($configFile);
+        $jsonObject = json_decode($json);
+        if(json_last_error() != JSON_ERROR_NONE) {
+            $jsonObject = null;
+        }
+        if($log) $log->trace("In getJWTSecrets configFile: $configFile json: ".$json);
+
+        if($jsonObject != null) {
+            return $jsonObject->jwt_keys;
+        }
+        return [];
+    }
+
+    static private function getUniqueJWTALGFromList($secrets) {
+        $algorithList = [];
+        foreach ($secrets as $secret) {
+            if(in_array($secret->alg,$algorithList) == false) {
+                $algorithList[] = $secret->alg;
+            }
+        }
+        return $algorithList;
+    }
+
+    static private function getJWTKeyIdLookupList() {
+        $lookupList = [];
+
+        $timeNow = self::getCurrentTimeWithHourResolution();
+        $secret = self::getJWTSecretForTime($timeNow);
+        $keyIdNow  = $secret->kid;
+        $keyNow    = $secret->k;
+        $lookupList[$keyIdNow] = $keyNow;
+
+        $timePast = self::getCurrentTimeWithPreviousHourResolution();
+        $secretPast = self::getJWTSecretForTime($timePast);
+        $keyIdPast  = $secretPast->kid;
+        $keyPast    = $secretPast->k;
+        $lookupList[$keyIdPast] = $keyPast;
+
+        return $lookupList;
+    }
+
+    // return our current unix time in millis
+    static private function currentTimeSeconds() {
+        return time();
+    }
+    static public function getCurrentTimeWithHourResolution() {
+        // Convert to the current hour, removing current minutes and seconds
+        $currentTime = (int)(self::currentTimeSeconds() / 60 / 60) * 60 * 60;
+        return $currentTime;
+    }
+    static public function getCurrentTimeWithPreviousHourResolution() {
+        // Convert to the previous hour, removing minutes and seconds
+        $currentTime = self::getCurrentTimeWithHourResolution() - (60 * 60);
+        return $currentTime;
+    }
+
+    static public function encodeJWT($token) {
+        global $log;
+
+        $timeNow = self::getCurrentTimeWithHourResolution();
+        $secret = self::getRandomJWTSecret($timeNow);
+        $keyIdNow  = $secret->kid;
+        $keyNow    = $secret->k;
+
+        $jwt = JWT::encode($token, $keyNow, $secret->alg, $keyIdNow);
+        if($log) $log->trace("In encodeJWT token: ".print_r($token,TRUE)." kid: $keyIdNow alg: $secret->alg ket: $keyNow jwt: $jwt");
+
+        return $jwt;
+    }
+
+    static public function decodeJWT($token) {
+        global $log;
+
+        $secrets = self::getJWTSecrets();
+        $alg = self::getUniqueJWTALGFromList($secrets);
+        $keyList = self::getJWTKeyIdLookupList();
+        if($log) $log->trace("In decodeJWT token: $token keylist: ".print_r($keyList,TRUE));
+
+        $jwt = JWT::decode($token, $keyList, $alg);
+        if($log) $log->trace("In decodeJWT token: $token jwt: ".print_r($jwt,TRUE));
+
+        return $jwt;
+    }
+
     static public function getJWTAccessToken($loginResult, $userRole) {
         $issuedAt = time();
         $expireIn5Minutes = $issuedAt + (60 * 5);
@@ -456,11 +635,11 @@ class Authentication {
         $fhid = $loginResult['firehall_id'];
         $token = self::applyJWTPayload($fhid, $loginResult, $userRole);
         $token = self::applyJWTRegisteredClaims($token, $loginResult, $issuedAt, $expireIn5Minutes);
-        $jwt = JWT::encode($token, JWT_KEY);
+        $jwt = self::encodeJWT($token);
         return $jwt;
     }
 
-    static public function getJWTRefreshToken($userId, $userDbId, $firehallId, $loginString) {
+    static public function getJWTRefreshToken($userId, $userDbId, $firehallId, $loginString, $twofa, $twofaKey, $jwt_endsession) {
         $issuedAt = time();
         $expireIn30Minutes = $issuedAt + (60 * 30);
 
@@ -468,13 +647,20 @@ class Authentication {
         $appData['user_db_id']   = $userDbId;
         $appData['user_id']      = $userId;
         $appData['login_string'] = $loginString;
-        
+        $appData['twofa']        = $twofa;
+        $appData['twofaKey']     = $twofaKey;
+        $appData['jwt_endsession'] = $jwt_endsession;
+                
         $token = [];
         $token['user_id']      = $userId;
         $token['fhid']         = $firehallId;
         $token['login_string'] = $loginString;
+        $token['twofa']        = $twofa;
+        $token['twofaKey']     = $twofaKey;
+        $token['jwt_endsession'] = $jwt_endsession;
+
         $token = self::applyJWTRegisteredClaims($token, $appData, $issuedAt, $expireIn30Minutes);
-        $jwt = JWT::encode($token, JWT_KEY);
+        $jwt = self::encodeJWT($token);
         return $jwt;
     }
 
@@ -487,7 +673,7 @@ class Authentication {
         $refreshTokenObject = null;
         if ($refreshToken != null && strlen($refreshToken)) {
             try {
-                $refreshTokenObject = JWT::decode($refreshToken, JWT_KEY, array('HS256'));
+                $refreshTokenObject = self::decodeJWT($refreshToken);
                 if ($log !== null) $log->trace("getRefreshTokenObject check token decode [$refreshToken]");
                 
                 if ($refreshTokenObject == false) {
@@ -495,8 +681,9 @@ class Authentication {
                     $refreshTokenObject = null;
                 }
             } 
-            catch (\Firebase\JWT\ExpiredException $e) {
-                if ($log !== null)  $log->warn("In getRefreshTokenObject token expired [$refreshToken] error: ".$e->getMessage());
+            catch (\Firebase\JWT\ExpiredException | \UnexpectedValueException $e) {
+                if ($log !== null)  $log->warn("In getRefreshTokenObject problem refreshToken [$refreshToken] error: ".$e->getMessage());
+                self::logTokenErrorDetails(null, $refreshToken, $e);
                 $refreshTokenObject = null;
             }
         }
@@ -511,7 +698,7 @@ class Authentication {
 
         try {
             if($refreshToken !== null && strlen($refreshToken)) {
-                $json_token = JWT::decode($refreshToken, JWT_KEY, array('HS256'));
+                $json_token = self::decodeJWT($refreshToken);
                 if ($log !== null) $log->trace("getNewJWTTokenFromRefreshToken check token decode [$refreshToken]");
                 
                 if ($json_token == null || $json_token == false) {
@@ -523,15 +710,23 @@ class Authentication {
                     // Lookup values from DB for user
                     $userInfo = $auth->getUserInfo($json_token->fhid, $json_token->user_id);
                     if ($userInfo != null && $userInfo !== false) {
+
+                        $ldap_enabled = ($FIREHALL->LDAP->ENABLED === true);
+
                         $appData = [];
                         $appData['user_db_id']   = $json_token->iss;
                         $appData['user_id']      = $json_token->user_id;
                         $appData['user_type']    = $userInfo->user_type;
                         $appData['login_string'] = $json_token->login_string;
                         $appData['firehall_id']  = $json_token->fhid;
-                        $appData['ldap_enabled'] = false;
+                        //$appData['ldap_enabled'] = false;
+                        //$appData['ldap_enabled'] = $json_token->ldap_enabled;
+                        $appData['ldap_enabled'] = $ldap_enabled;
                         $appData['user_access']  = $userInfo->access;
+                        $appData['twofa']        = $json_token->twofa;
+                        $appData['twofaKey']     = $json_token->twofaKey;
                         $appData['user_jwt']     = true;
+                        $appData['jwt_endsession'] = $json_token->jwt_endsession;
 
                         $userRole = $auth->getCurrentUserRoleJSon($appData);
                         $token = self::getJWTAccessToken($appData, $userRole);
@@ -539,7 +734,15 @@ class Authentication {
                             $log->trace("REFRESH TOKEN: getNewJWTTokenFromRefreshToken NEW token [$token]");
                         }
 
-                        $refreshToken = self::getJWTRefreshToken($appData['user_id'], $appData['user_db_id'], $appData['firehall_id'], $appData['login_string']);
+                        $refreshToken = self::getJWTRefreshToken(
+                            $appData['user_id'], 
+                            $appData['user_db_id'], 
+                            $appData['firehall_id'], 
+                            $appData['login_string'],
+                            $appData['twofa'],
+                            $appData['twofaKey'],
+                            $appData['jwt_endsession']
+                        );
                         if ($log !== null) {
                             $log->trace("REFRESH TOKEN: getNewJWTTokenFromRefreshToken NEW refreshtoken [$refreshToken]");
                         }
@@ -551,18 +754,34 @@ class Authentication {
                 }
             }
         }
-        catch(\Firebase\JWT\ExpiredException $e) {
-            if ($log !== null) $log->warn("In getNewJWTTokenFromRefreshToken token expired [$token] refreshToken [$refreshToken] error: ".$e->getMessage());
+        catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
+            $timeNow = self::getCurrentTimeWithHourResolution();
+            $timePast = self::getCurrentTimeWithPreviousHourResolution();
+    
+            if ($log !== null) $log->warn("In getNewJWTTokenFromRefreshToken problem token [$token] refreshToken [$refreshToken] timeNow: $timeNow timePast: $timePast error: ".$e->getMessage());
+            self::logTokenErrorDetails($token, $refreshToken, $e);
             $token = null;
         }
         return [ $token, $refreshToken ];
+    }
+
+    static private function logTokenErrorDetails($token, $refreshToken, $e) {
+        global $log;
+
+        if($e instanceof \UnexpectedValueException) {
+            $currentToken = self::getCurrentJWTToken();
+            //$secrets = self::getJWTSecrets();
+            //$alg = self::getUniqueJWTALGFromList($secrets);
+            $keyList = self::getJWTKeyIdLookupList();
+            if($log) $log->warn("In logTokenErrorDetails token: $token [$currentToken] refreshToken: $refreshToken keylist: ".print_r($keyList,TRUE));
+        }
     }
 
     static private function getRefreshJWTTokenIfRequired($token, $refreshToken) {
         global $log;
 
         try {
-            $json_token = JWT::decode($token, JWT_KEY, array('HS256'));
+            $json_token = self::decodeJWT($token);
             if ($log !== null) $log->trace("getRefreshJWTTokenIfRequired check token decode [" . $token. "]");
             
             if ($json_token == null || $json_token == false) {
@@ -575,22 +794,40 @@ class Authentication {
                          array(  'role' => $loginResult['user_role'], 
                                  'access' => $loginResult['user_access']),
                                  JSON_FORCE_OBJECT);
-                $jwt = \riprunner\Authentication::getJWTAccessToken($loginResult, $userRole);
-                $jwtRefresh = \riprunner\Authentication::getJWTRefreshToken($loginResult['user_id'], $loginResult['user_db_id'], $loginResult['firehall_id'], $loginResult['login_string']);
+                $jwt = Authentication::getJWTAccessToken($loginResult, $userRole);
+                $jwtRefresh = Authentication::getJWTRefreshToken(
+                    $loginResult['user_id'], 
+                    $loginResult['user_db_id'], 
+                    $loginResult['firehall_id'], 
+                    $loginResult['login_string'],
+                    $loginResult['twofa'],
+                    $loginResult['twofaKey'],
+                    $loginResult['jwt_endsession']
+                );
 
                 $token = $jwt;
                 $refreshToken = $jwtRefresh;
             }
         }
-        catch(\Firebase\JWT\ExpiredException $e) {
-            if ($log !== null) $log->trace("In getRefreshJWTTokenIfRequired token expired [$token] error: ".$e->getMessage());
+        catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
+            if ($log !== null) $log->trace("In getRefreshJWTTokenIfRequired problem token [$token] error: ".$e->getMessage());
             $newTokens = self::getNewJWTTokenFromRefreshToken($refreshToken);
-            if ($newTokens != null && count($newTokens) == 2) {
+            if ($newTokens != null && safe_count($newTokens) == 2) {
                 $token = $newTokens[0];
                 $refreshToken = $newTokens[1];
             }
+            else {
+                if ($log !== null) $log->warn("In getRefreshJWTTokenIfRequired #2 problem token [$token] error: ".$e->getMessage());
+                self::logTokenErrorDetails($token, $refreshToken, $e);
+                $token = null;
+                $refreshToken = null;
+            }
         }
         return [ $token, $refreshToken ];
+    }
+
+    static public function getJWTTokenEndSessionName() {
+        return 'JWT_END_TOKEN';
     }
 
     static public function getJWTTokenName() {
@@ -634,6 +871,33 @@ class Authentication {
             if($log !== null) $log->trace("getCurrentJWTToken #3 check cookie var token [$token]");
         }
 
+        //if ($log !== null)  $log->warn("getCurrentJWTToken #4 check request var token [$token]");
+
+        // Here we check if we need to force end the current user session
+        if($token != null && strlen($token) > 0) {
+            try {
+                $json_token = self::decodeJWT($token);
+                $jwtEndSessionKey = self::getJWTEndSessionKey($json_token->iss);
+
+                if ($jwtEndSessionKey != $json_token->jwt_endsession) {
+                    if ($log !== null) {
+                        $log->trace("getCurrentJWTToken #5 check request var token [$token] tokenEndSession [$jwtEndSessionKey] json_token->jwt_endsession [$json_token->jwt_endsession]");
+                    }
+                    $token = null;
+                } 
+                elseif ($jwtEndSessionKey != null && strlen($jwtEndSessionKey) > 0) {
+                    if ($log !== null) {
+                        $log->trace("getCurrentJWTToken #6 check request var token [$token] tokenEndSession [$jwtEndSessionKey] json_token->jwt_endsession [$json_token->jwt_endsession]");
+                    }
+                }
+            }
+            catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
+                if ($log !== null) {
+                    $log->trace("In getCurrentJWTToken #7 problem token [$token] error: ".$e->getMessage());
+                }
+            }
+        }
+
         return $token;
     }
 
@@ -669,7 +933,7 @@ class Authentication {
             if($refreshIfRequired == true) {
                 $refreshToken = self::getCurrentJWTRefreshToken($request_variables, $server_variables);
                 $tokens = self::getRefreshJWTTokenIfRequired($token, $refreshToken);
-                if($tokens != null && count($tokens) == 2) {
+                if($tokens != null && safe_count($tokens) == 2) {
                     $token = $tokens[0];
                     $refreshToken = $tokens[1];
                 }
@@ -694,10 +958,14 @@ class Authentication {
             if($refreshTokenObject != null) {
                 if($log !== null) $log->trace("In deployJWTTokenHeaders Refresh Token [".json_encode($refreshTokenObject)."].");
 
-                $refreshToken = self::getJWTRefreshToken($refreshTokenObject->sub,
-                                                            $refreshTokenObject->iss,
-                                                            $refreshTokenObject->fhid,
-                                                            $refreshTokenObject->login_string);
+                $refreshToken = self::getJWTRefreshToken(
+                    $refreshTokenObject->sub,
+                    $refreshTokenObject->iss,
+                    $refreshTokenObject->fhid,
+                    $refreshTokenObject->login_string,
+                    $refreshTokenObject->twofa,
+                    $refreshTokenObject->twofaKey,
+                    $refreshTokenObject->jwt_endsession);
 
                 header(self::getJWTTokenName().': '.$token);
                 header(self::getJWTRefreshTokenName().': '.$refreshToken);
@@ -711,7 +979,7 @@ class Authentication {
         $token = self::getCurrentJWTToken($request_variables, $server_variables);
         if($token != null && strlen($token)) {
             try {
-                $token = JWT::decode($token, JWT_KEY, array('HS256'));
+                $token = self::decodeJWT($token);
                 if ($log !== null) $log->trace("decodeJWTToken check token decode [" . json_encode($token). "]");
                 
                 if ($token == false) {
@@ -720,16 +988,21 @@ class Authentication {
                 }
                 return $token;
             }
-            catch(\Firebase\JWT\ExpiredException $e) {
-                if ($log !== null) $log->trace("In decodeJWTToken token expired [$token] error: ".$e->getMessage());
+            catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
+                if ($log !== null) $log->trace("In decodeJWTToken problem token [$token] error: ".$e->getMessage());
 
                 $refreshToken = self::getCurrentJWTRefreshToken();
+                
                 $newTokens = self::getNewJWTTokenFromRefreshToken($refreshToken);
-                if ($newTokens != null && count($newTokens) == 2 && $newTokens[0] != null && strlen($newTokens[0])) {
+                if ($newTokens != null && safe_count($newTokens) == 2 && 
+                    $newTokens[0] != null && strlen($newTokens[0])) {
                     if ($log !== null) $log->trace("In decodeJWTToken new token [$newTokens[0]]");
 
-                    $token = JWT::decode($newTokens[0], JWT_KEY, array('HS256'));
+                    $token = self::decodeJWT($newTokens[0]);
                     return $token;
+                }
+                else {
+                    self::logTokenErrorDetails($token, $refreshToken, $e);
                 }
             }
         }
@@ -737,7 +1010,6 @@ class Authentication {
     }
 
     static private function getJWTAuthCacheFromTokenObject($token) {
-        global $log;
         $authCache = [];
 
         if ($token != null) {
@@ -752,17 +1024,17 @@ class Authentication {
             $authCache['user_type']    = $token->usertype;
             $authCache['login_string'] = $token->login_string;
             $authCache['user_db_id']   = $token->id;
+            $authCache['twofa']        = $token->twofa;
+            $authCache['twofaKey']     = $token->twofaKey;
+            $authCache['jwt_endsession']     = $token->jwt_endsession;
+            
         }
         return $authCache;
 
     }
 
     static public function getJWTAuthCache($request_variables=null, $server_variables=null) {
-        global $log;
-        
         $token = self::decodeJWTToken($request_variables, $server_variables);
-        //if($log !== null) $log->warn("In getJWTAuthCache token [$token]");
-
         $authCache = self::getJWTAuthCacheFromTokenObject($token);
         return $authCache;
     }
@@ -770,7 +1042,7 @@ class Authentication {
     static public function getAuthVar($key, $request_variables=null, $server_variables=null) {
 
         $authCache = self::getJWTAuthCache($request_variables, $server_variables);
-        if($authCache != null && count($authCache) > 0) {
+        if($authCache != null && safe_count($authCache) > 0) {
             if (isset($authCache[$key]) == true) {
                 return $authCache[$key];
             }
@@ -826,10 +1098,11 @@ class Authentication {
             //$username = self::safeGetValueFromArray('user_id',$authCache)
             $firehall_id = self::safeGetValueFromArray('firehall_id',$authCache);
             	
-            $ldap_enabled = self::safeGetValueFromArray('ldap_enabled',$authCache);
+            //$ldap_enabled = self::safeGetValueFromArray('ldap_enabled',$authCache);
+            $ldap_enabled = ($this->getFirehall()->LDAP->ENABLED === true);
 
             // Get the user-agent string of the user.
-            $user_browser = htmlspecialchars(getServerVar('HTTP_USER_AGENT'));
+            $user_browser = AuthNotification::getUserAgent();
 
             if($this->validateJWT($authCache) == false) {
                 if($log !== null) $log->warn("login_check validateJWT false for session [".session_id()."]");
@@ -839,6 +1112,9 @@ class Authentication {
             if(isset($ldap_enabled) === true && $ldap_enabled === true) {
                 if($log !== null) $log->trace("LOGINCHECK using LDAP...");
                 return login_check_ldap($this->getDbConnection());
+            }
+            else {
+                if($log !== null) $log->trace("LOGINCHECK LDAP disabled...");
             }
 
             $sql = $this->getSqlStatement('login_user_password_check');
@@ -854,30 +1130,39 @@ class Authentication {
                 if ($row !== false) {
                     // If the user exists get variables from result.
                     $password = $row->user_pwd;
-                    $config = new \riprunner\ConfigManager();
+                    $config = new ConfigManager();
+                    if($log !== null) $log->trace('IN login=>execute password: '.$password.' user_browser: '.$user_browser);
                     $login_check = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
 
                     if ($login_check === $login_string) {
                         return true;
                     }
                     else {
-                        // Not logged in
-                        if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . self::getClientIPInfo() . "] failed hash check!");
-                        	
+                        // Login user agent does not match
+                        if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . AuthNotification::getClientIPInfo() . "] user_browser [$user_browser] failed hash check, login_check [$login_check] != login_string [$login_string]");
                         if($log !== null) $log->error("LOGINCHECK F1");
+
+                        // If the user account is locked we dont care if the user agent matches or not:
+                        $dbId = $user_id;
+                        $bruteforceCheck = $this->checkbrute($dbId, $this->getFirehall()->WEBSITE->MAX_INVALID_LOGIN_ATTEMPTS);
+                        if ($bruteforceCheck['max_exceeded'] === true) {
+                            if($log !== null) $log->warn("Override check for user agent login_string since account is locked!");
+                            return true;
+                        }
+                    
                         return false;
                     }
                 }
                 else {
                     // Not logged in
-                    if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . self::getClientIPInfo() . "] failed uid check!");
+                    if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . AuthNotification::getClientIPInfo() . "] failed uid check!");
                     if($log !== null) $log->error("LOGINCHECK F2");
                     return false;
                 }
             }
             else {
                 // Not logged in
-                if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . self::getClientIPInfo() . "] UNKNOWN SQL error!");
+                if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . AuthNotification::getClientIPInfo() . "] UNKNOWN SQL error!");
                 if($log !== null) $log->error("LOGINCHECK F3");
                 return false;
             }
@@ -910,7 +1195,8 @@ class Authentication {
             $rows = $qry_bind->fetchAll(\PDO::FETCH_CLASS);
             $qry_bind->closeCursor();
             
-            if($log) $log->trace("About to build user type list for sql [$sql] result count: " . count($rows));
+            if($log) $log->trace("About to build user type list for sql [$sql] result count: " . 
+            safe_count($rows));
             
             foreach($rows as $row) {
                 if($userType == $row->id) {
@@ -953,7 +1239,7 @@ class Authentication {
 
             if($token != null && strlen($token)) {
                 try {
-                    $token = JWT::decode($token, JWT_KEY, array('HS256'));
+                    $token = self::decodeJWT($token);
                     if ($log !== null) {
                         $log->trace("validateJWT token decode [" . json_encode($token). "]");
                     }
@@ -966,9 +1252,9 @@ class Authentication {
                     }
                     $this->handOffTokenIfRequired($authCache);
                 }
-                catch(\Firebase\JWT\ExpiredException $e) {
-                    if ($log !== null) $log->trace("In validateJWT token expired [$token] error: ".$e->getMessage());
-
+                catch(\Firebase\JWT\ExpiredException  | \UnexpectedValueException $e) {
+                    if ($log !== null) $log->trace("In validateJWT problem token [$token] error: ".$e->getMessage());
+                    
                     $token = $this->getJWTToken(null, null, true);
                     if ($token != null && strlen($token)) {
                         if ($log !== null) $log->trace("In validateJWT NEW token [$token]");
@@ -976,6 +1262,7 @@ class Authentication {
                         $this->handOffTokenIfRequired($authCache);
                         return true;
                     }
+                    self::logTokenErrorDetails($token, null, $e);
                     return false;
                 }
             }
@@ -988,7 +1275,7 @@ class Authentication {
     }
     
     static public function userHasAcess($access_flag, $request_variables=null) {
-        global $log;
+        //global $log;
         $authCache = self::getAuthCacheList($request_variables);
         $user_access = self::safeGetValueFromArray('user_access',$authCache);
         //if($log !== null) $log->warn("In userHasAcess: $user_access access_flag: $access_flag authCache vars [".print_r($authCache, TRUE)."]");
@@ -1000,6 +1287,24 @@ class Authentication {
         return (isset($value) && ($value & $access_flag));
     }
     
+    static public function encryptData($textToEncrypt, $secret) {
+        $encryptionMethod = "AES-256-CBC";
+        //$enc_iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($encryptionMethod));
+        $enc_iv = substr($secret,0,16);
+        $result = openssl_encrypt($textToEncrypt, $encryptionMethod, $secret, 0, $enc_iv);
+        return $result;
+    }
+
+    static public function decryptData($textToDecrypt, $secret) {
+        $encryptionMethod = "AES-256-CBC";
+        $enc_iv = substr($secret,0,16);
+        $result = openssl_decrypt($textToDecrypt, $encryptionMethod, $secret, 0, $enc_iv);
+        if($result === false) {
+            $result = $textToDecrypt;
+        }
+        return $result;
+    }
+
     static public function encryptPassword($password) {
         $cost = 10;
         if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
@@ -1022,7 +1327,7 @@ class Authentication {
         $schema_db_version_get = null;
         if($this->hasDbConnection() === true) {
             // First ensure we have the config table installed
-            $sql_statement = new \riprunner\SqlStatement($this->db_connection);
+            $sql_statement = new SqlStatement($this->db_connection);
             $db_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, null);
             $db_table_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, 'config');
         
@@ -1049,7 +1354,7 @@ class Authentication {
         global $log;
         if($this->hasDbConnection() === true) {
             // First ensure we have the config table installed
-            $sql_statement = new \riprunner\SqlStatement($this->db_connection);
+            $sql_statement = new SqlStatement($this->db_connection);
             $db_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, null);
             $db_table_exist = $sql_statement->db_exists($this->firehall->DB->DATABASE, 'config');
             
@@ -1164,7 +1469,7 @@ class Authentication {
     }
     private function getSqlStatement($key) {
         if($this->sql_statement === null) {
-            $this->sql_statement = new \riprunner\SqlStatement($this->getDbConnection());
+            $this->sql_statement = new SqlStatement($this->getDbConnection());
         }
         return $this->sql_statement->getSqlStatement($key);
     }
@@ -1172,7 +1477,7 @@ class Authentication {
         return $this->firehall;
     }
 
-    private function checkbrute($user_id, $max_logins) {
+    public function checkbrute($user_id, $max_logins) {
         global $log;
     
         $result = [];
@@ -1189,17 +1494,150 @@ class Authentication {
             $rows = $stmt->fetchAll(\PDO::FETCH_OBJ);
             $stmt->closeCursor();
     
-            $row_count = count($rows);
+            $row_count = safe_count($rows);
             $result['count'] = $row_count;
             // If there have been more than x failed logins
             if ($row_count > $max_logins) {
-                if($log !== null) $log->warn("Login attempt for user [$user_id] was blocked, client [" . self::getClientIPInfo() . "] brute force count [" . $row_count . "]");
+                if($log !== null) $log->warn("Login attempt for user [$user_id] was blocked, client [" . AuthNotification::getClientIPInfo() . "] brute force count [" . $row_count . "]");
                 $result['max_exceeded'] = true;
             }
         }
         else {
-            if($log !== null) $log->error("Login attempt for user [$user_id] for client [" . self::getClientIPInfo() . "] was unknown bf error!");
+            if($log !== null) $log->error("Login attempt for user [$user_id] for client [" . AuthNotification::getClientIPInfo() . "] was unknown bf error!");
         }
         return $result;
+    }
+
+    public function checkbruteByIP($login_ip, $max_fails) {
+        global $log;
+    
+        $result = [];
+        $result['max_exceeded'] = false;
+        $result['count'] = 0;
+
+        // All invalid login attempts are counted from the past 2 hours.
+        $sql = $this->getSqlStatement('login_brute_force_check_ip');
+        $stmt = $this->getDbConnection()->prepare($sql);
+        if ($stmt !== false) {
+            $stmt->bindParam(':login_ip', $login_ip);
+            $stmt->execute();
+    
+            $rows = $stmt->fetchColumn();
+            $stmt->closeCursor();
+    
+            $count = $rows;
+            $result['count'] = $count;
+            // If there have been more than x failed logins
+            if ($count > $max_fails) {
+                if($log !== null) $log->warn("Login attempt for ip [$login_ip] was blocked, client [" . AuthNotification::getClientIPInfo() . "] brute force count [" . $count . "]");
+                $result['max_exceeded'] = true;
+            }
+            else {
+                if($log !== null) $log->trace("Login attempt for ip [$login_ip] was NOT blocked, client [" . AuthNotification::getClientIPInfo() . "] brute force count [" . $count . "]");
+            }
+        }
+        else {
+            if($log !== null) $log->error("Login attempt for ip [$login_ip] for client [" . AuthNotification::getClientIPInfo() . "] was unknown bf error!");
+        }
+        return $result;
+    }
+
+    static public function addJWTEndSessionKey($user_db_id) {
+        global $log;
+        if (self::$enable_cache === true) {
+            $cache_key_lookup = "RIPRUNNER_" . \riprunner\Authentication::getJWTTokenEndSessionName();
+
+            if($log !== null) $log->warn("addJWTEndSessionKey START in CACHE: $cache_key_lookup for key: $user_db_id cache type: ".self::getCache()->getType());
+                
+            $randomKey = uniqid('', true);
+            $cacheList = null;
+            if(self::getCache()->hasItem($cache_key_lookup) == false) {
+                $cacheList = array();
+            }
+            else {
+                $cacheList = self::getCache()->getItem($cache_key_lookup);
+            }
+            $cacheList[$user_db_id] = $randomKey;
+
+            if($log !== null) $log->warn("addJWTEndSessionKey END1 jwt_endsession for userid: $user_db_id is: $cacheList[$user_db_id]");
+            
+            self::getCache()->setItem($cache_key_lookup, $cacheList);
+            
+            if($log !== null) $log->warn("addJWTEndSessionKey END2 jwt_endsession for userid: $user_db_id is: [".self::getJWTEndSessionKey($user_db_id)."]");
+        }
+    }
+
+    static public function getJWTEndSessionKey($user_db_id) {
+        global $log;
+        $endJWTSessionKey = '';
+        if (self::$enable_cache === true) {
+            $cache_key_lookup = "RIPRUNNER_" . \riprunner\Authentication::getJWTTokenEndSessionName();
+            if (self::getCache()->hasItem($cache_key_lookup) == true) {
+                if($log !== null) $log->trace("getJWTEndSessionKey START in CACHE: $cache_key_lookup for key: $user_db_id");
+                
+                $cacheList = self::getCache()->getItem($cache_key_lookup);
+
+                if ($cacheList != null) {
+                    if ($log !== null) $log->trace("getJWTEndSessionKey END jwt_endsession for userid: $user_db_id count of list: ".count($cacheList));
+                }
+
+                if (array_key_exists($user_db_id, $cacheList) == true) {
+                    $endJWTSessionKey = $cacheList[$user_db_id];
+                }
+            }
+        }
+        return $endJWTSessionKey;
+    }
+
+    static private function getCache() {
+        return CacheProxy::getInstance();
+    }
+
+    public function passwordChangedNotifyMsg($edit_user_id_name, $edit_email) {
+        //$webRootURL = getFirehallRootURLFromRequest(null, null, self::getFirehall());
+        $datetime = date('m/d/Y h:i:s a', time());
+
+        $requestIPHeader = AuthNotification::getClientIPInfo();
+        $userAgent = AuthNotification::getUserAgent();
+
+        $ip = $this->auth_notification->extractIp($requestIPHeader);
+        $location = $this->auth_notification->getIpLocation($ip);
+
+        $view_template_vars = array();
+        $view_template_vars['new_email'] = $edit_email;
+        $view_template_vars['userid'] = $edit_user_id_name;
+        $view_template_vars['datetime'] = $datetime;
+        $view_template_vars['location'] = $location;
+        $view_template_vars['userAgent'] = $userAgent;
+        $view_template_vars['requestIPHeader'] = $requestIPHeader;
+
+        // Load our template
+        $template = $this->getTwigEnv()->resolveTemplate(
+            array('@custom/sms-login-password-changed-msg.twig.html',
+                    'sms-login-password-changed-msg.twig.html'
+        ));
+
+        // *Warning* the email address for your account was changed to: {{ new_email }}
+        // Please review the details below to confirm it was you.
+        // Login: {{ userid }}
+        // Date & time of login: {{ datetime }}
+        // Login city: {{ location }}
+        // Type of device: {{ userAgent }}
+        // IP address: {{ requestIPHeader }}
+            
+        // Output our template
+        $msg = $template->render($view_template_vars);
+        return $msg;
+    }
+
+    private function getTwigEnv() {
+        global $twig;
+        if($this->twig_env === null) {
+            $twig_instance = $twig;
+        }
+        else {
+            $twig_instance = $this->twig_env;
+        }
+        return $twig_instance;
     }
 }

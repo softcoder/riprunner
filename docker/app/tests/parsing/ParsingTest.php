@@ -780,5 +780,119 @@ Units Responding: SALGRP1";
         $this->assertEquals('-122.54077',$callout->getGPSLong());
         $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
     }
+
+    public function testProcessFireHallText_EMAIL_new_email_trigger_format6_Nov2019() {
+        $realdata = "Date:  2019-11-15 21:56:04
+        Dept:  Shell-Glen Fire/Rescue
+        Type:  STRRES - Structure Fire - Residential
+        
+        Address:  10265 FAIRWAY RD, SHELL-GLEN
+        Unit:  
+        Suite:  
+        1st Cross Street:  EAGLE VIEW RD, SHELL-GLEN
+        2nd Cross Street:  FARGO PL, SHELL-GLEN
+        
+        Building:  
+        Common Place Name:  
+        Pre-Incident Plan:  
+        
+        Latitude: 53.95691
+        Longitude: -122.57324
+        Google Maps Link:  http://maps.google.com/maps?z=1&t=m&q=53.9569,-122.573
+        
+        Units Responding: SHLGRP1
+        ";
+
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
+
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2019-11-15 21:56:04',$callout->getDateTimeAsString());
+        $this->assertEquals('STRRES',$callout->getCode());
+        $this->assertEquals('10265 FAIRWAY RD, SHELL-GLEN',$callout->getAddress());
+        $this->assertEquals('10265 FAIRWAY RD, SHELL-GLEN',$callout->getAddressForMap());
+        $this->assertEquals('53.95691',$callout->getGPSLat());
+        $this->assertEquals('-122.57324',$callout->getGPSLong());
+        $this->assertEquals('SHLGRP1',$callout->getUnitsResponding());
+    }
+
+    public function testProcessFireHallText_EMAIL_new_email_trigger_format7_Nov2019() {
+        $realdata = "Date:  2019-11-16 11:48:17
+        Dept:  Shell-Glen Fire/Rescue
+        Type:  STRRECALL - Structure Fire - Recall
+        
+        Address:  10265 FAIRWAY RD, SHELL-GLEN
+        Unit:  
+        Suite:  
+        1st Cross Street:  EAGLE VIEW RD, SHELL-GLEN
+        2nd Cross Street:  FARGO PL, SHELL-GLEN
+        
+        Building:  
+        Common Place Name:  
+        Pre-Incident Plan:  
+        
+        Latitude: 53.95691
+        Longitude: -122.57324
+        Google Maps Link:  http://maps.google.com/maps?z=1&t=m&q=53.9569,-122.573
+        
+        Units Responding: SHLOFF1
+        ";
+
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
+
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2019-11-16 11:48:17',$callout->getDateTimeAsString());
+        $this->assertEquals('STRRECALL',$callout->getCode());
+        $this->assertEquals('10265 FAIRWAY RD, SHELL-GLEN',$callout->getAddress());
+        $this->assertEquals('10265 FAIRWAY RD, SHELL-GLEN',$callout->getAddressForMap());
+        $this->assertEquals('53.95691',$callout->getGPSLat());
+        $this->assertEquals('-122.57324',$callout->getGPSLong());
+        $this->assertEquals('SHLOFF1',$callout->getUnitsResponding());
+    }
+
+    public function testProcessFireHallText_EMAIL_new_email_trigger_format8_Oct2021() {
+        $realdata = "    Date:  2021-10-20 07:50:34
+        Dept:  Salmon Valley Fire
+        Type:  MVISER - MVI - Serious
+        
+        Address:  0 HART HWY, SALMON VALLEY
+        Unit:  
+        Suite:  
+        1st Cross Street:  SPONAUGLE RD, SALMON VALLEY
+        2nd Cross Street:  , QUATHIASKI COVE
+        
+        Building:  
+        Common Place Name:  
+        Pre-Incident Plan:  
+        
+        Latitude: 54.09994
+        Longitude: -122.65854
+        Google Maps Link:  http://maps.google.com/maps?z=1&t=m&q=54.0999,-122.659
+        
+        Units Responding: SALGRP1, REGGRPR1
+        
+        Message from the Prince George Fire Rescue Operational Communications Centre
+        1-888-253-9999 or 1-250-561-7289
+        .
+        ";
+
+        $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
+        $callout = processFireHallTextTrigger($realdata,$FIREHALL);
+
+        $this->assertEquals(true,$callout->isValid());
+        $callout->setFirehall($FIREHALL);
+        $this->assertEquals('2021-10-20 07:50:34',$callout->getDateTimeAsString());
+        $this->assertEquals('MVISER',$callout->getCode());
+        $this->assertEquals('0 HART HWY, SALMON VALLEY',$callout->getAddress());
+        $this->assertEquals('0 HART HWY, SALMON VALLEY',$callout->getAddressForMap());
+        $this->assertEquals('54.09994',$callout->getGPSLat());
+        $this->assertEquals('-122.65854',$callout->getGPSLong());
+        $this->assertEquals('SALGRP1, REGGRPR1',$callout->getUnitsResponding());
+    }
+
+
     
 }

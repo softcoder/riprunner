@@ -51,10 +51,6 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	// Mobile App Settings
 	define( 'DEFAULT_GCM_SEND_URL',	'https://android.googleapis.com/gcm/send');
 	define( 'DEFAULT_FCM_SEND_URL',	'https://fcm.googleapis.com/fcm/send');
-
-	// ----------------------------------------------------------------------
-	// Website Settings
-	define( 'DEFAULT_GOOGLE_MAPS_API_URL',	'https://maps.googleapis.com/maps/api/geocode/');
 	
 	// The current versions of the Rip Runner Android app
 	define( 'CURRENT_ANDROID_VERSIONCODE',	9);

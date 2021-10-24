@@ -21,4 +21,6 @@ interface ICachePlugin {
 	public function hasItem($key);
 	// The implementation for clearing the cache
 	public function clear();
+	// The implementation for getting cache statistics
+	public function getStats();
 }

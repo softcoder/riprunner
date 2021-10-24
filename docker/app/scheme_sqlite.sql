@@ -58,6 +58,8 @@ mobile_phone varchar(25) NOT NULL DEFAULT '',
 access INTEGER NOT NULL DEFAULT 0,
 user_type int(11),
 active BOOLEAN NOT NULL DEFAULT 1,
+twofa BOOLEAN NOT NULL DEFAULT 0,
+twofa_key varchar(100) NOT NULL DEFAULT '',
 email  varchar(255) NOT NULL DEFAULT '',
 updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -128,6 +130,27 @@ CREATE TABLE IF NOT EXISTS user_types (
   name varchar(255) NOT NULL,
   default_access INTEGER NOT NULL DEFAULT 0,
   updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS login_audit (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  useracctid INTEGER NULL,
+  username varchar(255) NULL,
+  status INTEGER NOT NULL,
+  login_agent varchar(255) NULL,
+  login_ip varchar(100) NULL,
+  updatetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS callouts_response_audit (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  calloutid INTEGER NOT NULL,
+  useracctid INTEGER NOT NULL,
+  responsetime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  latitude DECIMAL(10,6) DEFAULT NULL,  
+  longitude DECIMAL(10,6) DEFAULT NULL,
+  eta INTEGER,
+  status INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX config_fhid_keyname_keyindex ON config (firehall_id, keyname, keyindex);
