@@ -228,6 +228,9 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'DEFAULT_SMS_PROVIDER_PLIVO_AUTH_ID', 	    'XX');
 	define( 'DEFAULT_SMS_PROVIDER_PLIVO_AUTH_TOKEN', 	'XXXX');
 	define( 'DEFAULT_SMS_PROVIDER_PLIVO_FROM', 		    '16044261553');
+	define( 'DEFAULT_SMS_PROVIDER_AWS_ACCESS_KEY', 	    'X');
+	define( 'DEFAULT_SMS_PROVIDER_AWS_SECRET_KEY', 	    'XX');
+	define( 'DEFAULT_SMS_PROVIDER_AWS_FROM', 		    '');
 		
 	$LOCAL_DEBUG_SMS = new FireHallSMS();
 	$LOCAL_DEBUG_SMS->setSignalEnabled(true);
@@ -252,6 +255,13 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	//$LOCAL_DEBUG_SMS->setCalloutProviderType(SMS_CALLOUT_PROVIDER_DEFAULT);
 	//$LOCAL_DEBUG_SMS->setTextbeltLocalFrom('riprunner@localhost.com');
 	//$LOCAL_DEBUG_SMS->setTextbeltLocalRegion('canada');
+
+	// Using AWS SNS
+	//$LOCAL_DEBUG_SMS->setGatewayType(SMS_GATEWAY_AWS);
+	//$LOCAL_DEBUG_SMS->setCalloutProviderType(SMS_CALLOUT_PROVIDER_DEFAULT);
+	//$LOCAL_DEBUG_SMS->setAWSAccessKey(DEFAULT_SMS_PROVIDER_AWS_ACCESS_KEY);
+	//$LOCAL_DEBUG_SMS->setAWSSecretKey(DEFAULT_SMS_PROVIDER_AWS_SECRET_KEY);
+	//$LOCAL_DEBUG_SMS->setAWSFrom(DEFAULT_SMS_PROVIDER_AWS_FROM);
 	// !!! sms settings end
 	
 	// ----------------------------------------------------------------------

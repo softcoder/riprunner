@@ -119,7 +119,15 @@ function extractSMSSettings() {
             $sms_settings .= "\$SMS_SETTINGS->setPlivoAuthToken('$sms_auth_token');".PHP_EOL;
             $sms_settings .= "\$SMS_SETTINGS->setPlivoFromNumber('$sms_from');".PHP_EOL;
         }
-        
+        if($sms_gateway_type == 'AWS') {
+            $sms_auth_key = get_query_param('sms_aws_auth_key');
+            $sms_secret_key = get_query_param('sms_aws_secret_key');
+            $sms_from = get_query_param('sms_aws_from');
+                    
+            $sms_settings .= "\$SMS_SETTINGS->setAWSAccessKey('$sms_auth_key');".PHP_EOL;
+            $sms_settings .= "\$SMS_SETTINGS->setAWSSecretKey('$sms_secret_key');".PHP_EOL;
+            $sms_settings .= "\$SMS_SETTINGS->setAWSFrom('$sms_from');".PHP_EOL;
+        }        
         $sms_settings .= "\$SMS_SETTINGS->setSpecialContacts('$sms_special_contacts');".PHP_EOL;
     }
     else {
@@ -376,6 +384,7 @@ if ($FIREHALL !== null && $isAuth) {
 		-->
 		<option value="TWILIO" selected>Twilio</option>
 		<option value="PLIVO">Plivo</option>
+        <option value="AWS">Amazon SNS</option>
 	</select>
 	<br>
 	Callout provider type: 
@@ -405,6 +414,11 @@ if ($FIREHALL !== null && $isAuth) {
     Authorization Id: <input type="text" name="sms_plivo_auth_id" id="sms_plivo_auth_id" value="" style="width:100%;"><br>
     Authorization Token: <input type="text" name="sms_plivo_auth_token" id="sms_plivo_auth_token" value="" style="width:100%;"><br>
     Send from phone number: <input type="text" name="sms_plivo_from" id="sms_plivo_from" value="" style="width:100%;"><br>
+	</div>
+	<div name="sms_gateway_type_aws" id="sms_gateway_type_aws" style="display: none;">
+    Access Key: <input type="text" name="sms_aws_access_key" id="sms_aws_access_key" value="" style="width:100%;"><br>
+    Secret Key: <input type="text" name="sms_aws_secret_key" id="sms_aws_secret_key" value="" style="width:100%;"><br>
+    Send from phone number: <input type="text" name="sms_aws_from" id="sms_aws_from" value="" style="width:100%;"><br>
 	</div>
 	Special contacts info list: <input type="text" name="sms_special_contacts" id="sms_special_contacts" value="" style="width:100%;"><br>
 	

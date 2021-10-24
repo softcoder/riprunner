@@ -63,7 +63,11 @@
 		               if col_name != 'callout_type_desc' and 
 		                  col_name != 'callout_address_origin' and 
 		                  col_name != 'callout_address_dest' and
-		                  col_name != 'callout_status_desc' %}
+		                  col_name != 'callout_status_desc' and
+                      col_name != 'latitude' and 
+                      col_name != 'longitude' and 
+                      col_name != 'call_key' %}
+                    
 		                {% if col_name == 'address' %}
 		                    <th scope="col" class="column_nowrap">{{ col_name }}</th>
                         {% elseif col_name == 'hours_spent' %}
@@ -72,7 +76,8 @@
 		                    <th scope="col">{{ col_name }}</th>
 		                {% endif %}
 		            {% endfor %}
-	                <th scope="col">call details</th>
+	                <th scope="col">call audit</th>  
+                  <th scope="col">call details</th>
 	                {% if gvm.auth.isAuth and (gvm.auth.isAdmin) %}
 	                <th scope="col">override address details</th>
 	                {% endif %}
@@ -86,7 +91,11 @@
                        if col_name != 'callout_type_desc' and 
                           col_name != 'callout_address_origin' and 
                           col_name != 'callout_address_dest' and
-                          col_name != 'callout_status_desc' %}
+                          col_name != 'callout_status_desc'  and
+                          col_name != 'latitude' and 
+                          col_name != 'longitude' and 
+                          col_name != 'call_key'%}
+                          
 	                    {% if col_name == 'calltype' %}
 	                        <td title='{{ row.callout_type_desc }}'>{{ row[col_name] }}</td>
 	                    {% elseif col_name == 'calltime' %}
@@ -113,7 +122,14 @@
 	                        <td>{{ row[col_name] }}</td>
 	                    {% endif %}
 	                {% endfor %}
-	                
+
+	                <td class="column_nowrap">
+                    <a target="_blank" 
+                       href="{{ gvm.RR_DOC_ROOT }}/controllers/callout-audit-controller.php?cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}&{{ gvm.RR_JWT_TOKEN_PARAM }}">
+                       audit history
+                    </a> 
+                 </td>
+                 
 	                <td class="column_nowrap">
 	                   <a target="_blank" 
 	                      href="{{ gvm.RR_DOC_ROOT }}/ci/cid={{ row.id }}&fhid={{ gvm.firehall.FIREHALL_ID }}&ckid={{ row.call_key }}&{{ gvm.RR_JWT_TOKEN_PARAM }}">
