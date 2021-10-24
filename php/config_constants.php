@@ -44,6 +44,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 	define( 'SMS_GATEWAY_EZTEXTING', 					'EZTEXTING');
 	define( 'SMS_GATEWAY_TWILIO', 						'TWILIO');
 	define( 'SMS_GATEWAY_PLIVO', 						'PLIVO');
+	define( 'SMS_GATEWAY_AWS', 							'AWS');
 	
 	define( 'SMS_CALLOUT_PROVIDER_DEFAULT', 			'DEFAULT');
 
