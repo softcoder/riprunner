@@ -1,6 +1,6 @@
-[![Build Status](https://api.travis-ci.com/softcoder/riprunner.svg?branch=master)](https://api.travis-ci.com/softcoder/riprunner)
+[![Build Status](https://api.travis-ci.com/softcoder/riprunner.svg?branch=master)](https://app.travis-ci.com/github/softcoder/riprunner)
 
-To see detailed unit test and code coverage stats visit: https://api.travis-ci.com/softcoder/riprunner
+To see detailed unit test and code coverage stats visit: https://app.travis-ci.com/github/softcoder/riprunner
 
 Rip Runner
 =========
