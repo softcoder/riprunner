@@ -32,7 +32,9 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      run: |
+         cd php/
+         composer install --prefer-dist --no-progress
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
@@ -42,8 +44,11 @@ jobs:
     
     - name: Install configuration
       run: |
+         cd php/
          cp config-test.php config.php
          cp secrets/config-secrets-default.json secrets/config-secrets.json
          
     - name: Execute tests
-      run: php vendor/bin/phpunit --coverage-text --verbose --debug
+      run: |
+         cd php/
+         php vendor/bin/phpunit --coverage-text --verbose --debug
