@@ -2,7 +2,7 @@
     "name": "vsoft/riprunner-php",
     "description": "A Firehall dispatching communication suite.",
     "homepage": "https://github.com/softcoder/riprunner",
-    "license": "GPL-3.0",
+    "license": "GPL-3.0-or-later",
     "authors": [
         {
             "name": "Mark Vejvoda",
@@ -27,21 +27,21 @@
 
     "require": {
         "php": "^7.1 || ^8.0",
-        "monolog/monolog": ">=2.8.0",
-        "firebase/php-jwt": ">=6.3.1",
-        "kreait/firebase-php": ">=6.9.3",
-        "html2text/html2text": ">=4.1",
-        "mikecao/flight": ">=1.3.5",
-        "phpmailer/phpmailer": ">=6.1.7",
-        "plivo/plivo-php": ">=4.14.0",
+        "monolog/monolog": "^2.8.0",
+        "firebase/php-jwt": "^6.3.1",
+        "kreait/firebase-php": "^6.9.3",
+        "html2text/html2text": "^4.3.1",
+        "mikecao/flight": "^2.0.1",
+        "phpmailer/phpmailer": "^6.7.1",
+        "plivo/plivo-php": "^4.37.1",
         "phpsms/phpsms": "dev-master",
-        "twilio/sdk": ">=5.6.2",
-        "twig/twig": ">=2.0",
-        "twig/extensions": "^1.x-dev || >=1.5.4",
-        "spomky-labs/otphp": "^9.1.4 || >=10.0.0",
-        "geoip2/geoip2": ">=2.10.0",
-        "ua-parser/uap-php": ">=3.9.2",
-        "aws/aws-sdk-php": ">=3.199.2"
+        "twilio/sdk": "^6.43.4",
+        "twig/twig": "^2.15.3",
+        "twig/extensions": "^1.x-dev",
+        "spomky-labs/otphp": "^11.1.0",
+        "geoip2/geoip2": "^2.13.0",
+        "ua-parser/uap-php": "^3.9.14",
+        "aws/aws-sdk-php": "^3.252.6"
     },
 
     "repositories": [
