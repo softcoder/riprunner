@@ -18,7 +18,9 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+      run: |
+         cd php/
+         composer validate --strict
 
     - name: Cache Composer packages
       id: composer-cache
@@ -37,3 +39,11 @@ jobs:
 
     # - name: Run test suite
     #   run: composer run-script test
+    
+    - name: Install configuration
+      run: |
+         cp config-test.php config.php
+         cp secrets/config-secrets-default.json secrets/config-secrets.json
+         
+    - name: Execute tests
+      run: php vendor/bin/phpunit --coverage-text --verbose --debug
