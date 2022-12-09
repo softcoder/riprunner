@@ -30,7 +30,7 @@ require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
 use Kreait\Firebase;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\RawMessageFromArray;
-use Kreait\Firebase\ServiceAccount;
+//use Kreait\Firebase\ServiceAccount;
 
 class FCM {
 
@@ -38,8 +38,8 @@ class FCM {
     private $db_connection = null;
 	private $firehall_id = null;
 	
-	private $serviceAccount = null;
-	private $firebase  = null;
+	//private $serviceAccount = null;
+	//private $firebase  = null;
 	private $messaging = null;
 
     /*
@@ -52,11 +52,12 @@ class FCM {
 		global $log;
 		if($log != null) $log->trace('Create FCM JSON ['.$fcmServicesJSON.']');
 
-		$this->serviceAccount = ServiceAccount::fromJsonFile($fcmServicesJSON);
-		$this->firebase = (new Firebase\Factory())
-							->withServiceAccount($this->serviceAccount)
-							->create();
-		$this->messaging = $this->firebase->getMessaging();
+		//$this->serviceAccount = ServiceAccount::fromJsonFile($fcmServicesJSON);
+		$this->messaging = $this->firebase = (new Firebase\Factory())
+												//->withServiceAccount($this->serviceAccount)
+												->withServiceAccount($fcmServicesJSON)
+												->createMessaging();
+		//$this->messaging = $this->firebase->getMessaging();
     }
 
     /*

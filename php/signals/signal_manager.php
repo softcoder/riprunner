@@ -75,7 +75,7 @@ class SignalManager {
         
             $result = $smsCalloutPlugin->signalRecipients($callout, $msgPrefix);
         
-            if(strpos($result, 'ERROR') !== false) {
+            if(strpos($result ?? '', 'ERROR') !== false) {
                 if($log !== null) $log->error("Error calling SMS callout provider: [" . $callout->getFirehall()->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$result]");
             }
             else {
@@ -157,7 +157,7 @@ class SignalManager {
             $resultSMS = $smsPlugin->signalRecipients($FIREHALL->SMS, $recipient_list_array,
                     $recipient_list_type, $msg);
         
-            if(strpos($resultSMS, "ERROR") === false) {
+            if(strpos($resultSMS ?? '', "ERROR") === false) {
                 if($log !== null) $log->trace("Called SMS send msg provider: [" . $FIREHALL->SMS->SMS_CALLOUT_PROVIDER_TYPE . "] response [$resultSMS]");
             }
             else {
@@ -227,16 +227,16 @@ class SignalManager {
                     $callKey = '?';
                 }
 
-                $message = array("CALLOUT_MSG" => urlencode($smsMsg),
-                            "call-id"          => urlencode($callout->getId()),
-                            "call-key-id"      => urlencode($callKey),
-                            "call-type"        => urlencode($callout->getCode() . ' - ' . $callout->getCodeDescription()),
-                            "call-gps-lat"     => urlencode($callGPSLat),
-                            "call-gps-long"    => urlencode($callGPSLong),
-                            "call-address"     => urlencode($callAddress),
-                            "call-map-address" => urlencode($callMapAddress),
-                            "call-units"       => urlencode($callUnitsResponding),
-                            "call-status"      => urlencode($callout->getStatus())
+                $message = array("CALLOUT_MSG" => urlencode($smsMsg ?? ''),
+                            "call-id"          => urlencode($callout->getId() ?? ''),
+                            "call-key-id"      => urlencode($callKey ?? ''),
+                            "call-type"        => urlencode($callout->getCode() . ' - ' . $callout->getCodeDescription() ?? ''),
+                            "call-gps-lat"     => urlencode($callGPSLat ?? ''),
+                            "call-gps-long"    => urlencode($callGPSLong ?? ''),
+                            "call-address"     => urlencode($callAddress ?? ''),
+                            "call-map-address" => urlencode($callMapAddress ?? ''),
+                            "call-units"       => urlencode($callUnitsResponding ?? ''),
+                            "call-status"      => urlencode($callout->getStatus() ?? '')
                 );
                    
                 
@@ -301,14 +301,14 @@ class SignalManager {
 
                 $statusDesc = \riprunner\CalloutStatusType::getStatusById($userStatus, $callout->getFirehall())->getDisplayName();
 
-                $message = array("CALLOUT_RESPONSE_MSG" => urlencode($smsMsg),
-                                    "call-id"           => urlencode($callout->getId()),
-                                    "call-key-id"       => urlencode($callout->getKeyId()),
-                                    "user-id"           => urlencode($userId),
-                                    "user-gps-lat"      => urlencode($callGPSLat),
-                                    "user-gps-long"     => urlencode($callGPSLong),
-                                    "user-status"       => urlencode($userStatus),
-                                    "user-status-desc"  => urlencode($statusDesc)
+                $message = array("CALLOUT_RESPONSE_MSG" => urlencode($smsMsg ?? ''),
+                                    "call-id"           => urlencode($callout->getId() ?? ''),
+                                    "call-key-id"       => urlencode($callout->getKeyId() ?? ''),
+                                    "user-id"           => urlencode($userId ?? ''),
+                                    "user-gps-lat"      => urlencode($callGPSLat ?? ''),
+                                    "user-gps-long"     => urlencode($callGPSLong ?? ''),
+                                    "user-status"       => urlencode($userStatus ?? ''),
+                                    "user-status-desc"  => urlencode($statusDesc ?? '')
                 );
 
                 $resultFCM .= $fcmInstance->send($message, getFirehallRootURLFromRequest(null, null, $callout->getFirehall()));
@@ -343,7 +343,7 @@ class SignalManager {
             $fcmInstance->setDBConnection($db_connection);
 
             if($fcmInstance->getDeviceCount() > 0) {
-                $message = array("DEVICE_MSG"   => urlencode($loginMsg),
+                $message = array("DEVICE_MSG"   => urlencode($loginMsg ?? ''),
                                 "device-status" => urlencode("Login OK")
                 );
 
@@ -387,7 +387,7 @@ class SignalManager {
             	
             if($log !== null) $log->trace("Send FCM send_msg check device count: " . $fcmInstance->getDeviceCount());
             if($fcmInstance->getDeviceCount() > 0) {
-                $message = array("ADMIN_MSG" => urlencode($msg));
+                $message = array("ADMIN_MSG" => urlencode($msg ?? ''));
 
                 $resultFCM .= $fcmInstance->send($message, getFirehallRootURLFromRequest(null, null, $FIREHALL));
             }
@@ -707,7 +707,7 @@ class SignalManager {
 
                     $sendMsgResult = $this->sendFCM_Message($gvm->firehall, $msg, $gvm->RR_DB_CONN, $devices);
                 
-                    if (strpos($sendMsgResult, "|FCM_ERROR:") !== false) {
+                    if (strpos($sendMsgResult ?? '', "|FCM_ERROR:") !== false) {
                         $sendMsgResultStatus = "Error sending Android Message: " . $sendMsgResult;
                     } else {
                         $sendMsgResultStatus = "Android Message sent to applicable recipients.";

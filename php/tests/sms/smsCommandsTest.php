@@ -22,12 +22,12 @@ use Twilio\Security\RequestValidator;
 
 class SmsCommandsTest extends BaseDBFixture {
 	
-    protected function setUp() {
+    protected function setUp(): void {
         // Add special fixture setup here
         parent::setUp();
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         // Add special fixture teardown here
         parent::tearDown();
     }

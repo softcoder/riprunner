@@ -110,7 +110,7 @@ class LoginDeviceViewModel extends BaseViewModel {
 			
 			$this->user_account_id = null;
 
-			$auth = new\riprunner\Authentication($this->getFirehall());
+			$auth = new \riprunner\Authentication($this->getFirehall());
 			$loginResult = $auth->login($this->getUserId(), $this->getUserPassword());
             if (safe_count($loginResult) > 0) {
 				// Login success

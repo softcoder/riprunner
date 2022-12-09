@@ -167,7 +167,7 @@ if (version_compare(PHP_VERSION, '7.0', '>=')) {
         return $GOOGLE_MAP_CITY_LOOKUP;
     }
 
-    protected function setUp() {
+    protected function setUp(): void {
         
         $LOCAL_DEBUG_EMAIL = new FireHallEmailAccount();
         $LOCAL_DEBUG_EMAIL->setHostEnabled(true);
@@ -248,7 +248,7 @@ if (version_compare(PHP_VERSION, '7.0', '>=')) {
         $this->traitSetUp();
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         \riprunner\DbConnection::disconnect_db( $this->DBCONNECTION );
         $this->FIREHALLS = null;
         $this->DBCONNECTION = null;

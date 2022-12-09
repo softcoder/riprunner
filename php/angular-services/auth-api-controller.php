@@ -71,7 +71,7 @@ class AuthApiController extends ApiController {
                     if($log !== null) $log->trace("Login check firehall: name [$var] => value [$value]");
                 }
             }
-            $auth = new\riprunner\Authentication($FIREHALL);
+            $auth = new \riprunner\Authentication($FIREHALL);
             $userAuthorized = $auth->login_check();
             if ($userAuthorized === false) {
                 if($log !== null) $log->warn("API validateAuth login_check fhid: $fhid userAuthorized: $userAuthorized [".session_id()."]");

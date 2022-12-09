@@ -343,7 +343,7 @@ final class Api
             foreach (array_filter(preg_split('/\s+/', $comment), function ($s) {
                 return substr($s, 0, 1) === ':';
             }) as $word) {
-                if (strpos($word, '{') !== false && strpos($word, '}') !== false) {
+                if (strpos($word ?? '', '{') !== false && strpos($word ?? '', '}') !== false) {
                     // If it contains braces it is a URI pattern.
                     $result->uri_pattern = ltrim($word, ':');
                 } else {
@@ -411,7 +411,7 @@ final class Api
         $requestUri = \Vanen\Net\getRequestSetting(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_STRING);
         $parts = explode(dirname(\Vanen\Net\getRequestSetting(INPUT_SERVER, 'SCRIPT_NAME')), $requestUri);
         $temp = end($parts);
-        $last = substr($temp, strpos($temp, '/', strpos($temp, '/') + 1));
+        $last = substr($temp, strpos($temp ?? '', '/', strpos($temp ?? '', '/') + 1));
 
         // Convert the URI pattern to a regular expression:
         // Match all normal words in the pattern and make it a capturing group with the variable name as key.
@@ -463,7 +463,7 @@ final class Api
             if (key_exists($keys[$i], $values)) {
                 // This key-value-pair is a global variable like {controller} or {method}.
                 $result[$keys[$i]] = $values[$keys[$i]];
-            } else if (strpos($keys[$i], '|') !== false) {
+            } else if (strpos($keys[$i] ?? '', '|') !== false) {
                 // This value is an option. E.g. (json|xml).
                 $result['options'][] = $values[$i];
             } else {

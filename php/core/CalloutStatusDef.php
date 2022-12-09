@@ -68,6 +68,7 @@ class CalloutStatusDef implements \JsonSerializable {
         $this->userTypes = $userTypes;
     }
     
+    #[\ReturnTypeWillChange]
     public function jsonSerialize() {
         return array(
            'id' => $this->id,

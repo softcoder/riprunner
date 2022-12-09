@@ -18,12 +18,12 @@ class SignalsTest extends BaseDBFixture {
 
     private $riprunner_twig;
     
-    protected function setUp() {
+    protected function setUp(): void {
         // Add special fixture setup here
         parent::setUp();
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         // Add special fixture teardown here
         parent::tearDown();
     }

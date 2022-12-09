@@ -15,12 +15,12 @@ require_once __RIPRUNNER_ROOT__ . '/models/reports-charts-model.php';
 
 class ReportTest extends BaseDBFixture {
 	
-    protected function setUp() {
+    protected function setUp(): void {
         // Add special fixture setup here
         parent::setUp();
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         // Add special fixture teardown here
         parent::tearDown();
     }

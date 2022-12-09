@@ -18,12 +18,12 @@ class Foo { }
 
 class TriggersTest extends BaseDBFixture {
 
-    protected function setUp() {
+    protected function setUp(): void {
         // Add special fixture setup here
         parent::setUp();
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         // Add special fixture teardown here
         parent::tearDown();
     }
@@ -231,7 +231,7 @@ class TriggersTest extends BaseDBFixture {
 	    $trigger_polling = new \riprunner\EmailTriggerPolling($mock_pop3,$mock_signal_mgr);
 	    $result = $trigger_polling->executeTriggerCheck($this->FIREHALLS);
 	
-	    $this->assertContains('Signalling callout', $result);
+	    $this->assertStringContainsString('Signalling callout', $result);
 	}
 
 	public function testEmailTriggerPolling_from_email_InValid()  {
@@ -288,7 +288,7 @@ class TriggersTest extends BaseDBFixture {
 	    $trigger_polling = new \riprunner\EmailTriggerPolling($mock_pop3,$mock_signal_mgr);
 	    $result = $trigger_polling->executeTriggerCheck($this->FIREHALLS);
 	
-	    $this->assertNotContains('Signalling callout', $result);
+	    $this->assertStringNotContainsString('Signalling callout', $result);
 	}
 
 	public function testEmailTriggerPolling_email_content_InValid()  {
@@ -350,7 +350,7 @@ class TriggersTest extends BaseDBFixture {
 	    $trigger_polling = new \riprunner\EmailTriggerPolling($mock_pop3,$mock_signal_mgr);
 	    $result = $trigger_polling->executeTriggerCheck($this->FIREHALLS);
 	
-	    $this->assertNotContains('Signalling callout', $result);
+	    $this->assertStringNotContainsString('Signalling callout', $result);
 	}
 
 	public function testEmailTriggerfromfield_format1_Valid() {

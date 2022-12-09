@@ -38,8 +38,9 @@ class ViewLogsController {
 	private function processActions() {
 		global $log;
 
-		$appender = $log->getRootLogger()->getAppender('myAppender');
-		$relative_log_path = str_replace(__RIPRUNNER_ROOT__ . '/', "", $appender->getFile());
+		//$appender = $log->getRootLogger()->getAppender('myAppender');
+		//$relative_log_path = str_replace(__RIPRUNNER_ROOT__ . '/', "", $appender->getFile());
+		$relative_log_path = str_replace(__RIPRUNNER_ROOT__ . '/', "",$log->getRootLoggerPath());
 		
 		
 		// Setup variables from this controller for the view

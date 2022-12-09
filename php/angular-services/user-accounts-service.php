@@ -131,7 +131,7 @@ class UserAccountsController extends AuthApiController {
 		$this->updateAccount($view_template_vars['gvm']->RR_DB_CONN, $self_edit, $user, $new_pwd);
 
 		$FIREHALL = $view_template_vars['gvm']->firehall;
-		$auth = new\riprunner\Authentication($FIREHALL);
+		$auth = new \riprunner\Authentication($FIREHALL);
 		$auth->auditLogin($user->id, $user->user_id, \riprunner\LoginAuditType::SUCCESS_CHANGE_PASSWORD);
 		self::unlockAccount($user->id, $view_template_vars['gvm']->RR_DB_CONN);
 

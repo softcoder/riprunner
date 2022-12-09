@@ -35,6 +35,7 @@ class CalloutTypeDef implements \JsonSerializable {
         $this->update_datetime = $update_datetime;
     }
     
+    #[\ReturnTypeWillChange]
     public function jsonSerialize() {
         return array(
             'id' => $this->id,

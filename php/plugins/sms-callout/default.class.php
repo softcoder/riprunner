@@ -151,8 +151,8 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		$shortenStartTag = '[shorten-start]';
 		$shortenEndTag = '[shorten-end]';
 
-		$longUrlStart = strpos($smsText, $shortenStartTag);
-		$longUrlEnd = strpos($smsText, $shortenEndTag);
+		$longUrlStart = strpos($smsText ?? '', $shortenStartTag);
+		$longUrlEnd = strpos($smsText ?? '', $shortenEndTag);
 		$longUrlLen = $longUrlEnd-($longUrlStart+strlen($shortenStartTag));
 		$longUrl = substr($smsText,$longUrlStart+strlen($shortenStartTag),$longUrlLen);
 		$shortUrl = gen_uuid();
@@ -182,8 +182,8 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		$shortenStartTag = '[webroot-start]';
 		$shortenEndTag = '[webroot-end]';
 
-		$longUrlStart = strpos($smsText, $shortenStartTag);
-		$longUrlEnd = strpos($smsText, $shortenEndTag);
+		$longUrlStart = strpos($smsText ?? '', $shortenStartTag);
+		$longUrlEnd = strpos($smsText ?? '', $shortenEndTag);
 		$longUrlLen = $longUrlEnd-($longUrlStart+strlen($shortenStartTag));
 		$longUrl = substr($smsText, $longUrlStart+strlen($shortenStartTag), $longUrlLen);
 		

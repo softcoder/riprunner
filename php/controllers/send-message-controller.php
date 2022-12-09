@@ -84,7 +84,7 @@ class SendMessageController {
 		$sendMsgResult = $signalManager->sendFCM_Message($this->global_vm->firehall, 
 		        $fcmMsg, $this->global_vm->RR_DB_CONN);
 		
-        if(strpos($sendMsgResult, "|FCM_ERROR:") !== false) {
+        if(strpos($sendMsgResult ?? '', "|FCM_ERROR:") !== false) {
             $sendMsgResultStatus = "Error sending Android Message: " . $sendMsgResult;
         }
         else {

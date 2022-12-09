@@ -15,12 +15,12 @@ $rootPath = dirname(dirname(dirname(__FILE__)));
 
 class ConfigBuilderTest extends BaseDBFixture {
 	
-    protected function setUp() {
+    protected function setUp(): void {
         // Add special fixture setup here
         parent::setUp();
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         // Add special fixture teardown here
         parent::tearDown();
     }
@@ -42,10 +42,10 @@ class ConfigBuilderTest extends BaseDBFixture {
         $this->assertEquals(true, $rename_status1);
         $this->assertEquals(true, $rename_status2);
         $this->assertEquals(false, $config_exists);
-        $this->assertContains('<html>', $unit_test_output);
-        $this->assertContains('</html>', $unit_test_output);
-        $this->assertContains('Rip Runner Configuration Generator', $unit_test_output);
-        $this->assertContains('Generate Configuration', $unit_test_output);
+        $this->assertStringContainsString('<html>', $unit_test_output);
+        $this->assertStringContainsString('</html>', $unit_test_output);
+        $this->assertStringContainsString('Rip Runner Configuration Generator', $unit_test_output);
+        $this->assertStringContainsString('Generate Configuration', $unit_test_output);
 	}
 	
 }

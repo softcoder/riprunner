@@ -26,6 +26,7 @@ require_once __RIPRUNNER_ROOT__ . '/authentication/auth-notification.php';
 require_once __RIPRUNNER_ROOT__ . '/cache/cache-proxy.php';
 
 use \Firebase\JWT\JWT;
+use \Firebase\JWT\Key;
 
 abstract class LoginAuditType extends BasicEnum {
     const SUCCESS_PASSWORD          = 0;
@@ -574,13 +575,15 @@ class Authentication {
         $secret = self::getJWTSecretForTime($timeNow);
         $keyIdNow  = $secret->kid;
         $keyNow    = $secret->k;
-        $lookupList[$keyIdNow] = $keyNow;
+        $alg       = $secret->alg;
+        $lookupList[$keyIdNow] = new Key($keyNow, $alg);
 
         $timePast = self::getCurrentTimeWithPreviousHourResolution();
         $secretPast = self::getJWTSecretForTime($timePast);
         $keyIdPast  = $secretPast->kid;
         $keyPast    = $secretPast->k;
-        $lookupList[$keyIdPast] = $keyPast;
+        $alg       = $secret->alg;
+        $lookupList[$keyIdPast] = new Key($keyPast, $alg);
 
         return $lookupList;
     }

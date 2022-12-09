@@ -208,7 +208,7 @@ function signalPage(callout_url) {
 		
 		if(lastCalloutURL == null && lastCalloutURL != callout_url) {
 			lastCalloutURL = callout_url;
-		    var mp3 = $('<audio id="soundHandle" style="display:none;"></audio>').attr('src','{{ gvm.RR_DOC_ROOT }}/sounds/pager_tone_pg.mp3');
+		    var mp3 = $('<audio id="soundHandle" muted="true" style="display:none;"></audio>').attr('src','{{ gvm.RR_DOC_ROOT }}/sounds/pager_tone_pg.mp3');
 		    	    
 		    $(mp3)[0].addEventListener('ended', function(){
 		    	console.info('In signalPage playing tones ENDED shows call details for url: ' + callout_url);
@@ -238,6 +238,7 @@ function signalPage(callout_url) {
 		        console.info('In signalPage playing tones ENDED complete');
 		    }, false);
 		    
+			$(mp3)[0].muted = true; // without this line it's not working
 		    $(mp3)[0].play();
 		    console.info('In signalPage playing tones: sounds/pager_tone_pg.mp3');
 		}

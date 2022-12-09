@@ -95,7 +95,7 @@ class SendMessageController extends AuthApiController {
         $sendMsgResult = $signalManager->sendFCM_Message($gvm->firehall, 
                 $msg, $gvm->RR_DB_CONN);
         
-        if(strpos($sendMsgResult, "|FCM_ERROR:") !== false) {
+        if(strpos($sendMsgResult ?? '', "|FCM_ERROR:") !== false) {
             $sendMsgResultStatus = "Error sending Android Message: " . $sendMsgResult;
         }
         else {

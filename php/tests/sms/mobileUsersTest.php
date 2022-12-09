@@ -17,12 +17,12 @@ require_once dirname(dirname(__FILE__)).'/baseDBFixture.php';
 
 class MobileUsersTest extends BaseDBFixture {
 	
-    protected function setUp() {
+    protected function setUp(): void {
         // Add special fixture setup here
         parent::setUp();
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         // Add special fixture teardown here
         parent::tearDown();
     }
@@ -38,8 +38,8 @@ class MobileUsersTest extends BaseDBFixture {
 	    $FIREHALL = findFireHallConfigById(0, $this->FIREHALLS);
 	
 	    $hash_list = getTriggerHashList(1,$FIREHALL,$this->getDBConnection($FIREHALL));
-	    $this->assertContains('11111-22222-33333', $hash_list);
-	    $this->assertContains('x', $hash_list);
+	    $this->assertStringContainsString('11111-22222-33333', implode(" ", $hash_list));
+	    $this->assertStringContainsString('x', implode(" ", $hash_list));
 	}
 
 	public function testNonLDAPAddTriggerHash_Valid()  {

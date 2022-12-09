@@ -29,12 +29,12 @@ class SignalManagerMock extends \riprunner\SignalManager {
 
 class LoginTest extends BaseDBFixture {
 	
-    protected function setUp() {
+    protected function setUp(): void {
         // Add special fixture setup here
         parent::setUp();
     }
     
-    protected function tearDown() {
+    protected function tearDown(): void {
         // Add special fixture teardown here
         parent::tearDown();
     }
@@ -122,7 +122,7 @@ class LoginTest extends BaseDBFixture {
 			);
 		$processLogin->execute();
 		
-	    $this->assertContains('Location: controllers/main-menu-controller.php?JWT_TOKEN=', $assertHeader);
+	    $this->assertStringContainsString('Location: controllers/main-menu-controller.php?JWT_TOKEN=', $assertHeader);
 	}
 
 	public function testValidLoginRequires2FA() {
@@ -174,7 +174,7 @@ class LoginTest extends BaseDBFixture {
 			);
 		$processLogin->execute();
 		
-	    $this->assertContains('Location: controllers/2fa-controller.php?JWT_TOKEN=', $assertHeader);
+	    $this->assertStringContainsString('Location: controllers/2fa-controller.php?JWT_TOKEN=', $assertHeader);
 	}
 
 	public function testInValidLogin_fhid() {
@@ -312,7 +312,7 @@ class LoginTest extends BaseDBFixture {
 		
 		$this->assertEquals('Content-type: application/json', $assertHeader);
 		$this->assertEquals('php://input', $assertURL);
-		$this->assertContains('{"status":true,"expiresIn":1800,"user":"mark.vejvoda","message":"LOGIN: OK","token":', $assertText);
+		$this->assertStringContainsString('{"status":true,"expiresIn":1800,"user":"mark.vejvoda","message":"LOGIN: OK","token":', $assertText);
 	}
 
 	public function testInValidLoginJSON() {

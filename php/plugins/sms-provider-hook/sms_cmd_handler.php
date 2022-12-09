@@ -562,7 +562,7 @@ class SMSCommandHandler {
             case CommandMatchType::StartsWith:
                 if(is_array($lookup_sms_cmds) === true) {
                     foreach ($lookup_sms_cmds as $key => $value) {
-                        if (0 === strpos(strtoupper($sms_cmd), $value)) {
+                        if (0 === strpos(strtoupper($sms_cmd ?? ''), $value)) {
                             $result = true;
                             break;
                         }
