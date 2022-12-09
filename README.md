@@ -1,6 +1,6 @@
-[![Build Status](https://api.travis-ci.com/softcoder/riprunner.svg?branch=master)](https://app.travis-ci.com/github/softcoder/riprunner)
+[![Build Status](https://github.com/softcoder/riprunner/actions/workflows/php.yml/badge.svg)](https://github.com/softcoder/riprunner/actions/workflows/php.yml)
 
-To see detailed unit test and code coverage stats visit: https://app.travis-ci.com/github/softcoder/riprunner
+To see detailed unit test and code coverage stats visit: https://github.com/softcoder/riprunner/actions/workflows/php.yml
 
 Rip Runner
 =========
@@ -77,7 +77,7 @@ Technology:
 -------------------------
 Rip Runner was written using PHP for its backend server operations and html5 + javascript and angular 8+ for the frontend.
 The design of this application allows for the use of any database backend supported by PHP's PDO layer but currently
-MySQL is preferred (sql is abstracted into a file for each DB type). Currently most of the user interface is rendered using a server side framework called 'twig' but work has started to replace that using angular 8. Communications options include email, SMS (via a provider such as Twilio) and Google Cloud Messaging / Web Push for the Android client. Numerous google services are used like google maps which require a free API Key. The selection of PHP and javascript were made to allow this application to run on most free (or more offordable) hosting providers. This project makes use of test automation and Continuous Intregration via travis CI.
+MySQL is preferred (sql is abstracted into a file for each DB type). Currently most of the user interface is rendered using a server side framework called 'twig' but work has started to replace that using angular 8. Communications options include email, SMS (via a provider such as Twilio) and Google Cloud Messaging / Web Push for the Android client. Numerous google services are used like google maps which require a free API Key. The selection of PHP and javascript were made to allow this application to run on most free (or more offordable) hosting providers. This project makes use of test automation and Continuous Intregration via Github actions.
 
 Why is Rip Runner a good choice for me?:
 --------------------
@@ -625,7 +625,7 @@ which all phones would recognize because it uses the well known .com format
 
 Development:
 --------------
-Rip Runner uses composer for dependency management. Currently php 7.x is supported and our continuous integration system (travis) runs automated tests on those versions. If you want to contribute to rip runner as a developer checkout the repo from github and from the php folder of the repo on your local system run:
+Rip Runner uses composer for dependency management. Currently php 8.x is supported and our continuous integration system (Github actions) runs automated tests on those versions. If you want to contribute to rip runner as a developer checkout the repo from github and from the php folder of the repo on your local system run:
 
 composer install
 
@@ -633,9 +633,9 @@ This will download all runtime and automated tests dependencies. If compser comp
 
 phpunit
 
-The travis CI automation results can be found here:
+The Github actions CI automation results can be found here:
 
-https://travis-ci.org/softcoder/riprunner
+https://github.com/softcoder/riprunner/actions/workflows/php.yml
 
 Experimental Work:
 ------------------
