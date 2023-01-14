@@ -33,10 +33,10 @@
 		    	//alert('Value changed posting!');
 		    	
 		    	var action = 'edit_constants';
-		    	if(revert_value !== 'undefined' && revert_value == 'true') {
+		    	if(typeof revert_value !== 'undefined' && revert_value == 'true') {
 		    		action = 'revert_constants';
 		    	}
-		    	else if(revert_value !== 'undefined' && revert_value == 'all') {
+		    	else if(typeof revert_value !== 'undefined' && revert_value == 'all') {
                     action = 'revertall_constants';
                 }
 		    	

@@ -418,6 +418,7 @@ function getGEOLocationCoords_callback_fn(geoAccess,param2) {
         console.info('You: ' + (param2 != null && param2.lat != null ? param2.lat.toFixed(5) : '') + '', ',' + (param2 != null && param2.lng != null ? param2.lng.toFixed(5) : '') + 
                       ' dest: ' + (callout_geo_dest != null ? callout_geo_dest : ''));
         
+        //debugger;
         var origin = new google.maps.LatLng( param2.lat, param2.lng );
         var destination = callout_geo_dest; // using string
 
@@ -452,7 +453,7 @@ function setResponderETAs(map) {
     for(index = 1; index <= responder_count; ++index) {
         try {
             var callout_geo_src = $( '#responder_geo_'+index).attr('value');
-            if(callout_geo_src != 'undefined' && callout_geo_dest != 'undefined') {
+            if(typeof callout_geo_src != 'undefined' && typeof callout_geo_dest != 'undefined') {
                 $( '#responder_eta_' + index ).html( 'calculating...' );
                 console.info('You: ' + callout_geo_src + " dest: " + callout_geo_dest);
                 
