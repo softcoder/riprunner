@@ -51,4 +51,4 @@ jobs:
     - name: Execute tests
       run: |
          cd php/
-         php vendor/bin/phpunit --coverage-text --verbose --debug
+         php vendor/bin/phpunit --coverage-text --debug
