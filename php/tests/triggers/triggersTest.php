@@ -14,6 +14,7 @@ require_once dirname(dirname(__FILE__)).'/baseDBFixture.php';
 require_once __RIPRUNNER_ROOT__ . '/webhooks/email_trigger.php';
 require_once __RIPRUNNER_ROOT__ . '/email_polling.php';
 
+#[\AllowDynamicProperties]
 class Foo { }
 
 class TriggersTest extends BaseDBFixture {
