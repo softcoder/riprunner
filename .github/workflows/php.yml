@@ -51,4 +51,4 @@ jobs:
     - name: Execute tests
       run: |
          cd php/
-         php vendor/bin/phpunit --coverage-text --debug
+         export XDEBUG_MODE=coverage php vendor/bin/phpunit --coverage-text 
