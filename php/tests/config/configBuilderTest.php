@@ -11,7 +11,7 @@ if(defined('INCLUSION_PERMITTED') === false) {
 }
 
 require_once dirname(dirname(__FILE__)).'/baseDBFixture.php';
-$rootPath = dirname(dirname(dirname(__FILE__)));
+//$rootPath = dirname(dirname(dirname(__FILE__)));
 
 class ConfigBuilderTest extends BaseDBFixture {
 	
@@ -26,16 +26,19 @@ class ConfigBuilderTest extends BaseDBFixture {
     }
 
 	public function testConfigBuilderLoad_ConfigInValid()  {
-        global $rootPath;
+//        global $rootPath;
         try {
-            $rename_status1 = rename($rootPath.'/config.php', $rootPath.'/config-invalid.php');
+            $rename_status1 = rename(__RIPRUNNER_ROOT__.'/config.php', __RIPRUNNER_ROOT__.'/config-invalid.php');
+            
+            //echo '!!!!!!!!!!!!!!!!!!!: '.__RIPRUNNER_ROOT__.'/config-builder.php'.PHP_EOL;
             ob_start();
-            require_once $rootPath.'/config-builder.php';
+            require_once __RIPRUNNER_ROOT__.'/config-builder.php';
             $unit_test_output = ob_get_clean();
             $config_exists = file_exists('config.php');
         }
         finally {
-            $rename_status2 = rename($rootPath.'/config-invalid.php', $rootPath.'/config.php');
+            $rename_status2 = rename(__RIPRUNNER_ROOT__.'/config-invalid.php', __RIPRUNNER_ROOT__.'/config.php');
+//            ob_end_flush();
         }
 
         //echo "****** #1 TESTING ***** RENAME: [$rename_status] " . $unit_test_output . PHP_EOL;
@@ -46,6 +49,8 @@ class ConfigBuilderTest extends BaseDBFixture {
         $this->assertStringContainsString('</html>', $unit_test_output);
         $this->assertStringContainsString('Rip Runner Configuration Generator', $unit_test_output);
         $this->assertStringContainsString('Generate Configuration', $unit_test_output);
+        
+        
 	}
 	
 }
