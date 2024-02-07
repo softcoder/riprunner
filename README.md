@@ -91,12 +91,11 @@ Why is Rip Runner a good choice for me?:
 
 System Requirements:
 --------------------
-- If you want us to host for you on our servers, we take care of configuration, maintenance and support, contact us for more info.
 - An email account that recieves Callout information during a 911 page (other trigger mechanisms can be easily supported, please contact us using the details at the bottom of this page)
 - A Google App Engine account with one of our GAE apps published OR a service that periodically triggers the email polling (like cron) if your dispatch system is based off of emails. One free option (included in the source tree) is to use a google app engine (GAE) account to do the polling for you (see the googleae folder contents)
-- A webserver that can run PHP 7.x (such as Apache, IIS or NGinx)
+- A webserver that can run PHP 8.x (such as Apache, IIS or NGinx)
 - A MySQL (or other PDO compatible) database to install the Rip Runner Schema and store the data (see the list supported here: http://php.net/manual/en/pdo.drivers.php)
-- A Registered Account on an SMS Gateway Provider (Twilio (recommended),Sendhub,EzTexting,TextBelt)
+- A Registered Account on an SMS Gateway Provider (Twilio (recommended),Plivo,Sendhub,TextBelt)
 - A Google Maps API key: https://developers.google.com/maps/documentation/javascript/tutorial#api_key (one key for server applications and one for android apps)
 - Optional: If using the experimental Android app, you need a Google Apps Engine (GAE) Project Number (see http://developer.android.com/google/gcm/gs.html) and Browser API Key.
 
