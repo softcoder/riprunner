@@ -41,7 +41,7 @@ setcookie(session_name(), '', (time() - 42000),
         $params["secure"], 
         $params["httponly"]);
 
-setcookie(\riprunner\Authentication::getJWTTokenName(), '', 0, '/', null, null, true);
+setcookie(\riprunner\Authentication::getJWTTokenName(), '', 0, '/', '', false, true);
 // Destroy session 
 session_destroy();
 

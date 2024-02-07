@@ -13,9 +13,8 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 
 require_once __RIPRUNNER_ROOT__ . '/plugins/sms-provider-hook/sms_cmd_handler.php';
 require __RIPRUNNER_ROOT__ . '/vendor/autoload.php';
-//require __RIPRUNNER_ROOT__ . '/vendor/plivo/php-sdk/plivo.php';
 
-use Plivo\RestAPI;
+use Plivo\RestClient;
 use Plivo\Util\signatureValidation;
 
 class PlivoSMSCommandHandler extends SMSCommandHandler {

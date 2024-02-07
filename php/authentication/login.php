@@ -249,7 +249,7 @@ class ProcessLogin {
 								$twoFAResult = !$loginResult['twofa'];
 								$systemTwoFA = $loginResult['twofaKey'];
                                 if ($loginResult['twofa'] == true) {
-                                    if (strlen($twofa_key) == 0) {
+                                    if (strlen($twofa_key ?? '') == 0) {
 										// Validation has passed
 										//$auth->update_twofa($user_id, $systemTwoFA);
 										$loginResult['twofaKey'] = '';

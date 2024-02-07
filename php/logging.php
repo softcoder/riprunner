@@ -43,7 +43,7 @@ class RipLogger extends Logger {
 		//$this->log->info($msg);
 	}
 	public function warn($msg) {
-		$this->log->info($msg);
+		$this->log->warning($msg);
 	}
 
 	//$appender = $log->getRootLogger()->getAppender('myAppender');
@@ -68,7 +68,7 @@ function throwExceptionAndLogError($ui_error_msg, $log_error_msg) {
 		throw new \Exception($log_error_msg);
 	}
 	catch(Exception $ex) {
-	    if($log != null) $log->error($ui_error_msg, $ex);
+	    if($log != null) $log->error($ui_error_msg, array('exception' => $ex));
 		die($ui_error_msg);
 	}
 }

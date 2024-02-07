@@ -625,7 +625,8 @@ class Authentication {
         $keyList = self::getJWTKeyIdLookupList();
         if($log) $log->trace("In decodeJWT token: $token keylist: ".print_r($keyList,TRUE));
 
-        $jwt = JWT::decode($token, $keyList, $alg);
+        //$jwt = JWT::decode($token, $keyList, $alg);
+        $jwt = JWT::decode($token, $keyList);
         if($log) $log->trace("In decodeJWT token: $token jwt: ".print_r($jwt,TRUE));
 
         return $jwt;

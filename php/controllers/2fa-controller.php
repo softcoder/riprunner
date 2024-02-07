@@ -18,7 +18,7 @@ require_once __RIPRUNNER_ROOT__ . '/models/login-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/2fa-model.php';
 
 // Register our view and variables for the template
-setcookie(\riprunner\Authentication::getJWTTokenName(), '', null, '/', null, null, true);
+setcookie(\riprunner\Authentication::getJWTTokenName(), '', -1, '/', '', false, true);
 \riprunner\Authentication::sec_session_start();
 $_SESSION['LOGIN_REFERRER'] = basename(__FILE__);
 new TwoFAViewModel($global_vm, $view_template_vars);

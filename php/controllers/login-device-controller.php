@@ -17,7 +17,7 @@ require_once __RIPRUNNER_ROOT__ . '/models/global-model.php';
 require_once __RIPRUNNER_ROOT__ . '/models/login-device-model.php';
 
 // Register our view and variables for the template
-setcookie(\riprunner\Authentication::getJWTTokenName(), '', null, '/', null, null, true);
+setcookie(\riprunner\Authentication::getJWTTokenName(), '', time() - 3600, '/', '', false, true);
 \riprunner\Authentication::sec_session_start();
 new LoginDeviceViewModel($global_vm, $view_template_vars);
 // Load out template
