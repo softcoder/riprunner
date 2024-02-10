@@ -185,6 +185,12 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
         
 	);
 	
+    $config = new \riprunner\ConfigManager();
+
+$php_session_save_path = $config->getSystemConfigValue('session.save_path');
+if(strlen($php_session_save_path ?? '') > 0) {
+ini_set('session.save_path', $php_session_save_path);
+}
 	
 // =============================================================================================
 // ===--------------EDIT BLOCKS BELOW TO COMPLETE THE SETUP FOR YOUR SITE--------------------===

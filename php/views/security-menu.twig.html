@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Secure Login: Protected Page</title>
+        {% if gvm.isMobile %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/mobile.css?version=1" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles-mobile.css" />
+        {% else %}
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/main.css?version=1" />
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/table-styles.css" />
+        {% endif %}
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/jquery-2.1.1.min.js"></script>
+        <link rel="stylesheet" href="{{ gvm.RR_DOC_ROOT }}/styles/freeze-header.css" />
+        <script type="text/JavaScript" src="{{ gvm.RR_DOC_ROOT }}/js/forms.js"></script>
+    </head>
+    <body>
+        <div class="container_center">
+        {% if gvm.auth.isAuth and gvm.auth.isAdmin %} 
+                
+            {% include 'user-welcome.twig.html' %}
+            {% include 'live-callout-warning.twig.html' %}
+            
+            <div class="menudiv_wrapper">
+              <nav class="vertical">
+                <ul>
+                  <li>
+                    <label for="main_page">Return to ..</label>
+                    <input type="radio" name="verticalMenu" id="main_page" />
+                    <div>
+                      <ul>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/controllers/main-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM|raw }}">Main Menu</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                  <li>
+                    <label for="logout">Exit</label>
+                    <input type="radio" name="verticalMenu" id="logout" />
+                    <div>
+                      <ul>
+                        <li><a href="{{ gvm.RR_DOC_ROOT }}/logout.php">Logout</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+
+            <h3>Recent Login Audit</h3>
+            <form action="{{ gvm.RR_DOC_ROOT }}/controllers/security-menu-controller.php?{{ gvm.RR_JWT_TOKEN_PARAM|raw }}" 
+                  method="post" name="security_form">
+   
+            <center>
+
+            <table id="box-table-a">
+                <thead>
+                    <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">User Name</th>
+                    <th scope="col">Audit Status</th>
+                    <th scope="col">User Agent</th>
+                    <th scope="col">IP Address</th>
+                    <th scope="col">GEO Location</th>
+                    <th scope="col">Date/Time</th>
+                    <tr>
+                </thead>
+
+            
+            
+            {% for audit in securitymenu_vm.audit_list %}
+                    
+	            <tr>
+	            <td>
+	            {{ audit.id }}
+	            </td>
+
+	            <td>
+	                {{ audit.username }}
+	            </td>
+	            
+	            <td class="column_nowrap">
+	                {{ audit.name }}
+	            </td>
+                <td class="column_nowrap">
+                    {{ audit.login_agent }}
+                </td>
+	            
+                <td class="column_nowrap">
+                    {{ audit.login_ip }}
+                </td>
+                <td class="column_nowrap">
+                    {{ audit.geo_location }}
+                </td>
+	            <td class="column_nowrap">
+	               {{ audit.updatetime }}
+	            </td>
+	            </tr>
+            {% endfor %}
+            
+            </table>
+            </center>
+            </form>
+
+        {% else %}
+            {% include 'access-denied.twig.html' %}
+        {% endif %}
+        </div>
+    </body>
+</html>
