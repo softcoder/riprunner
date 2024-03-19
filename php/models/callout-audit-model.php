@@ -17,6 +17,7 @@ class CalloutAuditViewModel extends BaseViewModel {
 	
 	private $callout_details;
 	private $callout_cols;
+	private $callout_details_list;
 	private $callout_details_responding_list;
 	private $user_authenticated;
 

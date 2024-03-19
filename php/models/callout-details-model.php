@@ -19,6 +19,7 @@ class CalloutDetailsViewModel extends BaseViewModel {
 	private $callout_details_responding_list;
 	private $callout_details_not_responding_list;
 	private $callout_details_end_responding_list;
+	private $useracctid;
 	private $user_authenticated;
 	
 	protected function getVarContainerName() { 
