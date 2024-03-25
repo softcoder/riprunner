@@ -101,8 +101,8 @@ System Requirements:
 
 Docker Image:
 -------------
-We provide a sample docker image with the basic environment installed here:
-https://cloud.docker.com/repository/docker/softcoder/riprunner
+We provide a docker image with the basic environment installed here:
+https://hub.docker.com/repository/docker/softcoder/riprunner/
 
 Example deployment to digitalocean.com (xxxxx is your API key):
 
