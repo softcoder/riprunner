@@ -190,7 +190,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	// Website and Location Settings
 	define( 'DEFAULT_WEBSITE_GOOGLE_MAP_API_KEY', 'AIzaSyCy8uwfS_I2Iruqm1h8vczV8L_llgDirPk' );
 
-	define( 'JWT_KEY', 'XXXXXXXXXXXXXXXX' );
+	define( 'JWT_KEY', 'X' );
 
 	// ----------------------------------------------------------------------
 	// Email parser lookup patterns for email triggers
@@ -199,7 +199,7 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'EMAIL_PARSING_ADDRESS_PATTERN', 	'/Address: (.*?)(?:$|Type:|Dept:|Latitude:|Longitude:|Unit:|Units|Google Maps Link:)/mi' );
 	define( 'EMAIL_PARSING_LATITUDE_PATTERN', 	'/Latitude: (.*?)(?:$|Type:|Dept:|Address:|Longitude:|Unit:|Units|Google Maps Link:)/mi' );
 	define( 'EMAIL_PARSING_LONGITUDE_PATTERN', 	'/Longitude: (.*?)(?:$|Type:|Dept:|Latitude:|Address:|Unit:|Units|Google Maps Link:)/mi' );
-	define( 'EMAIL_PARSING_UNITS_PATTERN', 		'/Responding:(.*?)(?:$|Type:|Dept:|Address:|Latitude:|Longitude:|Date:|Google Maps Link:|Message from|    )/mi' );
+	define( 'EMAIL_PARSING_UNITS_PATTERN', 		'/Responding: (.*?)$/m' );
 
 	// Email parser lookup patterns for email triggers via Google App Engine webhook
 	define( 'EMAIL_PARSING_DATETIME_PATTERN_GENERIC', 	'/Date:(.*?)(?:$|Type:|Dept:|Address:|Latitude:|Longitude:|Unit:|Units|Google Maps Link:)/mi' );
@@ -207,6 +207,6 @@ $GOOGLE_MAP_CITY_LOOKUP = array(
 	define( 'EMAIL_PARSING_ADDRESS_PATTERN_GENERIC', 	'/Address:(.*?)(?:$|Type:|Dept:|Latitude:|Longitude:|Unit:|Units|Google Maps Link:)/mi' );
 	define( 'EMAIL_PARSING_LATITUDE_PATTERN_GENERIC', 	'/Latitude:(.*?)(?:$|Type:|Dept:|Address:|Longitude:|Unit:|Units|Google Maps Link:)/mi' );
 	define( 'EMAIL_PARSING_LONGITUDE_PATTERN_GENERIC', 	'/Longitude:(.*?)(?:$|Type:|Dept:|Address:|Latitude:|Unit:|Units|Google Maps Link:)/mi' );
-	define( 'EMAIL_PARSING_UNITS_PATTERN_GENERIC', 		'/Responding:(.*?)(?:$|Type:|Dept:|Address:|Latitude:|Longitude:|Date:|Google Maps Link:|Message from|    )/mi' );
+	define( 'EMAIL_PARSING_UNITS_PATTERN_GENERIC', 		'/Responding:(.*?)(?:$|Type:|Dept:|Address:|Latitude:|Longitude:|Date:|Google Maps Link:)/mi' );
 	
 	

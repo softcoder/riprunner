@@ -4,6 +4,12 @@
   Satisfy all
 </FilesMatch>
 
+<FilesMatch "\.json$">
+  Order allow,deny
+  Deny from all
+  Satisfy all
+</FilesMatch>
+
 <FilesMatch "\.ini$">
   Order allow,deny
   Deny from all

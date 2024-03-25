@@ -65,7 +65,7 @@ class IMapProviderDefault implements IMapProvider {
     }
     
     public function imap_headerinfo($imap_stream, $msg_number, $fromlength = null, $subjectlength = null, $defaulthost = null) {
-        return \imap_headerinfo($imap_stream, $msg_number, $fromlength, $subjectlength, $defaulthost);
+        return \imap_headerinfo($imap_stream, $msg_number, $fromlength ?? 0, $subjectlength ?? 0);
     }
     
     public function imap_expunge($imap_stream) {
@@ -73,10 +73,10 @@ class IMapProviderDefault implements IMapProvider {
     }
     
     public function imap_close($imap_stream, $flag = null) {
-        return \imap_close($imap_stream, $flag);
+        return \imap_close($imap_stream, $flag ?? 0);
     }
     
-    public function imap_fetchstructure($imap_stream, $msg_number, $options = null) {
+    public function imap_fetchstructure($imap_stream, $msg_number, $options = 0) {
         return \imap_fetchstructure($imap_stream, $msg_number, $options);
     }
     
@@ -84,7 +84,7 @@ class IMapProviderDefault implements IMapProvider {
         return \imap_fetchbody($imap_stream, $msg_number, $section, $options);
     }
     
-    public function imap_body($imap_stream, $msg_number, $options = null) {
+    public function imap_body($imap_stream, $msg_number, $options = 0) {
         return \imap_body($imap_stream, $msg_number, $options);
     }
     

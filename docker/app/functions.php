@@ -287,7 +287,7 @@ function getFirehallRootURLFromRequest($request_url, $firehalls, $use_firehall=n
 			if($log !== null) $log->trace("#2 Looking for website root URL req [$request_url] firehall root [" . $firehall->WEBSITE->WEBSITE_ROOT_URL . "]");
 			
 			if($firehall->ENABLED == true && 
-					strpos($request_url, $firehall->WEBSITE->WEBSITE_ROOT_URL) === 0) {
+					strpos($request_url ?? '', $firehall->WEBSITE->WEBSITE_ROOT_URL) === 0) {
 				return rtrim($firehall->WEBSITE->WEBSITE_ROOT_URL, '/');
 			}
 		}
@@ -406,7 +406,7 @@ function validate_email_sender($FIREHALL, $from) {
 
                 // Match on exact email address if @ in trigger text
                 $valid_email_from_trigger_parts = explode('@', $valid_email_from_trigger);
-                if(strpos($valid_email_from_trigger, '@') !== false && 
+                if(strpos($valid_email_from_trigger ?? '', '@') !== false && 
                 safe_count($valid_email_from_trigger_parts) > 1 &&
                         $valid_email_from_trigger_parts[0] !== '') {
                     $fromaddr = $from;

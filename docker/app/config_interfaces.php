@@ -352,7 +352,14 @@ class FireHallSMS
 	public $SMS_PROVIDER_PLIVO_AUTH_TOKEN;
 	// The API FROM mobile phone # to use for plivo
 	public $SMS_PROVIDER_PLIVO_FROM;
-	
+
+	// The API authentication access key to use for AWS SNS Service
+	public $SMS_PROVIDER_AWS_ACCESS_KEY;
+	// The API authentication secret key to use for AWS SNS Service
+	public $SMS_PROVIDER_AWS_SECRET_KEY;
+	// The API authentication Originating Phone to use for AWS SNS Service
+	public $SMS_PROVIDER_AWS_FROM;
+
 	public function __construct($sms_enabled=false, $gateway_type=null, 
 			$callout_type=null, $recipients=null, $recipients_are_group=false, 
 			$recipients_from_db=true, $sendhub_base_url=null, 
@@ -387,6 +394,10 @@ class FireHallSMS
 		$this->SMS_PROVIDER_PLIVO_AUTH_ID = null;
 		$this->SMS_PROVIDER_PLIVO_AUTH_TOKEN = null;
 		$this->SMS_PROVIDER_PLIVO_FROM = null;
+
+		$this->SMS_PROVIDER_AWS_ACCESS_KEY = null;
+		$this->SMS_PROVIDER_AWS_SECRET_KEY = null;
+		$this->SMS_PROVIDER_AWS_FROM = null;
 	}
 
 	public function __toString() {
@@ -415,7 +426,8 @@ class FireHallSMS
 				"\nTwilio from sms: " . $this->SMS_PROVIDER_TWILIO_FROM.
 				"\nPlivo url: " . $this->SMS_PROVIDER_PLIVO_BASE_URL .
 				//"\nPlivo auth token: " . $this->SMS_PROVIDER_PLIVO_AUTH_TOKEN .
-				"\nPlivo from sms: " . $this->SMS_PROVIDER_PLIVO_FROM;
+				"\nPlivo from sms: " . $this->SMS_PROVIDER_PLIVO_FROM .
+				"\nAWS SNS from: " . $this->SMS_PROVIDER_AWS_FROM;
 				
 		return $result;
 	}
@@ -504,7 +516,27 @@ class FireHallSMS
 	public function setPlivoFromNumber($from) {
 	    $this->SMS_PROVIDER_PLIVO_FROM = $from;
 	}
-	
+
+	public function getAWSAccessKey() {
+	    return $this->SMS_PROVIDER_AWS_ACCESS_KEY;
+	}
+	public function setAWSAccessKey($key) {
+	    $this->SMS_PROVIDER_AWS_ACCESS_KEY = $key;
+	}
+
+	public function getAWSSecretKey() {
+	    return $this->SMS_PROVIDER_AWS_SECRET_KEY;
+	}
+	public function setAWSSecretKey($key) {
+	    $this->SMS_PROVIDER_AWS_SECRET_KEY = $key;
+	}
+
+	public function getAWSFrom() {
+	    return $this->SMS_PROVIDER_AWS_FROM;
+	}
+	public function setAWSFrom($from) {
+	    $this->SMS_PROVIDER_AWS_FROM = $from;
+	}
 }
 
 // ----------------------------------------------------------------------

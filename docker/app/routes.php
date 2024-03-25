@@ -43,7 +43,7 @@ require __DIR__ . '/vendor/autoload.php';
 	//echo "TENANT ${tenant} URL: ". $request->url;
 	$new_url = str_replace("/tenant/${tenant}","",$request->url);
 	if($tenant != null && $tenant != '') {
-		if (strpos($new_url,'?') == false) {
+		if (strpos($new_url ?? '','?') == false) {
 			$new_url .= '?';
 		}
 		else {
@@ -93,13 +93,13 @@ require __DIR__ . '/vendor/autoload.php';
 
 	$prefix = '/mapapiprxy';
 	$url = \Flight::request()->url;
-	$pos = strpos($url, $prefix);
+	$pos = strpos($url ?? '', $prefix);
 	if($pos !== false && $pos >= 0) {
 		$url = substr($url, $pos+strlen($prefix));
 		$longUrl .= $url;
 	}
 	if($firehall !== null) {
-		if(strpos($longUrl, '?') == false) {
+		if(strpos($longUrl ?? '', '?') == false) {
 			$longUrl .= '?';
 		}
 		else {
@@ -107,6 +107,7 @@ require __DIR__ . '/vendor/autoload.php';
 		}
 		$longUrl .= ('key='.$firehall->WEBSITE->WEBSITE_GOOGLE_MAP_API_KEY);
 	}
+	//echo "===============>>>>> Call /mapapiprxy/ longUrl [$longUrl]" . PHP_EOL;
 	if($log !== null) $log->trace("Call /mapapiprxy/ longUrl [$longUrl]");
 	\Flight::redirect($longUrl);
 });
@@ -180,7 +181,7 @@ require __DIR__ . '/vendor/autoload.php';
 \Flight::route('GET|POST /login|/logon(/@params)', function ($params) {
 	global $FIREHALLS;
 	$query = array();
-	parse_str($params, $query);
+	parse_str($params ?? '', $query);
 
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 	\Flight::redirect($root_url .'/controllers/login-controller.php?' . $params);
@@ -189,7 +190,7 @@ require __DIR__ . '/vendor/autoload.php';
 \Flight::route('GET|POST /mobile-login/(@params)', function ($params) {
 	global $FIREHALLS;
 	$query = array();
-	parse_str($params, $query);
+	parse_str($params ?? '', $query);
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 	\Flight::redirect($root_url .'/controllers/login-device-controller.php?' . $params);
 });
@@ -202,7 +203,7 @@ require __DIR__ . '/vendor/autoload.php';
 \Flight::route('GET|POST /ci/(@params)', function ($params) {
 	global $FIREHALLS;
 	$query = array();
-	parse_str($params, $query);
+	parse_str($params ?? '', $query);
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 
 	\Flight::redirect($root_url .'/controllers/callout-details-controller.php?' . $params);
@@ -214,7 +215,7 @@ require __DIR__ . '/vendor/autoload.php';
 	$log->warn("Route got CR message: ".$params);
 	
 	$query = array();
-	parse_str($params, $query);
+	parse_str($params ?? '', $query);
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 
 	$log->warn("Route got CR about to redirect to: ".$root_url .'/controllers/callout-response-controller.php?' . $params);
@@ -224,7 +225,7 @@ require __DIR__ . '/vendor/autoload.php';
 \Flight::route('GET|POST /ct/(@params)', function ($params) {
 	global $FIREHALLS;
 	$query = array();
-	parse_str($params, $query);
+	parse_str($params ?? '', $query);
 	$root_url = getFirehallRootURLFromRequest(\Flight::request()->url, $FIREHALLS);
 
 	\Flight::redirect($root_url .'/controllers/callout-tracking-controller.php?' . $params);
@@ -232,7 +233,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 \Flight::route('GET|POST /android-error/(@params)', function ($params) {
 	$query = array();
-	parse_str($params, $query);
+	parse_str($params ?? '', $query);
 
 	echo "Got android errors\n${params}" . PHP_EOL;
 });

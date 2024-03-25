@@ -21,8 +21,9 @@ require_once 'logging.php';
 
 function isRequestedFileValid($file) {
     global $log;
-    $appender = $log->getRootLogger()->getAppender('myAppender');
-    $relative_log_path = str_replace(__RIPRUNNER_ROOT__ . '/', "", $appender->getFile());
+    //$appender = $log->getRootLogger()->getAppender('myAppender');
+    //$relative_log_path = str_replace(__RIPRUNNER_ROOT__ . '/', "", $appender->getFile());
+	$relative_log_path = str_replace(__RIPRUNNER_ROOT__ . '/', "",$log->getRootLoggerPath());
     
     $path_parts = pathinfo($relative_log_path);
     $file_name  = $path_parts['basename'];
@@ -40,7 +41,7 @@ $fhid = \riprunner\Authentication::getAuthVar('firehall_id');
 if ($fhid != null) {
 	$firehall_id = $fhid;
 	$FIREHALL = findFireHallConfigById($firehall_id, $FIREHALLS);
-    $auth = new\riprunner\Authentication($FIREHALL);
+    $auth = new \riprunner\Authentication($FIREHALL);
     if ($auth->login_check() === true) {
     	$file_path = get_query_param('file');
     	if(isset($file_path) === true && empty($file_path) === false &&
@@ -64,7 +65,7 @@ if ($fhid != null) {
     					if ($size_unit === 'bytes') {
     						//multiple ranges could be specified at the same time, but for simplicity only serve the first range
     						//http://tools.ietf.org/id/draft-ietf-http-range-retrieval-00.txt
-    						if(strpos($range_orig, ',') !== false) {
+    						if(strpos($range_orig ?? '', ',') !== false) {
     							$range = explode(',', $range_orig, 2);
     						}
     						else {
