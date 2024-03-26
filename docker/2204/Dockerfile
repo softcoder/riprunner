@@ -17,6 +17,7 @@ ENV PHPMYADMIN_VERSION=4.9.0.1
 ENV APP_DSN mysql:host=localhost;dbname=riprunner
 # RipRunner Environment variables - END
 
+WORKDIR /
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
 
@@ -43,13 +44,13 @@ RUN add-apt-repository -y ppa:ondrej/php && \
 #RUN ln -s /etc/php/8.3/mods-available/mcrypt.ini /etc/php/8.3/mods-available/ && phpenmod mcrypt
 
 # Add image configuration and scripts
-ADD supporting_files/start-apache2.sh /start-apache2.sh
-ADD supporting_files/start-mysqld.sh /start-mysqld.sh
-ADD supporting_files/run.sh /run.sh
+ADD /docker/supporting_files/start-apache2.sh /start-apache2.sh
+ADD /docker/supporting_files/start-mysqld.sh /start-mysqld.sh
+ADD /docker/supporting_files/run.sh /run.sh
 RUN chmod 755 /*.sh
-ADD supporting_files/supervisord-apache2.conf /etc/supervisor/conf.d/supervisord-apache2.conf
-ADD supporting_files/supervisord-mysqld.conf /etc/supervisor/conf.d/supervisord-mysqld.conf
-ADD supporting_files/mysqld_innodb.cnf /etc/mysql/conf.d/mysqld_innodb.cnf
+ADD /docker/supporting_files/supervisord-apache2.conf /etc/supervisor/conf.d/supervisord-apache2.conf
+ADD /docker/supporting_files/supervisord-mysqld.conf /etc/supervisor/conf.d/supervisord-mysqld.conf
+ADD /docker/supporting_files/mysqld_innodb.cnf /etc/mysql/conf.d/mysqld_innodb.cnf
 
 # Allow mysql to bind on 0.0.0.0
 RUN sed -i "s/.*bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/my.cnf && \
@@ -63,11 +64,11 @@ RUN sed -i "s/;date.timezone =/date.timezone = Europe\/London/g" /etc/php/8.3/cl
 RUN rm -rf /var/lib/mysql
 
 # Add MySQL utils
-ADD supporting_files/create_mysql_users.sh /create_mysql_users.sh
+ADD /docker/supporting_files/create_mysql_users.sh /create_mysql_users.sh
 RUN chmod 755 /*.sh
 
 # Add RipRunner scripts
-ADD supporting_files/create_riprunner_db.sh /create_riprunner_db.sh
+ADD /docker/supporting_files/create_riprunner_db.sh /create_riprunner_db.sh
 RUN chmod 755 /*.sh
 
 # Add phpmyadmin
@@ -84,12 +85,56 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
 
 ENV MYSQL_PASS:-$(pwgen -s 12 1)
 # config to enable .htaccess
-ADD supporting_files/apache_default /etc/apache2/sites-available/000-default.conf
+ADD /docker/supporting_files/apache_default /etc/apache2/sites-available/000-default.conf
 RUN a2enmod rewrite
 
 # Configure /app folder with riprunner app
 RUN mkdir -p /app && rm -fr /var/www/html && ln -s /app /var/www/html
-ADD app/ /app
+ADD /docker/app/ /app
+
+# Remove temp app files
+RUN rm -rf /app/temp/cache
+RUN rm -rf /app/temp/twig
+
+ADD /*.php /app/
+ADD /*.json /app/
+ADD /*.lock /app/
+ADD /*.xml /app/
+ADD /*.lock /app/
+ADD /*.sql /app/
+ADD /.check_version /app/
+ADD /.htaccess /app/
+ADD /angular-services/ /app/angular-services
+ADD /apk/ /app/apk
+ADD /authentication/ /app/authentication
+ADD /cache/ /app/cache
+ADD /config/ /app/config
+ADD /controllers/ /app/controllers
+ADD /core/ /app/core
+ADD /data/ /app/data
+ADD /db/ /app/db
+ADD /fcm/ /app/fcm
+ADD /gcm/ /app/gcm
+ADD /googleae/ /app/googleae
+ADD /images/ /app/images
+ADD /js/ /app/js
+ADD /kml/ /app/kml
+ADD /ldap/ /app/ldap
+ADD /models/ /app/models
+ADD /ngui/ /app/ngui
+ADD /plugins/ /app/plugins
+ADD /rest/ /app/rest
+ADD /secrets/config-secrets-default.json /app/secrets/config-secrets.json
+ADD /signals/ /app/signals
+ADD /sounds/ /app/sounds/
+ADD /sql/ /app/sql
+ADD /styles/ /app/styles
+#ADD /tests/ /app/tests
+ADD /url/ /app/url
+ADD /views/ /app/views
+ADD /webhooks/ /app/webhooks
+
+ADD /docker/app_config/ /app
 
 # Install php app dependencies
 ENV COMPOSER_ALLOW_SUPERUSER 1
@@ -101,7 +146,8 @@ ENV PHP_UPLOAD_MAX_FILESIZE 10M
 ENV PHP_POST_MAX_SIZE 10M
 
 # Add volumes for the app and MySql
-VOLUME  ["/etc/mysql", "/var/lib/mysql", "/app" ]
+#VOLUME  ["/etc/mysql", "/var/lib/mysql", "/app" ]
+VOLUME  ["/etc/mysql", "/var/lib/mysql" ]
 
 EXPOSE 80 3306
 CMD ["/run.sh"]
