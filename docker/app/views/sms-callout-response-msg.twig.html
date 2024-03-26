@@ -1,5 +1,0 @@
-{% if callout_status_entity.IsCancelled() or callout_status_entity.IsCompleted() %}
-Responder: {{ responding_userid }} has marked the callout as: {{ callout_status_entity.getDisplayName() }}.{# This comment removes the newline that follows #}
-{% else %}
-Responder: {{ responding_userid }} set their status to {{ callout_status_entity.getDisplayName() }} for the callout: {{ callout.code }}{% if not responding_usereta is null %} eta: {{ responding_usereta }}{% endif %}.{# This comment removes the newline that follows #}
-{% endif %}

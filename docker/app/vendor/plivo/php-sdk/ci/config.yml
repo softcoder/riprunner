@@ -1,4 +1,0 @@
----
-parent: central
-serviceName: plivo-php
-language: php-sdk

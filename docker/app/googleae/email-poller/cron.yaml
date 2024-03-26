@@ -1,5 +1,0 @@
-cron:
-- description: callout trigger check job
-  url: /riprunner
-  schedule: every 1 mins
-  target: webcron
