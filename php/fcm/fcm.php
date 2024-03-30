@@ -53,7 +53,7 @@ class FCM {
 		if($log != null) $log->trace('Create FCM JSON ['.$fcmServicesJSON.']');
 
 		//$this->serviceAccount = ServiceAccount::fromJsonFile($fcmServicesJSON);
-		$this->messaging = $this->firebase = (new Firebase\Factory())
+		$this->messaging = (new Firebase\Factory())
 												//->withServiceAccount($this->serviceAccount)
 												->withServiceAccount($fcmServicesJSON)
 												->createMessaging();

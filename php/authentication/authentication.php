@@ -1135,7 +1135,7 @@ class Authentication {
                     // If the user exists get variables from result.
                     $password = $row->user_pwd;
                     $config = new ConfigManager();
-                    if($log !== null) $log->trace('IN login=>execute password: '.$password.' user_browser: '.$user_browser);
+                    if($log !== null) $log->trace('IN login=>execute password: ['.$password.'] user_browser: '.$user_browser);
                     $login_check = hash($config->getSystemConfigValue('USER_PASSWORD_HASH_ALGORITHM'), $password . $user_browser);
 
                     if ($login_check === $login_string) {
@@ -1144,7 +1144,7 @@ class Authentication {
                     else {
                         // Login user agent does not match
                         if($log !== null) $log->error("Login check for user [$user_id] fhid [$firehall_id] for client [" . AuthNotification::getClientIPInfo() . "] user_browser [$user_browser] failed hash check, login_check [$login_check] != login_string [$login_string]");
-                        if($log !== null) $log->error("LOGINCHECK F1");
+                        if($log !== null) $log->error("LOGINCHECK F1 pwd [".$password."]");
 
                         // If the user account is locked we dont care if the user agent matches or not:
                         $dbId = $user_id;
