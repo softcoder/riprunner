@@ -100,7 +100,6 @@ ADD /*.php /app/
 ADD /*.json /app/
 ADD /*.lock /app/
 ADD /*.xml /app/
-ADD /*.lock /app/
 ADD /*.sql /app/
 ADD /.check_version /app/
 ADD /.htaccess /app/

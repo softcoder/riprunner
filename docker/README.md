@@ -6,11 +6,15 @@ riprunner is a docker image that include the Docker-Lamp baseimage (Ubuntu 22.04
 sudo docker build -t=softcoder/riprunner:latest -f ./docker/2204/Dockerfile .  
 
 # To run the docker image  
-sudo docker run -p "80:80" -v ${PWD}/mysql:/var/lib/mysql softcoder/riprunner:latest  
+sudo docker run -p "80:80" -v ${PWD}/mysql:/var/lib/mysql softcoder/riprunner:latest
+
+# To run the docker image with some customized views that you have located on the  
+# local host folder named views-custom  
+sudo docker run -p "80:80" -v ${PWD}/mysql:/var/lib/mysql -v ${PWD}/views-custom:/app/views-custom softcoder/riprunner:latest    
 
 # To connect to the running the docker image  
 sudo docker ps (this will show you the name of the running container)  
-sudo docker exec -it <container name from previous step> /bin/bash  
+sudo docker exec -it {container name from previous step} /bin/bash  
 
 # To login to your hub.docker.com account  
 sudo docker login  
