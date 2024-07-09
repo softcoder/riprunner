@@ -238,6 +238,7 @@ class EmailTriggerPolling {
                     }
                      
                     //$valid_email_trigger = validate_email_sender($FIREHALL, $html, $header);
+                    $from = null;
                     if($header !== null && !empty($header->from) && $header->from[0]->mailbox !== null) {
                         $from = $header->from[0]->mailbox;
                     }
