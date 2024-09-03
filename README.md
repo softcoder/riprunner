@@ -12,13 +12,13 @@ Current Version: 1.0.0
 
 Description:
 
-This application suite was designed by volunteer fire fighters to enhance the experience of First Responders during an emergency 911 callout. The main goal of this application is to provide a free suite of applications which can help fire fighters receive timely information and communicate activities with one another as incidents progress. This software is currently in use by some firehalls in the Prince George, BC Canada, Regional District. For contact information see the contact section at the bottom of this page.
+This application suite was designed by volunteer fire fighters to enhance the experience of First Responders during an emergency 911 callout. The main goal of this application is to provide a free suite of applications which can help firefighters receive timely information and communicate activities with one another as incidents progress. This software is currently in use by some fire halls in the Prince George, BC Canada, Regional District. For contact information see the contact section at the bottom of this page.
 
 Key Features:
 -------------
 - Real-time Email trigger (using Google App Engine) or email polling for 911 callouts received from your 
 Fire Operations Command Center. Easily adaptable to other callout trigger mechanisms (such as Web, Rest API, SMS, etc).
-- Pluggable support for SMS gateway providers to send SMS information to fire fighters. 
+- Pluggable support for SMS gateway providers to send SMS information to firefighters. 
   Current SMS providers implemented include:
   - Twilio (twilio.com - paid account charges approx $0.0075 per SMS -> https://www.twilio.com/sms/pricing)
   - Plivo (plivo.com - paid account charges approx $0.0035 per SMS -> https://www.plivo.com/pricing/CA/#!sms)
@@ -31,12 +31,12 @@ Fire Operations Command Center. Easily adaptable to other callout trigger mechan
 - 'SMS command mode' allows SMS users to respond to calls (useful if radios don't work or data is unreliable)
 - Google Maps showing Distance from Firehall to Incident
 - Self Installation available (see videos below)
-- User Account management (LDAP support optional)
+- User Account Management (LDAP support optional)
 - Callout history with responding members
-- Google charts shows statistical view of data as well as monthly and annual member participation.
+- Google charts show a statistical view of data and monthly and annual member participation.
 - Customizable user interface using twig templates (http://twig.sensiolabs.org/)
 - Experimental Android App which integrates with the web application.
-- Great backup system during power outages at your firehall (if installed offsite / cloud), still get callouts via cell phone when radio backup battery system fails or has poor coverage.
+- Great backup system during power outages at your firehall (if installed offsite / cloud), but you still get callouts via cell phone when the radio backup battery system fails or has poor coverage.
 - Secure features such as optional two factor authentication (2FA) support, new device login detection and brute force attack detection help keep admin and users informed about suspcious activity.
 
 Key Android App Features:
@@ -576,7 +576,7 @@ sudo apt-get install php7.1-curl
 
 - If you get the following error in the logs and no sms message is sent:
 
-Curl error: SSL certificate problem: self signed certificate in certificate chain
+Curl error: SSL certificate problem: self-signed certificate in certificate chain
 
 - you must download: http://curl.haxx.se/ca/cacert.pem
 
@@ -603,7 +603,7 @@ and the part to the right tells the webserver where to forward to, $1 copies url
 RedirectMatch 301 /rr(.*) https://svvfd.vsoft.solutions$1
 
 Next create a custom sms twig file in the root folder where config.php exists, inside a new folder 
-you wil lcreated named:
+you will create named:
 
 views-custom
 
@@ -620,7 +620,7 @@ https://vejvoda.com/rr/
 {% endblock %}
 
 This will use the website: https://vejvoda.com/rr/ as a proxy to forward requests to: https://svvfd.vsoft.solutions
-which all phones would recognize because it uses the well known .com format
+which all phones would recognize because it uses the well-known .com format
 
 Development:
 --------------
@@ -628,7 +628,7 @@ Rip Runner uses composer for dependency management. Currently php 8.x is support
 
 composer install
 
-This will download all runtime and automated tests dependencies. If compser completed successfully you should be able to run the automated tests by running this command from the php folder:
+This will download all runtime and automated tests dependencies. If composer completed successfully you should be able to run the automated tests by running this command from the php folder:
 
 phpunit
 
@@ -641,11 +641,11 @@ Experimental Work:
 
 Angular client:
 ---------------
-We have begun porting the user interface to Angular (v8+). Currently this UI is partially ported from the
+We have begun porting the user interface to Angular (v8+). Currently, this UI is partially ported from the
 legacy twig UI, in order to build and deploy to your server:
 
 - Install Node.js® and npm (https://nodejs.org/en/download/) if they are not already on your machine.
-- Install the Angular CLI globally, open a console prompt: 
+- Install the Angular CLI globally, and open a console prompt: 
 
 npm install -g @angular/cli
 
@@ -673,25 +673,22 @@ then copy the ngui folder to the root folder on svvfd.yourhost.com
 
 Serverless support:
 -------------------
-We have started work on the application architecture to prepare for supporting various vendors who offer serverless computing platforms. Documentation can be read regarding deploying to Google Cloud Run (GCR) using a docker container
+We have started work on the application architecture to prepare to support various vendors who offer serverless computing platforms. Documentation can be read regarding deploying to Google Cloud Run (GCR) using a docker container
 https://github.com/softcoder/riprunner/tree/master/docker  
 
 
 Contributions:
 --------------
-Special thanks to all who have contributed to the success of this project. We accept patches and ideas from others and priortize based on time constraints and compatibility with our future direction.
+Special thanks to all who have contributed to the success of this project. We accept patches and ideas from others and prioritize based on time constraints and compatibility with our future direction.
 
 Contributors currently include:
 - The Salmon Valley Fire Hall for all the great testing and feedback
 - Dennis Lloyd (Officer at the Shell Glen Fire Hall) for peer review, and many contributions, without which
-  we would have many more defecs and have a much less pleasing user interface.
+  we would have many more defects and have a much less pleasing user interface.
 
 Contact Info:
 --------------
 - Email: mark@vsoft.solutions
-- Slack Channel: https://join.slack.com/t/vsoftsolutions/shared_invite/enQtNzU1MzQzMTU2NDE3LTBiM2EyMGQ4ZWQwYTNmMzk0OTMzMDg4NWY0MDJiZTk4NTI5YTE5ODZjMGEzODM5YmNhODJhNDE2ODg1NTY1MGU
-- Join our IRC channel `#softhaus` on FreeNode.
-- Webchat IRC channel: http://webchat.freenode.net/?channels=softhaus
 
 ----
 Free Firehall Software Volunteer SMS Android Google App Engine Communications
