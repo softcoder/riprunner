@@ -62,7 +62,7 @@
 	"dependencies": {},
 	"devDependencies": {
 		"commitplease": "1.6.0",
-		"grunt": "0.4.2",
+		"grunt": "1.5.3",
 		"grunt-bowercopy": "1.1.0",
 		"grunt-compare-size": "0.4.0",
 		"grunt-contrib-concat": "0.1.3",
