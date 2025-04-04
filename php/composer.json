@@ -12,36 +12,34 @@
         }
     ],
     "support": {
-        "email": "mark@vsoft.solutions",
-        "irc": "irc://irc.freenode.org/composer"
+        "email": "mark@vsoft.solutions"
     },
 
     "require-dev": {
         "phpmd/phpmd" : "@stable",
-        "phpunit/phpunit": "^5.7 || >=9.2",
-        "misantron/dbunit": ">=5.2.1",
-        "phpunit/php-code-coverage": "^4.0 || >= 5.3",
+        "phpunit/phpunit": "^5.7 || >=11.5.15",
+        "phpunit/php-code-coverage": "^4.0 || >= 11.0.9",
+        "misantron/dbunit": ">=5.4.0",        
         "ext-xdebug" : "*",
-        "phpunit/php-invoker": ">=1.1.4 || ^2.0"
+        "phpunit/php-invoker": ">=1.1.4 || ^6.0.0"
     },
 
     "require": {
-        "php": "^7.1 || ^8.0",
-        "monolog/monolog": "^2.8.0",
-        "firebase/php-jwt": "^6.3.1",
-        "kreait/firebase-php": "^6.9.3",
-        "html2text/html2text": "^4.3.1",
-        "mikecao/flight": "^2.0.1",
-        "phpmailer/phpmailer": "^6.7.1",
-        "plivo/plivo-php": "^4.37.1",
+        "php": "^7.1 || ^8.3",
+        "monolog/monolog": "^3.9.0",
+        "firebase/php-jwt": "^6.11.0",
+        "kreait/firebase-php": "^7.18.0",
+        "html2text/html2text": "^4.3.2",
+        "mikecao/flight": "^3.15.2",
+        "phpmailer/phpmailer": "^6.9.3",
+        "plivo/plivo-php": "^4.66.6",
         "phpsms/phpsms": "dev-master",
-        "twilio/sdk": "^6.43.4",
-        "twig/twig": "^2.15.3",
-        "twig/extensions": "^1.x-dev",
-        "spomky-labs/otphp": "^11.1.0",
-        "geoip2/geoip2": "^2.13.0",
+        "twilio/sdk": "^8.4.1",
+        "twig/twig": "^3.x-dev",
+        "spomky-labs/otphp": "^11.3.0",
+        "geoip2/geoip2": "^3.1.0",
         "ua-parser/uap-php": "^3.9.14",
-        "aws/aws-sdk-php": "^3.252.6"
+        "aws/aws-sdk-php": "^3.342.20"
     },
 
     "repositories": [

@@ -24,7 +24,7 @@ require __DIR__ . '/vendor/autoload.php';
 require_once 'logging.php';
 
 interface IMapProvider {
-    public function imap_open($mailbox, $username, $password, $options = null, $n_retries = null);
+    public function imap_open($mailbox, $username, $password, $options = 0, $n_retries = null);
     
     public function imap_last_error();
     
@@ -36,11 +36,11 @@ interface IMapProvider {
 
     public function imap_close($imap_stream, $flag = null);
     
-    public function imap_fetchstructure($imap_stream, $msg_number, $options = null);
+    public function imap_fetchstructure($imap_stream, $msg_number, $options = 0);
     
-    public function imap_fetchbody($imap_stream, $msg_number, $section, $options = null);
+    public function imap_fetchbody($imap_stream, $msg_number, $section, $options = 0);
     
-    public function imap_body($imap_stream, $msg_number, $options = null);
+    public function imap_body($imap_stream, $msg_number, $options = 0);
     
     public function imap_8bit($string);
     
@@ -48,11 +48,11 @@ interface IMapProvider {
     
     public function imap_qprint($string);
     
-    public function imap_delete($imap_stream, $msg_number, $options = null);
+    public function imap_delete($imap_stream, $msg_number, $options = 0);
 }
 
 class IMapProviderDefault implements IMapProvider {
-    public function imap_open($mailbox, $username, $password, $options = null, $n_retries = null) {
+    public function imap_open($mailbox, $username, $password, $options = 0, $n_retries = 0) {
         return \imap_open($mailbox, $username, $password, $options, $n_retries);
     }
     
@@ -80,7 +80,7 @@ class IMapProviderDefault implements IMapProvider {
         return \imap_fetchstructure($imap_stream, $msg_number, $options);
     }
     
-    public function imap_fetchbody($imap_stream, $msg_number, $section, $options = null) {
+    public function imap_fetchbody($imap_stream, $msg_number, $section, $options = 0) {
         return \imap_fetchbody($imap_stream, $msg_number, $section, $options);
     }
     
@@ -100,7 +100,7 @@ class IMapProviderDefault implements IMapProvider {
         return \imap_qprint($string);
     }
     
-    public function imap_delete($imap_stream, $msg_number, $options = null) {
+    public function imap_delete($imap_stream, $msg_number, $options = 0) {
         return \imap_delete($imap_stream, $msg_number, $options);
     }
 }

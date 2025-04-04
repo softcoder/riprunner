@@ -61,20 +61,21 @@
 	        {% if response_history_vm.response_cols is defined %}
 	            <thead>
 	             <tr>
-	             {% for col_name in response_history_vm.response_cols 
-	                   if col_name != 'address' and 
+	             {% for col_name in response_history_vm.response_cols %}
+	               {% if col_name != 'address' and 
 	                      col_name != 'responder_origin' and 
 	                      col_name != 'callout_address_dest' and
 	                      col_name != 'callout_status_desc' %}
 	                    <th scope="col">{{ col_name }}</th>
+                 {% endif %}
 	             {% endfor %}
 	             </tr>
 	            </thead>
 	
 	            {% for row in response_history_vm.response_list %}
 	                <tr>
-	                {% for col_name in response_history_vm.response_cols 
-	                   if col_name != 'address' and 
+	                {% for col_name in response_history_vm.response_cols %}
+                    {% if col_name != 'address' and 
 	                      col_name != 'responder_origin' and 
 	                      col_name != 'callout_address_dest' and
 	                      col_name != 'callout_status_desc' %}
@@ -99,6 +100,7 @@
 	                    {% else %}
 	                        <td>{{ row[col_name] }}</td>
 	                    {% endif %}
+                    {% endif %}
 	                {% endfor %}
 	                </tr>
 	                

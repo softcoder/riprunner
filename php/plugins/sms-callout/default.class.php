@@ -185,7 +185,11 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 		$longUrlStart = strpos($smsText ?? '', $shortenStartTag);
 		$longUrlEnd = strpos($smsText ?? '', $shortenEndTag);
 		$longUrlLen = $longUrlEnd-($longUrlStart+strlen($shortenStartTag));
-		$longUrl = substr($smsText, $longUrlStart+strlen($shortenStartTag), $longUrlLen);
+
+		$longUrl = $smsText;
+		if($longUrlStart != false && $longUrlEnd != false) {
+			$longUrl = substr($smsText, $longUrlStart+strlen($shortenStartTag), $longUrlLen);
+		}
 		
 		if($smsWebRootOverride !== null && array_key_exists($user_id, $smsWebRootOverride)) {
 			$shortUrl = $smsWebRootOverride[$user_id];
@@ -198,7 +202,9 @@ class SMSCalloutDefaultPlugin implements ISMSCalloutPlugin {
 			$log->trace("Callout URL webroot old [$longUrl] new [$shortUrl]");
 		}
 		
-		$smsText = substr_replace($smsText, $shortUrl, $longUrlStart, $longUrlLen+strlen($shortenStartTag)+strlen($shortenEndTag));
+		if($longUrlStart != false && $longUrlEnd != false) {
+			$smsText = substr_replace($smsText, $shortUrl, $longUrlStart, $longUrlLen+strlen($shortenStartTag)+strlen($shortenEndTag));
+		}
 		return $smsText;
 	}
 	

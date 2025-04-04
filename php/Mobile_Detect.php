@@ -1052,6 +1052,9 @@ class Mobile_Detect
         if( !is_null($userAgent) ) {
             $webAgent = (!empty($userAgent) ? $userAgent : $this->userAgent);
         }
+        if( is_null($webAgent) ) {
+            $webAgent = '';
+        }
         
         return (bool) preg_match('/'.$regex.'/is', $webAgent );
     }

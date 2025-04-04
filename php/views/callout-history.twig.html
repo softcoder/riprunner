@@ -59,8 +59,8 @@
 	        {% if callout_history_vm.callout_cols is defined %}
 	            <thead>
 		            <tr>
-		            {% for col_name in callout_history_vm.callout_cols 
-		               if col_name != 'callout_type_desc' and 
+		            {% for col_name in callout_history_vm.callout_cols %}
+                  {% if col_name != 'callout_type_desc' and 
 		                  col_name != 'callout_address_origin' and 
 		                  col_name != 'callout_address_dest' and
 		                  col_name != 'callout_status_desc' and
@@ -75,6 +75,7 @@
 		                {% else  %}
 		                    <th scope="col">{{ col_name }}</th>
 		                {% endif %}
+                  {% endif %}
 		            {% endfor %}
 	                <th scope="col">call audit</th>  
                   <th scope="col">call details</th>
@@ -87,14 +88,14 @@
 	            {% for row in callout_history_vm.callout_list %}
 	                <tr>
 	                
-	                {% for col_name in callout_history_vm.callout_cols 
-                       if col_name != 'callout_type_desc' and 
+	                {% for col_name in callout_history_vm.callout_cols %}
+                    {%  if col_name != 'callout_type_desc' and 
                           col_name != 'callout_address_origin' and 
                           col_name != 'callout_address_dest' and
                           col_name != 'callout_status_desc'  and
                           col_name != 'latitude' and 
                           col_name != 'longitude' and 
-                          col_name != 'call_key'%}
+                          col_name != 'call_key' %}
                           
 	                    {% if col_name == 'calltype' %}
 	                        <td title='{{ row.callout_type_desc }}'>{{ row[col_name] }}</td>
@@ -121,6 +122,7 @@
 	                    {% else %}
 	                        <td>{{ row[col_name] }}</td>
 	                    {% endif %}
+                    {% endif %}
 	                {% endfor %}
 
 	                <td class="column_nowrap">

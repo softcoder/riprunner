@@ -79,22 +79,23 @@
         {% if callout_audit_vm.callout_details_responding_cols is defined %}
             <thead>
              <tr>
-             {% for col_name in callout_audit_vm.callout_details_responding_cols 
-                   if col_name != 'id' and 
+             {% for col_name in callout_audit_vm.callout_details_responding_cols %}
+               {%    if col_name != 'id' and 
                       col_name != 'calloutid' and 
                       col_name != 'useracctid' and
                       col_name != 'responder_location' and
                       col_name != 'firehall_location' and 
                       col_name != 'responder_display_status' %}
                     <th scope="col">{{ col_name }}</th>
+                {% endif %}
              {% endfor %}
              </tr>
             </thead>
 
             {% for row in callout_audit_vm.callout_details_responding_list %}
                 <tr>
-                {% for col_name in callout_audit_vm.callout_details_responding_cols 
-                    if col_name != 'id' and 
+                {% for col_name in callout_audit_vm.callout_details_responding_cols %}
+                  {% if col_name != 'id' and 
                     col_name != 'calloutid' and 
                     col_name != 'useracctid' and
                     col_name != 'responder_location' and
@@ -121,6 +122,7 @@
                     {% else %}
                         <td>{{ row[col_name] }}</td>
                     {% endif %}
+                  {% endif %}
                 {% endfor %}
                 </tr>
                 

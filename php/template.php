@@ -8,7 +8,7 @@ namespace riprunner;
 require_once 'config_constants.php';
 require __DIR__ . '/vendor/autoload.php';
 
-use Twig\Extensions\TextExtension;
+//use Twig\Extensions\TextExtension;
 
 class RiprunnerTwig {
     
@@ -17,7 +17,7 @@ class RiprunnerTwig {
     
     public function getLoader() {
         if($this->twig_template_loader === null) {
-            $this->twig_template_loader = new \Twig_Loader_Filesystem(
+            $this->twig_template_loader = new \Twig\Loader\FilesystemLoader(
                     __RIPRUNNER_ROOT__ . '/views');
             // This allows customized views to be placed in the folder below
             if(file_exists(__RIPRUNNER_ROOT__ . '/views-custom') === true) {
@@ -28,12 +28,12 @@ class RiprunnerTwig {
     }
     public function getEnvironment() {
         if($this->twig === null) {
-            $this->twig = new \Twig_Environment($this->getLoader(), array(
+            $this->twig = new \Twig\Environment($this->getLoader(), array(
             	'cache' => __RIPRUNNER_ROOT__ . '/temp/twig',
             	'debug' => true,
             	'strict_variables' => true
             ));
-            $this->twig->addExtension(new TextExtension());
+            //$this->twig->addExtension(new TextExtension());
         }
         return $this->twig;
     }
