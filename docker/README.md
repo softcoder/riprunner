@@ -1,6 +1,6 @@
-riprunner is a docker image that include the Docker-Lamp baseimage (Ubuntu 22.04), along with a LAMP stack ([Apache][apache], [MySQL][mysql] and [PHP][php]) all in one handy package.
+riprunner is a docker image that include the Docker-Lamp baseimage (Ubuntu 24.04), along with a LAMP stack ([Apache][apache], [MySQL][mysql] and [PHP][php]) all in one handy package.
 
-1. With Ubuntu **22.04** image on the `latest-2204`, riprunner is ready to test the Rip Runner communication suite.  
+1. With Ubuntu **24.04** image on the `latest-2404`, riprunner is ready to test the Rip Runner communication suite.  
 
 # To build a new docker image  
 sudo docker build -t=softcoder/riprunner:latest -f ./docker/2204/Dockerfile .  

@@ -1,0 +1,15 @@
+**/.git
+**/.gitignore
+**/CHANGELOG*
+**/circle.yml
+**/docker-compose.test.yml
+docs/
+tests/
+**/LICENSE
+**/README*
+**/android-error-softhaus.php
+**/flash-eol-ee-config.php
+**/Dockerfile*
+**/logo.png
+**/riprunner-svvfd-*
+
