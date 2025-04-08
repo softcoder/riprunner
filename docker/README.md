@@ -3,7 +3,7 @@ riprunner is a docker image that include the Docker-Lamp baseimage (Ubuntu 24.04
 1. With Ubuntu **24.04** image on the `latest-2404`, riprunner is ready to test the Rip Runner communication suite.  
 
 # To build a new docker image  
-sudo docker build -t=softcoder/riprunner:latest -f ./docker/2204/Dockerfile .  
+sudo docker build -t=softcoder/riprunner:latest -f ./docker/2404/Dockerfile .  
 
 # To run the docker image (set environment variables to match your values) 
 sudo docker run -p "80:80" -v ${PWD}/mysql:/var/lib/mysql softcoder/riprunner:latest 
