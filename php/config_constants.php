@@ -18,7 +18,7 @@ if ( defined('INCLUSION_PERMITTED') === false ||
 // ==============================================================
 
 	define( 'PRODUCT_NAME', 		'RipRunner' );
-	define( 'PRODUCT_URL',  		'https://soft-haus.com' );
+	define( 'PRODUCT_URL',  		'https://vsoft.solutions' );
 	define( 'DEBUG_MODE', 			false);
 	define( 'ENABLE_AUDITING',		true);
 	define( 'SECURE', 				false);    // FOR DEVELOPMENT ONLY!!!!
