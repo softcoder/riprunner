@@ -564,8 +564,8 @@ class Mobile_Detect
      *                          from the $headers array instead.
      */
     public function __construct(
-        array $headers = null,
-        $userAgent = null
+        ?array $headers = null,
+        ?string $userAgent = null
     ) {
         $this->setHttpHeaders($headers);
         $this->setUserAgent($userAgent);
@@ -590,7 +590,7 @@ class Mobile_Detect
      * @param array $httpHeaders The headers to set. If null, then using PHP's _SERVER to extract
      *                           the headers. The default null is left for backwards compatibilty.
      */
-    public function setHttpHeaders($httpHeaders = null)
+    public function setHttpHeaders(?array $httpHeaders = null)
     {
         //use global _SERVER if $httpHeaders aren't defined
         if (!is_array($httpHeaders) || !safe_count($httpHeaders)) {
@@ -673,7 +673,7 @@ class Mobile_Detect
      *
      * @return string|null
      */
-    public function setUserAgent($userAgent = null)
+    public function setUserAgent(?string $userAgent = null)
     {
         if (!empty($userAgent)) {
             return $this->userAgent = $userAgent;
@@ -711,7 +711,7 @@ class Mobile_Detect
      * @param string $type The type. Must be a self::DETECTION_TYPE_* constant. The default
      *                     parameter is null which will default to self::DETECTION_TYPE_MOBILE.
      */
-    public function setDetectionType($type = null)
+    public function setDetectionType(?string $type = null)
     {
         if ($type === null) {
             $type = self::DETECTION_TYPE_MOBILE;
@@ -911,7 +911,7 @@ class Mobile_Detect
      * @param null $userAgent deprecated
      * @return boolean
      */
-    protected function matchDetectionRulesAgainstUA($userAgent = null)
+    protected function matchDetectionRulesAgainstUA(?string $userAgent = null)
     {
         // Begin general search.
         foreach ($this->getRules() as $_regex) {
@@ -935,7 +935,7 @@ class Mobile_Detect
      * @param null $userAgent deprecated
      * @return mixed
      */
-    protected function matchUAAgainstKey($key, $userAgent = null)
+    protected function matchUAAgainstKey(?string $key, ?string $userAgent = null)
     {
         // Make the keys lowercase so we can match: isIphone(), isiPhone(), isiphone(), etc.
         $key = strtolower($key);
@@ -961,7 +961,7 @@ class Mobile_Detect
      * @param null $httpHeaders deprecated
      * @return bool
      */
-    public function isMobile($userAgent = null, $httpHeaders = null)
+    public function isMobile(?string $userAgent = null, ?array $httpHeaders = null)
     {
 
         if ($httpHeaders) {
@@ -990,7 +990,7 @@ class Mobile_Detect
      * @param  array  $httpHeaders deprecated
      * @return bool
      */
-    public function isTablet($userAgent = null, $httpHeaders = null)
+    public function isTablet(?string $userAgent = null, ?array $httpHeaders = null)
     {
         $this->setDetectionType(self::DETECTION_TYPE_MOBILE);
 
@@ -1013,7 +1013,7 @@ class Mobile_Detect
      * @param string        $httpHeaders deprecated
      * @return bool|int|null
      */
-    public function is($key, $userAgent = null, $httpHeaders = null)
+    public function is(?string $key, ?string $userAgent = null, ?string $httpHeaders = null)
     {
         // Set the UA and HTTP headers only if needed (eg. batch mode).
         if ($httpHeaders) {

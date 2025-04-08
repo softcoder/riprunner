@@ -260,6 +260,9 @@ $SMS_SETTINGS->setPlivoFromNumber(getenv('APP_SMS_PROVIDER_PLIVO_FROM')         
 $SMS_SETTINGS->setTwilioBaseURL(getenv('APP_SMS_PROVIDER_TWILIO_BASE_URL')      ? getenv('APP_SMS_PROVIDER_TWILIO_BASE_URL') : '');
 $SMS_SETTINGS->setTwilioAuthToken(getenv('APP_SMS_PROVIDER_TWILIO_AUTH_TOKEN')  ? getenv('APP_SMS_PROVIDER_TWILIO_AUTH_TOKEN')  : '');
 $SMS_SETTINGS->setTwilioFromNumber(getenv('APP_SMS_PROVIDER_TWILIO_FROM')       ? getenv('APP_SMS_PROVIDER_TWILIO_FROM') : '');
+$SMS_SETTINGS->setAWSAccessKey(getenv('APP_SMS_PROVIDER_AWS_ACCESS_KEY')        ? getenv('APP_SMS_PROVIDER_AWS_ACCESS_KEY') : '');
+$SMS_SETTINGS->setAWSSecretKey(getenv('APP_SMS_PROVIDER_AWS_SECRET_KEY')        ? getenv('APP_SMS_PROVIDER_AWS_SECRET_KEY') : '');
+$SMS_SETTINGS->setAWSFrom(getenv('APP_SMS_PROVIDER_AWS_FROM')                   ? getenv('APP_SMS_PROVIDER_AWS_FROM') : '');
 
 
 	// ----------------------------------------------------------------------

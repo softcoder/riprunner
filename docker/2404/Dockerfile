@@ -11,7 +11,8 @@ ENV DOCKER_USER_GID 20
 ENV BOOT2DOCKER_ID 1000
 ENV BOOT2DOCKER_GID 50
 
-ENV PHPMYADMIN_VERSION=4.9.0.1
+#ENV PHPMYADMIN_VERSION=4.9.0.1
+ENV PHPMYADMIN_VERSION=5.2.2
 
 # RipRunner Environment variables - START
 ENV APP_DSN mysql:host=localhost;dbname=riprunner
@@ -59,9 +60,9 @@ ADD /docker/supporting_files/mysqld_innodb.cnf /etc/mysql/conf.d/mysqld_innodb.c
 RUN sed -i "s/.*bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/my.cnf && \
   sed -i "s/.*bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mysql.conf.d/mysqld.cnf
 
-# Set PHP timezones to Europe/London
-RUN sed -i "s/;date.timezone =/date.timezone = Europe\/London/g" /etc/php/8.4/apache2/php.ini
-RUN sed -i "s/;date.timezone =/date.timezone = Europe\/London/g" /etc/php/8.4/cli/php.ini
+# Set PHP timezones to America/Vancouver
+RUN sed -i "s/;date.timezone =/date.timezone = America\/Vancouver/g" /etc/php/8.4/apache2/php.ini
+RUN sed -i "s/;date.timezone =/date.timezone = America\/Vancouver/g" /etc/php/8.4/cli/php.ini
 
 # Remove pre-installed database
 RUN rm -rf /var/lib/mysql
@@ -79,6 +80,9 @@ RUN wget -O /tmp/phpmyadmin.tar.gz https://files.phpmyadmin.net/phpMyAdmin/${PHP
 RUN tar xfvz /tmp/phpmyadmin.tar.gz -C /var/www
 RUN ln -s /var/www/phpMyAdmin-${PHPMYADMIN_VERSION}-all-languages /var/www/phpmyadmin
 RUN mv /var/www/phpmyadmin/config.sample.inc.php /var/www/phpmyadmin/config.inc.php
+
+# Tweaks to give Apache/PHP write permissions to the app
+RUN chown -R www-data:staff /var/www
 
 # Add composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
@@ -150,6 +154,11 @@ ENV PHP_POST_MAX_SIZE 10M
 # Add volumes for the app and MySql
 #VOLUME  ["/etc/mysql", "/var/lib/mysql", "/app" ]
 VOLUME  ["/etc/mysql", "/var/lib/mysql" ]
+
+# Tweaks to give Apache/PHP write permissions to the app
+RUN chown -R www-data:staff /app
+#RUN chown -R www-data:staff /var/lib/mysql
+#RUN chown -R www-data:staff /var/run/mysqld
 
 EXPOSE 80 3306
 CMD ["/run.sh"]
