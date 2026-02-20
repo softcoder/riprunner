@@ -15,7 +15,7 @@
     "@agm/core": "^1.0.0-beta.6",
     "@angular/animations": "8.0.2",
     "@angular/cdk": "^8.0.1",
-    "@angular/common": "8.0.2",
+    "@angular/common": "19.2.16",
     "@angular/compiler": "8.0.2",
     "@angular/core": "10.2.5",
     "@angular/forms": "8.0.2",
